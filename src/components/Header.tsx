@@ -2,6 +2,7 @@ import { Search, Menu, Moon, Sun } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useState } from "react";
+import roleLogo from "@/assets/role-logo.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -28,9 +29,11 @@ const Header = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <div className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              ROLÊ
-            </div>
+            <img 
+              src={roleLogo} 
+              alt="ROLÊ" 
+              className="h-8 w-auto"
+            />
           </div>
 
           {/* Desktop Navigation */}

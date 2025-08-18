@@ -1,5 +1,6 @@
 import { Instagram, Facebook, Twitter, Youtube } from "lucide-react";
 import { Button } from "./ui/button";
+import roleLogo from "@/assets/role-logo.png";
 
 const Footer = () => {
   const socialLinks = [
@@ -30,9 +31,11 @@ const Footer = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <div className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              ROLÊ
-            </div>
+            <img 
+              src={roleLogo} 
+              alt="ROLÊ" 
+              className="h-10 w-auto"
+            />
             <p className="text-background/80 text-sm leading-relaxed">
               Curadoria independente de eventos, cultura e experiências. 
               Vivemos a cena pra te mostrar o que realmente importa.
