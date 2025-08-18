@@ -1,28 +1,34 @@
-import { Instagram, Facebook, Twitter, Youtube } from "lucide-react";
+import { Instagram, Youtube, Music2 } from "lucide-react";
 import { Button } from "./ui/button";
 import roleLogo from "@/assets/role-logo.png";
 
 const Footer = () => {
   const socialLinks = [
-    { icon: Instagram, href: "#", label: "Instagram" },
-    { icon: Facebook, href: "#", label: "Facebook" }, 
-    { icon: Twitter, href: "#", label: "Twitter" },
-    { icon: Youtube, href: "#", label: "Youtube" }
+    { icon: Instagram, href: "https://instagram.com/role.ent", label: "Instagram" },
+    { icon: Music2, href: "https://tiktok.com/@role.ent", label: "TikTok" },
+    { icon: Youtube, href: "https://www.youtube.com/@roleent", label: "YouTube" },
   ];
 
   const quickLinks = [
-    { name: "Home", href: "#" },
-    { name: "Revista", href: "#" },
-    { name: "Vitrine Cultural", href: "#" },
-    { name: "Destaques", href: "#" }
+    { name: "Home", href: "/" },
+    { name: "Revista", href: "/editorial" },
+    { name: "Vitrine Cultural", href: "/vitrine" },
+    { name: "Destaques", href: "/destaques" }
   ];
 
   const categories = [
-    { name: "Shows", href: "#" },
-    { name: "Teatro", href: "#" },
-    { name: "Festas", href: "#" },
-    { name: "Bares", href: "#" },
-    { name: "Arte", href: "#" }
+    { name: "Shows", href: "/categorias/shows" },
+    { name: "Festas", href: "/categorias/festas" },
+    { name: "Teatro", href: "/categorias/teatro" },
+    { name: "Arte", href: "/categorias/arte" },
+    { name: "Cultura Noturna", href: "/categorias/cultura-noturna" }
+  ];
+
+  const legalLinks = [
+    { name: "Política de Privacidade", href: "/politica.html" },
+    { name: "Termos para Rolezeiro", href: "/termos-usuario.html" },
+    { name: "Termos para Organizador", href: "/termos-organizador.html" },
+    { name: "Política Antispam", href: "/politica-spam.html" },
   ];
 
   return (
@@ -37,7 +43,7 @@ const Footer = () => {
               className="h-10 w-auto"
             />
             <p className="text-background/80 text-sm leading-relaxed">
-              Curadoria independente de eventos, cultura e experiências. 
+              Curadoria independente de eventos, cultura e experiências.
               Vivemos a cena pra te mostrar o que realmente importa.
             </p>
             <div className="flex space-x-3">
@@ -51,7 +57,7 @@ const Footer = () => {
                     className="h-9 w-9 text-background/80 hover:text-primary hover:bg-background/10"
                     asChild
                   >
-                    <a href={social.href} aria-label={social.label}>
+                    <a href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label}>
                       <IconComponent className="h-4 w-4" />
                     </a>
                   </Button>
@@ -113,10 +119,21 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-background/20 mt-8 pt-8 text-center">
+        <div className="border-t border-background/20 mt-8 pt-8 text-center space-y-2">
           <p className="text-background/60 text-sm">
-            © 2024 ROLÊ Entretenimento. Todos os direitos reservados.
+            © 2025 ROLÊ Entretenimento. Todos os direitos reservados.
           </p>
+          <div className="flex flex-wrap justify-center gap-4 text-xs">
+            {legalLinks.map((link) => (
+              <a 
+                key={link.name} 
+                href={link.href} 
+                className="text-background/60 hover:text-primary transition-colors"
+              >
+                {link.name}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </footer>
