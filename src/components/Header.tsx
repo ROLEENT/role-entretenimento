@@ -14,13 +14,13 @@ const Header = () => {
   };
 
   const navItems = [
-    { name: "Home", href: "#" },
-    { name: "Revista", href: "#" },
-    { name: "Vitrine Cultural", href: "#" },
-    { name: "Destaques", href: "#" },
-    { name: "Descontos", href: "#" },
-    { name: "Contato", href: "#" },
-    { name: "Quem Somos", href: "#" },
+    { name: "Home", href: "/" },
+    { name: "Revista", href: "/editorial" },
+    { name: "Vitrine Cultural", href: "/vitrine" },
+    { name: "Destaques", href: "/destaques" },
+    { name: "Descontos", href: "/descontos" },
+    { name: "Contato", href: "/contato" },
+    { name: "Quem Somos", href: "/sobre" },
   ];
 
   return (
