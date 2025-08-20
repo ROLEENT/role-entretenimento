@@ -110,15 +110,7 @@ const EventCategories = () => {
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="flex text-yellow-400 mr-2">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className="h-4 w-4 fill-current" />
-                          ))}
-                        </div>
-                        <span className="text-sm font-medium">{city.rating}</span>
-                      </div>
+                    <div className="flex justify-end">
                       <Button size="sm" variant="outline" className="text-xs">
                         Ler Destaques
                       </Button>
