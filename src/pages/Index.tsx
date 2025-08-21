@@ -10,8 +10,8 @@ import StatsSection from "@/components/StatsSection";
 import Newsletter from "@/components/Newsletter";
 import Testimonials from "@/components/Testimonials";
 import PartnersVenues from "@/components/PartnersVenues";
-import InstagramFeed from "@/components/InstagramFeed";
 import Footer from "@/components/Footer";
+import BackToTop from "@/components/BackToTop";
 
 const Index = () => {
   return (
@@ -28,10 +28,10 @@ const Index = () => {
         <StatsSection />
         <Testimonials />
         <PartnersVenues />
-        <InstagramFeed />
         <Newsletter />
       </main>
       <Footer />
+      <BackToTop />
     </div>
   );
 };
