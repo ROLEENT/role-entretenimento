@@ -8,6 +8,9 @@ import MagazineBanner from "@/components/MagazineBanner";
 import AdvertisementBanner from "@/components/AdvertisementBanner";
 import StatsSection from "@/components/StatsSection";
 import Newsletter from "@/components/Newsletter";
+import Testimonials from "@/components/Testimonials";
+import PartnersVenues from "@/components/PartnersVenues";
+import InstagramFeed from "@/components/InstagramFeed";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -23,6 +26,9 @@ const Index = () => {
         <HowItWorks />
         <MagazineBanner />
         <StatsSection />
+        <Testimonials />
+        <PartnersVenues />
+        <InstagramFeed />
         <Newsletter />
       </main>
       <Footer />
