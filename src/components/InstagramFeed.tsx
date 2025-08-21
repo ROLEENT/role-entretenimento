@@ -60,7 +60,7 @@ const InstagramFeed = () => {
           <div className="flex items-center justify-center mb-4">
             <Instagram className="w-8 h-8 text-primary mr-3" />
             <h2 className="text-3xl font-bold text-foreground">
-              @role.oficial
+              @role.ent
             </h2>
           </div>
           <p className="text-muted-foreground max-w-2xl mx-auto">
