@@ -1,6 +1,7 @@
 import { MapPin, Music, Waves, TreePine, Building, Sun, Star } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
+import { Link } from "react-router-dom";
 import saoPauloImage from "@/assets/sao-paulo-events.jpg";
 import rioImage from "@/assets/rio-events.jpg";
 import curitibaImage from "@/assets/curitiba-events.jpg";
@@ -17,7 +18,7 @@ const EventCategories = () => {
       icon: Music,
       events: "9 eventos em destaque",
       rating: "4.8",
-      link: "#porto-alegre",
+      link: "/destaques/porto-alegre",
       image: portoAlegreImage
     },
     {
@@ -28,7 +29,7 @@ const EventCategories = () => {
       icon: Waves,
       events: "9 eventos em destaque",
       rating: "4.9",
-      link: "#florianopolis",
+      link: "/destaques/florianopolis",
       image: florianopolisImage
     },
     {
@@ -39,7 +40,7 @@ const EventCategories = () => {
       icon: TreePine,
       events: "9 eventos em destaque", 
       rating: "4.2",
-      link: "#curitiba",
+      link: "/destaques/curitiba",
       image: curitibaImage
     },
     {
@@ -50,7 +51,7 @@ const EventCategories = () => {
       icon: Building,
       events: "11 eventos em destaque",
       rating: "4.7", 
-      link: "#sao-paulo",
+      link: "/destaques/sao-paulo",
       image: saoPauloImage
     },
     {
@@ -61,7 +62,7 @@ const EventCategories = () => {
       icon: Sun,
       events: "9 eventos de destaque",
       rating: "4.6",
-      link: "#rio-janeiro", 
+      link: "/destaques/rio-de-janeiro",
       image: rioImage
     }
   ];
@@ -83,7 +84,7 @@ const EventCategories = () => {
             const IconComponent = city.icon;
             return (
               <Card key={city.name} className="group cursor-pointer hover:shadow-elevated transition-all duration-300">
-                <a href={city.link} className="block">
+                <Link to={city.link} className="block">
                   <div className="relative overflow-hidden rounded-t-lg">
                     <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium z-10">
                       {city.badge}
@@ -116,7 +117,7 @@ const EventCategories = () => {
                       </Button>
                     </div>
                   </CardContent>
-                </a>
+                </Link>
               </Card>
             );
           })}
