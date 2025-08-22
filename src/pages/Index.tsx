@@ -1,5 +1,7 @@
+import { useState } from "react";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
+import SearchAndFilters from "@/components/SearchAndFilters";
 import EventCategories from "@/components/EventCategories";
 import FeaturedEventsToday from "@/components/FeaturedEventsToday";
 import MusicCategories from "@/components/MusicCategories";
@@ -13,13 +15,40 @@ import PartnersVenues from "@/components/PartnersVenues";
 import Footer from "@/components/Footer";
 import BackToTop from "@/components/BackToTop";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
+import { useSearchAndFilter, type FilterState } from "@/hooks/useSearchAndFilter";
 
 const Index = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState<FilterState>({
+    category: "",
+    city: "",
+    priceRange: "",
+    date: ""
+  });
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const handleFilterChange = (newFilters: FilterState) => {
+    setFilters(newFilters);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main>
         <HeroSection />
+        <ScrollAnimationWrapper>
+          <section className="py-8 bg-background/50">
+            <div className="container mx-auto px-4">
+              <SearchAndFilters 
+                onSearch={handleSearch}
+                onFilterChange={handleFilterChange}
+              />
+            </div>
+          </section>
+        </ScrollAnimationWrapper>
         <ScrollAnimationWrapper>
           <EventCategories />
         </ScrollAnimationWrapper>

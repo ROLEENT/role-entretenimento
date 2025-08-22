@@ -1,110 +1,116 @@
-import { Search, Menu, Moon, Sun } from "lucide-react";
+import { Search, Menu, User } from "lucide-react";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { useState } from "react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { useState, useEffect } from "react";
 import roleLogo from "@/assets/role-logo.png";
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDark, setIsDark] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle('dark');
-  };
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-  const navItems = [
-    { name: "Home", href: "/" },
-    { name: "Revista", href: "/editorial" },
-    { name: "Vitrine Cultural", href: "/vitrine" },
-    { name: "Destaques", href: "/destaques" },
-    { name: "Descontos", href: "/descontos" },
-    { name: "Contato", href: "/contato" },
-    { name: "Quem Somos", href: "/sobre" },
+  const navigation = [
+    { name: "Eventos", href: "#eventos" },
+    { name: "Categorias", href: "#categorias" },
+    { name: "Cidades", href: "#cidades" },
+    { name: "Sobre", href: "#sobre" },
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-md border-b border-border/40 shadow-sm transition-all duration-300">
+    <header 
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled 
+          ? "bg-background/95 backdrop-blur-sm border-b shadow-md" 
+          : "bg-transparent"
+      }`}
+    >
       <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center space-x-2">
             <img 
               src={roleLogo} 
-              alt="ROLÊ" 
+              alt="ROLÊ Logo" 
               className="h-8 w-auto"
             />
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            {navItems.map((item) => (
+          <nav className="hidden md:flex items-center space-x-8">
+            {navigation.map((item) => (
               <a
                 key={item.name}
                 href={item.href}
-                className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+                className="text-foreground hover:text-primary transition-colors duration-200 font-medium"
               >
                 {item.name}
               </a>
             ))}
           </nav>
 
-          {/* Search and Theme Toggle */}
-          <div className="flex items-center space-x-4">
-            <div className="relative hidden sm:block">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Procurar por rolês, artistas, cidades..."
-                className="pl-10 pr-4 py-2 w-64 lg:w-80"
-              />
-            </div>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="h-9 w-9"
-            >
-              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center space-x-4">
+            <ThemeToggle />
+            <Button variant="ghost" size="icon">
+              <User className="h-4 w-4" />
             </Button>
-
-            {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              <Menu className="h-5 w-5" />
+            <Button variant="gradient">
+              Criar Evento
             </Button>
           </div>
-        </div>
 
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden border-t border-border py-4">
-            <div className="flex flex-col space-y-4">
-              <div className="relative sm:hidden">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Procurar por rolês..."
-                  className="pl-10 pr-4 py-2 w-full"
-                />
+          {/* Mobile Menu */}
+          <Sheet>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-80">
+              <div className="flex flex-col h-full">
+                <div className="flex items-center justify-between py-4 border-b">
+                  <img 
+                    src={roleLogo} 
+                    alt="ROLÊ Logo" 
+                    className="h-8 w-auto"
+                  />
+                  <ThemeToggle />
+                </div>
+                
+                <nav className="flex-1 py-8">
+                  <div className="space-y-6">
+                    {navigation.map((item) => (
+                      <a
+                        key={item.name}
+                        href={item.href}
+                        className="block text-lg font-medium text-foreground hover:text-primary transition-colors"
+                      >
+                        {item.name}
+                      </a>
+                    ))}
+                  </div>
+                </nav>
+
+                <div className="border-t pt-6 space-y-4">
+                  <Button variant="ghost" className="w-full justify-start">
+                    <User className="h-4 w-4 mr-2" />
+                    Minha Conta
+                  </Button>
+                  <Button variant="gradient" className="w-full">
+                    Criar Evento
+                  </Button>
+                </div>
               </div>
-              {navItems.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
-                >
-                  {item.name}
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
   );
