@@ -12,6 +12,7 @@ import Testimonials from "@/components/Testimonials";
 import PartnersVenues from "@/components/PartnersVenues";
 import Footer from "@/components/Footer";
 import BackToTop from "@/components/BackToTop";
+import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
 
 const Index = () => {
   return (
@@ -19,16 +20,36 @@ const Index = () => {
       <Header />
       <main>
         <HeroSection />
-        <EventCategories />
-        <FeaturedEventsToday />
-        <MusicCategories />
-        <AdvertisementBanner />
-        <HowItWorks />
-        <MagazineBanner />
-        <StatsSection />
-        <Testimonials />
-        <PartnersVenues />
-        <Newsletter />
+        <ScrollAnimationWrapper>
+          <EventCategories />
+        </ScrollAnimationWrapper>
+        <ScrollAnimationWrapper>
+          <FeaturedEventsToday />
+        </ScrollAnimationWrapper>
+        <ScrollAnimationWrapper>
+          <MusicCategories />
+        </ScrollAnimationWrapper>
+        <ScrollAnimationWrapper>
+          <AdvertisementBanner />
+        </ScrollAnimationWrapper>
+        <ScrollAnimationWrapper>
+          <HowItWorks />
+        </ScrollAnimationWrapper>
+        <ScrollAnimationWrapper>
+          <MagazineBanner />
+        </ScrollAnimationWrapper>
+        <ScrollAnimationWrapper>
+          <StatsSection />
+        </ScrollAnimationWrapper>
+        <ScrollAnimationWrapper>
+          <Testimonials />
+        </ScrollAnimationWrapper>
+        <ScrollAnimationWrapper>
+          <PartnersVenues />
+        </ScrollAnimationWrapper>
+        <ScrollAnimationWrapper>
+          <Newsletter />
+        </ScrollAnimationWrapper>
       </main>
       <Footer />
       <BackToTop />
