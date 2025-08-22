@@ -15,6 +15,8 @@ import PartnersVenues from "@/components/PartnersVenues";
 import Footer from "@/components/Footer";
 import BackToTop from "@/components/BackToTop";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
+import FavoritesPanel from "@/components/FavoritesPanel";
+import { Toaster } from "@/components/ui/sonner";
 import { useSearchAndFilter, type FilterState } from "@/hooks/useSearchAndFilter";
 
 const Index = () => {
@@ -77,11 +79,15 @@ const Index = () => {
           <PartnersVenues />
         </ScrollAnimationWrapper>
         <ScrollAnimationWrapper>
+          <FavoritesPanel />
+        </ScrollAnimationWrapper>
+        <ScrollAnimationWrapper>
           <Newsletter />
         </ScrollAnimationWrapper>
       </main>
       <Footer />
       <BackToTop />
+      <Toaster />
     </div>
   );
 };
