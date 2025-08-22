@@ -10,12 +10,22 @@ export interface FilterState {
 export interface Event {
   id: string;
   title: string;
-  category: string;
+  venue: string;
+  location: string;
   city: string;
-  price: number;
+  time: string;
   date: string;
-  description?: string;
-  image?: string;
+  genre: string;
+  category: string;
+  attendees: number;
+  price: number;
+  description: string;
+  image: string;
+  featured: boolean;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
 }
 
 export const useSearchAndFilter = (events: Event[]) => {

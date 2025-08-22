@@ -16,8 +16,10 @@ import Footer from "@/components/Footer";
 import BackToTop from "@/components/BackToTop";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
 import FavoritesPanel from "@/components/FavoritesPanel";
+import GeolocationEvents from "@/components/GeolocationEvents";
+import EventCalendar from "@/components/EventCalendar";
 import { Toaster } from "@/components/ui/sonner";
-import { useSearchAndFilter, type FilterState } from "@/hooks/useSearchAndFilter";
+import { type FilterState } from "@/hooks/useSearchAndFilter";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -55,7 +57,13 @@ const Index = () => {
           <EventCategories />
         </ScrollAnimationWrapper>
         <ScrollAnimationWrapper>
-          <FeaturedEventsToday />
+          <FeaturedEventsToday searchQuery={searchQuery} filters={filters} />
+        </ScrollAnimationWrapper>
+        <ScrollAnimationWrapper>
+          <GeolocationEvents />
+        </ScrollAnimationWrapper>
+        <ScrollAnimationWrapper>
+          <EventCalendar />
         </ScrollAnimationWrapper>
         <ScrollAnimationWrapper>
           <MusicCategories />

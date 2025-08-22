@@ -1,58 +1,22 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, MapPin, Users, Music } from "lucide-react";
+import { Clock, MapPin, Users } from "lucide-react";
+import { eventsData } from "@/data/eventsData";
+import { useSearchAndFilter } from "@/hooks/useSearchAndFilter";
 
-const FeaturedEventsToday = () => {
-  const todayEvents = [
-    {
-      id: 1,
-      title: "Noite Eletrônica no D-Edge",
-      venue: "D-Edge",
-      location: "Vila Olímpia, SP",
-      time: "22:00",
-      genre: "Eletrônica",
-      attendees: 1200,
-      price: "R$ 80",
-      image: "/lovable-uploads/c5238b2d-273a-46f1-a5a6-c330f2a3142c.png",
-      featured: true
-    },
-    {
-      id: 2,
-      title: "Rock in Roll Pub",
-      venue: "Pub Rock Station",
-      location: "Vila Madalena, SP",
-      time: "20:30",
-      genre: "Rock",
-      attendees: 350,
-      price: "R$ 45",
-      image: "/lovable-uploads/e7152d25-522d-4a55-9968-b848ce6cde97.png",
-      featured: false
-    },
-    {
-      id: 3,
-      title: "Baile Funk da Quebrada",
-      venue: "Casa do Funk",
-      location: "Cidade Tiradentes, SP",
-      time: "23:00",
-      genre: "Funk",
-      attendees: 800,
-      price: "R$ 25",
-      image: "/lovable-uploads/c5238b2d-273a-46f1-a5a6-c330f2a3142c.png",
-      featured: true
-    },
-    {
-      id: 4,
-      title: "Jazz & Blues Night",
-      venue: "Blue Note SP",
-      location: "Itaim Bibi, SP",
-      time: "21:00",
-      genre: "Jazz",
-      attendees: 180,
-      price: "R$ 90",
-      image: "/lovable-uploads/e7152d25-522d-4a55-9968-b848ce6cde97.png",
-      featured: false
-    }
-  ];
+interface FeaturedEventsTodayProps {
+  searchQuery?: string;
+  filters?: any;
+}
+
+const FeaturedEventsToday = ({ searchQuery = '', filters = {} }: FeaturedEventsTodayProps) => {
+  const { filteredEvents } = useSearchAndFilter(eventsData);
+  
+  // Get today's events
+  const today = new Date().toISOString().split('T')[0];
+  const todayEvents = filteredEvents
+    .filter(event => event.date === today)
+    .slice(0, 4);
 
   return (
     <section className="py-16 bg-gradient-to-br from-primary/5 to-secondary/5">
@@ -111,7 +75,9 @@ const FeaturedEventsToday = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold text-primary">{event.price}</span>
+                  <span className="text-lg font-bold text-primary">
+                    {event.price === 0 ? 'Gratuito' : `R$ ${event.price}`}
+                  </span>
                   <Button size="sm" className="group-hover:bg-primary/90">
                     Ver Evento
                   </Button>

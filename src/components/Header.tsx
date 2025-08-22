@@ -2,6 +2,7 @@ import { Search, Menu, User } from "lucide-react";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import NotificationSystem from "@/components/NotificationSystem";
 import { useState, useEffect } from "react";
 import roleLogo from "@/assets/role-logo.png";
 
@@ -57,6 +58,7 @@ const Header = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
+            <NotificationSystem />
             <ThemeToggle />
             <Button variant="ghost" size="icon">
               <User className="h-4 w-4" />
