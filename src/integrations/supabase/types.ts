@@ -566,6 +566,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ensure_admin_role: {
+        Args: { user_email: string }
+        Returns: undefined
+      }
       get_nearby_events: {
         Args: { lat: number; lng: number; radius_km?: number }
         Returns: {

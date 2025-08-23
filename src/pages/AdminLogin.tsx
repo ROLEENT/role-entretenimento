@@ -106,6 +106,8 @@ const AdminLogin = () => {
             throw loginError;
           }
         } else {
+          // Garantir que o usuário tenha role admin após login bem-sucedido
+          await supabase.rpc('ensure_admin_role', { user_email: email });
           toast.success("Login realizado com sucesso!");
         }
       }
