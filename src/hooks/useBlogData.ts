@@ -127,21 +127,12 @@ export const getCityPosts = async (citySlug: string): Promise<BlogPost[]> => {
 
 export const incrementPostViews = async (postId: string) => {
   try {
-    // First get current views
-    const { data: currentPost } = await supabase
-      .from("blog_posts")
-      .select("views")
-      .eq("id", postId)
-      .single();
+    const { error } = await supabase
+      .rpc('increment_post_views', {
+        post_id: postId
+      });
 
-    if (currentPost) {
-      const { error } = await supabase
-        .from("blog_posts")
-        .update({ views: (currentPost.views || 0) + 1 })
-        .eq("id", postId);
-
-      if (error) throw error;
-    }
+    if (error) throw error;
   } catch (error) {
     console.error("Error incrementing views:", error);
   }
