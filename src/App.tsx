@@ -6,6 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Index from "./pages/Index";
 import CityHighlights from "./pages/CityHighlights";
+import EventsPage from "./pages/EventsPage";
+import EventDetailPage from "./pages/EventDetailPage";
+import AuthPage from "./pages/AuthPage";
+import UserProfile from "./pages/UserProfile";
 import WeeklyHighlights from "./pages/WeeklyHighlights";
 import DestaquesHub from "./pages/DestaquesHub";
 import CityBlogPage from "./pages/CityBlogPage";
@@ -36,7 +40,10 @@ const App = () => (
             <Route path="/admin/posts/new" element={<AdminPostEditor />} />
             <Route path="/admin/posts/:id/edit" element={<AdminPostEditor />} />
             {/* Events Routes */}
-            <Route path="/eventos/:cidade" element={<CityHighlights />} />
+            <Route path="/eventos/:cidade" element={<EventsPage />} />
+            <Route path="/evento/:id" element={<EventDetailPage />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/perfil" element={<UserProfile />} />
             <Route path="/eventos/semana/:data" element={<WeeklyHighlights />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
