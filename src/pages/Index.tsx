@@ -45,6 +45,9 @@ const Index = () => {
       <main>
         <HeroSection />
         <ScrollAnimationWrapper>
+          <FeaturedHighlights />
+        </ScrollAnimationWrapper>
+        <ScrollAnimationWrapper>
           <section className="py-8 bg-background/50">
             <div className="container mx-auto px-4">
               <SearchAndFilters 
@@ -62,9 +65,6 @@ const Index = () => {
         </ScrollAnimationWrapper>
         <ScrollAnimationWrapper>
           <EventCalendar />
-        </ScrollAnimationWrapper>
-        <ScrollAnimationWrapper>
-          <FeaturedHighlights />
         </ScrollAnimationWrapper>
         <FeaturedBlogPosts />
         <ScrollAnimationWrapper>

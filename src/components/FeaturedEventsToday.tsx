@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock, MapPin, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 import { eventsData } from "@/data/eventsData";
 import { useSearchAndFilter } from "@/hooks/useSearchAndFilter";
 
@@ -88,8 +89,10 @@ const FeaturedEventsToday = ({ searchQuery = '', filters = {} }: FeaturedEventsT
         </div>
 
         <div className="text-center mt-8">
-          <Button variant="outline" size="lg">
-            Ver Todos os Eventos de Hoje
+          <Button variant="outline" size="lg" asChild>
+            <Link to="/eventos/hoje">
+              Ver Todos os Eventos de Hoje
+            </Link>
           </Button>
         </div>
       </div>

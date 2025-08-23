@@ -5,6 +5,8 @@ import { MapPin, Star, Calendar, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getCitiesWithPosts, getLatestPostByCity } from "@/data/blogData";
 import { citiesData } from "@/data/citiesData";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import cityPlaceholder from "@/assets/city-placeholder.jpg";
 
 const FeaturedHighlights = () => {
@@ -16,6 +18,8 @@ const FeaturedHighlights = () => {
     
     if (!cityData || !latestPost) return null;
     
+    const formattedDate = format(new Date(latestPost.publishedDate), "dd 'de' MMMM", { locale: ptBR });
+    
     return {
       id: citySlug,
       city: cityData.name,
@@ -24,9 +28,10 @@ const FeaturedHighlights = () => {
       state: cityData.state,
       events: cityData.stats.monthlyEvents,
       rating: cityData.stats.rating,
-      date: latestPost.weekRange,
+      date: formattedDate,
       image: cityData.image,
       title: latestPost.title,
+      summary: latestPost.lead,
       href: `/destaques/${citySlug}`
     };
   }).filter(Boolean);
@@ -84,6 +89,8 @@ const FeaturedHighlights = () => {
 
               <CardContent className="space-y-4">
                 <p className="text-muted-foreground">{highlight.description}</p>
+                <p className="text-sm font-medium text-primary">{highlight.title}</p>
+                <p className="text-xs text-muted-foreground">{highlight.summary}</p>
                 
                 <div className="space-y-2">
                   <div className="flex items-center text-sm text-muted-foreground">

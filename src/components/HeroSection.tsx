@@ -1,6 +1,7 @@
 import { Button } from "./ui/button";
 import { ArrowRight, MapPin } from "lucide-react";
 import { useParallax } from "@/hooks/useParallax";
+import { Link } from "react-router-dom";
 import heroBanner from "@/assets/hero-banner.jpg";
 
 const HeroSection = () => {
@@ -42,10 +43,13 @@ const HeroSection = () => {
               variant="gradient"
               size="lg"
               className="font-semibold px-8 py-4 rounded-full shadow-glow transition-all duration-300 hover:scale-105 hover-lift"
+              asChild
             >
-              <MapPin className="mr-2 h-5 w-5" />
-              Descubra o ROLÊ na sua cidade
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <Link to="/eventos">
+                <MapPin className="mr-2 h-5 w-5" />
+                Descubra o ROLÊ na sua cidade
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
             </Button>
           </div>
         </div>
