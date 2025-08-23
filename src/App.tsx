@@ -10,6 +10,9 @@ import WeeklyHighlights from "./pages/WeeklyHighlights";
 import DestaquesHub from "./pages/DestaquesHub";
 import CityBlogPage from "./pages/CityBlogPage";
 import BlogArticle from "./pages/BlogArticle";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminPostEditor from "./pages/AdminPostEditor";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +30,11 @@ const App = () => (
             <Route path="/destaques" element={<DestaquesHub />} />
             <Route path="/destaques/:cidade" element={<CityBlogPage />} />
             <Route path="/destaques/:cidade/:data" element={<BlogArticle />} />
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/posts/new" element={<AdminPostEditor />} />
+            <Route path="/admin/posts/:id/edit" element={<AdminPostEditor />} />
             {/* Events Routes */}
             <Route path="/eventos/:cidade" element={<CityHighlights />} />
             <Route path="/eventos/semana/:data" element={<WeeklyHighlights />} />
