@@ -22,6 +22,8 @@ const Header = () => {
     { name: "Início", href: "/" },
     { name: "Eventos", href: "/eventos" },
     { name: "Destaques", href: "/destaques" },
+    { name: "Sobre", href: "/sobre" },
+    { name: "Contato", href: "/contato" },
   ];
 
   return (
@@ -60,8 +62,10 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             <NotificationSystem />
             <ThemeToggle />
-            <Button variant="ghost" size="icon">
-              <User className="h-4 w-4" />
+            <Button variant="ghost" size="icon" asChild>
+              <a href="/perfil">
+                <User className="h-4 w-4" />
+              </a>
             </Button>
             <Button variant="gradient">
               Criar Evento

@@ -25,10 +25,11 @@ const Footer = () => {
   ];
 
   const legalLinks = [
-    { name: "Política de Privacidade", href: "/politica.html" },
-    { name: "Termos para Rolezeiro", href: "/termos-usuario.html" },
-    { name: "Termos para Organizador", href: "/termos-organizador.html" },
-    { name: "Política Antispam", href: "/politica-spam.html" },
+    { name: "Política de Privacidade", href: "/politica-privacidade" },
+    { name: "Termos para Rolezeiro", href: "/termos-usuario" },
+    { name: "Termos para Organizador", href: "/termos-organizador" },
+    { name: "Política Antispam", href: "/politica-spam" },
+    { name: "Ajuda", href: "/ajuda" },
   ];
 
   return (

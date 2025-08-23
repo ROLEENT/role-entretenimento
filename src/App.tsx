@@ -14,6 +14,13 @@ import WeeklyHighlights from "./pages/WeeklyHighlights";
 import DestaquesHub from "./pages/DestaquesHub";
 import CityBlogPage from "./pages/CityBlogPage";
 import BlogArticle from "./pages/BlogArticle";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import SpamPolicy from "./pages/SpamPolicy";
+import UserTerms from "./pages/UserTerms";
+import OrganizerTerms from "./pages/OrganizerTerms";
+import Help from "./pages/Help";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminPostEditor from "./pages/AdminPostEditor";
@@ -35,6 +42,14 @@ const App = () => (
           <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
+            {/* Institutional Pages */}
+            <Route path="/sobre" element={<About />} />
+            <Route path="/contato" element={<Contact />} />
+            <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
+            <Route path="/politica-spam" element={<SpamPolicy />} />
+            <Route path="/termos-usuario" element={<UserTerms />} />
+            <Route path="/termos-organizador" element={<OrganizerTerms />} />
+            <Route path="/ajuda" element={<Help />} />
             {/* Blog Editorial Routes */}
             <Route path="/destaques" element={<DestaquesHub />} />
             <Route path="/destaques/:cidade" element={<CityBlogPage />} />
