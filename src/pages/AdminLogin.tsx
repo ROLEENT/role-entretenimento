@@ -4,8 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, KeyRound, RefreshCw } from "lucide-react";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -13,6 +14,10 @@ const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [fullName, setFullName] = useState("");
+  const [resetEmail, setResetEmail] = useState("");
+  const [isResetting, setIsResetting] = useState(false);
+  const [isResendingConfirmation, setIsResendingConfirmation] = useState(false);
+  const [showResetDialog, setShowResetDialog] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -57,6 +62,15 @@ const AdminLogin = () => {
       }
 
       if (isSignUp) {
+        // Check if user already exists first
+        const { data: existingUser } = await supabase.auth.getUser();
+        if (existingUser.user?.email === email) {
+          toast.error("Este email já possui uma conta. Faça login em vez de criar uma nova conta.");
+          setIsSignUp(false);
+          setIsLoading(false);
+          return;
+        }
+
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -68,22 +82,105 @@ const AdminLogin = () => {
           }
         });
 
-        if (error) throw error;
-        toast.success("Conta criada! Verifique seu email para confirmar.");
+        if (error) {
+          if (error.message.includes('User already registered')) {
+            toast.error("Este email já possui uma conta. Faça login em vez de criar uma nova conta.");
+            setIsSignUp(false);
+          } else {
+            throw error;
+          }
+        } else {
+          toast.success("Conta criada! Verifique seu email para confirmar.");
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
-        if (error) throw error;
-        toast.success("Login realizado com sucesso!");
+        if (error) {
+          if (error.message.includes('Email not confirmed')) {
+            toast.error("Email não confirmado. Clique em 'Reenviar confirmação' para receber um novo link.");
+          } else if (error.message.includes('Invalid login credentials')) {
+            toast.error("Email ou senha incorretos. Verifique suas credenciais ou use 'Esqueci minha senha'.");
+          } else {
+            throw error;
+          }
+        } else {
+          toast.success("Login realizado com sucesso!");
+        }
       }
     } catch (error: any) {
       console.error("Auth error:", error);
       toast.error(error.message || "Erro na autenticação");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!resetEmail) {
+      toast.error("Digite seu email para recuperar a senha");
+      return;
+    }
+
+    setIsResetting(true);
+    try {
+      // Check if email is approved first
+      const { data: approvedUser, error: checkError } = await supabase
+        .from('approved_admins')
+        .select('email, is_active')
+        .eq('email', resetEmail)
+        .eq('is_active', true)
+        .single();
+
+      if (checkError || !approvedUser) {
+        toast.error("Este email não está autorizado para acessar o admin.");
+        setIsResetting(false);
+        return;
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/admin`,
+      });
+
+      if (error) throw error;
+
+      toast.success("Email de recuperação enviado! Verifique sua caixa de entrada.");
+      setShowResetDialog(false);
+      setResetEmail("");
+    } catch (error: any) {
+      console.error("Password reset error:", error);
+      toast.error(error.message || "Erro ao enviar email de recuperação");
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      toast.error("Digite seu email para reenviar a confirmação");
+      return;
+    }
+
+    setIsResendingConfirmation(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/admin`,
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success("Email de confirmação reenviado! Verifique sua caixa de entrada.");
+    } catch (error: any) {
+      console.error("Resend confirmation error:", error);
+      toast.error(error.message || "Erro ao reenviar confirmação");
+    } finally {
+      setIsResendingConfirmation(false);
     }
   };
 
@@ -150,14 +247,71 @@ const AdminLogin = () => {
             </Button>
           </form>
           
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="text-sm text-primary hover:underline"
-            >
-              {isSignUp ? "Já tem conta? Fazer login" : "Não tem conta? Criar conta"}
-            </button>
+          <div className="mt-4 space-y-3">
+            <div className="flex justify-center space-x-4">
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-sm text-primary hover:underline"
+              >
+                {isSignUp ? "Já tem conta? Fazer login" : "Não tem conta? Criar conta"}
+              </button>
+            </div>
+
+            {!isSignUp && (
+              <div className="flex justify-center space-x-4 text-sm">
+                <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+                  <DialogTrigger asChild>
+                    <button className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
+                      <KeyRound className="h-3 w-3" />
+                      Esqueci minha senha
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Recuperar Senha</DialogTitle>
+                      <DialogDescription>
+                        Digite seu email para receber um link de recuperação de senha.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <Input
+                        type="email"
+                        placeholder="seu@email.com"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                      />
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={handlePasswordReset} 
+                          disabled={isResetting}
+                          className="flex-1"
+                        >
+                          {isResetting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                          Enviar Link
+                        </Button>
+                        <Button variant="outline" onClick={() => setShowResetDialog(false)}>
+                          Cancelar
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                <button 
+                  onClick={handleResendConfirmation}
+                  disabled={isResendingConfirmation}
+                  className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
+                >
+                  {isResendingConfirmation ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-3 w-3" />
+                  )}
+                  Reenviar confirmação
+                </button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
