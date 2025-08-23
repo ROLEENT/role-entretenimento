@@ -47,20 +47,6 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     try {
-      // First check if email is approved
-      const { data: approvedUser, error: checkError } = await supabase
-        .from('approved_admins')
-        .select('email, is_active')
-        .eq('email', email)
-        .eq('is_active', true)
-        .single();
-
-      if (checkError || !approvedUser) {
-        toast.error("Este email não está autorizado para acessar o admin. Entre em contato com fiih@roleentretenimento.com");
-        setIsLoading(false);
-        return;
-      }
-
       if (isSignUp) {
         const { error } = await supabase.auth.signUp({
           email,
@@ -135,20 +121,6 @@ const AdminLogin = () => {
 
     setIsResetting(true);
     try {
-      // Check if email is approved first
-      const { data: approvedUser, error: checkError } = await supabase
-        .from('approved_admins')
-        .select('email, is_active')
-        .eq('email', resetEmail)
-        .eq('is_active', true)
-        .single();
-
-      if (checkError || !approvedUser) {
-        toast.error("Este email não está autorizado para acessar o admin.");
-        setIsResetting(false);
-        return;
-      }
-
       const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
         redirectTo: `${window.location.origin}/admin`,
       });
