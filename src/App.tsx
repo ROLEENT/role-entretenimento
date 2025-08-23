@@ -7,6 +7,9 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import Index from "./pages/Index";
 import CityHighlights from "./pages/CityHighlights";
 import WeeklyHighlights from "./pages/WeeklyHighlights";
+import DestaquesHub from "./pages/DestaquesHub";
+import CityBlogPage from "./pages/CityBlogPage";
+import BlogArticle from "./pages/BlogArticle";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,8 +23,13 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/destaques/:cidade" element={<CityHighlights />} />
-            <Route path="/destaques/semana/:data" element={<WeeklyHighlights />} />
+            {/* Blog Editorial Routes */}
+            <Route path="/destaques" element={<DestaquesHub />} />
+            <Route path="/destaques/:cidade" element={<CityBlogPage />} />
+            <Route path="/destaques/:cidade/:data" element={<BlogArticle />} />
+            {/* Events Routes */}
+            <Route path="/eventos/:cidade" element={<CityHighlights />} />
+            <Route path="/eventos/semana/:data" element={<WeeklyHighlights />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
