@@ -14,6 +14,8 @@ import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/sonner";
 import BlogBreadcrumbs from "@/components/blog/BlogBreadcrumbs";
+import CommentSection from "@/components/blog/CommentSection";
+import LikeButton from "@/components/blog/LikeButton";
 
 const BlogArticle = () => {
   const { cidade, data } = useParams();
@@ -139,11 +141,17 @@ const BlogArticle = () => {
               <div className="max-w-4xl mx-auto">
                 <ArticleContent content={post.content_html || post.content} />
                 
-                {/* Share Section */}
-                <div className="border-t border-border/30 pt-8 mt-12">
-                  <h3 className="text-lg font-semibold mb-4">Compartilhar artigo</h3>
-                  <ShareButtons title={post.title} url={currentUrl} />
+                {/* Article Actions */}
+                <div className="flex flex-wrap items-center justify-between gap-4 py-6 border-t border-border">
+                  <LikeButton postId={post.id} />
+                  <ShareButtons 
+                    title={post.title} 
+                    url={currentUrl} 
+                  />
                 </div>
+                
+                {/* Comments Section */}
+                <CommentSection postId={post.id} />
                 
                 {/* Article Navigation */}
                 <ArticleNavigation previousPost={previousPost} nextPost={nextPost} />
