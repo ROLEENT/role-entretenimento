@@ -2,7 +2,6 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import SearchAndFilters from "@/components/SearchAndFilters";
-import EventCategories from "@/components/EventCategories";
 import FeaturedEventsToday from "@/components/FeaturedEventsToday";
 import MusicCategories from "@/components/MusicCategories";
 import HowItWorks from "@/components/HowItWorks";
@@ -54,9 +53,6 @@ const Index = () => {
               />
             </div>
           </section>
-        </ScrollAnimationWrapper>
-        <ScrollAnimationWrapper>
-          <EventCategories />
         </ScrollAnimationWrapper>
         <ScrollAnimationWrapper>
           <FeaturedEventsToday searchQuery={searchQuery} filters={filters} />
