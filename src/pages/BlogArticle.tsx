@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import BackToTop from "@/components/BackToTop";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { getPostBySlug, getCityPosts } from "@/data/blogData";
+import { getPostBySlug, getCityPosts } from "@/hooks/useBlogData";
 import ArticleHero from "@/components/blog/ArticleHero";
 import ArticleContent from "@/components/blog/ArticleContent";
 import ShareButtons from "@/components/blog/ShareButtons";
@@ -23,36 +23,42 @@ const BlogArticle = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (cidade && data) {
-      setIsLoading(true);
-      
-      // Simulate loading for better UX
-      setTimeout(() => {
-        const foundPost = getPostBySlug(cidade, data);
-        setPost(foundPost);
+    const loadPost = async () => {
+      if (cidade && data) {
+        setIsLoading(true);
         
-        if (foundPost) {
-          // Update page title and meta
-          document.title = `${foundPost.title} | ROLÊ`;
-          const metaDescription = document.querySelector('meta[name="description"]');
-          if (metaDescription) {
-            metaDescription.setAttribute('content', foundPost.lead);
+        try {
+          const foundPost = await getPostBySlug(cidade, data);
+          setPost(foundPost);
+          
+          if (foundPost) {
+            // Update page title and meta
+            document.title = `${foundPost.title} | ROLÊ`;
+            const metaDescription = document.querySelector('meta[name="description"]');
+            if (metaDescription) {
+              metaDescription.setAttribute('content', foundPost.summary || foundPost.content_html?.substring(0, 160));
+            }
+            
+            // Get navigation posts
+            const cityPosts = await getCityPosts(cidade);
+            const sortedPosts = cityPosts.sort((a, b) => 
+              new Date(a.published_at || a.created_at).getTime() - new Date(b.published_at || b.created_at).getTime()
+            );
+            
+            const currentIndex = sortedPosts.findIndex(p => p.id === foundPost.id);
+            setPreviousPost(currentIndex > 0 ? sortedPosts[currentIndex - 1] : null);
+            setNextPost(currentIndex < sortedPosts.length - 1 ? sortedPosts[currentIndex + 1] : null);
           }
-          
-          // Get navigation posts
-          const cityPosts = getCityPosts(cidade);
-          const sortedPosts = cityPosts.sort((a, b) => 
-            new Date(a.publishedDate).getTime() - new Date(b.publishedDate).getTime()
-          );
-          
-          const currentIndex = sortedPosts.findIndex(p => p.id === foundPost.id);
-          setPreviousPost(currentIndex > 0 ? sortedPosts[currentIndex - 1] : null);
-          setNextPost(currentIndex < sortedPosts.length - 1 ? sortedPosts[currentIndex + 1] : null);
+        } catch (error) {
+          console.error("Error loading post:", error);
+          setPost(null);
+        } finally {
+          setIsLoading(false);
         }
-        
-        setIsLoading(false);
-      }, 500);
-    }
+      }
+    };
+
+    loadPost();
   }, [cidade, data]);
 
   if (isLoading) {
@@ -131,7 +137,7 @@ const BlogArticle = () => {
           <section className="py-16">
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto">
-                <ArticleContent content={post.content} />
+                <ArticleContent content={post.content_html || post.content} />
                 
                 {/* Share Section */}
                 <div className="border-t border-border/30 pt-8 mt-12">

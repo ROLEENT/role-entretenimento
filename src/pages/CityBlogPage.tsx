@@ -6,7 +6,7 @@ import BackToTop from "@/components/BackToTop";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Calendar, FileText, MapPin } from "lucide-react";
-import { getCityPosts } from "@/data/blogData";
+import { getCityPosts } from "@/hooks/useBlogData";
 import { citiesData } from "@/data/citiesData";
 import ArticleCard from "@/components/blog/ArticleCard";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
@@ -22,22 +22,29 @@ const CityBlogPage = () => {
   const cityData = cidade ? citiesData[cidade] : null;
 
   useEffect(() => {
-    if (cidade && cityData) {
-      // Update page title and meta
-      document.title = `Destaques de ${cityData.name} | ROLÊ`;
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        metaDescription.setAttribute('content', `Descubra os melhores eventos e experiências culturais de ${cityData.name}. ${cityData.description}`);
+    const loadCityPosts = async () => {
+      if (cidade && cityData) {
+        // Update page title and meta
+        document.title = `Destaques de ${cityData.name} | ROLÊ`;
+        const metaDescription = document.querySelector('meta[name="description"]');
+        if (metaDescription) {
+          metaDescription.setAttribute('content', `Descubra os melhores eventos e experiências culturais de ${cityData.name}. ${cityData.description}`);
+        }
+        
+        setIsLoading(true);
+        try {
+          const cityPosts = await getCityPosts(cidade);
+          setPosts(cityPosts.sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime()));
+        } catch (error) {
+          console.error("Error loading posts:", error);
+          setPosts([]);
+        } finally {
+          setIsLoading(false);
+        }
       }
-      
-      setIsLoading(true);
-      // Simulate loading for better UX
-      setTimeout(() => {
-        const cityPosts = getCityPosts(cidade);
-        setPosts(cityPosts.sort((a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime()));
-        setIsLoading(false);
-      }, 500);
-    }
+    };
+
+    loadCityPosts();
   }, [cidade, cityData]);
 
   if (isLoading) {

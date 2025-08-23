@@ -23,7 +23,7 @@ export interface BlogPost {
   updated_at: string;
 }
 
-export const useBlogPosts = () => {
+export const useBlogData = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

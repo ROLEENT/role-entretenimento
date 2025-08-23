@@ -19,6 +19,7 @@ import FavoritesPanel from "@/components/FavoritesPanel";
 import GeolocationEvents from "@/components/GeolocationEvents";
 import EventCalendar from "@/components/EventCalendar";
 import FeaturedHighlights from "@/components/FeaturedHighlights";
+import FeaturedBlogPosts from "@/components/FeaturedBlogPosts";
 import { Toaster } from "@/components/ui/sonner";
 import { type FilterState } from "@/hooks/useSearchAndFilter";
 
@@ -69,6 +70,7 @@ const Index = () => {
         <ScrollAnimationWrapper>
           <FeaturedHighlights />
         </ScrollAnimationWrapper>
+        <FeaturedBlogPosts />
         <ScrollAnimationWrapper>
           <MusicCategories />
         </ScrollAnimationWrapper>
