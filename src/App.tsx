@@ -17,6 +17,9 @@ import BlogArticle from "./pages/BlogArticle";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminPostEditor from "./pages/AdminPostEditor";
+import AdminEventCreate from "./pages/AdminEventCreate";
+import AdminVenuesManagement from "./pages/AdminVenuesManagement";
+import AdminCategoriesManagement from "./pages/AdminCategoriesManagement";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -41,7 +44,12 @@ const App = () => (
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/posts/new" element={<AdminPostEditor />} />
             <Route path="/admin/posts/:id/edit" element={<AdminPostEditor />} />
+            <Route path="/admin/event/create" element={<AdminEventCreate />} />
+            <Route path="/admin/venues" element={<AdminVenuesManagement />} />
+            <Route path="/admin/categories" element={<AdminCategoriesManagement />} />
             {/* Events Routes */}
+            <Route path="/eventos" element={<EventsPage />} />
+            <Route path="/eventos/hoje" element={<EventsPage />} />
             <Route path="/eventos/:cidade" element={<EventsPage />} />
             <Route path="/evento/:id" element={<EventDetailPage />} />
             <Route path="/auth" element={<AuthPage />} />

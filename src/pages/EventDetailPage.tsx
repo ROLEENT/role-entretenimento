@@ -1,48 +1,73 @@
-import { useState, useEffect } from 'react';
-import { useParams, Navigate } from 'react-router-dom';
-import { eventService } from '@/services/eventService';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
-import EventDetailsCard from '@/components/events/EventDetailsCard';
-import EventReviews from '@/components/events/EventReviews';
-import EventComments from '@/components/events/EventComments';
-import CityMap from '@/components/CityMap';
 import SEOHead from '@/components/SEOHead';
+import { LazyImage } from '@/components/LazyImage';
+import { ShareDialog } from '@/components/ShareDialog';
+import CityMap from '@/components/CityMap';
+import { EventReviews } from '@/components/events/EventReviews';
+import { EventComments } from '@/components/events/EventComments';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Clock, MapPin, Ticket, Heart, Share2 } from 'lucide-react';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useFavorites } from '@/hooks/useFavorites';
+import { useAuth } from '@/hooks/useAuth';
 
 const EventDetailPage = () => {
-  const { id } = useParams<{ id: string }>();
-  const [event, setEvent] = useState<any>(null);
+  const { id } = useParams();
+  const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
+  const [shareOpen, setShareOpen] = useState(false);
+  
+  const { user } = useAuth();
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   useEffect(() => {
-    if (id) {
-      fetchEvent();
-    }
+    if (id) fetchEvent(id);
   }, [id]);
 
-  const fetchEvent = async () => {
-    if (!id) return;
-
+  const fetchEvent = async (eventId) => {
     try {
       setLoading(true);
-      setError(null);
-      const data = await eventService.getEventById(id);
-      
-      if (!data) {
-        setError('Evento não encontrado');
-        return;
-      }
-      
+      const { data, error } = await supabase
+        .from('events')
+        .select(`*, venue:venues(*), organizer:organizers(*), categories:event_categories(category:categories(*)), tickets(*)`)
+        .eq('id', eventId)
+        .eq('status', 'active')
+        .single();
+
+      if (error) throw error;
       setEvent(data);
-    } catch (err) {
-      setError('Falha ao carregar evento');
+    } catch (error) {
+      console.error('Error fetching event:', error);
+      setError('Evento não encontrado');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFavoriteClick = () => {
+    if (!user) {
+      toast.error('Faça login para favoritar eventos');
+      return;
+    }
+    if (event) {
+      toggleFavorite({
+        id: event.id,
+        title: event.title,
+        category: event.categories?.[0]?.category?.name || 'Evento',
+        city: event.city,
+        date: event.date_start,
+        image: event.image_url
+      });
     }
   };
 
@@ -51,11 +76,9 @@ const EventDetailPage = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <main className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="flex items-center gap-2">
-              <Loader2 className="w-6 h-6 animate-spin" />
-              <span>Carregando evento...</span>
-            </div>
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-64 bg-gray-200 rounded"></div>
           </div>
         </main>
         <Footer />
@@ -67,85 +90,131 @@ const EventDetailPage = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <main className="container mx-auto px-4 py-8">
-          <Card className="max-w-md mx-auto">
-            <CardContent className="text-center py-8">
-              <h2 className="text-xl font-semibold mb-2">Evento não encontrado</h2>
-              <p className="text-muted-foreground mb-4">
-                O evento que você está procurando não existe ou foi removido.
-              </p>
-              <Badge variant="destructive">{error}</Badge>
-            </CardContent>
-          </Card>
+        <main className="container mx-auto px-4 py-8 text-center">
+          <h1 className="text-2xl font-bold mb-4">Evento não encontrado</h1>
+          <Button asChild><Link to="/eventos">Ver Todos os Eventos</Link></Button>
         </main>
         <Footer />
       </div>
     );
   }
 
-  const eventUrl = `${window.location.origin}/evento/${event.id}`;
-  const eventCategories = event.categories?.map((cat: any) => cat.category.name).join(', ') || '';
-
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead
-        title={`${event.title} - Eventos Role Entretenimento`}
-        description={event.description || `${event.title} em ${event.city}, ${event.state}. ${eventCategories}`}
-        image={event.image_url}
-        url={eventUrl}
-        type="article"
-        publishedTime={event.date_start}
-        tags={event.categories?.map((cat: any) => cat.category.name) || []}
-      />
-      
+      <SEOHead title={`${event.title} | ROLÊ`} description={event.description || `${event.title} em ${event.city}`} />
       <Header />
       
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto space-y-8">
-          {/* Event Details */}
-          <EventDetailsCard event={event} />
-
-          {/* Map */}
-          {event.venue?.lat && event.venue?.lng && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
             <Card>
-              <CardContent className="p-0">
-                <div className="h-64 rounded-lg overflow-hidden">
-                  <CityMap
-                    events={[{
-                      id: event.id,
-                      title: event.title,
-                      venue: event.venue.name,
-                      location: event.venue.address,
-                      city: event.city,
-                      time: new Date(event.date_start).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                      date: new Date(event.date_start).toLocaleDateString('pt-BR'),
-                      genre: event.categories?.[0]?.category?.name || 'Evento',
-                      category: event.categories?.[0]?.category?.name || 'Evento',
-                      attendees: 0,
-                      price: event.price_min || 0,
-                      description: event.description || '',
-                      image: event.image_url || '',
-                      featured: false,
-                      coordinates: {
-                        lat: event.venue.lat,
-                        lng: event.venue.lng
-                      }
-                    }]}
-                    center={[event.venue.lng, event.venue.lat]}
-                  />
+              <CardContent className="p-6">
+                {event.image_url && (
+                  <LazyImage src={event.image_url} alt={event.title} className="w-full h-64 object-cover rounded-lg mb-6" />
+                )}
+                
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
+                    {event.categories && event.categories.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {event.categories.map((cat, index) => (
+                          <Badge key={index} variant="secondary" style={{ backgroundColor: cat.category.color + '20', color: cat.category.color }}>
+                            {cat.category.name}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center gap-2 ml-4">
+                    <Button variant="outline" size="sm" onClick={handleFavoriteClick} className={isFavorite(event.id) ? 'text-red-500' : ''}>
+                      <Heart className={`h-4 w-4 ${isFavorite(event.id) ? 'fill-current' : ''}`} />
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setShareOpen(true)}>
+                      <Share2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-primary" />
+                    <span className="font-medium">{format(new Date(event.date_start), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-primary" />
+                    <span>{format(new Date(event.date_start), 'HH:mm', { locale: ptBR })}</span>
+                  </div>
+                  {event.venue && (
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-5 w-5 text-primary" />
+                      <span>{event.venue.name}, {event.city}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <Ticket className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">{event.price_min === 0 ? 'Gratuito' : `R$ ${event.price_min}`}</span>
+                  </div>
+                </div>
+
+                {event.external_url && (
+                  <Button asChild className="mb-6">
+                    <a href={event.external_url} target="_blank" rel="noopener noreferrer">
+                      <Ticket className="h-4 w-4 mr-2" />
+                      Comprar Ingressos
+                    </a>
+                  </Button>
+                )}
+
+                {event.description && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Sobre o Evento</h3>
+                    <div className="prose prose-sm max-w-none text-muted-foreground" dangerouslySetInnerHTML={{ __html: event.description }} />
+                  </div>
+                )}
               </CardContent>
             </Card>
-          )}
 
-          {/* Reviews */}
-          <EventReviews eventId={event.id} />
+            <EventReviews eventId={event.id} />
+            <EventComments eventId={event.id} />
+          </div>
 
-          {/* Comments */}
-          <EventComments eventId={event.id} />
+          <div className="space-y-6">
+            {event.venue && (
+              <Card>
+                <CardHeader><CardTitle>Local do Evento</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div>
+                      <h4 className="font-medium">{event.venue.name}</h4>
+                      <p className="text-sm text-muted-foreground">{event.venue.address}</p>
+                      <p className="text-sm text-muted-foreground">{event.city}, {event.state}</p>
+                    </div>
+                    
+                    {event.venue.lat && event.venue.lng && (
+                      <div className="h-48 rounded-lg overflow-hidden">
+                        <CityMap events={[{
+                          id: event.id,
+                          title: event.title,
+                          lat: event.venue.lat,
+                          lng: event.venue.lng,
+                          venue: event.venue.name,
+                          date: event.date_start,
+                          price: event.price_min,
+                          image: event.image_url
+                        }]} />
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
       </main>
-      
+
+      <ShareDialog open={shareOpen} onOpenChange={setShareOpen} title={event.title} description={event.description} url={window.location.href} />
       <Footer />
       <BackToTop />
     </div>
