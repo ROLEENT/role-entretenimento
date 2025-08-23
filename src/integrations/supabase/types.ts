@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      advertisements: {
+        Row: {
+          active: boolean | null
+          badge_text: string | null
+          created_at: string
+          cta_text: string
+          cta_url: string | null
+          description: string | null
+          gradient_from: string | null
+          gradient_to: string | null
+          id: string
+          image_url: string | null
+          position: number | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean | null
+          badge_text?: string | null
+          created_at?: string
+          cta_text: string
+          cta_url?: string | null
+          description?: string | null
+          gradient_from?: string | null
+          gradient_to?: string | null
+          id?: string
+          image_url?: string | null
+          position?: number | null
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean | null
+          badge_text?: string | null
+          created_at?: string
+          cta_text?: string
+          cta_url?: string | null
+          description?: string | null
+          gradient_from?: string | null
+          gradient_to?: string | null
+          id?: string
+          image_url?: string | null
+          position?: number | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       approved_admins: {
         Row: {
           approved_by: string
@@ -413,6 +464,54 @@ export type Database = {
           name?: string
           site?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      partners: {
+        Row: {
+          capacity: string | null
+          contact_email: string | null
+          created_at: string
+          featured: boolean | null
+          id: string
+          image_url: string | null
+          instagram: string | null
+          location: string
+          name: string
+          rating: number | null
+          types: string[] | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          capacity?: string | null
+          contact_email?: string | null
+          created_at?: string
+          featured?: boolean | null
+          id?: string
+          image_url?: string | null
+          instagram?: string | null
+          location: string
+          name: string
+          rating?: number | null
+          types?: string[] | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          capacity?: string | null
+          contact_email?: string | null
+          created_at?: string
+          featured?: boolean | null
+          id?: string
+          image_url?: string | null
+          instagram?: string | null
+          location?: string
+          name?: string
+          rating?: number | null
+          types?: string[] | null
+          updated_at?: string
+          website?: string | null
         }
         Relationships: []
       }

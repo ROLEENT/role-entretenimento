@@ -27,9 +27,13 @@ const About = () => {
             "@context": "https://schema.org",
             "@type": "Organization",
             "name": "ROLÊ ENTRETENIMENTO",
-            "description": "Curadoria independente de eventos, cultura e experiências",
+            "description": "A cultura como ponto de encontro - curadoria independente de eventos e cultura urbana",
             "url": "https://roleentretenimento.com",
-            "foundingDate": "2024",
+            "foundingDate": "2003",
+            "founder": {
+              "@type": "Person",
+              "name": "FIIH"
+            },
             "contactPoint": {
               "@type": "ContactPoint",
               "telephone": "+55-51-98070-4353",

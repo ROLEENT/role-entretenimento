@@ -1,8 +1,50 @@
+import { useState, useEffect } from "react";
 import { MapPin, Star, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
 
 const PartnersVenues = () => {
+  const [partners, setPartners] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPartners = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('partners')
+          .select('*')
+          .order('featured', { ascending: false })
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching partners:', error);
+          return;
+        }
+
+        setPartners(data || []);
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPartners();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-pulse">Carregando parceiros...</div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   const venues = [
     {
       name: "Audio Club",
@@ -73,7 +115,7 @@ const PartnersVenues = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {venues.map((venue, index) => (
+          {partners.map((venue, index) => (
             <Card key={index} className="group hover:shadow-lg transition-all duration-300 bg-card border-border overflow-hidden">
               <div className="relative">
                 <img 

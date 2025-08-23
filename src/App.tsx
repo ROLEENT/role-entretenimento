@@ -27,6 +27,8 @@ import AdminPostEditor from "./pages/AdminPostEditor";
 import AdminEventCreate from "./pages/AdminEventCreate";
 import AdminVenuesManagement from "./pages/AdminVenuesManagement";
 import AdminCategoriesManagement from "./pages/AdminCategoriesManagement";
+import AdminPartnersManagement from "./pages/AdminPartnersManagement";
+import AdminAdvertisementsManagement from "./pages/AdminAdvertisementsManagement";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -62,6 +64,8 @@ const App = () => (
             <Route path="/admin/event/create" element={<AdminEventCreate />} />
             <Route path="/admin/venues" element={<AdminVenuesManagement />} />
             <Route path="/admin/categories" element={<AdminCategoriesManagement />} />
+            <Route path="/admin/partners" element={<AdminPartnersManagement />} />
+            <Route path="/admin/advertisements" element={<AdminAdvertisementsManagement />} />
             {/* Events Routes */}
             <Route path="/eventos" element={<EventsPage />} />
             <Route path="/eventos/hoje" element={<EventsPage />} />

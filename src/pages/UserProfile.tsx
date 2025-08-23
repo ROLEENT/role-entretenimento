@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Helmet } from "react-helmet";
 import { useAuth } from '@/hooks/useAuth';
-import { useFavorites } from '@/hooks/useEvents';
+import { useFavorites } from '@/hooks/useFavorites';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,7 +27,8 @@ const UserProfile = () => {
   });
   
   const { user, updateProfile, signOut, isAuthenticated } = useAuth();
-  const { favorites, loading: favoritesLoading } = useFavorites();
+  const { favorites } = useFavorites();
+  const favoritesLoading = false; // LocalStorage favorites don't have loading state
 
   if (!isAuthenticated) {
     return <Navigate to="/auth" replace />;
@@ -183,21 +184,21 @@ const UserProfile = () => {
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {favorites.map((event) => (
-                          <EventCard
-                            key={event.id}
-                            event={{
-                              id: event.id,
-                              title: event.title,
-                              category: event.categories?.[0]?.category?.name || 'Evento',
-                              city: event.city,
-                              date: event.date_start,
-                              image: event.image_url,
-                              price: event.price_min || 0,
-                              description: event.description
-                            }}
-                          />
-                        ))}
+                         {favorites.map((event) => (
+                           <EventCard
+                             key={event.id}
+                             event={{
+                               id: event.id,
+                               title: event.title,
+                               category: event.category || 'Evento',
+                               city: event.city,
+                               date: event.date,
+                               image: event.image,
+                               price: 0,
+                               description: ''
+                             }}
+                           />
+                         ))}
                       </div>
                     )}
                   </CardContent>

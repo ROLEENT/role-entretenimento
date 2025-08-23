@@ -67,8 +67,10 @@ const Header = () => {
                 <User className="h-4 w-4" />
               </a>
             </Button>
-            <Button variant="gradient">
-              Criar Evento
+            <Button variant="gradient" asChild>
+              <Link to="/admin/login">
+                Área do Admin
+              </Link>
             </Button>
           </div>
 
@@ -111,8 +113,10 @@ const Header = () => {
                     <User className="h-4 w-4 mr-2" />
                     Minha Conta
                   </Button>
-                  <Button variant="gradient" className="w-full">
-                    Criar Evento
+                  <Button variant="gradient" className="w-full" asChild>
+                    <Link to="/admin/login">
+                      Área do Admin
+                    </Link>
                   </Button>
                 </div>
               </div>

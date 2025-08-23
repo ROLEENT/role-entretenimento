@@ -1,9 +1,54 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, ArrowRight, Clock, Users } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdvertisementBanner = () => {
+  const [advertisements, setAdvertisements] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAdvertisements = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('advertisements')
+          .select('*')
+          .eq('active', true)
+          .order('position', { ascending: true });
+
+        if (error) {
+          console.error('Error fetching advertisements:', error);
+          return;
+        }
+
+        setAdvertisements(data || []);
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAdvertisements();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-gradient-to-r from-primary/10 via-secondary/5 to-primary/10">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-pulse">Carregando anúncios...</div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const cardAds = advertisements.filter(ad => ad.type === 'card');
+  const newsletterAds = advertisements.filter(ad => ad.type === 'newsletter');
+
   return (
     <section className="py-16 bg-gradient-to-r from-primary/10 via-secondary/5 to-primary/10">
       <div className="container mx-auto px-4">
@@ -50,70 +95,66 @@ const AdvertisementBanner = () => {
 
           {/* Banners Menores */}
           <div className="space-y-6">
-            {/* Banner de Aplicativo */}
-            <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 overflow-hidden">
-              <CardContent className="p-6 relative">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
-                <div className="relative z-10">
-                  <Badge variant="secondary" className="mb-3 bg-white/20 text-white border-0">
-                    Novo App
-                  </Badge>
-                  <h3 className="text-xl font-bold mb-2">Baixe o ROLÊ App</h3>
-                  <p className="text-white/90 text-sm mb-4">
-                    Encontre eventos, compre ingressos e conecte-se com amigos
-                  </p>
-                  <Button variant="secondary" size="sm" className="bg-white text-primary hover:bg-white/90">
-                    Download Grátis
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Banner de Parceria */}
-            <Card className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 overflow-hidden">
-              <CardContent className="p-6 relative">
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12" />
-                <div className="relative z-10">
-                  <Badge variant="secondary" className="mb-3 bg-white/20 text-white border-0">
-                    Parceria
-                  </Badge>
-                  <h3 className="text-xl font-bold mb-2">Spotify Premium</h3>
-                  <p className="text-white/90 text-sm mb-4">
-                    3 meses grátis para novos usuários do ROLÊ
-                  </p>
-                  <Button variant="secondary" size="sm" className="bg-white text-primary hover:bg-white/90">
-                    Resgatar Oferta
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            {cardAds.map((ad, index) => (
+              <Card 
+                key={ad.id} 
+                className="text-white border-0 overflow-hidden"
+                style={{
+                  background: `linear-gradient(to right, ${ad.gradient_from}, ${ad.gradient_to})`
+                }}
+              >
+                <CardContent className="p-6 relative">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
+                  <div className="relative z-10">
+                    <Badge variant="secondary" className="mb-3 bg-white/20 text-white border-0">
+                      {ad.badge_text}
+                    </Badge>
+                    <h3 className="text-xl font-bold mb-2">{ad.title}</h3>
+                    <p className="text-white/90 text-sm mb-4">
+                      {ad.description}
+                    </p>
+                    <Button variant="secondary" size="sm" className="bg-white text-primary hover:bg-white/90">
+                      {ad.cta_text}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
 
-        {/* Banner de Newsletter Patrocinada */}
-        <Card className="mt-8 bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0">
-          <CardContent className="p-6 md:p-8">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="text-center md:text-left">
-                <Badge variant="secondary" className="mb-3 bg-white/20 text-white border-0">
-                  Conteúdo Patrocinado
-                </Badge>
-                <h3 className="text-2xl font-bold mb-2">Heineken Experience</h3>
-                <p className="text-white/90 max-w-md">
-                  Eventos exclusivos Heineken toda semana. Cadastre-se e receba convites VIP para as melhores festas da cidade.
-                </p>
+        {/* Banners de Newsletter */}
+        {newsletterAds.map((ad) => (
+          <Card 
+            key={ad.id}
+            className="mt-8 text-white border-0"
+            style={{
+              background: `linear-gradient(to right, ${ad.gradient_from}, ${ad.gradient_to})`
+            }}
+          >
+            <CardContent className="p-6 md:p-8">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="text-center md:text-left">
+                  <Badge variant="secondary" className="mb-3 bg-white/20 text-white border-0">
+                    {ad.badge_text}
+                  </Badge>
+                  <h3 className="text-2xl font-bold mb-2">{ad.title}</h3>
+                  <p className="text-white/90 max-w-md">
+                    {ad.description}
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button variant="secondary" className="bg-white text-primary hover:bg-white/90">
+                    {ad.cta_text}
+                  </Button>
+                  <Button variant="outline" className="border-white text-white hover:bg-white/10">
+                    Saber Mais
+                  </Button>
+                </div>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button variant="secondary" className="bg-white text-primary hover:bg-white/90">
-                  Cadastrar Interesse
-                </Button>
-                <Button variant="outline" className="border-white text-white hover:bg-white/10">
-                  Saber Mais
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </section>
   );
