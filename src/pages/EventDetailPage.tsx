@@ -4,11 +4,11 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
 import SEOHead from '@/components/SEOHead';
-import { LazyImage } from '@/components/LazyImage';
-import { ShareDialog } from '@/components/ShareDialog';
+import LazyImage from '@/components/LazyImage';
+import ShareDialog from '@/components/ShareDialog';
 import CityMap from '@/components/CityMap';
-import { EventReviews } from '@/components/events/EventReviews';
-import { EventComments } from '@/components/events/EventComments';
+import EventReviews from '@/components/events/EventReviews';
+import EventComments from '@/components/events/EventComments';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -194,16 +194,29 @@ const EventDetailPage = () => {
                     
                     {event.venue.lat && event.venue.lng && (
                       <div className="h-48 rounded-lg overflow-hidden">
-                        <CityMap events={[{
-                          id: event.id,
-                          title: event.title,
-                          lat: event.venue.lat,
-                          lng: event.venue.lng,
-                          venue: event.venue.name,
-                          date: event.date_start,
-                          price: event.price_min,
-                          image: event.image_url
-                        }]} />
+                        <CityMap 
+                          events={[{
+                            id: event.id,
+                            title: event.title,
+                            venue: event.venue.name,
+                            location: event.venue.address,
+                            city: event.city,
+                            time: format(new Date(event.date_start), 'HH:mm'),
+                            date: event.date_start,
+                            genre: event.categories?.[0]?.category?.name || 'Evento',
+                            category: 'Evento',
+                            attendees: 0,
+                            price: event.price_min,
+                            description: event.description || '',
+                            image: event.image_url || '',
+                            featured: false,
+                            coordinates: {
+                              lat: event.venue.lat,
+                              lng: event.venue.lng
+                            }
+                          }]}
+                          center={[event.venue.lng, event.venue.lat]}
+                        />
                       </div>
                     )}
                   </div>
@@ -214,7 +227,18 @@ const EventDetailPage = () => {
         </div>
       </main>
 
-      <ShareDialog open={shareOpen} onOpenChange={setShareOpen} title={event.title} description={event.description} url={window.location.href} />
+      <ShareDialog 
+        isOpen={shareOpen} 
+        onClose={() => setShareOpen(false)} 
+        event={{
+          id: event.id,
+          title: event.title,
+          category: event.categories?.[0]?.category?.name || 'Evento',
+          city: event.city,
+          date: event.date_start,
+          image: event.image_url
+        }} 
+      />
       <Footer />
       <BackToTop />
     </div>
