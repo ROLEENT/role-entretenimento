@@ -9,7 +9,26 @@ interface FavoritesPanelProps {
 }
 
 const FavoritesPanel = ({ className }: FavoritesPanelProps) => {
-  const { favorites } = useFavorites();
+  const { favorites, loading } = useFavorites();
+
+  if (loading) {
+    return (
+      <Card className={className}>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Heart className="h-5 w-5" />
+            Seus Favoritos
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p>Carregando favoritos...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (favorites.length === 0) {
     return (
