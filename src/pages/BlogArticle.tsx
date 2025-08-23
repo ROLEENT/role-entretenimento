@@ -13,6 +13,7 @@ import ArticleNavigation from "@/components/blog/ArticleNavigation";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/sonner";
+import BlogBreadcrumbs from "@/components/blog/BlogBreadcrumbs";
 
 const BlogArticle = () => {
   const { cidade, data } = useParams();
@@ -31,6 +32,13 @@ const BlogArticle = () => {
         setPost(foundPost);
         
         if (foundPost) {
+          // Update page title and meta
+          document.title = `${foundPost.title} | ROLÊ`;
+          const metaDescription = document.querySelector('meta[name="description"]');
+          if (metaDescription) {
+            metaDescription.setAttribute('content', foundPost.lead);
+          }
+          
           // Get navigation posts
           const cityPosts = getCityPosts(cidade);
           const sortedPosts = cityPosts.sort((a, b) => 
@@ -103,14 +111,16 @@ const BlogArticle = () => {
       <Header />
       
       <main>
-        {/* Back Navigation */}
+        {/* Breadcrumbs */}
         <div className="container mx-auto px-4 py-6">
-          <Button asChild variant="ghost">
-            <Link to={`/destaques/${cidade}`}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Voltar para {post.city}
-            </Link>
-          </Button>
+          <BlogBreadcrumbs 
+            items={[
+              { label: "Início", href: "/" },
+              { label: "Destaques", href: "/destaques" },
+              { label: post.city, href: `/destaques/${cidade}` },
+              { label: post.title, isCurrentPage: true }
+            ]}
+          />
         </div>
 
         {/* Article Hero */}

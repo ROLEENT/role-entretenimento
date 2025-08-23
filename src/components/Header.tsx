@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import NotificationSystem from "@/components/NotificationSystem";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import roleLogo from "@/assets/role-logo.png";
 
 const Header = () => {
@@ -18,10 +19,9 @@ const Header = () => {
   }, []);
 
   const navigation = [
-    { name: "Eventos", href: "#eventos" },
-    { name: "Categorias", href: "#categorias" },
-    { name: "Cidades", href: "#cidades" },
-    { name: "Sobre", href: "#sobre" },
+    { name: "Início", href: "/" },
+    { name: "Destaques", href: "/destaques" },
+    { name: "Eventos", href: "/eventos" },
   ];
 
   return (
@@ -35,24 +35,24 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
             <img 
               src={roleLogo} 
               alt="ROLÊ Logo" 
               className="h-8 w-auto"
             />
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             {navigation.map((item) => (
-              <a
+              <Link
                 key={item.name}
-                href={item.href}
+                to={item.href}
                 className="text-foreground hover:text-primary transition-colors duration-200 font-medium"
               >
                 {item.name}
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -78,24 +78,26 @@ const Header = () => {
             <SheetContent side="right" className="w-80">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between py-4 border-b">
-                  <img 
-                    src={roleLogo} 
-                    alt="ROLÊ Logo" 
-                    className="h-8 w-auto"
-                  />
+                  <Link to="/">
+                    <img 
+                      src={roleLogo} 
+                      alt="ROLÊ Logo" 
+                      className="h-8 w-auto"
+                    />
+                  </Link>
                   <ThemeToggle />
                 </div>
                 
                 <nav className="flex-1 py-8">
                   <div className="space-y-6">
                     {navigation.map((item) => (
-                      <a
+                      <Link
                         key={item.name}
-                        href={item.href}
+                        to={item.href}
                         className="block text-lg font-medium text-foreground hover:text-primary transition-colors"
                       >
                         {item.name}
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </nav>

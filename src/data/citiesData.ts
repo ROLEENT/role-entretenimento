@@ -1,3 +1,9 @@
+import saoPauloImage from "@/assets/sao-paulo-events.jpg";
+import rioImage from "@/assets/rio-events.jpg";
+import florianopolisImage from "@/assets/florianopolis-events.jpg";
+import portoAlegreImage from "@/assets/porto-alegre-events.jpg";
+import curitibaImage from "@/assets/curitiba-events.jpg";
+
 export interface CityData {
   id: string;
   name: string;
@@ -29,7 +35,7 @@ export const citiesData: Record<string, CityData> = {
     name: 'São Paulo',
     state: 'São Paulo',
     description: 'A cidade que nunca dorme... nem para de dançar.',
-    image: '/src/assets/sao-paulo-events.jpg',
+    image: saoPauloImage,
     coordinates: { lat: -23.5505, lng: -46.6333 },
     stats: {
       totalEvents: 2400,
@@ -50,7 +56,7 @@ export const citiesData: Record<string, CityData> = {
     name: 'Rio de Janeiro',
     state: 'Rio de Janeiro',
     description: 'Funk, favela, cor e calor cultural.',
-    image: '/src/assets/rio-events.jpg',
+    image: rioImage,
     coordinates: { lat: -22.9068, lng: -43.1729 },
     stats: {
       totalEvents: 1800,
@@ -71,7 +77,7 @@ export const citiesData: Record<string, CityData> = {
     name: 'Florianópolis',
     state: 'Santa Catarina',
     description: 'Beira-mar, eletrônica e coletivo.',
-    image: '/src/assets/florianopolis-events.jpg',
+    image: florianopolisImage,
     coordinates: { lat: -27.5969, lng: -48.5495 },
     stats: {
       totalEvents: 800,
@@ -92,7 +98,7 @@ export const citiesData: Record<string, CityData> = {
     name: 'Porto Alegre',
     state: 'Rio Grande do Sul',
     description: 'A cena alternativa pulsa forte no Sul.',
-    image: '/src/assets/porto-alegre-events.jpg',
+    image: portoAlegreImage,
     coordinates: { lat: -30.0346, lng: -51.2177 },
     stats: {
       totalEvents: 600,
@@ -113,7 +119,7 @@ export const citiesData: Record<string, CityData> = {
     name: 'Curitiba',
     state: 'Paraná',
     description: 'Frio na rua, calor nas pistas.',
-    image: '/src/assets/curitiba-events.jpg',
+    image: curitibaImage,
     coordinates: { lat: -25.4284, lng: -49.2733 },
     stats: {
       totalEvents: 750,

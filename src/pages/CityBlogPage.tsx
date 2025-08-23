@@ -11,6 +11,8 @@ import { citiesData } from "@/data/citiesData";
 import ArticleCard from "@/components/blog/ArticleCard";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
 import { Skeleton } from "@/components/ui/skeleton";
+import BlogBreadcrumbs from "@/components/blog/BlogBreadcrumbs";
+import cityPlaceholder from "@/assets/city-placeholder.jpg";
 
 const CityBlogPage = () => {
   const { cidade } = useParams();
@@ -20,7 +22,14 @@ const CityBlogPage = () => {
   const cityData = cidade ? citiesData[cidade] : null;
 
   useEffect(() => {
-    if (cidade) {
+    if (cidade && cityData) {
+      // Update page title and meta
+      document.title = `Destaques de ${cityData.name} | ROLÊ`;
+      const metaDescription = document.querySelector('meta[name="description"]');
+      if (metaDescription) {
+        metaDescription.setAttribute('content', `Descubra os melhores eventos e experiências culturais de ${cityData.name}. ${cityData.description}`);
+      }
+      
       setIsLoading(true);
       // Simulate loading for better UX
       setTimeout(() => {
@@ -29,7 +38,7 @@ const CityBlogPage = () => {
         setIsLoading(false);
       }, 500);
     }
-  }, [cidade]);
+  }, [cidade, cityData]);
 
   if (isLoading) {
     return (
@@ -85,17 +94,24 @@ const CityBlogPage = () => {
         <section className="relative py-20 overflow-hidden">
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${cityData.image})` }}
+            style={{ 
+              backgroundImage: `url(${cityData.image})`,
+              backgroundSize: 'cover'
+            }}
+            onError={(e) => {
+              e.currentTarget.style.backgroundImage = `url(${cityPlaceholder})`;
+            }}
           />
           <div className="absolute inset-0 bg-black/50" />
           
           <div className="relative container mx-auto px-4">
-            <Button asChild variant="secondary" className="mb-6">
-              <Link to="/destaques">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Todos os Destaques
-              </Link>
-            </Button>
+            <BlogBreadcrumbs 
+              items={[
+                { label: "Início", href: "/" },
+                { label: "Destaques", href: "/destaques" },
+                { label: cityData.name, isCurrentPage: true }
+              ]}
+            />
             
             <div className="text-white">
               <h1 className="text-4xl md:text-6xl font-bold mb-4">

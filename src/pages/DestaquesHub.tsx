@@ -12,9 +12,19 @@ import { blogPosts, getLatestPostByCity } from "@/data/blogData";
 import { citiesData } from "@/data/citiesData";
 import ArticleCard from "@/components/blog/ArticleCard";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
+import cityPlaceholder from "@/assets/city-placeholder.jpg";
 
 const DestaquesHub = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Update page title and meta
+  useState(() => {
+    document.title = "Destaques ROLÊ | Curadoria Cultural Semanal";
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', "Curadoria editorial semanal das melhores experiências culturais do Brasil. Descubra os rolês que vão marcar a sua cidade.");
+    }
+  });
   
   // Get featured posts and city previews
   const featuredPosts = blogPosts.filter(post => post.featured);
@@ -98,6 +108,9 @@ const DestaquesHub = () => {
                             src={city.image} 
                             alt={city.name}
                             className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                            onError={(e) => {
+                              e.currentTarget.src = cityPlaceholder;
+                            }}
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                           <div className="absolute bottom-4 left-4 right-4">

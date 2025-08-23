@@ -12,7 +12,15 @@ const ArticleHero = ({ post }: ArticleHeroProps) => {
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${post.image})` }}
+        style={{ 
+          backgroundImage: `url(${post.image})`,
+          backgroundSize: 'cover'
+        }}
+        onError={(e) => {
+          import("@/assets/city-placeholder.jpg").then(module => {
+            e.currentTarget.style.backgroundImage = `url(${module.default})`;
+          });
+        }}
       />
       
       {/* Overlay */}

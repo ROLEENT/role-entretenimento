@@ -1,14 +1,23 @@
 import { useState, useRef, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import cityPlaceholder from "@/assets/city-placeholder.jpg";
 
 interface LazyImageProps {
   src: string;
   alt: string;
   className?: string;
-  placeholder?: string;
+  fallback?: string;
+  onError?: () => void;
 }
 
-const LazyImage = ({ src, alt, className, placeholder }: LazyImageProps) => {
+const LazyImage = ({ 
+  src, 
+  alt, 
+  className, 
+  fallback = cityPlaceholder,
+  onError,
+  ...props 
+}: LazyImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -39,6 +48,7 @@ const LazyImage = ({ src, alt, className, placeholder }: LazyImageProps) => {
   const handleError = () => {
     setHasError(true);
     setIsLoaded(true);
+    onError?.();
   };
 
   return (
@@ -49,13 +59,15 @@ const LazyImage = ({ src, alt, className, placeholder }: LazyImageProps) => {
       
       {isInView && (
         <img
-          src={hasError ? (placeholder || '/placeholder.svg') : src}
+          src={hasError ? fallback : src}
           alt={alt}
           className={`${className} transition-opacity duration-300 ${
             isLoaded ? 'opacity-100' : 'opacity-0'
           }`}
           onLoad={handleLoad}
           onError={handleError}
+          loading="lazy"
+          {...props}
         />
       )}
     </div>

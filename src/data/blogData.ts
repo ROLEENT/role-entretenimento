@@ -1,3 +1,7 @@
+import saoPauloImage from "@/assets/sao-paulo-events.jpg";
+import rioImage from "@/assets/rio-events.jpg";
+import portoAlegreImage from "@/assets/porto-alegre-events.jpg";
+
 export interface BlogPost {
   id: string;
   city: string;
@@ -70,7 +74,7 @@ A dúvida agora é boa: seguir o techno até o sol nascer ou acordar cedo para a
     publishedDate: "2024-08-14",
     weekRange: "14-17 Agosto",
     tags: ["rock", "pop", "techno", "samba", "psytrance"],
-    image: "/src/assets/porto-alegre-events.jpg",
+    image: portoAlegreImage,
     readTime: 8,
     featured: true
   },
@@ -102,7 +106,7 @@ São Paulo nunca decepciona. A única dificuldade é escolher entre tantas opç�
     publishedDate: "2024-08-21",
     weekRange: "21-24 Agosto",
     tags: ["eletrônica", "rock", "alternativo"],
-    image: "/src/assets/sao-paulo-events.jpg",
+    image: saoPauloImage,
     readTime: 5,
     featured: true
   },
@@ -134,7 +138,7 @@ Rio de Janeiro segue sendo o coração cultural do Brasil, batendo forte em todo
     publishedDate: "2024-09-07",
     weekRange: "07-10 Setembro",
     tags: ["funk", "jazz", "mpb"],
-    image: "/src/assets/rio-events.jpg",
+    image: rioImage,
     readTime: 6,
     featured: false
   }
@@ -155,4 +159,9 @@ export const getFeaturedPosts = (): BlogPost[] => {
 export const getLatestPostByCity = (citySlug: string): BlogPost | undefined => {
   const cityPosts = getCityPosts(citySlug);
   return cityPosts.sort((a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime())[0];
+};
+
+export const getCitiesWithPosts = (): string[] => {
+  const uniqueCities = [...new Set(blogPosts.map(post => post.citySlug))];
+  return uniqueCities;
 };
