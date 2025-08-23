@@ -62,15 +62,6 @@ const AdminLogin = () => {
       }
 
       if (isSignUp) {
-        // Check if user already exists first
-        const { data: existingUser } = await supabase.auth.getUser();
-        if (existingUser.user?.email === email) {
-          toast.error("Este email já possui uma conta. Faça login em vez de criar uma nova conta.");
-          setIsSignUp(false);
-          setIsLoading(false);
-          return;
-        }
-
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -90,21 +81,29 @@ const AdminLogin = () => {
             throw error;
           }
         } else {
-          toast.success("Conta criada! Verifique seu email para confirmar.");
+          toast.success("Conta criada! Verifique seu email para confirmar ou use 'Redefinir senha' para acesso imediato.");
         }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        // Try normal login first
+        const { error: loginError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
-        if (error) {
-          if (error.message.includes('Email not confirmed')) {
-            toast.error("Email não confirmado. Clique em 'Reenviar confirmação' para receber um novo link.");
-          } else if (error.message.includes('Invalid login credentials')) {
-            toast.error("Email ou senha incorretos. Verifique suas credenciais ou use 'Esqueci minha senha'.");
+        if (loginError) {
+          // Enhanced error handling for admins
+          if (loginError.message.includes('Email not confirmed')) {
+            toast.error("Email não confirmado. SOLUÇÃO RÁPIDA: Use 'Redefinir senha' - isso confirmará sua conta automaticamente e você poderá fazer login.", {
+              duration: 8000
+            });
+          } else if (loginError.message.includes('Invalid login credentials')) {
+            toast.error("Email ou senha incorretos. Verifique suas credenciais ou use 'Redefinir senha'.");
+          } else if (loginError.message.includes('Too many requests')) {
+            toast.error("Muitas tentativas de login. Aguarde alguns minutos antes de tentar novamente.");
+          } else if (loginError.message.includes('signup not allowed')) {
+            toast.error("Este email ainda não foi configurado. Entre em contato com fiih@roleentretenimento.com");
           } else {
-            throw error;
+            throw loginError;
           }
         } else {
           toast.success("Login realizado com sucesso!");
@@ -112,7 +111,15 @@ const AdminLogin = () => {
       }
     } catch (error: any) {
       console.error("Auth error:", error);
-      toast.error(error.message || "Erro na autenticação");
+      
+      // Better error messaging
+      if (error.message?.includes('JWT')) {
+        toast.error("Sessão expirada. Tente fazer login novamente.");
+      } else if (error.message?.includes('network')) {
+        toast.error("Erro de conexão. Verifique sua internet e tente novamente.");
+      } else {
+        toast.error(error.message || "Erro na autenticação");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -259,57 +266,78 @@ const AdminLogin = () => {
             </div>
 
             {!isSignUp && (
-              <div className="flex justify-center space-x-4 text-sm">
-                <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
-                  <DialogTrigger asChild>
-                    <button className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
-                      <KeyRound className="h-3 w-3" />
-                      Esqueci minha senha
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>Recuperar Senha</DialogTitle>
-                      <DialogDescription>
-                        Digite seu email para receber um link de recuperação de senha.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <Input
-                        type="email"
-                        placeholder="seu@email.com"
-                        value={resetEmail}
-                        onChange={(e) => setResetEmail(e.target.value)}
-                      />
-                      <div className="flex gap-2">
-                        <Button 
-                          onClick={handlePasswordReset} 
-                          disabled={isResetting}
-                          className="flex-1"
-                        >
-                          {isResetting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                          Enviar Link
-                        </Button>
-                        <Button variant="outline" onClick={() => setShowResetDialog(false)}>
-                          Cancelar
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+              <div className="space-y-3">
+                <div className="flex justify-center">
+                  <div className="bg-muted/50 rounded-lg p-3 text-center">
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Problemas para acessar? Tente estas opções:
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-2 text-xs">
+                      <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+                        <DialogTrigger asChild>
+                          <button className="text-primary hover:underline flex items-center gap-1">
+                            <KeyRound className="h-3 w-3" />
+                            Redefinir senha
+                          </button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                          <DialogHeader>
+                            <DialogTitle>Redefinir Senha</DialogTitle>
+                            <DialogDescription>
+                              Digite seu email para receber um link de redefinição. Isso também confirmará sua conta automaticamente.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <Input
+                              type="email"
+                              placeholder="seu@email.com"
+                              value={resetEmail}
+                              onChange={(e) => setResetEmail(e.target.value)}
+                            />
+                            <div className="flex gap-2">
+                              <Button 
+                                onClick={handlePasswordReset} 
+                                disabled={isResetting}
+                                className="flex-1"
+                              >
+                                {isResetting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Enviar Link
+                              </Button>
+                              <Button variant="outline" onClick={() => setShowResetDialog(false)}>
+                                Cancelar
+                              </Button>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
 
-                <button 
-                  onClick={handleResendConfirmation}
-                  disabled={isResendingConfirmation}
-                  className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
-                >
-                  {isResendingConfirmation ? (
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                  ) : (
-                    <RefreshCw className="h-3 w-3" />
-                  )}
-                  Reenviar confirmação
-                </button>
+                      <span className="text-muted-foreground">•</span>
+
+                      <button 
+                        onClick={handleResendConfirmation}
+                        disabled={isResendingConfirmation}
+                        className="text-primary hover:underline flex items-center gap-1"
+                      >
+                        {isResendingConfirmation ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <RefreshCw className="h-3 w-3" />
+                        )}
+                        Reenviar confirmação
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="text-center">
+                  <p className="text-xs text-muted-foreground">
+                    Ainda com problemas? Entre em contato:
+                    <br />
+                    <a href="mailto:fiih@roleentretenimento.com" className="text-primary hover:underline">
+                      fiih@roleentretenimento.com
+                    </a>
+                  </p>
+                </div>
               </div>
             )}
           </div>
