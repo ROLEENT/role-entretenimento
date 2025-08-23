@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ArrowLeft, Save, Eye, Upload, X } from "lucide-react";
 import { User } from "@supabase/supabase-js";
+import RichTextEditor from "@/components/ui/rich-text-editor";
 
 interface BlogPostForm {
   title: string;
@@ -329,12 +330,11 @@ const AdminPostEditor = () => {
             <CardTitle>Conteúdo *</CardTitle>
           </CardHeader>
           <CardContent>
-            <Textarea
+            <RichTextEditor
               value={formData.content_html}
-              onChange={(e) => setFormData(prev => ({ ...prev, content_html: e.target.value }))}
-              placeholder="HTML do artigo..."
-              rows={20}
-              className="font-mono text-sm"
+              onChange={(value) => setFormData(prev => ({ ...prev, content_html: value }))}
+              placeholder="Escreva o conteúdo do artigo aqui..."
+              className="mb-4"
             />
           </CardContent>
         </Card>
