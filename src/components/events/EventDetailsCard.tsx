@@ -303,8 +303,14 @@ const EventDetailsCard = ({ event }: EventDetailsCardProps) => {
       <ShareDialog
         isOpen={shareOpen}
         onClose={() => setShareOpen(false)}
-        eventTitle={event.title}
-        eventDescription={event.description}
+        event={{
+          id: event.id,
+          title: event.title,
+          category: event.categories?.[0]?.category?.name || 'Evento',
+          city: event.city,
+          date: event.date_start,
+          image: event.image_url
+        }}
       />
     </>
   );

@@ -91,50 +91,11 @@ const EventDetailPage = () => {
       <SEOHead
         title={`${event.title} - Eventos Role Entretenimento`}
         description={event.description || `${event.title} em ${event.city}, ${event.state}. ${eventCategories}`}
-        
         image={event.image_url}
         url={eventUrl}
-        structuredData={{
-          "@context": "https://schema.org",
-          "@type": "Event",
-          "name": event.title,
-          "description": event.description,
-          "startDate": event.date_start,
-          "endDate": event.date_end,
-          "eventStatus": "https://schema.org/EventScheduled",
-          "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-          "location": {
-            "@type": "Place",
-            "name": event.venue?.name || `${event.city}, ${event.state}`,
-            "address": {
-              "@type": "PostalAddress",
-              "streetAddress": event.venue?.address,
-              "addressLocality": event.city,
-              "addressRegion": event.state,
-              "addressCountry": "BR"
-            },
-            ...(event.venue?.lat && event.venue?.lng && {
-              "geo": {
-                "@type": "GeoCoordinates",
-                "latitude": event.venue.lat,
-                "longitude": event.venue.lng
-              }
-            })
-          },
-          "image": event.image_url,
-          "organizer": event.organizer ? {
-            "@type": "Organization",
-            "name": event.organizer.name,
-            "email": event.organizer.contact_email,
-            "url": event.organizer.site
-          } : undefined,
-          "offers": event.price_min !== undefined ? {
-            "@type": "Offer",
-            "price": event.price_min,
-            "priceCurrency": "BRL",
-            "availability": "https://schema.org/InStock"
-          } : undefined
-        }}
+        type="article"
+        publishedTime={event.date_start}
+        tags={event.categories?.map((cat: any) => cat.category.name) || []}
       />
       
       <Header />
@@ -155,13 +116,22 @@ const EventDetailPage = () => {
                       title: event.title,
                       venue: event.venue.name,
                       location: event.venue.address,
+                      city: event.city,
+                      time: new Date(event.date_start).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                      date: new Date(event.date_start).toLocaleDateString('pt-BR'),
+                      genre: event.categories?.[0]?.category?.name || 'Evento',
+                      category: event.categories?.[0]?.category?.name || 'Evento',
+                      attendees: 0,
+                      price: event.price_min || 0,
+                      description: event.description || '',
+                      image: event.image_url || '',
+                      featured: false,
                       coordinates: {
                         lat: event.venue.lat,
                         lng: event.venue.lng
                       }
                     }]}
-                    center={{ lat: event.venue.lat, lng: event.venue.lng }}
-                    zoom={15}
+                    center={[event.venue.lng, event.venue.lat]}
                   />
                 </div>
               </CardContent>

@@ -38,7 +38,7 @@ const EventsPage = () => {
     50
   );
 
-  const cityData = cidade ? citiesData.find(city => 
+  const cityData = cidade ? Object.values(citiesData).find(city => 
     city.name.toLowerCase().replace(/\s+/g, '-') === cidade.toLowerCase()
   ) : null;
 
@@ -68,16 +68,28 @@ const EventsPage = () => {
   const isLoading = cidade ? loading : nearbyLoading;
   const showNearbyToggle = !cidade && location;
 
-  const mapEvents = displayEvents.map(event => ({
-    id: event.id,
-    title: event.title,
-    venue: event.venue?.name || 'Local não informado',
-    location: event.venue?.address || `${event.city}, ${event.state}`,
-    coordinates: event.venue?.lat && event.venue?.lng ? {
-      lat: event.venue.lat,
-      lng: event.venue.lng
-    } : undefined
-  })).filter(event => event.coordinates);
+  const mapEvents = displayEvents
+    .filter(event => event.venue?.lat && event.venue?.lng)
+    .map(event => ({
+      id: event.id,
+      title: event.title,
+      venue: event.venue?.name || 'Local não informado',
+      location: event.venue?.address || `${event.city}, ${event.state}`,
+      city: event.city,
+      time: new Date(event.date_start).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+      date: new Date(event.date_start).toLocaleDateString('pt-BR'),
+      genre: event.categories?.[0]?.category?.name || 'Evento',
+      category: event.categories?.[0]?.category?.name || 'Evento',
+      attendees: 0,
+      price: event.price_min || 0,
+      description: event.description || '',
+      image: event.image_url || '',
+      featured: false,
+      coordinates: {
+        lat: event.venue.lat,
+        lng: event.venue.lng
+      }
+    }));
 
   const pageTitle = cidade 
     ? `Eventos em ${cityData?.name || cidade} - Role Entretenimento`
@@ -356,10 +368,7 @@ const EventsPage = () => {
                   <div className="h-96 rounded-b-lg overflow-hidden">
                     <CityMap
                       events={mapEvents}
-                      center={location || (mapEvents[0]?.coordinates ? {
-                        lat: mapEvents[0].coordinates.lat,
-                        lng: mapEvents[0].coordinates.lng
-                      } : undefined)}
+                      center={location ? [location.lng, location.lat] : mapEvents[0] ? [mapEvents[0].coordinates.lng, mapEvents[0].coordinates.lat] : [-46.6333, -23.5505]}
                     />
                   </div>
                 </CardContent>
