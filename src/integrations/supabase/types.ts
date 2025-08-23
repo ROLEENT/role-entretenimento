@@ -157,6 +157,10 @@ export type Database = {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      increment_post_views: {
+        Args: { post_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       article_status: "draft" | "published" | "scheduled"
