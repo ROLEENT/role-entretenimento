@@ -534,49 +534,49 @@ export type Database = {
       }
       highlights: {
         Row: {
-          city: string
+          city: Database["public"]["Enums"]["city"]
           created_at: string
-          event_date: string
+          event_date: string | null
           event_title: string
           id: string
-          image_url: string | null
+          image_url: string
           is_published: boolean
           photo_credit: string | null
           role_text: string
           selection_reasons: string[]
-          sort_order: number
+          sort_order: number | null
           ticket_url: string | null
           updated_at: string
           venue: string
         }
         Insert: {
-          city: string
+          city: Database["public"]["Enums"]["city"]
           created_at?: string
-          event_date: string
+          event_date?: string | null
           event_title: string
           id?: string
-          image_url?: string | null
+          image_url: string
           is_published?: boolean
           photo_credit?: string | null
           role_text: string
           selection_reasons?: string[]
-          sort_order?: number
+          sort_order?: number | null
           ticket_url?: string | null
           updated_at?: string
           venue: string
         }
         Update: {
-          city?: string
+          city?: Database["public"]["Enums"]["city"]
           created_at?: string
-          event_date?: string
+          event_date?: string | null
           event_title?: string
           id?: string
-          image_url?: string | null
+          image_url?: string
           is_published?: boolean
           photo_credit?: string | null
           role_text?: string
           selection_reasons?: string[]
-          sort_order?: number
+          sort_order?: number | null
           ticket_url?: string | null
           updated_at?: string
           venue?: string
@@ -952,6 +952,12 @@ export type Database = {
     }
     Enums: {
       article_status: "draft" | "published" | "scheduled"
+      city:
+        | "porto_alegre"
+        | "florianopolis"
+        | "curitiba"
+        | "sao_paulo"
+        | "rio_de_janeiro"
       user_role: "admin" | "editor" | "moderator"
     }
     CompositeTypes: {
@@ -1081,6 +1087,13 @@ export const Constants = {
   public: {
     Enums: {
       article_status: ["draft", "published", "scheduled"],
+      city: [
+        "porto_alegre",
+        "florianopolis",
+        "curitiba",
+        "sao_paulo",
+        "rio_de_janeiro",
+      ],
       user_role: ["admin", "editor", "moderator"],
     },
   },
