@@ -38,24 +38,7 @@ export const InstagramShareCard = ({
     canvas.width = 1080;
     canvas.height = 1920;
 
-    // Create sophisticated background
-    const bgGradient = ctx.createRadialGradient(540, 960, 0, 540, 960, 1200);
-    bgGradient.addColorStop(0, '#1a1a1a');
-    bgGradient.addColorStop(0.6, '#0a0a0a');
-    bgGradient.addColorStop(1, '#000000');
-    
-    ctx.fillStyle = bgGradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Add subtle noise texture
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
-    for (let i = 0; i < 500; i++) {
-      const x = Math.random() * canvas.width;
-      const y = Math.random() * canvas.height;
-      ctx.fillRect(x, y, 1, 1);
-    }
-
-    // Load and process background image
+    // Background setup
     if (imageUrl) {
       try {
         const img = new Image();
@@ -66,40 +49,64 @@ export const InstagramShareCard = ({
           img.src = imageUrl;
         });
 
-        // Blur effect for background
-        ctx.filter = 'blur(20px)';
-        ctx.globalAlpha = 0.3;
-        ctx.drawImage(img, -100, -100, canvas.width + 200, canvas.height + 200);
+        // Blurred background image (Spotify style)
+        ctx.filter = 'blur(18px) saturate(120%)';
+        ctx.globalAlpha = 0.55;
+        const scale = 1.08;
+        const offsetX = (canvas.width * scale - canvas.width) / 2;
+        const offsetY = (canvas.height * scale - canvas.height) / 2;
+        ctx.drawImage(img, -offsetX, -offsetY, canvas.width * scale, canvas.height * scale);
         ctx.filter = 'none';
         ctx.globalAlpha = 1;
-
-        // Dark overlay
-        const overlayGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        overlayGradient.addColorStop(0, 'rgba(0, 0, 0, 0.7)');
-        overlayGradient.addColorStop(1, 'rgba(0, 0, 0, 0.9)');
-        ctx.fillStyle = overlayGradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
       } catch (error) {
-        console.log('Could not load background image:', error);
+        console.log('Could not load background image, using gradient:', error);
       }
     }
 
-    // Main content card (Spotify-style)
-    const cardY = canvas.height * 0.4;
-    const cardHeight = 400;
-    const cardWidth = canvas.width * 0.8;
-    const cardX = (canvas.width - cardWidth) / 2;
+    // Background gradient overlay (always applied)
+    const bgGradient = ctx.createRadialGradient(canvas.width * 0.1, 0, 0, canvas.width * 0.5, canvas.height * 0.5, canvas.width * 1.2);
+    bgGradient.addColorStop(0, 'rgba(43, 43, 50, 0.1)');
+    bgGradient.addColorStop(0.32, 'rgba(26, 26, 31, 0.3)');
+    bgGradient.addColorStop(0.5, 'rgba(20, 20, 25, 0.5)');
+    bgGradient.addColorStop(0.7, 'rgba(17, 16, 22, 0.7)');
+    
+    const accentGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    accentGradient.addColorStop(0, gradientFrom + '40');
+    accentGradient.addColorStop(0.5, '#8b5cf640');
+    accentGradient.addColorStop(1, '#6ee7f940');
+    
+    ctx.globalCompositeOperation = 'screen';
+    ctx.fillStyle = accentGradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.globalCompositeOperation = 'source-over';
+    
+    ctx.fillStyle = bgGradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Vignette effect
+    const vignetteGradient = ctx.createRadialGradient(canvas.width * 0.5, canvas.height * 0.5, 0, canvas.width * 0.5, canvas.height * 0.5, canvas.width * 0.6);
+    vignetteGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    vignetteGradient.addColorStop(0.4, 'rgba(0, 0, 0, 0)');
+    vignetteGradient.addColorStop(0.75, 'rgba(0, 0, 0, 0.5)');
+    vignetteGradient.addColorStop(1, 'rgba(0, 0, 0, 0.7)');
+    ctx.fillStyle = vignetteGradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Central card (Spotify style)
+    const cardWidth = canvas.width - 96; // 48px margin each side
+    const cardHeight = 140;
+    const cardX = 48;
+    const cardY = canvas.height - 160; // Bottom positioning
 
     // Card shadow
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-    ctx.shadowBlur = 40;
-    ctx.shadowOffsetY = 20;
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+    ctx.shadowBlur = 30;
+    ctx.shadowOffsetY = 10;
 
-    // Card background with rounded corners
-    ctx.fillStyle = 'rgba(18, 18, 18, 0.95)';
-    const radius = 24;
+    // Card background with blur effect
+    ctx.fillStyle = 'rgba(20, 20, 27, 0.8)';
     ctx.beginPath();
-    ctx.roundRect(cardX, cardY, cardWidth, cardHeight, radius);
+    ctx.roundRect(cardX, cardY, cardWidth, cardHeight, 24);
     ctx.fill();
 
     // Reset shadow
@@ -107,78 +114,90 @@ export const InstagramShareCard = ({
     ctx.shadowBlur = 0;
     ctx.shadowOffsetY = 0;
 
-    // Card border
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.roundRect(cardX, cardY, cardWidth, cardHeight, radius);
-    ctx.stroke();
+    // Cover image (1:1 ratio on the left)
+    const coverSize = 108; // Fits inside card with padding
+    const coverX = cardX + 16;
+    const coverY = cardY + 16;
 
-    // Brand logo area
-    ctx.fillStyle = gradientFrom;
-    ctx.beginPath();
-    ctx.roundRect(cardX + 24, cardY + 24, cardWidth - 48, 80, 12);
-    ctx.fill();
+    if (imageUrl) {
+      try {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = imageUrl;
+        });
 
-    // ROLÊ logo
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 36px system-ui, -apple-system, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('ROLÊ', cardX + cardWidth / 2, cardY + 70);
-
-    // Title section
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 44px system-ui, -apple-system, sans-serif';
-    ctx.textAlign = 'center';
-    
-    const titleLines = wrapText(ctx, title, cardWidth - 80);
-    let currentY = cardY + 160;
-    titleLines.forEach(line => {
-      ctx.fillText(line, cardX + cardWidth / 2, currentY);
-      currentY += 50;
-    });
-
-    // Subtitle
-    if (subtitle) {
-      ctx.fillStyle = '#B3B3B3';
-      ctx.font = '28px system-ui, -apple-system, sans-serif';
-      
-      const subtitleLines = wrapText(ctx, subtitle, cardWidth - 80);
-      currentY += 20;
-      subtitleLines.forEach(line => {
-        ctx.fillText(line, cardX + cardWidth / 2, currentY);
-        currentY += 35;
-      });
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(coverX, coverY, coverSize, coverSize, 14);
+        ctx.clip();
+        ctx.drawImage(img, coverX, coverY, coverSize, coverSize);
+        ctx.restore();
+      } catch (error) {
+        // Fallback cover
+        ctx.fillStyle = '#222';
+        ctx.beginPath();
+        ctx.roundRect(coverX, coverY, coverSize, coverSize, 14);
+        ctx.fill();
+      }
+    } else {
+      // Default cover
+      ctx.fillStyle = '#222';
+      ctx.beginPath();
+      ctx.roundRect(coverX, coverY, coverSize, coverSize, 14);
+      ctx.fill();
     }
 
-    // Website URL
-    ctx.fillStyle = '#666666';
-    ctx.font = '24px system-ui, -apple-system, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('role.site', cardX + cardWidth / 2, cardY + cardHeight - 30);
+    // Text content area
+    const textX = coverX + coverSize + 16;
+    const textWidth = cardWidth - coverSize - 48;
 
-    // Decorative elements (like Spotify's design)
-    const dotSize = 6;
+    // Title
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 24px Inter, system-ui, -apple-system, sans-serif';
+    ctx.textAlign = 'left';
+    
+    const titleLines = wrapText(ctx, title, textWidth);
+    let currentY = cardY + 40;
+    titleLines.slice(0, 2).forEach(line => { // Max 2 lines
+      ctx.fillText(line, textX, currentY);
+      currentY += 28;
+    });
+
+    // Source
+    ctx.fillStyle = '#C7C7CF';
+    ctx.font = '500 16px Inter, system-ui, -apple-system, sans-serif';
+    ctx.fillText('ROLÊ ENTRETENIMENTO', textX, currentY + 8);
+
+    // Brand indicator
+    const dotX = textX;
+    const dotY = cardY + cardHeight - 24;
+    
     ctx.fillStyle = gradientFrom;
     ctx.beginPath();
-    ctx.arc(cardX + 40, cardY + cardHeight - 60, dotSize, 0, 2 * Math.PI);
+    ctx.arc(dotX, dotY, 4, 0, 2 * Math.PI);
     ctx.fill();
-
-    ctx.fillStyle = gradientTo;
+    
+    ctx.fillStyle = 'rgba(0, 229, 255, 0.8)';
     ctx.beginPath();
-    ctx.arc(cardX + 60, cardY + cardHeight - 60, dotSize, 0, 2 * Math.PI);
+    ctx.arc(dotX, dotY, 4, 0, 2 * Math.PI);
+    ctx.shadowColor = gradientFrom;
+    ctx.shadowBlur = 12;
     ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
 
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath();
-    ctx.arc(cardX + 80, cardY + cardHeight - 60, dotSize, 0, 2 * Math.PI);
-    ctx.fill();
+    ctx.fillStyle = '#C7C7CF';
+    ctx.font = '12px Inter, system-ui, -apple-system, sans-serif';
+    ctx.fillText('roleentretenimento.com', dotX + 16, dotY + 4);
 
-    // Top branding
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-    ctx.font = '28px system-ui, -apple-system, sans-serif';
+    // CTA at bottom
+    ctx.fillStyle = 'rgba(199, 199, 207, 0.85)';
+    ctx.font = '14px Inter, system-ui, -apple-system, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Descubra eventos incríveis', canvas.width / 2, 120);
+    ctx.fillText('Toque para ler no ROLÊ', canvas.width / 2, canvas.height - 48);
   };
 
   const wrapText = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number) => {
