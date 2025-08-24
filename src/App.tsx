@@ -29,7 +29,7 @@ import AdminPostEditor from "./pages/AdminPostEditor";
 import AdminEventCreate from "./pages/AdminEventCreate";
 import AdminVenuesManagement from "./pages/AdminVenuesManagement";
 import AdminCategoriesManagement from "./pages/AdminCategoriesManagement";
-import AdminAdvertisementsManagement from "./pages/AdminAdvertisementsManagement";
+import AdminAdvertisements from "./pages/AdminAdvertisements";
 import AdminProfile from "./pages/AdminProfile";
 import AdminBlogPostsHistory from "./pages/AdminBlogPostsHistory";
 import AdminPartnersManagement from "./pages/AdminPartnersManagement";
@@ -76,7 +76,7 @@ const App = () => (
               <Route path="highlights/edit/:id" element={<AdminHighlightEditor />} />
               <Route path="event/create" element={<AdminEventCreate />} />
               <Route path="partners/*" element={<AdminPartnersManagement />} />
-              <Route path="advertisements/*" element={<AdminAdvertisementsManagement />} />
+              <Route path="advertisements/*" element={<AdminAdvertisements />} />
               <Route path="posts/new" element={<AdminPostEditor />} />
               <Route path="posts/:id/edit" element={<AdminPostEditor />} />
               <Route path="posts/history" element={<AdminBlogPostsHistory />} />

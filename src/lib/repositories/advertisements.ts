@@ -34,7 +34,7 @@ export async function deleteAdvertisement(id: string) {
 }
 
 export async function updateAdStatus(id: string, status: string) {
-  const { data, error } = await (supabase as any).from('advertisements').update({ status }).select().maybeSingle();
+  const { data, error } = await (supabase as any).from('advertisements').update({ status }).eq('id', id).select().maybeSingle();
   if (error) throw error;
   return data;
 }

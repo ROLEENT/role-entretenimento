@@ -31,7 +31,7 @@ export async function deletePartner(id: string) {
 }
 
 export async function togglePartnerActive(id: string, is_active: boolean) {
-  const { data, error } = await (supabase as any).from('partners').update({ is_active }).select().maybeSingle();
+  const { data, error } = await (supabase as any).from('partners').update({ is_active }).eq('id', id).select().maybeSingle();
   if (error) throw error;
   return data;
 }
