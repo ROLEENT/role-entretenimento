@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Facebook, Twitter, Share2, Copy, Instagram } from "lucide-react";
 import { toast } from "sonner";
-import InstagramShareCard from "../InstagramShareCard";
+import { InstagramShareCard } from "../InstagramShareCard";
 
 interface ShareButtonsProps {
   title: string;

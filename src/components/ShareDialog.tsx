@@ -8,7 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import type { FavoriteEvent } from '@/hooks/useFavorites';
-import InstagramShareCard from './InstagramShareCard';
+import { InstagramShareCard } from './InstagramShareCard';
 
 interface ShareDialogProps {
   isOpen: boolean;

@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
-import { Button } from './ui/button';
-import { Copy, Instagram, Share2 } from 'lucide-react';
-import { toast } from 'sonner';
+import React, { useRef, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Download, Link, Instagram } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 interface InstagramShareCardProps {
   title: string;
@@ -12,220 +13,296 @@ interface InstagramShareCardProps {
   gradientTo?: string;
 }
 
-const InstagramShareCard = ({ 
+export const InstagramShareCard = ({ 
   title, 
   subtitle, 
   imageUrl, 
-  url,
-  gradientFrom = "hsl(280, 100%, 60%)",
-  gradientTo = "hsl(320, 100%, 70%)"
+  url, 
+  gradientFrom = "#8B5CF6", 
+  gradientTo = "#EC4899" 
 }: InstagramShareCardProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    generateInstagramImage();
-  }, [title, subtitle, imageUrl]);
+    generateStoriesImage();
+  }, [title, subtitle, imageUrl, gradientFrom, gradientTo]);
 
-  const generateInstagramImage = async () => {
+  const generateStoriesImage = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size for Instagram Stories (1080x1920)
+    // Stories dimensions (9:16 aspect ratio)
     canvas.width = 1080;
     canvas.height = 1920;
 
-    // Create gradient background
-    const gradient = ctx.createLinearGradient(0, 0, 0, 1920);
-    gradient.addColorStop(0, gradientFrom);
-    gradient.addColorStop(1, gradientTo);
+    // Create sophisticated background
+    const bgGradient = ctx.createRadialGradient(540, 960, 0, 540, 960, 1200);
+    bgGradient.addColorStop(0, '#1a1a1a');
+    bgGradient.addColorStop(0.6, '#0a0a0a');
+    bgGradient.addColorStop(1, '#000000');
     
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 1080, 1920);
+    ctx.fillStyle = bgGradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Add overlay for better text readability
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-    ctx.fillRect(0, 0, 1080, 1920);
+    // Add subtle noise texture
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
+    for (let i = 0; i < 500; i++) {
+      const x = Math.random() * canvas.width;
+      const y = Math.random() * canvas.height;
+      ctx.fillRect(x, y, 1, 1);
+    }
 
-    // Load and draw background image if provided
+    // Load and process background image
     if (imageUrl) {
       try {
         const img = new Image();
         img.crossOrigin = 'anonymous';
-        img.onload = () => {
-          // Draw image with overlay
-          ctx.globalAlpha = 0.4;
-          ctx.drawImage(img, 0, 0, 1080, 1920);
-          ctx.globalAlpha = 1;
-          
-          // Add dark overlay for text readability
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-          ctx.fillRect(0, 0, 1080, 1920);
-          
-          drawText();
-        };
-        img.src = imageUrl;
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = imageUrl;
+        });
+
+        // Blur effect for background
+        ctx.filter = 'blur(20px)';
+        ctx.globalAlpha = 0.3;
+        ctx.drawImage(img, -100, -100, canvas.width + 200, canvas.height + 200);
+        ctx.filter = 'none';
+        ctx.globalAlpha = 1;
+
+        // Dark overlay
+        const overlayGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        overlayGradient.addColorStop(0, 'rgba(0, 0, 0, 0.7)');
+        overlayGradient.addColorStop(1, 'rgba(0, 0, 0, 0.9)');
+        ctx.fillStyle = overlayGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
       } catch (error) {
-        console.error('Error loading image:', error);
-        drawText();
+        console.log('Could not load background image:', error);
       }
-    } else {
-      drawText();
     }
 
-    function drawText() {
-      // ROLÊ logo/brand
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 60px Arial, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('ROLÊ', 540, 200);
+    // Main content card (Spotify-style)
+    const cardY = canvas.height * 0.4;
+    const cardHeight = 400;
+    const cardWidth = canvas.width * 0.8;
+    const cardX = (canvas.width - cardWidth) / 2;
 
-      // Main title
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 80px Arial, sans-serif';
-      ctx.textAlign = 'center';
+    // Card shadow
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    ctx.shadowBlur = 40;
+    ctx.shadowOffsetY = 20;
+
+    // Card background with rounded corners
+    ctx.fillStyle = 'rgba(18, 18, 18, 0.95)';
+    const radius = 24;
+    ctx.beginPath();
+    ctx.roundRect(cardX, cardY, cardWidth, cardHeight, radius);
+    ctx.fill();
+
+    // Reset shadow
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    // Card border
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(cardX, cardY, cardWidth, cardHeight, radius);
+    ctx.stroke();
+
+    // Brand logo area
+    ctx.fillStyle = gradientFrom;
+    ctx.beginPath();
+    ctx.roundRect(cardX + 24, cardY + 24, cardWidth - 48, 80, 12);
+    ctx.fill();
+
+    // ROLÊ logo
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 36px system-ui, -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('ROLÊ', cardX + cardWidth / 2, cardY + 70);
+
+    // Title section
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 44px system-ui, -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    
+    const titleLines = wrapText(ctx, title, cardWidth - 80);
+    let currentY = cardY + 160;
+    titleLines.forEach(line => {
+      ctx.fillText(line, cardX + cardWidth / 2, currentY);
+      currentY += 50;
+    });
+
+    // Subtitle
+    if (subtitle) {
+      ctx.fillStyle = '#B3B3B3';
+      ctx.font = '28px system-ui, -apple-system, sans-serif';
       
-      // Text wrapping for long titles
-      const words = title.split(' ');
-      let line = '';
-      let y = 800;
-      const maxWidth = 900;
-      const lineHeight = 90;
-      
-      for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + ' ';
-        const metrics = ctx.measureText(testLine);
-        const testWidth = metrics.width;
-        
-        if (testWidth > maxWidth && n > 0) {
-          ctx.fillText(line, 540, y);
-          line = words[n] + ' ';
-          y += lineHeight;
-        } else {
-          line = testLine;
-        }
-      }
-      ctx.fillText(line, 540, y);
-
-      // Subtitle
-      if (subtitle) {
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '50px Arial, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(subtitle, 540, y + 100);
-      }
-
-      // Call to action
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 40px Arial, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('Veja mais em role.ent', 540, 1700);
-
-      // QR code placeholder or URL
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-      ctx.font = '30px Arial, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(url.replace('https://', ''), 540, 1780);
+      const subtitleLines = wrapText(ctx, subtitle, cardWidth - 80);
+      currentY += 20;
+      subtitleLines.forEach(line => {
+        ctx.fillText(line, cardX + cardWidth / 2, currentY);
+        currentY += 35;
+      });
     }
+
+    // Website URL
+    ctx.fillStyle = '#666666';
+    ctx.font = '24px system-ui, -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('role.site', cardX + cardWidth / 2, cardY + cardHeight - 30);
+
+    // Decorative elements (like Spotify's design)
+    const dotSize = 6;
+    ctx.fillStyle = gradientFrom;
+    ctx.beginPath();
+    ctx.arc(cardX + 40, cardY + cardHeight - 60, dotSize, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.fillStyle = gradientTo;
+    ctx.beginPath();
+    ctx.arc(cardX + 60, cardY + cardHeight - 60, dotSize, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.arc(cardX + 80, cardY + cardHeight - 60, dotSize, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Top branding
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.font = '28px system-ui, -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Descubra eventos incríveis', canvas.width / 2, 120);
   };
 
-  const handleDownloadImage = () => {
+  const wrapText = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number) => {
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = words[0];
+
+    for (let i = 1; i < words.length; i++) {
+      const word = words[i];
+      const width = ctx.measureText(currentLine + ' ' + word).width;
+      if (width < maxWidth) {
+        currentLine += ' ' + word;
+      } else {
+        lines.push(currentLine);
+        currentLine = word;
+      }
+    }
+    lines.push(currentLine);
+    return lines.slice(0, 2); // Max 2 lines for title
+  };
+
+  const handleDownloadImage = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     canvas.toBlob((blob) => {
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `role-story-${title.toLowerCase().replace(/\s+/g, '-')}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        toast.success('Imagem baixada! Compartilhe no Instagram Stories');
-      }
-    }, 'image/png');
+      if (!blob) return;
+      
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `role-stories-${title.replace(/\s+/g, '-').toLowerCase()}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download concluído! 📱",
+        description: "Agora é só compartilhar nos seus Stories!"
+      });
+    }, 'image/png', 1.0);
   };
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(url);
-    toast.success('Link copiado para área de transferência!');
+  const handleShareInstagram = async () => {
+    await handleDownloadImage();
+    
+    // Open Instagram Stories camera
+    window.open('https://www.instagram.com/stories/camera/', '_blank');
+    
+    toast({
+      title: "Redirecionando para o Instagram 📸",
+      description: "A imagem foi baixada! Cole nos seus Stories."
+    });
   };
 
-  const handleShareInstagram = () => {
-    // Try to open Instagram app or website
-    const instagramUrl = `https://www.instagram.com/`;
-    window.open(instagramUrl, '_blank');
-    toast.info('Baixe a imagem e compartilhe no Instagram Stories!');
+  const handleCopyLink = async () => {
+    if (url) {
+      await navigator.clipboard.writeText(url);
+      toast({
+        title: "Link copiado! 🔗",
+        description: "Cole onde quiser compartilhar."
+      });
+    }
   };
 
   return (
-    <div className="space-y-4">
-      <div className="bg-card rounded-lg p-4 space-y-4">
-        <h3 className="font-semibold text-card-foreground">Compartilhar no Instagram Stories</h3>
-        
+    <Card className="w-full max-w-sm mx-auto bg-gradient-to-br from-gray-900 via-purple-900 to-pink-900 text-white shadow-2xl border-0">
+      <CardContent className="p-6">
         {/* Preview */}
-        <div className="flex justify-center">
-          <div className="relative">
-            <canvas
-              ref={canvasRef}
-              className="max-w-[200px] max-h-[356px] rounded-lg border shadow-sm"
-              style={{ aspectRatio: '9/16' }}
-            />
-            <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors rounded-lg flex items-center justify-center opacity-0 hover:opacity-100">
+        <div className="mb-6">
+          <canvas
+            ref={canvasRef}
+            className="w-full h-auto rounded-xl shadow-2xl border border-white/10"
+            style={{ aspectRatio: '9/16', maxHeight: '320px' }}
+          />
+        </div>
+
+        {/* Action Buttons */}
+        <div className="space-y-3">
+          <Button
+            onClick={handleShareInstagram}
+            className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 text-white font-bold py-4 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
+            size="lg"
+          >
+            <Instagram className="w-5 h-5 mr-3" />
+            Compartilhar Stories
+          </Button>
+
+          <div className="flex gap-3">
+            <Button
+              onClick={handleDownloadImage}
+              variant="outline"
+              className="flex-1 bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/30 rounded-xl py-3 transition-all duration-200"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Baixar
+            </Button>
+            
+            {url && (
               <Button
-                onClick={handleDownloadImage}
-                size="sm"
-                className="bg-white/90 text-black hover:bg-white"
+                onClick={handleCopyLink}
+                variant="outline"
+                className="flex-1 bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/30 rounded-xl py-3 transition-all duration-200"
               >
-                Baixar Imagem
+                <Link className="w-4 h-4 mr-2" />
+                Link
               </Button>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* Action buttons */}
-        <div className="grid grid-cols-3 gap-2">
-          <Button
-            onClick={handleDownloadImage}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <Share2 className="w-4 h-4" />
-            Baixar
-          </Button>
-          
-          <Button
-            onClick={handleShareInstagram}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2 text-pink-600 border-pink-200 hover:bg-pink-50"
-          >
-            <Instagram className="w-4 h-4" />
-            Instagram
-          </Button>
-          
-          <Button
-            onClick={handleCopyLink}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <Copy className="w-4 h-4" />
-            Link
-          </Button>
+        {/* Info */}
+        <div className="mt-6 text-center space-y-2">
+          <div className="flex items-center justify-center gap-2 text-white/80">
+            <div className="w-2 h-2 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full"></div>
+            <p className="text-sm font-medium">
+              Otimizado para Instagram Stories
+            </p>
+            <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full"></div>
+          </div>
+          <p className="text-white/60 text-xs">
+            Design inspirado no Spotify • 1080x1920px
+          </p>
         </div>
-
-        <p className="text-xs text-muted-foreground text-center">
-          Imagem otimizada para Instagram Stories (1080x1920)
-        </p>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
-
-export default InstagramShareCard;
