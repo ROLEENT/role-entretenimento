@@ -62,25 +62,28 @@ const AdminHighlightsManagement = () => {
 
   const fetchHighlights = async () => {
     try {
-      let query = supabase
-        .from('highlights')
-        .select('*');
-
-      // Apply city filter
-      if (cityFilter !== "all") {
-        query = query.eq('city', cityFilter as CityEnum);
+      if (!adminUser?.email) {
+        toast.error('Admin não autenticado');
+        return;
       }
 
-      // Apply search filter
-      if (searchTerm.trim()) {
-        query = query.ilike('event_title', `%${searchTerm.trim()}%`);
+      const cityParam = cityFilter === 'all' ? null : cityFilter;
+      const searchParam = searchTerm.trim() || null;
+
+      console.log('Buscando destaques via RPC:', { adminEmail: adminUser.email, cityParam, searchParam });
+
+      const { data, error } = await supabase.rpc('admin_get_highlights', {
+        p_admin_email: adminUser.email,
+        p_city: cityParam,
+        p_search: searchParam
+      });
+
+      if (error) {
+        console.error('Erro RPC ao buscar destaques:', error);
+        throw error;
       }
-
-      const { data, error } = await query
-        .order('sort_order', { ascending: false })
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      
+      console.log('Destaques carregados via RPC:', data);
       setHighlights(data || []);
     } catch (error) {
       console.error('Erro ao carregar destaques:', error);
@@ -92,13 +95,24 @@ const AdminHighlightsManagement = () => {
 
   const togglePublished = async (id: string, currentStatus: boolean) => {
     try {
-      const { error } = await supabase
-        .from('highlights')
-        .update({ is_published: !currentStatus })
-        .eq('id', id);
+      if (!adminUser?.email) {
+        toast.error('Admin não autenticado');
+        return;
+      }
 
-      if (error) throw error;
-      
+      console.log('Alterando status via RPC:', { adminEmail: adminUser.email, id, newStatus: !currentStatus });
+
+      const { error } = await supabase.rpc('admin_toggle_highlight_published', {
+        p_admin_email: adminUser.email,
+        p_highlight_id: id,
+        p_is_published: !currentStatus
+      });
+
+      if (error) {
+        console.error('Erro RPC ao alterar status:', error);
+        throw error;
+      }
+
       setHighlights(prev => 
         prev.map(h => h.id === id ? { ...h, is_published: !currentStatus } : h)
       );
@@ -114,13 +128,23 @@ const AdminHighlightsManagement = () => {
     if (!confirm('Tem certeza que deseja excluir este destaque?')) return;
 
     try {
-      const { error } = await supabase
-        .from('highlights')
-        .delete()
-        .eq('id', id);
+      if (!adminUser?.email) {
+        toast.error('Admin não autenticado');
+        return;
+      }
 
-      if (error) throw error;
-      
+      console.log('Excluindo destaque via RPC:', { adminEmail: adminUser.email, id });
+
+      const { error } = await supabase.rpc('admin_delete_highlight', {
+        p_admin_email: adminUser.email,
+        p_highlight_id: id
+      });
+
+      if (error) {
+        console.error('Erro RPC ao excluir destaque:', error);
+        throw error;
+      }
+
       setHighlights(prev => prev.filter(h => h.id !== id));
       toast.success('Destaque excluído com sucesso');
     } catch (error) {

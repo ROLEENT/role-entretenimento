@@ -76,34 +76,45 @@ const AdminHighlightEditor = () => {
     if (!id) return;
     
     try {
-      const { data, error } = await supabase
-        .from('highlights')
-        .select('*')
-        .eq('id', id)
-        .maybeSingle();
+      if (!adminUser?.email) {
+        toast.error('Admin não autenticado');
+        navigate('/admin/highlights');
+        return;
+      }
 
-      if (error) throw error;
+      console.log('Carregando destaque via RPC:', { adminEmail: adminUser.email, id });
 
-      if (!data) {
+      const { data, error } = await supabase.rpc('admin_get_highlight_by_id', {
+        p_admin_email: adminUser.email,
+        p_highlight_id: id
+      });
+
+      if (error) {
+        console.error('Erro RPC ao carregar destaque:', error);
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
         toast.error('Destaque não encontrado');
         navigate('/admin/highlights');
         return;
       }
       
-      console.log('Destaque carregado para edição:', data);
+      const highlight = data[0];
+      console.log('Destaque carregado para edição:', highlight);
       
       setForm({
-        city: data.city,
-        event_title: data.event_title,
-        venue: data.venue,
-        ticket_url: data.ticket_url || '',
-        event_date: data.event_date,
-        role_text: data.role_text,
-        selection_reasons: data.selection_reasons || [],
-        image_url: data.image_url || '',
-        photo_credit: data.photo_credit || '',
-        sort_order: data.sort_order,
-        is_published: data.is_published,
+        city: highlight.city,
+        event_title: highlight.event_title,
+        venue: highlight.venue,
+        ticket_url: highlight.ticket_url || '',
+        role_text: highlight.role_text,
+        selection_reasons: highlight.selection_reasons || [],
+        image_url: highlight.image_url,
+        photo_credit: highlight.photo_credit || '',
+        event_date: highlight.event_date || '',
+        sort_order: highlight.sort_order || 100,
+        is_published: highlight.is_published,
       });
     } catch (error) {
       console.error('Erro ao carregar destaque:', error);
@@ -187,34 +198,59 @@ const AdminHighlightEditor = () => {
         is_published: form.is_published,
       };
 
-      console.log('Salvando destaque:', { isEdit, id, payload });
+      if (!adminUser?.email) {
+        toast.error('Admin não autenticado');
+        return;
+      }
+
+      console.log('Salvando destaque via RPC:', { isEdit, id, payload, adminEmail: adminUser.email });
 
       if (isEdit) {
-        const { data, error } = await supabase
-          .from('highlights')
-          .update(payload)
-          .eq('id', id)
-          .select();
+        const { data, error } = await supabase.rpc('admin_update_highlight', {
+          p_admin_email: adminUser.email,
+          p_highlight_id: id,
+          p_city: payload.city,
+          p_event_title: payload.event_title,
+          p_venue: payload.venue,
+          p_ticket_url: payload.ticket_url,
+          p_role_text: payload.role_text,
+          p_selection_reasons: payload.selection_reasons,
+          p_image_url: payload.image_url,
+          p_photo_credit: payload.photo_credit,
+          p_event_date: payload.event_date,
+          p_sort_order: payload.sort_order,
+          p_is_published: payload.is_published
+        });
         
         if (error) {
-          console.error('Erro ao atualizar destaque:', error);
+          console.error('Erro RPC ao atualizar destaque:', error);
           throw error;
         }
         
-        console.log('Destaque atualizado:', data);
+        console.log('Destaque atualizado via RPC:', data);
         toast.success('Destaque atualizado com sucesso');
       } else {
-        const { data, error } = await supabase
-          .from('highlights')
-          .insert(payload)
-          .select();
+        const { data, error } = await supabase.rpc('admin_create_highlight', {
+          p_admin_email: adminUser.email,
+          p_city: payload.city,
+          p_event_title: payload.event_title,
+          p_venue: payload.venue,
+          p_ticket_url: payload.ticket_url,
+          p_role_text: payload.role_text,
+          p_selection_reasons: payload.selection_reasons,
+          p_image_url: payload.image_url,
+          p_photo_credit: payload.photo_credit,
+          p_event_date: payload.event_date,
+          p_sort_order: payload.sort_order,
+          p_is_published: payload.is_published
+        });
         
         if (error) {
-          console.error('Erro ao criar destaque:', error);
+          console.error('Erro RPC ao criar destaque:', error);
           throw error;
         }
         
-        console.log('Destaque criado:', data);
+        console.log('Destaque criado via RPC:', data);
         toast.success('Destaque criado com sucesso');
       }
       

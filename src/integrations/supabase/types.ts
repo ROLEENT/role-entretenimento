@@ -823,6 +823,125 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_create_highlight: {
+        Args: {
+          p_admin_email: string
+          p_city: Database["public"]["Enums"]["city"]
+          p_event_date: string
+          p_event_title: string
+          p_image_url: string
+          p_is_published: boolean
+          p_photo_credit: string
+          p_role_text: string
+          p_selection_reasons: string[]
+          p_sort_order: number
+          p_ticket_url: string
+          p_venue: string
+        }
+        Returns: {
+          city: Database["public"]["Enums"]["city"]
+          created_at: string
+          event_date: string
+          event_title: string
+          id: string
+          image_url: string
+          is_published: boolean
+          like_count: number
+          photo_credit: string
+          role_text: string
+          selection_reasons: string[]
+          sort_order: number
+          ticket_url: string
+          updated_at: string
+          venue: string
+        }[]
+      }
+      admin_delete_highlight: {
+        Args: { p_admin_email: string; p_highlight_id: string }
+        Returns: boolean
+      }
+      admin_get_highlight_by_id: {
+        Args: { p_admin_email: string; p_highlight_id: string }
+        Returns: {
+          city: Database["public"]["Enums"]["city"]
+          created_at: string
+          event_date: string
+          event_title: string
+          id: string
+          image_url: string
+          is_published: boolean
+          like_count: number
+          photo_credit: string
+          role_text: string
+          selection_reasons: string[]
+          sort_order: number
+          ticket_url: string
+          updated_at: string
+          venue: string
+        }[]
+      }
+      admin_get_highlights: {
+        Args: { p_admin_email: string; p_city?: string; p_search?: string }
+        Returns: {
+          city: Database["public"]["Enums"]["city"]
+          created_at: string
+          event_date: string
+          event_title: string
+          id: string
+          image_url: string
+          is_published: boolean
+          like_count: number
+          photo_credit: string
+          role_text: string
+          selection_reasons: string[]
+          sort_order: number
+          ticket_url: string
+          updated_at: string
+          venue: string
+        }[]
+      }
+      admin_toggle_highlight_published: {
+        Args: {
+          p_admin_email: string
+          p_highlight_id: string
+          p_is_published: boolean
+        }
+        Returns: boolean
+      }
+      admin_update_highlight: {
+        Args: {
+          p_admin_email: string
+          p_city: Database["public"]["Enums"]["city"]
+          p_event_date: string
+          p_event_title: string
+          p_highlight_id: string
+          p_image_url: string
+          p_is_published: boolean
+          p_photo_credit: string
+          p_role_text: string
+          p_selection_reasons: string[]
+          p_sort_order: number
+          p_ticket_url: string
+          p_venue: string
+        }
+        Returns: {
+          city: Database["public"]["Enums"]["city"]
+          created_at: string
+          event_date: string
+          event_title: string
+          id: string
+          image_url: string
+          is_published: boolean
+          like_count: number
+          photo_credit: string
+          role_text: string
+          selection_reasons: string[]
+          sort_order: number
+          ticket_url: string
+          updated_at: string
+          venue: string
+        }[]
+      }
       approve_blog_comment: {
         Args: { p_comment_id: string }
         Returns: undefined
