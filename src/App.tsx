@@ -71,20 +71,20 @@ const App = () => (
             <Route path="/admin/login" element={<AdminLoginSimple />} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
-              <Route path="posts/new" element={<AdminPostEditor />} />
-              <Route path="posts/:id/edit" element={<AdminPostEditor />} />
-              <Route path="posts/history" element={<AdminBlogPostsHistory />} />
-              <Route path="event/create" element={<AdminEventCreate />} />
-              <Route path="venues" element={<AdminVenuesManagement />} />
-              <Route path="categories" element={<AdminCategoriesManagement />} />
-              <Route path="partners" element={<AdminPartnersManagement />} />
-              <Route path="contact-messages" element={<AdminContactMessages />} />
-              <Route path="comments" element={<AdminCommentsManagement />} />
-              <Route path="advertisements" element={<AdminAdvertisementsManagement />} />
-              <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="highlights" element={<AdminHighlightsManagement />} />
               <Route path="highlights/create" element={<AdminHighlightEditor />} />
               <Route path="highlights/edit/:id" element={<AdminHighlightEditor />} />
+              <Route path="event/create" element={<AdminEventCreate />} />
+              <Route path="partners" element={<AdminPartnersManagement />} />
+              <Route path="advertisements" element={<AdminAdvertisementsManagement />} />
+              <Route path="posts/new" element={<AdminPostEditor />} />
+              <Route path="posts/:id/edit" element={<AdminPostEditor />} />
+              <Route path="posts/history" element={<AdminBlogPostsHistory />} />
+              <Route path="comments" element={<AdminCommentsManagement />} />
+              <Route path="contact-messages" element={<AdminContactMessages />} />
+              <Route path="venues" element={<AdminVenuesManagement />} />
+              <Route path="categories" element={<AdminCategoriesManagement />} />
+              <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="profile" element={<AdminProfile />} />
             </Route>
             <Route path="/eventos" element={<EventsPage />} />
