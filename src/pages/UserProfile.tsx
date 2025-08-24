@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites } from '@/hooks/useFavorites';
 import EventCard from '@/components/EventCard';
-import { Calendar, Heart, Settings, Bell, User, LogOut, Clock, CalendarDays } from 'lucide-react';
+import { Calendar, Heart, Settings, Bell, User, LogOut, Clock, CalendarDays, Edit2, Save, X, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
@@ -24,7 +24,9 @@ const UserProfile = () => {
   const { favorites, loading: favoritesLoading } = useFavorites();
   
   const [loading, setLoading] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
   const [displayName, setDisplayName] = useState('');
+  const [tempDisplayName, setTempDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -42,7 +44,9 @@ const UserProfile = () => {
     }
     
     if (user) {
-      setDisplayName(user.profile?.display_name || user.user_metadata?.full_name || '');
+      const name = user.profile?.display_name || user.user_metadata?.full_name || '';
+      setDisplayName(name);
+      setTempDisplayName(name);
       setEmail(user.email || '');
     }
   }, [user, authLoading, navigate]);
@@ -57,18 +61,32 @@ const UserProfile = () => {
     }
   };
 
-  const handleProfileUpdate = async () => {
+  const handleSaveDisplayName = async () => {
+    if (!tempDisplayName.trim()) {
+      toast.error('O nome não pode estar vazio');
+      return;
+    }
+
     setLoading(true);
     try {
       await updateProfile({
-        display_name: displayName
+        display_name: tempDisplayName.trim()
       });
-      toast.success('Perfil atualizado com sucesso!');
+      setDisplayName(tempDisplayName.trim());
+      setIsEditingName(false);
+      toast.success('Nome atualizado com sucesso!');
     } catch (error) {
-      toast.error('Erro ao atualizar perfil');
+      console.error('Erro ao atualizar nome:', error);
+      toast.error('Erro ao atualizar nome');
+      setTempDisplayName(displayName); // Revert changes
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancelEditName = () => {
+    setTempDisplayName(displayName);
+    setIsEditingName(false);
   };
 
   const handlePasswordChange = async () => {
@@ -152,9 +170,45 @@ const UserProfile = () => {
                 </Avatar>
                 
                 <div className="flex-1">
-                  <h1 className="text-3xl font-bold text-foreground mb-2">
-                    {displayName || 'Usuário'}
-                  </h1>
+                  <div className="flex items-center gap-2 mb-2">
+                    {isEditingName ? (
+                      <div className="flex items-center gap-2 flex-1">
+                        <Input
+                          value={tempDisplayName}
+                          onChange={(e) => setTempDisplayName(e.target.value)}
+                          className="text-2xl font-bold"
+                          placeholder="Digite seu nome"
+                        />
+                        <Button
+                          size="sm"
+                          onClick={handleSaveDisplayName}
+                          disabled={loading}
+                        >
+                          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleCancelEditName}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <h1 className="text-3xl font-bold text-foreground">
+                          {displayName || 'Usuário'}
+                        </h1>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setIsEditingName(true)}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
                   <p className="text-muted-foreground mb-4">{email}</p>
                   
                   <div className="flex flex-wrap gap-2 mb-4">
@@ -285,12 +339,25 @@ const UserProfile = () => {
                     <div className="space-y-4">
                       <div>
                         <Label htmlFor="displayName">Nome de Exibição</Label>
-                        <Input
-                          id="displayName"
-                          value={displayName}
-                          onChange={(e) => setDisplayName(e.target.value)}
-                          placeholder="Como você quer ser chamado"
-                        />
+                        <div className="flex items-center gap-2">
+                          <Input
+                            id="displayName"
+                            value={displayName}
+                            disabled
+                            className="bg-muted"
+                            placeholder="Como você quer ser chamado"
+                          />
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setIsEditingName(true)}
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Use o botão de editar para alterar seu nome
+                        </p>
                       </div>
                       
                       <div>
@@ -305,14 +372,6 @@ const UserProfile = () => {
                           O email não pode ser alterado
                         </p>
                       </div>
-                      
-                      <Button 
-                        onClick={handleProfileUpdate}
-                        disabled={loading}
-                        className="w-full"
-                      >
-                        {loading ? 'Salvando...' : 'Salvar Alterações'}
-                      </Button>
                     </div>
 
                     <Separator />
