@@ -47,7 +47,6 @@ export const usePublishedHighlights = (limit?: number) => {
 
       setHighlights(data || []);
     } catch (err) {
-      console.error('Error fetching published highlights:', err);
       setError(err instanceof Error ? err.message : 'Erro ao carregar destaques');
     } finally {
       setLoading(false);

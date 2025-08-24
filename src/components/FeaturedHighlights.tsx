@@ -4,7 +4,7 @@ import { Badge } from "./ui/badge";
 import { MapPin, Calendar, ArrowRight, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { usePublishedHighlights } from "@/hooks/usePublishedHighlights";
-import { Skeleton } from "./ui/skeleton";
+import HighlightSkeleton from './HighlightSkeleton';
 
 const FeaturedHighlights = () => {
   const { highlights, loading, error, getImageUrl, getCityDisplayName } = usePublishedHighlights(6);
@@ -33,16 +33,7 @@ const FeaturedHighlights = () => {
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[...Array(6)].map((_, i) => (
-              <Card key={i} className="overflow-hidden">
-                <Skeleton className="w-full h-48" />
-                <CardHeader>
-                  <Skeleton className="h-6 w-32" />
-                </CardHeader>
-                <CardContent>
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-3/4" />
-                </CardContent>
-              </Card>
+              <HighlightSkeleton key={i} />
             ))}
           </div>
         </div>

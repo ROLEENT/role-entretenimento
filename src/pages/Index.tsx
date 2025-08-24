@@ -18,67 +18,75 @@ import FeaturedHighlights from "@/components/FeaturedHighlights";
 import FeaturedBlogPosts from "@/components/FeaturedBlogPosts";
 import { PWAInstallButton } from "@/components/PWAInstallButton";
 import { Toaster } from "@/components/ui/sonner";
+import SEOOptimizations from "@/components/SEOOptimizations";
+import AccessibilityEnhancements from "@/components/AccessibilityEnhancements";
 
 const Index = () => {
-
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main>
-        <HeroSection />
-        <ScrollAnimationWrapper>
-          <FeaturedHighlights />
-        </ScrollAnimationWrapper>
-        <ScrollAnimationWrapper>
-          <FeaturedEventsToday />
-        </ScrollAnimationWrapper>
-        <ScrollAnimationWrapper>
-          <GeolocationEvents />
-        </ScrollAnimationWrapper>
-        <FeaturedBlogPosts />
-        <ScrollAnimationWrapper>
-          <MusicCategories />
-        </ScrollAnimationWrapper>
-        <ScrollAnimationWrapper>
-          <AdvertisementBanner />
-        </ScrollAnimationWrapper>
-        <ScrollAnimationWrapper>
-          <HowItWorks />
-        </ScrollAnimationWrapper>
-        <ScrollAnimationWrapper>
-          <MagazineBanner />
-        </ScrollAnimationWrapper>
-        <ScrollAnimationWrapper>
-          <StatsSection />
-        </ScrollAnimationWrapper>
-        <ScrollAnimationWrapper>
-          <Testimonials />
-        </ScrollAnimationWrapper>
-        <ScrollAnimationWrapper>
-          <PartnersVenues />
-        </ScrollAnimationWrapper>
-        <ScrollAnimationWrapper>
-          <FavoritesPanel />
-        </ScrollAnimationWrapper>
-        <ScrollAnimationWrapper>
-          <Newsletter />
-        </ScrollAnimationWrapper>
-        
-        <ScrollAnimationWrapper>
-          <div className="py-8 bg-background">
-            <div className="container mx-auto px-4 text-center">
-              <PWAInstallButton 
-                variant="outline" 
-                size="lg" 
-              />
+    <AccessibilityEnhancements>
+      <SEOOptimizations 
+        title="ROLÊ - Descubra os Melhores Eventos Culturais do Brasil"
+        description="Agenda cultural completa com shows, peças, exposições e eventos em São Paulo, Rio de Janeiro, Porto Alegre, Florianópolis e Curitiba."
+        tags={['eventos', 'cultura', 'agenda', 'shows', 'teatro', 'exposições', 'brasil']}
+      />
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main id="main-content">
+          <HeroSection />
+          <ScrollAnimationWrapper>
+            <FeaturedHighlights />
+          </ScrollAnimationWrapper>
+          <ScrollAnimationWrapper>
+            <FeaturedEventsToday />
+          </ScrollAnimationWrapper>
+          <ScrollAnimationWrapper>
+            <GeolocationEvents />
+          </ScrollAnimationWrapper>
+          <FeaturedBlogPosts />
+          <ScrollAnimationWrapper>
+            <MusicCategories />
+          </ScrollAnimationWrapper>
+          <ScrollAnimationWrapper>
+            <AdvertisementBanner />
+          </ScrollAnimationWrapper>
+          <ScrollAnimationWrapper>
+            <HowItWorks />
+          </ScrollAnimationWrapper>
+          <ScrollAnimationWrapper>
+            <MagazineBanner />
+          </ScrollAnimationWrapper>
+          <ScrollAnimationWrapper>
+            <StatsSection />
+          </ScrollAnimationWrapper>
+          <ScrollAnimationWrapper>
+            <Testimonials />
+          </ScrollAnimationWrapper>
+          <ScrollAnimationWrapper>
+            <PartnersVenues />
+          </ScrollAnimationWrapper>
+          <ScrollAnimationWrapper>
+            <FavoritesPanel />
+          </ScrollAnimationWrapper>
+          <ScrollAnimationWrapper>
+            <Newsletter />
+          </ScrollAnimationWrapper>
+          
+          <ScrollAnimationWrapper>
+            <div className="py-8 bg-background">
+              <div className="container mx-auto px-4 text-center">
+                <PWAInstallButton 
+                  variant="outline" 
+                  size="lg" 
+                />
+              </div>
             </div>
-          </div>
-        </ScrollAnimationWrapper>
-      </main>
-      <Footer />
-      <BackToTop />
-      <Toaster />
-    </div>
+          </ScrollAnimationWrapper>
+        </main>
+        <Footer />
+        <BackToTop />
+        <Toaster />
+      </div>
+    </AccessibilityEnhancements>
   );
 };
 

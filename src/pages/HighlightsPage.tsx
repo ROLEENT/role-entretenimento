@@ -4,7 +4,8 @@ import { usePublishedHighlights } from '@/hooks/usePublishedHighlights';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
-import SEOHead from '@/components/SEOHead';
+import SEOOptimizations from '@/components/SEOOptimizations';
+import AccessibilityEnhancements from '@/components/AccessibilityEnhancements';
 import HighlightCard from '@/components/HighlightCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -102,7 +103,7 @@ const HighlightsPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead
+      <SEOOptimizations
         title="Todos os Destaques Culturais | ROLÊ - Curadoria de Eventos"
         description="Explore todos os destaques culturais selecionados pela equipe ROLÊ. Eventos, shows e experiências culturais nas principais cidades do Brasil."
         url="https://roleentretenimento.com/highlights"
