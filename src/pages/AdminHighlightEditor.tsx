@@ -134,6 +134,13 @@ const AdminHighlightEditor = () => {
       console.log('❌ UPLOAD DEBUG: Nenhum arquivo selecionado');
       return;
     }
+
+    // Verificar se admin está autenticado
+    if (!adminUser?.email) {
+      toast.error('Você precisa estar logado como admin para fazer upload');
+      navigate('/admin/login');
+      return;
+    }
     
     // Validação de tipo de arquivo
     if (!file.type.startsWith('image/')) {
@@ -159,7 +166,8 @@ const AdminHighlightEditor = () => {
       fileSize: file.size,
       fileSizeMB: (file.size / 1024 / 1024).toFixed(1),
       fileType: file.type,
-      eventTitle: form.event_title
+      eventTitle: form.event_title,
+      adminEmail: adminUser.email
     });
     
     setImageUploading(true);
@@ -182,7 +190,18 @@ const AdminHighlightEditor = () => {
       console.log('✅ UPLOAD DEBUG: Upload concluído com sucesso');
     } catch (error) {
       console.error('❌ UPLOAD DEBUG: Erro ao enviar imagem:', error);
-      toast.error('Erro ao enviar imagem: ' + (error as Error).message);
+      
+      // Verificar se é erro de autenticação/RLS
+      if (error instanceof Error) {
+        if (error.message.includes('row-level security') || error.message.includes('insufficient_privilege')) {
+          toast.error('Erro de permissão: faça login como admin novamente');
+          navigate('/admin/login');
+        } else {
+          toast.error('Erro ao enviar imagem: ' + error.message);
+        }
+      } else {
+        toast.error('Erro desconhecido ao enviar imagem');
+      }
     } finally {
       setImageUploading(false);
     }
