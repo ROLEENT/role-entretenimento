@@ -32,6 +32,10 @@ import AdminContactMessagesSimple from "./pages/AdminContactMessagesSimple";
 import AdminCommentsManagementSimple from "./pages/AdminCommentsManagementSimple";
 import AdminAdvertisementsManagement from "./pages/AdminAdvertisementsManagement";
 import AdminProfile from "./pages/AdminProfile";
+import AdminBlogPostsHistory from "./pages/AdminBlogPostsHistory";
+import AdminPartnersManagement from "./pages/AdminPartnersManagement";
+import AdminContactMessages from "./pages/AdminContactMessages";
+import AdminCommentsManagement from "./pages/AdminCommentsManagement";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -68,9 +72,10 @@ const App = () => (
             <Route path="/admin/event/create" element={<AdminEventCreate />} />
             <Route path="/admin/venues" element={<AdminVenuesManagement />} />
             <Route path="/admin/categories" element={<AdminCategoriesManagement />} />
-            <Route path="/admin/partners" element={<AdminPartnersManagementSimple />} />
-            <Route path="/admin/contact-messages" element={<AdminContactMessagesSimple />} />
-            <Route path="/admin/comments" element={<AdminCommentsManagementSimple />} />
+            <Route path="/admin/partners" element={<AdminPartnersManagement />} />
+            <Route path="/admin/contact-messages" element={<AdminContactMessages />} />
+            <Route path="/admin/comments" element={<AdminCommentsManagement />} />
+            <Route path="/admin/posts/history" element={<AdminBlogPostsHistory />} />
             <Route path="/admin/advertisements" element={<AdminAdvertisementsManagement />} />
             <Route path="/admin/profile" element={<AdminProfile />} />
             <Route path="/eventos" element={<EventsPage />} />
