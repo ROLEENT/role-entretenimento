@@ -9,44 +9,60 @@ export const useAuth = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
+    let isMounted = true;
+    
+    // Clear potentially corrupted auth data
+    const clearCorruptedData = () => {
+      try {
+        const keys = ['sb-nutlcbnruabjsxecqpnd-auth-token', 'admin_session'];
+        keys.forEach(key => {
+          const item = localStorage.getItem(key);
+          if (item) {
+            try {
+              JSON.parse(item);
+            } catch {
+              console.log('Removing corrupted localStorage item:', key);
+              localStorage.removeItem(key);
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error clearing corrupted data:', error);
+      }
+    };
+
+    clearCorruptedData();
+
+    // Simplified auth state listener
     const { data: { subscription } } = authService.onAuthStateChange(
       (event, session) => {
-        setSession(session);
-        setLoading(false);
+        if (!isMounted) return;
         
-        if (session?.user) {
-          setUser(session.user as AuthUser);
-          // Defer profile and admin check to avoid deadlock
-          setTimeout(() => {
-            authService.getCurrentUser().then((authUser) => {
-              if (authUser) {
-                setUser(authUser);
-                authService.isAdmin().then(setIsAdmin).catch(() => setIsAdmin(false));
-              }
-            }).catch(() => {
-              console.error('Error fetching user profile');
-            });
-          }, 100);
-        } else {
-          setUser(null);
-          setIsAdmin(false);
-        }
+        console.log('Auth state changed:', event, !!session);
+        setSession(session);
+        setUser(session?.user as AuthUser || null);
+        setIsAdmin(false);
+        setLoading(false);
       }
     );
 
-    // Check for existing session
-    authService.getCurrentUser().then((authUser) => {
-      setUser(authUser);
-      if (authUser) {
-        authService.isAdmin().then(setIsAdmin).catch(() => setIsAdmin(false));
-      }
-      setLoading(false);
-    }).catch(() => {
-      setLoading(false);
-    });
+    // Simple initial session check
+    authService.getCurrentUser()
+      .then((authUser) => {
+        if (!isMounted) return;
+        setUser(authUser);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Auth initialization error:', error);
+        if (!isMounted) return;
+        setLoading(false);
+      });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
