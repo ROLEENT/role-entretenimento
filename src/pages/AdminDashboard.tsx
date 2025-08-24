@@ -8,9 +8,19 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { FileText, Calendar, MapPin, Users, MessageSquare, Tag, Image } from "lucide-react";
 
 const AdminDashboard = () => {
-  const { isAuthenticated, logoutAdmin, adminUser } = useAdminAuth();
+  const { isAuthenticated, logoutAdmin, adminUser, loading } = useAdminAuth();
 
-  if (!isAuthenticated) {
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Only redirect if not loading and not authenticated
+  if (!loading && !isAuthenticated) {
     return <Navigate to="/admin/login" replace />;
   }
 

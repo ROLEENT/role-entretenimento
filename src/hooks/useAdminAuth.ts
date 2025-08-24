@@ -18,8 +18,14 @@ export const useAdminAuth = () => {
     if (savedAdmin) {
       try {
         const adminData = JSON.parse(savedAdmin);
-        setAdminUser(adminData);
+        // Validate the admin data structure
+        if (adminData && adminData.id && adminData.email && adminData.is_admin) {
+          setAdminUser(adminData);
+        } else {
+          localStorage.removeItem('admin_session');
+        }
       } catch (error) {
+        console.error('Error parsing admin session:', error);
         localStorage.removeItem('admin_session');
       }
     }

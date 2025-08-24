@@ -12,13 +12,23 @@ const AdminLoginSimple = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { adminUser, loginAdmin } = useAdminAuth();
+  const { adminUser, loginAdmin, loading } = useAdminAuth();
 
   useEffect(() => {
-    if (adminUser) {
+    // Only redirect if not loading and user is authenticated
+    if (!loading && adminUser) {
       navigate("/admin");
     }
-  }, [adminUser, navigate]);
+  }, [adminUser, loading, navigate]);
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-secondary/20 p-4">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
