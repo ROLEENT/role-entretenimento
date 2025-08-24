@@ -135,9 +135,29 @@ const AdminHighlightEditor = () => {
       return;
     }
     
+    // Validação de tipo de arquivo
+    if (!file.type.startsWith('image/')) {
+      toast.error('Por favor, selecione apenas arquivos de imagem (JPG, PNG, GIF, etc.)');
+      console.log('❌ UPLOAD DEBUG: Tipo de arquivo inválido:', file.type);
+      return;
+    }
+    
+    // Validação de tamanho (5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB em bytes
+    if (file.size > maxSize) {
+      toast.error('A imagem deve ter no máximo 5MB. Tamanho atual: ' + (file.size / 1024 / 1024).toFixed(1) + 'MB');
+      console.log('❌ UPLOAD DEBUG: Arquivo muito grande:', {
+        fileSize: file.size,
+        maxSize: maxSize,
+        fileSizeMB: (file.size / 1024 / 1024).toFixed(1)
+      });
+      return;
+    }
+    
     console.log('🔄 UPLOAD DEBUG: Iniciando upload da imagem:', {
       fileName: file.name,
       fileSize: file.size,
+      fileSizeMB: (file.size / 1024 / 1024).toFixed(1),
       fileType: file.type,
       eventTitle: form.event_title
     });
