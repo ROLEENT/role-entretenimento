@@ -62,6 +62,20 @@ export const authService = {
     };
   },
 
+  async isAdmin(): Promise<boolean> {
+    try {
+      const { data, error } = await supabase.rpc('is_admin_user');
+      if (error) {
+        console.error('Error checking admin status:', error);
+        return false;
+      }
+      return data;
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      return false;
+    }
+  },
+
   async updateProfile(updates: {
     display_name?: string;
     avatar_url?: string;

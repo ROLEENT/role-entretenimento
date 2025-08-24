@@ -23,15 +23,15 @@ interface ContactMessage {
 }
 
 const AdminContactMessages = () => {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading, isAdmin } = useAuth();
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && isAdmin) {
       fetchMessages();
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, isAdmin, user]);
 
   const fetchMessages = async () => {
     try {
@@ -88,8 +88,8 @@ const AdminContactMessages = () => {
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/auth" replace />;
+  if (!isAuthenticated || !isAdmin) {
+    return <Navigate to="/admin/login" replace />;
   }
 
   return (

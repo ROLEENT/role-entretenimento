@@ -33,16 +33,15 @@ const AdminPartnersManagement = () => {
     instagram: ''
   });
 
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isAdmin } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && isAdmin) {
       fetchPartners();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isAdmin]);
 
-  // Temporary bypass of role check - will be handled by RLS
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !isAdmin) {
     return <Navigate to="/admin/login" replace />;
   }
 

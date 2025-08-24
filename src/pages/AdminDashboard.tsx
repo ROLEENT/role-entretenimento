@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { PlusCircle, LogOut, FileText, Users, BarChart3, Eye, Mail, MessageCircle } from "lucide-react";
-import { User } from "@supabase/supabase-js";
 
 interface BlogPost {
   id: string;
@@ -27,7 +27,7 @@ interface DashboardStats {
 }
 
 const AdminDashboard = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, isAdmin, loading, signOut } = useAuth();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [stats, setStats] = useState<DashboardStats>({
     totalPosts: 0,
@@ -39,30 +39,19 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    checkAuthAndLoadData();
-  }, []);
-
-  const checkAuthAndLoadData = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
+    if (!loading) {
+      if (!user || !isAdmin) {
         navigate("/admin/login");
         return;
       }
-
-      setUser(session.user);
-      await loadDashboardData();
-    } catch (error) {
-      console.error("Error loading dashboard:", error);
-      toast.error("Erro ao carregar dados do dashboard");
-    } finally {
-      setIsLoading(false);
+      loadDashboardData();
     }
-  };
+  }, [user, isAdmin, loading, navigate]);
 
   const loadDashboardData = async () => {
     try {
+      setIsLoading(true);
+
       // Load recent posts
       const { data: postsData, error: postsError } = await supabase
         .from("blog_posts")
@@ -89,12 +78,14 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error("Error loading dashboard data:", error);
       toast.error("Erro ao carregar dados");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      await signOut();
       navigate("/admin/login");
     } catch (error) {
       console.error("Error logging out:", error);
@@ -121,12 +112,16 @@ const AdminDashboard = () => {
     });
   };
 
-  if (isLoading) {
+  if (loading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">Carregando...</div>
       </div>
     );
+  }
+
+  if (!user || !isAdmin) {
+    return null; // Will redirect in useEffect
   }
 
   return (

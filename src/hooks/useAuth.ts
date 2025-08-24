@@ -6,6 +6,7 @@ export const useAuth = () => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -19,13 +20,18 @@ export const useAuth = () => {
             try {
               const authUser = await authService.getCurrentUser();
               setUser(authUser);
+              // Check admin status
+              const adminStatus = await authService.isAdmin();
+              setIsAdmin(adminStatus);
             } catch (error) {
               console.error('Error fetching user profile:', error);
               setUser(session.user as AuthUser);
+              setIsAdmin(false);
             }
           }, 0);
         } else {
           setUser(null);
+          setIsAdmin(false);
         }
         
         setLoading(false);
@@ -33,8 +39,12 @@ export const useAuth = () => {
     );
 
     // THEN check for existing session
-    authService.getCurrentUser().then((authUser) => {
+    authService.getCurrentUser().then(async (authUser) => {
       setUser(authUser);
+      if (authUser) {
+        const adminStatus = await authService.isAdmin();
+        setIsAdmin(adminStatus);
+      }
       setLoading(false);
     }).catch(() => {
       setLoading(false);
@@ -62,6 +72,7 @@ export const useAuth = () => {
     const result = await authService.signOut();
     setUser(null);
     setSession(null);
+    setIsAdmin(false);
     setLoading(false);
     return result;
   };
@@ -90,6 +101,7 @@ export const useAuth = () => {
     signIn,
     signOut,
     updateProfile,
-    isAuthenticated: !!user
+    isAuthenticated: !!user,
+    isAdmin
   };
 };

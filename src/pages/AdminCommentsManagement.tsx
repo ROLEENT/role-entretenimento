@@ -15,15 +15,15 @@ import { Check, X, Trash2 } from 'lucide-react';
 
 
 const AdminCommentsManagement = () => {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading, isAdmin } = useAuth();
   const [comments, setComments] = useState<BlogComment[]>([]);
   const [loadingComments, setLoadingComments] = useState(true);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && isAdmin) {
       fetchComments();
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, isAdmin, user]);
 
   const fetchComments = async () => {
     try {
@@ -98,8 +98,8 @@ const AdminCommentsManagement = () => {
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/auth" replace />;
+  if (!isAuthenticated || !isAdmin) {
+    return <Navigate to="/admin/login" replace />;
   }
 
   return (
