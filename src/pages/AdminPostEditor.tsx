@@ -69,6 +69,7 @@ const AdminPostEditor = () => {
     } catch (error) {
       console.error("Error:", error);
       toast.error("Erro ao carregar dados");
+      navigate("/admin/login");
     }
   };
 
