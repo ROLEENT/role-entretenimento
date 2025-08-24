@@ -780,6 +780,14 @@ export type Database = {
           success: boolean
         }[]
       }
+      change_admin_password: {
+        Args: {
+          p_admin_id: string
+          p_current_password: string
+          p_new_password: string
+        }
+        Returns: undefined
+      }
       delete_blog_comment: {
         Args: { p_comment_id: string }
         Returns: undefined
