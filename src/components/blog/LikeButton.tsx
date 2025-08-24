@@ -29,7 +29,7 @@ const LikeButton = ({ postId, userEmail }: LikeButtonProps) => {
       });
 
       if (!error) {
-        setLikes(data || 0);
+        setLikes(Number(data) || 0);
       }
     } catch (error) {
       console.error('Error fetching likes:', error);
@@ -46,7 +46,7 @@ const LikeButton = ({ postId, userEmail }: LikeButtonProps) => {
       });
 
       if (!error) {
-        setIsLiked(data || false);
+        setIsLiked(Boolean(data));
       }
     } catch (error) {
       console.error('Error checking user like:', error);
@@ -64,8 +64,8 @@ const LikeButton = ({ postId, userEmail }: LikeButtonProps) => {
         const { error } = await supabase
           .from('blog_likes')
           .delete()
-          .eq('post_id', postId)
-          .eq('user_email', email);
+          .eq('post_id', postId as any)
+          .eq('user_email', email as any);
 
         if (!error) {
           setIsLiked(false);
@@ -75,7 +75,7 @@ const LikeButton = ({ postId, userEmail }: LikeButtonProps) => {
       } else {
         const { error } = await supabase
           .from('blog_likes')
-          .insert([{ post_id: postId, user_email: email }]);
+          .insert([{ post_id: postId, user_email: email } as any]);
 
         if (!error) {
           setIsLiked(true);
@@ -96,8 +96,8 @@ const LikeButton = ({ postId, userEmail }: LikeButtonProps) => {
       const { error } = await supabase
         .from('blog_likes')
         .delete()
-        .eq('post_id', postId)
-        .eq('user_email', userEmail);
+        .eq('post_id', postId as any)
+        .eq('user_email', userEmail as any);
 
       if (!error) {
         setIsLiked(false);
@@ -107,7 +107,7 @@ const LikeButton = ({ postId, userEmail }: LikeButtonProps) => {
     } else {
       const { error } = await supabase
         .from('blog_likes')
-        .insert([{ post_id: postId, user_email: userEmail }]);
+        .insert([{ post_id: postId, user_email: userEmail } as any]);
 
       if (!error) {
         setIsLiked(true);

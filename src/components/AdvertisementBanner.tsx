@@ -15,7 +15,7 @@ const AdvertisementBanner = () => {
         const { data, error } = await supabase
           .from('advertisements')
           .select('*')
-          .eq('active', true)
+          .eq('active', true as any)
           .order('position', { ascending: true });
 
         if (error) {

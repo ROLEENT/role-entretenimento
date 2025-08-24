@@ -41,8 +41,8 @@ export const CityHighlightSlider = ({ city, title, citySlug }: CityHighlightSlid
         let { data: highlightsWithLikes, error } = await supabase
           .from('highlights')
           .select('*')
-          .eq('city', city)
-          .eq('is_published', true)
+          .eq('city', city as any)
+          .eq('is_published', true as any)
           .gte('event_date', thirtyDaysAgo.toISOString().split('T')[0])
           .gt('like_count', 0)
           .order('like_count', { ascending: false })
@@ -56,8 +56,8 @@ export const CityHighlightSlider = ({ city, title, citySlug }: CityHighlightSlid
           const { data: recentHighlights, error: recentError } = await supabase
             .from('highlights')
             .select('*')
-            .eq('city', city)
-            .eq('is_published', true)
+            .eq('city', city as any)
+            .eq('is_published', true as any)
             .order('event_date', { ascending: false, nullsFirst: false })
             .order('sort_order', { ascending: true })
             .order('created_at', { ascending: false })
@@ -67,17 +67,17 @@ export const CityHighlightSlider = ({ city, title, citySlug }: CityHighlightSlid
 
           // Combine and deduplicate
           const combined = [...(highlightsWithLikes || [])];
-          const existingIds = new Set(combined.map(h => h.id));
+          const existingIds = new Set(combined.map((h: any) => h.id));
           
-          (recentHighlights || []).forEach(highlight => {
+          (recentHighlights || []).forEach((highlight: any) => {
             if (!existingIds.has(highlight.id) && combined.length < 5) {
               combined.push(highlight);
             }
           });
 
-          setHighlights(combined);
+          setHighlights(combined as any);
         } else {
-          setHighlights(highlightsWithLikes);
+          setHighlights(highlightsWithLikes as any);
         }
       } catch (error) {
         console.error('Error fetching city highlights:', error);

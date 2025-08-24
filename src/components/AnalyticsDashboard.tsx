@@ -41,7 +41,7 @@ export const AnalyticsDashboard = () => {
       const { data: events, error: eventsError } = await supabase
         .from('events')
         .select('id, title, city')
-        .eq('status', 'active');
+        .eq('status', 'active' as any);
 
       if (eventsError) throw eventsError;
 
@@ -49,7 +49,7 @@ export const AnalyticsDashboard = () => {
       const { data: posts, error: postsError } = await supabase
         .from('blog_posts')
         .select('views')
-        .eq('status', 'published');
+        .eq('status', 'published' as any);
 
       if (postsError) throw postsError;
 
@@ -62,28 +62,28 @@ export const AnalyticsDashboard = () => {
 
       // Calculate analytics
       const totalEvents = events?.length || 0;
-      const totalViews = (posts?.reduce((sum, post) => sum + (post.views || 0), 0) || 0);
+      const totalViews = Array.isArray(posts) ? posts.reduce((sum, post: any) => sum + (post.views || 0), 0) : 0;
       const totalFavorites = favorites?.length || 0;
 
       // Calculate popular cities
-      const cityCount = events?.reduce((acc, event) => {
+      const cityCount = Array.isArray(events) ? events.reduce((acc: any, event: any) => {
         acc[event.city] = (acc[event.city] || 0) + 1;
         return acc;
-      }, {} as Record<string, number>) || {};
+      }, {} as Record<string, number>) : {};
 
       const popularCities = Object.entries(cityCount)
-        .map(([city, count]) => ({ city, count }))
-        .sort((a, b) => b.count - a.count)
+        .map(([city, count]) => ({ city, count: Number(count) }))
+        .sort((a, b) => Number(b.count) - Number(a.count))
         .slice(0, 5);
 
       // Top events by title (mock views)
-      const topEvents = events
-        ?.slice(0, 5)
-        .map((event, index) => ({
+      const topEvents = Array.isArray(events) ? events
+        .slice(0, 5)
+        .map((event: any, index: number) => ({
           title: event.title,
           views: Math.floor(Math.random() * 1000) + 100, // Mock views
           city: event.city
-        })) || [];
+        })) : [];
 
       // Mock recent activity
       const recentActivity = [
