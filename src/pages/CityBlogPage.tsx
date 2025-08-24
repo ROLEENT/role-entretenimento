@@ -6,46 +6,43 @@ import BackToTop from "@/components/BackToTop";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Calendar, FileText, MapPin } from "lucide-react";
-import { getCityPosts } from "@/hooks/useBlogData";
+import { useHighlightsByCity } from "@/hooks/useHighlights";
 import { citiesData } from "@/data/citiesData";
-import ArticleCard from "@/components/blog/ArticleCard";
+import HighlightCard from "@/components/HighlightCard";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
 import { Skeleton } from "@/components/ui/skeleton";
 import BlogBreadcrumbs from "@/components/blog/BlogBreadcrumbs";
 import cityPlaceholder from "@/assets/city-placeholder.jpg";
 
+// Map city slugs to database enum values
+const getCityEnumValue = (citySlug: string) => {
+  const cityMap: { [key: string]: string } = {
+    'porto-alegre': 'porto_alegre',
+    'florianopolis': 'florianopolis',
+    'curitiba': 'curitiba',
+    'sao-paulo': 'sao_paulo',
+    'rio-de-janeiro': 'rio_de_janeiro'
+  };
+  return cityMap[citySlug] || citySlug;
+};
+
 const CityBlogPage = () => {
   const { cidade } = useParams();
-  const [posts, setPosts] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  
   const cityData = cidade ? citiesData[cidade] : null;
+  const cityEnumValue = cidade ? getCityEnumValue(cidade) as any : null;
+  
+  const { highlights, loading: isLoading, error } = useHighlightsByCity(cityEnumValue);
 
   useEffect(() => {
-    const loadCityPosts = async () => {
-      if (cidade && cityData) {
-        // Update page title and meta
-        document.title = `Destaques de ${cityData.name} | ROLÊ`;
-        const metaDescription = document.querySelector('meta[name="description"]');
-        if (metaDescription) {
-          metaDescription.setAttribute('content', `Descubra os melhores eventos e experiências culturais de ${cityData.name}. ${cityData.description}`);
-        }
-        
-        setIsLoading(true);
-        try {
-          const cityPosts = await getCityPosts(cidade);
-          setPosts(cityPosts.sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime()));
-        } catch (error) {
-          console.error("Error loading posts:", error);
-          setPosts([]);
-        } finally {
-          setIsLoading(false);
-        }
+    if (cityData) {
+      // Update page title and meta
+      document.title = `Destaques de ${cityData.name} | ROLÊ`;
+      const metaDescription = document.querySelector('meta[name="description"]');
+      if (metaDescription) {
+        metaDescription.setAttribute('content', `Descubra os melhores eventos e experiências culturais de ${cityData.name}. ${cityData.description}`);
       }
-    };
-
-    loadCityPosts();
-  }, [cidade, cityData]);
+    }
+  }, [cityData]);
 
   if (isLoading) {
     return (
@@ -135,7 +132,7 @@ const CityBlogPage = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <FileText className="w-4 h-4" />
-                  <span>{posts.length} artigos publicados</span>
+                  <span>{highlights.length} destaques publicados</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
@@ -146,22 +143,34 @@ const CityBlogPage = () => {
           </div>
         </section>
 
-        {/* Articles Timeline */}
+        {/* Highlights Timeline */}
         <ScrollAnimationWrapper>
           <section className="py-16">
             <div className="container mx-auto px-4">
-              {posts.length > 0 ? (
+              {highlights.length > 0 ? (
                 <>
                   <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-3xl font-bold">Timeline de Artigos</h2>
+                    <h2 className="text-3xl font-bold">Destaques de {cityData.name}</h2>
                     <Badge variant="outline" className="px-3 py-1">
-                      {posts.length} {posts.length === 1 ? 'artigo' : 'artigos'}
+                      {highlights.length} {highlights.length === 1 ? 'destaque' : 'destaques'}
                     </Badge>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {posts.map((post) => (
-                      <ArticleCard key={post.id} post={post} showCity={false} />
+                  <div className="space-y-8">
+                    {highlights.map((highlight, index) => (
+                      <div key={highlight.id} className="relative">
+                        {index > 0 && (
+                          <div className="absolute left-4 -top-4 w-0.5 h-8 bg-border"></div>
+                        )}
+                        <div className="flex gap-6 items-start">
+                          <div className="flex-shrink-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-sm font-medium">
+                            {index + 1}
+                          </div>
+                          <div className="flex-1">
+                            <HighlightCard highlight={highlight} />
+                          </div>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </>
@@ -170,7 +179,7 @@ const CityBlogPage = () => {
                   <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-2xl font-bold mb-4">Em breve</h3>
                   <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                    Estamos preparando conteúdos incríveis sobre a cena cultural de {cityData.name}. 
+                    Estamos preparando destaques incríveis sobre a cena cultural de {cityData.name}. 
                     Volte em breve para conferir nossos destaques semanais!
                   </p>
                   <Button asChild>

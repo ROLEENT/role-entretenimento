@@ -12,16 +12,13 @@ import { useBlogData, getCitiesWithPosts, getLatestPostByCity, BlogPost } from "
 import { citiesData } from "@/data/citiesData";
 import { supabase } from "@/integrations/supabase/client";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
-import ArticleCard from "@/components/blog/ArticleCard";
-import HighlightCard from "@/components/HighlightCard";
+import { CityHighlightSlider } from "@/components/CityHighlightSlider";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const DestaquesHub = () => {
   const { posts: allPosts, isLoading } = useBlogData();
   const [citiesWithContent, setCitiesWithContent] = useState<string[]>([]);
   const [latestPosts, setLatestPosts] = useState<Record<string, BlogPost>>({});
-  const [highlights, setHighlights] = useState<any[]>([]);
-  const [highlightsLoading, setHighlightsLoading] = useState(true);
 
   useEffect(() => {
     const loadCitiesData = async () => {
@@ -43,32 +40,18 @@ const DestaquesHub = () => {
       }
     };
 
-    const loadHighlights = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('highlights')
-          .select('*')
-          .eq('is_published', true)
-          .order('event_date', { ascending: false })
-          .order('sort_order', { ascending: false })
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        setHighlights(data || []);
-      } catch (error) {
-        console.error("Error loading highlights:", error);
-      } finally {
-        setHighlightsLoading(false);
-      }
-    };
-
     loadCitiesData();
-    loadHighlights();
   }, []);
 
-  const featuredPosts = allPosts.filter(post => post.featured).slice(0, 6);
+  const cityHighlightMapping = [
+    { city: 'porto_alegre' as const, name: 'Porto Alegre' },
+    { city: 'florianopolis' as const, name: 'Florianópolis' },
+    { city: 'curitiba' as const, name: 'Curitiba' },
+    { city: 'sao_paulo' as const, name: 'São Paulo' },
+    { city: 'rio_de_janeiro' as const, name: 'Rio de Janeiro' }
+  ];
 
-  if (isLoading || highlightsLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -106,11 +89,10 @@ const DestaquesHub = () => {
           <div className="relative container mx-auto px-4">
             <div className="text-center">
               <h1 className="text-4xl md:text-6xl font-bold mb-6 gradient-text">
-                Destaques Culturais
+                Destaques da Semana
               </h1>
               <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-                Descubra os melhores eventos, shows e experiências culturais nas principais cidades do Brasil. 
-                Conteúdo exclusivo e curadoria especializada para você não perder nada.
+                Descubra os eventos mais curtidos e selecionados pela nossa curadoria nas principais cidades do Brasil.
               </p>
               <div className="flex flex-wrap gap-4 justify-center">
                 <Badge variant="outline" className="px-4 py-2">
@@ -130,47 +112,26 @@ const DestaquesHub = () => {
           </div>
         </section>
 
-        {/* Weekly Highlights */}
-        {highlights.length > 0 && (
-          <ScrollAnimationWrapper>
-            <section className="py-16">
-              <div className="container mx-auto px-4">
-                <h2 className="text-3xl font-bold mb-4 text-center">Destaques da Semana</h2>
-                <p className="text-muted-foreground text-center mb-8 max-w-2xl mx-auto">
-                  Eventos selecionados pela nossa equipe editorial com base em relevância cultural, 
-                  qualidade artística e impacto na cena local.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {highlights.map((highlight) => (
-                    <HighlightCard key={highlight.id} highlight={highlight} />
-                  ))}
-                </div>
-              </div>
-            </section>
-          </ScrollAnimationWrapper>
-        )}
-
-        {/* Featured Articles */}
-        {featuredPosts.length > 0 && (
-          <ScrollAnimationWrapper>
-            <section className="py-16 bg-muted/20">
-              <div className="container mx-auto px-4">
-                <h2 className="text-3xl font-bold mb-8 text-center">Artigos Editoriais</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {featuredPosts.map((post) => (
-                    <ArticleCard key={post.id} post={post} showCity={true} />
-                  ))}
-                </div>
-              </div>
-            </section>
-          </ScrollAnimationWrapper>
-        )}
+        {/* City Highlights Sliders */}
+        <ScrollAnimationWrapper>
+          <section className="py-16">
+            <div className="container mx-auto px-4 space-y-16">
+              {cityHighlightMapping.map(({ city, name }) => (
+                <CityHighlightSlider 
+                  key={city}
+                  city={city}
+                  title={`Destaques de ${name}`}
+                />
+              ))}
+            </div>
+          </section>
+        </ScrollAnimationWrapper>
 
         {/* Cities Grid */}
         <ScrollAnimationWrapper>
           <section className="py-16 bg-muted/30">
             <div className="container mx-auto px-4">
-              <h2 className="text-3xl font-bold mb-8 text-center">Explore por Cidade</h2>
+              <h2 className="text-3xl font-bold mb-8 text-center">Explorar por Cidade</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {Object.entries(citiesData).map(([slug, cityData]) => {
                   const hasContent = citiesWithContent.includes(slug);
@@ -231,21 +192,6 @@ const DestaquesHub = () => {
           </section>
         </ScrollAnimationWrapper>
 
-        {/* Latest Articles */}
-        {allPosts.length > 0 && (
-          <ScrollAnimationWrapper>
-            <section className="py-16">
-              <div className="container mx-auto px-4">
-                <h2 className="text-3xl font-bold mb-8 text-center">Últimos Artigos</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {allPosts.slice(0, 9).map((post) => (
-                    <ArticleCard key={post.id} post={post} showCity={true} />
-                  ))}
-                </div>
-              </div>
-            </section>
-          </ScrollAnimationWrapper>
-        )}
       </main>
       
       <Footer />
