@@ -952,6 +952,10 @@ export type Database = {
         Args: { p_id: string; p_status: string }
         Returns: undefined
       }
+      validate_admin_email: {
+        Args: { p_email: string }
+        Returns: boolean
+      }
     }
     Enums: {
       article_status: "draft" | "published" | "scheduled"
