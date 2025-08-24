@@ -1,13 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { Facebook, Twitter, Share2, Copy } from "lucide-react";
+import { Facebook, Twitter, Share2, Copy, Instagram } from "lucide-react";
 import { toast } from "sonner";
+import InstagramShareCard from "../InstagramShareCard";
 
 interface ShareButtonsProps {
   title: string;
   url: string;
+  subtitle?: string;
+  imageUrl?: string;
+  showInstagramCard?: boolean;
 }
 
-const ShareButtons = ({ title, url }: ShareButtonsProps) => {
+const ShareButtons = ({ title, url, subtitle, imageUrl, showInstagramCard = true }: ShareButtonsProps) => {
   const handleShare = (platform: string) => {
     const encodedTitle = encodeURIComponent(title);
     const encodedUrl = encodeURIComponent(url);
@@ -43,46 +47,59 @@ const ShareButtons = ({ title, url }: ShareButtonsProps) => {
   };
 
   return (
-    <div className="flex flex-wrap gap-3">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => handleShare('facebook')}
-        className="flex items-center gap-2"
-      >
-        <Facebook className="w-4 h-4" />
-        Facebook
-      </Button>
+    <div className="space-y-4">
+      {/* Instagram Stories Card */}
+      {showInstagramCard && (
+        <InstagramShareCard
+          title={title}
+          subtitle={subtitle}
+          imageUrl={imageUrl}
+          url={url}
+        />
+      )}
       
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => handleShare('twitter')}
-        className="flex items-center gap-2"
-      >
-        <Twitter className="w-4 h-4" />
-        Twitter
-      </Button>
-      
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => handleShare('whatsapp')}
-        className="flex items-center gap-2"
-      >
-        <Share2 className="w-4 h-4" />
-        WhatsApp
-      </Button>
-      
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => handleShare('copy')}
-        className="flex items-center gap-2"
-      >
-        <Copy className="w-4 h-4" />
-        Copiar link
-      </Button>
+      {/* Regular sharing buttons */}
+      <div className="flex flex-wrap gap-3">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handleShare('facebook')}
+          className="flex items-center gap-2"
+        >
+          <Facebook className="w-4 h-4" />
+          Facebook
+        </Button>
+        
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handleShare('twitter')}
+          className="flex items-center gap-2"
+        >
+          <Twitter className="w-4 h-4" />
+          Twitter
+        </Button>
+        
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handleShare('whatsapp')}
+          className="flex items-center gap-2"
+        >
+          <Share2 className="w-4 h-4" />
+          WhatsApp
+        </Button>
+        
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handleShare('copy')}
+          className="flex items-center gap-2"
+        >
+          <Copy className="w-4 h-4" />
+          Copiar link
+        </Button>
+      </div>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { Facebook, Twitter, MessageCircle, Link, Copy } from 'lucide-react';
+import { Facebook, Twitter, MessageCircle, Link, Copy, Instagram } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -8,6 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import type { FavoriteEvent } from '@/hooks/useFavorites';
+import InstagramShareCard from './InstagramShareCard';
 
 interface ShareDialogProps {
   isOpen: boolean;
@@ -29,7 +30,7 @@ const ShareDialog = ({ isOpen, onClose, event }: ShareDialogProps) => {
       }
     },
     {
-      name: 'Twitter',
+      name: 'Twitter', 
       icon: Twitter,
       color: 'text-[#1DA1F2]',
       action: () => {
@@ -51,7 +52,6 @@ const ShareDialog = ({ isOpen, onClose, event }: ShareDialogProps) => {
       action: () => {
         navigator.clipboard.writeText(eventUrl).then(() => {
           toast.success('Link copiado para a área de transferência!');
-          onClose();
         });
       }
     }
@@ -59,7 +59,7 @@ const ShareDialog = ({ isOpen, onClose, event }: ShareDialogProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Link className="h-5 w-5" />
@@ -67,24 +67,36 @@ const ShareDialog = ({ isOpen, onClose, event }: ShareDialogProps) => {
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="text-sm text-muted-foreground">
             <p className="font-medium">{event.title}</p>
             <p>{event.city} • {new Date(event.date).toLocaleDateString('pt-BR')}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            {shareOptions.map((option) => (
-              <Button
-                key={option.name}
-                variant="outline"
-                onClick={option.action}
-                className="flex items-center gap-2 h-12"
-              >
-                <option.icon className={`h-5 w-5 ${option.color}`} />
-                <span className="text-sm">{option.name}</span>
-              </Button>
-            ))}
+          {/* Instagram Stories Card */}
+          <InstagramShareCard
+            title={event.title}
+            subtitle={`${event.city} • ${new Date(event.date).toLocaleDateString('pt-BR')}`}
+            imageUrl={event.image}
+            url={eventUrl}
+          />
+
+          {/* Regular sharing options */}
+          <div>
+            <h4 className="font-medium mb-3 text-sm">Outras opções</h4>
+            <div className="grid grid-cols-2 gap-3">
+              {shareOptions.map((option) => (
+                <Button
+                  key={option.name}
+                  variant="outline"
+                  onClick={option.action}
+                  className="flex items-center gap-2 h-12"
+                >
+                  <option.icon className={`h-5 w-5 ${option.color}`} />
+                  <span className="text-sm">{option.name}</span>
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
       </DialogContent>

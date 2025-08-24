@@ -11,17 +11,17 @@ const Footer = () => {
 
   const quickLinks = [
     { name: "Home", href: "/" },
-    { name: "Revista", href: "/editorial" },
-    { name: "Vitrine Cultural", href: "/vitrine" },
-    { name: "Destaques", href: "/destaques" }
+    { name: "Eventos", href: "/eventos" },
+    { name: "Destaques", href: "/destaques" },
+    { name: "Contato", href: "/contato" }
   ];
 
   const categories = [
-    { name: "Shows", href: "/categorias/shows" },
-    { name: "Festas", href: "/categorias/festas" },
-    { name: "Teatro", href: "/categorias/teatro" },
-    { name: "Arte", href: "/categorias/arte" },
-    { name: "Cultura Noturna", href: "/categorias/cultura-noturna" }
+    { name: "Shows", href: "/eventos?category=shows" },
+    { name: "Festas", href: "/eventos?category=festas" },
+    { name: "Teatro", href: "/eventos?category=teatro" },
+    { name: "Arte", href: "/eventos?category=arte" },
+    { name: "Cultura Noturna", href: "/eventos?category=noturna" }
   ];
 
   const legalLinks = [
