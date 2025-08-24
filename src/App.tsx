@@ -23,7 +23,7 @@ import UserTerms from "./pages/UserTerms";
 import OrganizerTerms from "./pages/OrganizerTerms";
 import Help from "./pages/Help";
 import AdminLoginSimple from "./pages/AdminLoginSimple";
-import { AdminLayout } from "./components/AdminLayout";
+import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminPostEditor from "./pages/AdminPostEditor";
 import AdminEventCreate from "./pages/AdminEventCreate";

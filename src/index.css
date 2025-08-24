@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* garantir altura total */
+html, body, #root { height: 100%; }
+
 /* Ensure full height layout for admin */
 html, body, #root {
   height: 100%;
