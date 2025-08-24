@@ -1,6 +1,4 @@
-import { Navigate } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import { AdminLayout } from "@/components/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -9,21 +7,7 @@ import { FileText, Calendar, MapPin, Users, MessageSquare, Tag, Image, User, Sta
 import { AdminStats } from "@/components/AdminStats";
 
 const AdminDashboard = () => {
-  const { isAuthenticated, logoutAdmin, adminUser, loading } = useAdminAuth();
-
-  // Show loading while checking authentication
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  // Only redirect if not loading and not authenticated
-  if (!loading && !isAuthenticated) {
-    return <Navigate to="/admin/login" replace />;
-  }
+  const { logoutAdmin, adminUser } = useAdminAuth();
 
   const adminCards = [
     {
@@ -109,10 +93,8 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="container mx-auto px-4 py-8">
+    <AdminLayout>
+      <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold">Painel Administrativo</h1>
@@ -212,10 +194,8 @@ const AdminDashboard = () => {
             </div>
           </CardContent>
         </Card>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </AdminLayout>
   );
 };
 
