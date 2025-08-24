@@ -51,17 +51,15 @@ const AdminCategoriesManagement = () => {
   });
 
   useEffect(() => {
-    checkAuthAndLoadCategories();
-  }, []);
-
-  const checkAuthAndLoadCategories = async () => {
-    if (!isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       navigate('/admin/login');
       return;
     }
-
-    await loadCategories();
-  };
+    
+    if (isAuthenticated) {
+      loadCategories();
+    }
+  }, [isAuthenticated, authLoading, navigate]);
 
   const loadCategories = async () => {
     try {

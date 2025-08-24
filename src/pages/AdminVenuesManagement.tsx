@@ -53,17 +53,15 @@ const AdminVenuesManagement = () => {
   });
 
   useEffect(() => {
-    checkAuthAndLoadVenues();
-  }, []);
-
-  const checkAuthAndLoadVenues = async () => {
-    if (!isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       navigate('/admin/login');
       return;
     }
-
-    await loadVenues();
-  };
+    
+    if (isAuthenticated) {
+      loadVenues();
+    }
+  }, [isAuthenticated, authLoading, navigate]);
 
   const loadVenues = async () => {
     try {

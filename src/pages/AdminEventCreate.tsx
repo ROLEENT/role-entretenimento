@@ -85,21 +85,19 @@ const AdminEventCreate = () => {
   });
 
   useEffect(() => {
-    checkAuthAndLoadData();
-  }, []);
-
-  const checkAuthAndLoadData = async () => {
-    if (!isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       navigate('/admin/login');
       return;
     }
-
-    await Promise.all([
-      loadVenues(),
-      loadOrganizers(),
-      loadCategories()
-    ]);
-  };
+    
+    if (isAuthenticated) {
+      Promise.all([
+        loadVenues(),
+        loadOrganizers(),
+        loadCategories()
+      ]);
+    }
+  }, [isAuthenticated, authLoading, navigate]);
 
   const loadVenues = async () => {
     try {

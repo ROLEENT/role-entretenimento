@@ -59,6 +59,7 @@ const App = () => (
             <Route path="/destaques" element={<DestaquesHub />} />
             <Route path="/destaques/:cidade" element={<CityBlogPage />} />
             <Route path="/destaques/:cidade/:data" element={<BlogArticle />} />
+            <Route path="/cidade/:cidade" element={<CityHighlights />} />
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLoginSimple />} />
             <Route path="/admin" element={<AdminDashboard />} />
