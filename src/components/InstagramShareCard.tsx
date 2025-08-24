@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Download, Link, Instagram } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 interface InstagramShareCardProps {
   title: string;
@@ -214,10 +214,7 @@ export const InstagramShareCard = ({
       a.click();
       URL.revokeObjectURL(url);
       
-      toast({
-        title: "Download concluído! 📱",
-        description: "Agora é só compartilhar nos seus Stories!"
-      });
+      toast.success("Download concluído! 📱 Agora é só compartilhar nos seus Stories!");
     }, 'image/png', 1.0);
   };
 
@@ -227,19 +224,13 @@ export const InstagramShareCard = ({
     // Open Instagram Stories camera
     window.open('https://www.instagram.com/stories/camera/', '_blank');
     
-    toast({
-      title: "Redirecionando para o Instagram 📸",
-      description: "A imagem foi baixada! Cole nos seus Stories."
-    });
+    toast.success("Redirecionando para o Instagram 📸 A imagem foi baixada!");
   };
 
   const handleCopyLink = async () => {
     if (url) {
       await navigator.clipboard.writeText(url);
-      toast({
-        title: "Link copiado! 🔗",
-        description: "Cole onde quiser compartilhar."
-      });
+      toast.success("Link copiado! 🔗 Cole onde quiser compartilhar.");
     }
   };
 
