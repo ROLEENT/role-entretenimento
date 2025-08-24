@@ -35,6 +35,8 @@ import AdminPartnersManagement from "./pages/AdminPartnersManagement";
 import AdminContactMessages from "./pages/AdminContactMessages";
 import AdminCommentsManagement from "./pages/AdminCommentsManagement";
 import AdminAnalytics from "./pages/AdminAnalytics";
+import AdminHighlightsManagement from "./pages/AdminHighlightsManagement";
+import AdminHighlightEditor from "./pages/AdminHighlightEditor";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -78,6 +80,9 @@ const App = () => (
             <Route path="/admin/posts/history" element={<AdminBlogPostsHistory />} />
             <Route path="/admin/advertisements" element={<AdminAdvertisementsManagement />} />
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="/admin/highlights" element={<AdminHighlightsManagement />} />
+            <Route path="/admin/highlights/create" element={<AdminHighlightEditor />} />
+            <Route path="/admin/highlights/edit/:id" element={<AdminHighlightEditor />} />
             <Route path="/admin/profile" element={<AdminProfile />} />
             <Route path="/eventos" element={<EventsPage />} />
             {/* Events Routes */}

@@ -30,7 +30,7 @@ interface HighlightForm {
 }
 
 const AdminHighlightEditor = () => {
-  const { user, loading: authLoading } = useAdminAuth();
+  const { adminUser, loading: authLoading, isAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id);
@@ -62,7 +62,7 @@ const AdminHighlightEditor = () => {
   ];
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!authLoading && !isAuthenticated) {
       navigate("/admin/login");
       return;
     }
@@ -70,7 +70,7 @@ const AdminHighlightEditor = () => {
     if (isEdit && id) {
       fetchHighlight();
     }
-  }, [user, authLoading, navigate, isEdit, id]);
+  }, [isAuthenticated, authLoading, navigate, isEdit, id]);
 
   const fetchHighlight = async () => {
     if (!id) return;

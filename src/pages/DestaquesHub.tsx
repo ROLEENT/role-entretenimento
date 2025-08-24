@@ -10,16 +10,18 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Calendar, Clock, ArrowRight } from "lucide-react";
 import { useBlogData, getCitiesWithPosts, getLatestPostByCity, BlogPost } from "@/hooks/useBlogData";
 import { citiesData } from "@/data/citiesData";
-import { getFeaturedEventHighlights } from "@/data/eventHighlights";
+import { supabase } from "@/integrations/supabase/client";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
 import ArticleCard from "@/components/blog/ArticleCard";
-import EventHighlightCard from "@/components/EventHighlightCard";
+import HighlightCard from "@/components/HighlightCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const DestaquesHub = () => {
   const { posts: allPosts, isLoading } = useBlogData();
   const [citiesWithContent, setCitiesWithContent] = useState<string[]>([]);
   const [latestPosts, setLatestPosts] = useState<Record<string, BlogPost>>({});
+  const [highlights, setHighlights] = useState<any[]>([]);
+  const [highlightsLoading, setHighlightsLoading] = useState(true);
 
   useEffect(() => {
     const loadCitiesData = async () => {
@@ -41,13 +43,32 @@ const DestaquesHub = () => {
       }
     };
 
+    const loadHighlights = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('highlights')
+          .select('*')
+          .eq('is_published', true)
+          .order('event_date', { ascending: false })
+          .order('sort_order', { ascending: false })
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setHighlights(data || []);
+      } catch (error) {
+        console.error("Error loading highlights:", error);
+      } finally {
+        setHighlightsLoading(false);
+      }
+    };
+
     loadCitiesData();
+    loadHighlights();
   }, []);
 
   const featuredPosts = allPosts.filter(post => post.featured).slice(0, 6);
-  const featuredEventHighlights = getFeaturedEventHighlights();
 
-  if (isLoading) {
+  if (isLoading || highlightsLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -109,8 +130,8 @@ const DestaquesHub = () => {
           </div>
         </section>
 
-        {/* Featured Event Highlights */}
-        {featuredEventHighlights.length > 0 && (
+        {/* Weekly Highlights */}
+        {highlights.length > 0 && (
           <ScrollAnimationWrapper>
             <section className="py-16">
               <div className="container mx-auto px-4">
@@ -119,9 +140,9 @@ const DestaquesHub = () => {
                   Eventos selecionados pela nossa equipe editorial com base em relevância cultural, 
                   qualidade artística e impacto na cena local.
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {featuredEventHighlights.map((event) => (
-                    <EventHighlightCard key={event.id} event={event} />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {highlights.map((highlight) => (
+                    <HighlightCard key={highlight.id} highlight={highlight} />
                   ))}
                 </div>
               </div>

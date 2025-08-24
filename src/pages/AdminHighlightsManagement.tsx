@@ -29,21 +29,21 @@ interface Highlight {
 }
 
 const AdminHighlightsManagement = () => {
-  const { user, loading: authLoading } = useAdminAuth();
+  const { adminUser, loading: authLoading, isAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!authLoading && !isAuthenticated) {
       navigate("/admin/login");
       return;
     }
     
-    if (user) {
+    if (isAuthenticated) {
       fetchHighlights();
     }
-  }, [user, authLoading, navigate]);
+  }, [isAuthenticated, authLoading, navigate]);
 
   const fetchHighlights = async () => {
     try {
