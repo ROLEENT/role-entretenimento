@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { uploadHighlightImage } from "@/lib/upload";
+import { uploadCoverToStorage } from "@/lib/upload";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -52,9 +52,12 @@ const AdminHighlightEditor = () => {
     is_published: false,
   });
   
+  // Estados para upload e formulário
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverUrl, setCoverUrl] = useState<string>('');
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [newReason, setNewReason] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [imageUploading, setImageUploading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   
   const { getImageUrl, getCityDisplayName } = usePublishedHighlights();
@@ -122,6 +125,9 @@ const AdminHighlightEditor = () => {
         sort_order: highlight.sort_order || 100,
         is_published: highlight.is_published,
       });
+      
+      // Sincronizar coverUrl com image_url para edição
+      setCoverUrl(highlight.image_url || '');
     } catch (error) {
       console.error('Erro ao carregar destaque:', error);
       toast.error('Erro ao carregar destaque');
@@ -129,82 +135,69 @@ const AdminHighlightEditor = () => {
     }
   };
 
-  const handleImageUpload = async (file: File) => {
-    if (!file) {
-      console.log('❌ UPLOAD DEBUG: Nenhum arquivo selecionado');
-      return;
-    }
+  // Função para gerar slug automático
+  const generateSlug = (title: string): string => {
+    return title
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+      .replace(/[^a-z0-9\s-]/g, '') // Remove caracteres especiais
+      .replace(/\s+/g, '-') // Substitui espaços por hífens
+      .replace(/-+/g, '-') // Remove hífens duplos
+      .trim()
+      .slice(0, 50); // Limita tamanho
+  };
 
-    // Verificar se admin está autenticado
-    if (!adminUser?.email) {
-      toast.error('Você precisa estar logado como admin para fazer upload');
-      navigate('/admin/login');
+  // Nova função de upload usando blog-images
+  const uploadCoverIfNeeded = async (): Promise<string> => {
+    // Se já temos URL e não há arquivo novo, usar URL existente
+    if (coverUrl && !coverFile) {
+      return coverUrl;
+    }
+    
+    // Se há arquivo novo para upload
+    if (coverFile) {
+      if (!adminUser?.email) {
+        throw new Error('Admin não autenticado');
+      }
+      
+      setUploadingCover(true);
+      try {
+        const slug = generateSlug(form.event_title);
+        const imageUrl = await uploadCoverToStorage(coverFile, form.city, slug);
+        setCoverUrl(imageUrl);
+        return imageUrl;
+      } finally {
+        setUploadingCover(false);
+      }
+    }
+    
+    // Sem arquivo e sem URL
+    return '';
+  };
+
+  // Validação e preparação de arquivo
+  const handleFileSelect = (file: File | null) => {
+    if (!file) {
+      setCoverFile(null);
       return;
     }
     
-    // Validação de tipo de arquivo
+    // Validação de tipo
     if (!file.type.startsWith('image/')) {
-      toast.error('Por favor, selecione apenas arquivos de imagem (JPG, PNG, GIF, etc.)');
-      console.log('❌ UPLOAD DEBUG: Tipo de arquivo inválido:', file.type);
+      toast.error('Selecione apenas arquivos de imagem (JPG, PNG, GIF, etc.)');
       return;
     }
     
     // Validação de tamanho (5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB em bytes
+    const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      toast.error('A imagem deve ter no máximo 5MB. Tamanho atual: ' + (file.size / 1024 / 1024).toFixed(1) + 'MB');
-      console.log('❌ UPLOAD DEBUG: Arquivo muito grande:', {
-        fileSize: file.size,
-        maxSize: maxSize,
-        fileSizeMB: (file.size / 1024 / 1024).toFixed(1)
-      });
+      toast.error(`Imagem muito grande: ${(file.size / 1024 / 1024).toFixed(1)}MB. Máximo: 5MB`);
       return;
     }
     
-    console.log('🔄 UPLOAD DEBUG: Iniciando upload da imagem:', {
-      fileName: file.name,
-      fileSize: file.size,
-      fileSizeMB: (file.size / 1024 / 1024).toFixed(1),
-      fileType: file.type,
-      eventTitle: form.event_title,
-      adminEmail: adminUser.email
-    });
-    
-    setImageUploading(true);
-    try {
-      const imageUrl = await uploadHighlightImage(file, form.event_title || 'highlight');
-      
-      console.log('✅ UPLOAD DEBUG: URL da imagem retornada:', imageUrl);
-      
-      setForm(prev => {
-        const newForm = { ...prev, image_url: imageUrl };
-        console.log('📝 UPLOAD DEBUG: Estado atualizado:', {
-          previousImageUrl: prev.image_url,
-          newImageUrl: imageUrl,
-          formUpdated: newForm
-        });
-        return newForm;
-      });
-      
-      toast.success('Imagem enviada com sucesso');
-      console.log('✅ UPLOAD DEBUG: Upload concluído com sucesso');
-    } catch (error) {
-      console.error('❌ UPLOAD DEBUG: Erro ao enviar imagem:', error);
-      
-      // Verificar se é erro de autenticação/RLS
-      if (error instanceof Error) {
-        if (error.message.includes('row-level security') || error.message.includes('insufficient_privilege')) {
-          toast.error('Erro de permissão: faça login como admin novamente');
-          navigate('/admin/login');
-        } else {
-          toast.error('Erro ao enviar imagem: ' + error.message);
-        }
-      } else {
-        toast.error('Erro desconhecido ao enviar imagem');
-      }
-    } finally {
-      setImageUploading(false);
-    }
+    setCoverFile(file);
+    toast.success('Imagem selecionada para upload');
   };
 
   const addReason = () => {
@@ -224,10 +217,10 @@ const AdminHighlightEditor = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSaveHighlight = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validações aprimoradas
+    // Validações básicas obrigatórias
     if (!form.event_title.trim()) {
       toast.error('O título do evento é obrigatório');
       return;
@@ -273,21 +266,6 @@ const AdminHighlightEditor = () => {
       return;
     }
 
-    console.log('🔍 VALIDATION DEBUG: Verificando imagem:', {
-      imageUrl: form.image_url,
-      imageUrlTrimmed: form.image_url.trim(),
-      imageUrlLength: form.image_url.length,
-      formCompleto: form
-    });
-
-    if (!form.image_url.trim()) {
-      console.error('❌ VALIDATION DEBUG: Imagem obrigatória não encontrada');
-      toast.error('A imagem do evento é obrigatória');
-      return;
-    }
-    
-    console.log('✅ VALIDATION DEBUG: Imagem validada com sucesso');
-
     // Validar URL do ticket se fornecida
     if (form.ticket_url && form.ticket_url.trim()) {
       try {
@@ -298,8 +276,33 @@ const AdminHighlightEditor = () => {
       }
     }
 
-    setLoading(true);
+    setSaving(true);
     try {
+      // Fazer upload da imagem se necessário
+      let finalCoverUrl = coverUrl;
+      
+      if (!finalCoverUrl && coverFile) {
+        try {
+          finalCoverUrl = await uploadCoverIfNeeded();
+        } catch (error: any) {
+          console.error('Erro no upload da capa:', error);
+          toast.error('Falha ao enviar a imagem. Você pode salvar como rascunho e tentar a imagem depois.');
+          
+          // Se era para publicar mas upload falhou, converter para rascunho
+          if (form.is_published) {
+            setForm(prev => ({ ...prev, is_published: false }));
+            toast.info('Publicação convertida para Rascunho por falta de imagem.');
+          }
+        }
+      }
+
+      // Se publicando mas não tem imagem, converter para rascunho
+      let willPublish = form.is_published;
+      if (form.is_published && !finalCoverUrl) {
+        willPublish = false;
+        toast.info('Convertido para rascunho: publicação requer imagem.');
+      }
+
       const payload = {
         city: form.city,
         event_title: form.event_title,
@@ -308,10 +311,10 @@ const AdminHighlightEditor = () => {
         event_date: form.event_date || null,
         role_text: form.role_text,
         selection_reasons: form.selection_reasons,
-        image_url: form.image_url,
+        image_url: finalCoverUrl || null,
         photo_credit: form.photo_credit || null,
         sort_order: form.sort_order,
-        is_published: form.is_published,
+        is_published: willPublish,
       };
 
       if (!adminUser?.email) {
@@ -367,7 +370,7 @@ const AdminHighlightEditor = () => {
         }
         
         console.log('Destaque criado via RPC:', data);
-        toast.success('Destaque criado com sucesso');
+        toast.success(willPublish ? 'Destaque publicado com sucesso' : 'Rascunho salvo com sucesso');
       }
       
       navigate('/admin/highlights');
@@ -375,7 +378,7 @@ const AdminHighlightEditor = () => {
       console.error('Erro ao salvar destaque:', error);
       toast.error('Erro ao salvar destaque');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -395,7 +398,7 @@ const AdminHighlightEditor = () => {
         </h1>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSaveHighlight}>
         <Card>
           <CardHeader>
             <CardTitle>Informações do Evento</CardTitle>
@@ -542,21 +545,24 @@ const AdminHighlightEditor = () => {
                   type="file"
                   accept="image/*"
                   onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleImageUpload(file);
+                    const file = e.target.files?.[0] || null;
+                    handleFileSelect(file);
                   }}
-                  disabled={imageUploading}
+                  disabled={uploadingCover}
                 />
-                {imageUploading && <p className="text-sm text-muted-foreground">Enviando imagem...</p>}
-                {form.image_url && (
+                {uploadingCover && <p className="text-sm text-muted-foreground">Enviando imagem...</p>}
+                {(coverUrl || form.image_url) && (
                   <img
-                    src={form.image_url.startsWith('http') 
-                      ? form.image_url 
-                      : `https://nutlcbnruabjsxecqpnd.supabase.co/storage/v1/object/public/highlights/${form.image_url}`
+                    src={(coverUrl || form.image_url).startsWith('http') 
+                      ? (coverUrl || form.image_url)
+                      : `https://nutlcbnruabjsxecqpnd.supabase.co/storage/v1/object/public/blog-images/${coverUrl || form.image_url}`
                     }
                     alt="Preview"
                     className="w-full h-32 object-cover rounded-lg mt-2"
                   />
+                )}
+                {coverFile && !coverUrl && (
+                  <p className="text-sm text-muted-foreground">Arquivo selecionado: {coverFile.name}</p>
                 )}
               </div>
 
@@ -616,9 +622,9 @@ const AdminHighlightEditor = () => {
               {showPreview ? 'Ocultar Preview' : 'Ver Preview'}
             </Button>
           </div>
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" disabled={saving || uploadingCover}>
             <Save className="w-4 h-4 mr-2" />
-            {loading ? 'Salvando...' : 'Salvar Destaque'}
+            {saving ? 'Salvando...' : uploadingCover ? 'Enviando...' : 'Salvar Destaque'}
           </Button>
         </div>
       </form>
