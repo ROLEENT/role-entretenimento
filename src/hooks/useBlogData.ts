@@ -34,11 +34,11 @@ export const useBlogData = () => {
       const { data, error } = await supabase
         .from("blog_posts")
         .select("*")
-        .eq("status", "published")
+        .eq("status", "published" as any)
         .order("published_at", { ascending: false });
 
       if (error) throw error;
-      setPosts(data || []);
+      setPosts((data as any) || []);
     } catch (err: any) {
       console.error("Error fetching posts:", err);
       setError(err.message);
@@ -59,14 +59,14 @@ export const getLatestPostByCity = async (citySlug: string): Promise<BlogPost | 
     const { data, error } = await supabase
       .from("blog_posts")
       .select("*")
-      .eq("city", citySlug)
-      .eq("status", "published")
+      .eq("city", citySlug as any)
+      .eq("status", "published" as any)
       .order("published_at", { ascending: false })
       .limit(1)
       .maybeSingle();
 
     if (error) throw error;
-    return data;
+    return (data as any) || null;
   } catch (error) {
     console.error("Error fetching latest post:", error);
     return null;
@@ -78,12 +78,12 @@ export const getCitiesWithPosts = async (): Promise<string[]> => {
     const { data, error } = await supabase
       .from("blog_posts")
       .select("city")
-      .eq("status", "published");
+      .eq("status", "published" as any);
 
     if (error) throw error;
     
-    const uniqueCities = [...new Set(data?.map(post => post.city) || [])];
-    return uniqueCities;
+    const uniqueCities = [...new Set((data as any)?.map((post: any) => post.city) || [])];
+    return uniqueCities as string[];
   } catch (error) {
     console.error("Error fetching cities:", error);
     return [];
@@ -95,13 +95,13 @@ export const getPostBySlug = async (citySlug: string, dataSlug: string): Promise
     const { data, error } = await supabase
       .from("blog_posts")
       .select("*")
-      .eq("city", citySlug)
-      .eq("slug_data", dataSlug)
-      .eq("status", "published")
+      .eq("city", citySlug as any)
+      .eq("slug_data", dataSlug as any)
+      .eq("status", "published" as any)
       .maybeSingle();
 
     if (error) throw error;
-    return data;
+    return (data as any) || null;
   } catch (error) {
     console.error("Error fetching post by slug:", error);
     return null;
@@ -113,12 +113,12 @@ export const getCityPosts = async (citySlug: string): Promise<BlogPost[]> => {
     const { data, error } = await supabase
       .from("blog_posts")
       .select("*")
-      .eq("city", citySlug)
-      .eq("status", "published")
+      .eq("city", citySlug as any)
+      .eq("status", "published" as any)
       .order("published_at", { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data as any) || [];
   } catch (error) {
     console.error("Error fetching city posts:", error);
     return [];

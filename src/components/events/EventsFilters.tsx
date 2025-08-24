@@ -54,17 +54,17 @@ const EventsFilters: React.FC<EventsFiltersProps> = ({
       const { data, error } = await supabase
         .from('events')
         .select('city')
-        .eq('status', 'active')
+        .eq('status', 'active' as any)
         .order('city');
 
       if (error) throw error;
 
       // Get unique cities
       const uniqueCities = Array.from(
-        new Set(data?.map(item => item.city))
+        new Set((data as any)?.map((item: any) => item.city))
       ).map(city => ({ city }));
 
-      setCities(uniqueCities);
+      setCities(uniqueCities as any);
     } catch (error) {
       console.error('Error loading cities:', error);
     }
@@ -78,7 +78,7 @@ const EventsFilters: React.FC<EventsFiltersProps> = ({
         .order('name');
 
       if (error) throw error;
-      setCategories(data || []);
+      setCategories((data as any) || []);
     } catch (error) {
       console.error('Error loading categories:', error);
     }

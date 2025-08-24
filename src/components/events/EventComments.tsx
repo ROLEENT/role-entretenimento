@@ -70,7 +70,7 @@ const EventComments = ({ eventId }: EventCommentsProps) => {
         .select(`
           *
         `)
-        .eq('event_id', eventId)
+        .eq('event_id', eventId as any)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
@@ -80,7 +80,7 @@ const EventComments = ({ eventId }: EventCommentsProps) => {
       const rootComments: Comment[] = [];
 
       // First pass: create comment objects
-      data?.forEach(comment => {
+      data?.forEach((comment: any) => {
         const commentObj: Comment = {
           ...comment,
           replies: []
@@ -93,7 +93,7 @@ const EventComments = ({ eventId }: EventCommentsProps) => {
       });
 
       // Second pass: organize replies
-      data?.forEach(comment => {
+      data?.forEach((comment: any) => {
         if (comment.parent_id) {
           const parent = commentMap.get(comment.parent_id);
           const child = commentMap.get(comment.id);
@@ -129,7 +129,7 @@ const EventComments = ({ eventId }: EventCommentsProps) => {
           event_id: eventId,
           user_id: user!.id,
           content: newComment.trim()
-        });
+        } as any);
 
       if (error) throw error;
 
@@ -164,7 +164,7 @@ const EventComments = ({ eventId }: EventCommentsProps) => {
           user_id: user!.id,
           content: replyContent.trim(),
           parent_id: parentId
-        });
+        } as any);
 
       if (error) throw error;
 

@@ -43,7 +43,7 @@ export const useAdminAuth = () => {
 
       if (error) throw error;
 
-      if (data && data.length > 0 && data[0].success) {
+      if (data && (data as any).length > 0 && (data as any)[0].success) {
         const adminData = data[0].admin_data as unknown as AdminUser;
         setAdminUser(adminData);
         localStorage.setItem('admin_session', JSON.stringify(adminData));

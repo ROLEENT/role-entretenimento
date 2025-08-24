@@ -20,8 +20,8 @@ export const useSecureComments = (postId: string) => {
       const { data, error } = await supabase
         .from('blog_comments')
         .select('id, post_id, author_name, content, created_at, parent_id')
-        .eq('post_id', postId)
-        .eq('is_approved', true)
+        .eq('post_id', postId as any)
+        .eq('is_approved', true as any)
         .order('created_at', { ascending: true });
 
       if (error) {
@@ -29,7 +29,7 @@ export const useSecureComments = (postId: string) => {
         return;
       }
 
-      setComments(data || []);
+      setComments((data as any) || []);
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -51,7 +51,7 @@ export const useSecureComments = (postId: string) => {
           author_email: authorEmail,
           content: content,
           parent_id: parentId || null
-        });
+        } as any);
 
       if (error) {
         throw error;

@@ -31,7 +31,7 @@ export const usePublishedHighlights = (limit?: number) => {
       let query = supabase
         .from('highlights')
         .select('*')
-        .eq('is_published', true)
+        .eq('is_published', true as any)
         .order('sort_order', { ascending: false })
         .order('created_at', { ascending: false });
 
@@ -45,7 +45,7 @@ export const usePublishedHighlights = (limit?: number) => {
         throw fetchError;
       }
 
-      setHighlights(data || []);
+      setHighlights((data as any) || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar destaques');
     } finally {

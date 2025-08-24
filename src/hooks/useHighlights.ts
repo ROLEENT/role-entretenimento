@@ -35,15 +35,15 @@ export const useHighlightsByCity = (city: CityEnum) => {
         const { data, error: fetchError } = await supabase
           .from('highlights')
           .select('*')
-          .eq('city', city)
-          .eq('is_published', true)
+        .eq('city', city as any)
+        .eq('is_published', true as any)
           .order('event_date', { ascending: false, nullsFirst: false })
           .order('sort_order', { ascending: true })
           .order('created_at', { ascending: false });
 
         if (fetchError) throw fetchError;
 
-        setHighlights(data || []);
+      setHighlights((data as any) || []);
       } catch (err) {
         console.error('Error fetching highlights:', err);
         setError(err instanceof Error ? err.message : 'Unknown error');
@@ -73,14 +73,14 @@ export const usePublishedHighlights = () => {
         const { data, error: fetchError } = await supabase
           .from('highlights')
           .select('*')
-          .eq('is_published', true)
+          .eq('is_published', true as any)
           .order('like_count', { ascending: false })
           .order('event_date', { ascending: false, nullsFirst: false })
           .order('sort_order', { ascending: true });
 
         if (fetchError) throw fetchError;
 
-        setHighlights(data || []);
+        setHighlights((data as any) || []);
       } catch (err) {
         console.error('Error fetching highlights:', err);
         setError(err instanceof Error ? err.message : 'Unknown error');
