@@ -252,6 +252,36 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          status: string
+          subject: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          status?: string
+          subject: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          status?: string
+          subject?: string
+        }
+        Relationships: []
+      }
       event_categories: {
         Row: {
           category_id: string
@@ -764,6 +794,10 @@ export type Database = {
       }
       is_admin: {
         Args: { uid: string }
+        Returns: boolean
+      }
+      is_admin_user: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
       update_contact_message_status: {
