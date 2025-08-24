@@ -18,28 +18,47 @@ const AdminLogin = () => {
   const [isResetting, setIsResetting] = useState(false);
   const [isResendingConfirmation, setIsResendingConfirmation] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
+    let mounted = true;
+    
     // Check if user is already logged in
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate("/admin");
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (mounted && session) {
+          navigate("/admin");
+          return;
+        }
+      } catch (error) {
+        console.error("Error checking session:", error);
+      } finally {
+        if (mounted) {
+          setCheckingSession(false);
+        }
       }
     };
+    
     checkAuth();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        if (session) {
-          navigate("/admin");
+        if (mounted) {
+          setCheckingSession(false);
+          if (session && event === 'SIGNED_IN') {
+            navigate("/admin");
+          }
         }
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -164,6 +183,22 @@ const AdminLogin = () => {
       setIsResendingConfirmation(false);
     }
   };
+
+  // Show loading screen while checking session
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-secondary/20 p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-6">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">Verificando sessão...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-secondary/20 p-4">
