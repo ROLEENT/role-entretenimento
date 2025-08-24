@@ -22,7 +22,7 @@ const AdminProfile = () => {
   const { isSimulating, simulateOperation, isReadOnlyError } = useSimulationMode();
 
   const [profileForm, setProfileForm] = useState({
-    full_name: '',
+    display_name: '',
     email: ''
   });
 
@@ -32,52 +32,96 @@ const AdminProfile = () => {
     confirm_password: ''
   });
 
+  // Carregar dados do perfil ao montar o componente
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       navigate('/admin/login');
       return;
     }
 
-    if (adminUser) {
-      setProfileForm({
-        full_name: adminUser.full_name || '',
+    if (adminUser?.id) {
+      loadProfileData();
+      setProfileForm(prev => ({
+        ...prev,
         email: adminUser.email || ''
-      });
+      }));
     }
   }, [isAuthenticated, adminUser, loading, navigate]);
 
+  const loadProfileData = async () => {
+    if (!adminUser?.id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('user_id', adminUser.id)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error loading profile:', error);
+        return;
+      }
+
+      setProfileForm(prev => ({
+        ...prev,
+        display_name: data?.display_name || adminUser.full_name || ''
+      }));
+    } catch (error) {
+      console.error('Error loading profile data:', error);
+    }
+  };
+
   const handleProfileUpdate = async () => {
-    if (!profileForm.full_name || !profileForm.email) {
+    if (!profileForm.display_name || !profileForm.email) {
       toast.error('Preencha todos os campos');
+      return;
+    }
+
+    if (!adminUser?.id) {
+      toast.error('Usuário não identificado');
       return;
     }
 
     try {
       setSaving(true);
-      
-      console.log('Updating admin profile:', {
-        adminId: adminUser?.id,
-        fullName: profileForm.full_name,
-        email: profileForm.email
-      });
-      
-      const { data, error } = await supabase.rpc('update_admin_profile', {
-        p_admin_id: adminUser?.id,
-        p_full_name: profileForm.full_name,
-        p_email: profileForm.email
-      });
 
-      console.log('Update profile result:', { data, error });
+      // Atualizar display_name na tabela profiles
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          user_id: adminUser.id,
+          display_name: profileForm.display_name
+        }, {
+          onConflict: 'user_id'
+        });
 
-      if (error) {
-        if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
-          toast.error('Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.');
+      if (profileError) {
+        if (isReadOnlyError(profileError)) {
+          simulateOperation("Atualização de perfil", "administrador");
           return;
         }
-        throw error;
+        throw profileError;
       }
-      
-      toast.success('Perfil atualizado com sucesso!');
+
+      // Se o email mudou, atualizar via Supabase Auth
+      if (profileForm.email !== adminUser.email) {
+        const { error: authError } = await supabase.auth.updateUser({
+          email: profileForm.email
+        });
+
+        if (authError) {
+          if (isReadOnlyError(authError)) {
+            simulateOperation("Atualização de email", "administrador");
+            return;
+          }
+          throw authError;
+        }
+
+        toast.success('Perfil atualizado! Verifique seu novo email para confirmar a alteração.');
+      } else {
+        toast.success('Perfil atualizado com sucesso!');
+      }
     } catch (error: any) {
       console.error('Error updating profile:', error);
       
@@ -109,31 +153,43 @@ const AdminProfile = () => {
 
     try {
       setChangingPassword(true);
-      
-      console.log('Changing admin password for user:', adminUser?.id);
-      
-      const { data, error } = await supabase.rpc('change_admin_password', {
-        p_admin_id: adminUser?.id,
-        p_current_password: passwordForm.current_password,
-        p_new_password: passwordForm.new_password
+
+      // Tentar fazer login com a senha atual para validar
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: adminUser?.email || '',
+        password: passwordForm.current_password
       });
 
-      console.log('Change password result:', { data, error });
+      if (signInError) {
+        toast.error('Senha atual incorreta');
+        return;
+      }
 
-      if (error) {
-        if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
-          toast.error('Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.');
+      // Atualizar senha via Supabase Auth
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: passwordForm.new_password
+      });
+
+      if (updateError) {
+        if (isReadOnlyError(updateError)) {
+          simulateOperation("Alteração de senha", "administrador", () => {
+            setPasswordForm({
+              current_password: '',
+              new_password: '',
+              confirm_password: ''
+            });
+          });
           return;
         }
-        throw error;
+        throw updateError;
       }
-      
+
       setPasswordForm({
         current_password: '',
         new_password: '',
         confirm_password: ''
       });
-      
+
       toast.success('Senha alterada com sucesso!');
     } catch (error: any) {
       console.error('Error changing password:', error);
@@ -199,12 +255,12 @@ const AdminProfile = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="full_name">Nome Completo</Label>
+                <Label htmlFor="display_name">Nome de Exibição</Label>
                 <Input
-                  id="full_name"
-                  value={profileForm.full_name}
-                  onChange={(e) => setProfileForm(prev => ({ ...prev, full_name: e.target.value }))}
-                  placeholder="Seu nome completo"
+                  id="display_name"
+                  value={profileForm.display_name}
+                  onChange={(e) => setProfileForm(prev => ({ ...prev, display_name: e.target.value }))}
+                  placeholder="Seu nome de exibição"
                 />
               </div>
               
