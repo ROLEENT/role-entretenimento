@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { FileText, Calendar, MapPin, Users, MessageSquare, Tag, Image, User } from "lucide-react";
+import { FileText, Calendar, MapPin, Users, MessageSquare, Tag, Image, User, Star } from "lucide-react";
 import { AdminStats } from "@/components/AdminStats";
 
 const AdminDashboard = () => {
@@ -48,6 +48,14 @@ const AdminDashboard = () => {
       icon: FileText,
       path: "/admin/posts/new",
       bgColor: "bg-purple-500/10",
+      priority: "high"
+    },
+    {
+      title: "Destaques da Semana",
+      description: "Gerenciar highlights semanais",
+      icon: Star,
+      path: "/admin/highlights",
+      bgColor: "bg-amber-500/10",
       priority: "high"
     },
     {

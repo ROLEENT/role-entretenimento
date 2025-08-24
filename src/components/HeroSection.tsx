@@ -1,5 +1,5 @@
 import { Button } from "./ui/button";
-import { ArrowRight, MapPin } from "lucide-react";
+import { ArrowRight, MapPin, Star } from "lucide-react";
 import { useParallax } from "@/hooks/useParallax";
 import { Link } from "react-router-dom";
 import heroBanner from "@/assets/hero-banner.jpg";
@@ -49,6 +49,18 @@ const HeroSection = () => {
                 <MapPin className="mr-2 h-5 w-5" />
                 Descubra o ROLÊ na sua cidade
                 <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="lg"
+              className="font-semibold px-8 py-4 rounded-full bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-all duration-300 hover:scale-105"
+              asChild
+            >
+              <Link to="/destaques">
+                <Star className="mr-2 h-5 w-5" />
+                Destaques da Semana
               </Link>
             </Button>
           </div>
