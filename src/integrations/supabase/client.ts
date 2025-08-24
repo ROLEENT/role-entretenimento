@@ -14,7 +14,7 @@ export const supabase = createClient<any>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY
     autoRefreshToken: true,
   },
   global: {
-    headers: (): Record<string, string> => {
+    headers: (() => {
       // Adicionar email do admin para validação RLS
       const adminSession = localStorage.getItem('admin_session');
       if (adminSession) {
@@ -30,6 +30,6 @@ export const supabase = createClient<any>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY
         }
       }
       return {};
-    }
+    })()
   }
 });

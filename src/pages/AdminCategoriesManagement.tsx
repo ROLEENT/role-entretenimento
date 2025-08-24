@@ -70,7 +70,7 @@ const AdminCategoriesManagement = () => {
         .order('name');
 
       if (error) throw error;
-      setCategories(data || []);
+      setCategories((data as any) || []);
     } catch (error) {
       console.error('Error loading categories:', error);
       toast.error('Erro ao carregar categorias');
@@ -129,15 +129,15 @@ const AdminCategoriesManagement = () => {
       if (editingCategory) {
         const { error } = await supabase
           .from('categories')
-          .update(categoryData)
-          .eq('id', editingCategory.id);
+          .update(categoryData as any)
+          .eq('id', editingCategory.id as any);
 
         if (error) throw error;
         toast.success('Categoria atualizada com sucesso!');
       } else {
         const { error } = await supabase
           .from('categories')
-          .insert(categoryData);
+          .insert(categoryData as any);
 
         if (error) throw error;
         toast.success('Categoria criada com sucesso!');
@@ -162,7 +162,7 @@ const AdminCategoriesManagement = () => {
       const { error } = await supabase
         .from('categories')
         .delete()
-        .eq('id', category.id);
+        .eq('id', category.id as any);
 
       if (error) throw error;
       

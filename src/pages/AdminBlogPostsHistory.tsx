@@ -50,7 +50,7 @@ const AdminBlogPostsHistory = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPosts(data || []);
+      setPosts((data as any) || []);
     } catch (error) {
       console.error('Erro ao carregar posts:', error);
       toast.error('Erro ao carregar posts do blog');
@@ -86,7 +86,7 @@ const AdminBlogPostsHistory = () => {
       const { error } = await supabase
         .from('blog_posts')
         .delete()
-        .eq('id', postId);
+        .eq('id', postId as any);
 
       if (error) throw error;
 

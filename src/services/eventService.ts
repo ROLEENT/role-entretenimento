@@ -142,7 +142,7 @@ export const favoriteService = {
       .eq('user_id', userId);
 
     if (error) throw error;
-    return data?.map(item => item.event).filter(Boolean) || [];
+    return (data as any)?.map((item: any) => item.event).filter(Boolean) || [];
   },
 
   async addFavorite(eventId: string): Promise<void> {
