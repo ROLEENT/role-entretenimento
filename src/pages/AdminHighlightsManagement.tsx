@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Edit, Trash2, Eye, EyeOff, Search, Heart } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -26,6 +28,7 @@ interface Highlight {
   photo_credit?: string;
   sort_order: number;
   is_published: boolean;
+  like_count: number;
   created_at: string;
   updated_at: string;
 }
@@ -35,6 +38,8 @@ const AdminHighlightsManagement = () => {
   const navigate = useNavigate();
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [cityFilter, setCityFilter] = useState<string | "all">("all");
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -47,11 +52,31 @@ const AdminHighlightsManagement = () => {
     }
   }, [isAuthenticated, authLoading, navigate]);
 
+  // Refetch when filters change
+  useEffect(() => {
+    if (isAuthenticated) {
+      setLoading(true);
+      fetchHighlights();
+    }
+  }, [searchTerm, cityFilter]);
+
   const fetchHighlights = async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('highlights')
-        .select('*')
+        .select('*');
+
+      // Apply city filter
+      if (cityFilter !== "all") {
+        query = query.eq('city', cityFilter as CityEnum);
+      }
+
+      // Apply search filter
+      if (searchTerm.trim()) {
+        query = query.ilike('event_title', `%${searchTerm.trim()}%`);
+      }
+
+      const { data, error } = await query
         .order('sort_order', { ascending: false })
         .order('created_at', { ascending: false });
 
@@ -147,6 +172,40 @@ const AdminHighlightsManagement = () => {
           </Button>
         </div>
 
+        {/* Filtros */}
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar por título do evento..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+              <div className="w-full md:w-48">
+                <Select value={cityFilter} onValueChange={setCityFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filtrar por cidade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as cidades</SelectItem>
+                    <SelectItem value="porto_alegre">Porto Alegre</SelectItem>
+                    <SelectItem value="florianopolis">Florianópolis</SelectItem>
+                    <SelectItem value="curitiba">Curitiba</SelectItem>
+                    <SelectItem value="sao_paulo">São Paulo</SelectItem>
+                    <SelectItem value="rio_de_janeiro">Rio de Janeiro</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {highlights.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
@@ -177,6 +236,10 @@ const AdminHighlightsManagement = () => {
                       <Badge variant={highlight.is_published ? "default" : "secondary"}>
                         {highlight.is_published ? "Publicado" : "Rascunho"}
                       </Badge>
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Heart className="w-4 h-4" />
+                        <span>{highlight.like_count || 0}</span>
+                      </div>
                       <span className="text-sm text-muted-foreground">
                         Ordem: {highlight.sort_order}
                       </span>
