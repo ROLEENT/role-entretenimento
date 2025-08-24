@@ -28,7 +28,7 @@ const AdminContactMessages = () => {
   const [loadingMessages, setLoadingMessages] = useState(true);
 
   useEffect(() => {
-    if (isAuthenticated && user?.profile?.is_admin) {
+    if (isAuthenticated) {
       fetchMessages();
     }
   }, [isAuthenticated, user]);
@@ -36,7 +36,7 @@ const AdminContactMessages = () => {
   const fetchMessages = async () => {
     try {
       const data = await contactService.getAllMessages();
-      setMessages(data);
+      setMessages(data as ContactMessage[]);
     } catch (error) {
       console.error('Erro ao carregar mensagens:', error);
       toast.error('Erro ao carregar mensagens');
@@ -88,7 +88,7 @@ const AdminContactMessages = () => {
     );
   }
 
-  if (!isAuthenticated || !user?.profile?.is_admin) {
+  if (!isAuthenticated) {
     return <Navigate to="/auth" replace />;
   }
 

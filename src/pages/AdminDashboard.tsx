@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { PlusCircle, LogOut, FileText, Users, BarChart3, Eye } from "lucide-react";
+import { PlusCircle, LogOut, FileText, Users, BarChart3, Eye, Mail } from "lucide-react";
 import { User } from "@supabase/supabase-js";
 
 interface BlogPost {
@@ -154,6 +154,39 @@ const AdminDashboard = () => {
       </header>
 
       <div className="p-6 space-y-6">
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate("/admin/posts/new")}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Criar Artigo</CardTitle>
+              <FileText className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground">Escrever novo conteúdo editorial</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate("/admin/partners")}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Gerenciar Parceiros</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground">Adicionar e editar parceiros</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate("/admin/contact-messages")}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Mensagens</CardTitle>
+              <Mail className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground">Ver mensagens de contato</p>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>

@@ -9,22 +9,45 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Mail, MessageSquare, Phone } from "lucide-react";
 import { toast } from "sonner";
+import { contactService } from "@/services/contactService";
 
 const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (!formData.name || !formData.email || !formData.message) {
+      toast.error('Por favor, preencha todos os campos obrigatórios');
+      return;
+    }
+
     setIsSubmitting(true);
 
-    // Simular envio do formulário
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast.success("Mensagem enviada com sucesso! Responderemos em breve.");
-    setIsSubmitting(false);
-    
-    // Reset form
-    (e.target as HTMLFormElement).reset();
+    try {
+      await contactService.sendMessage(formData);
+      toast.success("Mensagem enviada com sucesso! Responderemos em breve.");
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } catch (error) {
+      console.error('Erro ao enviar mensagem:', error);
+      toast.error('Erro ao enviar mensagem. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -105,6 +128,8 @@ const Contact = () => {
                       <Input
                         id="name"
                         name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
                         required
                         placeholder="Seu nome completo"
                       />
@@ -116,6 +141,8 @@ const Contact = () => {
                         id="email"
                         name="email"
                         type="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
                         required
                         placeholder="seu@email.com"
                       />
@@ -126,6 +153,8 @@ const Contact = () => {
                       <Input
                         id="subject"
                         name="subject"
+                        value={formData.subject}
+                        onChange={handleInputChange}
                         placeholder="Assunto da sua mensagem"
                       />
                     </div>
@@ -135,6 +164,8 @@ const Contact = () => {
                       <Textarea
                         id="message"
                         name="message"
+                        value={formData.message}
+                        onChange={handleInputChange}
                         required
                         placeholder="Digite sua mensagem aqui..."
                         rows={6}

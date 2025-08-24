@@ -713,6 +713,18 @@ export type Database = {
         Args: { user_email: string }
         Returns: undefined
       }
+      get_contact_messages: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          status: string
+          subject: string
+        }[]
+      }
       get_nearby_events: {
         Args: { lat: number; lng: number; radius_km?: number }
         Returns: {
@@ -741,9 +753,22 @@ export type Database = {
         Args: { post_id: string }
         Returns: undefined
       }
+      insert_contact_message: {
+        Args: {
+          p_email: string
+          p_message: string
+          p_name: string
+          p_subject: string
+        }
+        Returns: undefined
+      }
       is_admin: {
         Args: { uid: string }
         Returns: boolean
+      }
+      update_contact_message_status: {
+        Args: { p_id: string; p_status: string }
+        Returns: undefined
       }
     }
     Enums: {
