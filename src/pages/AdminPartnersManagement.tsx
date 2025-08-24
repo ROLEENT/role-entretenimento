@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, Plus, Edit, Trash2, MapPin, Star, Users } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/alert-dialog-confirm';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
@@ -149,8 +150,6 @@ const AdminPartnersManagement = () => {
   };
 
   const handleDelete = async (partnerId) => {
-    if (!confirm('Tem certeza que deseja excluir este parceiro?')) return;
-
     try {
       const { error } = await supabase
         .from('partners')
@@ -368,13 +367,20 @@ const AdminPartnersManagement = () => {
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDelete(partner.id)}
+                          <ConfirmDialog
+                            title="Excluir Parceiro"
+                            description={`Tem certeza que deseja excluir "${partner.name}"? Esta ação não pode ser desfeita.`}
+                            onConfirm={() => handleDelete(partner.id)}
+                            confirmText="Excluir"
+                            variant="destructive"
                           >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </ConfirmDialog>
                         </div>
 
                         {partner.image_url && (

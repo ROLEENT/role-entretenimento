@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/alert-dialog-confirm';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
@@ -147,8 +148,6 @@ const AdminAdvertisementsManagement = () => {
   };
 
   const handleDelete = async (adId) => {
-    if (!confirm('Tem certeza que deseja excluir este anúncio?')) return;
-
     try {
       const { error } = await supabase
         .from('advertisements')
@@ -433,14 +432,21 @@ const AdminAdvertisementsManagement = () => {
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDelete(ad.id)}
-                            className="bg-background/80 backdrop-blur-sm"
+                          <ConfirmDialog
+                            title="Excluir Anúncio"
+                            description={`Tem certeza que deseja excluir "${ad.title}"? Esta ação não pode ser desfeita.`}
+                            onConfirm={() => handleDelete(ad.id)}
+                            confirmText="Excluir"
+                            variant="destructive"
                           >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="bg-background/80 backdrop-blur-sm"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </ConfirmDialog>
                         </div>
 
                         <div 

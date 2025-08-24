@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { FileText, Calendar, MapPin, Users, MessageSquare, Tag, Image, User } from "lucide-react";
+import { AdminStats } from "@/components/AdminStats";
 
 const AdminDashboard = () => {
   const { isAuthenticated, logoutAdmin, adminUser, loading } = useAdminAuth();
@@ -30,63 +31,72 @@ const AdminDashboard = () => {
       description: "Adicionar, editar e remover parceiros",
       icon: Users,
       path: "/admin/partners",
-      bgColor: "bg-blue-500/10"
-    },
-    {
-      title: "Mensagens de Contato",
-      description: "Visualizar e responder mensagens",
-      icon: MessageSquare,
-      path: "/admin/contact-messages",
-      bgColor: "bg-green-500/10"
-    },
-    {
-      title: "Gerenciar Comentários",
-      description: "Moderar comentários do blog",
-      icon: MessageSquare,
-      path: "/admin/comments",
-      bgColor: "bg-orange-500/10"
-    },
-    {
-      title: "Posts do Blog",
-      description: "Criar e editar artigos",
-      icon: FileText,
-      path: "/admin/posts/new",
-      bgColor: "bg-purple-500/10"
-    },
-    {
-      title: "Histórico de Posts",
-      description: "Ver, editar e excluir artigos",
-      icon: FileText,
-      path: "/admin/posts/history",
-      bgColor: "bg-purple-400/10"
-    },
-    {
-      title: "Eventos",
-      description: "Criar e gerenciar eventos",
-      icon: Calendar,
-      path: "/admin/event/create",
-      bgColor: "bg-pink-500/10"
-    },
-    {
-      title: "Locais",
-      description: "Gerenciar venues e locais",
-      icon: MapPin,
-      path: "/admin/venues",
-      bgColor: "bg-indigo-500/10"
-    },
-    {
-      title: "Categorias",
-      description: "Gerenciar categorias de eventos",
-      icon: Tag,
-      path: "/admin/categories",
-      bgColor: "bg-yellow-500/10"
+      bgColor: "bg-blue-500/10",
+      priority: "high"
     },
     {
       title: "Publicidade",
       description: "Gerenciar anúncios e banners",
       icon: Image,
       path: "/admin/advertisements",
-      bgColor: "bg-red-500/10"
+      bgColor: "bg-red-500/10",
+      priority: "high"
+    },
+    {
+      title: "Posts do Blog",
+      description: "Criar e editar artigos",
+      icon: FileText,
+      path: "/admin/posts/new",
+      bgColor: "bg-purple-500/10",
+      priority: "high"
+    },
+    {
+      title: "Eventos",
+      description: "Criar e gerenciar eventos",
+      icon: Calendar,
+      path: "/admin/event/create",
+      bgColor: "bg-pink-500/10",
+      priority: "high"
+    },
+    {
+      title: "Mensagens de Contato",
+      description: "Visualizar e responder mensagens",
+      icon: MessageSquare,
+      path: "/admin/contact-messages",
+      bgColor: "bg-green-500/10",
+      priority: "medium"
+    },
+    {
+      title: "Histórico de Posts",
+      description: "Ver, editar e excluir artigos",
+      icon: FileText,
+      path: "/admin/posts/history",
+      bgColor: "bg-purple-400/10",
+      priority: "medium"
+    },
+    {
+      title: "Gerenciar Comentários",
+      description: "Moderar comentários do blog",
+      icon: MessageSquare,
+      path: "/admin/comments",
+      bgColor: "bg-orange-500/10",
+      priority: "medium"
+    },
+    {
+      title: "Locais",
+      description: "Gerenciar venues e locais",
+      icon: MapPin,
+      path: "/admin/venues",
+      bgColor: "bg-indigo-500/10",
+      priority: "low"
+    },
+    {
+      title: "Categorias",
+      description: "Gerenciar categorias de eventos",
+      icon: Tag,
+      path: "/admin/categories",
+      bgColor: "bg-yellow-500/10",
+      priority: "low"
     }
   ];
 
@@ -114,30 +124,63 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {adminCards.map((card) => {
-            const IconComponent = card.icon;
-            return (
-              <Link key={card.path} to={card.path}>
-                <Card className="h-full hover:shadow-lg transition-all duration-200 hover:scale-105 cursor-pointer">
-                  <CardHeader className="pb-3">
-                    <div className={`w-12 h-12 rounded-lg ${card.bgColor} flex items-center justify-center mb-4`}>
-                      <IconComponent className="h-6 w-6" />
-                    </div>
-                    <CardTitle className="text-lg">{card.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="text-sm">
-                      {card.description}
-                    </CardDescription>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
+        {/* Quick Actions - Priority Cards */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Ações Prioritárias</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {adminCards.filter(card => card.priority === 'high').map((card) => {
+              const IconComponent = card.icon;
+              return (
+                <Link key={card.path} to={card.path}>
+                  <Card className="h-full hover:shadow-lg transition-all duration-200 hover:scale-105 cursor-pointer border-l-4 border-l-primary">
+                    <CardHeader className="pb-3">
+                      <div className={`w-10 h-10 rounded-lg ${card.bgColor} flex items-center justify-center mb-3`}>
+                        <IconComponent className="h-5 w-5" />
+                      </div>
+                      <CardTitle className="text-lg">{card.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CardDescription className="text-sm">
+                        {card.description}
+                      </CardDescription>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
-        <Card className="mt-8">
+        {/* All Actions */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4">Todas as Funcionalidades</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {adminCards.map((card) => {
+              const IconComponent = card.icon;
+              return (
+                <Link key={card.path} to={card.path}>
+                  <Card className="h-full hover:shadow-lg transition-all duration-200 hover:scale-105 cursor-pointer">
+                    <CardHeader className="pb-3">
+                      <div className={`w-12 h-12 rounded-lg ${card.bgColor} flex items-center justify-center mb-4`}>
+                        <IconComponent className="h-6 w-6" />
+                      </div>
+                      <CardTitle className="text-lg">{card.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CardDescription className="text-sm">
+                        {card.description}
+                      </CardDescription>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        <AdminStats className="mt-8" />
+
+        <Card className="mt-6">
           <CardHeader>
             <CardTitle>Status do Sistema</CardTitle>
             <CardDescription>
