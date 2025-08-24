@@ -10,8 +10,10 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Calendar, Clock, ArrowRight } from "lucide-react";
 import { useBlogData, getCitiesWithPosts, getLatestPostByCity, BlogPost } from "@/hooks/useBlogData";
 import { citiesData } from "@/data/citiesData";
+import { getFeaturedEventHighlights } from "@/data/eventHighlights";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
 import ArticleCard from "@/components/blog/ArticleCard";
+import EventHighlightCard from "@/components/EventHighlightCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const DestaquesHub = () => {
@@ -43,6 +45,7 @@ const DestaquesHub = () => {
   }, []);
 
   const featuredPosts = allPosts.filter(post => post.featured).slice(0, 6);
+  const featuredEventHighlights = getFeaturedEventHighlights();
 
   if (isLoading) {
     return (
@@ -106,12 +109,32 @@ const DestaquesHub = () => {
           </div>
         </section>
 
-        {/* Featured Articles */}
-        {featuredPosts.length > 0 && (
+        {/* Featured Event Highlights */}
+        {featuredEventHighlights.length > 0 && (
           <ScrollAnimationWrapper>
             <section className="py-16">
               <div className="container mx-auto px-4">
-                <h2 className="text-3xl font-bold mb-8 text-center">Artigos em Destaque</h2>
+                <h2 className="text-3xl font-bold mb-4 text-center">Destaques da Semana</h2>
+                <p className="text-muted-foreground text-center mb-8 max-w-2xl mx-auto">
+                  Eventos selecionados pela nossa equipe editorial com base em relevância cultural, 
+                  qualidade artística e impacto na cena local.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {featuredEventHighlights.map((event) => (
+                    <EventHighlightCard key={event.id} event={event} />
+                  ))}
+                </div>
+              </div>
+            </section>
+          </ScrollAnimationWrapper>
+        )}
+
+        {/* Featured Articles */}
+        {featuredPosts.length > 0 && (
+          <ScrollAnimationWrapper>
+            <section className="py-16 bg-muted/20">
+              <div className="container mx-auto px-4">
+                <h2 className="text-3xl font-bold mb-8 text-center">Artigos Editoriais</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {featuredPosts.map((post) => (
                     <ArticleCard key={post.id} post={post} showCity={true} />
