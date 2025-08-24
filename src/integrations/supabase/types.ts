@@ -866,6 +866,10 @@ export type Database = {
         Args: { p_comment_id: string }
         Returns: undefined
       }
+      update_admin_profile: {
+        Args: { p_admin_id: string; p_email: string; p_full_name: string }
+        Returns: undefined
+      }
       update_contact_message_status: {
         Args: { p_id: string; p_status: string }
         Returns: undefined
