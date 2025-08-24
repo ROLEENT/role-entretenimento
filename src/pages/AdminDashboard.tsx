@@ -54,6 +54,13 @@ const AdminDashboard = () => {
       bgColor: "bg-purple-500/10"
     },
     {
+      title: "Histórico de Posts",
+      description: "Ver, editar e excluir artigos",
+      icon: FileText,
+      path: "/admin/posts/history",
+      bgColor: "bg-purple-400/10"
+    },
+    {
       title: "Eventos",
       description: "Criar e gerenciar eventos",
       icon: Calendar,

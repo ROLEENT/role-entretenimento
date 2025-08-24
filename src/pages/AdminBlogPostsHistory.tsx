@@ -8,6 +8,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Eye, Edit, Calendar, MapPin, User } from 'lucide-react';
@@ -30,6 +31,7 @@ interface BlogPost {
 
 const AdminBlogPostsHistory = () => {
   const { isAuthenticated, loading } = useAdminAuth();
+  const { toast: showToast } = useToast();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [filter, setFilter] = useState<'all' | 'published' | 'draft' | 'scheduled'>('all');
@@ -72,6 +74,35 @@ const AdminBlogPostsHistory = () => {
       case 'draft': return 'Rascunho';
       case 'scheduled': return 'Agendado';
       default: return status;
+    }
+  };
+
+  const handleDelete = async (postId: string) => {
+    if (!confirm('Tem certeza que deseja excluir este post? Esta ação não pode ser desfeita.')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('blog_posts')
+        .delete()
+        .eq('id', postId);
+
+      if (error) throw error;
+
+      showToast({
+        title: "Sucesso",
+        description: "Post excluído com sucesso!"
+      });
+
+      fetchPosts();
+    } catch (error: any) {
+      console.error('Error deleting post:', error);
+      showToast({
+        title: "Erro",
+        description: "Falha ao excluir o post.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -237,6 +268,13 @@ const AdminBlogPostsHistory = () => {
                           </Button>
                         </Link>
                       )}
+                      <Button 
+                        size="sm" 
+                        variant="destructive"
+                        onClick={() => handleDelete(post.id)}
+                      >
+                        Excluir
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
