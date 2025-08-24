@@ -75,7 +75,7 @@ const App = () => (
               <Route path="highlights/create" element={<AdminHighlightEditor />} />
               <Route path="highlights/edit/:id" element={<AdminHighlightEditor />} />
               <Route path="event/create" element={<AdminEventCreate />} />
-              <Route path="partners" element={<AdminPartnersManagement />} />
+              <Route path="partners/*" element={<AdminPartnersManagement />} />
               <Route path="advertisements" element={<AdminAdvertisementsManagement />} />
               <Route path="posts/new" element={<AdminPostEditor />} />
               <Route path="posts/:id/edit" element={<AdminPostEditor />} />
