@@ -362,6 +362,41 @@ export type Database = {
           },
         ]
       }
+      event_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          event_id: string
+          id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          event_id: string
+          id?: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          event_id?: string
+          id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_reviews_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           city: string
@@ -519,9 +554,12 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          display_name: string | null
           email: string | null
           full_name: string | null
           id: string
+          is_admin: boolean
+          preferences_json: Json
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
           user_id: string
@@ -529,9 +567,12 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          display_name?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
+          is_admin?: boolean
+          preferences_json?: Json
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
           user_id: string
@@ -539,9 +580,12 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          display_name?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
+          is_admin?: boolean
+          preferences_json?: Json
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
           user_id?: string
@@ -696,6 +740,10 @@ export type Database = {
       increment_post_views: {
         Args: { post_id: string }
         Returns: undefined
+      }
+      is_admin: {
+        Args: { uid: string }
+        Returns: boolean
       }
     }
     Enums: {
