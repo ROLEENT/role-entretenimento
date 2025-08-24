@@ -12,12 +12,14 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { EnvironmentBanner } from '@/components/EnvironmentBanner';
+import { useSimulationMode } from '@/hooks/useSimulationMode';
 
 const AdminProfile = () => {
   const navigate = useNavigate();
   const { isAuthenticated, adminUser, loading } = useAdminAuth();
   const [saving, setSaving] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
+  const { isSimulating, simulateOperation, isReadOnlyError } = useSimulationMode();
 
   const [profileForm, setProfileForm] = useState({
     full_name: '',
@@ -79,8 +81,8 @@ const AdminProfile = () => {
     } catch (error: any) {
       console.error('Error updating profile:', error);
       
-      if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
-        toast.error('Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.');
+      if (isReadOnlyError(error)) {
+        simulateOperation("Atualização de perfil", "administrador");
       } else {
         toast.error(error.message || 'Erro ao atualizar perfil');
       }
@@ -136,8 +138,14 @@ const AdminProfile = () => {
     } catch (error: any) {
       console.error('Error changing password:', error);
       
-      if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
-        toast.error('Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.');
+      if (isReadOnlyError(error)) {
+        simulateOperation("Alteração de senha", "administrador", () => {
+          setPasswordForm({
+            current_password: '',
+            new_password: '',
+            confirm_password: ''
+          });
+        });
       } else {
         toast.error(error.message || 'Erro ao alterar senha');
       }
@@ -211,9 +219,9 @@ const AdminProfile = () => {
                 />
               </div>
               
-              <Button onClick={handleProfileUpdate} disabled={saving} className="w-full">
+              <Button onClick={handleProfileUpdate} disabled={saving || isSimulating} className="w-full">
                 <Save className="h-4 w-4 mr-2" />
-                {saving ? 'Salvando...' : 'Salvar Alterações'}
+                {isSimulating ? 'Simulando...' : saving ? 'Salvando...' : 'Salvar Alterações'}
               </Button>
             </CardContent>
           </Card>
@@ -260,9 +268,9 @@ const AdminProfile = () => {
                 />
               </div>
               
-              <Button onClick={handlePasswordChange} disabled={changingPassword} className="w-full">
+              <Button onClick={handlePasswordChange} disabled={changingPassword || isSimulating} className="w-full">
                 <Lock className="h-4 w-4 mr-2" />
-                {changingPassword ? 'Alterando...' : 'Alterar Senha'}
+                {isSimulating ? 'Simulando...' : changingPassword ? 'Alterando...' : 'Alterar Senha'}
               </Button>
             </CardContent>
           </Card>
