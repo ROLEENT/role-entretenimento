@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 interface EventForm {
   title: string;
@@ -59,9 +59,9 @@ interface Category {
 
 const AdminEventCreate = () => {
   const navigate = useNavigate();
-  const { user, session } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAdminAuth();
   const [activeTab, setActiveTab] = useState('basic');
-  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [venues, setVenues] = useState<Venue[]>([]);
   const [organizers, setOrganizers] = useState<Organizer[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -89,33 +89,16 @@ const AdminEventCreate = () => {
   }, []);
 
   const checkAuthAndLoadData = async () => {
-    if (!session) {
+    if (!isAuthenticated) {
       navigate('/admin/login');
       return;
     }
 
-    try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('user_id', user?.id)
-        .single();
-
-      if (profile?.role !== 'admin') {
-        toast.error('Acesso negado');
-        navigate('/');
-        return;
-      }
-
-      await Promise.all([
-        loadVenues(),
-        loadOrganizers(),
-        loadCategories()
-      ]);
-    } catch (error) {
-      console.error('Error checking auth:', error);
-      navigate('/admin/login');
-    }
+    await Promise.all([
+      loadVenues(),
+      loadOrganizers(),
+      loadCategories()
+    ]);
   };
 
   const loadVenues = async () => {
@@ -246,7 +229,7 @@ const AdminEventCreate = () => {
     if (!validateForm()) return;
 
     try {
-      setLoading(true);
+      setSaving(true);
 
       // Create event
       const { data: event, error: eventError } = await supabase
@@ -307,7 +290,7 @@ const AdminEventCreate = () => {
       console.error('Error creating event:', error);
       toast.error('Erro ao criar evento');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -331,9 +314,9 @@ const AdminEventCreate = () => {
           </div>
           
           <div className="flex gap-4">
-            <Button onClick={handleSave} disabled={loading}>
+            <Button onClick={handleSave} disabled={saving}>
               <Save className="h-4 w-4 mr-2" />
-              {loading ? 'Salvando...' : 'Publicar Evento'}
+              {saving ? 'Salvando...' : 'Publicar Evento'}
             </Button>
           </div>
         </div>

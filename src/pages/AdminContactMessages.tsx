@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Navigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,15 +23,15 @@ interface ContactMessage {
 }
 
 const AdminContactMessages = () => {
-  const { user, isAuthenticated, loading, isAdmin } = useAuth();
+  const { isAuthenticated, loading } = useAdminAuth();
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
 
   useEffect(() => {
-    if (isAuthenticated && isAdmin) {
+    if (isAuthenticated) {
       fetchMessages();
     }
-  }, [isAuthenticated, isAdmin, user]);
+  }, [isAuthenticated]);
 
   const fetchMessages = async () => {
     try {
@@ -88,7 +88,7 @@ const AdminContactMessages = () => {
     );
   }
 
-  if (!isAuthenticated || !isAdmin) {
+  if (!isAuthenticated) {
     return <Navigate to="/admin/login" replace />;
   }
 

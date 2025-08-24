@@ -98,13 +98,6 @@ const AdminLoginSimple = () => {
             </Button>
           </form>
 
-          <div className="mt-4 text-center">
-            <p className="text-xs text-muted-foreground">
-              Email: admin@role.com.br
-              <br />
-              Senha: admin123
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>

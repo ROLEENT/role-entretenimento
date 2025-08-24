@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Navigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,15 +15,15 @@ import { Check, X, Trash2 } from 'lucide-react';
 
 
 const AdminCommentsManagement = () => {
-  const { user, isAuthenticated, loading, isAdmin } = useAuth();
+  const { isAuthenticated, loading } = useAdminAuth();
   const [comments, setComments] = useState<BlogComment[]>([]);
   const [loadingComments, setLoadingComments] = useState(true);
 
   useEffect(() => {
-    if (isAuthenticated && isAdmin) {
+    if (isAuthenticated) {
       fetchComments();
     }
-  }, [isAuthenticated, isAdmin, user]);
+  }, [isAuthenticated]);
 
   const fetchComments = async () => {
     try {
@@ -98,7 +98,7 @@ const AdminCommentsManagement = () => {
     );
   }
 
-  if (!isAuthenticated || !isAdmin) {
+  if (!isAuthenticated) {
     return <Navigate to="/admin/login" replace />;
   }
 

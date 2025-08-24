@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Tag, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 interface Category {
   id: string;
@@ -37,9 +37,9 @@ const PRESET_COLORS = [
 
 const AdminCategoriesManagement = () => {
   const navigate = useNavigate();
-  const { user, session } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAdminAuth();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [saving, setSaving] = useState(false);
@@ -55,34 +55,17 @@ const AdminCategoriesManagement = () => {
   }, []);
 
   const checkAuthAndLoadCategories = async () => {
-    if (!session) {
+    if (!isAuthenticated) {
       navigate('/admin/login');
       return;
     }
 
-    try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('user_id', user?.id)
-        .single();
-
-      if (profile?.role !== 'admin') {
-        toast.error('Acesso negado');
-        navigate('/');
-        return;
-      }
-
-      await loadCategories();
-    } catch (error) {
-      console.error('Error checking auth:', error);
-      navigate('/admin/login');
-    }
+    await loadCategories();
   };
 
   const loadCategories = async () => {
     try {
-      setLoading(true);
+      setCategoriesLoading(true);
       const { data, error } = await supabase
         .from('categories')
         .select('*')
@@ -94,7 +77,7 @@ const AdminCategoriesManagement = () => {
       console.error('Error loading categories:', error);
       toast.error('Erro ao carregar categorias');
     } finally {
-      setLoading(false);
+      setCategoriesLoading(false);
     }
   };
 
@@ -289,7 +272,7 @@ const AdminCategoriesManagement = () => {
             <CardTitle>Categorias Cadastradas</CardTitle>
           </CardHeader>
           <CardContent>
-            {loading ? (
+            {categoriesLoading ? (
               <div className="text-center py-8">Carregando...</div>
             ) : categories.length === 0 ? (
               <div className="text-center py-8">

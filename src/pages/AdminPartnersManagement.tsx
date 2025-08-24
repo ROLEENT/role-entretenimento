@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from "react-helmet";
-import { useAuth } from '@/hooks/useAuth';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -33,15 +33,15 @@ const AdminPartnersManagement = () => {
     instagram: ''
   });
 
-  const { user, isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated } = useAdminAuth();
 
   useEffect(() => {
-    if (isAuthenticated && isAdmin) {
+    if (isAuthenticated) {
       fetchPartners();
     }
-  }, [isAuthenticated, isAdmin]);
+  }, [isAuthenticated]);
 
-  if (!isAuthenticated || !isAdmin) {
+  if (!isAuthenticated) {
     return <Navigate to="/admin/login" replace />;
   }
 

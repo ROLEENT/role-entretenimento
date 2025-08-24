@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, MapPin, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 interface Venue {
   id: string;
@@ -36,9 +36,9 @@ interface VenueForm {
 
 const AdminVenuesManagement = () => {
   const navigate = useNavigate();
-  const { user, session } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAdminAuth();
   const [venues, setVenues] = useState<Venue[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [venuesLoading, setVenuesLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingVenue, setEditingVenue] = useState<Venue | null>(null);
   const [saving, setSaving] = useState(false);
@@ -57,34 +57,17 @@ const AdminVenuesManagement = () => {
   }, []);
 
   const checkAuthAndLoadVenues = async () => {
-    if (!session) {
+    if (!isAuthenticated) {
       navigate('/admin/login');
       return;
     }
 
-    try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('user_id', user?.id)
-        .single();
-
-      if (profile?.role !== 'admin') {
-        toast.error('Acesso negado');
-        navigate('/');
-        return;
-      }
-
-      await loadVenues();
-    } catch (error) {
-      console.error('Error checking auth:', error);
-      navigate('/admin/login');
-    }
+    await loadVenues();
   };
 
   const loadVenues = async () => {
     try {
-      setLoading(true);
+      setVenuesLoading(true);
       const { data, error } = await supabase
         .from('venues')
         .select('*')
@@ -96,7 +79,7 @@ const AdminVenuesManagement = () => {
       console.error('Error loading venues:', error);
       toast.error('Erro ao carregar locais');
     } finally {
-      setLoading(false);
+      setVenuesLoading(false);
     }
   };
 
@@ -310,7 +293,7 @@ const AdminVenuesManagement = () => {
             <CardTitle>Locais Cadastrados</CardTitle>
           </CardHeader>
           <CardContent>
-            {loading ? (
+            {venuesLoading ? (
               <div className="text-center py-8">Carregando...</div>
             ) : venues.length === 0 ? (
               <div className="text-center py-8">

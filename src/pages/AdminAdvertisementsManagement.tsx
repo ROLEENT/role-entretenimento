@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from "react-helmet";
-import { useAuth } from '@/hooks/useAuth';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,7 +35,7 @@ const AdminAdvertisementsManagement = () => {
     active: true
   });
 
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAdminAuth();
 
   useEffect(() => {
     if (isAuthenticated) {
