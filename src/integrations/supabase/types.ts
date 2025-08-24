@@ -541,6 +541,7 @@ export type Database = {
           id: string
           image_url: string
           is_published: boolean
+          like_count: number
           photo_credit: string | null
           role_text: string
           selection_reasons: string[]
@@ -557,6 +558,7 @@ export type Database = {
           id?: string
           image_url: string
           is_published?: boolean
+          like_count?: number
           photo_credit?: string | null
           role_text: string
           selection_reasons?: string[]
@@ -573,6 +575,7 @@ export type Database = {
           id?: string
           image_url?: string
           is_published?: boolean
+          like_count?: number
           photo_credit?: string | null
           role_text?: string
           selection_reasons?: string[]
