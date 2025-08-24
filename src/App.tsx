@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import Index from "./pages/Index";
 import CityHighlights from "./pages/CityHighlights";
 import EventsPage from "./pages/EventsPage";
@@ -33,6 +34,7 @@ import AdminBlogPostsHistory from "./pages/AdminBlogPostsHistory";
 import AdminPartnersManagement from "./pages/AdminPartnersManagement";
 import AdminContactMessages from "./pages/AdminContactMessages";
 import AdminCommentsManagement from "./pages/AdminCommentsManagement";
+import AdminAnalytics from "./pages/AdminAnalytics";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -44,6 +46,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <PWAInstallPrompt />
         <BrowserRouter>
           <ScrollToTop />
           <Routes>
@@ -74,6 +77,7 @@ const App = () => (
             <Route path="/admin/comments" element={<AdminCommentsManagement />} />
             <Route path="/admin/posts/history" element={<AdminBlogPostsHistory />} />
             <Route path="/admin/advertisements" element={<AdminAdvertisementsManagement />} />
+            <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/admin/profile" element={<AdminProfile />} />
             <Route path="/eventos" element={<EventsPage />} />
             {/* Events Routes */}
