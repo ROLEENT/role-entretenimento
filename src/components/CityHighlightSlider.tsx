@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { HighlightSliderCard, CityEnum } from './HighlightSliderCard';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 
 interface CityHighlightSliderProps {
   city: CityEnum;
   title: string;
+  citySlug?: string;
 }
 
 interface Highlight {
@@ -21,7 +25,7 @@ interface Highlight {
   like_count: number;
 }
 
-export const CityHighlightSlider = ({ city, title }: CityHighlightSliderProps) => {
+export const CityHighlightSlider = ({ city, title, citySlug }: CityHighlightSliderProps) => {
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -109,7 +113,17 @@ export const CityHighlightSlider = ({ city, title }: CityHighlightSliderProps) =
 
   return (
     <section className="py-8">
-      <h2 className="text-2xl font-bold mb-6 text-foreground">{title}</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-foreground">{title}</h2>
+        {citySlug && (
+          <Button variant="outline" size="sm" asChild>
+            <Link to={`/destaques/${citySlug}`}>
+              Ver todos de {title}
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Link>
+          </Button>
+        )}
+      </div>
       
       <Carousel
         opts={{

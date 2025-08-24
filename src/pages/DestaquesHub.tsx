@@ -44,11 +44,11 @@ const DestaquesHub = () => {
   }, []);
 
   const cityHighlightMapping = [
-    { city: 'porto_alegre' as const, name: 'Porto Alegre' },
-    { city: 'florianopolis' as const, name: 'Florianópolis' },
-    { city: 'curitiba' as const, name: 'Curitiba' },
-    { city: 'sao_paulo' as const, name: 'São Paulo' },
-    { city: 'rio_de_janeiro' as const, name: 'Rio de Janeiro' }
+    { city: 'porto_alegre' as const, name: 'Porto Alegre', slug: 'porto-alegre' },
+    { city: 'florianopolis' as const, name: 'Florianópolis', slug: 'florianopolis' },
+    { city: 'curitiba' as const, name: 'Curitiba', slug: 'curitiba' },
+    { city: 'sao_paulo' as const, name: 'São Paulo', slug: 'sao-paulo' },
+    { city: 'rio_de_janeiro' as const, name: 'Rio de Janeiro', slug: 'rio-de-janeiro' }
   ];
 
   if (isLoading) {
@@ -116,11 +116,12 @@ const DestaquesHub = () => {
         <ScrollAnimationWrapper>
           <section className="py-16">
             <div className="container mx-auto px-4 space-y-16">
-              {cityHighlightMapping.map(({ city, name }) => (
+              {cityHighlightMapping.map(({ city, name, slug }) => (
                 <CityHighlightSlider 
                   key={city}
                   city={city}
-                  title={`Destaques de ${name}`}
+                  title={name}
+                  citySlug={slug}
                 />
               ))}
             </div>
