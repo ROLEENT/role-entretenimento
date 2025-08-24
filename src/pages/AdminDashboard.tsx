@@ -51,7 +51,7 @@ const AdminDashboard = () => {
       priority: "high"
     },
     {
-      title: "Destaques da Semana",
+      title: "Destaques",
       description: "Gerenciar highlights semanais",
       icon: Star,
       path: "/admin/highlights",
