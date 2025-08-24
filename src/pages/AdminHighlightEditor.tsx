@@ -130,16 +130,39 @@ const AdminHighlightEditor = () => {
   };
 
   const handleImageUpload = async (file: File) => {
-    if (!file) return;
+    if (!file) {
+      console.log('❌ UPLOAD DEBUG: Nenhum arquivo selecionado');
+      return;
+    }
+    
+    console.log('🔄 UPLOAD DEBUG: Iniciando upload da imagem:', {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      eventTitle: form.event_title
+    });
     
     setImageUploading(true);
     try {
       const imageUrl = await uploadHighlightImage(file, form.event_title || 'highlight');
-      setForm(prev => ({ ...prev, image_url: imageUrl }));
+      
+      console.log('✅ UPLOAD DEBUG: URL da imagem retornada:', imageUrl);
+      
+      setForm(prev => {
+        const newForm = { ...prev, image_url: imageUrl };
+        console.log('📝 UPLOAD DEBUG: Estado atualizado:', {
+          previousImageUrl: prev.image_url,
+          newImageUrl: imageUrl,
+          formUpdated: newForm
+        });
+        return newForm;
+      });
+      
       toast.success('Imagem enviada com sucesso');
+      console.log('✅ UPLOAD DEBUG: Upload concluído com sucesso');
     } catch (error) {
-      console.error('Erro ao enviar imagem:', error);
-      toast.error('Erro ao enviar imagem');
+      console.error('❌ UPLOAD DEBUG: Erro ao enviar imagem:', error);
+      toast.error('Erro ao enviar imagem: ' + (error as Error).message);
     } finally {
       setImageUploading(false);
     }
@@ -211,10 +234,20 @@ const AdminHighlightEditor = () => {
       return;
     }
 
+    console.log('🔍 VALIDATION DEBUG: Verificando imagem:', {
+      imageUrl: form.image_url,
+      imageUrlTrimmed: form.image_url.trim(),
+      imageUrlLength: form.image_url.length,
+      formCompleto: form
+    });
+
     if (!form.image_url.trim()) {
+      console.error('❌ VALIDATION DEBUG: Imagem obrigatória não encontrada');
       toast.error('A imagem do evento é obrigatória');
       return;
     }
+    
+    console.log('✅ VALIDATION DEBUG: Imagem validada com sucesso');
 
     // Validar URL do ticket se fornecida
     if (form.ticket_url && form.ticket_url.trim()) {
