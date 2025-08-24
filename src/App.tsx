@@ -31,6 +31,7 @@ import AdminPartnersManagementSimple from "./pages/AdminPartnersManagementSimple
 import AdminContactMessagesSimple from "./pages/AdminContactMessagesSimple";
 import AdminCommentsManagementSimple from "./pages/AdminCommentsManagementSimple";
 import AdminAdvertisementsManagement from "./pages/AdminAdvertisementsManagement";
+import AdminProfile from "./pages/AdminProfile";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -70,6 +71,7 @@ const App = () => (
             <Route path="/admin/contact-messages" element={<AdminContactMessagesSimple />} />
             <Route path="/admin/comments" element={<AdminCommentsManagementSimple />} />
             <Route path="/admin/advertisements" element={<AdminAdvertisementsManagement />} />
+            <Route path="/admin/profile" element={<AdminProfile />} />
             <Route path="/eventos" element={<EventsPage />} />
             {/* Events Routes */}
             <Route path="/eventos/hoje" element={<EventsPage />} />

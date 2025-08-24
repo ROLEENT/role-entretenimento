@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { FileText, Calendar, MapPin, Users, MessageSquare, Tag, Image } from "lucide-react";
+import { FileText, Calendar, MapPin, Users, MessageSquare, Tag, Image, User } from "lucide-react";
 
 const AdminDashboard = () => {
   const { isAuthenticated, logoutAdmin, adminUser, loading } = useAdminAuth();
@@ -96,7 +96,15 @@ const AdminDashboard = () => {
             </p>
           </div>
           
-          <Button onClick={logoutAdmin} variant="outline">Sair</Button>
+          <div className="flex gap-2">
+            <Button asChild variant="outline">
+              <Link to="/admin/profile">
+                <User className="w-4 h-4 mr-2" />
+                Perfil
+              </Link>
+            </Button>
+            <Button onClick={logoutAdmin} variant="outline">Sair</Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
