@@ -12,6 +12,8 @@ import { X, Plus, Save, ArrowLeft } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import HighlightPreview from "@/components/admin/HighlightPreview";
+import { usePublishedHighlights } from "@/hooks/usePublishedHighlights";
 
 type CityEnum = 'porto_alegre' | 'sao_paulo' | 'rio_de_janeiro' | 'florianopolis' | 'curitiba';
 
@@ -52,6 +54,9 @@ const AdminHighlightEditor = () => {
   const [newReason, setNewReason] = useState('');
   const [loading, setLoading] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  
+  const { getImageUrl, getCityDisplayName } = usePublishedHighlights();
 
   const cities = [
     { value: 'porto_alegre', label: 'Porto Alegre' },
@@ -167,8 +172,34 @@ const AdminHighlightEditor = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!form.event_title || !form.venue || !form.city || !form.event_date || !form.role_text) {
-      toast.error('Preencha todos os campos obrigatórios');
+    // Validações aprimoradas
+    if (!form.event_title.trim()) {
+      toast.error('O título do evento é obrigatório');
+      return;
+    }
+    
+    if (!form.venue.trim()) {
+      toast.error('O local do evento é obrigatório');
+      return;
+    }
+    
+    if (!form.city) {
+      toast.error('Selecione uma cidade');
+      return;
+    }
+    
+    if (!form.event_date) {
+      toast.error('A data do evento é obrigatória');
+      return;
+    }
+    
+    if (!form.role_text.trim()) {
+      toast.error('O texto do ROLÊ é obrigatório');
+      return;
+    }
+
+    if (form.role_text.length < 50) {
+      toast.error('O texto do ROLÊ deve ter pelo menos 50 caracteres');
       return;
     }
 
@@ -180,6 +211,26 @@ const AdminHighlightEditor = () => {
     if (form.selection_reasons.length === 0) {
       toast.error('Adicione pelo menos um motivo do destaque');
       return;
+    }
+    
+    if (form.selection_reasons.length > 6) {
+      toast.error('Máximo de 6 motivos de destaque permitidos');
+      return;
+    }
+
+    if (!form.image_url.trim()) {
+      toast.error('A imagem do evento é obrigatória');
+      return;
+    }
+
+    // Validar URL do ticket se fornecida
+    if (form.ticket_url && form.ticket_url.trim()) {
+      try {
+        new URL(form.ticket_url);
+      } catch {
+        toast.error('URL do ingresso inválida');
+        return;
+      }
     }
 
     setLoading(true);
@@ -487,16 +538,41 @@ const AdminHighlightEditor = () => {
           </CardContent>
         </Card>
 
-        <div className="flex justify-end gap-4 mt-8">
-          <Button type="button" variant="outline" onClick={() => navigate('/admin/highlights')}>
-            Cancelar
-          </Button>
+        <div className="flex justify-between gap-4 mt-8">
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" onClick={() => navigate('/admin/highlights')}>
+              Cancelar
+            </Button>
+            <Button 
+              type="button" 
+              variant="secondary"
+              onClick={() => setShowPreview(!showPreview)}
+            >
+              {showPreview ? 'Ocultar Preview' : 'Ver Preview'}
+            </Button>
+          </div>
           <Button type="submit" disabled={loading}>
             <Save className="w-4 h-4 mr-2" />
             {loading ? 'Salvando...' : 'Salvar Destaque'}
           </Button>
         </div>
       </form>
+
+      {/* Preview Section */}
+      {showPreview && form.event_title && form.venue && form.city && (
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle>Preview do Destaque</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <HighlightPreview
+              highlight={form}
+              getImageUrl={getImageUrl}
+              getCityDisplayName={getCityDisplayName}
+            />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
