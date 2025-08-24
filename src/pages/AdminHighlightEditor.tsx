@@ -80,9 +80,17 @@ const AdminHighlightEditor = () => {
         .from('highlights')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+
+      if (!data) {
+        toast.error('Destaque não encontrado');
+        navigate('/admin/highlights');
+        return;
+      }
+      
+      console.log('Destaque carregado para edição:', data);
       
       setForm({
         city: data.city,
@@ -179,20 +187,34 @@ const AdminHighlightEditor = () => {
         is_published: form.is_published,
       };
 
+      console.log('Salvando destaque:', { isEdit, id, payload });
+
       if (isEdit) {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('highlights')
           .update(payload)
-          .eq('id', id);
+          .eq('id', id)
+          .select();
         
-        if (error) throw error;
+        if (error) {
+          console.error('Erro ao atualizar destaque:', error);
+          throw error;
+        }
+        
+        console.log('Destaque atualizado:', data);
         toast.success('Destaque atualizado com sucesso');
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('highlights')
-          .insert(payload);
+          .insert(payload)
+          .select();
         
-        if (error) throw error;
+        if (error) {
+          console.error('Erro ao criar destaque:', error);
+          throw error;
+        }
+        
+        console.log('Destaque criado:', data);
         toast.success('Destaque criado com sucesso');
       }
       

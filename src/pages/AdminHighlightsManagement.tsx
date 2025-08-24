@@ -194,10 +194,10 @@ const AdminHighlightsManagement = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas as cidades</SelectItem>
-            <SelectItem value="são-paulo">São Paulo</SelectItem>
-            <SelectItem value="rio-de-janeiro">Rio de Janeiro</SelectItem>
-            <SelectItem value="porto-alegre">Porto Alegre</SelectItem>
-            <SelectItem value="florianópolis">Florianópolis</SelectItem>
+            <SelectItem value="sao_paulo">São Paulo</SelectItem>
+            <SelectItem value="rio_de_janeiro">Rio de Janeiro</SelectItem>
+            <SelectItem value="porto_alegre">Porto Alegre</SelectItem>
+            <SelectItem value="florianopolis">Florianópolis</SelectItem>
             <SelectItem value="curitiba">Curitiba</SelectItem>
           </SelectContent>
         </Select>
