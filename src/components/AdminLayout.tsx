@@ -1,11 +1,11 @@
 import { ReactNode } from "react";
-import { Navigate } from "react-router-dom";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Navigate, Outlet } from "react-router-dom";
+import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 interface AdminLayoutProps {
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 export function AdminLayout({ children }: AdminLayoutProps) {
@@ -29,14 +29,15 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <AdminSidebar />
-        <div className="flex-1 flex flex-col">
-          <header className="h-12 flex items-center border-b bg-background px-4">
+        <SidebarInset>
+          <header className="sticky top-0 z-10 h-14 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
             <SidebarTrigger />
+            <div className="flex-1" />
           </header>
-          <main className="flex-1 overflow-auto">
-            {children}
+          <main className="flex-1 p-4">
+            {children || <Outlet />}
           </main>
-        </div>
+        </SidebarInset>
       </div>
     </SidebarProvider>
   );

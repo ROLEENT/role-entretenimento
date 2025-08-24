@@ -23,6 +23,7 @@ import UserTerms from "./pages/UserTerms";
 import OrganizerTerms from "./pages/OrganizerTerms";
 import Help from "./pages/Help";
 import AdminLoginSimple from "./pages/AdminLoginSimple";
+import { AdminLayout } from "./components/AdminLayout";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminPostEditor from "./pages/AdminPostEditor";
 import AdminEventCreate from "./pages/AdminEventCreate";
@@ -68,22 +69,24 @@ const App = () => (
             <Route path="/cidade/:cidade" element={<CityHighlights />} />
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLoginSimple />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/posts/new" element={<AdminPostEditor />} />
-            <Route path="/admin/posts/:id/edit" element={<AdminPostEditor />} />
-            <Route path="/admin/event/create" element={<AdminEventCreate />} />
-            <Route path="/admin/venues" element={<AdminVenuesManagement />} />
-            <Route path="/admin/categories" element={<AdminCategoriesManagement />} />
-            <Route path="/admin/partners" element={<AdminPartnersManagement />} />
-            <Route path="/admin/contact-messages" element={<AdminContactMessages />} />
-            <Route path="/admin/comments" element={<AdminCommentsManagement />} />
-            <Route path="/admin/posts/history" element={<AdminBlogPostsHistory />} />
-            <Route path="/admin/advertisements" element={<AdminAdvertisementsManagement />} />
-            <Route path="/admin/analytics" element={<AdminAnalytics />} />
-            <Route path="/admin/highlights" element={<AdminHighlightsManagement />} />
-            <Route path="/admin/highlights/create" element={<AdminHighlightEditor />} />
-            <Route path="/admin/highlights/edit/:id" element={<AdminHighlightEditor />} />
-            <Route path="/admin/profile" element={<AdminProfile />} />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="posts/new" element={<AdminPostEditor />} />
+              <Route path="posts/:id/edit" element={<AdminPostEditor />} />
+              <Route path="posts/history" element={<AdminBlogPostsHistory />} />
+              <Route path="event/create" element={<AdminEventCreate />} />
+              <Route path="venues" element={<AdminVenuesManagement />} />
+              <Route path="categories" element={<AdminCategoriesManagement />} />
+              <Route path="partners" element={<AdminPartnersManagement />} />
+              <Route path="contact-messages" element={<AdminContactMessages />} />
+              <Route path="comments" element={<AdminCommentsManagement />} />
+              <Route path="advertisements" element={<AdminAdvertisementsManagement />} />
+              <Route path="analytics" element={<AdminAnalytics />} />
+              <Route path="highlights" element={<AdminHighlightsManagement />} />
+              <Route path="highlights/create" element={<AdminHighlightEditor />} />
+              <Route path="highlights/edit/:id" element={<AdminHighlightEditor />} />
+              <Route path="profile" element={<AdminProfile />} />
+            </Route>
             <Route path="/eventos" element={<EventsPage />} />
             {/* Events Routes */}
             <Route path="/eventos/hoje" element={<EventsPage />} />

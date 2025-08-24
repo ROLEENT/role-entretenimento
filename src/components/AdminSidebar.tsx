@@ -14,6 +14,7 @@ import {
   ChevronDown,
   LogOut
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   Sidebar,
   SidebarContent,
@@ -174,10 +175,10 @@ export function AdminSidebar() {
                       }
                     >
                       <FileText className="h-4 w-4" />
-                      {!collapsed && (
+                       {!collapsed && (
                         <>
                           <span>Blog</span>
-                          <ChevronDown className="ml-auto h-4 w-4 transition-transform" />
+                          <ChevronDown className={cn("ml-auto h-4 w-4 transition-transform duration-200", isBlogOpen && "rotate-180")} />
                         </>
                       )}
                     </SidebarMenuButton>
