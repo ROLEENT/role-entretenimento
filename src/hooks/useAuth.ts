@@ -11,39 +11,35 @@ export const useAuth = () => {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = authService.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         setSession(session);
+        setLoading(false);
         
         if (session?.user) {
-          // Defer fetching profile data
-          setTimeout(async () => {
-            try {
-              const authUser = await authService.getCurrentUser();
-              setUser(authUser);
-              // Check admin status
-              const adminStatus = await authService.isAdmin();
-              setIsAdmin(adminStatus);
-            } catch (error) {
-              console.error('Error fetching user profile:', error);
-              setUser(session.user as AuthUser);
-              setIsAdmin(false);
-            }
-          }, 0);
+          setUser(session.user as AuthUser);
+          // Defer profile and admin check to avoid deadlock
+          setTimeout(() => {
+            authService.getCurrentUser().then((authUser) => {
+              if (authUser) {
+                setUser(authUser);
+                authService.isAdmin().then(setIsAdmin).catch(() => setIsAdmin(false));
+              }
+            }).catch(() => {
+              console.error('Error fetching user profile');
+            });
+          }, 100);
         } else {
           setUser(null);
           setIsAdmin(false);
         }
-        
-        setLoading(false);
       }
     );
 
-    // THEN check for existing session
-    authService.getCurrentUser().then(async (authUser) => {
+    // Check for existing session
+    authService.getCurrentUser().then((authUser) => {
       setUser(authUser);
       if (authUser) {
-        const adminStatus = await authService.isAdmin();
-        setIsAdmin(adminStatus);
+        authService.isAdmin().then(setIsAdmin).catch(() => setIsAdmin(false));
       }
       setLoading(false);
     }).catch(() => {
