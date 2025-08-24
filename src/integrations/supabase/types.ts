@@ -862,6 +862,10 @@ export type Database = {
         Args: { uid: string }
         Returns: boolean
       }
+      is_admin_session: {
+        Args: { session_email: string }
+        Returns: boolean
+      }
       is_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: boolean
