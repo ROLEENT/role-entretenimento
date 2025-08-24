@@ -1,136 +1,40 @@
-import { supabase } from '@/integrations/supabase/client';
+// src/lib/repositories/advertisements.ts
+import { supabase } from "@/integrations/supabase/client";
 
-export interface Advertisement {
-  id: string;
-  title: string;
-  description?: string;
-  image_url?: string;
-  cta_text: string;
-  cta_url?: string;
-  badge_text?: string;
-  gradient_from: string;
-  gradient_to: string;
-  type: string;
-  position: number;
-  active: boolean;
-  created_at: string;
-  updated_at: string;
+export async function listAdvertisements({ q, status, partnerId, from, to, page = 1, pageSize = 10 }: any) {
+  let query = (supabase as any).from('advertisements').select('*, partners(id, name)', { count: 'exact' })
+    .order('created_at', { ascending: false });
+  if (q) query = query.ilike('title', `%${q}%`);
+  if (status) query = query.eq('status', status);
+  if (partnerId) query = query.eq('partner_id', partnerId);
+  if (from) query = query.gte('start_date', from);
+  if (to) query = query.lte('end_date', to);
+  const start = (page - 1) * pageSize;
+  const end = start + pageSize - 1;
+  const { data, error, count } = await query.range(start, end);
+  if (error) throw error;
+  return { data, count };
 }
 
-export interface AdvertisementFilters {
-  search?: string;
-  type?: string;
-  active?: boolean | null;
+export async function getAdvertisement(id: string) {
+  const { data, error } = await (supabase as any).from('advertisements').select('*').eq('id', id).maybeSingle();
+  if (error) throw error;
+  return data;
 }
 
-export interface AdvertisementData {
-  title: string;
-  description?: string;
-  image_url?: string;
-  cta_text: string;
-  cta_url?: string;
-  badge_text?: string;
-  gradient_from: string;
-  gradient_to: string;
-  type: string;
-  position: number;
-  active: boolean;
+export async function upsertAdvertisement(payload: any) {
+  const { data, error } = await (supabase as any).from('advertisements').upsert(payload).select().maybeSingle();
+  if (error) throw error;
+  return data;
 }
 
-export const listAdvertisements = async (filters: AdvertisementFilters = {}) => {
-  let query = supabase
-    .from('advertisements')
-    .select('*')
-    .order('position', { ascending: true });
+export async function deleteAdvertisement(id: string) {
+  const { error } = await (supabase as any).from('advertisements').delete().eq('id', id);
+  if (error) throw error;
+}
 
-  if (filters.search) {
-    query = query.ilike('title', `%${filters.search}%`);
-  }
-
-  if (filters.type) {
-    query = query.eq('type', filters.type);
-  }
-
-  if (filters.active !== null && filters.active !== undefined) {
-    query = query.eq('active', filters.active);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    throw new Error(`Erro ao buscar anúncios: ${error.message}`);
-  }
-
-  return data as Advertisement[];
-};
-
-export const getAdvertisement = async (id: string) => {
-  const { data, error } = await supabase
-    .from('advertisements')
-    .select('*')
-    .eq('id', id)
-    .single();
-
-  if (error) {
-    throw new Error(`Erro ao buscar anúncio: ${error.message}`);
-  }
-
-  return data as Advertisement;
-};
-
-export const upsertAdvertisement = async (id: string | null, data: AdvertisementData) => {
-  if (id) {
-    // Update existing
-    const { data: updated, error } = await supabase
-      .from('advertisements')
-      .update(data)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`Erro ao atualizar anúncio: ${error.message}`);
-    }
-
-    return updated as Advertisement;
-  } else {
-    // Create new
-    const { data: created, error } = await supabase
-      .from('advertisements')
-      .insert([data])
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`Erro ao criar anúncio: ${error.message}`);
-    }
-
-    return created as Advertisement;
-  }
-};
-
-export const deleteAdvertisement = async (id: string) => {
-  const { error } = await supabase
-    .from('advertisements')
-    .delete()
-    .eq('id', id);
-
-  if (error) {
-    throw new Error(`Erro ao deletar anúncio: ${error.message}`);
-  }
-};
-
-export const toggleAdvertisementActive = async (id: string, active: boolean) => {
-  const { data, error } = await supabase
-    .from('advertisements')
-    .update({ active })
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(`Erro ao alterar status do anúncio: ${error.message}`);
-  }
-
-  return data as Advertisement;
-};
+export async function updateAdStatus(id: string, status: string) {
+  const { data, error } = await (supabase as any).from('advertisements').update({ status }).select().maybeSingle();
+  if (error) throw error;
+  return data;
+}
