@@ -3,19 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Clock, MapPin, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { eventsData } from "@/data/eventsData";
-import { useSearchAndFilter } from "@/hooks/useSearchAndFilter";
 
-interface FeaturedEventsTodayProps {
-  searchQuery?: string;
-  filters?: any;
-}
-
-const FeaturedEventsToday = ({ searchQuery = '', filters = {} }: FeaturedEventsTodayProps) => {
-  const { filteredEvents } = useSearchAndFilter(eventsData);
-  
+const FeaturedEventsToday = () => {
   // Get today's events
   const today = new Date().toISOString().split('T')[0];
-  const todayEvents = filteredEvents
+  const todayEvents = eventsData
     .filter(event => event.date === today)
     .slice(0, 4);
 
