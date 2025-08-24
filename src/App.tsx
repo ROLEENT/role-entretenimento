@@ -41,6 +41,7 @@ import AdminCommentsManagement from "./pages/AdminCommentsManagement";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminHighlightsManagement from "./pages/AdminHighlightsManagement";
 import AdminHighlightEditor from "./pages/AdminHighlightEditor";
+import AdminOrganizers from "./pages/admin/AdminOrganizers";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -92,6 +93,7 @@ const App = () => (
               <Route path="venues" element={<AdminVenuesManagement />} />
               <Route path="categories" element={<AdminCategoriesManagement />} />
               <Route path="analytics" element={<AdminAnalytics />} />
+              <Route path="organizers" element={<AdminOrganizers />} />
               <Route path="profile" element={<AdminProfile />} />
             </Route>
             <Route path="/eventos" element={<EventsPage />} />

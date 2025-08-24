@@ -5,6 +5,7 @@ import {
   Sparkles, 
   Calendar,
   Users,
+  Building2,
   Megaphone,
   User,
   LogOut
@@ -27,6 +28,7 @@ const mainItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Destaques", url: "/admin/highlights", icon: Sparkles },
   { title: "Criar Evento", url: "/admin/event/create", icon: Calendar },
+  { title: "Organizadores", url: "/admin/organizers", icon: Building2 },
   { title: "Parceiros", url: "/admin/partners", icon: Users },
   { title: "Anúncios", url: "/admin/advertisements", icon: Megaphone },
 ];
