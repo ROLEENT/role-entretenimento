@@ -21,15 +21,15 @@ import SpamPolicy from "./pages/SpamPolicy";
 import UserTerms from "./pages/UserTerms";
 import OrganizerTerms from "./pages/OrganizerTerms";
 import Help from "./pages/Help";
-import AdminLogin from "./pages/AdminLogin";
+import AdminLoginSimple from "./pages/AdminLoginSimple";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminPostEditor from "./pages/AdminPostEditor";
 import AdminEventCreate from "./pages/AdminEventCreate";
 import AdminVenuesManagement from "./pages/AdminVenuesManagement";
 import AdminCategoriesManagement from "./pages/AdminCategoriesManagement";
-import AdminPartnersManagement from "./pages/AdminPartnersManagement";
-import AdminContactMessages from "./pages/AdminContactMessages";
-import AdminCommentsManagement from "./pages/AdminCommentsManagement";
+import AdminPartnersManagementSimple from "./pages/AdminPartnersManagementSimple";
+import AdminContactMessagesSimple from "./pages/AdminContactMessagesSimple";
+import AdminCommentsManagementSimple from "./pages/AdminCommentsManagementSimple";
 import AdminAdvertisementsManagement from "./pages/AdminAdvertisementsManagement";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
@@ -59,16 +59,16 @@ const App = () => (
             <Route path="/destaques/:cidade" element={<CityBlogPage />} />
             <Route path="/destaques/:cidade/:data" element={<BlogArticle />} />
             {/* Admin Routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/login" element={<AdminLoginSimple />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/posts/new" element={<AdminPostEditor />} />
             <Route path="/admin/posts/:id/edit" element={<AdminPostEditor />} />
             <Route path="/admin/event/create" element={<AdminEventCreate />} />
             <Route path="/admin/venues" element={<AdminVenuesManagement />} />
             <Route path="/admin/categories" element={<AdminCategoriesManagement />} />
-            <Route path="/admin/partners" element={<AdminPartnersManagement />} />
-            <Route path="/admin/contact-messages" element={<AdminContactMessages />} />
-            <Route path="/admin/comments" element={<AdminCommentsManagement />} />
+            <Route path="/admin/partners" element={<AdminPartnersManagementSimple />} />
+            <Route path="/admin/contact-messages" element={<AdminContactMessagesSimple />} />
+            <Route path="/admin/comments" element={<AdminCommentsManagementSimple />} />
             <Route path="/admin/advertisements" element={<AdminAdvertisementsManagement />} />
             <Route path="/eventos" element={<EventsPage />} />
             {/* Events Routes */}

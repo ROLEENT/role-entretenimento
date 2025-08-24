@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string | null
+          email: string
+          full_name: string | null
+          id: string
+          is_active: boolean | null
+          password_hash: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          full_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          password_hash: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          password_hash?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       advertisements: {
         Row: {
           active: boolean | null
@@ -743,6 +773,13 @@ export type Database = {
         Args: { p_comment_id: string }
         Returns: undefined
       }
+      authenticate_admin_simple: {
+        Args: { p_email: string; p_password: string }
+        Returns: {
+          admin_data: Json
+          success: boolean
+        }[]
+      }
       delete_blog_comment: {
         Args: { p_comment_id: string }
         Returns: undefined
@@ -819,6 +856,10 @@ export type Database = {
       }
       is_admin_user: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_current_admin: {
+        Args: { session_email: string }
         Returns: boolean
       }
       reject_blog_comment: {
