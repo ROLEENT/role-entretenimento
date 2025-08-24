@@ -7,22 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { supabase } from '@/integrations/supabase/client';
+import { commentService, type BlogComment } from '@/services/commentService';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Check, X, Trash2 } from 'lucide-react';
 
-interface BlogComment {
-  id: string;
-  post_id: string;
-  author_name: string;
-  author_email: string;
-  content: string;
-  is_approved: boolean;
-  created_at: string;
-  post_title: string;
-}
 
 const AdminCommentsManagement = () => {
   const { user, isAuthenticated, loading } = useAuth();
@@ -37,9 +27,8 @@ const AdminCommentsManagement = () => {
 
   const fetchComments = async () => {
     try {
-      const { data, error } = await supabase.rpc('get_blog_comments_admin');
-      if (error) throw error;
-      setComments(data || []);
+      const data = await commentService.getAllComments();
+      setComments(data);
     } catch (error) {
       console.error('Erro ao carregar comentários:', error);
       toast.error('Erro ao carregar comentários');
@@ -50,8 +39,7 @@ const AdminCommentsManagement = () => {
 
   const approveComment = async (id: string) => {
     try {
-      const { error } = await supabase.rpc('approve_blog_comment', { p_comment_id: id });
-      if (error) throw error;
+      await commentService.approveComment(id);
       setComments(prev => 
         prev.map(comment => 
           comment.id === id ? { ...comment, is_approved: true } : comment
@@ -66,8 +54,7 @@ const AdminCommentsManagement = () => {
 
   const rejectComment = async (id: string) => {
     try {
-      const { error } = await supabase.rpc('reject_blog_comment', { p_comment_id: id });
-      if (error) throw error;
+      await commentService.rejectComment(id);
       setComments(prev => 
         prev.map(comment => 
           comment.id === id ? { ...comment, is_approved: false } : comment
@@ -84,8 +71,7 @@ const AdminCommentsManagement = () => {
     if (!confirm('Tem certeza que deseja deletar este comentário?')) return;
     
     try {
-      const { error } = await supabase.rpc('delete_blog_comment', { p_comment_id: id });
-      if (error) throw error;
+      await commentService.deleteComment(id);
       setComments(prev => prev.filter(comment => comment.id !== id));
       toast.success('Comentário deletado');
     } catch (error) {
@@ -146,7 +132,7 @@ const AdminCommentsManagement = () => {
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-lg">{comment.post_title}</CardTitle>
+                        <CardTitle className="text-lg">{comment.post_title || 'Artigo sem título'}</CardTitle>
                         <p className="text-sm text-muted-foreground">
                           Por: {comment.author_name} ({comment.author_email})
                         </p>
