@@ -532,6 +532,57 @@ export type Database = {
           },
         ]
       }
+      highlights: {
+        Row: {
+          city: string
+          created_at: string
+          event_date: string
+          event_title: string
+          id: string
+          image_url: string | null
+          is_published: boolean
+          photo_credit: string | null
+          role_text: string
+          selection_reasons: string[]
+          sort_order: number
+          ticket_url: string | null
+          updated_at: string
+          venue: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          event_date: string
+          event_title: string
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          photo_credit?: string | null
+          role_text: string
+          selection_reasons?: string[]
+          sort_order?: number
+          ticket_url?: string | null
+          updated_at?: string
+          venue: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          event_date?: string
+          event_title?: string
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          photo_credit?: string | null
+          role_text?: string
+          selection_reasons?: string[]
+          sort_order?: number
+          ticket_url?: string | null
+          updated_at?: string
+          venue?: string
+        }
+        Relationships: []
+      }
       organizers: {
         Row: {
           contact_email: string
