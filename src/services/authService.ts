@@ -8,6 +8,7 @@ export interface AuthUser extends User {
     avatar_url?: string;
     preferences_json?: any;
     is_premium?: boolean;
+    is_admin?: boolean;
   };
 }
 
@@ -48,7 +49,7 @@ export const authService = {
     
     if (!user) return null;
 
-    // Get user profile
+    // Get user profile including admin status
     const { data: profile } = await supabase
       .from('profiles')
       .select('*')

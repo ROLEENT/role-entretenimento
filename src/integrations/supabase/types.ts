@@ -739,9 +739,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_blog_comment: {
+        Args: { p_comment_id: string }
+        Returns: undefined
+      }
+      delete_blog_comment: {
+        Args: { p_comment_id: string }
+        Returns: undefined
+      }
       ensure_admin_role: {
         Args: { user_email: string }
         Returns: undefined
+      }
+      get_blog_comments_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author_email: string
+          author_name: string
+          content: string
+          created_at: string
+          id: string
+          is_approved: boolean
+          post_id: string
+          post_title: string
+        }[]
       }
       get_contact_messages: {
         Args: Record<PropertyKey, never>
@@ -799,6 +820,10 @@ export type Database = {
       is_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      reject_blog_comment: {
+        Args: { p_comment_id: string }
+        Returns: undefined
       }
       update_contact_message_status: {
         Args: { p_id: string; p_status: string }

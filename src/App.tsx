@@ -29,6 +29,7 @@ import AdminVenuesManagement from "./pages/AdminVenuesManagement";
 import AdminCategoriesManagement from "./pages/AdminCategoriesManagement";
 import AdminPartnersManagement from "./pages/AdminPartnersManagement";
 import AdminContactMessages from "./pages/AdminContactMessages";
+import AdminCommentsManagement from "./pages/AdminCommentsManagement";
 import AdminAdvertisementsManagement from "./pages/AdminAdvertisementsManagement";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
@@ -67,9 +68,10 @@ const App = () => (
             <Route path="/admin/categories" element={<AdminCategoriesManagement />} />
             <Route path="/admin/partners" element={<AdminPartnersManagement />} />
             <Route path="/admin/contact-messages" element={<AdminContactMessages />} />
+            <Route path="/admin/comments" element={<AdminCommentsManagement />} />
             <Route path="/admin/advertisements" element={<AdminAdvertisementsManagement />} />
-            {/* Events Routes */}
             <Route path="/eventos" element={<EventsPage />} />
+            {/* Events Routes */}
             <Route path="/eventos/hoje" element={<EventsPage />} />
             <Route path="/eventos/:cidade" element={<EventsPage />} />
             <Route path="/evento/:id" element={<EventDetailPage />} />

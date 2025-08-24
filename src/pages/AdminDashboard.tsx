@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { PlusCircle, LogOut, FileText, Users, BarChart3, Eye, Mail } from "lucide-react";
+import { PlusCircle, LogOut, FileText, Users, BarChart3, Eye, Mail, MessageCircle } from "lucide-react";
 import { User } from "@supabase/supabase-js";
 
 interface BlogPost {
@@ -155,7 +155,7 @@ const AdminDashboard = () => {
 
       <div className="p-6 space-y-6">
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate("/admin/posts/new")}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Criar Artigo</CardTitle>
@@ -183,6 +183,16 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent>
               <p className="text-xs text-muted-foreground">Ver mensagens de contato</p>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate("/admin/comments")}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Comentários</CardTitle>
+              <MessageCircle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground">Gerenciar comentários</p>
             </CardContent>
           </Card>
         </div>
