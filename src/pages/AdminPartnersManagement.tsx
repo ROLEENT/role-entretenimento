@@ -15,6 +15,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
 import { Navigate } from 'react-router-dom';
+import { EnvironmentBanner } from '@/components/EnvironmentBanner';
 
 const AdminPartnersManagement = () => {
   const [partners, setPartners] = useState([]);
@@ -99,6 +100,17 @@ const AdminPartnersManagement = () => {
 
       if (result.error) {
         console.error('Supabase error:', result.error);
+        
+        // Check if it's a read-only environment error
+        if (result.error.message?.includes('read-only') || result.error.message?.includes('cannot execute')) {
+          toast({
+            title: "Ambiente Limitado",
+            description: "Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.",
+            variant: "destructive"
+          });
+          return;
+        }
+        
         throw result.error;
       }
 
@@ -123,11 +135,21 @@ const AdminPartnersManagement = () => {
       fetchPartners();
     } catch (error) {
       console.error('Error saving partner:', error);
-      toast({
-        title: "Erro",
-        description: "Falha ao salvar parceiro.",
-        variant: "destructive"
-      });
+      
+      // Check if it's a read-only environment error
+      if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
+        toast({
+          title: "Ambiente Limitado",
+          description: "Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Erro",
+          description: "Falha ao salvar parceiro.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setSaving(false);
     }
@@ -156,7 +178,17 @@ const AdminPartnersManagement = () => {
         .delete()
         .eq('id', partnerId);
 
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
+          toast({
+            title: "Ambiente Limitado",
+            description: "Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.",
+            variant: "destructive"
+          });
+          return;
+        }
+        throw error;
+      }
 
       toast({
         title: "Sucesso",
@@ -166,11 +198,20 @@ const AdminPartnersManagement = () => {
       fetchPartners();
     } catch (error) {
       console.error('Error deleting partner:', error);
-      toast({
-        title: "Erro",
-        description: "Falha ao excluir parceiro.",
-        variant: "destructive"
-      });
+      
+      if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
+        toast({
+          title: "Ambiente Limitado",
+          description: "Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Erro",
+          description: "Falha ao excluir parceiro.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -191,6 +232,8 @@ const AdminPartnersManagement = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
             <h1 className="text-3xl font-bold mb-8">Gerenciar Parceiros</h1>
+            
+            <EnvironmentBanner className="mb-6" />
 
             {/* Form */}
             <Card className="mb-8">

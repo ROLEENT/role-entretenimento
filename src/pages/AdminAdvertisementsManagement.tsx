@@ -16,6 +16,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
 import { Navigate } from 'react-router-dom';
+import { EnvironmentBanner } from '@/components/EnvironmentBanner';
 
 const AdminAdvertisementsManagement = () => {
   const [advertisements, setAdvertisements] = useState([]);
@@ -95,6 +96,16 @@ const AdminAdvertisementsManagement = () => {
 
       if (result.error) {
         console.error('Supabase error:', result.error);
+        
+        if (result.error.message?.includes('read-only') || result.error.message?.includes('cannot execute')) {
+          toast({
+            title: "Ambiente Limitado",
+            description: "Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.",
+            variant: "destructive"
+          });
+          return;
+        }
+        
         throw result.error;
       }
 
@@ -120,11 +131,20 @@ const AdminAdvertisementsManagement = () => {
       fetchAdvertisements();
     } catch (error) {
       console.error('Error saving advertisement:', error);
-      toast({
-        title: "Erro",
-        description: "Falha ao salvar anúncio.",
-        variant: "destructive"
-      });
+      
+      if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
+        toast({
+          title: "Ambiente Limitado",
+          description: "Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Erro",
+          description: "Falha ao salvar anúncio.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setSaving(false);
     }
@@ -154,7 +174,17 @@ const AdminAdvertisementsManagement = () => {
         .delete()
         .eq('id', adId);
 
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
+          toast({
+            title: "Ambiente Limitado",
+            description: "Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.",
+            variant: "destructive"
+          });
+          return;
+        }
+        throw error;
+      }
 
       toast({
         title: "Sucesso",
@@ -164,11 +194,20 @@ const AdminAdvertisementsManagement = () => {
       fetchAdvertisements();
     } catch (error) {
       console.error('Error deleting advertisement:', error);
-      toast({
-        title: "Erro",
-        description: "Falha ao excluir anúncio.",
-        variant: "destructive"
-      });
+      
+      if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
+        toast({
+          title: "Ambiente Limitado",
+          description: "Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Erro",
+          description: "Falha ao excluir anúncio.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -179,7 +218,17 @@ const AdminAdvertisementsManagement = () => {
         .update({ active: !currentActive })
         .eq('id', adId);
 
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
+          toast({
+            title: "Ambiente Limitado",
+            description: "Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.",
+            variant: "destructive"
+          });
+          return;
+        }
+        throw error;
+      }
 
       toast({
         title: "Sucesso",
@@ -189,11 +238,20 @@ const AdminAdvertisementsManagement = () => {
       fetchAdvertisements();
     } catch (error) {
       console.error('Error toggling advertisement:', error);
-      toast({
-        title: "Erro",
-        description: "Falha ao alterar status do anúncio.",
-        variant: "destructive"
-      });
+      
+      if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
+        toast({
+          title: "Ambiente Limitado",
+          description: "Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Erro",
+          description: "Falha ao alterar status do anúncio.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -209,6 +267,8 @@ const AdminAdvertisementsManagement = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
             <h1 className="text-3xl font-bold mb-8">Gerenciar Anúncios</h1>
+            
+            <EnvironmentBanner className="mb-6" />
 
             {/* Form */}
             <Card className="mb-8">

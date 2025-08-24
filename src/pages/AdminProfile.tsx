@@ -11,6 +11,7 @@ import { ArrowLeft, Save, User, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { EnvironmentBanner } from '@/components/EnvironmentBanner';
 
 const AdminProfile = () => {
   const navigate = useNavigate();
@@ -66,12 +67,23 @@ const AdminProfile = () => {
 
       console.log('Update profile result:', { data, error });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
+          toast.error('Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.');
+          return;
+        }
+        throw error;
+      }
       
       toast.success('Perfil atualizado com sucesso!');
     } catch (error: any) {
       console.error('Error updating profile:', error);
-      toast.error(error.message || 'Erro ao atualizar perfil');
+      
+      if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
+        toast.error('Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.');
+      } else {
+        toast.error(error.message || 'Erro ao atualizar perfil');
+      }
     } finally {
       setSaving(false);
     }
@@ -106,7 +118,13 @@ const AdminProfile = () => {
 
       console.log('Change password result:', { data, error });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
+          toast.error('Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.');
+          return;
+        }
+        throw error;
+      }
       
       setPasswordForm({
         current_password: '',
@@ -117,7 +135,12 @@ const AdminProfile = () => {
       toast.success('Senha alterada com sucesso!');
     } catch (error: any) {
       console.error('Error changing password:', error);
-      toast.error(error.message || 'Erro ao alterar senha');
+      
+      if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
+        toast.error('Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.');
+      } else {
+        toast.error(error.message || 'Erro ao alterar senha');
+      }
     } finally {
       setChangingPassword(false);
     }
@@ -153,6 +176,8 @@ const AdminProfile = () => {
               <p className="text-muted-foreground">Gerencie suas informações pessoais</p>
             </div>
           </div>
+          
+          <EnvironmentBanner className="mb-6" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
