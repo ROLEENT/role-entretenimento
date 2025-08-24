@@ -886,6 +886,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      test_basic_operations: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       update_admin_profile: {
         Args: { p_admin_id: string; p_email: string; p_full_name: string }
         Returns: undefined
