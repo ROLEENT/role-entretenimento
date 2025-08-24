@@ -3,10 +3,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, ExternalLink, Ticket, Calendar } from "lucide-react";
 
+type CityEnum = 'porto_alegre' | 'sao_paulo' | 'rio_de_janeiro' | 'florianopolis' | 'curitiba';
+
 interface HighlightCardProps {
   highlight: {
     id: string;
-    city: string;
+    city: CityEnum;
     event_title: string;
     venue: string;
     ticket_url?: string;
@@ -21,11 +23,11 @@ interface HighlightCardProps {
 }
 
 const HighlightCard = ({ highlight }: HighlightCardProps) => {
-  const formatCity = (city: string) => {
-    const cities: Record<string, string> = {
-      'rio_de_janeiro': 'Rio de Janeiro',
-      'sao_paulo': 'São Paulo',
+  const formatCity = (city: CityEnum) => {
+    const cities: Record<CityEnum, string> = {
       'porto_alegre': 'Porto Alegre',
+      'sao_paulo': 'São Paulo',
+      'rio_de_janeiro': 'Rio de Janeiro',
       'florianopolis': 'Florianópolis',
       'curitiba': 'Curitiba'
     };

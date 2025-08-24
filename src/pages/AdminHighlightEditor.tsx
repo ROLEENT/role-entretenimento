@@ -15,8 +15,10 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+type CityEnum = 'porto_alegre' | 'sao_paulo' | 'rio_de_janeiro' | 'florianopolis' | 'curitiba';
+
 interface HighlightForm {
-  city: string;
+  city: CityEnum;
   event_title: string;
   venue: string;
   ticket_url: string;
@@ -36,7 +38,7 @@ const AdminHighlightEditor = () => {
   const isEdit = Boolean(id);
   
   const [form, setForm] = useState<HighlightForm>({
-    city: '',
+    city: '' as CityEnum,
     event_title: '',
     venue: '',
     ticket_url: '',
@@ -54,9 +56,9 @@ const AdminHighlightEditor = () => {
   const [imageUploading, setImageUploading] = useState(false);
 
   const cities = [
-    { value: 'rio_de_janeiro', label: 'Rio de Janeiro' },
-    { value: 'sao_paulo', label: 'São Paulo' },
     { value: 'porto_alegre', label: 'Porto Alegre' },
+    { value: 'sao_paulo', label: 'São Paulo' },
+    { value: 'rio_de_janeiro', label: 'Rio de Janeiro' },
     { value: 'florianopolis', label: 'Florianópolis' },
     { value: 'curitiba', label: 'Curitiba' },
   ];
@@ -158,6 +160,11 @@ const AdminHighlightEditor = () => {
       return;
     }
 
+    if (form.selection_reasons.length === 0) {
+      toast.error('Adicione pelo menos um motivo do destaque');
+      return;
+    }
+
     setLoading(true);
     try {
       const payload = {
@@ -165,10 +172,10 @@ const AdminHighlightEditor = () => {
         event_title: form.event_title,
         venue: form.venue,
         ticket_url: form.ticket_url || null,
-        event_date: form.event_date,
+        event_date: form.event_date || null,
         role_text: form.role_text,
         selection_reasons: form.selection_reasons,
-        image_url: form.image_url || null,
+        image_url: form.image_url,
         photo_credit: form.photo_credit || null,
         sort_order: form.sort_order,
         is_published: form.is_published,
@@ -228,7 +235,7 @@ const AdminHighlightEditor = () => {
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="city">Cidade *</Label>
-                  <Select value={form.city} onValueChange={(value) => setForm(prev => ({ ...prev, city: value }))}>
+                  <Select value={form.city} onValueChange={(value: CityEnum) => setForm(prev => ({ ...prev, city: value }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a cidade" />
                     </SelectTrigger>
@@ -300,20 +307,47 @@ const AdminHighlightEditor = () => {
                   maxLength={400}
                   required
                 />
+                <p className="text-xs text-muted-foreground">
+                  Mínimo 50 caracteres. Seja direto, afiado e informativo.
+                </p>
               </div>
 
               <div className="space-y-2">
-                <Label>Motivos do Destaque</Label>
+                <Label>Motivos do Destaque *</Label>
                 <div className="flex gap-2 mb-2">
                   <Input
                     value={newReason}
                     onChange={(e) => setNewReason(e.target.value)}
-                    placeholder="Ex: impacto cultural, diversidade..."
+                    placeholder="Ex: impacto cultural, diversidade, pista..."
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addReason())}
                   />
                   <Button type="button" onClick={addReason} disabled={!newReason.trim()}>
                     <Plus className="w-4 h-4" />
                   </Button>
+                </div>
+                <div className="mb-2">
+                  <p className="text-xs text-muted-foreground mb-2">Sugestões:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {['impacto cultural', 'diversidade', 'pista', 'cena local', 'estreia', 'data especial'].map((suggestion) => (
+                      <Button
+                        key={suggestion}
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 text-xs"
+                        onClick={() => {
+                          if (!form.selection_reasons.includes(suggestion)) {
+                            setForm(prev => ({
+                              ...prev,
+                              selection_reasons: [...prev.selection_reasons, suggestion]
+                            }));
+                          }
+                        }}
+                      >
+                        + {suggestion}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {form.selection_reasons.map((reason, index) => (

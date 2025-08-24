@@ -11,9 +11,11 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+type CityEnum = 'porto_alegre' | 'sao_paulo' | 'rio_de_janeiro' | 'florianopolis' | 'curitiba';
+
 interface Highlight {
   id: string;
-  city: string;
+  city: CityEnum;
   event_title: string;
   venue: string;
   ticket_url?: string;
@@ -121,11 +123,11 @@ const AdminHighlightsManagement = () => {
     );
   }
 
-  const formatCity = (city: string) => {
-    const cities: Record<string, string> = {
-      'rio_de_janeiro': 'Rio de Janeiro',
-      'sao_paulo': 'São Paulo',
+  const formatCity = (city: CityEnum) => {
+    const cities: Record<CityEnum, string> = {
       'porto_alegre': 'Porto Alegre',
+      'sao_paulo': 'São Paulo',
+      'rio_de_janeiro': 'Rio de Janeiro',
       'florianopolis': 'Florianópolis',
       'curitiba': 'Curitiba'
     };
