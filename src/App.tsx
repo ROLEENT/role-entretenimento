@@ -15,6 +15,8 @@ import WeeklyHighlights from "./pages/WeeklyHighlights";
 import DestaquesHub from "./pages/DestaquesHub";
 import CityBlogPage from "./pages/CityBlogPage";
 import BlogArticle from "./pages/BlogArticle";
+import HighlightsPage from "./pages/HighlightsPage";
+import CityHighlightsPage from "./pages/CityHighlightsPage";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -66,6 +68,9 @@ const App = () => (
             <Route path="/destaques" element={<DestaquesHub />} />
             <Route path="/destaques/:cidade" element={<CityBlogPage />} />
             <Route path="/destaques/:cidade/:data" element={<BlogArticle />} />
+            {/* Highlights Routes */}
+            <Route path="/highlights" element={<HighlightsPage />} />
+            <Route path="/highlights/:cidade" element={<CityHighlightsPage />} />
             <Route path="/cidade/:cidade" element={<CityHighlights />} />
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLoginSimple />} />

@@ -11,14 +11,16 @@ interface HighlightCardProps {
     city: CityEnum;
     event_title: string;
     venue: string;
-    ticket_url?: string;
-    event_date: string;
+    ticket_url?: string | null;
+    event_date: string | null;
     role_text: string;
     selection_reasons: string[];
-    image_url?: string;
-    photo_credit?: string;
+    image_url: string;
+    photo_credit?: string | null;
     sort_order: number;
-    is_published: boolean;
+    like_count: number;
+    created_at: string;
+    updated_at: string;
   };
 }
 

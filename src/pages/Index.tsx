@@ -16,6 +16,7 @@ import FavoritesPanel from "@/components/FavoritesPanel";
 import GeolocationEvents from "@/components/GeolocationEvents";
 import FeaturedHighlights from "@/components/FeaturedHighlights";
 import FeaturedBlogPosts from "@/components/FeaturedBlogPosts";
+import { PWAInstallButton } from "@/components/PWAInstallButton";
 import { Toaster } from "@/components/ui/sonner";
 
 const Index = () => {
@@ -61,6 +62,17 @@ const Index = () => {
         </ScrollAnimationWrapper>
         <ScrollAnimationWrapper>
           <Newsletter />
+        </ScrollAnimationWrapper>
+        
+        <ScrollAnimationWrapper>
+          <div className="py-8 bg-background">
+            <div className="container mx-auto px-4 text-center">
+              <PWAInstallButton 
+                variant="outline" 
+                size="lg" 
+              />
+            </div>
+          </div>
         </ScrollAnimationWrapper>
       </main>
       <Footer />

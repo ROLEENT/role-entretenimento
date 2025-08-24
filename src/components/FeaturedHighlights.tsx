@@ -70,8 +70,8 @@ const FeaturedHighlights = () => {
             Destaques da Semana
           </h2>
           <Button variant="outline" className="rounded-full" asChild>
-            <Link to="/destaques">
-              Ver todos os destaques
+              <Link to="/highlights">
+                Ver todos os destaques
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
