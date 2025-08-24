@@ -45,62 +45,7 @@ const PartnersVenues = () => {
     );
   }
 
-  const venues = [
-    {
-      name: "Audio Club",
-      location: "Vila Madalena, SP",
-      image: "/lovable-uploads/c5238b2d-273a-46f1-a5a6-c330f2a3142c.png",
-      rating: 4.8,
-      capacity: "800 pessoas",
-      types: ["Eletrônica", "Techno"],
-      featured: true
-    },
-    {
-      name: "Clash Club",
-      location: "Santa Cecília, SP",
-      image: "/lovable-uploads/e7152d25-522d-4a55-9968-b848ce6cde97.png",
-      rating: 4.6,
-      capacity: "500 pessoas",
-      types: ["Rock", "Indie"],
-      featured: false
-    },
-    {
-      name: "Trackers",
-      location: "Moema, SP",
-      image: "/lovable-uploads/c5238b2d-273a-46f1-a5a6-c330f2a3142c.png",
-      rating: 4.9,
-      capacity: "1200 pessoas",
-      types: ["Hip Hop", "Funk"],
-      featured: true
-    },
-    {
-      name: "Beco 203",
-      location: "Vila Madalena, SP",
-      image: "/lovable-uploads/e7152d25-522d-4a55-9968-b848ce6cde97.png",
-      rating: 4.5,
-      capacity: "300 pessoas",
-      types: ["MPB", "Jazz"],
-      featured: false
-    },
-    {
-      name: "Lion Nightclub",
-      location: "Itaim, SP",
-      image: "/lovable-uploads/c5238b2d-273a-46f1-a5a6-c330f2a3142c.png",
-      rating: 4.7,
-      capacity: "900 pessoas",
-      types: ["Pop", "Comercial"],
-      featured: true
-    },
-    {
-      name: "Warung Beach Club",
-      location: "Itajai, SC",
-      image: "/lovable-uploads/e7152d25-522d-4a55-9968-b848ce6cde97.png",
-      rating: 5.0,
-      capacity: "2000 pessoas",
-      types: ["Eletrônica", "Progressive"],
-      featured: true
-    }
-  ];
+  // Usar apenas dados do Supabase, sem dados mockados
 
   return (
     <section className="py-16 bg-background">
@@ -119,7 +64,7 @@ const PartnersVenues = () => {
             <Card key={index} className="group hover:shadow-lg transition-all duration-300 bg-card border-border overflow-hidden">
               <div className="relative">
                 <img 
-                  src={venue.image} 
+                  src={venue.image_url || "/lovable-uploads/c5238b2d-273a-46f1-a5a6-c330f2a3142c.png"} 
                   alt={venue.name}
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                 />

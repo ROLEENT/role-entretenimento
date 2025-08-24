@@ -158,13 +158,6 @@ export type Database = {
             referencedRelation: "blog_comments"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "blog_comments_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "blog_comments_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       blog_likes: {
@@ -531,13 +524,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "events_organizer_id_fkey"
-            columns: ["organizer_id"]
-            isOneToOne: false
-            referencedRelation: "organizers_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "events_venue_id_fkey"
             columns: ["venue_id"]
             isOneToOne: false
@@ -834,127 +820,7 @@ export type Database = {
       }
     }
     Views: {
-      blog_comments_public: {
-        Row: {
-          author_name: string | null
-          content: string | null
-          created_at: string | null
-          id: string | null
-          parent_id: string | null
-          post_id: string | null
-        }
-        Insert: {
-          author_name?: string | null
-          content?: string | null
-          created_at?: string | null
-          id?: string | null
-          parent_id?: string | null
-          post_id?: string | null
-        }
-        Update: {
-          author_name?: string | null
-          content?: string | null
-          created_at?: string | null
-          id?: string | null
-          parent_id?: string | null
-          post_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "blog_comments_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "blog_comments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blog_comments_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "blog_comments_public"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      blog_likes_count: {
-        Row: {
-          like_count: number | null
-          post_id: string | null
-        }
-        Relationships: []
-      }
-      organizers_public: {
-        Row: {
-          created_at: string | null
-          id: string | null
-          instagram: string | null
-          name: string | null
-          site: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string | null
-          instagram?: string | null
-          name?: string | null
-          site?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string | null
-          instagram?: string | null
-          name?: string | null
-          site?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      partners_public: {
-        Row: {
-          capacity: string | null
-          created_at: string | null
-          featured: boolean | null
-          id: string | null
-          image_url: string | null
-          instagram: string | null
-          location: string | null
-          name: string | null
-          rating: number | null
-          types: string[] | null
-          updated_at: string | null
-          website: string | null
-        }
-        Insert: {
-          capacity?: string | null
-          created_at?: string | null
-          featured?: boolean | null
-          id?: string | null
-          image_url?: string | null
-          instagram?: string | null
-          location?: string | null
-          name?: string | null
-          rating?: number | null
-          types?: string[] | null
-          updated_at?: string | null
-          website?: string | null
-        }
-        Update: {
-          capacity?: string | null
-          created_at?: string | null
-          featured?: boolean | null
-          id?: string | null
-          image_url?: string | null
-          instagram?: string | null
-          location?: string | null
-          name?: string | null
-          rating?: number | null
-          types?: string[] | null
-          updated_at?: string | null
-          website?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       admin_create_highlight: {
@@ -1152,6 +1018,10 @@ export type Database = {
           venue_name: string
         }[]
       }
+      get_post_likes_count: {
+        Args: { p_post_id: string }
+        Returns: number
+      }
       get_user_role: {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
@@ -1208,6 +1078,10 @@ export type Database = {
       update_contact_message_status: {
         Args: { p_id: string; p_status: string }
         Returns: undefined
+      }
+      user_liked_post: {
+        Args: { p_post_id: string; p_user_email: string }
+        Returns: boolean
       }
       validate_admin_email: {
         Args: { p_email: string }

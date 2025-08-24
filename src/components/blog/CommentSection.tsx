@@ -1,51 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { MessageCircle, Send, Reply } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useSecureComments } from "@/hooks/useSecureComments";
 
-interface Comment {
-  id: string;
-  author_name: string;
-  content: string;
-  created_at: string;
-  parent_id: string | null;
-}
+// Interface removida - agora está no hook
 
 interface CommentSectionProps {
   postId: string;
 }
 
 const CommentSection = ({ postId }: CommentSectionProps) => {
-  const [comments, setComments] = useState<Comment[]>([]);
+  const { comments, loading, addComment } = useSecureComments(postId);
   const [newComment, setNewComment] = useState("");
   const [authorName, setAuthorName] = useState("");
   const [authorEmail, setAuthorEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [replyTo, setReplyTo] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchComments();
-  }, [postId]);
-
-  const fetchComments = async () => {
-    const { data, error } = await supabase
-      .from('blog_comments')
-      .select('*')
-      .eq('post_id', postId)
-      .eq('is_approved', true)
-      .order('created_at', { ascending: true });
-
-    if (error) {
-      console.error('Error fetching comments:', error);
-      return;
-    }
-
-    setComments(data || []);
-  };
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,24 +31,16 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
 
     setIsSubmitting(true);
 
-    const { error } = await supabase
-      .from('blog_comments')
-      .insert([{
-        post_id: postId,
-        author_name: authorName,
-        author_email: authorEmail,
-        content: newComment,
-        parent_id: replyTo
-      }]);
+    const result = await addComment(authorName, authorEmail, newComment, replyTo || undefined);
 
-    if (error) {
-      toast({ title: "Erro", description: "Erro ao enviar comentário" });
-    } else {
+    if (result.success) {
       toast({ title: "Sucesso", description: "Comentário enviado! Será aprovado em breve." });
       setNewComment("");
       setAuthorName("");
       setAuthorEmail("");
       setReplyTo(null);
+    } else {
+      toast({ title: "Erro", description: "Erro ao enviar comentário" });
     }
 
     setIsSubmitting(false);
@@ -93,6 +59,14 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
   const topLevelComments = comments.filter(comment => !comment.parent_id);
   const getReplies = (commentId: string) => 
     comments.filter(comment => comment.parent_id === commentId);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse">Carregando comentários...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

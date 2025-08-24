@@ -23,28 +23,33 @@ const LikeButton = ({ postId, userEmail }: LikeButtonProps) => {
   }, [postId, userEmail]);
 
   const fetchLikes = async () => {
-    const { data, error } = await supabase
-      .from('blog_likes')
-      .select('id')
-      .eq('post_id', postId);
+    try {
+      const { data, error } = await supabase.rpc('get_post_likes_count', {
+        p_post_id: postId
+      });
 
-    if (!error && data) {
-      setLikes(data.length);
+      if (!error) {
+        setLikes(data || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching likes:', error);
     }
   };
 
   const checkUserLike = async () => {
     if (!userEmail) return;
 
-    const { data, error } = await supabase
-      .from('blog_likes')
-      .select('id')
-      .eq('post_id', postId)
-      .eq('user_email', userEmail)
-      .single();
+    try {
+      const { data, error } = await supabase.rpc('user_liked_post', {
+        p_post_id: postId,
+        p_user_email: userEmail
+      });
 
-    if (!error && data) {
-      setIsLiked(true);
+      if (!error) {
+        setIsLiked(data || false);
+      }
+    } catch (error) {
+      console.error('Error checking user like:', error);
     }
   };
 
