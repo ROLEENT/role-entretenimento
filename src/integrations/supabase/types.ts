@@ -788,6 +788,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      debug_admin_operations: {
+        Args: { admin_email: string }
+        Returns: Json
+      }
       delete_blog_comment: {
         Args: { p_comment_id: string }
         Returns: undefined
@@ -877,6 +881,10 @@ export type Database = {
       reject_blog_comment: {
         Args: { p_comment_id: string }
         Returns: undefined
+      }
+      test_admin_insert: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       update_admin_profile: {
         Args: { p_admin_id: string; p_email: string; p_full_name: string }

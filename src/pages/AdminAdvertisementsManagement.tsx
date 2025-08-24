@@ -74,19 +74,28 @@ const AdminAdvertisementsManagement = () => {
     setSaving(true);
 
     try {
+      console.log('Admin attempting to save advertisement:', formData);
+      
       let result;
       if (editingAd) {
+        console.log('Updating advertisement with ID:', editingAd.id);
         result = await supabase
           .from('advertisements')
           .update(formData)
           .eq('id', editingAd.id);
       } else {
+        console.log('Creating new advertisement');
         result = await supabase
           .from('advertisements')
           .insert([formData]);
       }
 
-      if (result.error) throw result.error;
+      console.log('Supabase result:', result);
+
+      if (result.error) {
+        console.error('Supabase error:', result.error);
+        throw result.error;
+      }
 
       toast({
         title: "Sucesso",

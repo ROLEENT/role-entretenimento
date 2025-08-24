@@ -71,24 +71,35 @@ const AdminPartnersManagement = () => {
     setSaving(true);
 
     try {
+      console.log('Admin attempting to save partner:', formData);
+      
       const submitData = {
         ...formData,
         types: formData.types.filter(type => type.trim() !== '')
       };
 
+      console.log('Submit data:', submitData);
+
       let result;
       if (editingPartner) {
+        console.log('Updating partner with ID:', editingPartner.id);
         result = await supabase
           .from('partners')
           .update(submitData)
           .eq('id', editingPartner.id);
       } else {
+        console.log('Creating new partner');
         result = await supabase
           .from('partners')
           .insert([submitData]);
       }
 
-      if (result.error) throw result.error;
+      console.log('Supabase result:', result);
+
+      if (result.error) {
+        console.error('Supabase error:', result.error);
+        throw result.error;
+      }
 
       toast({
         title: "Sucesso",

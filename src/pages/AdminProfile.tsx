@@ -52,11 +52,19 @@ const AdminProfile = () => {
     try {
       setSaving(true);
       
-      const { error } = await supabase.rpc('update_admin_profile', {
+      console.log('Updating admin profile:', {
+        adminId: adminUser?.id,
+        fullName: profileForm.full_name,
+        email: profileForm.email
+      });
+      
+      const { data, error } = await supabase.rpc('update_admin_profile', {
         p_admin_id: adminUser?.id,
         p_full_name: profileForm.full_name,
         p_email: profileForm.email
       });
+
+      console.log('Update profile result:', { data, error });
 
       if (error) throw error;
       
@@ -88,11 +96,15 @@ const AdminProfile = () => {
     try {
       setChangingPassword(true);
       
-      const { error } = await supabase.rpc('change_admin_password', {
+      console.log('Changing admin password for user:', adminUser?.id);
+      
+      const { data, error } = await supabase.rpc('change_admin_password', {
         p_admin_id: adminUser?.id,
         p_current_password: passwordForm.current_password,
         p_new_password: passwordForm.new_password
       });
+
+      console.log('Change password result:', { data, error });
 
       if (error) throw error;
       
