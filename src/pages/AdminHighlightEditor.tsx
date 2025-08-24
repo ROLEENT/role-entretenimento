@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { uploadHighlightImage } from "@/lib/upload";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -133,16 +134,8 @@ const AdminHighlightEditor = () => {
     
     setImageUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from('highlights')
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
-      setForm(prev => ({ ...prev, image_url: fileName }));
+      const imageUrl = await uploadHighlightImage(file, form.event_title || 'highlight');
+      setForm(prev => ({ ...prev, image_url: imageUrl }));
       toast.success('Imagem enviada com sucesso');
     } catch (error) {
       console.error('Erro ao enviar imagem:', error);

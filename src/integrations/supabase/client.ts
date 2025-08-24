@@ -13,5 +13,24 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
+  },
+  global: {
+    headers: () => {
+      // Adicionar email do admin para validação RLS
+      const adminSession = localStorage.getItem('admin_session');
+      if (adminSession) {
+        try {
+          const adminData = JSON.parse(adminSession);
+          if (adminData?.email) {
+            return {
+              'x-admin-email': adminData.email
+            };
+          }
+        } catch (error) {
+          console.error('Error parsing admin session:', error);
+        }
+      }
+      return {};
+    }
   }
 });
