@@ -8,7 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
+import { useSimulationMode } from '@/hooks/useSimulationMode';
 import { Loader2, Plus, Edit, Trash2, MapPin, Star, Users } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/alert-dialog-confirm';
 import Header from '@/components/Header';
@@ -36,6 +37,7 @@ const AdminPartnersManagement = () => {
   });
 
   const { isAuthenticated } = useAdminAuth();
+  const { isSimulating, simulateOperation, isReadOnlyError } = useSimulationMode();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -58,11 +60,7 @@ const AdminPartnersManagement = () => {
       setPartners(data || []);
     } catch (error) {
       console.error('Error fetching partners:', error);
-      toast({
-        title: "Erro",
-        description: "Falha ao carregar parceiros.",
-        variant: "destructive"
-      });
+      toast.error("Falha ao carregar parceiros.");
     } finally {
       setLoading(false);
     }
@@ -102,11 +100,24 @@ const AdminPartnersManagement = () => {
         console.error('Supabase error:', result.error);
         
         // Check if it's a read-only environment error
-        if (result.error.message?.includes('read-only') || result.error.message?.includes('cannot execute')) {
-          toast({
-            title: "Ambiente Limitado",
-            description: "Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.",
-            variant: "destructive"
+        if (isReadOnlyError(result.error)) {
+          const operation = editingPartner ? "Atualização" : "Criação";
+          simulateOperation(operation, "parceiro", () => {
+            if (!editingPartner) {
+              setFormData({
+                name: '',
+                location: '',
+                image_url: '',
+                rating: 0,
+                capacity: '',
+                types: [],
+                featured: false,
+                contact_email: '',
+                website: '',
+                instagram: ''
+              });
+            }
+            setEditingPartner(null);
           });
           return;
         }
@@ -114,10 +125,7 @@ const AdminPartnersManagement = () => {
         throw result.error;
       }
 
-      toast({
-        title: "Sucesso",
-        description: editingPartner ? "Parceiro atualizado com sucesso!" : "Parceiro criado com sucesso!"
-      });
+      toast.success(editingPartner ? "Parceiro atualizado com sucesso!" : "Parceiro criado com sucesso!");
 
       setFormData({
         name: '',
@@ -137,18 +145,27 @@ const AdminPartnersManagement = () => {
       console.error('Error saving partner:', error);
       
       // Check if it's a read-only environment error
-      if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
-        toast({
-          title: "Ambiente Limitado",
-          description: "Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.",
-          variant: "destructive"
+      if (isReadOnlyError(error)) {
+        const operation = editingPartner ? "Atualização" : "Criação";
+        simulateOperation(operation, "parceiro", () => {
+          if (!editingPartner) {
+            setFormData({
+              name: '',
+              location: '',
+              image_url: '',
+              rating: 0,
+              capacity: '',
+              types: [],
+              featured: false,
+              contact_email: '',
+              website: '',
+              instagram: ''
+            });
+          }
+          setEditingPartner(null);
         });
       } else {
-        toast({
-          title: "Erro",
-          description: "Falha ao salvar parceiro.",
-          variant: "destructive"
-        });
+        toast.error("Falha ao salvar parceiro.");
       }
     } finally {
       setSaving(false);
@@ -179,38 +196,23 @@ const AdminPartnersManagement = () => {
         .eq('id', partnerId);
 
       if (error) {
-        if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
-          toast({
-            title: "Ambiente Limitado",
-            description: "Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.",
-            variant: "destructive"
-          });
+        if (isReadOnlyError(error)) {
+          simulateOperation("Exclusão", "parceiro");
           return;
         }
         throw error;
       }
 
-      toast({
-        title: "Sucesso",
-        description: "Parceiro excluído com sucesso!"
-      });
+      toast.success("Parceiro excluído com sucesso!");
 
       fetchPartners();
     } catch (error) {
       console.error('Error deleting partner:', error);
       
-      if (error.message?.includes('read-only') || error.message?.includes('cannot execute')) {
-        toast({
-          title: "Ambiente Limitado",
-          description: "Este ambiente está em modo somente leitura. As alterações não podem ser salvas no momento.",
-          variant: "destructive"
-        });
+      if (isReadOnlyError(error)) {
+        simulateOperation("Exclusão", "parceiro");
       } else {
-        toast({
-          title: "Erro",
-          description: "Falha ao excluir parceiro.",
-          variant: "destructive"
-        });
+        toast.error("Falha ao excluir parceiro.");
       }
     }
   };
@@ -350,9 +352,9 @@ const AdminPartnersManagement = () => {
                   </div>
 
                   <div className="flex gap-4">
-                    <Button type="submit" disabled={saving}>
-                      {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      {editingPartner ? 'Atualizar' : 'Criar'} Parceiro
+                    <Button type="submit" disabled={saving || isSimulating}>
+                      {(saving || isSimulating) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {isSimulating ? 'Simulando...' : saving ? 'Salvando...' : editingPartner ? 'Atualizar' : 'Criar'} Parceiro
                     </Button>
                     
                     {editingPartner && (

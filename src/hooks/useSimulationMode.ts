@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export const useSimulationMode = () => {
   const [isSimulating, setIsSimulating] = useState(false);
@@ -11,11 +11,7 @@ export const useSimulationMode = () => {
     setTimeout(() => {
       setIsSimulating(false);
       
-      toast({
-        title: "Simulação Concluída",
-        description: `${operationType} de ${entityName} simulada com sucesso! (Ambiente read-only)`,
-        variant: "default"
-      });
+      toast.success(`${operationType} de ${entityName} simulada com sucesso! (Ambiente read-only)`);
       
       // Execute callback if provided (for UI updates)
       if (callback) {
