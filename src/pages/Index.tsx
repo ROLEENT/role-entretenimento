@@ -4,7 +4,6 @@ import FeaturedEventsToday from "@/components/FeaturedEventsToday";
 
 import HowItWorks from "@/components/HowItWorks";
 import MagazineBanner from "@/components/MagazineBanner";
-import AdvertisementBanner from "@/components/AdvertisementBanner";
 import StatsSection from "@/components/StatsSection";
 import Newsletter from "@/components/Newsletter";
 import Testimonials from "@/components/Testimonials";
@@ -16,7 +15,6 @@ import FavoritesPanel from "@/components/FavoritesPanel";
 import GeolocationEvents from "@/components/GeolocationEvents";
 import FeaturedHighlights from "@/components/FeaturedHighlights";
 import FeaturedBlogPosts from "@/components/FeaturedBlogPosts";
-import { PWAInstallButton } from "@/components/PWAInstallButton";
 import { Toaster } from "@/components/ui/sonner";
 import SEOOptimizations from "@/components/SEOOptimizations";
 import AccessibilityEnhancements from "@/components/AccessibilityEnhancements";
@@ -44,9 +42,6 @@ const Index = () => {
           </ScrollAnimationWrapper>
           <FeaturedBlogPosts />
           <ScrollAnimationWrapper>
-            <AdvertisementBanner />
-          </ScrollAnimationWrapper>
-          <ScrollAnimationWrapper>
             <HowItWorks />
           </ScrollAnimationWrapper>
           <ScrollAnimationWrapper>
@@ -66,17 +61,6 @@ const Index = () => {
           </ScrollAnimationWrapper>
           <ScrollAnimationWrapper>
             <Newsletter />
-          </ScrollAnimationWrapper>
-          
-          <ScrollAnimationWrapper>
-            <div className="py-8 bg-background">
-              <div className="container mx-auto px-4 text-center">
-                <PWAInstallButton 
-                  variant="outline" 
-                  size="lg" 
-                />
-              </div>
-            </div>
           </ScrollAnimationWrapper>
         </main>
         <Footer />
