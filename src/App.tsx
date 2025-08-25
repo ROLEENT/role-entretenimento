@@ -56,6 +56,7 @@ import AdminAnalyticsReportsPage from "./pages/admin/AdminAnalyticsReports";
 import AdminEventsManagementPage from "./pages/admin/AdminEventsManagement";
 import AdminPerformancePage from "./pages/admin/AdminPerformance";
 import AdminAdSensePage from "./pages/admin/AdminAdSense";
+import { Chatbot } from "./components/Chatbot";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -140,6 +141,7 @@ function App() {
                 <Route path="*" element={<NotFound />} />
               </Routes>
               
+              <Chatbot />
               <PWAInstallPrompt />
             </BrowserRouter>
           </ErrorBoundary>
