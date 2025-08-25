@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
+import { formatHighlightDateVeryShort } from '@/utils/dateUtils';
 
 const DestaquesPage = () => {
   const { cidade } = useParams<{ cidade?: string }>();
@@ -160,7 +161,7 @@ const DestaquesPage = () => {
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('pt-BR');
+    return formatHighlightDateVeryShort(dateStr);
   };
 
   const getCityDisplayName = (city: string) => {

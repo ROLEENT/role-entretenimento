@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import type { FavoriteEvent } from '@/hooks/useFavorites';
 import { InstagramShareCard } from './InstagramShareCard';
+import { formatHighlightDateVeryShort } from '@/utils/dateUtils';
 
 interface ShareDialogProps {
   isOpen: boolean;
@@ -70,13 +71,13 @@ const ShareDialog = ({ isOpen, onClose, event }: ShareDialogProps) => {
         <div className="space-y-6">
           <div className="text-sm text-muted-foreground">
             <p className="font-medium">{event.title}</p>
-            <p>{event.city} • {new Date(event.date).toLocaleDateString('pt-BR')}</p>
+            <p>{event.city} • {formatHighlightDateVeryShort(event.date)}</p>
           </div>
 
           {/* Instagram Stories Card */}
           <InstagramShareCard
             title={event.title}
-            subtitle={`${event.city} • ${new Date(event.date).toLocaleDateString('pt-BR')}`}
+            subtitle={`${event.city} • ${formatHighlightDateVeryShort(event.date)}`}
             imageUrl={event.image}
             url={eventUrl}
           />

@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, ExternalLink, Ticket, Calendar } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { formatHighlightDate } from "@/utils/dateUtils";
 
 type CityEnum = 'porto_alegre' | 'sao_paulo' | 'rio_de_janeiro' | 'florianopolis' | 'curitiba';
 
@@ -91,7 +92,7 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
             </div>
             <div className="flex items-center">
               <Calendar className="w-4 h-4 mr-1" />
-              {new Date(highlight.event_date).toLocaleDateString('pt-BR')}
+              {formatHighlightDate(highlight.event_date)}
             </div>
           </div>
         </div>
