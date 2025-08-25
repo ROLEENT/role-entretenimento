@@ -81,6 +81,7 @@ const Index = () => {
         <Toaster />
       </div>
     </AccessibilityEnhancements>
+  );
 };
 
 export default Index;
