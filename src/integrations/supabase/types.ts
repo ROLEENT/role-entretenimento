@@ -293,13 +293,6 @@ export type Database = {
             foreignKeyName: "blog_comments_parent_id_fkey"
             columns: ["parent_id"]
             isOneToOne: false
-            referencedRelation: "blog_comments_public"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blog_comments_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
             referencedRelation: "blog_comments_safe"
             referencedColumns: ["id"]
           },
@@ -1555,58 +1548,6 @@ export type Database = {
       }
     }
     Views: {
-      blog_comments_public: {
-        Row: {
-          author_name: string | null
-          content: string | null
-          created_at: string | null
-          id: string | null
-          is_approved: boolean | null
-          parent_id: string | null
-          post_id: string | null
-        }
-        Insert: {
-          author_name?: string | null
-          content?: string | null
-          created_at?: string | null
-          id?: string | null
-          is_approved?: boolean | null
-          parent_id?: string | null
-          post_id?: string | null
-        }
-        Update: {
-          author_name?: string | null
-          content?: string | null
-          created_at?: string | null
-          id?: string | null
-          is_approved?: boolean | null
-          parent_id?: string | null
-          post_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "blog_comments_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "blog_comments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blog_comments_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "blog_comments_public"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blog_comments_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "blog_comments_safe"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       blog_comments_safe: {
         Row: {
           author_name: string | null
@@ -1641,13 +1582,6 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "blog_comments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blog_comments_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "blog_comments_public"
             referencedColumns: ["id"]
           },
           {
