@@ -71,14 +71,32 @@ const Profile = () => {
     setLoading(true);
     try {
       const { error } = await updateProfile({ display_name: tempDisplayName.trim() });
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Erro detalhado ao atualizar nome:', error);
+        
+        if (error.message?.includes('RLS') || error.message?.includes('policy')) {
+          toast.error('Erro de autenticação. Faça login novamente.');
+          navigate('/auth');
+          return;
+        }
+        
+        throw error;
+      }
 
       setDisplayName(tempDisplayName.trim());
       setIsEditingName(false);
       toast.success('Nome atualizado com sucesso!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao atualizar nome:', error);
-      toast.error('Erro ao atualizar nome');
+      
+      if (error.message?.includes('Sessão não encontrada')) {
+        toast.error('Sessão expirada. Faça login novamente.');
+        navigate('/auth');
+      } else {
+        toast.error('Erro ao atualizar nome. Tente novamente.');
+      }
+      
       setTempDisplayName(displayName);
     } finally {
       setLoading(false);
@@ -103,17 +121,35 @@ const Profile = () => {
       const isValid = await validateUsername(cleanUsername);
       if (!isValid) {
         toast.error('Username inválido ou já está em uso');
+        setLoading(false);
         return;
       }
 
       const { error } = await updateProfile({ username: cleanUsername });
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Erro detalhado ao atualizar username:', error);
+        
+        if (error.message?.includes('RLS') || error.message?.includes('policy')) {
+          toast.error('Erro de autenticação. Faça login novamente.');
+          navigate('/auth');
+          return;
+        }
+        
+        throw error;
+      }
 
       setIsEditingUsername(false);
       toast.success('Username atualizado com sucesso!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao atualizar username:', error);
-      toast.error('Erro ao atualizar username');
+      
+      if (error.message?.includes('Sessão não encontrada')) {
+        toast.error('Sessão expirada. Faça login novamente.');
+        navigate('/auth');
+      } else {
+        toast.error('Erro ao atualizar username. Tente novamente.');
+      }
     } finally {
       setLoading(false);
     }
@@ -123,13 +159,30 @@ const Profile = () => {
     setLoading(true);
     try {
       const { error } = await updateProfile({ bio: tempBio.trim() });
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Erro detalhado ao atualizar bio:', error);
+        
+        if (error.message?.includes('RLS') || error.message?.includes('policy')) {
+          toast.error('Erro de autenticação. Faça login novamente.');
+          navigate('/auth');
+          return;
+        }
+        
+        throw error;
+      }
 
       setIsEditingBio(false);
       toast.success('Bio atualizada com sucesso!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao atualizar bio:', error);
-      toast.error('Erro ao atualizar bio');
+      
+      if (error.message?.includes('Sessão não encontrada')) {
+        toast.error('Sessão expirada. Faça login novamente.');
+        navigate('/auth');
+      } else {
+        toast.error('Erro ao atualizar bio. Tente novamente.');
+      }
     } finally {
       setLoading(false);
     }
@@ -142,12 +195,29 @@ const Profile = () => {
         location: tempLocation.trim(),
         website: tempWebsite.trim()
       });
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Erro detalhado ao atualizar perfil:', error);
+        
+        if (error.message?.includes('RLS') || error.message?.includes('policy')) {
+          toast.error('Erro de autenticação. Faça login novamente.');
+          navigate('/auth');
+          return;
+        }
+        
+        throw error;
+      }
 
       toast.success('Perfil atualizado com sucesso!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao atualizar perfil:', error);
-      toast.error('Erro ao atualizar perfil');
+      
+      if (error.message?.includes('Sessão não encontrada')) {
+        toast.error('Sessão expirada. Faça login novamente.');
+        navigate('/auth');
+      } else {
+        toast.error('Erro ao atualizar perfil. Tente novamente.');
+      }
     } finally {
       setLoading(false);
     }
