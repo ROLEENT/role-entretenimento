@@ -13,6 +13,10 @@ import EventDetailPage from "./pages/EventDetailPage";
 import AuthPage from "./pages/AuthPage";
 import UserProfile from "./pages/UserProfile";
 import WeeklyHighlights from "./pages/WeeklyHighlights";
+import NotFound from "./pages/NotFound";
+import AdminMetricsIndex from "./pages/admin/metrics/Index";
+import AdminTestimonialsIndex from "./pages/admin/testimonials/Index";
+import WeeklyHighlights from "./pages/WeeklyHighlights";
 import DestaquesHub from "./pages/DestaquesHub";
 import CityBlogPage from "./pages/CityBlogPage";
 import BlogArticle from "./pages/BlogArticle";
@@ -66,8 +70,8 @@ const App = () => (
             <Route path="/termos-organizador" element={<OrganizerTerms />} />
             <Route path="/ajuda" element={<Help />} />
             {/* Blog Editorial Routes */}
-            <Route path="/destaques" element={<DestaquesHub />} />
-            <Route path="/destaques/:cidade" element={<CityBlogPage />} />
+            <Route path="/destaques" element={<DestaquesPage />} />
+            <Route path="/destaques/:cidade" element={<DestaquesPage />} />
             <Route path="/destaques/:cidade/:data" element={<BlogArticle />} />
             {/* Highlights Routes */}
             <Route path="/highlights" element={<HighlightsPage />} />
@@ -80,6 +84,8 @@ const App = () => (
               <Route path="highlights" element={<AdminHighlightsManagement />} />
               <Route path="highlights/create" element={<AdminHighlightEditor />} />
               <Route path="highlights/edit/:id" element={<AdminHighlightEditor />} />
+              <Route path="metrics" element={<AdminMetricsIndex />} />
+              <Route path="testimonials" element={<AdminTestimonialsIndex />} />
               <Route path="event/create" element={<AdminEventCreate />} />
               <Route path="partners/*" element={<AdminPartnersManagement />} />
               <Route path="advertisements/*" element={<AdminAdvertisements />} />

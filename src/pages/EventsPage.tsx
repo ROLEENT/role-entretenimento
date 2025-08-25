@@ -15,10 +15,13 @@ const EventsPage = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalEvents, setTotalEvents] = useState(0);
+  const eventsPerPage = 24;
 
   useEffect(() => {
     loadCategories();
-    loadEvents();
+    loadEvents(currentPage);
     
     const cats = searchParams.get('cats');
     if (cats) {
@@ -35,15 +38,25 @@ const EventsPage = () => {
     }
   };
 
-  const loadEvents = async () => {
+  const loadEvents = async (page = 1) => {
     try {
       setLoading(true);
-      const { data } = await supabase
+      
+      // Calcular offset para paginação
+      const offset = (page - 1) * eventsPerPage;
+      
+      let query = supabase
         .from('events')
-        .select('*, venues(name, city)')
+        .select('*, venues(name, city, state)', { count: 'exact' })
         .eq('status', 'active')
-        .order('date_start');
+        .order('date_start')
+        .range(offset, offset + eventsPerPage - 1);
+
+      const { data, count, error } = await query;
+      if (error) throw error;
+
       setEvents(data || []);
+      setTotalEvents(count || 0);
     } catch (error) {
       console.error('Erro ao carregar eventos:', error);
     } finally {
@@ -73,15 +86,18 @@ const EventsPage = () => {
   const clearFilters = () => {
     setSelectedCategories([]);
     setSearchTerm('');
+    setCurrentPage(1);
     setSearchParams({});
+    loadEvents(1);
   };
 
-  const filteredEvents = events.filter(event => {
-    if (searchTerm && !event.title.toLowerCase().includes(searchTerm.toLowerCase())) {
-      return false;
-    }
-    return true;
-  });
+  const totalPages = Math.ceil(totalEvents / eventsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    loadEvents(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <>
@@ -140,9 +156,9 @@ const EventsPage = () => {
             </div>
           </div>
 
-          <div className="mb-4">
+          <div className="mb-4 flex items-center justify-between">
             <p className="text-muted-foreground">
-              {loading ? 'Carregando...' : `${filteredEvents.length} evento(s) encontrado(s)`}
+              {loading ? 'Carregando...' : `${totalEvents} evento(s) encontrado(s) • Página ${currentPage} de ${totalPages}`}
             </p>
           </div>
 
@@ -160,15 +176,15 @@ const EventsPage = () => {
                 </Card>
               ))}
             </div>
-          ) : filteredEvents.length === 0 ? (
+          ) : events.length === 0 ? (
             <div className="text-center py-12">
               <Calendar className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Nenhum evento encontrado</h3>
               <Button onClick={clearFilters} variant="outline">Limpar filtros</Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredEvents.map(event => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {events.map(event => (
                 <Card key={event.id} className="group hover:shadow-lg transition-all duration-300">
                   <CardContent className="p-0">
                     <div className="relative h-48 overflow-hidden">
@@ -206,6 +222,55 @@ const EventsPage = () => {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          )}
+
+          {/* Paginação */}
+          {!loading && events.length > 0 && totalPages > 1 && (
+            <div className="flex justify-center mt-8">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                >
+                  Anterior
+                </Button>
+                
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNumber;
+                    if (totalPages <= 5) {
+                      pageNumber = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNumber = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNumber = totalPages - 4 + i;
+                    } else {
+                      pageNumber = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <Button
+                        key={pageNumber}
+                        variant={currentPage === pageNumber ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(pageNumber)}
+                      >
+                        {pageNumber}
+                      </Button>
+                    );
+                  })}
+                </div>
+                
+                <Button
+                  variant="outline"
+                  disabled={currentPage === totalPages}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                >
+                  Próximo
+                </Button>
+              </div>
             </div>
           )}
         </div>
