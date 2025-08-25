@@ -2965,7 +2965,7 @@ export type Database = {
         Returns: boolean
       }
       validate_admin_email: {
-        Args: { p_email: string }
+        Args: { email_param: string }
         Returns: boolean
       }
       validate_admin_session: {
