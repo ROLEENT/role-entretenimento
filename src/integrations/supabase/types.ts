@@ -729,6 +729,36 @@ export type Database = {
         }
         Relationships: []
       }
+      highlight_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          highlight_id: string
+          id: string
+          rating: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          highlight_id: string
+          id?: string
+          rating: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          highlight_id?: string
+          id?: string
+          rating?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       highlights: {
         Row: {
           city: Database["public"]["Enums"]["city"]

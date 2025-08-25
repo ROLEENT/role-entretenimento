@@ -7,7 +7,8 @@ import SEOHead from '@/components/SEOHead';
 import LazyImage from '@/components/LazyImage';
 import ShareDialog from '@/components/ShareDialog';
 import CityMap from '@/components/CityMap';
-import EventReviews from '@/components/events/EventReviews';
+import { ReviewSystem } from '@/components/reviews/ReviewSystem';
+import { reviewService } from '@/services/eventService';
 import { LikeSystem } from '@/components/events/LikeSystem';
 import { CommentSystem } from '@/components/events/CommentSystem';
 import EventCheckIn from '@/components/events/EventCheckIn';
@@ -29,11 +30,16 @@ const EventDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [shareOpen, setShareOpen] = useState(false);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
   
   const { user } = useAuth();
 
   useEffect(() => {
-    if (id) fetchEvent(id);
+    if (id) {
+      fetchEvent(id);
+      fetchReviews();
+    }
   }, [id]);
 
   const fetchEvent = async (eventId) => {
@@ -54,6 +60,24 @@ const EventDetailPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchReviews = async () => {
+    if (!id) return;
+    try {
+      setReviewsLoading(true);
+      const reviewsData = await reviewService.getEventReviews(id);
+      setReviews(reviewsData);
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  const handleAddReview = async (rating: number, comment?: string) => {
+    if (!id) throw new Error('Event ID not found');
+    await reviewService.addReview(id, rating, comment);
   };
 
 
@@ -160,7 +184,14 @@ const EventDetailPage = () => {
               </CardContent>
             </Card>
 
-            <EventReviews eventId={event.id} />
+            <ReviewSystem
+              itemId={event.id}
+              itemType="event"
+              reviews={reviews}
+              onReviewAdded={fetchReviews}
+              loading={reviewsLoading}
+              onAddReview={handleAddReview}
+            />
             <CommentSystem entityId={event.id} entityType="event" />
           </div>
 

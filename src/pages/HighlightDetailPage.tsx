@@ -15,6 +15,8 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { ReviewSystem } from '@/components/reviews/ReviewSystem';
+import { highlightReviewService } from '@/services/highlightService';
 
 const HighlightDetailPage = () => {
   const { id } = useParams();
@@ -23,9 +25,14 @@ const HighlightDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
 
   useEffect(() => {
-    if (id) fetchHighlight(id);
+    if (id) {
+      fetchHighlight(id);
+      fetchReviews();
+    }
   }, [id]);
 
   const fetchHighlight = async (highlightId: string) => {
@@ -51,6 +58,24 @@ const HighlightDetailPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchReviews = async () => {
+    if (!id) return;
+    try {
+      setReviewsLoading(true);
+      const reviewsData = await highlightReviewService.getHighlightReviews(id);
+      setReviews(reviewsData);
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  const handleAddReview = async (rating: number, comment?: string) => {
+    if (!id) throw new Error('Highlight ID not found');
+    await highlightReviewService.addHighlightReview(id, rating, comment);
   };
 
 
@@ -244,6 +269,16 @@ const HighlightDetailPage = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Reviews Section */}
+              <ReviewSystem
+                itemId={highlight.id}
+                itemType="highlight"
+                reviews={reviews}
+                onReviewAdded={fetchReviews}
+                loading={reviewsLoading}
+                onAddReview={handleAddReview}
+              />
 
               {/* Comments Section */}
               <CommentSystem entityId={highlight.id} entityType="highlight" />
