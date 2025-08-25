@@ -17,9 +17,12 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { useFollow } from '@/hooks/useFollow';
 import { useUserSearch } from '@/hooks/useUserSearch';
 import EventCard from '@/components/EventCard';
-import { User, Edit2, Save, X, Loader2, LogOut, Heart, Calendar, MapPin, ExternalLink, UserCheck, Users, UserPlus, AtSign, Settings, Bell } from 'lucide-react';
+import { User, Edit2, Save, X, Loader2, LogOut, Heart, Calendar, MapPin, ExternalLink, UserCheck, Users, UserPlus, AtSign, Settings, Bell, Trophy } from 'lucide-react';
 import { NotificationSettings } from '@/components/NotificationSettings';
 import { AvatarUpload } from '@/components/AvatarUpload';
+import PointsDisplay from '@/components/PointsDisplay';
+import BadgeDisplay from '@/components/BadgeDisplay';
+import { useGamification } from '@/hooks/useGamification';
 import { toast } from 'sonner';
 
 const Profile = () => {
@@ -29,6 +32,7 @@ const Profile = () => {
   const { favorites, loading: favoritesLoading } = useFavorites();
   const { stats, loading: followLoading, toggleFollow, getFollowers, getFollowing } = useFollow(username ? user?.id : undefined);
   const { validateUsername } = useUserSearch();
+  const { userBadges, userPoints, getLevelDetails } = useGamification();
   
   const [loading, setLoading] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
@@ -457,32 +461,39 @@ const Profile = () => {
                         </a>
                       </div>
                     )}
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-2 items-center">
-                    {user.profile?.is_admin && (
-                      <Badge variant="secondary">Admin</Badge>
-                    )}
-                    <Badge variant="outline" className="gap-1">
-                      <Heart className="h-3 w-3" />
-                      {favorites.length} favoritos
-                    </Badge>
-                    {isOwnProfile && (
-                      <Button variant="outline" size="sm" onClick={handleSignOut}>
-                        <LogOut className="h-4 w-4 mr-1" />
-                        Sair
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                   </div>
+                   
+                   <div className="flex flex-wrap gap-2 items-center">
+                     {user.profile?.is_admin && (
+                       <Badge variant="secondary">Admin</Badge>
+                     )}
+                     
+                     {/* Pontos de gamificação */}
+                     {userPoints && (
+                       <PointsDisplay compact className="mr-2" />
+                     )}
+                     
+                     <Badge variant="outline" className="gap-1">
+                       <Heart className="h-3 w-3" />
+                       {favorites.length} favoritos
+                     </Badge>
+                     {isOwnProfile && (
+                       <Button variant="outline" size="sm" onClick={handleSignOut}>
+                         <LogOut className="h-4 w-4 mr-1" />
+                         Sair
+                       </Button>
+                     )}
+                   </div>
+                 </div>
+               </div>
+             </CardContent>
+           </Card>
 
           {/* Profile Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="favorites">Favoritos</TabsTrigger>
+              <TabsTrigger value="badges">Conquistas</TabsTrigger>
               <TabsTrigger value="followers">Seguidores</TabsTrigger>
               <TabsTrigger value="following">Seguindo</TabsTrigger>
               {isOwnProfile && <TabsTrigger value="settings">Configurações</TabsTrigger>}
@@ -528,6 +539,50 @@ const Profile = () => {
                   )}
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            
+            <TabsContent value="badges" className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Pontos do usuário */}
+                <PointsDisplay showDetails={true} />
+                
+                {/* Badges conquistados */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span>Badges Conquistados</span>
+                      <Badge variant="secondary">
+                        {userBadges.length}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {userBadges.length > 0 ? (
+                      <div className="grid grid-cols-4 gap-3">
+                        {userBadges.map((userBadge) => (
+                          <BadgeDisplay
+                            key={userBadge.id}
+                            badge={userBadge.badge}
+                            earned={true}
+                            earnedAt={userBadge.earned_at}
+                            size="md"
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center text-muted-foreground py-8">
+                        <Trophy className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                        <p>Nenhum badge conquistado ainda</p>
+                        <p className="text-sm mt-1">Participe de eventos para ganhar badges!</p>
+                        <Button asChild className="mt-4">
+                          <Link to="/conquistas">Ver Sistema de Conquistas</Link>
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
 
             <TabsContent value="followers" className="space-y-4">

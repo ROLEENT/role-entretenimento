@@ -250,6 +250,45 @@ export type Database = {
         }
         Relationships: []
       }
+      badges: {
+        Row: {
+          color: string
+          created_at: string
+          criteria: Json
+          description: string
+          icon: string
+          id: string
+          is_active: boolean
+          name: string
+          points_required: number | null
+          type: Database["public"]["Enums"]["badge_type"]
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          criteria?: Json
+          description: string
+          icon: string
+          id?: string
+          is_active?: boolean
+          name: string
+          points_required?: number | null
+          type: Database["public"]["Enums"]["badge_type"]
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          criteria?: Json
+          description?: string
+          icon?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          points_required?: number | null
+          type?: Database["public"]["Enums"]["badge_type"]
+        }
+        Relationships: []
+      }
       blog_comments: {
         Row: {
           author_email: string
@@ -1210,6 +1249,36 @@ export type Database = {
         }
         Relationships: []
       }
+      points_history: {
+        Row: {
+          activity_id: string | null
+          activity_type: string
+          created_at: string
+          description: string | null
+          id: string
+          points: number
+          user_id: string
+        }
+        Insert: {
+          activity_id?: string | null
+          activity_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          points: number
+          user_id: string
+        }
+        Update: {
+          activity_id?: string | null
+          activity_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          points?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1456,6 +1525,38 @@ export type Database = {
           },
         ]
       }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string
+          id: string
+          progress: Json | null
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string
+          id?: string
+          progress?: Json | null
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string
+          id?: string
+          progress?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_calendar_events: {
         Row: {
           all_day: boolean
@@ -1620,6 +1721,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_points: {
+        Row: {
+          best_streak: number
+          created_at: string
+          current_streak: number
+          id: string
+          last_activity_date: string | null
+          level: Database["public"]["Enums"]["user_level"]
+          monthly_points: number
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          best_streak?: number
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          level?: Database["public"]["Enums"]["user_level"]
+          monthly_points?: number
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          best_streak?: number
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          level?: Database["public"]["Enums"]["user_level"]
+          monthly_points?: number
+          total_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       venues: {
         Row: {
           address: string
@@ -1745,6 +1885,16 @@ export type Database = {
       add_favorite_to_calendar: {
         Args: { p_event_id: string; p_user_id: string }
         Returns: string
+      }
+      add_user_points: {
+        Args: {
+          p_activity_id?: string
+          p_activity_type: string
+          p_description?: string
+          p_points: number
+          p_user_id: string
+        }
+        Returns: undefined
       }
       admin_create_highlight: {
         Args: {
@@ -2003,6 +2153,10 @@ export type Database = {
           p_current_password: string
           p_new_password: string
         }
+        Returns: undefined
+      }
+      check_and_award_badges: {
+        Args: { p_user_id: string }
         Returns: undefined
       }
       create_activity: {
@@ -2296,12 +2450,14 @@ export type Database = {
     }
     Enums: {
       article_status: "draft" | "published" | "scheduled"
+      badge_type: "activity" | "achievement" | "special" | "milestone"
       city:
         | "porto_alegre"
         | "florianopolis"
         | "curitiba"
         | "sao_paulo"
         | "rio_de_janeiro"
+      user_level: "bronze" | "silver" | "gold" | "platinum" | "diamond"
       user_role: "admin" | "editor" | "moderator"
     }
     CompositeTypes: {
@@ -2431,6 +2587,7 @@ export const Constants = {
   public: {
     Enums: {
       article_status: ["draft", "published", "scheduled"],
+      badge_type: ["activity", "achievement", "special", "milestone"],
       city: [
         "porto_alegre",
         "florianopolis",
@@ -2438,6 +2595,7 @@ export const Constants = {
         "sao_paulo",
         "rio_de_janeiro",
       ],
+      user_level: ["bronze", "silver", "gold", "platinum", "diamond"],
       user_role: ["admin", "editor", "moderator"],
     },
   },
