@@ -59,21 +59,73 @@ export async function uploadCoverToStorage(file: File, city: string, slug: strin
   return pub.publicUrl;
 }
 
-// Manter função legada para compatibilidade
-export async function uploadHighlightImage(file: File, keyHint: string) {
-  console.log('⚠️ DEPRECATED: Usando função legada uploadHighlightImage, migre para uploadCoverToStorage');
-  
-  const ext = file.name.split('.').pop();
-  const path = `highlight-${keyHint}-${Date.now()}.${ext || 'jpg'}`;
-  
-  const { error: upErr } = await supabase.storage.from('highlights').upload(path, file, { upsert: true });
-  
-  if (upErr) {
-    console.error('❌ STORAGE DEBUG: Erro no upload:', upErr);
-    throw upErr;
+// Função robusta para upload de imagens de destaques
+export async function uploadHighlightImage(file: File, keyHint: string): Promise<string> {
+  try {
+    // Validar arquivo
+    if (!file) {
+      throw new Error('Nenhum arquivo fornecido');
+    }
+
+    if (file.size > 10 * 1024 * 1024) { // 10MB
+      throw new Error('Arquivo muito grande. Máximo 10MB.');
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error('Tipo de arquivo não permitido. Use JPG, PNG ou WEBP.');
+    }
+
+    const ext = file.name.split('.').pop() || 'jpg';
+    const sanitizedKeyHint = keyHint.replace(/[^a-zA-Z0-9]/g, '');
+    const path = `highlights/${sanitizedKeyHint}-${Date.now()}.${ext}`;
+    
+    console.log('📤 UPLOAD HIGHLIGHTS: Iniciando upload para bucket highlights:', {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      keyHint,
+      path
+    });
+
+    // Primeiro, tentar remover arquivo existente se houver
+    try {
+      await supabase.storage.from('highlights').remove([path]);
+    } catch (removeError) {
+      console.log('⚠️ Arquivo não existia para remoção, continuando...');
+    }
+
+    // Upload do arquivo
+    const { error: upErr, data: uploadData } = await supabase.storage
+      .from('highlights')
+      .upload(path, file, { 
+        cacheControl: '3600',
+        contentType: file.type,
+        upsert: true,
+      });
+    
+    if (upErr) {
+      console.error('❌ UPLOAD ERROR:', upErr);
+      throw new Error(`Erro no upload: ${upErr.message}`);
+    }
+    
+    console.log('✅ UPLOAD SUCCESS:', uploadData);
+    
+    // Obter URL pública
+    const { data: urlData } = supabase.storage
+      .from('highlights')
+      .getPublicUrl(path);
+    
+    if (!urlData?.publicUrl) {
+      throw new Error('Erro ao gerar URL pública da imagem');
+    }
+    
+    console.log('🔗 URL PÚBLICA GERADA:', urlData.publicUrl);
+    
+    return urlData.publicUrl;
+    
+  } catch (error) {
+    console.error('❌ ERRO COMPLETO NO UPLOAD:', error);
+    throw error;
   }
-  
-  const { data } = supabase.storage.from('highlights').getPublicUrl(path);
-  
-  return data.publicUrl;
 }

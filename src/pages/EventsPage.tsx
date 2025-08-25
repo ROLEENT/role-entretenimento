@@ -64,9 +64,29 @@ const EventsPage = () => {
         `, { count: 'exact' })
         .eq('status', 'active')
         .order('date_start');
+      
       // Aplicar filtros de categoria se existirem
       if (selectedCategories.length > 0) {
-        query = query.filter('event_categories.music_categories.slug', 'in', `(${selectedCategories.join(',')})`);
+        // Buscar eventos que tenham as categorias selecionadas
+        const { data: eventIdsData } = await supabase
+          .from('event_categories')
+          .select('event_id')
+          .in('category_id', 
+            categories
+              .filter(cat => selectedCategories.includes(cat.slug))
+              .map(cat => cat.id)
+          );
+        
+        if (eventIdsData && eventIdsData.length > 0) {
+          const eventIds = eventIdsData.map(item => item.event_id);
+          query = query.in('id', eventIds);
+        } else {
+          // Se não há eventos com essas categorias, retornar array vazio
+          setEvents([]);
+          setTotalEvents(0);
+          setLoading(false);
+          return;
+        }
       }
 
       // Aplicar busca por termo se existir

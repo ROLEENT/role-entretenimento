@@ -14,7 +14,7 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { toast } from "sonner";
 import HighlightPreview from "@/components/admin/HighlightPreview";
 import { usePublishedHighlights } from "@/hooks/usePublishedHighlights";
-import { uploadImage } from "@/lib/simpleUpload";
+import { uploadHighlightImage } from "@/lib/upload";
 
 type CityEnum = 'porto_alegre' | 'sao_paulo' | 'rio_de_janeiro' | 'florianopolis' | 'curitiba';
 
@@ -107,8 +107,8 @@ const AdminHighlightEditor = () => {
     try {
       console.log('🔥 Iniciando upload da imagem...');
       
-      // Fazer upload usando a função simples para highlights
-      const imageUrl = await uploadImage(imageFile, 'highlights');
+      // Fazer upload usando a função robusta para highlights
+      const imageUrl = await uploadHighlightImage(imageFile, form.event_title || 'highlight');
       
       console.log('✅ Upload concluído! URL:', imageUrl);
       

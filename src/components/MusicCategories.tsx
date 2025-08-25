@@ -28,17 +28,26 @@ const MusicCategories = () => {
 
       if (error) throw error;
 
-      // Adicionar contagem de eventos e descrições
-      const categoriesWithData = data?.map(category => ({
-        ...category,
-        icon: iconMap[category.icon] || Music,
-        eventCount: Math.floor(Math.random() * 50) + 15, // Temporário
-        description: getCategoryDescription(category.slug),
-        bgColor: getBgColor(category.color_hex),
-        color: getGradientColor(category.color_hex)
-      })) || [];
+      // Buscar contagem real de eventos por categoria
+      const categoriesWithCounts = await Promise.all(
+        data?.map(async (category) => {
+          const { count } = await supabase
+            .from('event_categories')
+            .select('*', { count: 'exact' })
+            .eq('category_id', category.id);
 
-      setCategories(categoriesWithData);
+          return {
+            ...category,
+            icon: iconMap[category.icon] || Music,
+            eventCount: count || 0,
+            description: getCategoryDescription(category.slug),
+            bgColor: getBgColor(category.color_hex),
+            color: getGradientColor(category.color_hex)
+          };
+        }) || []
+      );
+
+      setCategories(categoriesWithCounts);
     } catch (error) {
       console.error('Erro ao carregar categorias:', error);
     } finally {
@@ -83,6 +92,7 @@ const MusicCategories = () => {
   };
 
   const handleCategoryClick = (categorySlug: string) => {
+    // Navegar para página de eventos com filtro de categoria
     navigate(`/eventos?cats=${categorySlug}`);
   };
 
@@ -131,7 +141,7 @@ const MusicCategories = () => {
               <Card 
                 key={category.id}
                 className={`group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 ${category.bgColor} border-0`}
-                onClick={() => navigate(`/eventos?cats=${category.slug}`)}
+                onClick={() => handleCategoryClick(category.slug)}
               >
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
