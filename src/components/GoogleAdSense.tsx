@@ -105,8 +105,9 @@ export function GoogleAdSense({ position, pageType, className = '', fallback }: 
     };
   }, [adConfig]);
 
+  // Don't render anything if no config or error - completely remove from DOM
   if (!adConfig || hasError) {
-    return fallback ? <>{fallback}</> : null;
+    return null;
   }
 
   const getAdStyle = () => {
@@ -155,11 +156,6 @@ export function GoogleAdSense({ position, pageType, className = '', fallback }: 
         data-ad-layout={adConfig.ad_layout || undefined}
         data-full-width-responsive={adConfig.responsive ? 'true' : 'false'}
       />
-      {!isLoaded && !hasError && (
-        <div className="flex items-center justify-center p-4 text-muted-foreground bg-muted/30 rounded">
-          <div className="text-sm">Carregando anúncio...</div>
-        </div>
-      )}
     </div>
   );
 }

@@ -33,7 +33,7 @@ const Index = () => {
       />
       <div className="min-h-screen bg-background">
         <Header />
-        <GoogleAdSense position="header" pageType="homepage" className="my-4" />
+        <GoogleAdSense position="header" pageType="homepage" />
         <main id="main-content">
           <HeroSection />
           <ScrollAnimationWrapper>
@@ -45,7 +45,7 @@ const Index = () => {
         <ScrollAnimationWrapper>
           <GeolocationEvents />
         </ScrollAnimationWrapper>
-        <GoogleAdSense position="in-feed" pageType="homepage" className="my-8" />
+        <GoogleAdSense position="in-feed" pageType="homepage" />
         <ScrollAnimationWrapper>
           <PersonalizedRecommendations />
         </ScrollAnimationWrapper>
@@ -75,7 +75,7 @@ const Index = () => {
             <Newsletter />
           </ScrollAnimationWrapper>
         </main>
-        <GoogleAdSense position="footer" pageType="homepage" className="my-4" />
+        <GoogleAdSense position="footer" pageType="homepage" />
         <Footer />
         <NotificationPermissionPrompt />
         <BackToTop />
