@@ -9,25 +9,27 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 
 export const supabase = createClient<any>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
+    storage: typeof window !== 'undefined' ? localStorage : undefined,
     persistSession: true,
     autoRefreshToken: true,
   },
   global: {
     headers: (() => {
-      // Adicionar email do admin para validação RLS
-      const adminSession = localStorage.getItem('admin_session');
-      if (adminSession) {
-        try {
+      // Adicionar email do admin para validação RLS - apenas no browser
+      if (typeof window === 'undefined') return {};
+      
+      try {
+        const adminSession = localStorage.getItem('admin_session');
+        if (adminSession) {
           const adminData = JSON.parse(adminSession);
           if (adminData?.email) {
             return {
               'x-admin-email': adminData.email
             };
           }
-        } catch (error) {
-          console.error('Error parsing admin session:', error);
         }
+      } catch (error) {
+        console.error('Error parsing admin session:', error);
       }
       return {};
     })()

@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 // Função simples e robusta para upload de imagens
-export async function uploadImage(file: File, folder: string = 'covers'): Promise<string> {
+export async function uploadImage(file: File, folder: string = 'highlights'): Promise<string> {
   if (!file) throw new Error('Arquivo não fornecido');
   
   // Validação básica

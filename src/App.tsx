@@ -44,6 +44,7 @@ import AdminHighlightEditor from "./pages/AdminHighlightEditor";
 import AdminOrganizers from "./pages/admin/AdminOrganizers";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
+import { DevCacheButton } from "./components/DevCacheButton";
 
 const queryClient = new QueryClient();
 
@@ -52,9 +53,6 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="role-ui-theme">
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <PWAInstallPrompt />
           <BrowserRouter>
           <ScrollToTop />
           <Routes>
@@ -107,6 +105,11 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <Toaster />
+          <Sonner />
+          <PWAInstallPrompt />
+          <ScrollToTop />
+          <DevCacheButton />
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'role-pwa-v1';
+const CACHE_NAME = 'role-pwa-v2-' + new Date().getTime();
 const urlsToCache = [
   '/',
   '/eventos',

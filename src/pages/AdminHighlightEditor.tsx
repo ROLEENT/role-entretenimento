@@ -97,18 +97,35 @@ const AdminHighlightEditor = () => {
 
   // Função para upload direto
   const handleUploadImage = async () => {
-    if (!imageFile) return;
+    if (!imageFile) {
+      toast.error('Selecione uma imagem primeiro');
+      return;
+    }
 
     setUploading(true);
+    
     try {
-      const uploadedUrl = await uploadImage(imageFile, 'covers');
-      setForm(prev => ({ ...prev, image_url: uploadedUrl }));
-      setImagePreviewUrl(uploadedUrl);
+      console.log('🔥 Iniciando upload da imagem...');
       
-      toast.success('Imagem enviada com sucesso!');
+      // Fazer upload usando a função simples para highlights
+      const imageUrl = await uploadImage(imageFile, 'highlights');
+      
+      console.log('✅ Upload concluído! URL:', imageUrl);
+      
+      // Atualizar form com a URL
+      setForm(prev => ({ ...prev, image_url: imageUrl }));
+      
+      // Usar a URL direta para preview
+      setImagePreviewUrl(imageUrl);
+      
+      // Limpar arquivo selecionado
+      setImageFile(null);
+      
+      toast.success('Imagem enviada com sucesso! Agora você pode salvar o destaque.');
+      
     } catch (error) {
-      console.error('Erro no upload:', error);
-      toast.error(error instanceof Error ? error.message : 'Erro ao enviar imagem');
+      console.error('❌ Erro no upload:', error);
+      toast.error(error instanceof Error ? error.message : 'Erro no upload da imagem');
     } finally {
       setUploading(false);
     }
@@ -119,6 +136,12 @@ const AdminHighlightEditor = () => {
     setImageFile(null);
     setImagePreviewUrl('');
     setForm(prev => ({ ...prev, image_url: '' }));
+    
+    // Limpar preview URL se era objeto URL local
+    if (imagePreviewUrl && imagePreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreviewUrl);
+    }
+    
     toast.success('Imagem removida');
   };
 

@@ -17,19 +17,27 @@ export const usePWA = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   useEffect(() => {
+    // Only register service worker in browser
+    if (typeof window === 'undefined') return;
+    
     // Register service worker
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
+      navigator.serviceWorker.register('/sw.js', { 
+        scope: '/',
+        updateViaCache: 'none' // Force cache bypass
+      })
         .then((registration) => {
           console.log('SW registered: ', registration);
+          // Clear old caches on registration
+          registration.update();
         })
         .catch((registrationError) => {
           console.log('SW registration failed: ', registrationError);
         });
     }
 
-    // Check if app is already installed
-    if (window.matchMedia('(display-mode: standalone)').matches) {
+    // Check if app is already installed - only in browser
+    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
       setIsInstalled(true);
     }
 
