@@ -63,9 +63,9 @@ const Header = () => {
             <NotificationSystem />
             <ThemeToggle />
             <Button variant="ghost" size="icon" asChild>
-              <a href="/perfil">
+              <Link to="/perfil">
                 <User className="h-4 w-4" />
-              </a>
+              </Link>
             </Button>
             <Button variant="gradient" asChild>
               <Link to="/admin/login">
@@ -109,9 +109,11 @@ const Header = () => {
                 </nav>
 
                 <div className="border-t pt-6 space-y-4">
-                  <Button variant="ghost" className="w-full justify-start">
-                    <User className="h-4 w-4 mr-2" />
-                    Minha Conta
+                  <Button variant="ghost" className="w-full justify-start" asChild>
+                    <Link to="/perfil">
+                      <User className="h-4 w-4 mr-2" />
+                      Minha Conta
+                    </Link>
                   </Button>
                   <Button variant="gradient" className="w-full" asChild>
                     <Link to="/admin/login">
