@@ -1,11 +1,11 @@
-import { Search, Menu, User } from "lucide-react";
+import { Search, Menu, User, Heart } from "lucide-react";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import NotificationSystem from "@/components/NotificationSystem";
 import GlobalSearch from "@/components/GlobalSearch";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import roleLogo from "@/assets/role-logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +16,7 @@ const Header = () => {
   const [events, setEvents] = useState([]);
   const [highlights, setHighlights] = useState([]);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -90,6 +91,16 @@ const Header = () => {
             </Button>
             <NotificationSystem />
             <ThemeToggle />
+            {user && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/feed')}
+                className="text-foreground hover:text-red-500"
+              >
+                <Heart className="h-4 w-4" />
+              </Button>
+            )}
             <Button variant="ghost" size="icon" asChild>
               <Link to={user ? "/perfil" : "/auth"}>
                 <User className="h-4 w-4" />

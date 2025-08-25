@@ -708,6 +708,27 @@ export type Database = {
         }
         Relationships: []
       }
+      highlight_likes: {
+        Row: {
+          created_at: string
+          highlight_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          highlight_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          highlight_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       highlights: {
         Row: {
           city: Database["public"]["Enums"]["city"]
