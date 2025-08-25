@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart, Calendar, MapPin, Users, ArrowLeft, Share2 } from 'lucide-react';
+import HighlightCard from '@/components/HighlightCard';
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
 import { useToast } from '@/hooks/use-toast';
@@ -181,54 +182,82 @@ const DestaquesPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const HighlightCard = ({ highlight, showCity = false }: { highlight: any, showCity?: boolean }) => (
-    <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden">
-      <CardContent className="p-0">
-        <div className="relative h-64 overflow-hidden">
-          <img
-            src={getImageUrl(highlight.image_url)}
-            alt={highlight.event_title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-          <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm rounded-full p-2">
+  const NewHighlightCard = ({ highlight, showCity = false }: { highlight: any, showCity?: boolean }) => {
+    const handleCardLike = () => handleLike(highlight.id);
+    
+    return (
+      <Link to={`/destaque/${highlight.id}`} className="block">
+        <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden border-0 bg-card/50 backdrop-blur-sm">
+          <div className="relative">
+            <div className="aspect-[16/10] overflow-hidden">
+              <img
+                src={getImageUrl(highlight.image_url)}
+                alt={highlight.event_title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                loading="lazy"
+              />
+            </div>
+          
+          {showCity && (
+            <div className="absolute top-3 left-3 bg-primary/90 text-primary-foreground text-xs px-2 py-1 rounded font-medium">
+              {getCityDisplayName(highlight.city)}
+            </div>
+          )}
+
+          <div className="absolute top-3 right-3 flex gap-1">
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => handleLike(highlight.id)}
-              className="text-white hover:text-red-500 p-0 h-auto"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleCardLike();
+              }}
+              className="bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 h-8 w-8 p-0"
             >
-              <Heart className="w-5 h-5" />
-              <span className="ml-1 text-sm">{highlight.like_count || 0}</span>
+              <Heart className="w-3 h-3" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              className="bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 h-8 w-8 p-0"
+            >
+              <Share2 className="w-3 h-3" />
             </Button>
           </div>
+
+          {highlight.photo_credit && (
+            <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+              {highlight.photo_credit}
+            </div>
+          )}
         </div>
-        
-        <div className="p-6">
-          <div className="flex items-center gap-2 mb-3">
-            {showCity && (
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <MapPin className="w-4 h-4" />
-                <span>{getCityDisplayName(highlight.city)}</span>
-              </div>
-            )}
+
+        <CardContent className="p-4 space-y-3">
+          <div className="space-y-2">
+            <h3 className="font-semibold text-sm line-clamp-2 text-foreground group-hover:text-primary transition-colors">
+              {highlight.event_title}
+            </h3>
+            
+            <p className="text-xs text-muted-foreground">
+              📍 {highlight.venue}
+            </p>
+
             {highlight.event_date && (
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Calendar className="w-4 h-4" />
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Calendar className="w-3 h-3" />
                 <span>{formatDate(highlight.event_date)}</span>
               </div>
             )}
           </div>
-          
-          <h3 className="font-bold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
-            {highlight.event_title}
-          </h3>
-          
-          <p className="text-sm text-muted-foreground mb-3">
-            📍 {highlight.venue}
-          </p>
 
           {highlight.selection_reasons && highlight.selection_reasons.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-4">
+            <div className="flex flex-wrap gap-1">
               {highlight.selection_reasons.slice(0, 2).map((reason: string, index: number) => (
                 <span 
                   key={index}
@@ -241,27 +270,32 @@ const DestaquesPage = () => {
           )}
 
           <div className="flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
-              {highlight.role_text}
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <Heart className="w-3 h-3" />
+                <span>{highlight.like_count || 0}</span>
+              </div>
             </div>
             
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm">
-                <Share2 className="w-4 h-4" />
+            {highlight.ticket_url && (
+              <Button 
+                size="sm" 
+                className="text-xs"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  window.open(highlight.ticket_url!, '_blank');
+                }}
+              >
+                Ver Evento
               </Button>
-              {highlight.ticket_url && (
-                <Button size="sm" asChild>
-                  <a href={highlight.ticket_url} target="_blank" rel="noopener noreferrer">
-                    Ingressos
-                  </a>
-                </Button>
-              )}
-            </div>
+            )}
           </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+      </Link>
+    );
+  };
 
   if (loading) {
     return (
@@ -324,7 +358,7 @@ const DestaquesPage = () => {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {highlights.map(highlight => (
-                    <HighlightCard key={highlight.id} highlight={highlight} />
+                    <NewHighlightCard key={highlight.id} highlight={highlight} />
                   ))}
                 </div>
 
@@ -421,7 +455,7 @@ const DestaquesPage = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {topHighlights.slice(0, 8).map(highlight => (
-                  <HighlightCard key={highlight.id} highlight={highlight} showCity />
+                  <NewHighlightCard key={highlight.id} highlight={highlight} showCity />
                 ))}
               </div>
             </section>
@@ -458,7 +492,7 @@ const DestaquesPage = () => {
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                       {cityHighlights.slice(0, 4).map((highlight: any) => (
-                        <HighlightCard key={highlight.id} highlight={highlight} />
+                        <NewHighlightCard key={highlight.id} highlight={highlight} />
                       ))}
                     </div>
                   </div>

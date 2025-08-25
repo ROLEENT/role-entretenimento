@@ -22,6 +22,7 @@ import BlogArticle from "./pages/BlogArticle";
 import HighlightsPage from "./pages/HighlightsPage";
 import CityHighlightsPage from "./pages/CityHighlightsPage";
 import CityHighlights from "./pages/CityHighlights";
+import HighlightDetailPage from "./pages/HighlightDetailPage";
 import AdminLoginSimple from "./pages/AdminLoginSimple";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -76,6 +77,7 @@ function App() {
                 {/* Destaques Routes */}
                 <Route path="/destaques" element={<DestaquesPage />} />
                 <Route path="/destaques/:cidade" element={<DestaquesPage />} />
+                <Route path="/destaque/:id" element={<HighlightDetailPage />} />
                 <Route path="/destaques/:cidade/:data" element={<BlogArticle />} />
                 
                 {/* Highlights Routes */}

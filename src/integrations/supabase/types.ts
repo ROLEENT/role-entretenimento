@@ -532,6 +532,36 @@ export type Database = {
           },
         ]
       }
+      highlight_comments: {
+        Row: {
+          content: string
+          created_at: string
+          highlight_id: string
+          id: string
+          parent_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          highlight_id: string
+          id?: string
+          parent_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          highlight_id?: string
+          id?: string
+          parent_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       highlights: {
         Row: {
           city: Database["public"]["Enums"]["city"]
