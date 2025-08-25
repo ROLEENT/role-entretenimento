@@ -846,6 +846,189 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_analytics: {
+        Row: {
+          avg_delivery_time_ms: number | null
+          city: string | null
+          created_at: string
+          date: string
+          id: string
+          notification_type: string
+          target_audience: string | null
+          total_clicked: number
+          total_delivered: number
+          total_failed: number
+          total_opened: number
+          total_sent: number
+          total_unsubscribed: number
+          updated_at: string
+        }
+        Insert: {
+          avg_delivery_time_ms?: number | null
+          city?: string | null
+          created_at?: string
+          date: string
+          id?: string
+          notification_type: string
+          target_audience?: string | null
+          total_clicked?: number
+          total_delivered?: number
+          total_failed?: number
+          total_opened?: number
+          total_sent?: number
+          total_unsubscribed?: number
+          updated_at?: string
+        }
+        Update: {
+          avg_delivery_time_ms?: number | null
+          city?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          notification_type?: string
+          target_audience?: string | null
+          total_clicked?: number
+          total_delivered?: number
+          total_failed?: number
+          total_opened?: number
+          total_sent?: number
+          total_unsubscribed?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notification_campaigns: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          message: string
+          name: string
+          notification_type: string
+          scheduled_at: string | null
+          sent_at: string | null
+          status: string
+          target_audience: string
+          target_cities: string[] | null
+          target_event_id: string | null
+          title: string
+          total_clicked: number | null
+          total_delivered: number | null
+          total_failed: number | null
+          total_opened: number | null
+          total_recipients: number | null
+          total_sent: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          message: string
+          name: string
+          notification_type: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          target_audience: string
+          target_cities?: string[] | null
+          target_event_id?: string | null
+          title: string
+          total_clicked?: number | null
+          total_delivered?: number | null
+          total_failed?: number | null
+          total_opened?: number | null
+          total_recipients?: number | null
+          total_sent?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          message?: string
+          name?: string
+          notification_type?: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          target_audience?: string
+          target_cities?: string[] | null
+          target_event_id?: string | null
+          title?: string
+          total_clicked?: number | null
+          total_delivered?: number | null
+          total_failed?: number | null
+          total_opened?: number | null
+          total_recipients?: number | null
+          total_sent?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notification_logs: {
+        Row: {
+          campaign_id: string | null
+          city: string | null
+          created_at: string
+          delivery_time_ms: number | null
+          device_type: string | null
+          error_message: string | null
+          event_id: string | null
+          id: string
+          message: string
+          notification_id: string | null
+          notification_type: string
+          status: string
+          subscription_id: string | null
+          target_audience: string | null
+          title: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          city?: string | null
+          created_at?: string
+          delivery_time_ms?: number | null
+          device_type?: string | null
+          error_message?: string | null
+          event_id?: string | null
+          id?: string
+          message: string
+          notification_id?: string | null
+          notification_type: string
+          status: string
+          subscription_id?: string | null
+          target_audience?: string | null
+          title: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          city?: string | null
+          created_at?: string
+          delivery_time_ms?: number | null
+          device_type?: string | null
+          error_message?: string | null
+          event_id?: string | null
+          id?: string
+          message?: string
+          notification_id?: string | null
+          notification_type?: string
+          status?: string
+          subscription_id?: string | null
+          target_audience?: string | null
+          title?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -1518,6 +1701,28 @@ export type Database = {
           success: boolean
         }[]
       }
+      calculate_notification_metrics: {
+        Args: {
+          p_city?: string
+          p_end_date?: string
+          p_notification_type?: string
+          p_start_date?: string
+        }
+        Returns: {
+          avg_delivery_time_ms: number
+          city: string
+          click_rate: number
+          date: string
+          delivery_rate: number
+          notification_type: string
+          open_rate: number
+          total_clicked: number
+          total_delivered: number
+          total_failed: number
+          total_opened: number
+          total_sent: number
+        }[]
+      }
       can_receive_notification: {
         Args: { p_notification_type: string; p_user_id: string }
         Returns: boolean
@@ -1609,6 +1814,15 @@ export type Database = {
           venue_lat: number
           venue_lng: number
           venue_name: string
+        }[]
+      }
+      get_notification_performance_by_hour: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          hour_of_day: number
+          open_rate: number
+          total_opened: number
+          total_sent: number
         }[]
       }
       get_post_likes_count: {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { NotificationTestPanel } from './NotificationTestPanel';
 import { NotificationSystemTests } from './NotificationSystemTests';
+import { NotificationAnalyticsDashboard } from './NotificationAnalyticsDashboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -219,6 +220,7 @@ export function AdminNotifications() {
       <Tabs defaultValue="send" className="space-y-6">
         <TabsList>
           <TabsTrigger value="send">Enviar Notificação</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="history">Histórico</TabsTrigger>
           <TabsTrigger value="tests">Testes do Sistema</TabsTrigger>
           <TabsTrigger value="settings">Configurações</TabsTrigger>
@@ -429,6 +431,10 @@ export function AdminNotifications() {
               )}
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-4">
+          <NotificationAnalyticsDashboard />
         </TabsContent>
 
         <TabsContent value="history" className="space-y-6">
