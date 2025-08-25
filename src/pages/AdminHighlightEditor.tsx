@@ -257,9 +257,30 @@ const AdminHighlightEditor = () => {
     }));
   };
 
-  // Função para salvar destaque
+  // Função para salvar destaque com novas validações
   const handleSaveHighlight = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Obter email do admin da sessão
+    const adminSession = localStorage.getItem('admin_session');
+    if (!adminSession) {
+      toast.error('Sessão de admin não encontrada. Faça login novamente.');
+      navigate('/admin/login');
+      return;
+    }
+
+    let adminEmail: string;
+    try {
+      const adminData = JSON.parse(adminSession);
+      adminEmail = adminData.email;
+      if (!adminEmail) {
+        throw new Error('Email não encontrado na sessão');
+      }
+    } catch (error) {
+      toast.error('Erro na sessão do admin. Faça login novamente.');
+      navigate('/admin/login');
+      return;
+    }
     
     // Validações básicas
     if (!form.event_title.trim()) {
@@ -301,9 +322,15 @@ const AdminHighlightEditor = () => {
 
       let result;
       if (isEdit && id) {
-        // Atualizar destaque existente
-        result = await supabase.rpc('admin_update_highlight', {
-          p_admin_email: adminUser?.email,
+        // Atualizar destaque existente usando função v2 com validação melhorada
+        console.log('🔄 Chamando admin_update_highlight_v2 com:', {
+          adminEmail,
+          highlightId: id,
+          eventTitle: dataToSave.event_title
+        });
+
+        result = await supabase.rpc('admin_update_highlight_v2', {
+          p_admin_email: adminEmail,
           p_highlight_id: id,
           p_city: dataToSave.city as any,
           p_event_title: dataToSave.event_title,
@@ -320,9 +347,14 @@ const AdminHighlightEditor = () => {
           p_is_published: dataToSave.is_published
         });
       } else {
-        // Criar novo destaque
-        result = await supabase.rpc('admin_create_highlight', {
-          p_admin_email: adminUser?.email,
+        // Criar novo destaque usando função v2 com validação melhorada
+        console.log('🆕 Chamando admin_create_highlight_v2 com:', {
+          adminEmail,
+          eventTitle: dataToSave.event_title
+        });
+
+        result = await supabase.rpc('admin_create_highlight_v2', {
+          p_admin_email: adminEmail,
           p_city: dataToSave.city as any,
           p_event_title: dataToSave.event_title,
           p_venue: dataToSave.venue,
