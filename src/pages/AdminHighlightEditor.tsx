@@ -151,41 +151,55 @@ const AdminHighlightEditor = () => {
       return;
     }
     
-    if (isEdit && id) {
+    if (isEdit && id && adminUser?.email) {
+      console.log('🎯 Chamando fetchHighlight - condições atendidas:', {
+        isEdit,
+        id,
+        adminEmail: adminUser.email,
+        isAuthenticated
+      });
       fetchHighlight();
     }
-  }, [isAuthenticated, authLoading, navigate, isEdit, id]);
+  }, [isAuthenticated, authLoading, navigate, isEdit, id, adminUser?.email]);
 
   const fetchHighlight = async () => {
     if (!id) return;
     
     try {
       if (!adminUser?.email) {
+        console.error('❌ Admin não autenticado - email:', adminUser?.email);
         toast.error('Admin não autenticado');
         navigate('/admin/highlights');
         return;
       }
 
-      console.log('Carregando destaque via RPC:', { adminEmail: adminUser.email, id });
+      console.log('🔄 Carregando destaque via RPC:', { 
+        adminEmail: adminUser.email, 
+        highlightId: id,
+        isEdit 
+      });
 
       const { data, error } = await supabase.rpc('admin_get_highlight_by_id', {
         p_admin_email: adminUser.email,
         p_highlight_id: id
       });
 
+      console.log('📦 Resposta da RPC:', { data, error });
+
       if (error) {
-        console.error('Erro RPC ao carregar destaque:', error);
+        console.error('❌ Erro RPC ao carregar destaque:', error);
         throw error;
       }
 
       if (!data || data.length === 0) {
-        toast.error('Destaque não encontrado');
+        console.error('❌ Destaque não encontrado - data:', data);
+        toast.error('Destaque não encontrado ou sem permissão para acessar');
         navigate('/admin/highlights');
         return;
       }
       
       const highlight = data[0];
-      console.log('Destaque carregado para edição:', highlight);
+      console.log('✅ Destaque carregado para edição:', highlight);
       
       setForm({
         city: highlight.city,
@@ -203,11 +217,19 @@ const AdminHighlightEditor = () => {
       
       // Se há imagem, definir preview
       if (highlight.image_url) {
+        console.log('🖼️ Definindo preview da imagem:', highlight.image_url);
         setImagePreviewUrl(highlight.image_url);
       }
+      
+      console.log('✅ Form preenchido com sucesso:', {
+        event_title: highlight.event_title,
+        is_published: highlight.is_published,
+        city: highlight.city
+      });
+      
     } catch (error) {
-      console.error('Erro ao carregar destaque:', error);
-      toast.error('Erro ao carregar destaque');
+      console.error('❌ Erro ao carregar destaque:', error);
+      toast.error(`Erro ao carregar destaque: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
       navigate('/admin/highlights');
     }
   };
