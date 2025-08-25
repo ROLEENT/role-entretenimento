@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, ExternalLink } from "lucide-react";
-import { formatHighlightDateVeryShort } from "@/utils/dateUtils";
+import { formatEventDateTime } from "@/utils/dateUtils";
 
 export type CityEnum = 'porto_alegre' | 'florianopolis' | 'curitiba' | 'sao_paulo' | 'rio_de_janeiro';
 
@@ -12,6 +12,8 @@ interface HighlightSliderCardProps {
     event_title: string;
     venue: string;
     event_date: string | null;
+    event_time?: string | null;
+    ticket_price?: string | null;
     image_url: string;
     city: CityEnum;
     photo_credit: string | null;
@@ -88,10 +90,16 @@ export const HighlightSliderCard = ({ highlight }: HighlightSliderCardProps) => 
             {highlight.venue}
           </p>
 
-          {highlight.event_date && (
+          {(highlight.event_date || highlight.event_time) && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Calendar className="w-3 h-3" />
-              <span>{formatHighlightDateVeryShort(highlight.event_date)}</span>
+              <span>{formatEventDateTime(highlight.event_date, highlight.event_time)}</span>
+            </div>
+          )}
+
+          {highlight.ticket_price && (
+            <div className="text-xs font-medium text-primary">
+              {highlight.ticket_price}
             </div>
           )}
         </div>

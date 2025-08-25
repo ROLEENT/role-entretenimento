@@ -8,7 +8,7 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { StarRatingDisplay } from "@/components/ui/star-rating";
 import { reviewStatsService } from "@/services/reviewService";
 import { useNativeShare } from "@/hooks/useNativeShare";
-import { formatHighlightDate } from "@/utils/dateUtils";
+import { formatHighlightDate, formatEventDateTime } from "@/utils/dateUtils";
 import { toast } from 'sonner';
 
 type CityEnum = 'porto_alegre' | 'sao_paulo' | 'rio_de_janeiro' | 'florianopolis' | 'curitiba';
@@ -21,6 +21,8 @@ interface HighlightCardProps {
     venue: string;
     ticket_url?: string | null;
     event_date: string | null;
+    event_time?: string | null;
+    ticket_price?: string | null;
     role_text: string;
     selection_reasons: string[];
     image_url: string;
@@ -138,10 +140,12 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
               <MapPin className="w-4 h-4 mr-1" />
               {highlight.venue}
             </div>
-            <div className="flex items-center">
-              <Calendar className="w-4 h-4 mr-1" />
-              {formatHighlightDate(highlight.event_date)}
-            </div>
+            {(highlight.event_date || highlight.event_time) && (
+              <div className="flex items-center">
+                <Calendar className="w-4 h-4 mr-1" />
+                {formatEventDateTime(highlight.event_date, highlight.event_time)}
+              </div>
+            )}
             {commentCount > 0 && (
               <div className="flex items-center">
                 <MessageCircle className="w-4 h-4 mr-1" />
@@ -149,6 +153,16 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
               </div>
             )}
           </div>
+
+          {/* Ticket Price */}
+          {highlight.ticket_price && (
+            <div className="mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-full">
+                <Ticket className="w-4 h-4" />
+                <span className="font-medium text-sm">{highlight.ticket_price}</span>
+              </div>
+            </div>
+          )}
 
           {/* Reviews Section */}
           {reviewStats.totalReviews > 0 && (

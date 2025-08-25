@@ -12,6 +12,8 @@ export interface PublishedHighlight {
   image_url: string;
   photo_credit: string | null;
   event_date: string | null;
+  event_time?: string | null;
+  ticket_price?: string | null;
   sort_order: number;
   like_count: number;
   created_at: string;

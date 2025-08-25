@@ -78,3 +78,42 @@ export const formatHighlightDateVeryShort = (dateString?: string | null): string
     return '';
   }
 };
+
+/**
+ * Formata horário do evento para formato brasileiro
+ */
+export const formatEventTime = (timeString?: string | null): string => {
+  if (!timeString) return '';
+  
+  try {
+    // timeString está no formato HH:mm
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours);
+    const min = parseInt(minutes);
+    
+    if (isNaN(hour) || isNaN(min)) return '';
+    
+    // Formatar para brasileiro: 20h, 20h30, etc.
+    if (min === 0) {
+      return `${hour}h`;
+    } else {
+      return `${hour}h${min.toString().padStart(2, '0')}`;
+    }
+  } catch {
+    return '';
+  }
+};
+
+/**
+ * Formata data e horário juntos
+ */
+export const formatEventDateTime = (dateString?: string | null, timeString?: string | null): string => {
+  const date = formatHighlightDateVeryShort(dateString);
+  const time = formatEventTime(timeString);
+  
+  if (!date && !time) return '';
+  if (!date) return time;
+  if (!time) return date;
+  
+  return `${date} • ${time}`;
+};

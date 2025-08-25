@@ -10,6 +10,8 @@ export const highlightSchema = z.object({
   image_url: z.string().min(1, "Imagem é obrigatória"),
   photo_credit: z.string().optional(),
   event_date: z.string().optional(),
+  event_time: z.string().optional(),
+  ticket_price: z.string().optional(),
   sort_order: z.number().int().min(0).max(999).optional(),
   is_published: z.boolean().default(false)
 });

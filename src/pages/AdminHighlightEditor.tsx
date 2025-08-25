@@ -24,6 +24,8 @@ interface HighlightForm {
   venue: string;
   ticket_url: string;
   event_date: string;
+  event_time: string;
+  ticket_price: string;
   role_text: string;
   selection_reasons: string[];
   image_url: string;
@@ -52,6 +54,8 @@ const AdminHighlightEditor = () => {
     venue: '',
     ticket_url: '',
     event_date: '',
+    event_time: '',
+    ticket_price: '',
     role_text: '',
     selection_reasons: [],
     image_url: '',
@@ -211,6 +215,8 @@ const AdminHighlightEditor = () => {
         image_url: highlight.image_url,
         photo_credit: highlight.photo_credit || '',
         event_date: highlight.event_date || '',
+        event_time: highlight.event_time || '',
+        ticket_price: highlight.ticket_price || '',
         sort_order: highlight.sort_order || 100,
         is_published: highlight.is_published,
       });
@@ -308,6 +314,8 @@ const AdminHighlightEditor = () => {
           p_image_url: dataToSave.image_url,
           p_photo_credit: dataToSave.photo_credit || null,
           p_event_date: dataToSave.event_date ? new Date(dataToSave.event_date).toISOString().split('T')[0] : null,
+          p_event_time: dataToSave.event_time || null,
+          p_ticket_price: dataToSave.ticket_price || null,
           p_sort_order: dataToSave.sort_order,
           p_is_published: dataToSave.is_published
         });
@@ -324,6 +332,8 @@ const AdminHighlightEditor = () => {
           p_image_url: dataToSave.image_url,
           p_photo_credit: dataToSave.photo_credit || null,
           p_event_date: dataToSave.event_date ? new Date(dataToSave.event_date).toISOString().split('T')[0] : null,
+          p_event_time: dataToSave.event_time || null,
+          p_ticket_price: dataToSave.ticket_price || null,
           p_sort_order: dataToSave.sort_order,
           p_is_published: dataToSave.is_published
         });
@@ -393,6 +403,35 @@ const AdminHighlightEditor = () => {
                   value={form.event_date}
                   onChange={(e) => setForm(prev => ({ ...prev, event_date: e.target.value }))}
                 />
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="event_time">Horário do Evento</Label>
+                <Input
+                  id="event_time"
+                  type="time"
+                  value={form.event_time}
+                  onChange={(e) => setForm(prev => ({ ...prev, event_time: e.target.value }))}
+                  placeholder="20:00"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Horário de início do evento
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ticket_price">Preço do Ingresso</Label>
+                <Input
+                  id="ticket_price"
+                  value={form.ticket_price}
+                  onChange={(e) => setForm(prev => ({ ...prev, ticket_price: e.target.value }))}
+                  placeholder="Ex: Gratuito, R$ 50, A partir de R$ 30"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Digite "Gratuito" ou o valor do ingresso
+                </p>
               </div>
             </div>
 

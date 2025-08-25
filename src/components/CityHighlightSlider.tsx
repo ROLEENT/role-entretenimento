@@ -18,6 +18,8 @@ interface Highlight {
   event_title: string;
   venue: string;
   event_date: string | null;
+  event_time?: string | null;
+  ticket_price?: string | null;
   image_url: string;
   city: CityEnum;
   photo_credit: string | null;
