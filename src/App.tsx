@@ -49,6 +49,10 @@ import WeeklyHighlights from "./pages/WeeklyHighlights";
 import NotFound from "./pages/NotFound";
 import AdminMetricsIndex from "./pages/admin/metrics/Index";
 import AdminTestimonialsIndex from "./pages/admin/testimonials/Index";
+import AdminNotificationsPage from "./pages/admin/AdminNotifications";
+import AdminAnalyticsReportsPage from "./pages/admin/AdminAnalyticsReports";
+import AdminEventsManagementPage from "./pages/admin/AdminEventsManagement";
+import AdminPerformancePage from "./pages/admin/AdminPerformance";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -106,6 +110,10 @@ function App() {
                   <Route path="venues" element={<AdminVenuesManagement />} />
                   <Route path="categories" element={<AdminCategoriesManagement />} />
                   <Route path="analytics" element={<AdminAnalytics />} />
+                  <Route path="analytics-reports" element={<AdminAnalyticsReportsPage />} />
+                  <Route path="notifications" element={<AdminNotificationsPage />} />
+                  <Route path="events-management" element={<AdminEventsManagementPage />} />
+                  <Route path="performance" element={<AdminPerformancePage />} />
                   <Route path="organizers" element={<AdminOrganizers />} />
                   <Route path="profile" element={<AdminProfile />} />
                 </Route>

@@ -12,7 +12,12 @@ import {
   Home,
   User,
   ChevronDown,
-  LogOut
+  LogOut,
+  BarChart3,
+  Bell,
+  Settings,
+  Zap,
+  TrendingUp
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -45,9 +50,24 @@ const mainMenuItems = [
     icon: Star,
   },
   {
-    title: "Eventos",
-    url: "/admin/event/create",
+    title: "Criar Destaque",
+    url: "/admin/highlights/create",
     icon: Calendar,
+  },
+  {
+    title: "Métricas",
+    url: "/admin/metrics",
+    icon: TrendingUp,
+  },
+  {
+    title: "Depoimentos",
+    url: "/admin/testimonials",
+    icon: MessageSquare,
+  },
+  {
+    title: "Organizadores",
+    url: "/admin/organizers",
+    icon: Users,
   },
   {
     title: "Parceiros",
@@ -55,9 +75,40 @@ const mainMenuItems = [
     icon: Users,
   },
   {
-    title: "Publicidade",
+    title: "Anúncios",
     url: "/admin/advertisements",
     icon: Image,
+  },
+];
+
+const analyticsMenuItems = [
+  {
+    title: "Analytics",
+    url: "/admin/analytics",
+    icon: BarChart3,
+  },
+  {
+    title: "Relatórios",
+    url: "/admin/analytics-reports",
+    icon: FileText,
+  },
+  {
+    title: "Performance",
+    url: "/admin/performance",
+    icon: Zap,
+  },
+];
+
+const managementMenuItems = [
+  {
+    title: "Notificações",
+    url: "/admin/notifications",
+    icon: Bell,
+  },
+  {
+    title: "Gestão de Eventos",
+    url: "/admin/events-management",
+    icon: Settings,
   },
 ];
 
@@ -206,6 +257,44 @@ export function AdminSidebar() {
 
               {/* Other content items */}
               {contentMenuItems.slice(1).map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink to={item.url} className={getNavClassName(item.url)}>
+                      <item.icon className="h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Analytics & Reports */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Analytics</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {analyticsMenuItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink to={item.url} className={getNavClassName(item.url)}>
+                      <item.icon className="h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Management & Tools */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Gestão</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {managementMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavClassName(item.url)}>

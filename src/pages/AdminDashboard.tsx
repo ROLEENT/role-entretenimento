@@ -92,11 +92,19 @@ const AdminDashboard = () => {
       priority: "low"
     },
     {
-      title: "Analytics Avançado",
-      description: "Relatórios e métricas detalhadas",
+      title: "Analytics",
+      description: "Métricas básicas da plataforma",
       icon: BarChart3,
       path: "/admin/analytics",
       bgColor: "bg-cyan-500/10",
+      priority: "medium"
+    },
+    {
+      title: "Relatórios Detalhados",
+      description: "Análises avançadas e exports",
+      icon: FileText,
+      path: "/admin/analytics-reports",
+      bgColor: "bg-blue-500/10",
       priority: "high"
     },
     {
@@ -114,6 +122,14 @@ const AdminDashboard = () => {
       path: "/admin/events-management",
       bgColor: "bg-teal-500/10",
       priority: "high"
+    },
+    {
+      title: "Performance",
+      description: "Otimizações e monitoramento",
+      icon: Settings,
+      path: "/admin/performance",
+      bgColor: "bg-violet-500/10",
+      priority: "medium"
     }
   ];
 
