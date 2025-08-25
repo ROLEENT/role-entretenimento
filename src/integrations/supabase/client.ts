@@ -7,31 +7,49 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<any>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+// Criar cliente base
+const supabaseClient = createClient<any>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     storage: typeof window !== 'undefined' ? localStorage : undefined,
     persistSession: true,
     autoRefreshToken: true,
-  },
-  global: {
-    headers: (() => {
-      // Adicionar email do admin para validação RLS - apenas no browser
-      if (typeof window === 'undefined') return {};
-      
-      try {
-        const adminSession = localStorage.getItem('admin_session');
-        if (adminSession) {
-          const adminData = JSON.parse(adminSession);
-          if (adminData?.email) {
-            return {
-              'x-admin-email': adminData.email
-            };
-          }
-        }
-      } catch (error) {
-        console.error('Error parsing admin session:', error);
+  }
+});
+
+// Função para atualizar headers dinamicamente
+const updateAdminHeaders = () => {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    const adminSession = localStorage.getItem('admin_session');
+    if (adminSession) {
+      const adminData = JSON.parse(adminSession);
+      if (adminData?.email) {
+        // Atualizar headers no cliente existente
+        supabaseClient.rest.headers['x-admin-email'] = adminData.email;
+        console.log('✅ Headers atualizados com admin email:', adminData.email);
       }
-      return {};
-    })()
+    } else {
+      // Remover header se não há sessão
+      delete supabaseClient.rest.headers['x-admin-email'];
+      console.log('🗑️ Headers de admin removidos - sem sessão');
+    }
+  } catch (error) {
+    console.error('Error updating admin headers:', error);
+    delete supabaseClient.rest.headers['x-admin-email'];
+  }
+};
+
+// Definir headers inicial
+updateAdminHeaders();
+
+// Proxy para interceptar todas as operações e garantir headers atualizados
+export const supabase = new Proxy(supabaseClient, {
+  get(target, prop) {
+    // Atualizar headers antes de qualquer operação
+    updateAdminHeaders();
+    
+    const value = target[prop as keyof typeof target];
+    return typeof value === 'function' ? value.bind(target) : value;
   }
 });
