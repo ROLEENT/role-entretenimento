@@ -273,12 +273,7 @@ const WeeklyHighlights = () => {
 
         {/* Personalized Recommendations */}
         <ScrollAnimationWrapper>
-          <PersonalizedRecommendations
-            allEvents={allWeekEvents}
-            onEventSelect={(event) => {
-              toast.info(`Recomendação selecionada: ${event.title}`);
-            }}
-          />
+          <PersonalizedRecommendations />
         </ScrollAnimationWrapper>
 
         {/* Calendar Integration */}

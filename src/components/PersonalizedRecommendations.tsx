@@ -75,9 +75,11 @@ const PersonalizedRecommendations = () => {
         .limit(10);
 
       if (favorites && favorites.length > 0) {
-        const favoriteCities = [...new Set(favorites.map(f => f.event?.city).filter(Boolean))];
+        const favoriteCities = [...new Set(
+          favorites.map(f => (f as any).event?.city).filter(Boolean)
+        )];
         const favoriteCategories = [...new Set(
-          favorites.flatMap(f => f.event?.categories?.map(c => c.category.name) || [])
+          favorites.flatMap(f => (f as any).event?.categories?.map((c: any) => c.category.name) || [])
         )];
 
         setUserPreferences({

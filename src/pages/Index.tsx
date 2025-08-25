@@ -16,6 +16,7 @@ import GeolocationEvents from "@/components/GeolocationEvents";
 import FeaturedHighlights from "@/components/FeaturedHighlights";
 import FeaturedBlogPosts from "@/components/FeaturedBlogPosts";
 import PersonalizedRecommendations from "@/components/PersonalizedRecommendations";
+import PWAFeatures from "@/components/PWAFeatures";
 import { Toaster } from "@/components/ui/sonner";
 import SEOOptimizations from "@/components/SEOOptimizations";
 import AccessibilityEnhancements from "@/components/AccessibilityEnhancements";
@@ -62,6 +63,9 @@ const Index = () => {
           </ScrollAnimationWrapper>
           <ScrollAnimationWrapper>
             <FavoritesPanel />
+          </ScrollAnimationWrapper>
+          <ScrollAnimationWrapper>
+            <PWAFeatures />
           </ScrollAnimationWrapper>
           <ScrollAnimationWrapper>
             <Newsletter />
