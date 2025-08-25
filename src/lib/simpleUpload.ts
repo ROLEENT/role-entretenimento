@@ -20,9 +20,9 @@ export async function uploadImage(file: File, folder: string = 'highlights'): Pr
   
   console.log('📤 Iniciando upload:', { fileName, size: file.size, type: file.type });
   
-  // Upload direto
+  // Upload para o bucket correto (highlights)
   const { error: uploadError } = await supabase.storage
-    .from('blog-images')
+    .from('highlights')
     .upload(path, file, {
       cacheControl: '3600',
       contentType: file.type,
@@ -34,9 +34,9 @@ export async function uploadImage(file: File, folder: string = 'highlights'): Pr
     throw new Error(`Falha no upload: ${uploadError.message}`);
   }
   
-  // Obter URL pública
+  // Obter URL pública do bucket highlights
   const { data: urlData } = supabase.storage
-    .from('blog-images')
+    .from('highlights')
     .getPublicUrl(path);
   
   console.log('✅ Upload concluído:', urlData.publicUrl);

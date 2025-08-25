@@ -28,10 +28,14 @@ export const DevCacheButton = () => {
         await Promise.all(
           databases.map(db => {
             if (db.name) {
-              return new Promise((resolve, reject) => {
+              return new Promise<void>((resolve, reject) => {
                 const deleteReq = indexedDB.deleteDatabase(db.name!);
-                deleteReq.onsuccess = () => resolve(void 0);
+                deleteReq.onsuccess = () => resolve();
                 deleteReq.onerror = () => reject(deleteReq.error);
+                deleteReq.onblocked = () => {
+                  console.warn(`Database ${db.name} is blocked, trying to continue`);
+                  resolve();
+                };
               });
             }
           })
@@ -58,7 +62,7 @@ export const DevCacheButton = () => {
       
       // Reload page after clearing
       setTimeout(() => {
-        window.location.reload();
+        window.location.href = window.location.href;
       }, 1000);
       
     } catch (error) {
