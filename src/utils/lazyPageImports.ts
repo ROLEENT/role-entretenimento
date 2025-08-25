@@ -16,6 +16,9 @@ export const AdminContactMessages = lazy(() => import('@/pages/AdminContactMessa
 export const AdminBlogPostsHistory = lazy(() => import('@/pages/AdminBlogPostsHistory'));
 export const AdminEventCreate = lazy(() => import('@/pages/AdminEventCreate'));
 export const AdminLoginSimple = lazy(() => import('@/pages/AdminLoginSimple'));
+export const AdminEventsManagement = lazy(() => import('@/pages/admin/AdminEventsManagement'));
+export const AdminNotifications = lazy(() => import('@/pages/admin/AdminNotifications'));
+export const AdminAnalyticsReports = lazy(() => import('@/pages/admin/AdminAnalyticsReports'));
 
 // Lazy load other heavy pages
 export const EventsPage = lazy(() => import('@/pages/EventsPage'));

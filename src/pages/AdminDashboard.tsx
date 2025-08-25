@@ -3,8 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { FileText, Calendar, MapPin, Users, MessageSquare, Tag, Image, User, Star } from "lucide-react";
+import { FileText, Calendar, MapPin, Users, MessageSquare, Tag, Image, User, Star, BarChart3, Bell, Settings } from "lucide-react";
 import { AdminStats } from "@/components/AdminStats";
+import { AdminDashboard as AdminDashboardComponent } from "@/components/admin/AdminDashboard";
 
 const AdminDashboard = () => {
   const { logoutAdmin, adminUser } = useAdminAuth();
@@ -89,6 +90,30 @@ const AdminDashboard = () => {
       path: "/admin/categories",
       bgColor: "bg-yellow-500/10",
       priority: "low"
+    },
+    {
+      title: "Analytics Avançado",
+      description: "Relatórios e métricas detalhadas",
+      icon: BarChart3,
+      path: "/admin/analytics",
+      bgColor: "bg-cyan-500/10",
+      priority: "high"
+    },
+    {
+      title: "Notificações Push",
+      description: "Enviar notificações para usuários",
+      icon: Bell,
+      path: "/admin/notifications",
+      bgColor: "bg-orange-500/10",
+      priority: "high"
+    },
+    {
+      title: "Gestão de Eventos",
+      description: "CRUD completo e moderação",
+      icon: Settings,
+      path: "/admin/events-management",
+      bgColor: "bg-teal-500/10",
+      priority: "high"
     }
   ];
 
@@ -167,6 +192,8 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      <AdminDashboardComponent />
+      
       <AdminStats className="mt-8" />
 
       <Card className="mt-6">
