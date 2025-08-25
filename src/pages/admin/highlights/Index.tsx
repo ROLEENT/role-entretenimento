@@ -161,7 +161,7 @@ export default function AdminHighlightsIndex() {
           <p className="text-muted-foreground">Crie e gerencie destaques culturais</p>
         </div>
         <Button asChild className="bg-gradient-primary hover:opacity-90">
-          <Link to="/admin/highlights/new" className="flex items-center gap-2">
+          <Link to="/admin/highlights/create" className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
             Novo Destaque
           </Link>
@@ -253,7 +253,7 @@ export default function AdminHighlightsIndex() {
                 : 'Comece criando seu primeiro destaque.'}
             </p>
             <Button asChild>
-              <Link to="/admin/highlights/new">Criar Primeiro Destaque</Link>
+              <Link to="/admin/highlights/create">Criar Primeiro Destaque</Link>
             </Button>
           </CardContent>
         </Card>

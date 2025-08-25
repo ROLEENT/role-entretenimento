@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { uploadCoverToStorage } from "@/lib/upload";
+import { uploadImage } from "@/lib/simpleUpload";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -53,9 +53,9 @@ const AdminHighlightEditor = () => {
   });
   
   // Estados para upload e formulário
-  const [coverFile, setCoverFile] = useState<File | null>(null);
-  const [coverUrl, setCoverUrl] = useState<string>('');
-  const [uploadingCover, setUploadingCover] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState<string>('');
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [saving, setSaving] = useState(false);
   const [newReason, setNewReason] = useState('');
   const [showPreview, setShowPreview] = useState(false);
@@ -127,7 +127,7 @@ const AdminHighlightEditor = () => {
       });
       
       // Sincronizar coverUrl com image_url para edição
-      setCoverUrl(highlight.image_url || '');
+      setImageUrl(highlight.image_url || '');
     } catch (error) {
       console.error('Erro ao carregar destaque:', error);
       toast.error('Erro ao carregar destaque');
@@ -148,56 +148,45 @@ const AdminHighlightEditor = () => {
       .slice(0, 50); // Limita tamanho
   };
 
-  // Nova função de upload usando blog-images
-  const uploadCoverIfNeeded = async (): Promise<string> => {
-    // Se já temos URL e não há arquivo novo, usar URL existente
-    if (coverUrl && !coverFile) {
-      return coverUrl;
-    }
+  // Upload simples de imagem
+  const handleImageUpload = async (): Promise<string> => {
+    if (!selectedFile) return imageUrl;
     
-    // Se há arquivo novo para upload
-    if (coverFile) {
-      if (!adminUser?.email) {
-        throw new Error('Admin não autenticado');
-      }
-      
-      setUploadingCover(true);
-      try {
-        const slug = generateSlug(form.event_title);
-        const imageUrl = await uploadCoverToStorage(coverFile, form.city, slug);
-        setCoverUrl(imageUrl);
-        return imageUrl;
-      } finally {
-        setUploadingCover(false);
-      }
+    try {
+      setUploadingImage(true);
+      const url = await uploadImage(selectedFile, 'covers');
+      setImageUrl(url);
+      return url;
+    } catch (error: any) {
+      console.error('Erro no upload:', error);
+      throw new Error(error.message || 'Falha no upload da imagem');
+    } finally {
+      setUploadingImage(false);
     }
-    
-    // Sem arquivo e sem URL
-    return '';
   };
 
-  // Validação e preparação de arquivo
-  const handleFileSelect = (file: File | null) => {
-    if (!file) {
-      setCoverFile(null);
-      return;
-    }
+  // Validação e seleção de arquivo
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
     
-    // Validação de tipo
     if (!file.type.startsWith('image/')) {
-      toast.error('Selecione apenas arquivos de imagem (JPG, PNG, GIF, etc.)');
+      toast.error('Selecione apenas arquivos de imagem');
       return;
     }
     
-    // Validação de tamanho (5MB)
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      toast.error(`Imagem muito grande: ${(file.size / 1024 / 1024).toFixed(1)}MB. Máximo: 5MB`);
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Imagem muito grande (máximo 5MB)');
       return;
     }
     
-    setCoverFile(file);
-    toast.success('Imagem selecionada para upload');
+    setSelectedFile(file);
+    // Preview imediato
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImageUrl(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const addReason = () => {
@@ -279,28 +268,26 @@ const AdminHighlightEditor = () => {
     setSaving(true);
     try {
       // Fazer upload da imagem se necessário
-      let finalCoverUrl = coverUrl;
+      let finalImageUrl = imageUrl;
       
-      if (!finalCoverUrl && coverFile) {
+      if (selectedFile) {
         try {
-          finalCoverUrl = await uploadCoverIfNeeded();
+          finalImageUrl = await handleImageUpload();
         } catch (error: any) {
-          console.error('Erro no upload da capa:', error);
-          toast.error('Falha ao enviar a imagem. Você pode salvar como rascunho e tentar a imagem depois.');
-          
-          // Se era para publicar mas upload falhou, converter para rascunho
+          toast.error(error.message);
+          // Se é para publicar mas falhou o upload, converter para rascunho
           if (form.is_published) {
-            setForm(prev => ({ ...prev, is_published: false }));
-            toast.info('Publicação convertida para Rascunho por falta de imagem.');
+            form.is_published = false;
+            toast.info('Convertido para rascunho - upload da imagem falhou');
           }
         }
       }
-
-      // Se publicando mas não tem imagem, converter para rascunho
+      
+      // Só permite publicar se tem imagem
       let willPublish = form.is_published;
-      if (form.is_published && !finalCoverUrl) {
+      if (form.is_published && !finalImageUrl) {
         willPublish = false;
-        toast.info('Convertido para rascunho: publicação requer imagem.');
+        toast.info('Convertido para rascunho - imagem obrigatória para publicação');
       }
 
       const payload = {
@@ -311,7 +298,7 @@ const AdminHighlightEditor = () => {
         event_date: form.event_date || null,
         role_text: form.role_text,
         selection_reasons: form.selection_reasons,
-        image_url: finalCoverUrl || null,
+        image_url: finalImageUrl || null,
         photo_credit: form.photo_credit || null,
         sort_order: form.sort_order,
         is_published: willPublish,
@@ -544,25 +531,35 @@ const AdminHighlightEditor = () => {
                   id="image"
                   type="file"
                   accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0] || null;
-                    handleFileSelect(file);
-                  }}
-                  disabled={uploadingCover}
+                  onChange={handleFileSelect}
+                  disabled={uploadingImage}
                 />
-                {uploadingCover && <p className="text-sm text-muted-foreground">Enviando imagem...</p>}
-                {(coverUrl || form.image_url) && (
-                  <img
-                    src={(coverUrl || form.image_url).startsWith('http') 
-                      ? (coverUrl || form.image_url)
-                      : `https://nutlcbnruabjsxecqpnd.supabase.co/storage/v1/object/public/blog-images/${coverUrl || form.image_url}`
-                    }
-                    alt="Preview"
-                    className="w-full h-32 object-cover rounded-lg mt-2"
-                  />
+                {uploadingImage && (
+                  <div className="text-sm text-primary flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                    Fazendo upload...
+                  </div>
                 )}
-                {coverFile && !coverUrl && (
-                  <p className="text-sm text-muted-foreground">Arquivo selecionado: {coverFile.name}</p>
+                {imageUrl && (
+                  <div className="relative">
+                    <img
+                      src={imageUrl}
+                      alt="Preview"
+                      className="w-full h-32 object-cover rounded-lg mt-2"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={() => {
+                        setImageUrl('');
+                        setSelectedFile(null);
+                      }}
+                    >
+                      Remover
+                    </Button>
+                  </div>
                 )}
               </div>
 
@@ -622,9 +619,9 @@ const AdminHighlightEditor = () => {
               {showPreview ? 'Ocultar Preview' : 'Ver Preview'}
             </Button>
           </div>
-          <Button type="submit" disabled={saving || uploadingCover}>
+          <Button type="submit" disabled={saving}>
             <Save className="w-4 h-4 mr-2" />
-            {saving ? 'Salvando...' : uploadingCover ? 'Enviando...' : 'Salvar Destaque'}
+            {saving ? 'Salvando...' : 'Salvar Destaque'}
           </Button>
         </div>
       </form>
