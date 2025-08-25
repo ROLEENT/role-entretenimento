@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import HighlightSkeleton from './HighlightSkeleton';
+import { formatHighlightDateShort } from "@/utils/dateUtils";
 
 const FeaturedHighlights = () => {
   const [highlights, setHighlights] = useState<any[]>([]);
@@ -73,18 +74,6 @@ const FeaturedHighlights = () => {
     return highlights.slice(start, start + itemsPerSlide);
   };
 
-  const formatEventDate = (dateString?: string | null) => {
-    if (!dateString) return 'Data não informada';
-    
-    try {
-      return new Date(dateString).toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: 'long'
-      });
-    } catch {
-      return 'Data inválida';
-    }
-  };
 
   if (loading) {
     return (
@@ -190,7 +179,7 @@ const FeaturedHighlights = () => {
                           <div className="absolute top-4 right-4">
                             <Badge variant="outline" className="bg-black/50 text-white text-xs">
                               <Calendar className="mr-1 h-3 w-3" />
-                              {formatEventDate(highlight.event_date)}
+                              {formatHighlightDateShort(highlight.event_date)}
                             </Badge>
                           </div>
                           {highlight.photo_credit && (

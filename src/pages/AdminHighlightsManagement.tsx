@@ -12,6 +12,7 @@ import { Plus, Edit, Trash2, Eye, EyeOff, Search, Heart } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { formatHighlightDate } from "@/utils/dateUtils";
 
 type CityEnum = 'porto_alegre' | 'sao_paulo' | 'rio_de_janeiro' | 'florianopolis' | 'curitiba';
 
@@ -260,7 +261,7 @@ const AdminHighlightsManagement = () => {
                     <tr key={highlight.id} className="border-b hover:bg-muted/50">
                       <td className="py-3 px-4">{formatCity(highlight.city)}</td>
                       <td className="py-3 px-4 font-medium">{highlight.event_title}</td>
-                      <td className="py-3 px-4">{highlight.event_date}</td>
+                      <td className="py-3 px-4">{formatHighlightDate(highlight.event_date)}</td>
                       <td className="py-3 px-4">
                         <span className={`px-2 py-1 rounded-full text-xs ${
                           highlight.is_published 

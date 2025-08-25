@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Calendar, ExternalLink, Heart } from "lucide-react";
+import { formatHighlightDate } from "@/utils/dateUtils";
 
 interface HighlightPreviewProps {
   highlight: {
@@ -21,19 +22,6 @@ interface HighlightPreviewProps {
 }
 
 const HighlightPreview = ({ highlight, getImageUrl, getCityDisplayName }: HighlightPreviewProps) => {
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return 'Data não informada';
-    
-    try {
-      return new Date(dateString).toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric'
-      });
-    } catch {
-      return 'Data inválida';
-    }
-  };
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -49,7 +37,7 @@ const HighlightPreview = ({ highlight, getImageUrl, getCityDisplayName }: Highli
         <div className="absolute top-4 left-4">
           <Badge variant="secondary" className="bg-white/90 text-foreground">
             <Calendar className="mr-1 h-3 w-3" />
-            {formatDate(highlight.event_date)}
+            {formatHighlightDate(highlight.event_date)}
           </Badge>
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />

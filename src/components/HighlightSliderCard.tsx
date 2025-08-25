@@ -2,8 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, ExternalLink } from "lucide-react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { formatHighlightDateVeryShort } from "@/utils/dateUtils";
 
 export type CityEnum = 'porto_alegre' | 'florianopolis' | 'curitiba' | 'sao_paulo' | 'rio_de_janeiro';
 
@@ -51,15 +50,6 @@ export const HighlightSliderCard = ({ highlight }: HighlightSliderCardProps) => 
     return `https://nutlcbnruabjsxecqpnd.supabase.co/storage/v1/object/public/highlights/${imageUrl}`;
   };
 
-  const formatDate = (dateStr: string | null): string => {
-    if (!dateStr) return '';
-    try {
-      const date = new Date(dateStr);
-      return format(date, "dd 'de' MMM", { locale: ptBR });
-    } catch {
-      return '';
-    }
-  };
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 overflow-hidden border-0 bg-card/50 backdrop-blur-sm">
@@ -101,7 +91,7 @@ export const HighlightSliderCard = ({ highlight }: HighlightSliderCardProps) => 
           {highlight.event_date && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Calendar className="w-3 h-3" />
-              <span>{formatDate(highlight.event_date)}</span>
+              <span>{formatHighlightDateVeryShort(highlight.event_date)}</span>
             </div>
           )}
         </div>
