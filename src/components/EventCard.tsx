@@ -7,8 +7,10 @@ import { useFavorites, type FavoriteEvent } from '@/hooks/useFavorites';
 import { StarRatingDisplay } from '@/components/ui/star-rating';
 import { reviewStatsService } from '@/services/reviewService';
 import { useNativeShare } from '@/hooks/useNativeShare';
+import { useCommentCount } from '@/hooks/useCommentCount';
 import ShareDialog from './ShareDialog';
 import LazyImage from './LazyImage';
+import { MessageCircle } from 'lucide-react';
 
 interface EventCardProps {
   event: FavoriteEvent & {
@@ -23,6 +25,7 @@ const EventCard = ({ event, className }: EventCardProps) => {
   const { shareOrFallback } = useNativeShare();
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 });
+  const { commentCount } = useCommentCount(event.id, 'event');
   const favorite = isFavorite(event.id);
 
   useEffect(() => {
@@ -115,6 +118,12 @@ const EventCard = ({ event, className }: EventCardProps) => {
               <DollarSign className="h-4 w-4" />
               <span>{formatPrice(event.price)}</span>
             </div>
+            {commentCount > 0 && (
+              <div className="flex items-center gap-2">
+                <MessageCircle className="h-4 w-4" />
+                <span>{commentCount} comentário{commentCount !== 1 ? 's' : ''}</span>
+              </div>
+            )}
           </div>
 
           {reviewStats.totalReviews > 0 && (

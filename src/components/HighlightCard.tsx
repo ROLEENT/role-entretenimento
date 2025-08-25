@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, ExternalLink, Ticket, Calendar, Share2 } from "lucide-react";
+import { MapPin, ExternalLink, Ticket, Calendar, Share2, MessageCircle } from "lucide-react";
+import { useCommentCount } from '@/hooks/useCommentCount';
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { StarRatingDisplay } from "@/components/ui/star-rating";
 import { reviewStatsService } from "@/services/reviewService";
@@ -34,6 +35,7 @@ interface HighlightCardProps {
 const HighlightCard = ({ highlight }: HighlightCardProps) => {
   const { shareOrFallback } = useNativeShare();
   const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 });
+  const { commentCount } = useCommentCount(highlight.id, 'highlight');
 
   useEffect(() => {
     const fetchReviewStats = async () => {
@@ -140,6 +142,12 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
               <Calendar className="w-4 h-4 mr-1" />
               {formatHighlightDate(highlight.event_date)}
             </div>
+            {commentCount > 0 && (
+              <div className="flex items-center">
+                <MessageCircle className="w-4 h-4 mr-1" />
+                {commentCount} comentário{commentCount !== 1 ? 's' : ''}
+              </div>
+            )}
           </div>
 
           {/* Reviews Section */}

@@ -11,13 +11,17 @@ import { commentService, type BlogComment } from '@/services/commentService';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Check, X, Trash2 } from 'lucide-react';
+import { Check, X, Trash2, Filter, CheckSquare } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 
 
 const AdminCommentsManagement = () => {
   const { isAuthenticated, loading } = useAdminAuth();
   const [comments, setComments] = useState<BlogComment[]>([]);
   const [loadingComments, setLoadingComments] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved'>('all');
+  const [selectedComments, setSelectedComments] = useState<string[]>([]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -80,6 +84,52 @@ const AdminCommentsManagement = () => {
     }
   };
 
+  const bulkApprove = async () => {
+    try {
+      await Promise.all(selectedComments.map(id => commentService.approveComment(id)));
+      setComments(prev => 
+        prev.map(comment => 
+          selectedComments.includes(comment.id) ? { ...comment, is_approved: true } : comment
+        )
+      );
+      setSelectedComments([]);
+      toast.success(`${selectedComments.length} comentários aprovados`);
+    } catch (error) {
+      console.error('Erro ao aprovar comentários em lote:', error);
+      toast.error('Erro ao aprovar comentários');
+    }
+  };
+
+  const toggleCommentSelection = (commentId: string) => {
+    setSelectedComments(prev => 
+      prev.includes(commentId) 
+        ? prev.filter(id => id !== commentId)
+        : [...prev, commentId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    const filteredComments = getFilteredComments();
+    const allSelected = filteredComments.every(comment => selectedComments.includes(comment.id));
+    
+    if (allSelected) {
+      setSelectedComments([]);
+    } else {
+      setSelectedComments(filteredComments.map(comment => comment.id));
+    }
+  };
+
+  const getFilteredComments = () => {
+    switch (statusFilter) {
+      case 'pending':
+        return comments.filter(comment => !comment.is_approved);
+      case 'approved':
+        return comments.filter(comment => comment.is_approved);
+      default:
+        return comments;
+    }
+  };
+
   const getStatusColor = (is_approved: boolean) => {
     return is_approved ? 'bg-green-500' : 'bg-yellow-500';
   };
@@ -113,13 +163,44 @@ const AdminCommentsManagement = () => {
             <p className="text-muted-foreground mt-2">
               Gerencie os comentários dos artigos do blog
             </p>
+            
+            {/* Filters and Bulk Actions */}
+            <div className="flex flex-wrap gap-4 mt-6">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4" />
+                <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Filtrar por status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os comentários</SelectItem>
+                    <SelectItem value="pending">Pendentes</SelectItem>
+                    <SelectItem value="approved">Aprovados</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {selectedComments.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={bulkApprove}
+                    className="gap-2"
+                  >
+                    <CheckSquare className="h-4 w-4" />
+                    Aprovar selecionados ({selectedComments.length})
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
 
           {loadingComments ? (
             <div className="text-center py-8">
               <p>Carregando comentários...</p>
             </div>
-          ) : comments.length === 0 ? (
+          ) : getFilteredComments().length === 0 ? (
             <Card>
               <CardContent className="text-center py-8">
                 <p className="text-muted-foreground">Nenhum comentário encontrado</p>
@@ -127,18 +208,33 @@ const AdminCommentsManagement = () => {
             </Card>
           ) : (
             <div className="space-y-4">
-              {comments.map((comment) => (
-                <Card key={comment.id}>
+              {/* Select All Checkbox */}
+              <div className="flex items-center gap-2 p-2 border rounded">
+                <Checkbox
+                  checked={getFilteredComments().length > 0 && getFilteredComments().every(comment => selectedComments.includes(comment.id))}
+                  onCheckedChange={toggleSelectAll}
+                />
+                <span className="text-sm">Selecionar todos ({getFilteredComments().length})</span>
+              </div>
+              
+              {getFilteredComments().map((comment) => (
+                <Card key={comment.id} className={selectedComments.includes(comment.id) ? 'ring-2 ring-primary' : ''}>
                   <CardHeader>
                     <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg">{comment.post_title || 'Artigo sem título'}</CardTitle>
-                        <p className="text-sm text-muted-foreground">
-                          Por: {comment.author_name} ({comment.author_email})
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {format(new Date(comment.created_at), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}
-                        </p>
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          checked={selectedComments.includes(comment.id)}
+                          onCheckedChange={() => toggleCommentSelection(comment.id)}
+                        />
+                        <div>
+                          <CardTitle className="text-lg">{comment.post_title || 'Artigo sem título'}</CardTitle>
+                          <p className="text-sm text-muted-foreground">
+                            Por: {comment.author_name} ({comment.author_email})
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {format(new Date(comment.created_at), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}
+                          </p>
+                        </div>
                       </div>
                       <Badge className={getStatusColor(comment.is_approved)}>
                         {getStatusLabel(comment.is_approved)}

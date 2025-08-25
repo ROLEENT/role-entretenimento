@@ -16,6 +16,7 @@ import { Toaster } from "@/components/ui/sonner";
 import BlogBreadcrumbs from "@/components/blog/BlogBreadcrumbs";
 import CommentSection from "@/components/blog/CommentSection";
 import LikeButton from "@/components/blog/LikeButton";
+import { useCommentNotifications } from '@/hooks/useCommentNotifications';
 
 const BlogArticle = () => {
   const { cidade, data } = useParams();
@@ -23,6 +24,9 @@ const BlogArticle = () => {
   const [previousPost, setPreviousPost] = useState<any>(null);
   const [nextPost, setNextPost] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Enable comment notifications for this post
+  useCommentNotifications(post?.id, 'blog');
 
   useEffect(() => {
     const loadPost = async () => {

@@ -23,6 +23,7 @@ import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useCommentNotifications } from '@/hooks/useCommentNotifications';
 
 const EventDetailPage = () => {
   const { id } = useParams();
@@ -34,6 +35,9 @@ const EventDetailPage = () => {
   const [reviewsLoading, setReviewsLoading] = useState(false);
   
   const { user } = useAuth();
+  
+  // Enable comment notifications for this event
+  useCommentNotifications(id, 'event');
 
   useEffect(() => {
     if (id) {

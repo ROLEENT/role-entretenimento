@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ReviewSystem } from '@/components/reviews/ReviewSystem';
 import { highlightReviewService } from '@/services/highlightService';
+import { useCommentNotifications } from '@/hooks/useCommentNotifications';
 
 const HighlightDetailPage = () => {
   const { id } = useParams();
@@ -27,6 +28,9 @@ const HighlightDetailPage = () => {
   const [shareOpen, setShareOpen] = useState(false);
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
+
+  // Enable comment notifications for this highlight
+  useCommentNotifications(id, 'highlight');
 
   useEffect(() => {
     if (id) {
