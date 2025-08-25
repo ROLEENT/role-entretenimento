@@ -59,6 +59,7 @@ const Header = () => {
           ? "bg-background/95 backdrop-blur-sm border-b shadow-md" 
           : "bg-transparent"
       }`}
+      style={{ margin: '0', padding: '0' }}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">

@@ -128,7 +128,15 @@ export function GoogleAdSense({ position, pageType, className = '', fallback }: 
     switch (position) {
       case 'header':
       case 'footer':
-        return { ...baseStyle, width: '728px', height: '90px', maxWidth: '100%' };
+        return { 
+          ...baseStyle, 
+          width: '728px', 
+          height: '90px', 
+          maxWidth: '100%',
+          margin: '0',
+          padding: '0',
+          lineHeight: '0'
+        };
       case 'sidebar':
         return { ...baseStyle, width: '300px', height: '250px' };
       case 'in-feed':
@@ -146,6 +154,7 @@ export function GoogleAdSense({ position, pageType, className = '', fallback }: 
       className={`google-adsense-container ${className}`}
       data-position={position}
       data-page-type={pageType}
+      style={position === 'header' ? { margin: '0', padding: '0', height: '0' } : undefined}
     >
       <ins
         className="adsbygoogle"

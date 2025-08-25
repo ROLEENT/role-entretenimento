@@ -8,7 +8,7 @@ const HeroSection = () => {
   const parallaxRef = useParallax(0.3);
 
   return (
-    <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image with Parallax and Overlay */}
       <div 
         ref={parallaxRef}

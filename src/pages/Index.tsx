@@ -33,8 +33,7 @@ const Index = () => {
       />
       <div className="min-h-screen bg-background">
         <Header />
-        <GoogleAdSense position="header" pageType="homepage" />
-        <main id="main-content">
+        <main id="main-content" className="mt-0">
           <HeroSection />
           <ScrollAnimationWrapper>
             <FeaturedHighlights />
