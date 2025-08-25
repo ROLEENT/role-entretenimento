@@ -586,6 +586,33 @@ export type Database = {
         }
         Relationships: []
       }
+      music_categories: {
+        Row: {
+          color_hex: string | null
+          created_at: string | null
+          icon: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          color_hex?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          color_hex?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       organizers: {
         Row: {
           contact_email: string
@@ -743,6 +770,72 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      site_metrics: {
+        Row: {
+          active_cities: number | null
+          captured_at: string | null
+          created_at: string | null
+          followers_thousands: number | null
+          id: string
+          is_current: boolean | null
+          reach_thousands: number | null
+          views_millions: number | null
+        }
+        Insert: {
+          active_cities?: number | null
+          captured_at?: string | null
+          created_at?: string | null
+          followers_thousands?: number | null
+          id?: string
+          is_current?: boolean | null
+          reach_thousands?: number | null
+          views_millions?: number | null
+        }
+        Update: {
+          active_cities?: number | null
+          captured_at?: string | null
+          created_at?: string | null
+          followers_thousands?: number | null
+          id?: string
+          is_current?: boolean | null
+          reach_thousands?: number | null
+          views_millions?: number | null
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          id: string
+          is_published: boolean | null
+          name: string
+          quote: string
+          rating: number | null
+          role: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_published?: boolean | null
+          name: string
+          quote: string
+          rating?: number | null
+          role?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_published?: boolean | null
+          name?: string
+          quote?: string
+          rating?: number | null
+          role?: string | null
+        }
+        Relationships: []
       }
       tickets: {
         Row: {
