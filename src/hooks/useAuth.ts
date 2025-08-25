@@ -100,15 +100,30 @@ export const useAuth = () => {
     birth_date?: string;
     phone?: string;
   }) => {
-    const result = await authService.updateProfile(updates);
-    
-    if (!result.error) {
-      // Refresh user data
-      const updatedUser = await authService.getCurrentUser();
-      setUser(updatedUser);
+    try {
+      // Verificar se o usuário está autenticado
+      if (!session?.user) {
+        throw new Error('Usuário não está autenticado');
+      }
+
+      console.log('Hook updateProfile - Usuário autenticado:', session.user.id);
+      
+      const result = await authService.updateProfile(updates);
+      
+      if (!result.error) {
+        // Refresh user data após sucesso
+        const updatedUser = await authService.getCurrentUser();
+        setUser(updatedUser);
+        console.log('Perfil atualizado com sucesso');
+      } else {
+        console.error('Erro ao atualizar perfil:', result.error);
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('Erro no hook updateProfile:', error);
+      return { error };
     }
-    
-    return result;
   };
 
   return {

@@ -96,18 +96,40 @@ export const authService = {
     birth_date?: string;
     phone?: string;
   }) {
-    const user = await this.getCurrentUser();
-    if (!user) throw new Error('User not authenticated');
+    try {
+      // Verificar sessão ativa antes de tentar atualizar
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session?.user) {
+        console.error('Erro de sessão:', sessionError);
+        throw new Error('Sessão não encontrada. Faça login novamente.');
+      }
 
-    const { error } = await supabase
-      .from('profiles')
-      .upsert({
-        user_id: user.id,
-        ...updates,
-        updated_at: new Date().toISOString()
-      });
+      // Usar o user_id da sessão atual
+      const userId = session.user.id;
+      
+      console.log('Atualizando perfil para usuário:', userId, 'com dados:', updates);
 
-    return { error };
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          user_id: userId,
+          ...updates,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (error) {
+        console.error('Erro RLS ou banco:', error);
+        throw error;
+      }
+
+      return { error: null };
+    } catch (error) {
+      console.error('Erro completo ao atualizar perfil:', error);
+      return { error };
+    }
   },
 
   onAuthStateChange(callback: (event: string, session: Session | null) => void) {
