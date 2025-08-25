@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { uploadImage } from "@/lib/simpleUpload";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,6 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { X, Plus, Save, ArrowLeft } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import HighlightPreview from "@/components/admin/HighlightPreview";
 import { usePublishedHighlights } from "@/hooks/usePublishedHighlights";
@@ -38,6 +37,14 @@ const AdminHighlightEditor = () => {
   const { id } = useParams();
   const isEdit = Boolean(id);
   
+  // Estados separados para upload e salvamento
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverUrl, setCoverUrl] = useState<string>('');
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [newReason, setNewReason] = useState('');
+
   const [form, setForm] = useState<HighlightForm>({
     city: '' as CityEnum,
     event_title: '',
@@ -48,17 +55,9 @@ const AdminHighlightEditor = () => {
     selection_reasons: [],
     image_url: '',
     photo_credit: '',
-    sort_order: 0,
+    sort_order: 100,
     is_published: false,
   });
-  
-  // Estados para upload e formulário
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imageUrl, setImageUrl] = useState<string>('');
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [newReason, setNewReason] = useState('');
-  const [showPreview, setShowPreview] = useState(false);
   
   const { getImageUrl, getCityDisplayName } = usePublishedHighlights();
 
@@ -69,6 +68,83 @@ const AdminHighlightEditor = () => {
     { value: 'florianopolis', label: 'Florianópolis' },
     { value: 'curitiba', label: 'Curitiba' },
   ];
+
+  // Função para gerar slug seguro
+  const slugify = (v: string) => {
+    return v
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  };
+
+  // Upload independente para o Storage
+  const uploadCoverToStorage = async (file: File, city: string, title: string) => {
+    setUploadingCover(true);
+    try {
+      const cleanCity = slugify(city);
+      const cleanTitle = slugify(title || 'destaque');
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `covers/${cleanCity}/${Date.now()}-${cleanTitle}.${ext}`;
+
+      console.log('📤 Uploading to:', path);
+
+      const { error: upErr } = await supabase.storage
+        .from('blog-images')
+        .upload(path, file, {
+          cacheControl: '3600',
+          contentType: file.type || `image/${ext}`,
+          upsert: false,
+        });
+
+      if (upErr) throw upErr;
+
+      const { data } = supabase.storage.from('blog-images').getPublicUrl(path);
+      console.log('✅ Upload completo:', data.publicUrl);
+      return data.publicUrl;
+    } finally {
+      setUploadingCover(false);
+    }
+  };
+
+  // Seleção e upload imediato da imagem
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validação básica
+    if (!file.type.startsWith('image/')) {
+      toast.error('Arquivo deve ser uma imagem');
+      return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) { // 5MB
+      toast.error('Arquivo muito grande (máximo 5MB)');
+      return;
+    }
+    
+    setCoverFile(file);
+    
+    // Preview imediato
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCoverUrl(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    
+    // Upload automático se tiver título
+    if (form.event_title) {
+      try {
+        const uploadedUrl = await uploadCoverToStorage(file, form.city, form.event_title);
+        setCoverUrl(uploadedUrl);
+        setForm(prev => ({ ...prev, image_url: uploadedUrl }));
+        toast.success('Imagem enviada com sucesso!');
+      } catch (error: any) {
+        console.error('Erro no upload:', error);
+        toast.error('Erro ao enviar imagem, mas você pode salvar como rascunho');
+      }
+    }
+  };
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -127,66 +203,12 @@ const AdminHighlightEditor = () => {
       });
       
       // Sincronizar coverUrl com image_url para edição
-      setImageUrl(highlight.image_url || '');
+      setCoverUrl(highlight.image_url || '');
     } catch (error) {
       console.error('Erro ao carregar destaque:', error);
       toast.error('Erro ao carregar destaque');
       navigate('/admin/highlights');
     }
-  };
-
-  // Função para gerar slug automático
-  const generateSlug = (title: string): string => {
-    return title
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove acentos
-      .replace(/[^a-z0-9\s-]/g, '') // Remove caracteres especiais
-      .replace(/\s+/g, '-') // Substitui espaços por hífens
-      .replace(/-+/g, '-') // Remove hífens duplos
-      .trim()
-      .slice(0, 50); // Limita tamanho
-  };
-
-  // Upload simples de imagem
-  const handleImageUpload = async (): Promise<string> => {
-    if (!selectedFile) return imageUrl;
-    
-    try {
-      setUploadingImage(true);
-      const url = await uploadImage(selectedFile, 'covers');
-      setImageUrl(url);
-      return url;
-    } catch (error: any) {
-      console.error('Erro no upload:', error);
-      throw new Error(error.message || 'Falha no upload da imagem');
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
-  // Validação e seleção de arquivo
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    
-    if (!file.type.startsWith('image/')) {
-      toast.error('Selecione apenas arquivos de imagem');
-      return;
-    }
-    
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Imagem muito grande (máximo 5MB)');
-      return;
-    }
-    
-    setSelectedFile(file);
-    // Preview imediato
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setImageUrl(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
   };
 
   const addReason = () => {
@@ -206,164 +228,105 @@ const AdminHighlightEditor = () => {
     }));
   };
 
+  // Função para salvar highlight com tolerância a falhas
   const handleSaveHighlight = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validações básicas obrigatórias
+    // Validações básicas
     if (!form.event_title.trim()) {
-      toast.error('O título do evento é obrigatório');
+      toast.error('Título é obrigatório');
       return;
     }
-    
+
     if (!form.venue.trim()) {
-      toast.error('O local do evento é obrigatório');
-      return;
-    }
-    
-    if (!form.city) {
-      toast.error('Selecione uma cidade');
-      return;
-    }
-    
-    if (!form.event_date) {
-      toast.error('A data do evento é obrigatória');
-      return;
-    }
-    
-    if (!form.role_text.trim()) {
-      toast.error('O texto do ROLÊ é obrigatório');
+      toast.error('Local é obrigatório');
       return;
     }
 
     if (form.role_text.length < 50) {
-      toast.error('O texto do ROLÊ deve ter pelo menos 50 caracteres');
-      return;
-    }
-
-    if (form.role_text.length > 400) {
-      toast.error('O texto do ROLÊ deve ter no máximo 400 caracteres');
+      toast.error('Texto deve ter pelo menos 50 caracteres');
       return;
     }
 
     if (form.selection_reasons.length === 0) {
-      toast.error('Adicione pelo menos um motivo do destaque');
+      toast.error('Adicione pelo menos um motivo de seleção');
       return;
-    }
-    
-    if (form.selection_reasons.length > 6) {
-      toast.error('Máximo de 6 motivos de destaque permitidos');
-      return;
-    }
-
-    // Validar URL do ticket se fornecida
-    if (form.ticket_url && form.ticket_url.trim()) {
-      try {
-        new URL(form.ticket_url);
-      } catch {
-        toast.error('URL do ingresso inválida');
-        return;
-      }
     }
 
     setSaving(true);
+
     try {
-      // Fazer upload da imagem se necessário
-      let finalImageUrl = imageUrl;
-      
-      if (selectedFile) {
+      let finalImageUrl = form.image_url || coverUrl;
+
+      // Tentar upload se tem arquivo e ainda não tem URL final
+      if (!finalImageUrl && coverFile) {
         try {
-          finalImageUrl = await handleImageUpload();
-        } catch (error: any) {
-          toast.error(error.message);
-          // Se é para publicar mas falhou o upload, converter para rascunho
+          finalImageUrl = await uploadCoverToStorage(coverFile, form.city, form.event_title);
+          setCoverUrl(finalImageUrl);
+        } catch (uploadError: any) {
+          console.error('Erro no upload da capa:', uploadError?.message || uploadError);
+          toast.error('Falha ao enviar a imagem. Salvando como rascunho sem capa.');
+          
+          // Converter para rascunho se era para publicar
           if (form.is_published) {
-            form.is_published = false;
-            toast.info('Convertido para rascunho - upload da imagem falhou');
+            setForm(prev => ({ ...prev, is_published: false }));
+            toast.info('Publicação convertida para Rascunho por falta de imagem.');
           }
+          finalImageUrl = '';
         }
       }
-      
-      // Só permite publicar se tem imagem
-      let willPublish = form.is_published;
-      if (form.is_published && !finalImageUrl) {
-        willPublish = false;
-        toast.info('Convertido para rascunho - imagem obrigatória para publicação');
-      }
 
-      const payload = {
-        city: form.city,
-        event_title: form.event_title,
-        venue: form.venue,
-        ticket_url: form.ticket_url || null,
-        event_date: form.event_date || null,
-        role_text: form.role_text,
-        selection_reasons: form.selection_reasons,
-        image_url: finalImageUrl || null,
-        photo_credit: form.photo_credit || null,
-        sort_order: form.sort_order,
-        is_published: willPublish,
+      // Preparar dados para salvar
+      const dataToSave = {
+        ...form,
+        image_url: finalImageUrl || ''
       };
 
-      if (!adminUser?.email) {
-        toast.error('Admin não autenticado');
-        return;
-      }
-
-      console.log('Salvando destaque via RPC:', { isEdit, id, payload, adminEmail: adminUser.email });
-
       if (isEdit) {
-        const { data, error } = await supabase.rpc('admin_update_highlight', {
+        // Editando highlight existente
+        const { error } = await supabase.rpc('admin_update_highlight', {
           p_admin_email: adminUser.email,
           p_highlight_id: id,
-          p_city: payload.city,
-          p_event_title: payload.event_title,
-          p_venue: payload.venue,
-          p_ticket_url: payload.ticket_url,
-          p_role_text: payload.role_text,
-          p_selection_reasons: payload.selection_reasons,
-          p_image_url: payload.image_url,
-          p_photo_credit: payload.photo_credit,
-          p_event_date: payload.event_date,
-          p_sort_order: payload.sort_order,
-          p_is_published: payload.is_published
+          p_city: dataToSave.city as any,
+          p_event_title: dataToSave.event_title,
+          p_venue: dataToSave.venue,
+          p_ticket_url: dataToSave.ticket_url || null,
+          p_role_text: dataToSave.role_text,
+          p_selection_reasons: dataToSave.selection_reasons,
+          p_image_url: dataToSave.image_url,
+          p_photo_credit: dataToSave.photo_credit || null,
+          p_event_date: dataToSave.event_date ? new Date(dataToSave.event_date).toISOString().split('T')[0] : null,
+          p_sort_order: dataToSave.sort_order,
+          p_is_published: dataToSave.is_published
         });
-        
-        if (error) {
-          console.error('Erro RPC ao atualizar destaque:', error);
-          throw error;
-        }
-        
-        console.log('Destaque atualizado via RPC:', data);
-        toast.success('Destaque atualizado com sucesso');
+
+        if (error) throw error;
+        toast.success(dataToSave.is_published ? 'Destaque publicado!' : 'Destaque atualizado!');
       } else {
-        const { data, error } = await supabase.rpc('admin_create_highlight', {
+        // Criando novo highlight
+        const { error } = await supabase.rpc('admin_create_highlight', {
           p_admin_email: adminUser.email,
-          p_city: payload.city,
-          p_event_title: payload.event_title,
-          p_venue: payload.venue,
-          p_ticket_url: payload.ticket_url,
-          p_role_text: payload.role_text,
-          p_selection_reasons: payload.selection_reasons,
-          p_image_url: payload.image_url,
-          p_photo_credit: payload.photo_credit,
-          p_event_date: payload.event_date,
-          p_sort_order: payload.sort_order,
-          p_is_published: payload.is_published
+          p_city: dataToSave.city as any,
+          p_event_title: dataToSave.event_title,
+          p_venue: dataToSave.venue,
+          p_ticket_url: dataToSave.ticket_url || null,
+          p_role_text: dataToSave.role_text,
+          p_selection_reasons: dataToSave.selection_reasons,
+          p_image_url: dataToSave.image_url,
+          p_photo_credit: dataToSave.photo_credit || null,
+          p_event_date: dataToSave.event_date ? new Date(dataToSave.event_date).toISOString().split('T')[0] : null,
+          p_sort_order: dataToSave.sort_order,
+          p_is_published: dataToSave.is_published
         });
-        
-        if (error) {
-          console.error('Erro RPC ao criar destaque:', error);
-          throw error;
-        }
-        
-        console.log('Destaque criado via RPC:', data);
-        toast.success(willPublish ? 'Destaque publicado com sucesso' : 'Rascunho salvo com sucesso');
+
+        if (error) throw error;
+        toast.success(dataToSave.is_published ? 'Destaque publicado!' : 'Rascunho salvo!');
       }
-      
+
       navigate('/admin/highlights');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao salvar destaque:', error);
-      toast.error('Erro ao salvar destaque');
+      toast.error(error.message || 'Erro ao salvar destaque');
     } finally {
       setSaving(false);
     }
@@ -409,13 +372,12 @@ const AdminHighlightEditor = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="event_date">Data do Evento *</Label>
+                <Label htmlFor="event_date">Data do Evento</Label>
                 <Input
                   id="event_date"
                   type="date"
                   value={form.event_date}
                   onChange={(e) => setForm(prev => ({ ...prev, event_date: e.target.value }))}
-                  required
                 />
               </div>
             </div>
@@ -510,57 +472,70 @@ const AdminHighlightEditor = () => {
               </div>
               <div className="flex flex-wrap gap-2">
                 {form.selection_reasons.map((reason, index) => (
-                  <Badge key={index} variant="secondary" className="pr-1">
+                  <Badge key={index} variant="secondary" className="flex items-center gap-1">
                     {reason}
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
                       onClick={() => removeReason(index)}
-                      className="ml-1 hover:bg-destructive/20 rounded-full p-1"
                     >
                       <X className="w-3 h-3" />
-                    </button>
+                    </Button>
                   </Badge>
                 ))}
               </div>
+              {form.selection_reasons.length === 0 && (
+                <p className="text-xs text-destructive">Adicione pelo menos um motivo</p>
+              )}
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
+            <div className="grid gap-4">
+              <div>
                 <Label htmlFor="image">Imagem do Evento</Label>
                 <Input
                   id="image"
                   type="file"
                   accept="image/*"
                   onChange={handleFileSelect}
-                  disabled={uploadingImage}
+                  className="cursor-pointer"
                 />
-                {uploadingImage && (
-                  <div className="text-sm text-primary flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                    Fazendo upload...
-                  </div>
+                {uploadingCover && (
+                  <p className="text-sm text-blue-600 mt-1">
+                    📤 Enviando imagem...
+                  </p>
                 )}
-                {imageUrl && (
-                  <div className="relative">
-                    <img
-                      src={imageUrl}
-                      alt="Preview"
-                      className="w-full h-32 object-cover rounded-lg mt-2"
+                {coverFile && (
+                  <p className="text-sm text-green-600 mt-1">
+                    ✅ Imagem selecionada: {coverFile.name}
+                  </p>
+                )}
+                {coverUrl && (
+                  <div className="mt-2 relative">
+                    <img 
+                      src={coverUrl} 
+                      alt="Preview" 
+                      className="w-32 h-20 object-cover rounded border"
                     />
                     <Button
                       type="button"
-                      variant="destructive"
+                      variant="ghost"
                       size="sm"
-                      className="absolute top-2 right-2"
+                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 text-white p-0"
                       onClick={() => {
-                        setImageUrl('');
-                        setSelectedFile(null);
+                        setCoverFile(null);
+                        setCoverUrl('');
+                        setForm(prev => ({ ...prev, image_url: '' }));
                       }}
                     >
-                      Remover
+                      ×
                     </Button>
                   </div>
                 )}
+                <p className="text-xs text-muted-foreground mt-1">
+                  A imagem não é obrigatória. Rascunhos podem ser salvos sem imagem.
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -569,74 +544,86 @@ const AdminHighlightEditor = () => {
                   id="photo_credit"
                   value={form.photo_credit}
                   onChange={(e) => setForm(prev => ({ ...prev, photo_credit: e.target.value }))}
-                  placeholder="Ex: Foto, Divulgação"
+                  placeholder="Ex: @fotografo ou Nome do Fotógrafo"
                 />
               </div>
-            </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="sort_order">Ordenação</Label>
+                <Label htmlFor="sort_order">Ordem de Exibição</Label>
                 <Input
                   id="sort_order"
                   type="number"
                   value={form.sort_order}
-                  onChange={(e) => setForm(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
-                  placeholder="0"
+                  onChange={(e) => setForm(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 100 }))}
+                  placeholder="100"
+                  min="0"
+                  max="999"
                 />
-                <p className="text-sm text-muted-foreground">
-                  Maior número aparece primeiro
+                <p className="text-xs text-muted-foreground">
+                  Menor número = aparece primeiro. Padrão: 100
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="is_published">Status</Label>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="is_published"
-                    checked={form.is_published}
-                    onCheckedChange={(checked) => setForm(prev => ({ ...prev, is_published: checked }))}
-                  />
-                  <Label htmlFor="is_published">
-                    {form.is_published ? 'Publicado' : 'Rascunho'}
-                  </Label>
-                </div>
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="is_published"
+                  checked={form.is_published}
+                  onCheckedChange={(checked) => setForm(prev => ({ ...prev, is_published: checked }))}
+                />
+                <Label htmlFor="is_published">Publicar destaque</Label>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <div className="flex justify-between gap-4 mt-8">
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" onClick={() => navigate('/admin/highlights')}>
-              Cancelar
-            </Button>
-            <Button 
-              type="button" 
-              variant="secondary"
-              onClick={() => setShowPreview(!showPreview)}
-            >
-              {showPreview ? 'Ocultar Preview' : 'Ver Preview'}
-            </Button>
-          </div>
-          <Button type="submit" disabled={saving}>
-            <Save className="w-4 h-4 mr-2" />
-            {saving ? 'Salvando...' : 'Salvar Destaque'}
+        <div className="flex gap-2 mt-6">
+          <Button 
+            type="button"
+            variant="outline" 
+            onClick={() => navigate('/admin/highlights')}
+          >
+            Voltar para Lista
+          </Button>
+          
+          <Button 
+            type="button"
+            onClick={() => setShowPreview(!showPreview)}
+            variant="secondary"
+          >
+            {showPreview ? 'Ocultar Preview' : 'Mostrar Preview'}
+          </Button>
+          
+          <Button 
+            type="submit"
+            disabled={saving}
+            className="ml-auto"
+          >
+            {saving ? 'Salvando...' : (isEdit ? 'Atualizar Destaque' : 'Salvar Destaque')}
           </Button>
         </div>
       </form>
 
-      {/* Preview Section */}
-      {showPreview && form.event_title && form.venue && form.city && (
-        <Card className="mt-8">
+      {showPreview && (
+        <Card className="mt-6">
           <CardHeader>
             <CardTitle>Preview do Destaque</CardTitle>
           </CardHeader>
           <CardContent>
-            <HighlightPreview
-              highlight={form}
-              getImageUrl={getImageUrl}
+            <HighlightPreview 
+              highlight={{
+                city: form.city,
+                event_title: form.event_title,
+                venue: form.venue,
+                ticket_url: form.ticket_url,
+                role_text: form.role_text,
+                selection_reasons: form.selection_reasons,
+                image_url: coverUrl || form.image_url,
+                photo_credit: form.photo_credit,
+                event_date: form.event_date,
+                like_count: 0
+              }}
               getCityDisplayName={getCityDisplayName}
+              getImageUrl={getImageUrl}
             />
           </CardContent>
         </Card>
