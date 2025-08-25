@@ -20,14 +20,22 @@ const EventsPage = () => {
   const eventsPerPage = 24;
 
   useEffect(() => {
-    loadCategories();
-    loadEvents(currentPage);
-    
     const cats = searchParams.get('cats');
+    const search = searchParams.get('search');
+    
     if (cats) {
       setSelectedCategories(cats.split(','));
     }
+    if (search) {
+      setSearchTerm(search);
+    }
+    
+    loadCategories();
   }, [searchParams]);
+
+  useEffect(() => {
+    loadEvents(currentPage);
+  }, [currentPage, selectedCategories, searchTerm]);
 
   const loadCategories = async () => {
     try {
@@ -47,10 +55,26 @@ const EventsPage = () => {
       
       let query = supabase
         .from('events')
-        .select('*, venues(name, city, state)', { count: 'exact' })
+        .select(`
+          *,
+          venues(name, city, state),
+          event_categories(
+            music_categories(id, name, slug, color_hex)
+          )
+        `, { count: 'exact' })
         .eq('status', 'active')
-        .order('date_start')
-        .range(offset, offset + eventsPerPage - 1);
+        .order('date_start');
+      // Aplicar filtros de categoria se existirem
+      if (selectedCategories.length > 0) {
+        query = query.filter('event_categories.music_categories.slug', 'in', `(${selectedCategories.join(',')})`);
+      }
+
+      // Aplicar busca por termo se existir
+      if (searchTerm.trim()) {
+        query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,venues.name.ilike.%${searchTerm}%`);
+      }
+
+      query = query.range(offset, offset + eventsPerPage - 1);
 
       const { data, count, error } = await query;
       if (error) throw error;

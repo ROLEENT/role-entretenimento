@@ -131,7 +131,7 @@ const MusicCategories = () => {
               <Card 
                 key={category.id}
                 className={`group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 ${category.bgColor} border-0`}
-                onClick={() => handleCategoryClick(category.slug)}
+                onClick={() => navigate(`/eventos?cats=${category.slug}`)}
               >
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
