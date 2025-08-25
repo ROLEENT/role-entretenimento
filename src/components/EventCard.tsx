@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Heart, Share2, MapPin, Calendar, DollarSign } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFavorites, type FavoriteEvent } from '@/hooks/useFavorites';
+import { StarRatingDisplay } from '@/components/ui/star-rating';
+import { reviewStatsService } from '@/services/reviewService';
 import ShareDialog from './ShareDialog';
 import LazyImage from './LazyImage';
 
@@ -18,7 +20,21 @@ interface EventCardProps {
 const EventCard = ({ event, className }: EventCardProps) => {
   const { toggleFavorite, isFavorite } = useFavorites();
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 });
   const favorite = isFavorite(event.id);
+
+  useEffect(() => {
+    const fetchReviewStats = async () => {
+      try {
+        const stats = await reviewStatsService.getEventReviewStats(event.id);
+        setReviewStats(stats);
+      } catch (error) {
+        console.error('Error fetching review stats:', error);
+      }
+    };
+
+    fetchReviewStats();
+  }, [event.id]);
 
   const formatPrice = (price: number) => {
     return price === 0 ? 'Gratuito' : `R$ ${price.toFixed(2)}`;
@@ -83,6 +99,14 @@ const EventCard = ({ event, className }: EventCardProps) => {
               <span>{formatPrice(event.price)}</span>
             </div>
           </div>
+
+          {reviewStats.totalReviews > 0 && (
+            <StarRatingDisplay 
+              rating={reviewStats.averageRating} 
+              totalReviews={reviewStats.totalReviews}
+              size="sm"
+            />
+          )}
 
           {event.description && (
             <p className="text-sm text-muted-foreground line-clamp-2">

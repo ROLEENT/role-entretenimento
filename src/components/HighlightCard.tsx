@@ -1,8 +1,11 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, ExternalLink, Ticket, Calendar } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { StarRatingDisplay } from "@/components/ui/star-rating";
+import { reviewStatsService } from "@/services/reviewService";
 import { formatHighlightDate } from "@/utils/dateUtils";
 
 type CityEnum = 'porto_alegre' | 'sao_paulo' | 'rio_de_janeiro' | 'florianopolis' | 'curitiba';
@@ -27,6 +30,21 @@ interface HighlightCardProps {
 }
 
 const HighlightCard = ({ highlight }: HighlightCardProps) => {
+  const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 });
+
+  useEffect(() => {
+    const fetchReviewStats = async () => {
+      try {
+        const stats = await reviewStatsService.getHighlightReviewStats(highlight.id);
+        setReviewStats(stats);
+      } catch (error) {
+        console.error('Error fetching highlight review stats:', error);
+      }
+    };
+
+    fetchReviewStats();
+  }, [highlight.id]);
+
   const formatCity = (city: CityEnum) => {
     const cities: Record<CityEnum, string> = {
       'porto_alegre': 'Porto Alegre',
@@ -95,6 +113,17 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
               {formatHighlightDate(highlight.event_date)}
             </div>
           </div>
+
+          {/* Reviews Section */}
+          {reviewStats.totalReviews > 0 && (
+            <div className="mb-4">
+              <StarRatingDisplay 
+                rating={reviewStats.averageRating} 
+                totalReviews={reviewStats.totalReviews}
+                size="sm"
+              />
+            </div>
+          )}
         </div>
 
         {/* Ticket Button */}
