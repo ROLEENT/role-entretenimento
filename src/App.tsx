@@ -50,6 +50,7 @@ import WeeklyHighlights from "./pages/WeeklyHighlights";
 import FeedPage from "./pages/FeedPage";
 import CalendarPage from "./pages/CalendarPage";
 import GamificationPage from "./pages/GamificationPage";
+import GroupsPage from "./pages/GroupsPage";
 import NotFound from "./pages/NotFound";
 import AdminMetricsIndex from "./pages/admin/metrics/Index";
 import AdminTestimonialsIndex from "./pages/admin/testimonials/Index";
@@ -140,6 +141,7 @@ function App() {
                 <Route path="/eventos/semana/:data" element={<WeeklyHighlights />} />
                 <Route path="/calendario" element={<CalendarPage />} />
                 <Route path="/conquistas" element={<GamificationPage />} />
+                <Route path="/grupos" element={<GroupsPage />} />
                 
                 {/* Catch-all route MUST be last */}
                 <Route path="*" element={<NotFound />} />

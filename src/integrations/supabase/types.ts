@@ -459,6 +459,41 @@ export type Database = {
         }
         Relationships: []
       }
+      companion_responses: {
+        Row: {
+          companion_request_id: string
+          created_at: string
+          id: string
+          message: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          companion_request_id: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          companion_request_id?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "companion_responses_companion_request_id_fkey"
+            columns: ["companion_request_id"]
+            isOneToOne: false
+            referencedRelation: "event_companions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -598,6 +633,53 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "event_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_companions: {
+        Row: {
+          companions_needed: number
+          contact_info: string | null
+          contact_preference: string
+          created_at: string
+          event_id: string
+          id: string
+          is_active: boolean
+          message: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          companions_needed?: number
+          contact_info?: string | null
+          contact_preference?: string
+          created_at?: string
+          event_id: string
+          id?: string
+          is_active?: boolean
+          message?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          companions_needed?: number
+          contact_info?: string | null
+          contact_preference?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          is_active?: boolean
+          message?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_companions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
         ]
@@ -783,6 +865,219 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      group_event_participants: {
+        Row: {
+          group_event_id: string
+          id: string
+          joined_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          group_event_id: string
+          id?: string
+          joined_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          group_event_id?: string
+          id?: string
+          joined_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_event_participants_group_event_id_fkey"
+            columns: ["group_event_id"]
+            isOneToOne: false
+            referencedRelation: "group_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_events: {
+        Row: {
+          created_at: string
+          created_by: string
+          current_participants_count: number
+          date_end: string | null
+          date_start: string
+          description: string | null
+          event_id: string | null
+          group_id: string
+          id: string
+          location: string | null
+          max_participants: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          current_participants_count?: number
+          date_end?: string | null
+          date_start: string
+          description?: string | null
+          event_id?: string | null
+          group_id: string
+          id?: string
+          location?: string | null
+          max_participants?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          current_participants_count?: number
+          date_end?: string | null
+          date_start?: string
+          description?: string | null
+          event_id?: string | null
+          group_id?: string
+          id?: string
+          location?: string | null
+          max_participants?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_events_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_events_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_members: {
+        Row: {
+          group_id: string
+          id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_messages: {
+        Row: {
+          content: string
+          created_at: string
+          group_id: string
+          id: string
+          message_type: string
+          metadata: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          group_id: string
+          id?: string
+          message_type?: string
+          metadata?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          group_id?: string
+          id?: string
+          message_type?: string
+          metadata?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_messages_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          category: string
+          city: string
+          created_at: string
+          created_by: string
+          current_members_count: number
+          description: string | null
+          id: string
+          image_url: string | null
+          is_public: boolean
+          max_members: number | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          city: string
+          created_at?: string
+          created_by: string
+          current_members_count?: number
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_public?: boolean
+          max_members?: number | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          city?: string
+          created_at?: string
+          created_by?: string
+          current_members_count?: number
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_public?: boolean
+          max_members?: number | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       highlight_comments: {
         Row: {

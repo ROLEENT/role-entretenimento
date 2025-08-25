@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Heart, Share2, MapPin, Calendar, DollarSign, CalendarPlus } from 'lucide-react';
+import { Heart, Share2, MapPin, Calendar, DollarSign, CalendarPlus, Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -164,9 +164,20 @@ const EventCard = ({ event, className }: EventCardProps) => {
             </p>
           )}
 
-          <Button className="w-full transition-all duration-200 hover:scale-[1.02] hover:shadow-md">
-            Ver Detalhes
-          </Button>
+          <div className="flex gap-2">
+            <Button className="flex-1 transition-all duration-200 hover:scale-[1.02] hover:shadow-md">
+              Ver Detalhes
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="transition-all duration-200 hover:scale-[1.02]"
+              onClick={() => window.location.href = `/grupos?evento=${event.id}`}
+              title="Procurar companhia para este evento"
+            >
+              <Users className="h-4 w-4" />
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
