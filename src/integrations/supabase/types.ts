@@ -1755,6 +1755,10 @@ export type Database = {
         }
         Returns: string
       }
+      debug_admin_highlight_auth: {
+        Args: { p_admin_email: string; p_highlight_id?: string }
+        Returns: Json
+      }
       debug_admin_highlights: {
         Args: { p_admin_email: string }
         Returns: Json

@@ -14,6 +14,7 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { toast } from "sonner";
 import HighlightPreview from "@/components/admin/HighlightPreview";
 import { usePublishedHighlights } from "@/hooks/usePublishedHighlights";
+import { useSupabaseAdmin } from "@/hooks/useSupabaseAdmin";
 import { uploadHighlightImage } from "@/lib/upload";
 
 type CityEnum = 'porto_alegre' | 'sao_paulo' | 'rio_de_janeiro' | 'florianopolis' | 'curitiba';
@@ -36,6 +37,7 @@ interface HighlightForm {
 
 const AdminHighlightEditor = () => {
   const { adminUser, loading: authLoading, isAuthenticated } = useAdminAuth();
+  const { updateHighlight, createHighlight, getHighlightById } = useSupabaseAdmin();
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id);
@@ -170,39 +172,14 @@ const AdminHighlightEditor = () => {
     if (!id) return;
     
     try {
-      if (!adminUser?.email) {
-        console.error('❌ Admin não autenticado - email:', adminUser?.email);
-        toast.error('Admin não autenticado');
-        navigate('/admin/highlights');
-        return;
-      }
-
-      console.log('🔄 Carregando destaque via RPC:', { 
-        adminEmail: adminUser.email, 
+      console.log('🔄 Carregando destaque com hook admin:', { 
         highlightId: id,
-        isEdit 
+        isEdit,
+        adminEmail: adminUser?.email
       });
 
-      const { data, error } = await supabase.rpc('admin_get_highlight_by_id', {
-        p_admin_email: adminUser.email,
-        p_highlight_id: id
-      });
-
-      console.log('📦 Resposta da RPC:', { data, error });
-
-      if (error) {
-        console.error('❌ Erro RPC ao carregar destaque:', error);
-        throw error;
-      }
-
-      if (!data || data.length === 0) {
-        console.error('❌ Destaque não encontrado - data:', data);
-        toast.error('Destaque não encontrado ou sem permissão para acessar');
-        navigate('/admin/highlights');
-        return;
-      }
+      const highlight = await getHighlightById(id);
       
-      const highlight = data[0];
       console.log('✅ Destaque carregado para edição:', highlight);
       
       setForm({
@@ -227,15 +204,8 @@ const AdminHighlightEditor = () => {
         setImagePreviewUrl(highlight.image_url);
       }
       
-      console.log('✅ Form preenchido com sucesso:', {
-        event_title: highlight.event_title,
-        is_published: highlight.is_published,
-        city: highlight.city
-      });
-      
     } catch (error) {
       console.error('❌ Erro ao carregar destaque:', error);
-      toast.error(`Erro ao carregar destaque: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
       navigate('/admin/highlights');
     }
   };
@@ -257,30 +227,9 @@ const AdminHighlightEditor = () => {
     }));
   };
 
-  // Função para salvar destaque com novas validações
+  // Função para salvar destaque com novo hook admin
   const handleSaveHighlight = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Obter email do admin da sessão
-    const adminSession = localStorage.getItem('admin_session');
-    if (!adminSession) {
-      toast.error('Sessão de admin não encontrada. Faça login novamente.');
-      navigate('/admin/login');
-      return;
-    }
-
-    let adminEmail: string;
-    try {
-      const adminData = JSON.parse(adminSession);
-      adminEmail = adminData.email;
-      if (!adminEmail) {
-        throw new Error('Email não encontrado na sessão');
-      }
-    } catch (error) {
-      toast.error('Erro na sessão do admin. Faça login novamente.');
-      navigate('/admin/login');
-      return;
-    }
     
     // Validações básicas
     if (!form.event_title.trim()) {
@@ -318,71 +267,17 @@ const AdminHighlightEditor = () => {
       };
 
       console.log('💾 Salvando destaque:', dataToSave);
-      console.log('🖼️ URL da imagem que será salva:', dataToSave.image_url);
 
-      let result;
       if (isEdit && id) {
-        // Atualizar destaque existente usando função v2 com validação melhorada
-        console.log('🔄 Chamando admin_update_highlight_v2 com:', {
-          adminEmail,
-          highlightId: id,
-          eventTitle: dataToSave.event_title
-        });
-
-        result = await supabase.rpc('admin_update_highlight_v2', {
-          p_admin_email: adminEmail,
-          p_highlight_id: id,
-          p_city: dataToSave.city as any,
-          p_event_title: dataToSave.event_title,
-          p_venue: dataToSave.venue,
-          p_ticket_url: dataToSave.ticket_url || null,
-          p_role_text: dataToSave.role_text,
-          p_selection_reasons: dataToSave.selection_reasons,
-          p_image_url: dataToSave.image_url,
-          p_photo_credit: dataToSave.photo_credit || null,
-          p_event_date: dataToSave.event_date ? new Date(dataToSave.event_date).toISOString().split('T')[0] : null,
-          p_event_time: dataToSave.event_time || null,
-          p_ticket_price: dataToSave.ticket_price || null,
-          p_sort_order: dataToSave.sort_order,
-          p_is_published: dataToSave.is_published
-        });
+        await updateHighlight(id, dataToSave);
       } else {
-        // Criar novo destaque usando função v2 com validação melhorada
-        console.log('🆕 Chamando admin_create_highlight_v2 com:', {
-          adminEmail,
-          eventTitle: dataToSave.event_title
-        });
-
-        result = await supabase.rpc('admin_create_highlight_v2', {
-          p_admin_email: adminEmail,
-          p_city: dataToSave.city as any,
-          p_event_title: dataToSave.event_title,
-          p_venue: dataToSave.venue,
-          p_ticket_url: dataToSave.ticket_url || null,
-          p_role_text: dataToSave.role_text,
-          p_selection_reasons: dataToSave.selection_reasons,
-          p_image_url: dataToSave.image_url,
-          p_photo_credit: dataToSave.photo_credit || null,
-          p_event_date: dataToSave.event_date ? new Date(dataToSave.event_date).toISOString().split('T')[0] : null,
-          p_event_time: dataToSave.event_time || null,
-          p_ticket_price: dataToSave.ticket_price || null,
-          p_sort_order: dataToSave.sort_order,
-          p_is_published: dataToSave.is_published
-        });
+        await createHighlight(dataToSave);
       }
 
-      if (result?.error) {
-        console.error('❌ Erro ao salvar destaque:', result.error);
-        throw result.error;
-      }
-
-      console.log('✅ Destaque salvo com sucesso:', result?.data);
-
-      toast.success(`Destaque ${isEdit ? 'atualizado' : 'criado'} com sucesso!`);
       navigate('/admin/highlights');
     } catch (error) {
       console.error('❌ Erro geral ao salvar:', error);
-      toast.error(error instanceof Error ? error.message : 'Erro ao salvar destaque');
+      // Toast já é exibido no hook
     } finally {
       setSaving(false);
     }
