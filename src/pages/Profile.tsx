@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import SEOHead from '@/components/SEOHead';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
-import { User, Edit2, Save, X, Loader2 } from 'lucide-react';
+import { useFavorites } from '@/hooks/useFavorites';
+import EventCard from '@/components/EventCard';
+import { User, Edit2, Save, X, Loader2, LogOut, Heart, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { Helmet } from "react-helmet";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut, updateProfile } = useAuth();
+  const { favorites, loading: favoritesLoading } = useFavorites();
   
   const [loading, setLoading] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
@@ -44,11 +48,7 @@ const Profile = () => {
 
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ display_name: tempDisplayName.trim() })
-        .eq('user_id', user?.id);
-
+      const { error } = await updateProfile({ display_name: tempDisplayName.trim() });
       if (error) throw error;
 
       setDisplayName(tempDisplayName.trim());
@@ -57,7 +57,7 @@ const Profile = () => {
     } catch (error) {
       console.error('Erro ao atualizar nome:', error);
       toast.error('Erro ao atualizar nome');
-      setTempDisplayName(displayName); // Revert changes
+      setTempDisplayName(displayName);
     } finally {
       setLoading(false);
     }
@@ -66,6 +66,17 @@ const Profile = () => {
   const handleCancelEditName = () => {
     setTempDisplayName(displayName);
     setIsEditingName(false);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/');
+      toast.success('Logout realizado com sucesso!');
+    } catch (error) {
+      console.error('Erro no logout:', error);
+      toast.error('Erro ao fazer logout');
+    }
   };
 
   if (authLoading) {
@@ -85,10 +96,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
-        <title>Meu Perfil – ROLÊ ENTRETENIMENTO</title>
-      </Helmet>
-      
+      <SEOHead title="Meu Perfil – ROLÊ ENTRETENIMENTO" />
       <Header />
       
       <main className="pt-20">
@@ -116,18 +124,10 @@ const Profile = () => {
                           className="text-2xl font-bold"
                           placeholder="Digite seu nome"
                         />
-                        <Button
-                          size="sm"
-                          onClick={handleSaveDisplayName}
-                          disabled={loading}
-                        >
+                        <Button size="sm" onClick={handleSaveDisplayName} disabled={loading}>
                           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={handleCancelEditName}
-                        >
+                        <Button size="sm" variant="outline" onClick={handleCancelEditName}>
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
@@ -136,11 +136,7 @@ const Profile = () => {
                         <h2 className="text-3xl font-bold text-foreground">
                           {displayName || 'Usuário'}
                         </h2>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setIsEditingName(true)}
-                        >
+                        <Button size="sm" variant="ghost" onClick={() => setIsEditingName(true)}>
                           <Edit2 className="h-4 w-4" />
                         </Button>
                       </>
@@ -148,74 +144,122 @@ const Profile = () => {
                   </div>
                   <p className="text-muted-foreground mb-4">{user.email}</p>
                   
-                  <div className="flex flex-wrap gap-2">
-                    {user.profile?.is_premium && (
-                      <Badge variant="default">Premium</Badge>
-                    )}
+                  <div className="flex flex-wrap gap-2 items-center">
                     {user.profile?.is_admin && (
                       <Badge variant="secondary">Admin</Badge>
                     )}
+                    <Badge variant="outline" className="gap-1">
+                      <Heart className="h-3 w-3" />
+                      {favorites.length} favoritos
+                    </Badge>
+                    <Button variant="outline" size="sm" onClick={handleSignOut}>
+                      <LogOut className="h-4 w-4 mr-1" />
+                      Sair
+                    </Button>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Profile Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Informações da Conta
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    value={user.email || ''}
-                    disabled
-                    className="bg-muted"
-                  />
-                  <p className="text-sm text-muted-foreground mt-1">
-                    O email não pode ser alterado
-                  </p>
-                </div>
-                
-                <div>
-                  <Label htmlFor="displayName">Nome de Exibição</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      id="displayName"
-                      value={displayName}
-                      disabled
-                      className="bg-muted"
-                      placeholder="Como você quer ser chamado"
-                    />
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setIsEditingName(true)}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
+          {/* Profile Tabs */}
+          <Tabs defaultValue="favorites" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="favorites">Favoritos</TabsTrigger>
+              <TabsTrigger value="settings">Configurações</TabsTrigger>
+              <TabsTrigger value="calendar">Calendário</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="favorites" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Heart className="h-5 w-5" />
+                    Meus Eventos Favoritos ({favorites.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {favoritesLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    </div>
+                  ) : favorites.length > 0 ? (
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {favorites.map((favorite) => (
+                        <EventCard
+                          key={favorite.id}
+                          event={{
+                            ...favorite,
+                            price: favorite.price || 0,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                      <h3 className="font-medium mb-1">Nenhum evento favoritado</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Explore eventos e adicione seus favoritos aqui
+                      </p>
+                      <Button asChild>
+                        <Link to="/eventos">Explorar Eventos</Link>
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="settings" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                    Informações da Conta
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-4">
+                    <div>
+                      <Label htmlFor="email">Email</Label>
+                      <Input id="email" value={user.email || ''} disabled className="bg-muted" />
+                      <p className="text-sm text-muted-foreground mt-1">
+                        O email não pode ser alterado
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <Label>Data de Cadastro</Label>
+                      <p className="text-sm text-muted-foreground">
+                        {user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : 'N/A'}
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Use o botão de editar para alterar seu nome
-                  </p>
-                </div>
-              </div>
-              
-              <div>
-                <Label>Data de Cadastro</Label>
-                <p className="text-sm text-muted-foreground">
-                  {user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : 'N/A'}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="calendar" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5" />
+                    Calendário Pessoal
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8">
+                    <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                    <h3 className="font-medium mb-1">Em breve</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Funcionalidade de calendário será implementada em breve
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
       

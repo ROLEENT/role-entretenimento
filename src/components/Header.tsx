@@ -3,18 +3,43 @@ import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import NotificationSystem from "@/components/NotificationSystem";
+import GlobalSearch from "@/components/GlobalSearch";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import roleLogo from "@/assets/role-logo.png";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [events, setEvents] = useState([]);
+  const [highlights, setHighlights] = useState([]);
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
     window.addEventListener("scroll", handleScroll);
+    
+    // Load search data
+    const loadSearchData = async () => {
+      try {
+        const [eventsRes, highlightsRes] = await Promise.all([
+          supabase.from('events').select('*, venue:venues(name), categories:event_categories(category:categories(*))').eq('status', 'active').limit(20),
+          supabase.from('highlights').select('*').eq('is_published', true).limit(10)
+        ]);
+        
+        if (eventsRes.data) setEvents(eventsRes.data);
+        if (highlightsRes.data) setHighlights(highlightsRes.data);
+      } catch (error) {
+        console.error('Error loading search data:', error);
+      }
+    };
+    
+    loadSearchData();
+    
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -60,10 +85,13 @@ const Header = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
+            <Button variant="ghost" size="icon" onClick={() => setSearchOpen(true)}>
+              <Search className="h-4 w-4" />
+            </Button>
             <NotificationSystem />
             <ThemeToggle />
             <Button variant="ghost" size="icon" asChild>
-              <Link to="/perfil">
+              <Link to={user ? "/perfil" : "/auth"}>
                 <User className="h-4 w-4" />
               </Link>
             </Button>
@@ -126,6 +154,13 @@ const Header = () => {
           </Sheet>
         </div>
       </div>
+      
+      <GlobalSearch 
+        events={events}
+        highlights={highlights}
+        isOpen={searchOpen}
+        onClose={() => setSearchOpen(false)}
+      />
     </header>
   );
 };
