@@ -49,6 +49,7 @@ const Header = () => {
     { name: "Eventos", href: "/eventos" },
     { name: "Destaques", href: "/destaques" },
     { name: "Grupos", href: "/grupos" },
+    { name: "Música", href: "/musica" },
     { name: "Meu Calendário", href: "/calendario" },
     { name: "Conquistas", href: "/conquistas" },
     { name: "Sobre", href: "/sobre" },

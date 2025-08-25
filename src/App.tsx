@@ -51,6 +51,8 @@ import FeedPage from "./pages/FeedPage";
 import CalendarPage from "./pages/CalendarPage";
 import GamificationPage from "./pages/GamificationPage";
 import GroupsPage from "./pages/GroupsPage";
+import MusicPage from "./pages/MusicPage";
+import MusicCallbackPage from "./pages/MusicCallbackPage";
 import NotFound from "./pages/NotFound";
 import AdminMetricsIndex from "./pages/admin/metrics/Index";
 import AdminTestimonialsIndex from "./pages/admin/testimonials/Index";
@@ -142,6 +144,8 @@ function App() {
                 <Route path="/calendario" element={<CalendarPage />} />
                 <Route path="/conquistas" element={<GamificationPage />} />
                 <Route path="/grupos" element={<GroupsPage />} />
+                <Route path="/musica" element={<MusicPage />} />
+                <Route path="/music/callback" element={<MusicCallbackPage />} />
                 
                 {/* Catch-all route MUST be last */}
                 <Route path="*" element={<NotFound />} />
