@@ -17,6 +17,7 @@ import FeaturedHighlights from "@/components/FeaturedHighlights";
 import FeaturedBlogPosts from "@/components/FeaturedBlogPosts";
 import PersonalizedRecommendations from "@/components/PersonalizedRecommendations";
 import PWAFeatures from "@/components/PWAFeatures";
+import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
 import { Toaster } from "@/components/ui/sonner";
 import SEOOptimizations from "@/components/SEOOptimizations";
 import AccessibilityEnhancements from "@/components/AccessibilityEnhancements";
@@ -76,6 +77,7 @@ const Index = () => {
         </main>
         <GoogleAdSense position="footer" pageType="homepage" className="my-4" />
         <Footer />
+        <NotificationPermissionPrompt />
         <BackToTop />
         <Toaster />
       </div>

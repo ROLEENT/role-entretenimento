@@ -17,7 +17,8 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { useFollow } from '@/hooks/useFollow';
 import { useUserSearch } from '@/hooks/useUserSearch';
 import EventCard from '@/components/EventCard';
-import { User, Edit2, Save, X, Loader2, LogOut, Heart, Calendar, MapPin, ExternalLink, UserCheck, Users, UserPlus, AtSign, Settings } from 'lucide-react';
+import { User, Edit2, Save, X, Loader2, LogOut, Heart, Calendar, MapPin, ExternalLink, UserCheck, Users, UserPlus, AtSign, Settings, Bell } from 'lucide-react';
+import { NotificationSettings } from '@/components/NotificationSettings';
 import { toast } from 'sonner';
 
 const Profile = () => {
@@ -483,6 +484,9 @@ const Profile = () => {
             
             {isOwnProfile && (
               <TabsContent value="settings" className="space-y-4">
+                {/* Configurações de Notificações */}
+                <NotificationSettings />
+                
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
