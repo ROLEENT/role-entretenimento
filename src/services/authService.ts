@@ -9,6 +9,15 @@ export interface AuthUser extends User {
     preferences_json?: any;
     is_premium?: boolean;
     is_admin?: boolean;
+    username?: string;
+    bio?: string;
+    location?: string;
+    website?: string;
+    is_verified?: boolean;
+    followers_count?: number;
+    following_count?: number;
+    birth_date?: string;
+    phone?: string;
   };
 }
 
@@ -80,6 +89,12 @@ export const authService = {
     display_name?: string;
     avatar_url?: string;
     preferences_json?: any;
+    username?: string;
+    bio?: string;
+    location?: string;
+    website?: string;
+    birth_date?: string;
+    phone?: string;
   }) {
     const user = await this.getCurrentUser();
     if (!user) throw new Error('User not authenticated');

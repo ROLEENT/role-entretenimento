@@ -93,6 +93,12 @@ export const useAuth = () => {
     display_name?: string;
     avatar_url?: string;
     preferences_json?: any;
+    username?: string;
+    bio?: string;
+    location?: string;
+    website?: string;
+    birth_date?: string;
+    phone?: string;
   }) => {
     const result = await authService.updateProfile(updates);
     

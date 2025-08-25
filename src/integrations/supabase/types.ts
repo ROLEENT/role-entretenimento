@@ -609,6 +609,42 @@ export type Database = {
           },
         ]
       }
+      follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "follows_following_id_fkey"
+            columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       highlight_comments: {
         Row: {
           content: string
@@ -801,42 +837,69 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
+          birth_date: string | null
           created_at: string
           display_name: string | null
           email: string | null
+          followers_count: number | null
+          following_count: number | null
           full_name: string | null
           id: string
           is_admin: boolean
+          is_verified: boolean | null
+          location: string | null
+          phone: string | null
           preferences_json: Json
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
           user_id: string
+          username: string | null
+          website: string | null
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
+          birth_date?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
+          followers_count?: number | null
+          following_count?: number | null
           full_name?: string | null
           id?: string
           is_admin?: boolean
+          is_verified?: boolean | null
+          location?: string | null
+          phone?: string | null
           preferences_json?: Json
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
           user_id: string
+          username?: string | null
+          website?: string | null
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
+          birth_date?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
+          followers_count?: number | null
+          following_count?: number | null
           full_name?: string | null
           id?: string
           is_admin?: boolean
+          is_verified?: boolean | null
+          location?: string | null
+          phone?: string | null
           preferences_json?: Json
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
           user_id?: string
+          username?: string | null
+          website?: string | null
         }
         Relationships: []
       }
@@ -1310,6 +1373,17 @@ export type Database = {
         Args: { p_comment_id: string }
         Returns: undefined
       }
+      search_users_by_username: {
+        Args: { search_term: string }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          followers_count: number
+          is_verified: boolean
+          user_id: string
+          username: string
+        }[]
+      }
       test_admin_insert: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -1332,6 +1406,10 @@ export type Database = {
       }
       validate_admin_email: {
         Args: { p_email: string }
+        Returns: boolean
+      }
+      validate_username: {
+        Args: { new_username: string }
         Returns: boolean
       }
     }
