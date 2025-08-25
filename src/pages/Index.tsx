@@ -20,6 +20,7 @@ import PWAFeatures from "@/components/PWAFeatures";
 import { Toaster } from "@/components/ui/sonner";
 import SEOOptimizations from "@/components/SEOOptimizations";
 import AccessibilityEnhancements from "@/components/AccessibilityEnhancements";
+import { GoogleAdSense } from "@/components/GoogleAdSense";
 
 const Index = () => {
   return (
@@ -31,6 +32,7 @@ const Index = () => {
       />
       <div className="min-h-screen bg-background">
         <Header />
+        <GoogleAdSense position="header" pageType="homepage" className="my-4" />
         <main id="main-content">
           <HeroSection />
           <ScrollAnimationWrapper>
@@ -39,12 +41,13 @@ const Index = () => {
           <ScrollAnimationWrapper>
             <FeaturedEventsToday />
           </ScrollAnimationWrapper>
-          <ScrollAnimationWrapper>
-            <GeolocationEvents />
-          </ScrollAnimationWrapper>
-          <ScrollAnimationWrapper>
-            <PersonalizedRecommendations />
-          </ScrollAnimationWrapper>
+        <ScrollAnimationWrapper>
+          <GeolocationEvents />
+        </ScrollAnimationWrapper>
+        <GoogleAdSense position="in-feed" pageType="homepage" className="my-8" />
+        <ScrollAnimationWrapper>
+          <PersonalizedRecommendations />
+        </ScrollAnimationWrapper>
           <FeaturedBlogPosts />
           <ScrollAnimationWrapper>
             <HowItWorks />
@@ -71,6 +74,7 @@ const Index = () => {
             <Newsletter />
           </ScrollAnimationWrapper>
         </main>
+        <GoogleAdSense position="footer" pageType="homepage" className="my-4" />
         <Footer />
         <BackToTop />
         <Toaster />

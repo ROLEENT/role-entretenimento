@@ -17,7 +17,8 @@ import {
   Bell,
   Settings,
   Zap,
-  TrendingUp
+  TrendingUp,
+  DollarSign
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -78,6 +79,11 @@ const mainMenuItems = [
     title: "Anúncios",
     url: "/admin/advertisements",
     icon: Image,
+  },
+  {
+    title: "Google AdSense",
+    url: "/admin/adsense",
+    icon: DollarSign,
   },
 ];
 
