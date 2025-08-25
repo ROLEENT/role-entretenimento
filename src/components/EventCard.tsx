@@ -11,7 +11,8 @@ import { reviewStatsService } from '@/services/reviewService';
 import { useNativeShare } from '@/hooks/useNativeShare';
 import { useCommentCount } from '@/hooks/useCommentCount';
 import ShareDialog from './ShareDialog';
-import LazyImage from './LazyImage';
+import { MobileSafeImage } from './ui/mobile-safe-image';
+import { useResponsive } from '@/hooks/useResponsive';
 import { MessageCircle } from 'lucide-react';
 
 interface EventCardProps {
@@ -27,6 +28,7 @@ const EventCard = ({ event, className }: EventCardProps) => {
   const { shareOrFallback } = useNativeShare();
   const { addFavoriteToCalendar } = usePersonalCalendar();
   const { user } = useAuth();
+  const { isMobile } = useResponsive();
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 });
   const { commentCount } = useCommentCount(event.id, 'event');
@@ -81,19 +83,21 @@ const EventCard = ({ event, className }: EventCardProps) => {
     <>
       <Card className={`group hover-lift overflow-hidden transition-all duration-300 hover:shadow-lg ${className}`}>
         <div className="relative overflow-hidden">
-          <LazyImage
+          <MobileSafeImage
             src={event.image || '/placeholder.svg'}
             alt={event.title}
-            className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+            className={`w-full transition-transform duration-500 group-hover:scale-105 ${isMobile ? 'h-40' : 'h-48'} object-cover`}
+            loading="lazy"
+            sizes={isMobile ? '(max-width: 768px) 100vw' : '(max-width: 1024px) 50vw, 33vw'}
           />
-          <div className="absolute top-3 right-3 flex gap-2">
+          <div className={`absolute top-3 right-3 flex ${isMobile ? 'gap-1' : 'gap-2'}`}>
             <Button
               size="sm"
               variant="secondary"
-              className="h-8 w-8 p-0 bg-background/80 backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-background/90"
+              className={`touch-target bg-background/80 backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-background/90 ${isMobile ? 'h-8 w-8 p-0' : 'h-8 w-8 p-0'}`}
               onClick={() => toggleFavorite(event)}
             >
-              <Heart className={`h-4 w-4 transition-all duration-300 ${
+              <Heart className={`transition-all duration-300 ${isMobile ? 'h-3 w-3' : 'h-4 w-4'} ${
                 favorite 
                   ? 'fill-destructive text-destructive animate-pulse' 
                   : 'hover:scale-110'
@@ -102,19 +106,19 @@ const EventCard = ({ event, className }: EventCardProps) => {
             <Button
               size="sm"
               variant="secondary"
-              className="h-8 w-8 p-0 bg-background/80 backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-background/90"
+              className={`touch-target bg-background/80 backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-background/90 ${isMobile ? 'h-8 w-8 p-0' : 'h-8 w-8 p-0'}`}
               onClick={handleAddToCalendar}
               title="Adicionar ao calendário"
             >
-              <CalendarPlus className="h-4 w-4" />
+              <CalendarPlus className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
             </Button>
             <Button
               size="sm"
               variant="secondary"
-              className="h-8 w-8 p-0 bg-background/80 backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-background/90 group"
+              className={`touch-target bg-background/80 backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-background/90 group ${isMobile ? 'h-8 w-8 p-0' : 'h-8 w-8 p-0'}`}
               onClick={handleShare}
             >
-              <Share2 className="h-4 w-4 transition-transform duration-200 group-hover:rotate-12" />
+              <Share2 className={`transition-transform duration-200 group-hover:rotate-12 ${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
             </Button>
           </div>
           <Badge className="absolute top-3 left-3">
@@ -122,7 +126,7 @@ const EventCard = ({ event, className }: EventCardProps) => {
           </Badge>
         </div>
         
-        <CardContent className="p-4 space-y-3">
+        <CardContent className={`space-y-3 ${isMobile ? 'p-3' : 'p-4'}`}>
           <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-primary transition-colors">
             {event.title}
           </h3>

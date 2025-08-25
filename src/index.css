@@ -123,6 +123,32 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Performance optimizations */
+    --transition-fast: 150ms ease-out;
+    --transition-normal: 250ms ease-out;
+    --transition-slow: 350ms ease-out;
+
+    /* Responsive breakpoints */
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    --breakpoint-2xl: 1536px;
+
+    /* Mobile-first spacing */
+    --space-mobile-xs: 0.5rem;
+    --space-mobile-sm: 1rem;
+    --space-mobile-md: 1.5rem;
+    --space-mobile-lg: 2rem;
+    --space-mobile-xl: 3rem;
+
+    /* Desktop spacing */
+    --space-desktop-xs: 1rem;
+    --space-desktop-sm: 1.5rem;
+    --space-desktop-md: 2rem;
+    --space-desktop-lg: 3rem;
+    --space-desktop-xl: 4rem;
   }
 }
 
@@ -182,5 +208,57 @@ All colors MUST be HSL.
 
   .parallax-bg {
     will-change: transform;
+  }
+
+  /* Mobile-first responsive utilities */
+  .mobile-container {
+    padding: var(--space-mobile-sm);
+  }
+
+  @media (min-width: 768px) {
+    .mobile-container {
+      padding: var(--space-desktop-md);
+    }
+  }
+
+  .responsive-text-sm {
+    font-size: 0.875rem;
+  }
+
+  @media (min-width: 768px) {
+    .responsive-text-sm {
+      font-size: 1rem;
+    }
+  }
+
+  .responsive-text-lg {
+    font-size: 1.125rem;
+  }
+
+  @media (min-width: 768px) {
+    .responsive-text-lg {
+      font-size: 1.25rem;
+    }
+  }
+
+  .responsive-text-xl {
+    font-size: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .responsive-text-xl {
+      font-size: 1.5rem;
+    }
+  }
+
+  /* Fixed touch targets for mobile */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Better mobile inputs */
+  .mobile-input {
+    font-size: 16px; /* Prevents zoom on iOS */
   }
 }

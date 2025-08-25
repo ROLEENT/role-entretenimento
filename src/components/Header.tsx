@@ -1,4 +1,5 @@
 import { Search, Menu, User, Heart } from "lucide-react";
+import { useResponsive } from "@/hooks/useResponsive";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -17,6 +18,7 @@ const Header = () => {
   const [highlights, setHighlights] = useState([]);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { isMobile } = useResponsive();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,8 +67,8 @@ const Header = () => {
       }`}
       style={{ margin: '0', padding: '0' }}
     >
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+      <div className="container mx-auto mobile-container">
+        <div className="flex items-center justify-between h-16 min-h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <img 
@@ -89,40 +91,47 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" size="icon" onClick={() => setSearchOpen(true)}>
-              <Search className="h-4 w-4" />
+          {/* Actions */}
+          <div className="flex items-center space-x-2 md:space-x-4">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setSearchOpen(true)}
+              className={`touch-target ${isMobile ? 'h-10 w-10' : ''}`}
+            >
+              <Search className={`${isMobile ? 'h-4 w-4' : 'h-4 w-4'}`} />
             </Button>
-            <NotificationSystem />
-            <ThemeToggle />
-            {user && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/feed')}
-                className="text-foreground hover:text-red-500"
-              >
-                <Heart className="h-4 w-4" />
+            <div className="hidden md:flex items-center space-x-4">
+              <NotificationSystem />
+              <ThemeToggle />
+              {user && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/feed')}
+                  className="text-foreground hover:text-red-500"
+                >
+                  <Heart className="h-4 w-4" />
+                </Button>
+              )}
+              <Button variant="ghost" size="icon" asChild>
+                <Link to={user ? "/perfil" : "/auth"}>
+                  <User className="h-4 w-4" />
+                </Link>
               </Button>
-            )}
-            <Button variant="ghost" size="icon" asChild>
-              <Link to={user ? "/perfil" : "/auth"}>
-                <User className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button variant="gradient" asChild>
-              <Link to="/admin/login">
-                Área do Admin
-              </Link>
-            </Button>
+              <Button variant="gradient" asChild>
+                <Link to="/admin/login">
+                  Área do Admin
+                </Link>
+              </Button>
+            </div>
           </div>
 
           {/* Mobile Menu */}
           <Sheet>
             <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
-                <Menu className="h-6 w-6" />
+              <Button variant="ghost" size="icon" className="touch-target h-10 w-10">
+                <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-80">
