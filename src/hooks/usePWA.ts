@@ -20,20 +20,26 @@ export const usePWA = () => {
     // Only register service worker in browser
     if (typeof window === 'undefined') return;
     
-    // Register service worker
+    // Register service worker with proper cache management
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js', { 
-        scope: '/',
-        updateViaCache: 'none' // Force cache bypass
-      })
-        .then((registration) => {
-          console.log('SW registered: ', registration);
-          // Clear old caches on registration
-          registration.update();
-        })
-        .catch((registrationError) => {
-          console.log('SW registration failed: ', registrationError);
+      // Unregister any existing service workers first
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => {
+          registration.unregister();
         });
+      }).then(() => {
+        // Register new service worker
+        return navigator.serviceWorker.register('/sw.js', { 
+          scope: '/',
+          updateViaCache: 'none'
+        });
+      }).then((registration) => {
+        console.log('SW registered: ', registration);
+        // Force update to clear old caches
+        registration.update();
+      }).catch((registrationError) => {
+        console.log('SW registration failed: ', registrationError);
+      });
     }
 
     // Check if app is already installed - only in browser
