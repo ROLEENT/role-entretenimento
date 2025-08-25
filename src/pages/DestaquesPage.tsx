@@ -443,21 +443,43 @@ const DestaquesPage = () => {
           {/* Top Destaques - Carrossel Global */}
           {topHighlights.length > 0 && (
             <section className="mb-16">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-                  🔥 Mais Curtidos do Site
+              <div className="text-center mb-8">
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+                  🔥 Mais Curtidos do ROLÊ
                 </h2>
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-lg mb-4">
+                  Os eventos que conquistaram o coração da galera
+                </p>
+                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                   <Users className="w-4 h-4" />
-                  <span>Top {topHighlights.length} eventos</span>
+                  <span>Top {topHighlights.length} eventos mais curtidos</span>
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {topHighlights.slice(0, 8).map(highlight => (
-                  <NewHighlightCard key={highlight.id} highlight={highlight} showCity />
+              {/* Featured Top 3 */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                {topHighlights.slice(0, 3).map((highlight, index) => (
+                  <div key={highlight.id} className="relative">
+                    <div className="absolute -top-3 -left-3 z-10">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-lg ${
+                        index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : 'bg-amber-600'
+                      }`}>
+                        {index + 1}
+                      </div>
+                    </div>
+                    <NewHighlightCard highlight={highlight} showCity />
+                  </div>
                 ))}
               </div>
+              
+              {/* Rest of top highlights */}
+              {topHighlights.length > 3 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {topHighlights.slice(3, 11).map(highlight => (
+                    <NewHighlightCard key={highlight.id} highlight={highlight} showCity />
+                  ))}
+                </div>
+              )}
             </section>
           )}
 
