@@ -403,7 +403,7 @@ const AdminHighlightEditor = () => {
                 type="url"
                 value={form.ticket_url}
                 onChange={(e) => setForm(prev => ({ ...prev, ticket_url: e.target.value }))}
-                placeholder="https://shotgun.link/exemplo"
+                placeholder="https://shotgun.link/eventos/destaque"
               />
             </div>
 

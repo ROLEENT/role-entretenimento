@@ -27,10 +27,10 @@ const AdminDashboard = () => {
       priority: "high"
     },
     {
-      title: "Posts do Blog",
-      description: "Criar e editar artigos",
+      title: "Criar Destaque",
+      description: "Criar novos destaques semanais",
       icon: FileText,
-      path: "/admin/posts/new",
+      path: "/admin/highlights/create",
       bgColor: "bg-purple-500/10",
       priority: "high"
     },

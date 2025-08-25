@@ -283,7 +283,7 @@ const AdminOrganizers = () => {
                   type="email"
                   value={form.contact_email}
                   onChange={(e) => setForm({ ...form, contact_email: e.target.value })}
-                  placeholder="contato@exemplo.com"
+                  placeholder="contato@organizador.com"
                 />
                 {errors.contact_email && (
                   <p className="text-sm text-destructive">{errors.contact_email}</p>
@@ -296,7 +296,7 @@ const AdminOrganizers = () => {
                   id="site"
                   value={form.site}
                   onChange={(e) => setForm({ ...form, site: e.target.value })}
-                  placeholder="https://exemplo.com"
+                  placeholder="https://siteorganizador.com"
                 />
               </div>
 
