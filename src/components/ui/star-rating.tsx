@@ -41,13 +41,17 @@ export function StarRating({
             key={star}
             className={cn(
               sizeClasses[size],
-              "transition-colors duration-200",
+              "transition-all duration-300",
               star <= rating 
-                ? 'fill-yellow-400 text-yellow-400' 
+                ? 'fill-yellow-400 text-yellow-400 drop-shadow-sm' 
                 : 'text-muted-foreground',
-              interactive && !readonly && 'cursor-pointer hover:text-yellow-400'
+              interactive && !readonly && 'cursor-pointer hover:text-yellow-400 hover:scale-110',
+              star <= rating && 'animate-fade-in'
             )}
             onClick={() => handleStarClick(star)}
+            style={{ 
+              animationDelay: `${(star - 1) * 50}ms`
+            }}
           />
         ))}
       </div>
@@ -75,12 +79,14 @@ export function StarRatingDisplay({
   className 
 }: StarRatingDisplayProps) {
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <StarRating rating={rating} size={size} readonly />
-      <span className="text-sm text-muted-foreground">
+    <div className={cn("flex items-center gap-2 animate-fade-in", className)}>
+      <div className="flex transition-transform duration-300 hover:scale-105">
+        <StarRating rating={rating} size={size} readonly />
+      </div>
+      <span className="text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground">
         {rating.toFixed(1)}
         {totalReviews !== undefined && (
-          <span className="ml-1">({totalReviews})</span>
+          <span className="ml-1 opacity-80">({totalReviews})</span>
         )}
       </span>
     </div>

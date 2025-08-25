@@ -85,13 +85,13 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
   };
 
   return (
-    <Card className="overflow-hidden bg-card border hover:shadow-lg transition-all duration-300">
+    <Card className="group overflow-hidden bg-card border hover-lift transition-all duration-300 hover:shadow-xl">
       {/* Event Image */}
       <div className="relative h-64 md:h-72">
         <ImageWithFallback
           src={getImageUrl(highlight.image_url) || ''}
           alt={highlight.event_title}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           aspectRatio="video"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -106,10 +106,10 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
           <Button
             size="sm"
             variant="secondary"
-            className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
+            className="h-8 w-8 p-0 bg-white/90 hover:bg-white transition-all duration-200 hover:scale-110 group"
             onClick={handleShare}
           >
-            <Share2 className="h-4 w-4 text-foreground" />
+            <Share2 className="h-4 w-4 text-foreground transition-transform duration-200 group-hover:rotate-12" />
           </Button>
         </div>
         
@@ -144,7 +144,7 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
 
           {/* Reviews Section */}
           {reviewStats.totalReviews > 0 && (
-            <div className="mb-4">
+            <div className="mb-4 animate-fade-in" style={{ animationDelay: '300ms' }}>
               <StarRatingDisplay 
                 rating={reviewStats.averageRating} 
                 totalReviews={reviewStats.totalReviews}
@@ -159,13 +159,13 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
           <Button 
             variant="outline" 
             size="sm" 
-            className="w-full mb-4"
+            className="w-full mb-4 transition-all duration-200 hover:scale-[1.02] hover:shadow-md group"
             asChild
           >
             <a href={highlight.ticket_url} target="_blank" rel="noopener noreferrer">
-              <Ticket className="w-4 h-4 mr-2" />
+              <Ticket className="w-4 h-4 mr-2 transition-transform duration-200 group-hover:rotate-12" />
               Comprar Ingresso
-              <ExternalLink className="w-4 h-4 ml-2" />
+              <ExternalLink className="w-4 h-4 ml-2 transition-transform duration-200 group-hover:translate-x-1" />
             </a>
           </Button>
         )}

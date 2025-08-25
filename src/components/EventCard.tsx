@@ -63,29 +63,33 @@ const EventCard = ({ event, className }: EventCardProps) => {
 
   return (
     <>
-      <Card className={`group hover-scale overflow-hidden ${className}`}>
-        <div className="relative">
+      <Card className={`group hover-lift overflow-hidden transition-all duration-300 hover:shadow-lg ${className}`}>
+        <div className="relative overflow-hidden">
           <LazyImage
             src={event.image || '/placeholder.svg'}
             alt={event.title}
-            className="w-full h-48 object-cover"
+            className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
           />
           <div className="absolute top-3 right-3 flex gap-2">
             <Button
               size="sm"
               variant="secondary"
-              className="h-8 w-8 p-0 bg-background/80 backdrop-blur-sm"
+              className="h-8 w-8 p-0 bg-background/80 backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-background/90"
               onClick={() => toggleFavorite(event)}
             >
-              <Heart className={`h-4 w-4 ${favorite ? 'fill-destructive text-destructive' : ''}`} />
+              <Heart className={`h-4 w-4 transition-all duration-300 ${
+                favorite 
+                  ? 'fill-destructive text-destructive animate-pulse' 
+                  : 'hover:scale-110'
+              }`} />
             </Button>
             <Button
               size="sm"
               variant="secondary"
-              className="h-8 w-8 p-0 bg-background/80 backdrop-blur-sm"
+              className="h-8 w-8 p-0 bg-background/80 backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-background/90 group"
               onClick={handleShare}
             >
-              <Share2 className="h-4 w-4" />
+              <Share2 className="h-4 w-4 transition-transform duration-200 group-hover:rotate-12" />
             </Button>
           </div>
           <Badge className="absolute top-3 left-3">
@@ -114,11 +118,13 @@ const EventCard = ({ event, className }: EventCardProps) => {
           </div>
 
           {reviewStats.totalReviews > 0 && (
-            <StarRatingDisplay 
-              rating={reviewStats.averageRating} 
-              totalReviews={reviewStats.totalReviews}
-              size="sm"
-            />
+            <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
+              <StarRatingDisplay 
+                rating={reviewStats.averageRating} 
+                totalReviews={reviewStats.totalReviews}
+                size="sm"
+              />
+            </div>
           )}
 
           {event.description && (
@@ -127,7 +133,7 @@ const EventCard = ({ event, className }: EventCardProps) => {
             </p>
           )}
 
-          <Button className="w-full">
+          <Button className="w-full transition-all duration-200 hover:scale-[1.02] hover:shadow-md">
             Ver Detalhes
           </Button>
         </CardContent>

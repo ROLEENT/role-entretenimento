@@ -149,16 +149,26 @@ export const LikeSystem: React.FC<LikeSystemProps> = ({
       size="sm"
       onClick={handleLike}
       disabled={isLoading}
-      className={`flex items-center gap-2 ${
+      className={`group flex items-center gap-2 transition-all duration-200 ${
         isLiked 
           ? 'text-red-500 hover:text-red-600' 
           : 'text-muted-foreground hover:text-red-500'
       }`}
     >
       <Heart 
-        className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} 
+        className={`h-4 w-4 transition-all duration-300 ${
+          isLiked ? 'fill-current animate-pulse' : ''
+        } ${
+          isLoading ? 'animate-bounce' : 'group-hover:scale-110'
+        }`} 
       />
-      {showCount && <span>{likeCount}</span>}
+      {showCount && (
+        <span className={`transition-all duration-300 ${
+          isLoading ? 'animate-pulse' : ''
+        }`}>
+          {likeCount}
+        </span>
+      )}
     </Button>
   );
 };
