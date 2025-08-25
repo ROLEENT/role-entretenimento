@@ -19,6 +19,7 @@ import { useUserSearch } from '@/hooks/useUserSearch';
 import EventCard from '@/components/EventCard';
 import { User, Edit2, Save, X, Loader2, LogOut, Heart, Calendar, MapPin, ExternalLink, UserCheck, Users, UserPlus, AtSign, Settings, Bell } from 'lucide-react';
 import { NotificationSettings } from '@/components/NotificationSettings';
+import { AvatarUpload } from '@/components/AvatarUpload';
 import { toast } from 'sonner';
 
 const Profile = () => {
@@ -240,6 +241,38 @@ const Profile = () => {
     setIsEditingName(false);
   };
 
+  const handleAvatarChange = async (avatarUrl: string) => {
+    setLoading(true);
+    try {
+      const { error } = await updateProfile({ avatar_url: avatarUrl });
+      
+      if (error) {
+        console.error('Erro ao atualizar avatar:', error);
+        
+        if (error.message?.includes('RLS') || error.message?.includes('policy')) {
+          toast.error('Erro de autenticação. Faça login novamente.');
+          navigate('/auth');
+          return;
+        }
+        
+        throw error;
+      }
+
+      toast.success('Avatar atualizado com sucesso!');
+    } catch (error: any) {
+      console.error('Erro ao atualizar avatar:', error);
+      
+      if (error.message?.includes('Sessão não encontrada')) {
+        toast.error('Sessão expirada. Faça login novamente.');
+        navigate('/auth');
+      } else {
+        toast.error('Erro ao atualizar avatar. Tente novamente.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -280,10 +313,19 @@ const Profile = () => {
           <Card className="mb-8">
             <CardContent className="pt-6">
               <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src={user.profile?.avatar_url} />
-                  <AvatarFallback className="text-2xl">{userInitials}</AvatarFallback>
-                </Avatar>
+                {isOwnProfile ? (
+                  <AvatarUpload
+                    currentAvatar={user.profile?.avatar_url}
+                    onAvatarChange={handleAvatarChange}
+                    size="lg"
+                    userName={displayName || user.email || 'Usuário'}
+                  />
+                ) : (
+                  <Avatar className="h-24 w-24">
+                    <AvatarImage src={user.profile?.avatar_url} />
+                    <AvatarFallback className="text-2xl">{userInitials}</AvatarFallback>
+                  </Avatar>
+                )}
                 
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
