@@ -1993,6 +1993,18 @@ export type Database = {
           total_sent: number
         }[]
       }
+      get_organizer_admin_data: {
+        Args: { organizer_id: string }
+        Returns: {
+          contact_email: string
+          created_at: string
+          id: string
+          instagram: string
+          name: string
+          site: string
+          updated_at: string
+        }[]
+      }
       get_organizer_public_info: {
         Args: { organizer_id: string }
         Returns: {
@@ -2002,6 +2014,24 @@ export type Database = {
           name: string
           site: string
           updated_at: string
+        }[]
+      }
+      get_partner_admin_data: {
+        Args: { partner_id: string }
+        Returns: {
+          capacity: string
+          contact_email: string
+          created_at: string
+          featured: boolean
+          id: string
+          image_url: string
+          instagram: string
+          location: string
+          name: string
+          rating: number
+          types: string[]
+          updated_at: string
+          website: string
         }[]
       }
       get_post_likes_count: {
