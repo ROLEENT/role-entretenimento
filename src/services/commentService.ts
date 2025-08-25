@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 
+// Admin interface with email access
 export interface BlogComment {
   id: string;
   post_id: string;
@@ -9,6 +10,17 @@ export interface BlogComment {
   is_approved: boolean;
   created_at: string;
   post_title?: string;
+}
+
+// Public interface without email exposure
+export interface PublicBlogComment {
+  id: string;
+  post_id: string;
+  author_name: string;
+  content: string;
+  is_approved: boolean;
+  created_at: string;
+  parent_id?: string;
 }
 
 export const commentService = {
@@ -72,11 +84,11 @@ export const commentService = {
     }
   },
 
-  // Get approved comments for a post (for public viewing)
-  async getPostComments(postId: string): Promise<BlogComment[]> {
+  // Get approved comments for a post (for public viewing) - NO EMAIL EXPOSURE
+  async getPostComments(postId: string): Promise<PublicBlogComment[]> {
     const { data, error } = await supabase
       .from('blog_comments')
-      .select('*')
+      .select('id, post_id, author_name, content, created_at, parent_id, is_approved')
       .eq('post_id', postId)
       .eq('is_approved', true)
       .order('created_at', { ascending: true });
