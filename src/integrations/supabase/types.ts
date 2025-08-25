@@ -1571,6 +1571,15 @@ export type Database = {
         Args: { session_email: string }
         Returns: boolean
       }
+      list_notification_cron_jobs: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          active: boolean
+          command: string
+          jobname: string
+          schedule: string
+        }[]
+      }
       mark_all_notifications_read: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -1597,6 +1606,10 @@ export type Database = {
           user_id: string
           username: string
         }[]
+      }
+      setup_notification_cron_jobs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       test_admin_insert: {
         Args: Record<PropertyKey, never>

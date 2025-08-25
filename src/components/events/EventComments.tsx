@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { MessageCircle, Send, Reply } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotificationTriggers } from '@/hooks/useNotificationTriggers';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -36,6 +37,7 @@ const EventComments = ({ eventId }: EventCommentsProps) => {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState('');
   const { isAuthenticated, user } = useAuth();
+  const { triggerCommentReplyNotification } = useNotificationTriggers();
 
   useEffect(() => {
     fetchComments();
@@ -157,16 +159,29 @@ const EventComments = ({ eventId }: EventCommentsProps) => {
     try {
       setSubmitting(true);
       
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('event_comments')
         .insert({
           event_id: eventId,
           user_id: user!.id,
           content: replyContent.trim(),
           parent_id: parentId
-        } as any);
+        } as any)
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Trigger notificação de resposta
+      if (data) {
+        triggerCommentReplyNotification({
+          parent_comment_id: parentId,
+          replier_user_id: user!.id,
+          content: replyContent.trim(),
+          entity_type: 'event',
+          entity_id: eventId
+        });
+      }
 
       setReplyContent('');
       setReplyingTo(null);
