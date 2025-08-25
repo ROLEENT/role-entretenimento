@@ -8,7 +8,8 @@ import LazyImage from '@/components/LazyImage';
 import ShareDialog from '@/components/ShareDialog';
 import CityMap from '@/components/CityMap';
 import EventReviews from '@/components/events/EventReviews';
-import EventComments from '@/components/events/EventComments';
+import { LikeSystem } from '@/components/events/LikeSystem';
+import { CommentSystem } from '@/components/events/CommentSystem';
 import EventCheckIn from '@/components/events/EventCheckIn';
 import PushNotifications from '@/components/events/PushNotifications';
 import RelatedEvents from '@/components/events/RelatedEvents';
@@ -20,7 +21,6 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { useFavorites } from '@/hooks/useFavorites';
 import { useAuth } from '@/hooks/useAuth';
 
 const EventDetailPage = () => {
@@ -31,7 +31,6 @@ const EventDetailPage = () => {
   const [shareOpen, setShareOpen] = useState(false);
   
   const { user } = useAuth();
-  const { isFavorite, toggleFavorite } = useFavorites();
 
   useEffect(() => {
     if (id) fetchEvent(id);
@@ -57,22 +56,6 @@ const EventDetailPage = () => {
     }
   };
 
-  const handleFavoriteClick = () => {
-    if (!user) {
-      toast.error('Faça login para favoritar eventos');
-      return;
-    }
-    if (event) {
-      toggleFavorite({
-        id: event.id,
-        title: event.title,
-        category: event.categories?.[0]?.category?.name || 'Evento',
-        city: event.city,
-        date: event.date_start,
-        image: event.image_url
-      });
-    }
-  };
 
   if (loading) {
     return (
@@ -131,9 +114,7 @@ const EventDetailPage = () => {
                   </div>
                   
                   <div className="flex items-center gap-2 ml-4">
-                    <Button variant="outline" size="sm" onClick={handleFavoriteClick} className={isFavorite(event.id) ? 'text-red-500' : ''}>
-                      <Heart className={`h-4 w-4 ${isFavorite(event.id) ? 'fill-current' : ''}`} />
-                    </Button>
+                    <LikeSystem entityId={event.id} entityType="event" />
                     <Button variant="outline" size="sm" onClick={() => setShareOpen(true)}>
                       <Share2 className="h-4 w-4" />
                     </Button>
@@ -180,7 +161,7 @@ const EventDetailPage = () => {
             </Card>
 
             <EventReviews eventId={event.id} />
-            <EventComments eventId={event.id} />
+            <CommentSystem entityId={event.id} entityType="event" />
           </div>
 
           <div className="space-y-6">

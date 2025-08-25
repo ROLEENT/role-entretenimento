@@ -5,7 +5,8 @@ import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
 import SEOHead from '@/components/SEOHead';
 import ShareDialog from '@/components/ShareDialog';
-import HighlightComments from '@/components/highlights/HighlightComments';
+import { LikeSystem } from '@/components/events/LikeSystem';
+import { CommentSystem } from '@/components/events/CommentSystem';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,7 +23,6 @@ const HighlightDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
-  const [liked, setLiked] = useState(false);
 
   useEffect(() => {
     if (id) fetchHighlight(id);
@@ -53,37 +53,6 @@ const HighlightDetailPage = () => {
     }
   };
 
-  const handleLike = async () => {
-    if (!highlight || liked) return;
-
-    try {
-      // Incrementar like_count
-      const { error } = await supabase.rpc('increment_highlight_likes', {
-        highlight_id: highlight.id
-      });
-
-      if (error) throw error;
-
-      // Atualizar estado local
-      setHighlight((prev: any) => ({
-        ...prev,
-        like_count: prev.like_count + 1
-      }));
-      setLiked(true);
-
-      toast({
-        title: "❤️ Curtiu!",
-        description: "Obrigado por curtir este destaque"
-      });
-    } catch (error) {
-      console.error('Erro ao curtir destaque:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível curtir este destaque",
-        variant: "destructive"
-      });
-    }
-  };
 
   const getImageUrl = (imageUrl: string) => {
     if (!imageUrl) return '/placeholder.svg';
@@ -231,16 +200,7 @@ const HighlightDetailPage = () => {
                       </div>
                       
                       <div className="flex items-center gap-2 ml-4">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={handleLike}
-                          disabled={liked}
-                          className={liked ? 'text-red-500' : ''}
-                        >
-                          <Heart className={`h-4 w-4 ${liked ? 'fill-current' : ''}`} />
-                          <span className="ml-1">{highlight.like_count || 0}</span>
-                        </Button>
+                        <LikeSystem entityId={highlight.id} entityType="highlight" initialLikeCount={highlight.like_count || 0} />
                         
                         <Button variant="outline" size="sm" onClick={() => setShareOpen(true)}>
                           <Share2 className="h-4 w-4" />
@@ -286,7 +246,7 @@ const HighlightDetailPage = () => {
               </Card>
 
               {/* Comments Section */}
-              <HighlightComments highlightId={highlight.id} />
+              <CommentSystem entityId={highlight.id} entityType="highlight" />
             </div>
 
             {/* Sidebar */}
@@ -344,10 +304,6 @@ const HighlightDetailPage = () => {
                       </div>
                     )}
                     
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Curtidas:</span>
-                      <span className="font-medium">{highlight.like_count || 0}</span>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
