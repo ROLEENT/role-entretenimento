@@ -138,7 +138,7 @@ export default function AdminHighlightsIndex() {
   const getImageUrl = (imageUrl: string) => {
     if (!imageUrl) return '/placeholder.jpg';
     if (imageUrl.startsWith('http')) return imageUrl;
-    return `https://nutlcbnruabjsxecqpnd.supabase.co/storage/v1/object/public/highlights/${imageUrl}`;
+    return `https://nutlcbnruabjsxecqpnd.supabase.co/storage/v1/object/public/blog-images/${imageUrl}`;
   };
 
   const filteredHighlights = highlights.filter(highlight => {
