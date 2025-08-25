@@ -1,64 +1,116 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Music, Zap, Guitar, Headphones, Mic, Volume2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const MusicCategories = () => {
-  const categories = [
-    {
-      id: 1,
-      name: "Funk",
-      description: "Bailes, pancadões e os melhores DJs do funk nacional",
-      icon: Volume2,
-      eventCount: 45,
-      color: "from-pink-500 to-purple-600",
-      bgColor: "bg-pink-50 dark:bg-pink-950/20"
-    },
-    {
-      id: 2,
-      name: "Eletrônica",
-      description: "House, techno, trance e muito mais",
-      icon: Headphones,
-      eventCount: 38,
-      color: "from-blue-500 to-cyan-600",
-      bgColor: "bg-blue-50 dark:bg-blue-950/20"
-    },
-    {
-      id: 3,
-      name: "Rock",
-      description: "Rock nacional, internacional e underground",
-      icon: Guitar,
-      eventCount: 29,
-      color: "from-red-500 to-orange-600",
-      bgColor: "bg-red-50 dark:bg-red-950/20"
-    },
-    {
-      id: 4,
-      name: "Hip Hop",
-      description: "Rap, trap e cultura hip hop",
-      icon: Mic,
-      eventCount: 22,
-      color: "from-yellow-500 to-orange-500",
-      bgColor: "bg-yellow-50 dark:bg-yellow-950/20"
-    },
-    {
-      id: 5,
-      name: "Sertanejo",
-      description: "Universitário, raiz e os grandes sucessos",
-      icon: Music,
-      eventCount: 31,
-      color: "from-green-500 to-emerald-600",
-      bgColor: "bg-green-50 dark:bg-green-950/20"
-    },
-    {
-      id: 6,
-      name: "Pop",
-      description: "Os maiores hits do pop nacional e internacional",
-      icon: Zap,
-      eventCount: 26,
-      color: "from-violet-500 to-purple-600",
-      bgColor: "bg-violet-50 dark:bg-violet-950/20"
+  const navigate = useNavigate();
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Mapear ícones para as categorias
+  const iconMap: { [key: string]: any } = {
+    Volume2, Headphones, Guitar, Mic, Music, Zap
+  };
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const loadCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('music_categories')
+        .select('*')
+        .order('created_at');
+
+      if (error) throw error;
+
+      // Adicionar contagem de eventos e descrições
+      const categoriesWithData = data?.map(category => ({
+        ...category,
+        icon: iconMap[category.icon] || Music,
+        eventCount: Math.floor(Math.random() * 50) + 15, // Temporário
+        description: getCategoryDescription(category.slug),
+        bgColor: getBgColor(category.color_hex),
+        color: getGradientColor(category.color_hex)
+      })) || [];
+
+      setCategories(categoriesWithData);
+    } catch (error) {
+      console.error('Erro ao carregar categorias:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const getCategoryDescription = (slug: string) => {
+    const descriptions: { [key: string]: string } = {
+      'funk': 'Bailes, pancadões e os melhores DJs do funk nacional',
+      'eletronica': 'House, techno, trance e muito mais',
+      'rock': 'Rock nacional, internacional e underground',
+      'hip-hop': 'Rap, trap e cultura hip hop',
+      'sertanejo': 'Universitário, raiz e os grandes sucessos',
+      'pop': 'Os maiores hits do pop nacional e internacional'
+    };
+    return descriptions[slug] || 'Descubra eventos incríveis desta categoria';
+  };
+
+  const getBgColor = (colorHex: string) => {
+    const colorMap: { [key: string]: string } = {
+      '#EC4899': 'bg-pink-50 dark:bg-pink-950/20',
+      '#3B82F6': 'bg-blue-50 dark:bg-blue-950/20',
+      '#EF4444': 'bg-red-50 dark:bg-red-950/20',
+      '#F59E0B': 'bg-yellow-50 dark:bg-yellow-950/20',
+      '#10B981': 'bg-green-50 dark:bg-green-950/20',
+      '#8B5CF6': 'bg-violet-50 dark:bg-violet-950/20'
+    };
+    return colorMap[colorHex] || 'bg-gray-50 dark:bg-gray-950/20';
+  };
+
+  const getGradientColor = (colorHex: string) => {
+    const gradientMap: { [key: string]: string } = {
+      '#EC4899': 'from-pink-500 to-purple-600',
+      '#3B82F6': 'from-blue-500 to-cyan-600',
+      '#EF4444': 'from-red-500 to-orange-600',
+      '#F59E0B': 'from-yellow-500 to-orange-500',
+      '#10B981': 'from-green-500 to-emerald-600',
+      '#8B5CF6': 'from-violet-500 to-purple-600'
+    };
+    return gradientMap[colorHex] || 'from-gray-500 to-gray-600';
+  };
+
+  const handleCategoryClick = (categorySlug: string) => {
+    navigate(`/eventos?cats=${categorySlug}`);
+  };
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Categorias Musicais
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Encontre eventos do seu estilo musical favorito
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i} className="animate-pulse">
+                <CardContent className="p-6">
+                  <div className="h-20 bg-muted rounded"></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-16 bg-background">
@@ -79,6 +131,7 @@ const MusicCategories = () => {
               <Card 
                 key={category.id}
                 className={`group hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 ${category.bgColor} border-0`}
+                onClick={() => handleCategoryClick(category.slug)}
               >
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">

@@ -8,7 +8,9 @@ import {
   Building2,
   Megaphone,
   User,
-  LogOut
+  LogOut,
+  TrendingUp,
+  MessageSquare
 } from "lucide-react";
 import {
   Sidebar,
@@ -27,6 +29,8 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 const mainItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Destaques", url: "/admin/highlights", icon: Sparkles },
+  { title: "Métricas", url: "/admin/metrics", icon: TrendingUp },
+  { title: "Depoimentos", url: "/admin/testimonials", icon: MessageSquare },
   { title: "Criar Evento", url: "/admin/event/create", icon: Calendar },
   { title: "Organizadores", url: "/admin/organizers", icon: Building2 },
   { title: "Parceiros", url: "/admin/partners", icon: Users },

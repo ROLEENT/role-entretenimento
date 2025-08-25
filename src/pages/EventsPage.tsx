@@ -1,357 +1,216 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import BackToTop from '@/components/BackToTop';
-import SEOHead from '@/components/SEOHead';
-import EventCard from '@/components/EventCard';
-import EventSkeleton from '@/components/EventSkeleton';
-import EventsFilters from '@/components/events/EventsFilters';
-import EventsMap from '@/components/events/EventsMap';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MapPin, Filter, Grid3X3, Map, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
-import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
+import { Calendar, MapPin, Search, Filter, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-
-const EVENTS_PER_PAGE = 12;
-
-interface EventFilters {
-  city?: string;
-  category?: string;
-  priceMin?: number;
-  priceMax?: number;
-  dateStart?: string;
-  dateEnd?: string;
-}
-
-interface EventData {
-  id: string;
-  title: string;
-  description: string;
-  city: string;
-  date_start: string;
-  date_end: string;
-  price_min: number;
-  price_max: number;
-  image_url: string;
-  status: string;
-  venue?: {
-    id: string;
-    name: string;
-    address: string;
-    lat: number;
-    lng: number;
-  };
-  categories?: Array<{
-    category: {
-      id: string;
-      name: string;
-      slug: string;
-    };
-  }>;
-}
+import SEOHead from '@/components/SEOHead';
 
 const EventsPage = () => {
-  const { cidade } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
-  
-  const [events, setEvents] = useState<EventData[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalEvents, setTotalEvents] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [activeView, setActiveView] = useState<'grid' | 'map'>('grid');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
-  // Initialize filters from URL
-  const getFiltersFromURL = useCallback((): EventFilters => {
-    const filters: EventFilters = {};
+  useEffect(() => {
+    loadCategories();
+    loadEvents();
     
-    if (searchParams.get('city')) filters.city = searchParams.get('city')!;
-    if (searchParams.get('category')) filters.category = searchParams.get('category')!;
-    if (searchParams.get('priceMin')) filters.priceMin = parseFloat(searchParams.get('priceMin')!);
-    if (searchParams.get('priceMax')) filters.priceMax = parseFloat(searchParams.get('priceMax')!);
-    if (searchParams.get('dateStart')) filters.dateStart = searchParams.get('dateStart')!;
-    if (searchParams.get('dateEnd')) filters.dateEnd = searchParams.get('dateEnd')!;
-    
-    return filters;
+    const cats = searchParams.get('cats');
+    if (cats) {
+      setSelectedCategories(cats.split(','));
+    }
   }, [searchParams]);
 
-  const [filters, setFilters] = useState<EventFilters>(getFiltersFromURL());
+  const loadCategories = async () => {
+    try {
+      const { data } = await supabase.from('music_categories').select('*').order('name');
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Erro ao carregar categorias:', error);
+    }
+  };
 
-  // Update URL when filters change
-  const updateURLWithFilters = useCallback((newFilters: EventFilters, page: number = 1) => {
-    const params = new URLSearchParams();
-    
-    if (newFilters.city) params.set('city', newFilters.city);
-    if (newFilters.category) params.set('category', newFilters.category);
-    if (newFilters.priceMin !== undefined) params.set('priceMin', newFilters.priceMin.toString());
-    if (newFilters.priceMax !== undefined) params.set('priceMax', newFilters.priceMax.toString());
-    if (newFilters.dateStart) params.set('dateStart', newFilters.dateStart);
-    if (newFilters.dateEnd) params.set('dateEnd', newFilters.dateEnd);
-    if (page > 1) params.set('page', page.toString());
-    
-    setSearchParams(params, { replace: true });
-  }, [setSearchParams]);
-
-  // Load events with filters
-  const fetchEvents = useCallback(async (page: number = 1, currentFilters: EventFilters = filters) => {
+  const loadEvents = async () => {
     try {
       setLoading(true);
-      
-      // Build query
-      let query = supabase
+      const { data } = await supabase
         .from('events')
-        .select(`
-          *,
-          venue:venues(*),
-          categories:event_categories(category:categories(*))
-        `, { count: 'exact' })
-        .eq('status', 'active');
-
-      // Apply filters
-      if (currentFilters.city) {
-        query = query.eq('city', currentFilters.city);
-      }
-      
-      if (currentFilters.category) {
-        query = query.eq('categories.category.slug', currentFilters.category);
-      }
-      
-      if (currentFilters.priceMin !== undefined) {
-        query = query.gte('price_min', currentFilters.priceMin);
-      }
-      
-      if (currentFilters.priceMax !== undefined) {
-        query = query.lte('price_max', currentFilters.priceMax);
-      }
-      
-      if (currentFilters.dateStart) {
-        query = query.gte('date_start', currentFilters.dateStart);
-      }
-      
-      if (currentFilters.dateEnd) {
-        query = query.lte('date_end', currentFilters.dateEnd + 'T23:59:59');
-      }
-
-      // Apply ordering and pagination
-      query = query
-        .order('date_start', { ascending: true })
-        .range((page - 1) * EVENTS_PER_PAGE, page * EVENTS_PER_PAGE - 1);
-
-      const { data, error, count } = await query;
-
-      if (error) throw error;
-
+        .select('*, venues(name, city)')
+        .eq('status', 'active')
+        .order('date_start');
       setEvents(data || []);
-      setTotalEvents(count || 0);
-      setTotalPages(Math.ceil((count || 0) / EVENTS_PER_PAGE));
-    } catch (error: any) {
-      console.error('Error fetching events:', error);
-      toast.error('Erro ao carregar eventos: ' + error.message);
+    } catch (error) {
+      console.error('Erro ao carregar eventos:', error);
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  };
 
-  // Initialize page from URL
-  useEffect(() => {
-    const pageFromURL = parseInt(searchParams.get('page') || '1');
-    setCurrentPage(pageFromURL);
+  const handleCategoryToggle = (categorySlug: string) => {
+    let newCategories;
+    if (selectedCategories.includes(categorySlug)) {
+      newCategories = selectedCategories.filter(cat => cat !== categorySlug);
+    } else {
+      newCategories = [...selectedCategories, categorySlug];
+    }
     
-    const filtersFromURL = getFiltersFromURL();
-    setFilters(filtersFromURL);
+    setSelectedCategories(newCategories);
     
-    fetchEvents(pageFromURL, filtersFromURL);
-  }, [searchParams, getFiltersFromURL, fetchEvents]);
+    const params = new URLSearchParams(searchParams);
+    if (newCategories.length > 0) {
+      params.set('cats', newCategories.join(','));
+    } else {
+      params.delete('cats');
+    }
+    setSearchParams(params);
+  };
 
-  // Handle filter changes
-  const handleFiltersChange = useCallback((newFilters: EventFilters) => {
-    setFilters(newFilters);
-    setCurrentPage(1);
-    updateURLWithFilters(newFilters, 1);
-    fetchEvents(1, newFilters);
-  }, [updateURLWithFilters, fetchEvents]);
+  const clearFilters = () => {
+    setSelectedCategories([]);
+    setSearchTerm('');
+    setSearchParams({});
+  };
 
-  // Handle clear filters
-  const handleClearFilters = useCallback(() => {
-    const emptyFilters: EventFilters = {};
-    setFilters(emptyFilters);
-    setCurrentPage(1);
-    setSearchParams({}, { replace: true });
-    fetchEvents(1, emptyFilters);
-  }, [setSearchParams, fetchEvents]);
-
-  // Handle page change
-  const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
-    updateURLWithFilters(filters, page);
-    fetchEvents(page, filters);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [filters, updateURLWithFilters, fetchEvents]);
-
-  // Handle event selection from map
-  const handleEventSelect = useCallback((eventId: string) => {
-    navigate(`/evento/${eventId}`);
-  }, [navigate]);
-
-  const pageTitle = cidade && cidade !== 'todos' 
-    ? `Eventos em ${cidade} | ROLÊ` 
-    : 'Todos os Eventos | ROLÊ';
-
-  const hasActiveFilters = Object.keys(filters).length > 0;
+  const filteredEvents = events.filter(event => {
+    if (searchTerm && !event.title.toLowerCase().includes(searchTerm.toLowerCase())) {
+      return false;
+    }
+    return true;
+  });
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
       <SEOHead 
-        title={pageTitle} 
-        description="Descubra os melhores eventos do Brasil com filtros avançados e mapa interativo" 
+        title="Eventos - ROLÊ"
+        description="Descubra os melhores eventos de música na sua cidade"
       />
-      <Header />
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">
-            {cidade && cidade !== 'todos' ? `Eventos em ${cidade}` : 'Todos os Eventos'}
-          </h1>
-          <p className="text-muted-foreground">
-            {totalEvents > 0 && (
-              `${totalEvents} evento${totalEvents !== 1 ? 's' : ''} encontrado${totalEvents !== 1 ? 's' : ''}`
-            )}
-          </p>
-        </div>
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Eventos</h1>
+            <p className="text-muted-foreground text-lg">Descubra os melhores eventos da sua cidade</p>
+          </div>
 
-        {/* Filters */}
-        <EventsFilters
-          filters={filters}
-          onFiltersChange={handleFiltersChange}
-          onClearFilters={handleClearFilters}
-          isLoading={loading}
-        />
+          <div className="bg-card rounded-lg p-6 mb-8 space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Filter className="w-5 h-5" />
+              <h2 className="text-lg font-semibold">Filtros</h2>
+              {(selectedCategories.length > 0 || searchTerm) && (
+                <Button variant="outline" size="sm" onClick={clearFilters}>
+                  <X className="w-4 h-4 mr-1" />Limpar
+                </Button>
+              )}
+            </div>
 
-        {/* View Toggle */}
-        <div className="mb-6">
-          <Tabs value={activeView} onValueChange={(value) => setActiveView(value as 'grid' | 'map')}>
-            <TabsList className="grid w-full max-w-md grid-cols-2">
-              <TabsTrigger value="grid" className="flex items-center gap-2">
-                <Grid3X3 className="h-4 w-4" />
-                Grade
-              </TabsTrigger>
-              <TabsTrigger value="map" className="flex items-center gap-2">
-                <Map className="h-4 w-4" />
-                Mapa
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-
-        {/* Content */}
-        {activeView === 'grid' ? (
-          <>
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                {Array.from({ length: 6 }).map((_, i) => <EventSkeleton key={i} />)}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Buscar</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Nome do evento..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
               </div>
-            ) : events.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                  {events.map((event) => (
-                    <EventCard 
-                      key={event.id}
-                      event={{
-                        id: event.id,
-                        title: event.title,
-                        category: event.categories?.[0]?.category?.name || 'Evento',
-                        city: event.city,
-                        date: event.date_start,
-                        image: event.image_url,
-                        price: event.price_min,
-                        description: event.description
-                      }}
-                    />
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Categorias</label>
+                <div className="flex flex-wrap gap-2">
+                  {categories.map(category => (
+                    <Badge
+                      key={category.id}
+                      variant={selectedCategories.includes(category.slug) ? "default" : "outline"}
+                      className="cursor-pointer"
+                      onClick={() => handleCategoryToggle(category.slug)}
+                    >
+                      {category.name}
+                    </Badge>
                   ))}
                 </div>
+              </div>
+            </div>
+          </div>
 
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <div className="flex items-center justify-center gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1}
-                    >
-                      <ChevronLeft className="h-4 w-4 mr-1" />
-                      Anterior
-                    </Button>
-                    
-                    <div className="flex items-center gap-1">
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        let pageNum;
-                        if (totalPages <= 5) {
-                          pageNum = i + 1;
-                        } else if (currentPage <= 3) {
-                          pageNum = i + 1;
-                        } else if (currentPage >= totalPages - 2) {
-                          pageNum = totalPages - 4 + i;
-                        } else {
-                          pageNum = currentPage - 2 + i;
-                        }
-                        
-                        return (
-                          <Button
-                            key={pageNum}
-                            variant={currentPage === pageNum ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => handlePageChange(pageNum)}
-                            className="min-w-[40px]"
-                          >
-                            {pageNum}
-                          </Button>
-                        );
-                      })}
+          <div className="mb-4">
+            <p className="text-muted-foreground">
+              {loading ? 'Carregando...' : `${filteredEvents.length} evento(s) encontrado(s)`}
+            </p>
+          </div>
+
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <Card key={i} className="animate-pulse">
+                  <CardContent className="p-0">
+                    <div className="h-48 bg-muted rounded-t-lg"></div>
+                    <div className="p-4 space-y-2">
+                      <div className="h-4 bg-muted rounded"></div>
+                      <div className="h-4 bg-muted rounded w-3/4"></div>
                     </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : filteredEvents.length === 0 ? (
+            <div className="text-center py-12">
+              <Calendar className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Nenhum evento encontrado</h3>
+              <Button onClick={clearFilters} variant="outline">Limpar filtros</Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredEvents.map(event => (
+                <Card key={event.id} className="group hover:shadow-lg transition-all duration-300">
+                  <CardContent className="p-0">
+                    <div className="relative h-48 overflow-hidden">
+                      <img
+                        src={event.image_url || '/placeholder.svg'}
+                        alt={event.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    
+                    <div className="p-4">
+                      <h3 className="font-bold text-lg mb-2">{event.title}</h3>
+                      
+                      <div className="space-y-2 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>{new Date(event.date_start).toLocaleDateString('pt-BR')}</span>
+                        </div>
+                        
+                        {event.venues && (
+                          <div className="flex items-center gap-2">
+                            <MapPin className="w-4 h-4" />
+                            <span>{event.venues.name}, {event.venues.city}</span>
+                          </div>
+                        )}
+                      </div>
 
-                    <Button
-                      variant="outline"
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages}
-                    >
-                      Próxima
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
-                  </div>
-                )}
-              </>
-            ) : (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">
-                    {hasActiveFilters ? 'Nenhum evento encontrado com os filtros aplicados' : 'Nenhum evento encontrado'}
-                  </h3>
-                  {hasActiveFilters && (
-                    <Button variant="outline" onClick={handleClearFilters} className="mt-4">
-                      Limpar filtros
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-          </>
-        ) : (
-          <EventsMap 
-            events={events} 
-            onEventSelect={handleEventSelect}
-            className="h-[600px]"
-          />
-        )}
-      </main>
-
-      <Footer />
-      <BackToTop />
-    </div>
+                      <div className="flex items-center justify-between mt-4">
+                        {event.price_min && (
+                          <span className="font-bold text-primary">R$ {event.price_min}</span>
+                        )}
+                        <Button size="sm" className="ml-auto">Ver detalhes</Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
   );
 };
 

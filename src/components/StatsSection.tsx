@@ -1,106 +1,161 @@
 import { useEffect, useState } from "react";
 import { Users, Eye, MapPin, Heart } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const StatsSection = () => {
-  const [counters, setCounters] = useState({
-    reach: 0,
-    views: 0,
-    cities: 0,
-    followers: 0,
+  const [counters, setCounters] = useState([0, 0, 0, 0]);
+  const [metrics, setMetrics] = useState({
+    reach_thousands: 850,
+    views_millions: 2.3,
+    active_cities: 6,
+    followers_thousands: 120
   });
+  const [loading, setLoading] = useState(true);
 
-  const finalStats = {
-    reach: 500,
-    views: 2,
-    cities: 5,
-    followers: 22,
+  useEffect(() => {
+    loadCurrentMetrics();
+  }, []);
+
+  const loadCurrentMetrics = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('site_metrics')
+        .select('*')
+        .eq('is_current', true)
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error;
+
+      if (data) {
+        setMetrics({
+          reach_thousands: data.reach_thousands || 850,
+          views_millions: data.views_millions || 2.3,
+          active_cities: data.active_cities || 6,
+          followers_thousands: data.followers_thousands || 120
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao carregar métricas:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    const duration = 2000; // 2 seconds
-    const intervals = 50; // Number of steps
-    const stepTime = duration / intervals;
+    if (loading) return;
 
+    const targets = [
+      metrics.reach_thousands,
+      metrics.views_millions * 100, // Para animação mais suave
+      metrics.active_cities,
+      metrics.followers_thousands
+    ];
+
+    const duration = 2000;
+    const steps = 60;
+    const stepDuration = duration / steps;
+    
+    let currentStep = 0;
+    
     const timer = setInterval(() => {
-      setCounters(prev => ({
-        reach: Math.min(prev.reach + Math.ceil(finalStats.reach / intervals), finalStats.reach),
-        views: Math.min(prev.views + Math.ceil(finalStats.views / intervals), finalStats.views),
-        cities: Math.min(prev.cities + Math.ceil(finalStats.cities / intervals), finalStats.cities),
-        followers: Math.min(prev.followers + Math.ceil(finalStats.followers / intervals), finalStats.followers),
-      }));
-    }, stepTime);
+      currentStep++;
+      const progress = Math.min(currentStep / steps, 1);
+      
+      setCounters(targets.map(target => 
+        Math.floor(target * progress)
+      ));
+      
+      if (progress >= 1) {
+        clearInterval(timer);
+      }
+    }, stepDuration);
 
-    // Clear interval when animation is complete
-    const timeout = setTimeout(() => {
-      clearInterval(timer);
-      setCounters(finalStats);
-    }, duration);
-
-    return () => {
-      clearInterval(timer);
-      clearTimeout(timeout);
-    };
-  }, []);
+    return () => clearInterval(timer);
+  }, [loading, metrics]);
 
   const stats = [
     {
       icon: Users,
-      number: counters.reach,
-      label: "Mil contas alcançadas",
-      color: "text-blue-500",
-      bgColor: "bg-blue-500/10",
+      number: counters[0],
+      label: "mil pessoas alcançadas",
+      color: "text-blue-600",
+      bgColor: "bg-blue-100 dark:bg-blue-900/20"
     },
     {
       icon: Eye,
-      number: counters.views,
-      label: "Milhões de views mensais",
-      color: "text-green-500",
-      bgColor: "bg-green-500/10",
+      number: (counters[1] / 100).toFixed(1),
+      label: "milhões de visualizações",
+      color: "text-green-600", 
+      bgColor: "bg-green-100 dark:bg-green-900/20"
     },
     {
       icon: MapPin,
-      number: counters.cities,
-      label: "Cidades ativas",
-      color: "text-purple-500",
-      bgColor: "bg-purple-500/10",
+      number: counters[2],
+      label: "cidades ativas",
+      color: "text-purple-600",
+      bgColor: "bg-purple-100 dark:bg-purple-900/20"
     },
     {
       icon: Heart,
-      number: counters.followers,
-      label: "Mil seguidores",
-      color: "text-red-500",
-      bgColor: "bg-red-500/10",
-    },
+      number: counters[3],
+      label: "mil seguidores",
+      color: "text-red-600",
+      bgColor: "bg-red-100 dark:bg-red-900/20"
+    }
   ];
 
+  if (loading) {
+    return (
+      <section className="py-16 bg-muted/50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              ROLÊ em números
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Carregando estatísticas...
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="text-center animate-pulse">
+                <div className="w-16 h-16 bg-muted rounded-full mx-auto mb-4"></div>
+                <div className="h-8 bg-muted rounded mb-2"></div>
+                <div className="h-4 bg-muted rounded"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="py-16 bg-background" aria-labelledby="stats-title">
+    <section className="py-16 bg-muted/50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 id="stats-title" className="text-3xl font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             ROLÊ em números
           </h2>
-          <p className="text-lg text-muted-foreground">
-            O impacto da nossa comunidade na cena cultural brasileira
+          <p className="text-muted-foreground text-lg">
+            Nossa comunidade crescendo a cada dia
           </p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
           {stats.map((stat, index) => {
             const IconComponent = stat.icon;
             return (
               <div key={index} className="text-center group">
-                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${stat.bgColor} mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                  <IconComponent className={`h-8 w-8 ${stat.color}`} />
+                <div className={`w-16 h-16 ${stat.bgColor} rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                  <IconComponent className={`w-8 h-8 ${stat.color}`} />
                 </div>
-                <div className="space-y-2">
-                  <div className={`text-4xl font-bold ${stat.color}`} aria-live="polite">
-                    {stat.number}
-                  </div>
-                  <div className="text-sm text-muted-foreground font-medium">
-                    {stat.label}
-                  </div>
+                <div className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+                  {stat.number}
                 </div>
+                <p className="text-sm text-muted-foreground">
+                  {stat.label}
+                </p>
               </div>
             );
           })}
