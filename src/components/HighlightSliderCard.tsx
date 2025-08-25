@@ -48,7 +48,7 @@ export const HighlightSliderCard = ({ highlight }: HighlightSliderCardProps) => 
     if (imageUrl.startsWith('http')) {
       return imageUrl;
     }
-    return `https://nutlcbnruabjsxecqpnd.supabase.co/storage/v1/object/public/blog-images/${imageUrl}`;
+    return `https://nutlcbnruabjsxecqpnd.supabase.co/storage/v1/object/public/highlights/${imageUrl}`;
   };
 
   const formatDate = (dateStr: string | null): string => {

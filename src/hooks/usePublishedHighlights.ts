@@ -62,13 +62,13 @@ export const usePublishedHighlights = (limit?: number) => {
   };
 
   const getImageUrl = (imageUrl: string) => {
-    if (!imageUrl) return '/placeholder.jpg';
+    if (!imageUrl) return '/placeholder.svg';
     
     if (imageUrl.startsWith('http')) {
       return imageUrl;
     }
     
-    return `https://nutlcbnruabjsxecqpnd.supabase.co/storage/v1/object/public/blog-images/${imageUrl}`;
+    return `https://nutlcbnruabjsxecqpnd.supabase.co/storage/v1/object/public/highlights/${imageUrl}`;
   };
 
   const getCityDisplayName = (city: string) => {
