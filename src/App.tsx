@@ -46,6 +46,7 @@ import CreateEventPage from "./pages/CreateEventPage";
 import AuthPage from "./pages/AuthPage";
 import Profile from "./pages/Profile";
 import WeeklyHighlights from "./pages/WeeklyHighlights";
+import FeedPage from "./pages/FeedPage";
 import NotFound from "./pages/NotFound";
 import AdminMetricsIndex from "./pages/admin/metrics/Index";
 import AdminTestimonialsIndex from "./pages/admin/testimonials/Index";
@@ -130,6 +131,7 @@ function App() {
                 {/* User Routes */}
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/perfil" element={<Profile />} />
+                <Route path="/feed" element={<FeedPage />} />
                 <Route path="/eventos/semana/:data" element={<WeeklyHighlights />} />
                 
                 {/* Catch-all route MUST be last */}
