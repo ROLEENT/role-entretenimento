@@ -20,6 +20,8 @@ const AdminMetricsIndex = () => {
     followers_thousands: ''
   });
   const [history, setHistory] = useState<any[]>([]);
+  const [preview, setPreview] = useState<any>(null);
+  const [validationErrors, setValidationErrors] = useState<any>({});
 
   useEffect(() => {
     loadCurrentMetrics();
@@ -66,15 +68,73 @@ const AdminMetricsIndex = () => {
     }
   };
 
+  const validateInput = (field: string, value: string) => {
+    const errors: any = {};
+    const numValue = parseFloat(value);
+    
+    if (value && isNaN(numValue)) {
+      errors[field] = 'Deve ser um número válido';
+    } else if (numValue < 0) {
+      errors[field] = 'Não pode ser negativo';
+    } else if (field === 'reach_thousands' && numValue > 10000) {
+      errors[field] = 'Valor muito alto (máx: 10.000k)';
+    } else if (field === 'views_millions' && numValue > 100) {
+      errors[field] = 'Valor muito alto (máx: 100M)';
+    } else if (field === 'active_cities' && numValue > 50) {
+      errors[field] = 'Valor muito alto (máx: 50)';
+    } else if (field === 'followers_thousands' && numValue > 5000) {
+      errors[field] = 'Valor muito alto (máx: 5.000k)';
+    }
+    
+    return errors;
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setMetrics(prev => ({
       ...prev,
       [field]: value
     }));
+    
+    // Validação em tempo real
+    const errors = validateInput(field, value);
+    setValidationErrors(prev => ({
+      ...prev,
+      [field]: errors[field] || null
+    }));
+    
+    // Preview dos valores
+    if (value) {
+      const numValue = parseFloat(value);
+      if (!isNaN(numValue)) {
+        setPreview(prev => ({
+          ...prev,
+          [field]: numValue
+        }));
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validar todos os campos
+    const allErrors: any = {};
+    Object.keys(metrics).forEach(field => {
+      const errors = validateInput(field, metrics[field as keyof typeof metrics]);
+      if (errors[field]) {
+        allErrors[field] = errors[field];
+      }
+    });
+    
+    if (Object.keys(allErrors).length > 0) {
+      setValidationErrors(allErrors);
+      toast({
+        title: "Erro de Validação",
+        description: "Corrija os campos destacados",
+        variant: "destructive"
+      });
+      return;
+    }
     
     if (!adminUser?.email) {
       toast({
@@ -104,10 +164,12 @@ const AdminMetricsIndex = () => {
       if (error) throw error;
 
       toast({
-        title: "Sucesso!",
-        description: "Métricas atualizadas com sucesso"
+        title: "✅ Sucesso!",
+        description: "Métricas atualizadas e refletidas na home",
+        duration: 5000
       });
 
+      setPreview(null);
       loadCurrentMetrics();
       loadMetricsHistory();
     } catch (error: any) {
@@ -155,8 +217,15 @@ const AdminMetricsIndex = () => {
                       placeholder="850"
                       value={metrics.reach_thousands}
                       onChange={(e) => handleInputChange('reach_thousands', e.target.value)}
+                      className={validationErrors.reach_thousands ? 'border-destructive' : ''}
                     />
                   </div>
+                  {validationErrors.reach_thousands && (
+                    <p className="text-sm text-destructive">{validationErrors.reach_thousands}</p>
+                  )}
+                  {preview?.reach_thousands && (
+                    <p className="text-xs text-muted-foreground">Preview: {preview.reach_thousands}k pessoas</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -170,8 +239,15 @@ const AdminMetricsIndex = () => {
                       placeholder="2.3"
                       value={metrics.views_millions}
                       onChange={(e) => handleInputChange('views_millions', e.target.value)}
+                      className={validationErrors.views_millions ? 'border-destructive' : ''}
                     />
                   </div>
+                  {validationErrors.views_millions && (
+                    <p className="text-sm text-destructive">{validationErrors.views_millions}</p>
+                  )}
+                  {preview?.views_millions && (
+                    <p className="text-xs text-muted-foreground">Preview: {preview.views_millions}M visualizações</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -184,8 +260,15 @@ const AdminMetricsIndex = () => {
                       placeholder="6"
                       value={metrics.active_cities}
                       onChange={(e) => handleInputChange('active_cities', e.target.value)}
+                      className={validationErrors.active_cities ? 'border-destructive' : ''}
                     />
                   </div>
+                  {validationErrors.active_cities && (
+                    <p className="text-sm text-destructive">{validationErrors.active_cities}</p>
+                  )}
+                  {preview?.active_cities && (
+                    <p className="text-xs text-muted-foreground">Preview: {preview.active_cities} cidades</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -198,8 +281,15 @@ const AdminMetricsIndex = () => {
                       placeholder="120"
                       value={metrics.followers_thousands}
                       onChange={(e) => handleInputChange('followers_thousands', e.target.value)}
+                      className={validationErrors.followers_thousands ? 'border-destructive' : ''}
                     />
                   </div>
+                  {validationErrors.followers_thousands && (
+                    <p className="text-sm text-destructive">{validationErrors.followers_thousands}</p>
+                  )}
+                  {preview?.followers_thousands && (
+                    <p className="text-xs text-muted-foreground">Preview: {preview.followers_thousands}k seguidores</p>
+                  )}
                 </div>
               </div>
 

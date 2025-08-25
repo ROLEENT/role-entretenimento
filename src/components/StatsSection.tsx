@@ -14,6 +14,27 @@ const StatsSection = () => {
 
   useEffect(() => {
     loadCurrentMetrics();
+    
+    // Realtime updates para métricas
+    const channel = supabase
+      .channel('metrics-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'site_metrics',
+          filter: 'is_current=eq.true'
+        },
+        () => {
+          loadCurrentMetrics();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const loadCurrentMetrics = async () => {
