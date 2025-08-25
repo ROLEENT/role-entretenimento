@@ -246,6 +246,7 @@ const AdminHighlightEditor = () => {
       };
 
       console.log('💾 Salvando destaque:', dataToSave);
+      console.log('🖼️ URL da imagem que será salva:', dataToSave.image_url);
 
       let result;
       if (isEdit && id) {

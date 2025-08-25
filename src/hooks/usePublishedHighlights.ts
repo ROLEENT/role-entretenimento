@@ -68,7 +68,7 @@ export const usePublishedHighlights = (limit?: number) => {
       return imageUrl;
     }
     
-    return `https://nutlcbnruabjsxecqpnd.supabase.co/storage/v1/object/public/highlights/${imageUrl}`;
+    return `https://nutlcbnruabjsxecqpnd.supabase.co/storage/v1/object/public/blog-images/${imageUrl}`;
   };
 
   const getCityDisplayName = (city: string) => {
