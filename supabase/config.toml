@@ -54,3 +54,15 @@ public = true
 
 [functions.send-push-notification]
 verify_jwt = false
+
+[functions.notify-new-event]
+verify_jwt = false
+
+[functions.notify-event-reminder]
+verify_jwt = false
+
+[functions.notify-comment-reply]
+verify_jwt = false
+
+[functions.notify-weekly-highlights]
+verify_jwt = false

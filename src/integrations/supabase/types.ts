@@ -1200,6 +1200,60 @@ export type Database = {
           },
         ]
       }
+      user_notification_preferences: {
+        Row: {
+          allowed_end_hour: number
+          allowed_start_hour: number
+          comment_replies: boolean
+          created_at: string
+          daily_notification_count: number
+          event_reminders: boolean
+          id: string
+          interested_categories: string[] | null
+          last_notification_date: string | null
+          max_daily_notifications: number
+          new_events: boolean
+          preferred_cities: string[] | null
+          updated_at: string
+          user_id: string
+          weekly_highlights: boolean
+        }
+        Insert: {
+          allowed_end_hour?: number
+          allowed_start_hour?: number
+          comment_replies?: boolean
+          created_at?: string
+          daily_notification_count?: number
+          event_reminders?: boolean
+          id?: string
+          interested_categories?: string[] | null
+          last_notification_date?: string | null
+          max_daily_notifications?: number
+          new_events?: boolean
+          preferred_cities?: string[] | null
+          updated_at?: string
+          user_id: string
+          weekly_highlights?: boolean
+        }
+        Update: {
+          allowed_end_hour?: number
+          allowed_start_hour?: number
+          comment_replies?: boolean
+          created_at?: string
+          daily_notification_count?: number
+          event_reminders?: boolean
+          id?: string
+          interested_categories?: string[] | null
+          last_notification_date?: string | null
+          max_daily_notifications?: number
+          new_events?: boolean
+          preferred_cities?: string[] | null
+          updated_at?: string
+          user_id?: string
+          weekly_highlights?: boolean
+        }
+        Relationships: []
+      }
       venues: {
         Row: {
           address: string
@@ -1371,6 +1425,10 @@ export type Database = {
           success: boolean
         }[]
       }
+      can_receive_notification: {
+        Args: { p_notification_type: string; p_user_id: string }
+        Returns: boolean
+      }
       change_admin_password: {
         Args: {
           p_admin_id: string
@@ -1472,6 +1530,10 @@ export type Database = {
         Args: { highlight_id: string }
         Returns: undefined
       }
+      increment_notification_count: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
       increment_post_views: {
         Args: { post_id: string }
         Returns: undefined
@@ -1519,6 +1581,10 @@ export type Database = {
       }
       reject_blog_comment: {
         Args: { p_comment_id: string }
+        Returns: undefined
+      }
+      reset_daily_notification_count: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       search_users_by_username: {
