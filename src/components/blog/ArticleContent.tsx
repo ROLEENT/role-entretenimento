@@ -1,3 +1,5 @@
+import { SafeHTML } from '@/components/ui/safe-html';
+
 interface ArticleContentProps {
   content: string;
 }
@@ -5,9 +7,9 @@ interface ArticleContentProps {
 const ArticleContent = ({ content }: ArticleContentProps) => {
   return (
     <article className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-a:text-primary hover:prose-a:text-primary/80">
-      <div 
+      <SafeHTML 
+        content={content}
         className="article-content"
-        dangerouslySetInnerHTML={{ __html: content }}
       />
       <style>{`
         .article-content h1 {

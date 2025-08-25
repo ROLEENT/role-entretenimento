@@ -38,10 +38,19 @@ const AdminLoginSimple = () => {
       const result = await loginAdmin(email, password);
       
       if (result.success) {
-        toast.success("Login realizado com sucesso!");
-        navigate("/admin");
+        if (result.requiresPasswordUpdate) {
+          toast.success("Login realizado! Você precisa atualizar sua senha por segurança.");
+          navigate("/admin/update-password");
+        } else {
+          toast.success("Login realizado com sucesso!");
+          navigate("/admin");
+        }
       } else {
-        toast.error(result.error || "Erro no login");
+        if (result.requiresPasswordUpdate) {
+          toast.error("Sua conta precisa de atualização de senha. Entre em contato com o administrador.");
+        } else {
+          toast.error(result.error || "Erro no login");
+        }
       }
     } catch (error) {
       console.error("Login error:", error);

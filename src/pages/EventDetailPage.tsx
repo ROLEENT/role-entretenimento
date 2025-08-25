@@ -7,6 +7,7 @@ import SEOHead from '@/components/SEOHead';
 import LazyImage from '@/components/LazyImage';
 import ShareDialog from '@/components/ShareDialog';
 import CityMap from '@/components/CityMap';
+import { SafeHTML } from '@/components/ui/safe-html';
 import { ReviewSystem } from '@/components/reviews/ReviewSystem';
 import { reviewService } from '@/services/eventService';
 import { LikeSystem } from '@/components/events/LikeSystem';
@@ -182,7 +183,10 @@ const EventDetailPage = () => {
                 {event.description && (
                   <div>
                     <h3 className="text-lg font-semibold mb-3">Sobre o Evento</h3>
-                    <div className="prose prose-sm max-w-none text-muted-foreground" dangerouslySetInnerHTML={{ __html: event.description }} />
+                    <SafeHTML 
+                      content={event.description}
+                      className="prose prose-sm max-w-none text-muted-foreground"
+                    />
                   </div>
                 )}
               </CardContent>

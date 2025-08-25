@@ -7,11 +7,20 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-// Função para obter headers atualizados
+// Get secure admin session token
 const getAdminHeaders = () => {
   if (typeof window === 'undefined') return {};
   
   try {
+    // Try secure session token first
+    const sessionToken = localStorage.getItem('admin_session_token');
+    if (sessionToken) {
+      return {
+        'x-admin-session-token': sessionToken
+      };
+    }
+    
+    // Legacy fallback - try to get email from old format
     const adminSession = localStorage.getItem('admin_session');
     if (adminSession) {
       const adminData = JSON.parse(adminSession);
@@ -22,7 +31,7 @@ const getAdminHeaders = () => {
       }
     }
   } catch (error) {
-    console.error('Error parsing admin session:', error);
+    console.error('Error getting admin headers:', error);
   }
   return {};
 };

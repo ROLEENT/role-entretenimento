@@ -47,6 +47,47 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_sessions: {
+        Row: {
+          admin_id: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          ip_address: unknown | null
+          last_used_at: string | null
+          session_token: string
+          user_agent: string | null
+        }
+        Insert: {
+          admin_id: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          ip_address?: unknown | null
+          last_used_at?: string | null
+          session_token: string
+          user_agent?: string | null
+        }
+        Update: {
+          admin_id?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          last_used_at?: string | null
+          session_token?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_sessions_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_users: {
         Row: {
           created_at: string | null
@@ -54,7 +95,11 @@ export type Database = {
           full_name: string | null
           id: string
           is_active: boolean | null
+          last_login_at: string | null
+          locked_until: string | null
+          login_attempts: number | null
           password_hash: string
+          password_salt: string | null
           updated_at: string | null
         }
         Insert: {
@@ -63,7 +108,11 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_active?: boolean | null
+          last_login_at?: string | null
+          locked_until?: string | null
+          login_attempts?: number | null
           password_hash: string
+          password_salt?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -72,7 +121,11 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_active?: boolean | null
+          last_login_at?: string | null
+          locked_until?: string | null
+          login_attempts?: number | null
           password_hash?: string
+          password_salt?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1745,6 +1798,14 @@ export type Database = {
         Args: { p_comment_id: string }
         Returns: undefined
       }
+      authenticate_admin_secure: {
+        Args: { p_email: string; p_password: string }
+        Returns: {
+          admin_data: Json
+          requires_password_update: boolean
+          success: boolean
+        }[]
+      }
       authenticate_admin_simple: {
         Args: { p_email: string; p_password: string }
         Returns: {
@@ -1795,6 +1856,10 @@ export type Database = {
           p_type: string
         }
         Returns: undefined
+      }
+      create_admin_session: {
+        Args: { p_admin_id: string }
+        Returns: string
       }
       create_notification: {
         Args: {
@@ -1985,6 +2050,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      update_admin_password_secure: {
+        Args: { p_admin_id: string; p_new_password: string }
+        Returns: boolean
+      }
       update_admin_profile: {
         Args: { p_admin_id: string; p_email: string; p_full_name: string }
         Returns: undefined
@@ -2000,6 +2069,14 @@ export type Database = {
       validate_admin_email: {
         Args: { p_email: string }
         Returns: boolean
+      }
+      validate_admin_session: {
+        Args: { p_session_token: string }
+        Returns: {
+          admin_email: string
+          admin_id: string
+          is_valid: boolean
+        }[]
       }
       validate_username: {
         Args: { new_username: string }
