@@ -282,7 +282,7 @@ const AdminHighlightsManagement = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => navigate(`/admin/highlights/edit/${highlight.id}`)}
+                            onClick={() => navigate(`/admin/highlights/${highlight.id}/edit`)}
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
