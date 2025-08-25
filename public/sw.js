@@ -347,4 +347,100 @@ async function updateEventsInBackground() {
   } catch (error) {
     console.error('[SW] Failed to update events in background:', error);
   }
+
+// Background sync helpers for check-ins and favorites
+async function syncPendingCheckIns() {
+  console.log('[SW] Syncing pending check-ins');
+  
+  try {
+    const pendingCheckIns = await getFromIndexedDB('pendingCheckIns');
+    
+    for (const checkIn of pendingCheckIns || []) {
+      try {
+        const response = await fetch('/api/checkins', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(checkIn)
+        });
+        
+        if (response.ok) {
+          await removeFromIndexedDB('pendingCheckIns', checkIn.id);
+          console.log('[SW] Check-in synced successfully:', checkIn.id);
+        }
+      } catch (error) {
+        console.error('[SW] Failed to sync check-in:', error);
+      }
+    }
+  } catch (error) {
+    console.error('[SW] Error syncing check-ins:', error);
+  }
+}
+
+async function syncPendingFavorites() {
+  console.log('[SW] Syncing pending favorites');
+  
+  try {
+    const pendingFavorites = await getFromIndexedDB('pendingFavorites');
+    
+    for (const favorite of pendingFavorites || []) {
+      try {
+        const response = await fetch('/api/favorites', {
+          method: favorite.action === 'add' ? 'POST' : 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ eventId: favorite.eventId })
+        });
+        
+        if (response.ok) {
+          await removeFromIndexedDB('pendingFavorites', favorite.id);
+          console.log('[SW] Favorite synced successfully:', favorite.id);
+        }
+      } catch (error) {
+        console.error('[SW] Failed to sync favorite:', error);
+      }
+    }
+  } catch (error) {
+    console.error('[SW] Error syncing favorites:', error);
+  }
+}
+
+// IndexedDB helpers
+async function getFromIndexedDB(storeName) {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('RoleOfflineDB', 1);
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const db = request.result;
+      const transaction = db.transaction([storeName], 'readonly');
+      const store = transaction.objectStore(storeName);
+      const getRequest = store.getAll();
+      
+      getRequest.onsuccess = () => resolve(getRequest.result);
+      getRequest.onerror = () => reject(getRequest.error);
+    };
+    
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(storeName)) {
+        db.createObjectStore(storeName, { keyPath: 'id' });
+      }
+    };
+  });
+}
+
+async function removeFromIndexedDB(storeName, id) {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('RoleOfflineDB', 1);
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const db = request.result;
+      const transaction = db.transaction([storeName], 'readwrite');
+      const store = transaction.objectStore(storeName);
+      const deleteRequest = store.delete(id);
+      
+      deleteRequest.onsuccess = () => resolve();
+      deleteRequest.onerror = () => reject(deleteRequest.error);
+    };
+  });
 }
