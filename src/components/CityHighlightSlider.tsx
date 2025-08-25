@@ -5,6 +5,7 @@ import { HighlightSliderCard, CityEnum } from './HighlightSliderCard';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { useResponsive } from '@/hooks/useResponsive';
 import { ArrowRight } from 'lucide-react';
 
 interface CityHighlightSliderProps {
@@ -30,6 +31,7 @@ interface Highlight {
 export const CityHighlightSlider = ({ city, title, citySlug }: CityHighlightSliderProps) => {
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [loading, setLoading] = useState(true);
+  const { isMobile, isTablet } = useResponsive();
 
   useEffect(() => {
     const fetchCityHighlights = async () => {
@@ -94,11 +96,11 @@ export const CityHighlightSlider = ({ city, title, citySlug }: CityHighlightSlid
 
   if (loading) {
     return (
-      <section className="py-8">
-        <h2 className="text-2xl font-bold mb-6">{title}</h2>
+      <section className={`${isMobile ? 'py-6' : 'py-8'}`}>
+        <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-6`}>{title}</h2>
         <div className="flex gap-4 overflow-hidden">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="flex-none w-80">
+          {[...Array(isMobile ? 2 : 3)].map((_, i) => (
+            <div key={i} className={`flex-none ${isMobile ? 'w-72' : 'w-80'}`}>
               <Skeleton className="aspect-[16/10] w-full mb-4" />
               <Skeleton className="h-4 w-3/4 mb-2" />
               <Skeleton className="h-3 w-1/2" />
@@ -114,11 +116,16 @@ export const CityHighlightSlider = ({ city, title, citySlug }: CityHighlightSlid
   }
 
   return (
-    <section className="py-8">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-foreground">{title}</h2>
+    <section className={`${isMobile ? 'py-6' : 'py-8'}`}>
+      <div className={`flex ${isMobile ? 'flex-col gap-4' : 'items-center justify-between'} mb-6`}>
+        <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-foreground`}>{title}</h2>
         {citySlug && (
-          <Button variant="outline" size="sm" asChild>
+          <Button 
+            variant="outline" 
+            size={isMobile ? "sm" : "sm"} 
+            asChild 
+            className={`${isMobile ? 'w-full' : ''} touch-target`}
+          >
             <Link to={`/destaques/${citySlug}`}>
               Ver todos de {title}
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -131,24 +138,25 @@ export const CityHighlightSlider = ({ city, title, citySlug }: CityHighlightSlid
         opts={{
           align: "start",
           loop: false,
+          dragFree: isMobile,
         }}
         className="w-full"
       >
-        <CarouselContent className="-ml-2 md:-ml-4">
+        <CarouselContent className={`${isMobile ? '-ml-3' : '-ml-2 md:-ml-4'}`}>
           {highlights.map((highlight) => (
             <CarouselItem 
               key={highlight.id} 
-              className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
+              className={`${isMobile ? 'pl-3 basis-4/5' : 'pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3'}`}
             >
               <HighlightSliderCard highlight={highlight} />
             </CarouselItem>
           ))}
         </CarouselContent>
         
-        {highlights.length > 3 && (
+        {highlights.length > (isMobile ? 1 : 3) && (
           <>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex" />
+            <CarouselPrevious className={`${isMobile ? 'hidden' : 'hidden md:flex'}`} />
+            <CarouselNext className={`${isMobile ? 'hidden' : 'hidden md:flex'}`} />
           </>
         )}
       </Carousel>

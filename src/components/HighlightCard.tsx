@@ -4,10 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, ExternalLink, Ticket, Calendar, Share2, MessageCircle } from "lucide-react";
 import { useCommentCount } from '@/hooks/useCommentCount';
-import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { MobileSafeImage } from "@/components/ui/mobile-safe-image";
 import { StarRatingDisplay } from "@/components/ui/star-rating";
 import { reviewStatsService } from "@/services/reviewService";
 import { useNativeShare } from "@/hooks/useNativeShare";
+import { useResponsive } from "@/hooks/useResponsive";
 import { formatHighlightDate, formatEventDateTime } from "@/utils/dateUtils";
 import { toast } from 'sonner';
 
@@ -36,6 +37,7 @@ interface HighlightCardProps {
 
 const HighlightCard = ({ highlight }: HighlightCardProps) => {
   const { shareOrFallback } = useNativeShare();
+  const { isMobile, isTablet } = useResponsive();
   const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 });
   const { commentCount } = useCommentCount(highlight.id, 'highlight');
 
@@ -91,12 +93,13 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
   return (
     <Card className="group overflow-hidden bg-card border hover-lift transition-all duration-300 hover:shadow-xl">
       {/* Event Image */}
-      <div className="relative h-64 md:h-72">
-        <ImageWithFallback
+      <div className={`relative ${isMobile ? 'h-48' : isTablet ? 'h-56' : 'h-72'}`}>
+        <MobileSafeImage
           src={getImageUrl(highlight.image_url) || ''}
           alt={highlight.event_title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          aspectRatio="video"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 rounded-t-lg"
+          loading="lazy"
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         
@@ -108,12 +111,12 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
         </div>
         <div className="absolute top-4 right-4">
           <Button
-            size="sm"
+            size={isMobile ? "sm" : "sm"}
             variant="secondary"
-            className="h-8 w-8 p-0 bg-white/90 hover:bg-white transition-all duration-200 hover:scale-110 group"
+            className={`${isMobile ? 'h-10 w-10 p-0' : 'h-8 w-8 p-0'} bg-white/90 hover:bg-white transition-all duration-200 hover:scale-110 group touch-target`}
             onClick={handleShare}
           >
-            <Share2 className="h-4 w-4 text-foreground transition-transform duration-200 group-hover:rotate-12" />
+            <Share2 className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-foreground transition-transform duration-200 group-hover:rotate-12`} />
           </Button>
         </div>
         
@@ -127,10 +130,10 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
         )}
       </div>
 
-      <CardContent className="p-6 space-y-4">
+      <CardContent className={`${isMobile ? 'p-4' : 'p-6'} space-y-4`}>
         {/* Event Title */}
         <div>
-          <h3 className="text-2xl font-bold text-foreground mb-2 leading-tight">
+          <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-foreground mb-2 leading-tight`}>
             {highlight.event_title}
           </h3>
           
@@ -180,8 +183,8 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
         {highlight.ticket_url && (
           <Button 
             variant="outline" 
-            size="sm" 
-            className="w-full mb-4 transition-all duration-200 hover:scale-[1.02] hover:shadow-md group"
+            size={isMobile ? "default" : "sm"}
+            className="w-full mb-4 transition-all duration-200 hover:scale-[1.02] hover:shadow-md group touch-target"
             asChild
           >
             <a href={highlight.ticket_url} target="_blank" rel="noopener noreferrer">
