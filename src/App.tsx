@@ -42,6 +42,7 @@ import AdminOrganizers from "./pages/admin/AdminOrganizers";
 import AdminProfile from "./pages/AdminProfile";
 import EventsPage from "./pages/EventsPage";
 import EventDetailPage from "./pages/EventDetailPage";
+import CreateEventPage from "./pages/CreateEventPage";
 import AuthPage from "./pages/AuthPage";
 import UserProfile from "./pages/UserProfile";
 import WeeklyHighlights from "./pages/WeeklyHighlights";
@@ -114,6 +115,7 @@ function App() {
                 <Route path="/eventos/hoje" element={<EventsPage />} />
                 <Route path="/eventos/:cidade" element={<EventsPage />} />
                 <Route path="/evento/:id" element={<EventDetailPage />} />
+                <Route path="/criar-evento" element={<CreateEventPage />} />
                 
                 {/* User Routes */}
                 <Route path="/auth" element={<AuthPage />} />
