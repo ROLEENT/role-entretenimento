@@ -201,7 +201,11 @@ const EventDetailPage = () => {
                       <p className="text-sm text-muted-foreground">{event.venue.address}</p>
                       <p className="text-sm text-muted-foreground">{event.city}, {event.state}</p>
                     </div>
-                    
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p className="text-sm">🎵 Integração musical disponível</p>
+                      <p className="text-sm">🗺️ Mapas e direções integrados</p> 
+                      <p className="text-sm">📱 Compartilhamento social otimizado</p>
+                    </div>
                     {event.venue.lat && event.venue.lng && (
                       <div className="h-48 rounded-lg overflow-hidden">
                         <CityMap 
