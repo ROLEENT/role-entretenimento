@@ -250,6 +250,83 @@ export type Database = {
         }
         Relationships: []
       }
+      artist_discovery_log: {
+        Row: {
+          artist_spotify_data_id: string
+          discovered_at: string
+          event_id: string
+          id: string
+          interaction_type: string
+          user_id: string
+        }
+        Insert: {
+          artist_spotify_data_id: string
+          discovered_at?: string
+          event_id: string
+          id?: string
+          interaction_type: string
+          user_id: string
+        }
+        Update: {
+          artist_spotify_data_id?: string
+          discovered_at?: string
+          event_id?: string
+          id?: string
+          interaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_discovery_log_artist_spotify_data_id_fkey"
+            columns: ["artist_spotify_data_id"]
+            isOneToOne: false
+            referencedRelation: "artist_spotify_data"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      artist_spotify_data: {
+        Row: {
+          artist_name: string
+          created_at: string
+          followers_count: number | null
+          genres: string[] | null
+          id: string
+          image_url: string | null
+          popularity: number | null
+          preview_tracks: Json | null
+          spotify_id: string
+          spotify_url: string
+          updated_at: string
+        }
+        Insert: {
+          artist_name: string
+          created_at?: string
+          followers_count?: number | null
+          genres?: string[] | null
+          id?: string
+          image_url?: string | null
+          popularity?: number | null
+          preview_tracks?: Json | null
+          spotify_id: string
+          spotify_url: string
+          updated_at?: string
+        }
+        Update: {
+          artist_name?: string
+          created_at?: string
+          followers_count?: number | null
+          genres?: string[] | null
+          id?: string
+          image_url?: string | null
+          popularity?: number | null
+          preview_tracks?: Json | null
+          spotify_id?: string
+          spotify_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           color: string
@@ -523,6 +600,38 @@ export type Database = {
           subject?: string
         }
         Relationships: []
+      }
+      event_artists: {
+        Row: {
+          artist_spotify_data_id: string
+          created_at: string
+          event_id: string
+          id: string
+          is_main_artist: boolean | null
+        }
+        Insert: {
+          artist_spotify_data_id: string
+          created_at?: string
+          event_id: string
+          id?: string
+          is_main_artist?: boolean | null
+        }
+        Update: {
+          artist_spotify_data_id?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          is_main_artist?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_artists_artist_spotify_data_id_fkey"
+            columns: ["artist_spotify_data_id"]
+            isOneToOne: false
+            referencedRelation: "artist_spotify_data"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       event_categories: {
         Row: {
@@ -1962,6 +2071,81 @@ export type Database = {
         }
         Relationships: []
       }
+      user_music_preferences: {
+        Row: {
+          auto_playlist_creation: boolean | null
+          created_at: string
+          favorite_genres: string[] | null
+          id: string
+          include_preview_tracks: boolean | null
+          notification_new_artists: boolean | null
+          playlist_update_frequency: string | null
+          preferred_platforms: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_playlist_creation?: boolean | null
+          created_at?: string
+          favorite_genres?: string[] | null
+          id?: string
+          include_preview_tracks?: boolean | null
+          notification_new_artists?: boolean | null
+          playlist_update_frequency?: string | null
+          preferred_platforms?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_playlist_creation?: boolean | null
+          created_at?: string
+          favorite_genres?: string[] | null
+          id?: string
+          include_preview_tracks?: boolean | null
+          notification_new_artists?: boolean | null
+          playlist_update_frequency?: string | null
+          preferred_platforms?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_music_tokens: {
+        Row: {
+          access_token: string
+          created_at: string
+          expires_at: string
+          id: string
+          platform: string
+          refresh_token: string | null
+          scope: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          platform?: string
+          refresh_token?: string | null
+          scope?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          platform?: string
+          refresh_token?: string | null
+          scope?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_notification_preferences: {
         Row: {
           allowed_end_hour: number
@@ -2013,6 +2197,60 @@ export type Database = {
           updated_at?: string
           user_id?: string
           weekly_highlights?: boolean
+        }
+        Relationships: []
+      }
+      user_playlists: {
+        Row: {
+          auto_update: boolean | null
+          cover_image: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_public: boolean | null
+          last_updated_at: string | null
+          platform: string
+          platform_playlist_id: string | null
+          platform_url: string | null
+          playlist_name: string
+          playlist_type: string
+          track_count: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_update?: boolean | null
+          cover_image?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          last_updated_at?: string | null
+          platform?: string
+          platform_playlist_id?: string | null
+          platform_url?: string | null
+          playlist_name: string
+          playlist_type?: string
+          track_count?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_update?: boolean | null
+          cover_image?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          last_updated_at?: string | null
+          platform?: string
+          platform_playlist_id?: string | null
+          platform_url?: string | null
+          playlist_name?: string
+          playlist_type?: string
+          track_count?: number | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
