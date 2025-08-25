@@ -1456,6 +1456,116 @@ export type Database = {
           },
         ]
       }
+      user_calendar_events: {
+        Row: {
+          all_day: boolean
+          color: string | null
+          created_at: string
+          description: string | null
+          end_datetime: string
+          event_id: string | null
+          external_calendar_id: string | null
+          external_event_id: string | null
+          id: string
+          is_synced: boolean | null
+          location: string | null
+          reminder_minutes: number[] | null
+          start_datetime: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          all_day?: boolean
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          end_datetime: string
+          event_id?: string | null
+          external_calendar_id?: string | null
+          external_event_id?: string | null
+          id?: string
+          is_synced?: boolean | null
+          location?: string | null
+          reminder_minutes?: number[] | null
+          start_datetime: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          all_day?: boolean
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          end_datetime?: string
+          event_id?: string | null
+          external_calendar_id?: string | null
+          external_event_id?: string | null
+          id?: string
+          is_synced?: boolean | null
+          location?: string | null
+          reminder_minutes?: number[] | null
+          start_datetime?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_calendar_events_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_calendar_settings: {
+        Row: {
+          apple_calendar_enabled: boolean | null
+          created_at: string
+          default_reminder_minutes: number | null
+          google_access_token: string | null
+          google_calendar_enabled: boolean | null
+          google_calendar_id: string | null
+          google_refresh_token: string | null
+          id: string
+          timezone: string | null
+          updated_at: string
+          user_id: string
+          week_starts_on: number | null
+        }
+        Insert: {
+          apple_calendar_enabled?: boolean | null
+          created_at?: string
+          default_reminder_minutes?: number | null
+          google_access_token?: string | null
+          google_calendar_enabled?: boolean | null
+          google_calendar_id?: string | null
+          google_refresh_token?: string | null
+          id?: string
+          timezone?: string | null
+          updated_at?: string
+          user_id: string
+          week_starts_on?: number | null
+        }
+        Update: {
+          apple_calendar_enabled?: boolean | null
+          created_at?: string
+          default_reminder_minutes?: number | null
+          google_access_token?: string | null
+          google_calendar_enabled?: boolean | null
+          google_calendar_id?: string | null
+          google_refresh_token?: string | null
+          id?: string
+          timezone?: string | null
+          updated_at?: string
+          user_id?: string
+          week_starts_on?: number | null
+        }
+        Relationships: []
+      }
       user_notification_preferences: {
         Row: {
           allowed_end_hour: number
@@ -1630,6 +1740,10 @@ export type Database = {
           p_parent_id?: string
           p_post_id: string
         }
+        Returns: string
+      }
+      add_favorite_to_calendar: {
+        Args: { p_event_id: string; p_user_id: string }
         Returns: string
       }
       admin_create_highlight: {

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Heart, Share2, MapPin, Calendar, DollarSign } from 'lucide-react';
+import { Heart, Share2, MapPin, Calendar, DollarSign, CalendarPlus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFavorites, type FavoriteEvent } from '@/hooks/useFavorites';
+import { usePersonalCalendar } from '@/hooks/usePersonalCalendar';
+import { useAuth } from '@/hooks/useAuth';
 import { StarRatingDisplay } from '@/components/ui/star-rating';
 import { reviewStatsService } from '@/services/reviewService';
 import { useNativeShare } from '@/hooks/useNativeShare';
@@ -23,6 +25,8 @@ interface EventCardProps {
 const EventCard = ({ event, className }: EventCardProps) => {
   const { toggleFavorite, isFavorite } = useFavorites();
   const { shareOrFallback } = useNativeShare();
+  const { addFavoriteToCalendar } = usePersonalCalendar();
+  const { user } = useAuth();
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 });
   const { commentCount } = useCommentCount(event.id, 'event');
@@ -50,6 +54,15 @@ const EventCard = ({ event, className }: EventCardProps) => {
     };
 
     shareOrFallback(shareData, () => setShowShareDialog(true));
+  };
+
+  const handleAddToCalendar = () => {
+    if (!user) {
+      // Redirecionar para login se não estiver logado
+      window.location.href = '/auth';
+      return;
+    }
+    addFavoriteToCalendar(event.id);
   };
 
   const formatPrice = (price: number) => {
@@ -85,6 +98,15 @@ const EventCard = ({ event, className }: EventCardProps) => {
                   ? 'fill-destructive text-destructive animate-pulse' 
                   : 'hover:scale-110'
               }`} />
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="h-8 w-8 p-0 bg-background/80 backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-background/90"
+              onClick={handleAddToCalendar}
+              title="Adicionar ao calendário"
+            >
+              <CalendarPlus className="h-4 w-4" />
             </Button>
             <Button
               size="sm"
