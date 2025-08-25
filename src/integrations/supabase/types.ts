@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_feed: {
+        Row: {
+          actor_id: string
+          created_at: string
+          data: Json | null
+          id: string
+          object_id: string | null
+          object_type: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string
+          data?: Json | null
+          id?: string
+          object_id?: string | null
+          object_type?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          data?: Json | null
+          id?: string
+          object_id?: string | null
+          object_type?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       admin_users: {
         Row: {
           created_at: string | null
@@ -756,6 +789,42 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string
+          data: Json | null
+          id: string
+          message: string
+          read: boolean
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          message: string
+          read?: boolean
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          message?: string
+          read?: boolean
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       organizers: {
         Row: {
           contact_email: string
@@ -1259,6 +1328,26 @@ export type Database = {
         }
         Returns: undefined
       }
+      create_activity: {
+        Args: {
+          p_actor_id: string
+          p_data?: Json
+          p_object_id?: string
+          p_object_type?: string
+          p_type: string
+        }
+        Returns: undefined
+      }
+      create_notification: {
+        Args: {
+          p_data?: Json
+          p_message: string
+          p_title: string
+          p_type: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       debug_admin_operations: {
         Args: { admin_email: string }
         Returns: Json
@@ -1368,6 +1457,14 @@ export type Database = {
       is_current_admin: {
         Args: { session_email: string }
         Returns: boolean
+      }
+      mark_all_notifications_read: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      mark_notification_read: {
+        Args: { p_notification_id: string }
+        Returns: undefined
       }
       reject_blog_comment: {
         Args: { p_comment_id: string }

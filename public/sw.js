@@ -271,65 +271,66 @@ async function syncEvents() {
   }
 }
 
-// Push notifications - Melhorado
+// Push event - recebe notificações push
 self.addEventListener('push', (event) => {
-  console.log('[SW] Push notification received:', event);
+  console.log('Push event received:', event);
   
-  let notificationData = {
-    title: 'ROLÊ - Novo Evento!',
-    body: 'Novo evento disponível na sua cidade!',
-    url: '/'
+  const options = {
+    body: 'Nova notificação',
+    icon: '/favicon.png',
+    badge: '/favicon.png',
+    data: {
+      url: '/'
+    }
   };
 
   if (event.data) {
     try {
-      notificationData = event.data.json();
-    } catch (e) {
-      notificationData.body = event.data.text();
+      const data = event.data.json();
+      options.body = data.body || options.body;
+      options.icon = data.icon || options.icon;
+      options.badge = data.badge || options.badge;
+      options.data = data.data || options.data;
+      
+      event.waitUntil(
+        self.registration.showNotification(data.title || 'Rolê', options)
+      );
+    } catch (error) {
+      console.error('Error parsing push data:', error);
+      event.waitUntil(
+        self.registration.showNotification('Rolê', options)
+      );
     }
+  } else {
+    event.waitUntil(
+      self.registration.showNotification('Rolê', options)
+    );
   }
-  
-  const options = {
-    body: notificationData.body,
-    icon: '/favicon.png',
-    badge: '/favicon.png',
-    vibrate: [200, 100, 200],
-    data: {
-      url: notificationData.url || '/',
-      timestamp: Date.now()
-    },
-    actions: [
-      {
-        action: 'open',
-        title: 'Ver Evento',
-        icon: '/favicon.png'
-      },
-      {
-        action: 'close',
-        title: 'Fechar',
-        icon: '/favicon.png'
-      }
-    ],
-    requireInteraction: true,
-    tag: 'role-notification'
-  };
-  
-  event.waitUntil(
-    self.registration.showNotification(notificationData.title, options)
-  );
 });
 
-// Notification click
+// Notification click event
 self.addEventListener('notificationclick', (event) => {
-  console.log('[SW] Notification clicked:', event);
+  console.log('Notification clicked:', event);
   
   event.notification.close();
   
-  if (event.action === 'open') {
-    event.waitUntil(
-      clients.openWindow(event.notification.data?.url || '/')
-    );
-  }
+  const url = event.notification.data?.url || '/';
+  
+  event.waitUntil(
+    clients.matchAll().then((clientList) => {
+      // Se já existe uma janela aberta, focar nela
+      for (const client of clientList) {
+        if (client.url === url && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      
+      // Caso contrário, abrir nova janela
+      if (clients.openWindow) {
+        return clients.openWindow(url);
+      }
+    })
+  );
 });
 
 // Periodic background sync (se suportado)

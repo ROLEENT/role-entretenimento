@@ -1,97 +1,54 @@
-import { useState, useEffect } from 'react';
-import { Bell, X, Check, Info, AlertTriangle, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Bell, X, Check, Info, AlertTriangle, AlertCircle, Heart, UserPlus, Calendar, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-
-interface Notification {
-  id: string;
-  type: 'success' | 'info' | 'warning' | 'error';
-  title: string;
-  message: string;
-  timestamp: Date;
-  read: boolean;
-  action?: {
-    label: string;
-    onClick: () => void;
-  };
-}
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { useNotifications } from '@/hooks/useNotifications';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 const NotificationSystem = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [permission, setPermission] = useState<NotificationPermission>('default');
+  const { notifications, loading, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { permission, requestPermission } = usePushNotifications();
 
-  useEffect(() => {
-    // Request notification permission
-    if ('Notification' in window) {
-      Notification.requestPermission().then(setPermission);
-    }
-
-    // Sample notifications
-    const sampleNotifications: Notification[] = [
-      {
-        id: '1',
-        type: 'info',
-        title: 'Novo evento próximo!',
-        message: 'Festival de Arte Urbana acontece amanhã a 2km de você',
-        timestamp: new Date(),
-        read: false,
-        action: {
-          label: 'Ver evento',
-          onClick: () => console.log('Viewing event')
-        }
-      },
-      {
-        id: '2',
-        type: 'success',
-        title: 'Ingresso confirmado',
-        message: 'Seu ingresso para "Jazz & Blues Night" foi confirmado',
-        timestamp: new Date(Date.now() - 3600000),
-        read: false
-      }
-    ];
-
-    setNotifications(sampleNotifications);
-  }, []);
-
-  const getIcon = (type: Notification['type']) => {
+  const getIcon = (type: string) => {
     switch (type) {
-      case 'success':
-        return <Check className="h-5 w-5 text-green-500" />;
-      case 'info':
+      case 'follow':
+        return <UserPlus className="h-5 w-5 text-blue-500" />;
+      case 'event_favorite':
+        return <Heart className="h-5 w-5 text-red-500" />;
+      case 'event_reminder':
+        return <Calendar className="h-5 w-5 text-purple-500" />;
+      case 'highlight_like':
+        return <Heart className="h-5 w-5 text-pink-500" />;
+      case 'comment':
+        return <MessageCircle className="h-5 w-5 text-green-500" />;
+      case 'system':
         return <Info className="h-5 w-5 text-blue-500" />;
-      case 'warning':
-        return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-      case 'error':
-        return <AlertCircle className="h-5 w-5 text-red-500" />;
+      default:
+        return <Bell className="h-5 w-5 text-muted-foreground" />;
     }
   };
 
-  const markAsRead = (id: string) => {
-    setNotifications(prev =>
-      prev.map(notif =>
-        notif.id === id ? { ...notif, read: true } : notif
-      )
-    );
+  const formatTime = (timestamp: string) => {
+    try {
+      return formatDistanceToNow(new Date(timestamp), {
+        addSuffix: true,
+        locale: ptBR
+      });
+    } catch {
+      return 'Agora';
+    }
   };
 
-  const removeNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notif => notif.id !== id));
-  };
-
-  const unreadCount = notifications.filter(n => !n.read).length;
-
-  const formatTime = (timestamp: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - timestamp.getTime();
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    
-    if (minutes < 1) return 'Agora';
-    if (minutes < 60) return `${minutes}m atrás`;
-    if (hours < 24) return `${hours}h atrás`;
-    return timestamp.toLocaleDateString();
+  const handleNotificationClick = (notification: any) => {
+    if (!notification.read) {
+      markAsRead(notification.id);
+    }
+    // Implementar navegação baseado no tipo e dados da notificação
   };
 
   return (
@@ -119,19 +76,52 @@ const NotificationSystem = () => {
             <div className="p-4 border-b">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">Notificações</h3>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsOpen(false)}
-                  className="h-8 w-8"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  {unreadCount > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={markAllAsRead}
+                      className="text-xs"
+                    >
+                      Marcar todas como lidas
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsOpen(false)}
+                    className="h-8 w-8"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
+              
+              {permission !== 'granted' && (
+                <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-950 rounded-md">
+                  <p className="text-xs text-blue-700 dark:text-blue-300 mb-2">
+                    Ative as notificações para não perder eventos importantes
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={requestPermission}
+                    className="h-6 text-xs"
+                  >
+                    Ativar notificações
+                  </Button>
+                </div>
+              )}
             </div>
 
-            <div className="max-h-96 overflow-y-auto">
-              {notifications.length === 0 ? (
+            <ScrollArea className="max-h-96">
+              {loading ? (
+                <div className="p-6 text-center text-muted-foreground">
+                  <Bell className="h-8 w-8 mx-auto mb-2 opacity-50 animate-pulse" />
+                  <p>Carregando...</p>
+                </div>
+              ) : notifications.length === 0 ? (
                 <div className="p-6 text-center text-muted-foreground">
                   <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
                   <p>Nenhuma notificação</p>
@@ -140,60 +130,32 @@ const NotificationSystem = () => {
                 notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-4 border-b last:border-b-0 hover:bg-muted/50 transition-colors ${
-                      !notification.read ? 'bg-primary/5' : ''
+                    className={`p-4 border-b last:border-b-0 hover:bg-muted/50 transition-colors cursor-pointer ${
+                      !notification.read ? 'bg-primary/5 border-l-4 border-l-primary' : ''
                     }`}
+                    onClick={() => handleNotificationClick(notification)}
                   >
                     <div className="flex items-start gap-3">
                       {getIcon(notification.type)}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
                           <h4 className="font-medium text-sm">{notification.title}</h4>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeNotification(notification.id)}
-                            className="h-6 w-6 opacity-60 hover:opacity-100"
-                          >
-                            <X className="h-3 w-3" />
-                          </Button>
+                          {!notification.read && (
+                            <div className="h-2 w-2 bg-primary rounded-full mt-1" />
+                          )}
                         </div>
                         <p className="text-sm text-muted-foreground mt-1">
                           {notification.message}
                         </p>
-                        <div className="flex items-center justify-between mt-2">
-                          <span className="text-xs text-muted-foreground">
-                            {formatTime(notification.timestamp)}
-                          </span>
-                          <div className="flex gap-2">
-                            {!notification.read && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => markAsRead(notification.id)}
-                                className="h-6 text-xs"
-                              >
-                                Marcar como lida
-                              </Button>
-                            )}
-                            {notification.action && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={notification.action.onClick}
-                                className="h-6 text-xs"
-                              >
-                                {notification.action.label}
-                              </Button>
-                            )}
-                          </div>
-                        </div>
+                        <span className="text-xs text-muted-foreground mt-2 block">
+                          {formatTime(notification.created_at)}
+                        </span>
                       </div>
                     </div>
                   </div>
                 ))
               )}
-            </div>
+            </ScrollArea>
           </Card>
         </div>
       )}
