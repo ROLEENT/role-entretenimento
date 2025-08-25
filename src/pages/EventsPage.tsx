@@ -7,6 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Calendar, MapPin, Search, Filter, X, Music, Waves, TreePine, Building, Sun } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import BackToTop from '@/components/BackToTop';
 
 const EventsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -151,7 +154,8 @@ const EventsPage = () => {
       />
       
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
+        <Header />
+        <main className="container mx-auto px-4 py-8 pt-24">
           <div className="text-center mb-8">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Eventos</h1>
             <p className="text-muted-foreground text-lg">Descubra os melhores eventos da sua cidade</p>
@@ -365,7 +369,9 @@ const EventsPage = () => {
               </div>
             </div>
           )}
-        </div>
+        </main>
+        <Footer />
+        <BackToTop />
       </div>
     </>
   );

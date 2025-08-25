@@ -6,6 +6,9 @@ import { Heart, Calendar, MapPin, Users, ArrowLeft, Share2 } from 'lucide-react'
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
 import { useToast } from '@/hooks/use-toast';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import BackToTop from '@/components/BackToTop';
 
 const DestaquesPage = () => {
   const { cidade } = useParams<{ cidade?: string }>();
@@ -263,12 +266,15 @@ const DestaquesPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
+        <Header />
+        <main className="container mx-auto px-4 py-8 pt-24">
           <div className="text-center py-8">
             <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
             <p className="text-muted-foreground">Carregando destaques...</p>
           </div>
-        </div>
+        </main>
+        <Footer />
+        <BackToTop />
       </div>
     );
   }
@@ -283,7 +289,8 @@ const DestaquesPage = () => {
         />
         
         <div className="min-h-screen bg-background">
-          <div className="container mx-auto px-4 py-8">
+          <Header />
+          <main className="container mx-auto px-4 py-8 pt-24">
             <div className="flex items-center gap-4 mb-8">
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/destaques">
@@ -371,7 +378,9 @@ const DestaquesPage = () => {
                 )}
               </>
             )}
-          </div>
+          </main>
+          <Footer />
+          <BackToTop />
         </div>
       </>
     );
@@ -386,7 +395,8 @@ const DestaquesPage = () => {
       />
       
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
+        <Header />
+        <main className="container mx-auto px-4 py-8 pt-24">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
               Destaques ROLÊ
@@ -456,7 +466,9 @@ const DestaquesPage = () => {
               </div>
             )}
           </section>
-        </div>
+        </main>
+        <Footer />
+        <BackToTop />
       </div>
     </>
   );
