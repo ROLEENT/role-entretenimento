@@ -9,6 +9,9 @@ import ShareDialog from '@/components/ShareDialog';
 import CityMap from '@/components/CityMap';
 import EventReviews from '@/components/events/EventReviews';
 import EventComments from '@/components/events/EventComments';
+import EventCheckIn from '@/components/events/EventCheckIn';
+import PushNotifications from '@/components/events/PushNotifications';
+import RelatedEvents from '@/components/events/RelatedEvents';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -181,6 +184,13 @@ const EventDetailPage = () => {
           </div>
 
           <div className="space-y-6">
+            <EventCheckIn eventId={event.id} eventTitle={event.title} />
+            <PushNotifications eventId={event.id} />
+            <RelatedEvents 
+              currentEventId={event.id} 
+              city={event.city}
+              categories={event.categories?.map((cat: any) => cat.category.name) || []}
+            />
             {event.venue && (
               <Card>
                 <CardHeader><CardTitle>Local do Evento</CardTitle></CardHeader>
