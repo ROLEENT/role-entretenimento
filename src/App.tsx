@@ -89,7 +89,7 @@ function App() {
                   <Route index element={<AdminDashboard />} />
                   <Route path="highlights" element={<AdminHighlightsManagement />} />
                   <Route path="highlights/create" element={<AdminHighlightEditor />} />
-                  <Route path="highlights/edit/:id" element={<AdminHighlightEditor />} />
+                  <Route path="highlights/:id/edit" element={<AdminHighlightEditor />} />
                   <Route path="metrics" element={<AdminMetricsIndex />} />
                   <Route path="testimonials" element={<AdminTestimonialsIndex />} />
                   <Route path="event/create" element={<AdminEventCreate />} />

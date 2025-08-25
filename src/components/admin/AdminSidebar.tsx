@@ -29,9 +29,9 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 const mainItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Destaques", url: "/admin/highlights", icon: Sparkles },
+  { title: "Criar Destaque", url: "/admin/highlights/create", icon: Calendar },
   { title: "Métricas", url: "/admin/metrics", icon: TrendingUp },
   { title: "Depoimentos", url: "/admin/testimonials", icon: MessageSquare },
-  { title: "Criar Evento", url: "/admin/event/create", icon: Calendar },
   { title: "Organizadores", url: "/admin/organizers", icon: Building2 },
   { title: "Parceiros", url: "/admin/partners", icon: Users },
   { title: "Anúncios", url: "/admin/advertisements", icon: Megaphone },

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ImageIcon } from 'lucide-react';
 import cityPlaceholder from "@/assets/city-placeholder.jpg";
 
 interface LazyImageProps {
@@ -8,6 +9,7 @@ interface LazyImageProps {
   className?: string;
   fallback?: string;
   onError?: () => void;
+  showIconFallback?: boolean;
 }
 
 const LazyImage = ({ 
@@ -16,6 +18,7 @@ const LazyImage = ({
   className, 
   fallback = cityPlaceholder,
   onError,
+  showIconFallback = false,
   ...props 
 }: LazyImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -50,6 +53,27 @@ const LazyImage = ({
     setIsLoaded(true);
     onError?.();
   };
+
+  // If no src provided or invalid src, show fallback immediately
+  const shouldShowFallback = !src || src === '' || src === 'undefined' || src === 'null';
+
+  if (shouldShowFallback) {
+    if (showIconFallback) {
+      return (
+        <div className={`${className} bg-muted flex items-center justify-center`}>
+          <ImageIcon className="h-8 w-8 text-muted-foreground" />
+        </div>
+      );
+    }
+    return (
+      <img
+        src={fallback}
+        alt={alt}
+        className={className}
+        {...props}
+      />
+    );
+  }
 
   return (
     <div ref={imgRef} className={`relative ${className}`}>
