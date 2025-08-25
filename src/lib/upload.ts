@@ -27,13 +27,7 @@ export async function uploadCoverToStorage(file: File, city: string, slug: strin
   const ext = file.name.split('.').pop() || 'jpg';
   const path = `covers/${city}/${Date.now()}-${slug}.${ext}`;
 
-  console.log('📤 STORAGE DEBUG: Iniciando upload para bucket blog-images:', {
-    fileName: file.name,
-    fileSize: file.size,
-    city,
-    slug,
-    path
-  });
+  // Upload process started
 
   const { error: upErr } = await supabase.storage
     .from('blog-images')
@@ -44,17 +38,12 @@ export async function uploadCoverToStorage(file: File, city: string, slug: strin
     });
 
   if (upErr) {
-    console.error('❌ STORAGE DEBUG: Erro no upload:', upErr);
     throw upErr;
   }
-
-  console.log('✅ STORAGE DEBUG: Upload realizado com sucesso');
 
   const { data: pub } = supabase.storage
     .from('blog-images')
     .getPublicUrl(path);
-
-  console.log('🔗 STORAGE DEBUG: URL pública gerada:', pub.publicUrl);
 
   return pub.publicUrl;
 }
@@ -80,19 +69,13 @@ export async function uploadHighlightImage(file: File, keyHint: string): Promise
     const sanitizedKeyHint = keyHint.replace(/[^a-zA-Z0-9]/g, '');
     const path = `highlights/${sanitizedKeyHint}-${Date.now()}.${ext}`;
     
-    console.log('📤 UPLOAD HIGHLIGHTS: Iniciando upload para bucket highlights:', {
-      fileName: file.name,
-      fileSize: file.size,
-      fileType: file.type,
-      keyHint,
-      path
-    });
+    // Starting highlight image upload
 
     // Primeiro, tentar remover arquivo existente se houver
     try {
       await supabase.storage.from('highlights').remove([path]);
     } catch (removeError) {
-      console.log('⚠️ Arquivo não existia para remoção, continuando...');
+      // File didn't exist, continue
     }
 
     // Upload do arquivo
@@ -105,11 +88,8 @@ export async function uploadHighlightImage(file: File, keyHint: string): Promise
       });
     
     if (upErr) {
-      console.error('❌ UPLOAD ERROR:', upErr);
       throw new Error(`Erro no upload: ${upErr.message}`);
     }
-    
-    console.log('✅ UPLOAD SUCCESS:', uploadData);
     
     // Obter URL pública
     const { data: urlData } = supabase.storage
@@ -120,12 +100,9 @@ export async function uploadHighlightImage(file: File, keyHint: string): Promise
       throw new Error('Erro ao gerar URL pública da imagem');
     }
     
-    console.log('🔗 URL PÚBLICA GERADA:', urlData.publicUrl);
-    
     return urlData.publicUrl;
     
   } catch (error) {
-    console.error('❌ ERRO COMPLETO NO UPLOAD:', error);
     throw error;
   }
 }

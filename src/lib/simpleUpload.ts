@@ -1,7 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
 
-// Função simples e robusta para upload de imagens
-export async function uploadImage(file: File, folder: string = 'highlights'): Promise<string> {
+// Função robusta para upload de imagens com callback de progresso
+export async function uploadImage(
+  file: File, 
+  folder: string = 'highlights',
+  onProgress?: (progress: number) => void
+): Promise<string> {
   if (!file) throw new Error('Arquivo não fornecido');
   
   // Validação básica
@@ -18,7 +22,8 @@ export async function uploadImage(file: File, folder: string = 'highlights'): Pr
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${ext}`;
   const path = `${folder}/${fileName}`;
   
-  console.log('📤 Iniciando upload:', { fileName, size: file.size, type: file.type });
+  // Simular progresso durante o upload
+  onProgress?.(20);
   
   // Upload para o bucket correto (highlights)
   const { error: uploadError } = await supabase.storage
@@ -29,8 +34,9 @@ export async function uploadImage(file: File, folder: string = 'highlights'): Pr
       upsert: false,
     });
   
+  onProgress?.(80);
+  
   if (uploadError) {
-    console.error('❌ Erro no upload:', uploadError);
     throw new Error(`Falha no upload: ${uploadError.message}`);
   }
   
@@ -39,6 +45,6 @@ export async function uploadImage(file: File, folder: string = 'highlights'): Pr
     .from('highlights')
     .getPublicUrl(path);
   
-  console.log('✅ Upload concluído:', urlData.publicUrl);
+  onProgress?.(100);
   return urlData.publicUrl;
 }

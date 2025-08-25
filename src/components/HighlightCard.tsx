@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, ExternalLink, Ticket, Calendar } from "lucide-react";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
 type CityEnum = 'porto_alegre' | 'sao_paulo' | 'rio_de_janeiro' | 'florianopolis' | 'curitiba';
 
@@ -49,32 +50,31 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
   return (
     <Card className="overflow-hidden bg-card border hover:shadow-lg transition-all duration-300">
       {/* Event Image */}
-      {highlight.image_url && (
-        <div className="relative h-64 md:h-72">
-          <img
-            src={getImageUrl(highlight.image_url)}
-            alt={highlight.event_title}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-          
-          {/* City Badge */}
-          <div className="absolute top-4 left-4">
-            <Badge variant="secondary" className="bg-white/90 text-foreground">
-              {formatCity(highlight.city)}
-            </Badge>
-          </div>
-          
-          {/* Photo Credit */}
-          {highlight.photo_credit && (
-            <div className="absolute bottom-2 right-2">
-              <span className="text-xs text-white/80 bg-black/50 px-2 py-1 rounded">
-                {highlight.photo_credit}
-              </span>
-            </div>
-          )}
+      <div className="relative h-64 md:h-72">
+        <ImageWithFallback
+          src={getImageUrl(highlight.image_url) || ''}
+          alt={highlight.event_title}
+          className="w-full h-full object-cover"
+          aspectRatio="video"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        
+        {/* City Badge */}
+        <div className="absolute top-4 left-4">
+          <Badge variant="secondary" className="bg-white/90 text-foreground">
+            {formatCity(highlight.city)}
+          </Badge>
         </div>
-      )}
+        
+        {/* Photo Credit */}
+        {highlight.photo_credit && (
+          <div className="absolute bottom-2 right-2">
+            <span className="text-xs text-white/80 bg-black/50 px-2 py-1 rounded">
+              {highlight.photo_credit}
+            </span>
+          </div>
+        )}
+      </div>
 
       <CardContent className="p-6 space-y-4">
         {/* Event Title */}

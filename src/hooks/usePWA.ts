@@ -34,7 +34,7 @@ export const usePWA = () => {
           updateViaCache: 'none'
         });
       }).then((registration) => {
-        console.log('SW registered: ', registration);
+        // Service worker registered successfully
         // Force update to clear old caches
         registration.update();
       }).catch((registrationError) => {
