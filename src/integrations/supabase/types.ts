@@ -296,6 +296,13 @@ export type Database = {
             referencedRelation: "blog_comments_public"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "blog_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "blog_comments_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       blog_likes: {
@@ -691,6 +698,13 @@ export type Database = {
             columns: ["organizer_id"]
             isOneToOne: false
             referencedRelation: "organizers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "organizers_public"
             referencedColumns: ["id"]
           },
           {
@@ -1584,10 +1598,106 @@ export type Database = {
             referencedRelation: "blog_comments_public"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "blog_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "blog_comments_safe"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      blog_comments_safe: {
+        Row: {
+          author_name: string | null
+          content: string | null
+          created_at: string | null
+          id: string | null
+          is_approved: boolean | null
+          parent_id: string | null
+          post_id: string | null
+        }
+        Insert: {
+          author_name?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_approved?: boolean | null
+          parent_id?: string | null
+          post_id?: string | null
+        }
+        Update: {
+          author_name?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_approved?: boolean | null
+          parent_id?: string | null
+          post_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "blog_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "blog_comments_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "blog_comments_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizers_public: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          instagram: string | null
+          name: string | null
+          site: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          instagram?: string | null
+          name?: string | null
+          site?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          instagram?: string | null
+          name?: string | null
+          site?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
     }
     Functions: {
+      add_blog_comment_secure: {
+        Args: {
+          p_author_email: string
+          p_author_name: string
+          p_content: string
+          p_parent_id?: string
+          p_post_id: string
+        }
+        Returns: string
+      }
       admin_create_highlight: {
         Args: {
           p_admin_email: string
@@ -1916,6 +2026,10 @@ export type Database = {
           subject: string
         }[]
       }
+      get_highlight_like_count: {
+        Args: { p_highlight_id: string }
+        Returns: number
+      }
       get_nearby_events: {
         Args: { lat: number; lng: number; radius_km?: number }
         Returns: {
@@ -1945,7 +2059,22 @@ export type Database = {
           total_sent: number
         }[]
       }
+      get_organizer_public_info: {
+        Args: { organizer_id: string }
+        Returns: {
+          created_at: string
+          id: string
+          instagram: string
+          name: string
+          site: string
+          updated_at: string
+        }[]
+      }
       get_post_likes_count: {
+        Args: { p_post_id: string }
+        Returns: number
+      }
+      get_secure_comment_count: {
         Args: { p_post_id: string }
         Returns: number
       }
@@ -2061,6 +2190,10 @@ export type Database = {
       update_contact_message_status: {
         Args: { p_id: string; p_status: string }
         Returns: undefined
+      }
+      user_liked_highlight: {
+        Args: { p_highlight_id: string }
+        Returns: boolean
       }
       user_liked_post: {
         Args: { p_post_id: string; p_user_email: string }
