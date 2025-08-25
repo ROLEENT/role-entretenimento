@@ -21,6 +21,7 @@ export interface UserCardProps {
   };
   isFollowing?: boolean;
   onToggleFollow?: () => void;
+  onClick?: () => void;
   loading?: boolean;
   showFollowButton?: boolean;
   variant?: 'default' | 'compact';
@@ -29,7 +30,8 @@ export interface UserCardProps {
 export const UserCard = ({ 
   user, 
   isFollowing, 
-  onToggleFollow, 
+  onToggleFollow,
+  onClick,
   loading, 
   showFollowButton = true,
   variant = 'default'
@@ -40,7 +42,10 @@ export const UserCard = ({
   if (variant === 'compact') {
     return (
       <div className="flex items-center justify-between p-3 hover:bg-accent/50 rounded-lg transition-colors">
-        <Link to={`/perfil/${user.username || user.user_id}`} className="flex items-center gap-3 flex-1">
+        <div 
+          className="flex items-center gap-3 flex-1 cursor-pointer" 
+          onClick={onClick || (() => window.location.href = `/perfil/${user.username || user.user_id}`)}
+        >
           <Avatar className="h-10 w-10">
             <AvatarImage src={user.avatar_url} alt={user.display_name} />
             <AvatarFallback>{userInitials}</AvatarFallback>
@@ -56,7 +61,7 @@ export const UserCard = ({
               <p className="text-xs text-muted-foreground">@{user.username}</p>
             )}
           </div>
-        </Link>
+        </div>
         {showFollowButton && onToggleFollow && (
           <Button
             size="sm"
@@ -76,7 +81,10 @@ export const UserCard = ({
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
-          <Link to={`/perfil/${user.username || user.user_id}`} className="flex items-center gap-3">
+          <div 
+            className="flex items-center gap-3 cursor-pointer" 
+            onClick={onClick || (() => window.location.href = `/perfil/${user.username || user.user_id}`)}
+          >
             <Avatar className="h-16 w-16">
               <AvatarImage src={user.avatar_url} alt={user.display_name} />
               <AvatarFallback className="text-lg">{userInitials}</AvatarFallback>
@@ -94,7 +102,7 @@ export const UserCard = ({
                 <p className="text-muted-foreground">@{user.username}</p>
               )}
             </div>
-          </Link>
+          </div>
           
           {showFollowButton && onToggleFollow && (
             <Button

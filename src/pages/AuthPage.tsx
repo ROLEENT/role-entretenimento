@@ -7,14 +7,18 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Eye, EyeOff, Mail, Lock, User, Sparkles } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { supabase } from '@/integrations/supabase/client';
 
 const AuthPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [showReset, setShowReset] = useState(false);
   const { signIn, signUp, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -96,30 +100,94 @@ const AuthPage = () => {
     setLoading(false);
   };
 
+  const handlePasswordReset = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setResetLoading(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/auth?type=password-reset`
+      });
+
+      if (error) throw error;
+
+      // Enviar email customizado
+      await supabase.functions.invoke('send-auth-emails', {
+        body: {
+          type: 'password-reset',
+          email: resetEmail,
+          resetUrl: `${window.location.origin}/auth?type=password-reset`
+        }
+      });
+
+      toast({
+        title: "Email enviado!",
+        description: "Verifique sua caixa de entrada para redefinir sua senha."
+      });
+      
+      setShowReset(false);
+      setResetEmail('');
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+
+    setResetLoading(false);
+  };
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <Header />
       
-      <main className="container mx-auto px-4 py-16">
+      <main className="container mx-auto px-4 py-8 lg:py-16">
         <div className="max-w-md mx-auto">
+          {/* Hero Section */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary rounded-full mb-4">
+              <Sparkles className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold gradient-text mb-2">
+              Bem-vindo ao ROLÊ
+            </h1>
+            <p className="text-muted-foreground">
+              Descubra os melhores eventos da sua cidade
+            </p>
+          </div>
           <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Entrar</TabsTrigger>
-              <TabsTrigger value="signup">Cadastrar</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 bg-muted/50">
+              <TabsTrigger value="signin" className="data-[state=active]:bg-gradient-primary data-[state=active]:text-white">
+                Entrar
+              </TabsTrigger>
+              <TabsTrigger value="signup" className="data-[state=active]:bg-gradient-primary data-[state=active]:text-white">
+                Cadastrar
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="signin">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Fazer Login</CardTitle>
-                  <CardDescription>
-                    Entre com sua conta para acessar seus favoritos e muito mais
-                  </CardDescription>
+              <Card className="shadow-elevated border-0 bg-gradient-card backdrop-blur-sm">
+                <CardHeader className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
+                      <Lock className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-xl">Fazer Login</CardTitle>
+                      <CardDescription>
+                        Entre com sua conta para acessar seus favoritos
+                      </CardDescription>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSignIn} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email" className="flex items-center gap-2">
+                        <Mail className="w-4 h-4" />
+                        Email
+                      </Label>
                       <Input
                         id="email"
                         name="email"
@@ -127,11 +195,15 @@ const AuthPage = () => {
                         placeholder="seu@email.com"
                         required
                         disabled={loading}
+                        className="h-12 bg-background/50 border-muted-foreground/20 focus:border-primary"
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="password">Senha</Label>
+                      <Label htmlFor="password" className="flex items-center gap-2">
+                        <Lock className="w-4 h-4" />
+                        Senha
+                      </Label>
                       <div className="relative">
                         <Input
                           id="password"
@@ -140,6 +212,7 @@ const AuthPage = () => {
                           placeholder="Sua senha"
                           required
                           disabled={loading}
+                          className="h-12 bg-background/50 border-muted-foreground/20 focus:border-primary pr-12"
                         />
                         <Button
                           type="button"
@@ -158,27 +231,53 @@ const AuthPage = () => {
                       </div>
                     </div>
                     
-                    <Button type="submit" className="w-full" disabled={loading}>
+                    <Button 
+                      type="submit" 
+                      className="w-full h-12 bg-gradient-primary hover:opacity-90 transition-opacity" 
+                      disabled={loading}
+                    >
                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       Entrar
                     </Button>
+                    
+                    <div className="text-center">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="text-sm text-muted-foreground hover:text-primary"
+                        onClick={() => setShowReset(true)}
+                        disabled={loading}
+                      >
+                        Esqueceu sua senha?
+                      </Button>
+                    </div>
                   </form>
                 </CardContent>
               </Card>
             </TabsContent>
             
             <TabsContent value="signup">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Criar Conta</CardTitle>
-                  <CardDescription>
-                    Crie sua conta para favoritar eventos e receber recomendações personalizadas
-                  </CardDescription>
+              <Card className="shadow-elevated border-0 bg-gradient-card backdrop-blur-sm">
+                <CardHeader className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
+                      <User className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-xl">Criar Conta</CardTitle>
+                      <CardDescription>
+                        Junte-se à nossa comunidade de eventos
+                      </CardDescription>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSignUp} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="displayName">Nome</Label>
+                      <Label htmlFor="displayName" className="flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        Nome
+                      </Label>
                       <Input
                         id="displayName"
                         name="displayName"
@@ -186,11 +285,15 @@ const AuthPage = () => {
                         placeholder="Seu nome"
                         required
                         disabled={loading}
+                        className="h-12 bg-background/50 border-muted-foreground/20 focus:border-primary"
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="signup-email">Email</Label>
+                      <Label htmlFor="signup-email" className="flex items-center gap-2">
+                        <Mail className="w-4 h-4" />
+                        Email
+                      </Label>
                       <Input
                         id="signup-email"
                         name="email"
@@ -198,20 +301,25 @@ const AuthPage = () => {
                         placeholder="seu@email.com"
                         required
                         disabled={loading}
+                        className="h-12 bg-background/50 border-muted-foreground/20 focus:border-primary"
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="signup-password">Senha</Label>
+                      <Label htmlFor="signup-password" className="flex items-center gap-2">
+                        <Lock className="w-4 h-4" />
+                        Senha
+                      </Label>
                       <div className="relative">
                         <Input
                           id="signup-password"
                           name="password"
                           type={showPassword ? "text" : "password"}
-                          placeholder="Sua senha"
+                          placeholder="Sua senha (mín. 6 caracteres)"
                           required
                           disabled={loading}
                           minLength={6}
+                          className="h-12 bg-background/50 border-muted-foreground/20 focus:border-primary pr-12"
                         />
                         <Button
                           type="button"
@@ -231,7 +339,10 @@ const AuthPage = () => {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">Confirmar Senha</Label>
+                      <Label htmlFor="confirmPassword" className="flex items-center gap-2">
+                        <Lock className="w-4 h-4" />
+                        Confirmar Senha
+                      </Label>
                       <div className="relative">
                         <Input
                           id="confirmPassword"
@@ -241,6 +352,7 @@ const AuthPage = () => {
                           required
                           disabled={loading}
                           minLength={6}
+                          className="h-12 bg-background/50 border-muted-foreground/20 focus:border-primary pr-12"
                         />
                         <Button
                           type="button"
@@ -259,7 +371,11 @@ const AuthPage = () => {
                       </div>
                     </div>
                     
-                    <Button type="submit" className="w-full" disabled={loading}>
+                    <Button 
+                      type="submit" 
+                      className="w-full h-12 bg-gradient-primary hover:opacity-90 transition-opacity" 
+                      disabled={loading}
+                    >
                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       Criar Conta
                     </Button>
@@ -268,6 +384,53 @@ const AuthPage = () => {
               </Card>
             </TabsContent>
           </Tabs>
+          
+          {/* Password Reset Modal */}
+          {showReset && (
+            <Card className="mt-6 shadow-elevated border-0 bg-gradient-card backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="w-5 h-5" />
+                  Recuperar Senha
+                </CardTitle>
+                <CardDescription>
+                  Digite seu email para receber as instruções de recuperação
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handlePasswordReset} className="space-y-4">
+                  <Input
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    required
+                    disabled={resetLoading}
+                    className="h-12 bg-background/50 border-muted-foreground/20 focus:border-primary"
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowReset(false)}
+                      disabled={resetLoading}
+                      className="flex-1"
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={resetLoading || !resetEmail}
+                      className="flex-1 bg-gradient-primary hover:opacity-90"
+                    >
+                      {resetLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Enviar
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </main>
       
