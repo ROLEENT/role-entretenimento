@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Calendar, MapPin, Search, Filter, X } from 'lucide-react';
+import { Calendar, MapPin, Search, Filter, X, Music, Waves, TreePine, Building, Sun } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/SEOHead';
 
@@ -155,6 +155,54 @@ const EventsPage = () => {
           <div className="text-center mb-8">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Eventos</h1>
             <p className="text-muted-foreground text-lg">Descubra os melhores eventos da sua cidade</p>
+          </div>
+
+          {/* Seção de Categorias Musicais Visuais */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-foreground mb-6 text-center">Categorias Musicais</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {categories.map((category) => {
+                const isSelected = selectedCategories.includes(category.slug);
+                const iconMap: Record<string, any> = {
+                  rock: Music,
+                  eletronica: Waves,
+                  sertanejo: TreePine,
+                  pop: Building,
+                  funk: Sun,
+                };
+                const IconComponent = iconMap[category.slug] || Music;
+                
+                return (
+                  <Card 
+                    key={category.id} 
+                    className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
+                      isSelected ? 'ring-2 ring-primary shadow-lg' : ''
+                    }`}
+                    onClick={() => handleCategoryToggle(category.slug)}
+                  >
+                    <CardContent className="p-4 text-center">
+                      <div 
+                        className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center"
+                        style={{ backgroundColor: category.color_hex + '20' }}
+                      >
+                        <IconComponent 
+                          className="w-6 h-6" 
+                          style={{ color: category.color_hex }}
+                        />
+                      </div>
+                      <h3 className="font-semibold text-sm text-foreground mb-1">{category.name}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {loading ? '...' : `${events.filter(event => 
+                          event.event_categories?.some((ec: any) => 
+                            ec.music_categories?.slug === category.slug
+                          )
+                        ).length} eventos`}
+                      </p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
 
           <div className="bg-card rounded-lg p-6 mb-8 space-y-4">

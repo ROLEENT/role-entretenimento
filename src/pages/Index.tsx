@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import FeaturedEventsToday from "@/components/FeaturedEventsToday";
-import MusicCategories from "@/components/MusicCategories";
+
 import HowItWorks from "@/components/HowItWorks";
 import MagazineBanner from "@/components/MagazineBanner";
 import AdvertisementBanner from "@/components/AdvertisementBanner";
@@ -43,9 +43,6 @@ const Index = () => {
             <GeolocationEvents />
           </ScrollAnimationWrapper>
           <FeaturedBlogPosts />
-          <ScrollAnimationWrapper>
-            <MusicCategories />
-          </ScrollAnimationWrapper>
           <ScrollAnimationWrapper>
             <AdvertisementBanner />
           </ScrollAnimationWrapper>
