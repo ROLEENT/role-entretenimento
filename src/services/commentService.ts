@@ -87,10 +87,9 @@ export const commentService = {
   // Get approved comments for a post (for public viewing) - NO EMAIL EXPOSURE
   async getPostComments(postId: string): Promise<PublicBlogComment[]> {
     const { data, error } = await supabase
-      .from('blog_comments')
-      .select('id, post_id, author_name, content, created_at, parent_id, is_approved')
+      .from('blog_comments_public')
+      .select('*')
       .eq('post_id', postId)
-      .eq('is_approved', true)
       .order('created_at', { ascending: true });
     
     if (error) {
