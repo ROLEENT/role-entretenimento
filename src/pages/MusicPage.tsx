@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Music, Headphones, Play, Pause, Plus, Settings, ExternalLink } from 'lucide-react';
+import { Music, Headphones, Play, Pause, Plus, Settings, ExternalLink, TestTube } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,7 @@ import { usePlaylistManager } from '@/hooks/usePlaylistManager';
 import { useFavorites } from '@/hooks/useFavorites';
 import { toast } from 'sonner';
 import SpotifyPlayer from '@/components/SpotifyPlayer';
+import { MusicTestPanel } from '@/components/MusicTestPanel';
 import SEOHead from '@/components/SEOHead';
 
 const MusicPage: React.FC = () => {
@@ -71,6 +72,7 @@ const MusicPage: React.FC = () => {
   };
 
   const handleConnectSpotify = () => {
+    console.log('🔐 Initiating Spotify connection...');
     connect();
   };
 
@@ -191,10 +193,14 @@ const MusicPage: React.FC = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="discovery" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="discovery">Descoberta</TabsTrigger>
             <TabsTrigger value="playlists">Minhas Playlists</TabsTrigger>
             <TabsTrigger value="favorites">Eventos Favoritos</TabsTrigger>
+            <TabsTrigger value="tests">
+              <TestTube className="h-4 w-4 mr-1" />
+              Testes
+            </TabsTrigger>
           </TabsList>
 
           {/* Discovery Tab */}
@@ -446,6 +452,11 @@ const MusicPage: React.FC = () => {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          {/* Tests Tab */}
+          <TabsContent value="tests" className="space-y-6">
+            <MusicTestPanel />
           </TabsContent>
         </Tabs>
 

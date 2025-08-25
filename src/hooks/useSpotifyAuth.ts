@@ -91,19 +91,24 @@ export const useSpotifyAuth = () => {
     }
 
     try {
+      console.log('🔐 Starting Spotify connection for user:', user.id);
       setState(prev => ({ ...prev, loading: true }));
 
       const { data, error } = await supabase.functions.invoke('spotify-auth', {
         body: { action: 'get-auth-url' }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Spotify auth function error:', error);
+        throw error;
+      }
 
+      console.log('✅ Got auth URL from Spotify:', data?.authUrl ? 'success' : 'missing');
       if (data?.authUrl) {
         window.location.href = data.authUrl;
       }
     } catch (error) {
-      console.error('Error connecting to Spotify:', error);
+      console.error('❌ Error connecting to Spotify:', error);
       toast.error('Erro ao conectar com o Spotify');
       setState(prev => ({ ...prev, loading: false }));
     }

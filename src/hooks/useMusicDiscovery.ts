@@ -76,6 +76,7 @@ export const useMusicDiscovery = () => {
     }
 
     try {
+      console.log('🔍 Starting music discovery for event:', eventTitle);
       setState(prev => ({ ...prev, loading: true }));
 
       const { data, error } = await supabase.functions.invoke('music-discovery', {
@@ -86,21 +87,30 @@ export const useMusicDiscovery = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Music discovery function error:', error);
+        throw error;
+      }
 
       const artists = data?.artists || [];
+      const extractedNames = data?.extractedNames || [];
+      
+      console.log('🎯 Discovery results:', {
+        eventTitle,
+        artistsFound: artists.length,
+        extractedNames,
+        artists: artists.map(a => a.artist_name)
+      });
+
       setState(prev => ({ 
         ...prev, 
         loading: false,
         artists: [...prev.artists, ...artists]
       }));
 
-      return {
-        artists,
-        extractedNames: data?.extractedNames || []
-      };
+      return { artists, extractedNames };
     } catch (error) {
-      console.error('Error discovering from event:', error);
+      console.error('❌ Error discovering from event:', error);
       toast.error('Erro ao descobrir artistas do evento');
       setState(prev => ({ ...prev, loading: false }));
       return { artists: [], extractedNames: [] };
