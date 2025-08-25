@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, ExternalLink, Ticket, Calendar } from "lucide-react";
+import { MapPin, ExternalLink, Ticket, Calendar, Share2 } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { StarRatingDisplay } from "@/components/ui/star-rating";
 import { reviewStatsService } from "@/services/reviewService";
+import { useNativeShare } from "@/hooks/useNativeShare";
 import { formatHighlightDate } from "@/utils/dateUtils";
+import { toast } from 'sonner';
 
 type CityEnum = 'porto_alegre' | 'sao_paulo' | 'rio_de_janeiro' | 'florianopolis' | 'curitiba';
 
@@ -30,6 +32,7 @@ interface HighlightCardProps {
 }
 
 const HighlightCard = ({ highlight }: HighlightCardProps) => {
+  const { shareOrFallback } = useNativeShare();
   const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 });
 
   useEffect(() => {
@@ -66,6 +69,21 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
     return `https://nutlcbnruabjsxecqpnd.supabase.co/storage/v1/object/public/highlights/${imageUrl}`;
   };
 
+  const handleShare = () => {
+    const highlightUrl = `${window.location.origin}/destaque/${highlight.id}`;
+    const shareData = {
+      title: highlight.event_title,
+      text: `Confira este destaque: ${highlight.event_title} em ${formatCity(highlight.city)}`,
+      url: highlightUrl
+    };
+
+    shareOrFallback(shareData, () => {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(highlightUrl);
+      toast.success('Link copiado para a área de transferência!');
+    });
+  };
+
   return (
     <Card className="overflow-hidden bg-card border hover:shadow-lg transition-all duration-300">
       {/* Event Image */}
@@ -78,11 +96,21 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         
-        {/* City Badge */}
+        {/* City Badge and Share Button */}
         <div className="absolute top-4 left-4">
           <Badge variant="secondary" className="bg-white/90 text-foreground">
             {formatCity(highlight.city)}
           </Badge>
+        </div>
+        <div className="absolute top-4 right-4">
+          <Button
+            size="sm"
+            variant="secondary"
+            className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
+            onClick={handleShare}
+          >
+            <Share2 className="h-4 w-4 text-foreground" />
+          </Button>
         </div>
         
         {/* Photo Credit */}

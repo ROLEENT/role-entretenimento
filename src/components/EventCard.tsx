@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useFavorites, type FavoriteEvent } from '@/hooks/useFavorites';
 import { StarRatingDisplay } from '@/components/ui/star-rating';
 import { reviewStatsService } from '@/services/reviewService';
+import { useNativeShare } from '@/hooks/useNativeShare';
 import ShareDialog from './ShareDialog';
 import LazyImage from './LazyImage';
 
@@ -19,6 +20,7 @@ interface EventCardProps {
 
 const EventCard = ({ event, className }: EventCardProps) => {
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { shareOrFallback } = useNativeShare();
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 });
   const favorite = isFavorite(event.id);
@@ -35,6 +37,17 @@ const EventCard = ({ event, className }: EventCardProps) => {
 
     fetchReviewStats();
   }, [event.id]);
+
+  const handleShare = () => {
+    const eventUrl = `${window.location.origin}/event/${event.id}`;
+    const shareData = {
+      title: event.title,
+      text: `Confira este evento: ${event.title} em ${event.city}`,
+      url: eventUrl
+    };
+
+    shareOrFallback(shareData, () => setShowShareDialog(true));
+  };
 
   const formatPrice = (price: number) => {
     return price === 0 ? 'Gratuito' : `R$ ${price.toFixed(2)}`;
@@ -70,7 +83,7 @@ const EventCard = ({ event, className }: EventCardProps) => {
               size="sm"
               variant="secondary"
               className="h-8 w-8 p-0 bg-background/80 backdrop-blur-sm"
-              onClick={() => setShowShareDialog(true)}
+              onClick={handleShare}
             >
               <Share2 className="h-4 w-4" />
             </Button>
