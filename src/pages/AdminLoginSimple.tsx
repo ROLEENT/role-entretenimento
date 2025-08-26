@@ -59,10 +59,17 @@ const AdminLoginSimple = () => {
     setIsLoading(true);
 
     try {
+      // URL de redirect específica para admin usando o domínio atual
+      const redirectTo = `${window.location.origin}/admin`;
+      
+      console.log('🔐 Enviando Magic Link para:', email);
+      console.log('📍 Redirect URL:', redirectTo);
+      
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/admin`,
+          emailRedirectTo: redirectTo,
+          shouldCreateUser: false // Só permitir login de usuários existentes
         }
       });
 
@@ -105,6 +112,7 @@ const AdminLoginSimple = () => {
         email,
         options: {
           emailRedirectTo: `${window.location.origin}/admin`,
+          shouldCreateUser: false
         }
       });
 

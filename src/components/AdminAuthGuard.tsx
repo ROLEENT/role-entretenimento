@@ -28,6 +28,22 @@ export const AdminAuthGuard = ({ children }: AdminAuthGuardProps) => {
         if (!session?.user || !user) {
           console.log('❌ Sem sessão ativa, redirecionando para login');
           if (mounted) {
+            // Limpar cache antes de redirecionar
+            Object.keys(sessionStorage).forEach(key => {
+              if (key.startsWith('admin_check_')) {
+                sessionStorage.removeItem(key);
+              }
+            });
+            navigate('/admin/login');
+          }
+          return;
+        }
+
+        // Verificar se o token ainda é válido
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (!currentSession?.access_token) {
+          console.log('❌ Token inválido, redirecionando para login');
+          if (mounted) {
             navigate('/admin/login');
           }
           return;
@@ -38,9 +54,9 @@ export const AdminAuthGuard = ({ children }: AdminAuthGuardProps) => {
         const cachedResult = sessionStorage.getItem(adminCacheKey);
         const cacheTime = sessionStorage.getItem(`${adminCacheKey}_time`);
         
-        // Cache válido por 5 minutos
+        // Cache válido por 10 minutos (aumentado de 5 para reduzir verificações)
         if (cachedResult && cacheTime && 
-            (Date.now() - parseInt(cacheTime)) < 5 * 60 * 1000) {
+            (Date.now() - parseInt(cacheTime)) < 10 * 60 * 1000) {
           const isAdmin = cachedResult === 'true';
           if (isAdmin) {
             console.log('✅ Admin verificado via cache:', user.email);
@@ -99,7 +115,7 @@ export const AdminAuthGuard = ({ children }: AdminAuthGuardProps) => {
     return () => {
       mounted = false;
     };
-  }, [user?.id, session?.user?.id, loading, navigate]);
+  }, [user?.id, session?.access_token, loading, navigate]);
 
   // Mostra loading enquanto verifica auth
   if (loading || isLoading) {
