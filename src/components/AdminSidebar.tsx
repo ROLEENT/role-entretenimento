@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { User as UserIcon } from "@supabase/supabase-js";
 import {
   FileText,
   Calendar,
@@ -37,7 +38,8 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const mainMenuItems = [
   {
@@ -161,12 +163,25 @@ const systemMenuItems = [
 export function AdminSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
-  const { adminUser, logoutAdmin } = useAdminAuth();
+  const navigate = useNavigate();
+  const [user, setUser] = useState<UserIcon | null>(null);
   const [isBlogOpen, setIsBlogOpen] = useState(
     location.pathname.startsWith("/admin/posts")
   );
   
   const collapsed = state === "collapsed";
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const isActive = (path: string) => {
     if (path === "/admin") {
@@ -179,6 +194,19 @@ export function AdminSidebar() {
     return isActive(path)
       ? "bg-primary text-primary-foreground font-medium"
       : "hover:bg-muted/50";
+  };
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast.success("Logout realizado com sucesso");
+      navigate("/admin/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Erro no logout");
+    }
   };
 
   return (
@@ -334,17 +362,17 @@ export function AdminSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-4">
+      <SidebarFooter className="border-b p-4">
         {!collapsed && (
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <User className="h-4 w-4" />
-              <span className="truncate">{adminUser?.full_name || adminUser?.email}</span>
+              <span className="truncate">{user?.user_metadata?.full_name || user?.email}</span>
             </div>
             <Button
               variant="ghost"
               size="sm"
-              onClick={logoutAdmin}
+              onClick={handleLogout}
               className="w-full justify-start text-sm"
             >
               <LogOut className="h-4 w-4 mr-2" />
@@ -356,7 +384,7 @@ export function AdminSidebar() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={logoutAdmin}
+            onClick={handleLogout}
             className="w-full p-2"
           >
             <LogOut className="h-4 w-4" />

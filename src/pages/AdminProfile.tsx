@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Save, User, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+
 import { EnvironmentBanner } from '@/components/EnvironmentBanner';
 import { useSimulationMode } from '@/hooks/useSimulationMode';
 

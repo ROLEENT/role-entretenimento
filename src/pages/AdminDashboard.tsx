@@ -2,13 +2,28 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import { FileText, Calendar, MapPin, Users, MessageSquare, Tag, Image, User, Star, BarChart3, Bell, Settings } from "lucide-react";
 import { AdminStats } from "@/components/AdminStats";
 import { AdminDashboard as AdminDashboardComponent } from "@/components/admin/AdminDashboard";
 
 const AdminDashboard = () => {
-  const { logoutAdmin, adminUser } = useAdminAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast.success("Logout realizado com sucesso");
+      navigate("/admin/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Erro no logout");
+    }
+  };
 
   const adminCards = [
     {
