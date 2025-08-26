@@ -66,3 +66,15 @@ verify_jwt = false
 
 [functions.notify-weekly-highlights]
 verify_jwt = false
+
+[functions.ai-chatbot]
+verify_jwt = false
+
+[functions.spotify-auth]
+verify_jwt = true
+
+[functions.music-discovery]
+verify_jwt = true
+
+[functions.playlist-manager]
+verify_jwt = true

@@ -139,11 +139,11 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 mobile-auth-container">
       <Header />
       
-      <main className="container mx-auto px-4 py-8 lg:py-16">
-        <div className="max-w-md mx-auto">
+      <main className="container mx-auto px-4 py-8 lg:py-16 min-h-screen flex items-center">
+        <div className="max-w-md mx-auto w-full">
           {/* Hero Section */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary rounded-full mb-4">
@@ -233,7 +233,7 @@ const AuthPage = () => {
                     
                     <Button 
                       type="submit" 
-                      className="w-full h-12 bg-gradient-primary hover:opacity-90 transition-opacity" 
+                      className="w-full h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg mobile-auth-button touch-target" 
                       disabled={loading}
                     >
                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -373,7 +373,7 @@ const AuthPage = () => {
                     
                     <Button 
                       type="submit" 
-                      className="w-full h-12 bg-gradient-primary hover:opacity-90 transition-opacity" 
+                      className="w-full h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg mobile-auth-button touch-target" 
                       disabled={loading}
                     >
                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -421,7 +421,7 @@ const AuthPage = () => {
                     <Button
                       type="submit"
                       disabled={resetLoading || !resetEmail}
-                      className="flex-1 bg-gradient-primary hover:opacity-90"
+                      className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium transition-all duration-200 shadow-lg mobile-auth-button touch-target"
                     >
                       {resetLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       Enviar

@@ -49,8 +49,12 @@ serve(async (req) => {
     }
 
     if (action === 'get-auth-url') {
-      const redirectUri = `${req.headers.get('origin')}/music/callback`;
+      console.log('🎵 Gerando URL de autorização do Spotify...');
+      const origin = req.headers.get('origin') || 'https://0b445d10-2560-433e-8fca-2c83144c12a9.lovableproject.com';
+      const redirectUri = `${origin}/music/callback`;
       const scope = 'user-read-private user-read-email user-library-read user-library-modify playlist-read-private playlist-modify-public playlist-modify-private';
+      
+      console.log('🔗 Redirect URI:', redirectUri);
       
       const authUrl = `https://accounts.spotify.com/authorize?` +
         `response_type=code&` +
@@ -72,7 +76,10 @@ serve(async (req) => {
         });
       }
 
-      const redirectUri = `${req.headers.get('origin')}/music/callback`;
+      console.log('🔑 Trocando código por tokens...');
+      const origin = req.headers.get('origin') || 'https://0b445d10-2560-433e-8fca-2c83144c12a9.lovableproject.com';
+      const redirectUri = `${origin}/music/callback`;
+      console.log('🔗 Redirect URI para troca:', redirectUri);
       
       // Exchange code for tokens
       const tokenResponse = await fetch('https://accounts.spotify.com/api/token', {
