@@ -2061,6 +2061,39 @@ export type Database = {
         }
         Relationships: []
       }
+      performance_metrics: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          metric_name: string
+          threshold_critical: number
+          threshold_warning: number
+          timestamp: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          metric_name: string
+          threshold_critical?: number
+          threshold_warning?: number
+          timestamp?: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          metric_name?: string
+          threshold_critical?: number
+          threshold_warning?: number
+          timestamp?: string
+          value?: number
+        }
+        Relationships: []
+      }
       points_history: {
         Row: {
           activity_id: string | null
