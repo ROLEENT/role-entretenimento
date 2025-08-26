@@ -3048,8 +3048,10 @@ export type Database = {
         Returns: boolean
       }
       update_admin_password_secure: {
-        Args: { p_admin_id: string; p_new_password: string }
-        Returns: boolean
+        Args:
+          | { p_admin_id: string; p_new_password: string }
+          | { p_new_password: string; p_session_token: string }
+        Returns: Json
       }
       update_admin_profile: {
         Args: { p_admin_id: string; p_email: string; p_full_name: string }
