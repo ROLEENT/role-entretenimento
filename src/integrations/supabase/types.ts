@@ -1387,6 +1387,36 @@ export type Database = {
         }
         Relationships: []
       }
+      metrics: {
+        Row: {
+          created_at: string
+          id: string
+          is_public: boolean
+          key: string
+          label: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          key: string
+          label: string
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          key?: string
+          label?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
       music_categories: {
         Row: {
           color_hex: string | null

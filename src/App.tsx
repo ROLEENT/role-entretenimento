@@ -54,8 +54,7 @@ import CalendarPage from "./pages/CalendarPage";
 import GamificationPage from "./pages/GamificationPage";
 // Removed: GroupsPage, MusicPage, MusicCallbackPage
 import NotFound from "./pages/NotFound";
-import AdminMetricsIndex from "./pages/admin/metrics/Index";
-import AdminTestimonialsIndex from "./pages/admin/testimonials/Index";
+import AdminMetricsTestimonials from "./pages/AdminMetricsTestimonials";
 import AdminNotificationsPage from "./pages/admin/AdminNotifications";
 import AdminAnalyticsReportsPage from "./pages/admin/AdminAnalyticsReports";
 import AdminEventsManagementPage from "./pages/admin/AdminEventsManagement";
@@ -111,8 +110,8 @@ function App() {
                   <Route path="highlights" element={<AdminHighlightsManagement />} />
                   <Route path="highlights/create" element={<AdminHighlightEditor />} />
                   <Route path="highlights/:id/edit" element={<AdminHighlightEditor />} />
-                  <Route path="metrics" element={<AdminMetricsIndex />} />
-                  <Route path="testimonials" element={<AdminTestimonialsIndex />} />
+                  <Route path="metrics" element={<AdminMetricsTestimonials />} />
+                  <Route path="testimonials" element={<AdminMetricsTestimonials />} />
                   <Route path="event/create" element={<AdminEventCreate />} />
                   <Route path="partners/*" element={<AdminPartnersManagement />} />
                   <Route path="advertisements/*" element={<AdminAdvertisements />} />
