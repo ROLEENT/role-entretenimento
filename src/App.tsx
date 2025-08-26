@@ -125,41 +125,10 @@ function App() {
                 <Route path="/highlights" element={<HighlightsPage />} />
                 <Route path="/cidade/:cidade" element={<CityHighlights />} />
                 
-                {/* Admin Routes with optimized loading */}
+                {/* Admin Routes - Clean structure */}
                 <Route path="/admin/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLoginSimple /></Suspense>} />
                 <Route path="/admin/signup" element={<Suspense fallback={<AdminLoadingFallback />}><AdminSignup /></Suspense>} />
-                <Route path="/admin/update-password" element={<Navigate to="/admin/profile" replace />} />
-                <Route path="/admin" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLayout /></Suspense>}>
-                  <Route index element={<AdminDashboard />} />
-                  <Route path="highlights" element={<AdminHighlightsManagement />} />
-                  <Route path="highlights/create" element={<AdminHighlightEditor />} />
-                  <Route path="highlights/:id/edit" element={<AdminHighlightEditor />} />
-                  <Route path="metrics" element={<AdminMetricsTestimonials />} />
-                  <Route path="testimonials" element={<AdminMetricsTestimonials />} />
-                  <Route path="event/create" element={<AdminEventCreate />} />
-                  <Route path="partners/*" element={<AdminPartnersManagement />} />
-                  <Route path="advertisements/*" element={<AdminAdvertisements />} />
-                  <Route path="posts/new" element={<AdminPostEditor />} />
-                  <Route path="posts/:id/edit" element={<AdminPostEditor />} />
-                  <Route path="posts/history" element={<AdminBlogPostsHistory />} />
-                  <Route path="comments" element={<AdminCommentsManagement />} />
-                  <Route path="contact-messages" element={<AdminContactMessages />} />
-                  <Route path="venues" element={<AdminVenuesManagement />} />
-                  <Route path="categories" element={<AdminCategoriesManagement />} />
-                  <Route path="analytics" element={<AdminAnalytics />} />
-                   <Route path="analytics-reports" element={<AdminAnalyticsReports />} />
-                   <Route path="notifications" element={<AdminNotifications />} />
-                    <Route path="events" element={<AdminEventsManagementPage />} />
-                    <Route path="events/create" element={<AdminEventCreate />} />
-                    <Route path="events/edit/:id" element={<AdminEventEdit />} />
-                    <Route path="events-management" element={<AdminEventsManagementPage />} />
-                    <Route path="event-management" element={<AdminEventManagement />} />
-                   <Route path="performance" element={<AdminPerformance />} />
-                    <Route path="organizers" element={<AdminOrganizers />} />
-                    <Route path="adsense" element={<AdminAdSensePage />} />
-                   <Route path="newsletter" element={<AdminNewsletter />} />
-                   <Route path="profile" element={<AdminProfile />} />
-                </Route>
+                <Route path="/admin/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLayout /></Suspense>} />
                 
                 {/* Events Routes */}
                 <Route path="/eventos" element={<EventsPage />} />

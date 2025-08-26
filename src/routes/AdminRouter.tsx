@@ -1,31 +1,50 @@
-import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import AdminDashboard from '@/pages/AdminDashboard';
-import AdminEventManagement from '@/pages/AdminEventManagement';
-import AdminEventCreate from '@/pages/AdminEventCreate';
-import AdminEventEdit from '@/pages/AdminEventEdit';
-import AdminHighlightsManagement from '@/pages/AdminHighlightsManagement';
-import AdminHighlightEditor from '@/pages/AdminHighlightEditor';
-import AdminPostEditor from '@/pages/AdminPostEditor';
-import AdminBlogPostsHistory from '@/pages/AdminBlogPostsHistory';
-import AdminCategoriesManagement from '@/pages/AdminCategoriesManagement';
-import AdminVenuesManagement from '@/pages/AdminVenuesManagement';
-import AdminOrganizers from '@/pages/AdminOrganizers';
-import AdminContactMessages from '@/pages/AdminContactMessages';
-import AdminAnalytics from '@/pages/AdminAnalytics';
-import AdminProfile from '@/pages/AdminProfile';
-import AdminNotifications from '@/pages/AdminNotifications';
-import AdminPerformance from '@/pages/AdminPerformance';
-import AdminCommentsManagement from '@/pages/AdminCommentsManagement';
-import AdminAdvertisements from '@/pages/AdminAdvertisements';
-import AdminPushNotifications from '@/pages/admin/AdminPushNotifications';
-import AdminReports from '@/pages/admin/AdminReports';
-import AdminPerformanceMonitor from '@/pages/admin/AdminPerformanceMonitor';
 
-const AdminRouter = () => {
+// Dashboard
+import AdminDashboard from '@/pages/admin/Dashboard';
+
+// Content Management
+import AdminHighlights from '@/pages/admin/highlights/Index';
+import AdminHighlightCreate from '@/pages/admin/highlights/Create';
+import AdminHighlightEdit from '@/pages/admin/highlights/Edit';
+
+import AdminEvents from '@/pages/admin/events/Index';
+import AdminEventCreate from '@/pages/admin/events/Create';
+import AdminEventEdit from '@/pages/admin/events/Edit';
+
+import AdminBlog from '@/pages/admin/blog/Index';
+import AdminBlogCreate from '@/pages/admin/blog/Create';
+import AdminBlogEdit from '@/pages/admin/blog/Edit';
+import AdminBlogHistory from '@/pages/admin/blog/History';
+
+import AdminCategories from '@/pages/admin/categories/Index';
+import AdminVenues from '@/pages/admin/venues/Index';
+
+// User Management
+import AdminProfiles from '@/pages/admin/profiles/Index';
+import AdminComments from '@/pages/admin/comments/Index';
+import AdminContactMessages from '@/pages/admin/contact-messages/Index';
+import AdminOrganizers from '@/pages/admin/organizers/Index';
+
+// Marketing & Monetization
+import AdminPartners from '@/pages/admin/partners/Index';
+import AdminAdvertisements from '@/pages/admin/advertisements/Index';
+import AdminAdSense from '@/pages/admin/adsense/Index';
+import AdminNewsletter from '@/pages/admin/newsletter/Index';
+import AdminPushNotifications from '@/pages/admin/push-notifications/Index';
+
+// Analytics & Reports
+import AdminAnalytics from '@/pages/admin/analytics/Index';
+import AdminReports from '@/pages/admin/reports/Index';
+import AdminPerformance from '@/pages/admin/performance/Index';
+
+// System & Settings
+import AdminGamification from '@/pages/admin/gamification/Index';
+import AdminSettings from '@/pages/admin/settings/Index';
+import AdminProfile from '@/pages/admin/profile/Index';
+
+export default function AdminRouter() {
   return (
     <>
       <Helmet>
@@ -35,59 +54,55 @@ const AdminRouter = () => {
       </Helmet>
       
       <Routes>
-        {/* Dashboard Principal */}
-        <Route path="/" element={<AdminDashboard />} />
+        {/* Dashboard */}
+        <Route index element={<AdminDashboard />} />
         
-        {/* Gestão de Eventos */}
-        <Route path="/events" element={<AdminEventManagement />} />
-        <Route path="/events/create" element={<AdminEventCreate />} />
-        <Route path="/events/edit/:id" element={<AdminEventEdit />} />
+        {/* Content Management */}
+        <Route path="highlights" element={<AdminHighlights />} />
+        <Route path="highlights/create" element={<AdminHighlightCreate />} />
+        <Route path="highlights/:id/edit" element={<AdminHighlightEdit />} />
         
-        {/* Gestão de Destaques */}
-        <Route path="/highlights" element={<AdminHighlightsManagement />} />
-        <Route path="/highlights/create" element={<AdminHighlightEditor />} />
-        <Route path="/highlights/edit/:id" element={<AdminHighlightEditor />} />
+        <Route path="events" element={<AdminEvents />} />
+        <Route path="events/create" element={<AdminEventCreate />} />
+        <Route path="events/:id/edit" element={<AdminEventEdit />} />
         
-        {/* Gestão de Posts/Blog */}
-        <Route path="/posts/new" element={<AdminPostEditor />} />
-        <Route path="/posts/edit/:id" element={<AdminPostEditor />} />
-        <Route path="/posts/history" element={<AdminBlogPostsHistory />} />
+        <Route path="blog" element={<AdminBlog />} />
+        <Route path="blog/create" element={<AdminBlogCreate />} />
+        <Route path="blog/:id/edit" element={<AdminBlogEdit />} />
+        <Route path="blog/history" element={<AdminBlogHistory />} />
         
-        {/* Gestão de Categorias */}
-        <Route path="/categories" element={<AdminCategoriesManagement />} />
+        <Route path="categories" element={<AdminCategories />} />
+        <Route path="venues" element={<AdminVenues />} />
         
-        {/* Gestão de Venues */}
-        <Route path="/venues" element={<AdminVenuesManagement />} />
+        {/* User Management */}
+        <Route path="profiles" element={<AdminProfiles />} />
+        <Route path="comments" element={<AdminComments />} />
+        <Route path="contact-messages" element={<AdminContactMessages />} />
+        <Route path="organizers" element={<AdminOrganizers />} />
         
-        {/* Gestão de Organizadores */}
-        <Route path="/organizers" element={<AdminOrganizers />} />
+        {/* Marketing & Monetization */}
+        <Route path="partners" element={<AdminPartners />} />
+        <Route path="partners/:id/edit" element={<AdminPartners />} />
+        <Route path="partners/new" element={<AdminPartners />} />
         
-        {/* Gestão de Comentários */}
-        <Route path="/comments" element={<AdminCommentsManagement />} />
+        <Route path="advertisements" element={<AdminAdvertisements />} />
+        <Route path="advertisements/:id/edit" element={<AdminAdvertisements />} />
+        <Route path="advertisements/new" element={<AdminAdvertisements />} />
         
-        {/* Gestão de Mensagens de Contato */}
-        <Route path="/contact" element={<AdminContactMessages />} />
+        <Route path="adsense" element={<AdminAdSense />} />
+        <Route path="newsletter" element={<AdminNewsletter />} />
+        <Route path="push-notifications" element={<AdminPushNotifications />} />
         
-        {/* Push Notifications */}
-        <Route path="/notifications" element={<AdminNotifications />} />
-        <Route path="/push-notifications" element={<AdminPushNotifications />} />
+        {/* Analytics & Reports */}
+        <Route path="analytics" element={<AdminAnalytics />} />
+        <Route path="reports" element={<AdminReports />} />
+        <Route path="performance" element={<AdminPerformance />} />
         
-        {/* Relatórios e Analytics */}
-        <Route path="/analytics" element={<AdminAnalytics />} />
-        <Route path="/reports" element={<AdminReports />} />
-        
-        {/* Performance e Monitoramento */}
-        <Route path="/performance" element={<AdminPerformance />} />
-        <Route path="/performance-monitor" element={<AdminPerformanceMonitor />} />
-        
-        {/* Gestão de Anúncios */}
-        <Route path="/advertisements" element={<AdminAdvertisements />} />
-        
-        {/* Perfil do Admin */}
-        <Route path="/profile" element={<AdminProfile />} />
+        {/* System & Settings */}
+        <Route path="gamification" element={<AdminGamification />} />
+        <Route path="settings" element={<AdminSettings />} />
+        <Route path="profile" element={<AdminProfile />} />
       </Routes>
     </>
   );
-};
-
-export default AdminRouter;
+}
