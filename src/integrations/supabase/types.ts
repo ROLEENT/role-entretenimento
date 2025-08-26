@@ -409,7 +409,7 @@ export type Database = {
             foreignKeyName: "blog_comments_parent_id_fkey"
             columns: ["parent_id"]
             isOneToOne: false
-            referencedRelation: "blog_comments_safe"
+            referencedRelation: "blog_comments_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2331,13 +2331,12 @@ export type Database = {
       }
     }
     Views: {
-      blog_comments_safe: {
+      blog_comments_public: {
         Row: {
           author_name: string | null
           content: string | null
           created_at: string | null
           id: string | null
-          is_approved: boolean | null
           parent_id: string | null
           post_id: string | null
         }
@@ -2346,7 +2345,6 @@ export type Database = {
           content?: string | null
           created_at?: string | null
           id?: string | null
-          is_approved?: boolean | null
           parent_id?: string | null
           post_id?: string | null
         }
@@ -2355,7 +2353,6 @@ export type Database = {
           content?: string | null
           created_at?: string | null
           id?: string | null
-          is_approved?: boolean | null
           parent_id?: string | null
           post_id?: string | null
         }
@@ -2371,7 +2368,7 @@ export type Database = {
             foreignKeyName: "blog_comments_parent_id_fkey"
             columns: ["parent_id"]
             isOneToOne: false
-            referencedRelation: "blog_comments_safe"
+            referencedRelation: "blog_comments_public"
             referencedColumns: ["id"]
           },
         ]
