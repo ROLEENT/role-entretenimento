@@ -614,8 +614,11 @@ export type Database = {
       }
       contact_messages: {
         Row: {
+          body: string | null
           created_at: string
-          email: string
+          email_hash: string | null
+          handled: boolean | null
+          handled_by: string | null
           id: string
           message: string
           name: string
@@ -623,8 +626,11 @@ export type Database = {
           subject: string
         }
         Insert: {
+          body?: string | null
           created_at?: string
-          email: string
+          email_hash?: string | null
+          handled?: boolean | null
+          handled_by?: string | null
           id?: string
           message: string
           name: string
@@ -632,8 +638,11 @@ export type Database = {
           subject: string
         }
         Update: {
+          body?: string | null
           created_at?: string
-          email?: string
+          email_hash?: string | null
+          handled?: boolean | null
+          handled_by?: string | null
           id?: string
           message?: string
           name?: string
@@ -2840,12 +2849,13 @@ export type Database = {
       get_contact_messages: {
         Args: Record<PropertyKey, never>
         Returns: {
+          body: string
           created_at: string
-          email: string
+          email_hash: string
+          handled: boolean
+          handled_by: string
           id: string
-          message: string
           name: string
-          status: string
           subject: string
         }[]
       }
@@ -3022,6 +3032,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      mark_contact_message_handled: {
+        Args: { p_id: string }
+        Returns: undefined
+      }
+      mark_contact_message_unhandled: {
+        Args: { p_id: string }
+        Returns: undefined
+      }
       mark_notification_read: {
         Args: { p_notification_id: string }
         Returns: undefined
@@ -3069,10 +3087,6 @@ export type Database = {
       }
       update_admin_profile: {
         Args: { p_admin_id: string; p_email: string; p_full_name: string }
-        Returns: undefined
-      }
-      update_contact_message_status: {
-        Args: { p_id: string; p_status: string }
         Returns: undefined
       }
       user_liked_highlight: {

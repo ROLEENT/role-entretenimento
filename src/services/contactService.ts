@@ -7,6 +7,15 @@ export interface ContactMessage {
   message: string;
 }
 
+// Helper function to hash email client-side for privacy
+const hashEmail = async (email: string): Promise<string> => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(email);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+};
+
 export const contactService = {
   async sendMessage(messageData: ContactMessage) {
     // Using direct SQL query since contact_messages table is not in types yet
@@ -23,7 +32,6 @@ export const contactService = {
   },
 
   async getAllMessages() {
-    // Using direct SQL query since contact_messages table is not in types yet
     const { data, error } = await supabase.rpc('get_contact_messages');
 
     if (error) {
@@ -33,15 +41,23 @@ export const contactService = {
     return data || [];
   },
 
-  async updateMessageStatus(id: string, status: string) {
-    // Using direct SQL query since contact_messages table is not in types yet
-    const { error } = await supabase.rpc('update_contact_message_status', {
-      p_id: id,
-      p_status: status
+  async markAsHandled(id: string) {
+    const { error } = await supabase.rpc('mark_contact_message_handled', {
+      p_id: id
     });
 
     if (error) {
-      throw new Error('Erro ao atualizar status: ' + error.message);
+      throw new Error('Erro ao marcar como tratada: ' + error.message);
+    }
+  },
+
+  async markAsUnhandled(id: string) {
+    const { error } = await supabase.rpc('mark_contact_message_unhandled', {
+      p_id: id
+    });
+
+    if (error) {
+      throw new Error('Erro ao marcar como não tratada: ' + error.message);
     }
   }
 };
