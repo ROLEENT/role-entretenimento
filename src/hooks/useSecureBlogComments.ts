@@ -51,24 +51,20 @@ export const useSecureBlogComments = (postId: string) => {
     parentId?: string
   ) => {
     try {
-      // Criar hash SHA256 do email
-      const encoder = new TextEncoder();
-      const data = encoder.encode(email);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const emailHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      // Use backend function to generate email hash
+      const { data: emailHash, error: hashError } = await supabase.rpc('hash_email_for_client', {
+        email_input: email
+      });
+      
+      if (hashError) throw hashError;
 
-      const { error } = await supabase
-        .from('blog_comments')
-        .insert({
-          post_id: postId,
-          display_name: displayName.trim(),
-          email_hash: emailHash,
-          content: content.trim(),
-          parent_id: parentId || null,
-          is_hidden: false, // Comentários começam visíveis
-          user_id: null // Para comentários anônimos
-        });
+      const { error } = await supabase.rpc('add_blog_comment_secure_hash', {
+        p_post_id: postId,
+        p_author_name: displayName.trim(),
+        p_email_hash: emailHash,
+        p_content: content.trim(),
+        p_parent_id: parentId || null
+      });
 
       if (error) throw error;
 

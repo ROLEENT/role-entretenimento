@@ -503,18 +503,21 @@ export type Database = {
       blog_likes: {
         Row: {
           created_at: string
+          email_hash: string | null
           id: string
           post_id: string
           user_email: string
         }
         Insert: {
           created_at?: string
+          email_hash?: string | null
           id?: string
           post_id: string
           user_email: string
         }
         Update: {
           created_at?: string
+          email_hash?: string | null
           id?: string
           post_id?: string
           user_email?: string
@@ -2775,6 +2778,16 @@ export type Database = {
         }
         Returns: string
       }
+      add_blog_comment_secure_hash: {
+        Args: {
+          p_author_name: string
+          p_content: string
+          p_email_hash: string
+          p_parent_id?: string
+          p_post_id: string
+        }
+        Returns: string
+      }
       add_favorite_to_calendar: {
         Args: { p_event_id: string; p_user_id: string }
         Returns: string
@@ -3140,6 +3153,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      generate_email_hash: {
+        Args: { email_text: string }
+        Returns: string
+      }
       generate_event_slug: {
         Args: { p_event_id?: string; p_title: string }
         Returns: string
@@ -3193,6 +3210,19 @@ export type Database = {
           author_name: string
           content: string
           created_at: string
+          id: string
+          is_approved: boolean
+          post_id: string
+          post_title: string
+        }[]
+      }
+      get_blog_comments_admin_hash: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author_name: string
+          content: string
+          created_at: string
+          email_hash: string
           id: string
           is_approved: boolean
           post_id: string
@@ -3358,6 +3388,10 @@ export type Database = {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      hash_email_for_client: {
+        Args: { email_input: string }
+        Returns: string
+      }
       increment_highlight_likes: {
         Args: { highlight_id: string }
         Returns: undefined
@@ -3515,6 +3549,10 @@ export type Database = {
         Args: { p_post_id: string; p_user_email: string }
         Returns: boolean
       }
+      user_liked_post_hash: {
+        Args: { p_email_hash: string; p_post_id: string }
+        Returns: boolean
+      }
       validate_admin_email: {
         Args: { email_param: string }
         Returns: boolean
@@ -3540,6 +3578,15 @@ export type Database = {
       validate_username: {
         Args: { new_username: string }
         Returns: boolean
+      }
+      verify_email_hash_migration: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          migration_status: string
+          rows_with_hash: number
+          table_name: string
+          total_rows: number
+        }[]
       }
     }
     Enums: {

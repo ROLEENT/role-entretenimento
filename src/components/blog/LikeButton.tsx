@@ -4,6 +4,7 @@ import { Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { hashEmail } from "@/utils/emailUtils";
 
 interface LikeButtonProps {
   postId: string;
@@ -40,9 +41,10 @@ const LikeButton = ({ postId, userEmail }: LikeButtonProps) => {
     if (!userEmail) return;
 
     try {
-      const { data, error } = await supabase.rpc('user_liked_post', {
+      const emailHash = hashEmail(userEmail);
+      const { data, error } = await supabase.rpc('user_liked_post_hash', {
         p_post_id: postId,
-        p_user_email: userEmail
+        p_email_hash: emailHash
       });
 
       if (!error) {
@@ -59,13 +61,14 @@ const LikeButton = ({ postId, userEmail }: LikeButtonProps) => {
       if (!email) return;
       
       setIsLoading(true);
+      const emailHash = hashEmail(email);
       
       if (isLiked) {
         const { error } = await supabase
           .from('blog_likes')
           .delete()
           .eq('post_id', postId as any)
-          .eq('user_email', email as any);
+          .eq('email_hash', emailHash);
 
         if (!error) {
           setIsLiked(false);
@@ -75,7 +78,7 @@ const LikeButton = ({ postId, userEmail }: LikeButtonProps) => {
       } else {
         const { error } = await supabase
           .from('blog_likes')
-          .insert([{ post_id: postId, user_email: email } as any]);
+          .insert([{ post_id: postId, email_hash: emailHash } as any]);
 
         if (!error) {
           setIsLiked(true);
@@ -91,13 +94,14 @@ const LikeButton = ({ postId, userEmail }: LikeButtonProps) => {
     }
 
     setIsLoading(true);
+    const emailHash = hashEmail(userEmail);
 
     if (isLiked) {
       const { error } = await supabase
         .from('blog_likes')
         .delete()
         .eq('post_id', postId as any)
-        .eq('user_email', userEmail as any);
+        .eq('email_hash', emailHash);
 
       if (!error) {
         setIsLiked(false);
@@ -107,7 +111,7 @@ const LikeButton = ({ postId, userEmail }: LikeButtonProps) => {
     } else {
       const { error } = await supabase
         .from('blog_likes')
-        .insert([{ post_id: postId, user_email: userEmail } as any]);
+        .insert([{ post_id: postId, email_hash: emailHash } as any]);
 
       if (!error) {
         setIsLiked(true);

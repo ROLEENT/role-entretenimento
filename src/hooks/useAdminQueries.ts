@@ -285,33 +285,45 @@ export function useBlogPosts(params: PaginationParams & { status?: string } = {}
 
 // Comments hooks
 export function useComments(params: PaginationParams & { approved?: boolean } = {}) {
-  const { page = 1, limit = DEFAULT_PAGE_SIZE, approved, orderBy = 'created_at', orderDirection = 'desc' } = params;
+  const { page = 1, limit = DEFAULT_PAGE_SIZE, search, approved, orderBy = 'created_at', orderDirection = 'desc' } = params;
   
   return useQuery({
     queryKey: queryKeys.comments(page, approved ? 'approved' : 'pending'),
     queryFn: async (): Promise<PaginatedResponse<any>> => {
-      const startRange = (page - 1) * limit;
-      const endRange = startRange + limit - 1;
-      
-      let query = supabase
-        .from('blog_comments')
-        .select('*, blog_posts(title)', { count: 'exact' })
-        .order(orderBy, { ascending: orderDirection === 'asc' })
-        .range(startRange, endRange);
-      
-      if (approved !== undefined) {
-        query = query.eq('is_approved', approved);
-      }
-      
-      const { data, error, count } = await query;
+      // Use new hash-based admin function
+      const { data: allData, error } = await supabase.rpc('get_blog_comments_admin_hash');
       
       if (error) throw error;
       
-      const totalPages = Math.ceil((count || 0) / limit);
+      let filteredData = allData || [];
+      
+      // Apply approved filter if provided
+      if (approved !== undefined) {
+        filteredData = filteredData.filter((comment: any) => comment.is_approved === approved);
+      }
+      
+      // Apply search filter if provided
+      if (search) {
+        filteredData = filteredData.filter((comment: any) => 
+          comment.author_name?.toLowerCase().includes(search.toLowerCase()) ||
+          comment.content?.toLowerCase().includes(search.toLowerCase()) ||
+          comment.post_title?.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+      
+      // Calculate total count after filtering
+      const totalCount = filteredData.length;
+      
+      // Apply pagination manually since we're using RPC
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const paginatedData = filteredData.slice(startIndex, endIndex);
+      
+      const totalPages = Math.ceil(totalCount / limit);
       
       return {
-        data: data || [],
-        count: count || 0,
+        data: paginatedData,
+        count: totalCount,
         page,
         limit,
         totalPages,

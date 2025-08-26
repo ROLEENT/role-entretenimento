@@ -1,11 +1,11 @@
 import { supabase } from '@/integrations/supabase/client';
 
-// Admin interface with email access
+// Admin interface with email hash for privacy
 export interface BlogComment {
   id: string;
   post_id: string;
   author_name: string;
-  author_email: string;
+  email_hash: string; // Changed from author_email to email_hash
   content: string;
   is_approved: boolean;
   created_at: string;
@@ -26,7 +26,7 @@ export interface PublicBlogComment {
 export const commentService = {
   // Get all comments for admin
   async getAllComments(): Promise<BlogComment[]> {
-    const { data, error } = await supabase.rpc('get_blog_comments_admin');
+    const { data, error } = await supabase.rpc('get_blog_comments_admin_hash');
     
     if (error) {
       throw new Error('Erro ao carregar comentários: ' + error.message);
@@ -68,16 +68,23 @@ export const commentService = {
     }
   },
 
-  // Add a new comment (for public use)
+  // Add a new comment (for public use) - now uses email hash
   async addComment(postId: string, authorName: string, authorEmail: string, content: string): Promise<void> {
-    const { error } = await supabase
-      .from('blog_comments')
-      .insert({
-        post_id: postId,
-        author_name: authorName,
-        author_email: authorEmail,
-        content: content
-      });
+    // Generate email hash using backend function
+    const { data: emailHash, error: hashError } = await supabase.rpc('hash_email_for_client', {
+      email_input: authorEmail
+    });
+    
+    if (hashError) {
+      throw new Error('Erro ao processar email: ' + hashError.message);
+    }
+
+    const { error } = await supabase.rpc('add_blog_comment_secure_hash', {
+      p_post_id: postId,
+      p_author_name: authorName,
+      p_email_hash: emailHash,
+      p_content: content
+    });
     
     if (error) {
       throw new Error('Erro ao adicionar comentário: ' + error.message);
