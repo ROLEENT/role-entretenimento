@@ -13,34 +13,42 @@ const FeaturedHighlights = () => {
   const [highlights, setHighlights] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCity, setSelectedCity] = useState<string>('porto_alegre');
 
   const cities = [
-    { value: 'porto_alegre', label: 'Porto Alegre, RS' },
-    { value: 'sao_paulo', label: 'São Paulo, SP' },
-    { value: 'rio_de_janeiro', label: 'Rio de Janeiro, RJ' },
-    { value: 'florianopolis', label: 'Florianópolis, SC' },
-    { value: 'curitiba', label: 'Curitiba, PR' }
+    'porto_alegre',
+    'sao_paulo', 
+    'rio_de_janeiro',
+    'florianopolis',
+    'curitiba'
   ];
 
-  // Fetch top 2 highlights for selected city
+  // Fetch 1 highlight per city (most recent/liked)
   useEffect(() => {
-    const fetchCityHighlights = async () => {
+    const fetchMultiCityHighlights = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const { data, error: fetchError } = await supabase
-          .from('highlights')
-          .select('*')
-          .eq('is_published', true)
-          .eq('city', selectedCity)
-          .order('like_count', { ascending: false })
-          .order('created_at', { ascending: false })
-          .limit(2);
+        const allHighlights: any[] = [];
+        
+        // Buscar 1 destaque por cidade
+        for (const city of cities) {
+          const { data, error: fetchError } = await supabase
+            .from('highlights')
+            .select('*')
+            .eq('is_published', true)
+            .eq('city', city)
+            .order('like_count', { ascending: false })
+            .order('created_at', { ascending: false })
+            .limit(1);
 
-        if (fetchError) throw fetchError;
-        setHighlights(data || []);
+          if (fetchError) throw fetchError;
+          if (data && data.length > 0) {
+            allHighlights.push(data[0]);
+          }
+        }
+
+        setHighlights(allHighlights);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erro ao carregar destaques');
       } finally {
@@ -48,8 +56,8 @@ const FeaturedHighlights = () => {
       }
     };
 
-    fetchCityHighlights();
-  }, [selectedCity]);
+    fetchMultiCityHighlights();
+  }, []);
 
   const getImageUrl = (imageUrl: string) => {
     if (!imageUrl) return '/placeholder.svg';
@@ -107,112 +115,87 @@ const FeaturedHighlights = () => {
     <section className="py-16 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            DESTAQUES POPULARES EM 🇧🇷 BRASIL
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Destaques pelo Brasil
           </h2>
-          
-          {/* City Selector */}
-          <div className="flex justify-center mb-8">
-            <div className="w-64">
-              <Select value={selectedCity} onValueChange={setSelectedCity}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione uma cidade" />
-                </SelectTrigger>
-                <SelectContent>
-                  {cities.map((city) => (
-                    <SelectItem key={city.value} value={city.value}>
-                      {city.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <p className="text-muted-foreground text-lg">
+            Os melhores eventos de cada capital brasileira
+          </p>
         </div>
 
-        {/* Horizontal Scroll Layout for Mobile-First */}
+        {/* Carrossel Horizontal - Estilo Sympla */}
         <div className="overflow-x-auto pb-4 mb-8">
-          <div className="flex gap-6 min-w-full" style={{ width: 'max-content' }}>
+          <div className="flex gap-4 min-w-full" style={{ width: 'max-content' }}>
             {highlights.map((highlight) => (
               <Card
                 key={highlight.id}
-                className="group overflow-hidden bg-gradient-card hover:shadow-elevated transition-all duration-500 hover:-translate-y-2 border-0 flex-shrink-0 w-80 sm:w-96"
+                className="group overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 bg-card/50 backdrop-blur-sm flex-shrink-0 w-72"
               >
-              <div className="relative overflow-hidden">
-                <img
-                  src={getImageUrl(highlight.image_url)}
-                  alt={`${highlight.event_title} em ${highlight.venue}`}
-                  className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-500"
-                  onError={(e) => {
-                    e.currentTarget.src = '/placeholder.jpg';
-                  }}
-                />
-                <div className="absolute top-4 left-4">
-                  <Badge variant="secondary" className="bg-primary/90 text-primary-foreground">
-                    {getCityDisplayName(highlight.city)}
-                  </Badge>
-                </div>
-                <div className="absolute top-4 right-4">
-                  <Badge variant="outline" className="bg-black/50 text-white text-xs">
-                    <Calendar className="mr-1 h-3 w-3" />
-                    {formatHighlightDateShort(highlight.event_date)}
-                  </Badge>
-                </div>
-                {highlight.photo_credit && (
-                  <div className="absolute bottom-2 right-2">
-                    <Badge variant="outline" className="bg-black/50 text-white text-xs">
-                      {highlight.photo_credit}
+                <div className="relative overflow-hidden">
+                  <img
+                    src={getImageUrl(highlight.image_url)}
+                    alt={`${highlight.event_title} em ${highlight.venue}`}
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      e.currentTarget.src = '/placeholder.jpg';
+                    }}
+                  />
+                  <div className="absolute top-3 left-3">
+                    <Badge variant="secondary" className="bg-primary/90 text-primary-foreground text-xs">
+                      {getCityDisplayName(highlight.city)}
                     </Badge>
                   </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-              </div>
-
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-foreground line-clamp-2">
-                    {highlight.event_title}
-                  </span>
-                  <div className="flex items-center space-x-1">
-                    <Heart className="h-5 w-5 text-red-500" />
-                    <span className="text-lg font-medium">{highlight.like_count || 0}</span>
+                  <div className="absolute top-3 right-3">
+                    <div className="flex items-center gap-1 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                      <Heart className="w-3 h-3" />
+                      <span>{highlight.like_count || 0}</span>
+                    </div>
                   </div>
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                <div className="flex items-center text-muted-foreground mb-3">
-                  <MapPin className="mr-2 h-5 w-5" />
-                  <span className="text-base font-medium">{highlight.venue}</span>
                 </div>
-                
-                <p className="text-base text-muted-foreground line-clamp-3">
-                  {highlight.role_text}
-                </p>
-                
-                <div className="flex flex-wrap gap-2">
-                  {highlight.selection_reasons.slice(0, 3).map((reason, index) => (
-                    <Badge key={index} variant="outline" className="text-sm">
-                      {reason}
-                    </Badge>
-                  ))}
-                  {highlight.selection_reasons.length > 3 && (
-                    <Badge variant="outline" className="text-sm">
-                      +{highlight.selection_reasons.length - 3}
-                    </Badge>
+
+                <CardContent className="p-4 space-y-3">
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-base line-clamp-2 text-foreground group-hover:text-primary transition-colors">
+                      {highlight.event_title}
+                    </h3>
+                    
+                    <div className="flex items-center text-muted-foreground text-sm">
+                      <MapPin className="mr-1 h-4 w-4" />
+                      <span className="line-clamp-1">{highlight.venue}</span>
+                    </div>
+
+                    {highlight.event_date && (
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Calendar className="w-3 h-3" />
+                        <span>{formatHighlightDateShort(highlight.event_date)}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {highlight.selection_reasons && highlight.selection_reasons.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {highlight.selection_reasons.slice(0, 2).map((reason: string, index: number) => (
+                        <Badge 
+                          key={index}
+                          variant="outline" 
+                          className="text-xs px-2 py-0.5"
+                        >
+                          {reason}
+                        </Badge>
+                      ))}
+                    </div>
                   )}
-                </div>
 
-                <Button
-                  className="w-full bg-gradient-primary hover:opacity-90 text-white font-bold text-lg py-6 rounded-full"
-                  asChild
-                >
-                  <Link to={`/destaque/${highlight.id}`}>
-                    Ver Destaque
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-              </CardContent>
+                  <Button
+                    size="sm"
+                    className="w-full"
+                    asChild
+                  >
+                    <Link to={`/destaque/${highlight.id}`}>
+                      Ver Destaque
+                    </Link>
+                  </Button>
+                </CardContent>
               </Card>
             ))}
           </div>
@@ -231,18 +214,11 @@ const FeaturedHighlights = () => {
         {/* Empty State */}
         {highlights.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg mb-2">
-              Nenhum destaque encontrado para {cities.find(c => c.value === selectedCity)?.label}
+            <p className="text-muted-foreground text-lg mb-4">
+              Nenhum destaque encontrado no momento
             </p>
-            <p className="text-sm text-muted-foreground mb-4">
-              Experimente selecionar outra cidade para ver os destaques disponíveis
-            </p>
-            <Button 
-              variant="outline" 
-              onClick={() => setSelectedCity('porto_alegre')}
-              className="rounded-full"
-            >
-              Ver Porto Alegre
+            <Button variant="outline" asChild>
+              <Link to="/eventos">Ver Eventos</Link>
             </Button>
           </div>
         )}

@@ -421,12 +421,20 @@ const DestaquesPage = () => {
     );
   }
 
-  // Página geral de destaques
+  // Página geral de destaques - GRID DE CIDADES
+  const cities = [
+    { key: 'porto_alegre', name: 'Porto Alegre', state: 'RS', count: 14 },
+    { key: 'sao_paulo', name: 'São Paulo', state: 'SP', count: 12 },
+    { key: 'florianopolis', name: 'Florianópolis', state: 'SC', count: 10 },
+    { key: 'curitiba', name: 'Curitiba', state: 'PR', count: 8 },
+    { key: 'rio_de_janeiro', name: 'Rio de Janeiro', state: 'RJ', count: 6 }
+  ];
+
   return (
     <>
       <SEOHead 
         title="Destaques - ROLÊ"
-        description="Descubra os eventos mais curtidos e os melhores destaques de cada cidade"
+        description="Descubra os melhores eventos culturais em cada cidade do Brasil"
       />
       
       <div className="min-h-screen bg-background">
@@ -434,95 +442,57 @@ const DestaquesPage = () => {
         <main className="container mx-auto px-4 py-8 pt-24">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Destaques ROLÊ
+              Destaques por Cidade
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Os eventos mais curtidos do site e os melhores destaques de cada cidade
+              Explore os melhores eventos culturais em cada capital brasileira
             </p>
           </div>
 
-          {/* Top Destaques - Carrossel Global */}
-          {topHighlights.length > 0 && (
-            <section className="mb-16">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                  🔥 Mais Curtidos do ROLÊ
-                </h2>
-                <p className="text-muted-foreground text-lg mb-4">
-                  Os eventos que conquistaram o coração da galera
-                </p>
-                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                  <Users className="w-4 h-4" />
-                  <span>Top {topHighlights.length} eventos mais curtidos</span>
-                </div>
-              </div>
-              
-              {/* Featured Top 3 */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {topHighlights.slice(0, 3).map((highlight, index) => (
-                  <div key={highlight.id} className="relative">
-                    <div className="absolute -top-3 -left-3 z-10">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-lg ${
-                        index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : 'bg-amber-600'
-                      }`}>
-                        {index + 1}
-                      </div>
-                    </div>
-                    <NewHighlightCard highlight={highlight} showCity />
-                  </div>
-                ))}
-              </div>
-              
-              {/* Rest of top highlights */}
-              {topHighlights.length > 3 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {topHighlights.slice(3, 11).map(highlight => (
-                    <NewHighlightCard key={highlight.id} highlight={highlight} showCity />
-                  ))}
-                </div>
-              )}
-            </section>
-          )}
-
-          {/* Destaques por Cidade */}
-          <section>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
-              Destaques por Cidade
-            </h2>
-            
-            {Object.keys(highlights).length === 0 ? (
-              <div className="text-center py-12">
-                <MapPin className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Nenhum destaque encontrado</h3>
-                <p className="text-muted-foreground">
-                  Ainda não temos destaques publicados
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-12">
-                {Object.entries(highlights).map(([city, cityHighlights]: [string, any]) => (
-                  <div key={city}>
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-xl font-bold text-foreground">
-                        📍 {getCityDisplayName(city)}
-                      </h3>
-                      <Button variant="outline" asChild>
-                        <Link to={`/destaques/${city}`}>
-                          Ver todos ({cityHighlights.length})
-                        </Link>
-                      </Button>
+          {/* Grid de Cidades */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-6xl mx-auto">
+            {cities.map((city) => (
+              <Link
+                key={city.key}
+                to={`/destaques/${city.key}`}
+                className="group"
+              >
+                <Card className="h-full border-0 bg-card/50 backdrop-blur-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                  <CardContent className="p-6 text-center space-y-4">
+                    <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <MapPin className="w-8 h-8 text-primary" />
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                      {cityHighlights.slice(0, 4).map((highlight: any) => (
-                        <NewHighlightCard key={highlight.id} highlight={highlight} />
-                      ))}
+                    <div className="space-y-1">
+                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                        {city.name}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {city.state}
+                      </p>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
+                    
+                    <div className="text-xs text-muted-foreground">
+                      {city.count} eventos
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+
+          {/* Call to Action */}
+          <div className="text-center mt-16">
+            <p className="text-muted-foreground mb-4">
+              Descubra eventos únicos em cada cidade
+            </p>
+            <Button variant="outline" asChild>
+              <Link to="/eventos">
+                Ver Todos os Eventos
+                <ArrowLeft className="ml-2 w-4 h-4 rotate-180" />
+              </Link>
+            </Button>
+          </div>
         </main>
         <Footer />
         <BackToTop />
