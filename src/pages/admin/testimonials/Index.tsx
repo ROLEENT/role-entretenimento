@@ -7,12 +7,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+// Removed useAdminAuth - using Supabase Auth via AdminProtectedRoute
 import { Loader2, MessageSquare, Edit, Trash2, Plus, Upload, Star } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 const AdminTestimonialsIndex = () => {
-  const { adminUser } = useAdminAuth();
+  // Authentication handled by AdminProtectedRoute
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [loadingTestimonials, setLoadingTestimonials] = useState(true);
@@ -122,14 +122,7 @@ const AdminTestimonialsIndex = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!adminUser?.email) {
-      toast({
-        title: "Erro",
-        description: "Usuário não autenticado",
-        variant: "destructive"
-      });
-      return;
-    }
+    // Authentication handled by AdminProtectedRoute
 
     setLoading(true);
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+// Removed useAdminAuth - using Supabase Auth via AdminProtectedRoute
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -53,7 +53,7 @@ interface OrganizerForm {
 }
 
 const AdminOrganizers = () => {
-  const { isAuthenticated, loading: authLoading } = useAdminAuth();
+  // Authentication handled by AdminProtectedRoute
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -74,15 +74,8 @@ const AdminOrganizers = () => {
   const [errors, setErrors] = useState<Partial<OrganizerForm>>({});
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      navigate('/admin/login');
-      return;
-    }
-
-    if (isAuthenticated) {
-      loadOrganizers();
-    }
-  }, [isAuthenticated, authLoading, navigate]);
+    loadOrganizers();
+  }, []);
 
   const loadOrganizers = async () => {
     try {
@@ -228,7 +221,7 @@ const AdminOrganizers = () => {
     organizer.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (authLoading || loading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">

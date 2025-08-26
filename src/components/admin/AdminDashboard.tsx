@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+// Removed useAdminAuth - using Supabase Auth via AdminProtectedRoute
 import { supabase } from '@/integrations/supabase/client';
 import { 
   TrendingUp, 
@@ -54,7 +54,6 @@ interface CityMetric {
 }
 
 export function AdminDashboard() {
-  const { adminUser } = useAdminAuth();
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeFilter, setTimeFilter] = useState<'today' | 'week' | 'month'>('week');
@@ -219,7 +218,7 @@ export function AdminDashboard() {
         <div>
           <h2 className="text-3xl font-bold">Dashboard Administrativo</h2>
           <p className="text-muted-foreground">
-            Bem-vindo, {adminUser?.full_name || adminUser?.email}
+            Bem-vindo ao dashboard administrativo
           </p>
         </div>
         

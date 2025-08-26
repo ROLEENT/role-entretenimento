@@ -5,11 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+// Removed useAdminAuth - using Supabase Auth via AdminProtectedRoute
 import { Loader2, TrendingUp, Eye, Users, MapPin, Heart } from 'lucide-react';
 
 const AdminMetricsIndex = () => {
-  const { adminUser } = useAdminAuth();
+  // Authentication handled by AdminProtectedRoute
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(true);
@@ -136,14 +136,7 @@ const AdminMetricsIndex = () => {
       return;
     }
     
-    if (!adminUser?.email) {
-      toast({
-        title: "Erro",
-        description: "Usuário não autenticado",
-        variant: "destructive"
-      });
-      return;
-    }
+    // Authentication handled by AdminProtectedRoute
 
     setLoading(true);
 

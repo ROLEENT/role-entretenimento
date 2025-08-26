@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+// Removed useAdminAuth - using Supabase Auth via AdminProtectedRoute
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -31,7 +31,7 @@ interface Highlight {
 }
 
 export default function AdminHighlightsIndex() {
-  const { adminUser, loading: authLoading } = useAdminAuth();
+  // Authentication handled by AdminProtectedRoute
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,15 +47,14 @@ export default function AdminHighlightsIndex() {
   ];
 
   const fetchHighlights = async () => {
-    if (!adminUser?.email) return;
-
     try {
       setLoading(true);
-      const { data, error } = await supabase.rpc('admin_get_highlights', {
-        p_admin_email: adminUser.email,
-        p_city: selectedCity || null,
-        p_search: searchTerm || null
-      });
+      const { data, error } = await supabase
+        .from('highlights')
+        .select('*')
+        .ilike('event_title', searchTerm ? `%${searchTerm}%` : '%')
+        .eq(selectedCity ? 'city' : 'id', selectedCity || 'id')
+        .order('sort_order', { ascending: true });
 
       if (error) throw error;
       setHighlights((data as Highlight[]) || []);
@@ -71,20 +70,15 @@ export default function AdminHighlightsIndex() {
   };
 
   useEffect(() => {
-    if (adminUser?.email) {
-      fetchHighlights();
-    }
-  }, [adminUser?.email, selectedCity, searchTerm]);
+    fetchHighlights();
+  }, [selectedCity, searchTerm]);
 
   const togglePublishStatus = async (id: string, currentStatus: boolean) => {
-    if (!adminUser?.email) return;
-
     try {
-      const { error } = await supabase.rpc('admin_toggle_highlight_published', {
-        p_admin_email: adminUser.email,
-        p_highlight_id: id,
-        p_is_published: !currentStatus
-      });
+      const { error } = await supabase
+        .from('highlights')
+        .update({ is_published: !currentStatus })
+        .eq('id', id);
 
       if (error) throw error;
 
@@ -104,14 +98,13 @@ export default function AdminHighlightsIndex() {
   };
 
   const deleteHighlight = async (id: string) => {
-    if (!adminUser?.email) return;
     if (!confirm('Tem certeza que deseja excluir este destaque?')) return;
 
     try {
-      const { error } = await supabase.rpc('admin_delete_highlight', {
-        p_admin_email: adminUser.email,
-        p_highlight_id: id
-      });
+      const { error } = await supabase
+        .from('highlights')
+        .delete()
+        .eq('id', id);
 
       if (error) throw error;
 
@@ -149,9 +142,7 @@ export default function AdminHighlightsIndex() {
     return matchesStatus;
   });
 
-  if (authLoading || !adminUser) {
-    return <div className="flex justify-center items-center h-64">Carregando...</div>;
-  }
+  // Authentication handled by AdminProtectedRoute
 
   return (
     <div className="space-y-6">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from "react-helmet";
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+// Removed useAdminAuth - using Supabase Auth via AdminProtectedRoute
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,18 +36,14 @@ const AdminPartners = () => {
     featured: false
   });
 
-  const { isAuthenticated } = useAdminAuth();
+  // Authentication handled by AdminProtectedRoute
   const { isSimulating, simulateOperation, isReadOnlyError } = useSimulationMode();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchPartners();
-    }
-  }, [isAuthenticated]);
+    fetchPartners();
+  }, []);
 
-  if (!isAuthenticated) {
-    return <Navigate to="/admin/login" replace />;
-  }
+  // Authentication handled by AdminProtectedRoute
 
   const fetchPartners = async () => {
     try {
