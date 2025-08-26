@@ -31,6 +31,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminHighlightsManagement from "./pages/AdminHighlightsManagement";
 import AdminHighlightEditor from "./pages/AdminHighlightEditor";
 import AdminEventCreate from "./pages/AdminEventCreate";
+import AdminEventEdit from "./pages/AdminEventEdit";
 import AdminPartnersManagement from "./pages/AdminPartnersManagement";
 import AdminAdvertisements from "./pages/AdminAdvertisements";
 import AdminPostEditor from "./pages/AdminPostEditor";
@@ -125,8 +126,11 @@ function App() {
                   <Route path="analytics" element={<AdminAnalytics />} />
                   <Route path="analytics-reports" element={<AdminAnalyticsReportsPage />} />
                   <Route path="notifications" element={<AdminNotificationsPage />} />
-                  <Route path="events-management" element={<AdminEventsManagementPage />} />
-                  <Route path="event-management" element={<AdminEventManagement />} />
+                   <Route path="events" element={<AdminEventsManagementPage />} />
+                   <Route path="events/create" element={<AdminEventCreate />} />
+                   <Route path="events/edit/:id" element={<AdminEventEdit />} />
+                   <Route path="events-management" element={<AdminEventsManagementPage />} />
+                   <Route path="event-management" element={<AdminEventManagement />} />
                   <Route path="performance" element={<AdminPerformancePage />} />
                    <Route path="organizers" element={<AdminOrganizers />} />
                    <Route path="adsense" element={<AdminAdSensePage />} />
