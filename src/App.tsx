@@ -42,7 +42,7 @@ import AdminCategoriesManagement from "./pages/AdminCategoriesManagement";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminOrganizers from "./pages/admin/AdminOrganizers";
 import AdminProfile from "./pages/AdminProfile";
-import AdminPasswordUpdate from "./pages/AdminPasswordUpdate";
+import AdminPasswordUpdateMock from "./pages/AdminPasswordUpdateMock";
 import EventsPage from "./pages/EventsPage";
 import EventDetailPage from "./pages/EventDetailPage";
 import CreateEventPage from "./pages/CreateEventPage";
@@ -105,7 +105,7 @@ function App() {
                 {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLoginSimple />} />
                 <Route path="/admin/signup" element={<AdminSignup />} />
-                <Route path="/admin/update-password" element={<AdminPasswordUpdate />} />
+                <Route path="/admin/update-password" element={<AdminPasswordUpdateMock />} />
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route index element={<AdminDashboard />} />
                   <Route path="highlights" element={<AdminHighlightsManagement />} />

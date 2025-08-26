@@ -1,7 +1,2 @@
-import AdminHighlightsIndex from './admin/highlights/Index';
-
-const AdminHighlightsManagement = () => {
-  return <AdminHighlightsIndex />;
-};
-
-export default AdminHighlightsManagement;
+// Simplified: Direct export of AdminHighlightsIndex
+export { default } from './admin/highlights/Index';

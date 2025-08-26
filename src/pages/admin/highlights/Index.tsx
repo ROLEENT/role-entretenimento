@@ -30,7 +30,6 @@ interface Highlight {
 }
 
 export default function AdminHighlightsIndex() {
-  console.log('🔍 AdminHighlightsIndex: Componente carregado');
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,7 +46,6 @@ export default function AdminHighlightsIndex() {
 
   const fetchHighlights = async () => {
     try {
-      console.log('🔍 fetchHighlights: Iniciando busca');
       setLoading(true);
       let query = supabase
         .from('highlights')
@@ -63,14 +61,9 @@ export default function AdminHighlightsIndex() {
 
       const { data, error } = await query.order('sort_order', { ascending: true });
 
-      if (error) {
-        console.error('❌ Erro na query:', error);
-        throw error;
-      }
-      console.log('✅ Dados carregados:', data?.length, 'highlights');
+      if (error) throw error;
       setHighlights((data as Highlight[]) || []);
     } catch (error) {
-      console.error('❌ Erro completo ao carregar destaques:', error);
       toast({
         title: "Erro",
         description: "Não foi possível carregar os destaques",
