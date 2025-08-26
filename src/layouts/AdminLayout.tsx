@@ -2,12 +2,9 @@
 import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
-import { AdminProtectedRoute } from "@/components/AdminProtectedRoute";
-
 export default function AdminLayout() {
   return (
-    <AdminProtectedRoute>
-      <SidebarProvider>
+    <SidebarProvider>
       <div className="flex min-h-screen">
         <AdminSidebar />
         <SidebarInset className="flex-1">
@@ -22,6 +19,5 @@ export default function AdminLayout() {
         </SidebarInset>
       </div>
     </SidebarProvider>
-    </AdminProtectedRoute>
   );
 }

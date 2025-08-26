@@ -116,11 +116,6 @@ const Header = () => {
                   <User className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button variant="gradient" asChild>
-                <Link to="/admin/login">
-                  Área do Admin
-                </Link>
-              </Button>
             </div>
           </div>
 
@@ -171,14 +166,6 @@ const Header = () => {
                   </nav>
                 </div>
 
-                {/* Área do Admin fixada na parte inferior */}
-                <div className="border-t pt-4 pb-2">
-                  <Button variant="gradient" className="w-full" asChild>
-                    <Link to="/admin/login">
-                      Área do Admin
-                    </Link>
-                  </Button>
-                </div>
               </div>
             </SheetContent>
           </Sheet>
