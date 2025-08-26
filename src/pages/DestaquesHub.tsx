@@ -179,7 +179,7 @@ const DestaquesHub = () => {
                           className="w-full"
                           disabled={!hasContent}
                         >
-                          <Link to={`/destaques/${slug}`}>
+                          <Link to={`/destaques/${slug.replace(/-/g, '_')}`}>
                             {hasContent ? "Ver Destaques" : "Em breve"}
                             {hasContent && <ArrowRight className="w-4 h-4 ml-2" />}
                           </Link>

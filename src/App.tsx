@@ -17,7 +17,7 @@ import SpamPolicy from "./pages/SpamPolicy";
 import UserTerms from "./pages/UserTerms";
 import OrganizerTerms from "./pages/OrganizerTerms";
 import Help from "./pages/Help";
-import DestaquesPage from "./pages/DestaquesPage";
+import DestaquesHub from "./pages/DestaquesHub";
 import BlogArticle from "./pages/BlogArticle";
 import HighlightsPage from "./pages/HighlightsPage";
 import CityHighlightsPage from "./pages/CityHighlightsPage";
@@ -89,14 +89,13 @@ function App() {
                 <Route path="/ajuda" element={<Help />} />
                 
                 {/* Destaques Routes */}
-                <Route path="/destaques" element={<DestaquesPage />} />
+                <Route path="/destaques" element={<DestaquesHub />} />
                 <Route path="/destaques/:cidade" element={<CityHighlightsPage />} />
                 <Route path="/destaque/:id" element={<HighlightDetailPage />} />
                 <Route path="/destaques/:cidade/:data" element={<BlogArticle />} />
                 
                 {/* Highlights Routes */}
                 <Route path="/highlights" element={<HighlightsPage />} />
-                <Route path="/highlights/:cidade" element={<CityHighlightsPage />} />
                 <Route path="/cidade/:cidade" element={<CityHighlights />} />
                 
                 {/* Admin Routes */}
