@@ -12,6 +12,7 @@ import { Users, Plus, Search, Edit, Trash2, Mail, Globe, Instagram, Filter } fro
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useOrganizerManagement, type OrganizerFormData } from '@/hooks/useOrganizerManagement';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 
 interface Organizer {
   id: string;
@@ -20,6 +21,11 @@ interface Organizer {
   site: string | null;
   instagram: string | null;
   description: string | null;
+  logo_url: string | null;
+  phone: string | null;
+  whatsapp: string | null;
+  founded_year: number | null;
+  specialties: string[];
   created_at: string;
 }
 
@@ -35,7 +41,12 @@ export default function AdminOrganizers() {
     contact_email: '',
     site: '',
     instagram: '',
-    description: ''
+    description: '',
+    logo_url: '',
+    phone: '',
+    whatsapp: '',
+    founded_year: undefined,
+    specialties: []
   });
 
   useEffect(() => {
@@ -77,7 +88,12 @@ export default function AdminOrganizers() {
       contact_email: organizer.contact_email,
       site: organizer.site || '',
       instagram: organizer.instagram || '',
-      description: organizer.description || ''
+      description: organizer.description || '',
+      logo_url: organizer.logo_url || '',
+      phone: organizer.phone || '',
+      whatsapp: organizer.whatsapp || '',
+      founded_year: organizer.founded_year || undefined,
+      specialties: organizer.specialties || []
     });
     setDialogOpen(true);
   };
@@ -93,7 +109,12 @@ export default function AdminOrganizers() {
       contact_email: '',
       site: '',
       instagram: '',
-      description: ''
+      description: '',
+      logo_url: '',
+      phone: '',
+      whatsapp: '',
+      founded_year: undefined,
+      specialties: []
     });
   };
 
@@ -126,7 +147,7 @@ export default function AdminOrganizers() {
               Novo Organizador
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingOrganizer ? 'Editar Organizador' : 'Novo Organizador'}
@@ -136,48 +157,110 @@ export default function AdminOrganizers() {
               </DialogDescription>
             </DialogHeader>
             
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="name">Nome *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Nome do organizador"
-                  required
-                />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <Label>Logo do Organizador</Label>
+                  <ImageUpload
+                    value={formData.logo_url}
+                    onChange={(url) => setFormData(prev => ({ ...prev, logo_url: url || '' }))}
+                    bucket="events"
+                    path="organizers"
+                    placeholder="Upload do logo do organizador"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="name">Nome *</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="Nome do organizador"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="founded_year">Ano de Fundação</Label>
+                  <Input
+                    id="founded_year"
+                    type="number"
+                    value={formData.founded_year || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, founded_year: e.target.value ? parseInt(e.target.value) : undefined }))}
+                    placeholder="2020"
+                    min="1900"
+                    max={new Date().getFullYear()}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="contact_email">Email de Contato *</Label>
+                  <Input
+                    id="contact_email"
+                    type="email"
+                    value={formData.contact_email}
+                    onChange={(e) => setFormData(prev => ({ ...prev, contact_email: e.target.value }))}
+                    placeholder="contato@organizador.com"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="phone">Telefone</Label>
+                  <Input
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                    placeholder="(11) 99999-9999"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="whatsapp">WhatsApp</Label>
+                  <Input
+                    id="whatsapp"
+                    value={formData.whatsapp}
+                    onChange={(e) => setFormData(prev => ({ ...prev, whatsapp: e.target.value }))}
+                    placeholder="(11) 99999-9999"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="site">Website</Label>
+                  <Input
+                    id="site"
+                    value={formData.site}
+                    onChange={(e) => setFormData(prev => ({ ...prev, site: e.target.value }))}
+                    placeholder="https://site.com"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="instagram">Instagram</Label>
+                  <Input
+                    id="instagram"
+                    value={formData.instagram}
+                    onChange={(e) => setFormData(prev => ({ ...prev, instagram: e.target.value }))}
+                    placeholder="@username"
+                  />
+                </div>
               </div>
               
               <div>
-                <Label htmlFor="contact_email">Email de Contato *</Label>
+                <Label htmlFor="specialties">Especialidades</Label>
                 <Input
-                  id="contact_email"
-                  type="email"
-                  value={formData.contact_email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, contact_email: e.target.value }))}
-                  placeholder="contato@organizador.com"
-                  required
+                  id="specialties"
+                  value={formData.specialties?.join(', ') || ''}
+                  onChange={(e) => setFormData(prev => ({ 
+                    ...prev, 
+                    specialties: e.target.value.split(',').map(s => s.trim()).filter(s => s) 
+                  }))}
+                  placeholder="Música eletrônica, Shows, Festivais"
                 />
-              </div>
-              
-              <div>
-                <Label htmlFor="site">Website</Label>
-                <Input
-                  id="site"
-                  value={formData.site}
-                  onChange={(e) => setFormData(prev => ({ ...prev, site: e.target.value }))}
-                  placeholder="https://site.com"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="instagram">Instagram</Label>
-                <Input
-                  id="instagram"
-                  value={formData.instagram}
-                  onChange={(e) => setFormData(prev => ({ ...prev, instagram: e.target.value }))}
-                  placeholder="@username"
-                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Separe múltiplas especialidades com vírgulas
+                </p>
               </div>
               
               <div>
@@ -186,8 +269,8 @@ export default function AdminOrganizers() {
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Descrição do organizador..."
-                  rows={3}
+                  placeholder="Descrição detalhada do organizador, história, missão..."
+                  rows={4}
                 />
               </div>
               

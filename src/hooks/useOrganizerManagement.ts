@@ -7,7 +7,12 @@ export interface OrganizerFormData {
   contact_email: string;
   site: string;
   instagram: string;
-  description?: string;
+  description: string;
+  logo_url?: string;
+  phone?: string;
+  whatsapp?: string;
+  founded_year?: number;
+  specialties?: string[];
 }
 
 export const useOrganizerManagement = () => {
@@ -24,7 +29,12 @@ export const useOrganizerManagement = () => {
           contact_email: data.contact_email,
           site: data.site || null,
           instagram: data.instagram || null,
-          description: data.description || null
+          description: data.description || null,
+          logo_url: data.logo_url || null,
+          phone: data.phone || null,
+          whatsapp: data.whatsapp || null,
+          founded_year: data.founded_year || null,
+          specialties: data.specialties || []
         })
         .select()
         .single();
@@ -54,6 +64,11 @@ export const useOrganizerManagement = () => {
           site: data.site || null,
           instagram: data.instagram || null,
           description: data.description || null,
+          logo_url: data.logo_url || null,
+          phone: data.phone || null,
+          whatsapp: data.whatsapp || null,
+          founded_year: data.founded_year || null,
+          specialties: data.specialties || [],
           updated_at: new Date().toISOString()
         })
         .eq('id', organizerId);
