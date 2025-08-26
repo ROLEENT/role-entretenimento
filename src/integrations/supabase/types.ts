@@ -3448,10 +3448,6 @@ export type Database = {
         Args: Record<PropertyKey, never> | { uid?: string }
         Returns: boolean
       }
-      is_admin_secure: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
       is_admin_session: {
         Args: { session_email: string }
         Returns: boolean
