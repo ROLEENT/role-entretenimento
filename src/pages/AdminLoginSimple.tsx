@@ -5,24 +5,46 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminLoginSimple = () => {
   const [email, setEmail] = useState("admin@role.com.br");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
-  const { adminUser, loginAdmin, loading } = useAdminAuth();
 
   useEffect(() => {
-    // Only redirect if not loading and user is authenticated
-    if (!loading && adminUser) {
-      navigate("/admin");
-    }
-  }, [adminUser, loading, navigate]);
+    // Check if user is already authenticated
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          // Check if user is admin
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('is_admin')
+            .eq('user_id', session.user.id)
+            .single();
+          
+          if (profile?.is_admin) {
+            navigate("/admin");
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
+  }, [navigate]);
 
   // Show loading while checking authentication
-  if (loading) {
+  if (isCheckingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-secondary/20 p-4">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -35,23 +57,40 @@ const AdminLoginSimple = () => {
     setIsLoading(true);
 
     try {
-      const result = await loginAdmin(email, password);
-      
-      if (result.success) {
-        if (result.requiresPasswordUpdate) {
-          toast.success("Login realizado! Você precisa atualizar sua senha por segurança.");
-          navigate("/admin/update-password");
-        } else {
-          toast.success("Login realizado com sucesso!");
-          navigate("/admin");
-        }
-      } else {
-        if (result.requiresPasswordUpdate) {
-          toast.error("Sua conta precisa de atualização de senha. Entre em contato com o administrador.");
-        } else {
-          toast.error(result.error || "Erro no login");
-        }
+      // Use Supabase Auth directly
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        toast.error("Email ou senha inválidos");
+        return;
       }
+
+      if (!data.user) {
+        toast.error("Erro na autenticação");
+        return;
+      }
+
+      // Check if user has admin privileges
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('user_id', data.user.id)
+        .single();
+
+      if (profileError || !profile?.is_admin) {
+        // Sign out the user if they're not admin
+        await supabase.auth.signOut();
+        toast.error("Conta sem acesso ao Admin");
+        return;
+      }
+
+      // User is admin, redirect to dashboard
+      toast.success("Login realizado com sucesso!");
+      navigate("/admin");
+      
     } catch (error) {
       console.error("Login error:", error);
       toast.error("Erro inesperado no login");

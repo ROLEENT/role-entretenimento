@@ -7,73 +7,12 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-// Get secure admin session token
-const getAdminHeaders = () => {
-  if (typeof window === 'undefined') return {};
-  
-  try {
-    // Try secure session token first
-    const sessionToken = localStorage.getItem('admin_session_token');
-    if (sessionToken) {
-      return {
-        'x-admin-session-token': sessionToken
-      };
-    }
-    
-    // Legacy fallback - try to get email from old format
-    const adminSession = localStorage.getItem('admin_session');
-    if (adminSession) {
-      const adminData = JSON.parse(adminSession);
-      if (adminData?.email) {
-        return {
-          'x-admin-email': adminData.email
-        };
-      }
-    }
-  } catch (error) {
-    console.error('Error getting admin headers:', error);
-  }
-  return {};
-};
-
-// Criar cliente Supabase
-const supabaseClient = createClient<any>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+// Simplified Supabase client - removing custom admin headers logic
+export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     storage: typeof window !== 'undefined' ? localStorage : undefined,
     persistSession: true,
     autoRefreshToken: true,
-  },
-  global: {
-    headers: getAdminHeaders()
-  }
-});
-
-// Função para criar uma instância com headers atualizados
-const createSupabaseWithUpdatedHeaders = () => {
-  return createClient<any>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    auth: {
-      storage: typeof window !== 'undefined' ? localStorage : undefined,
-      persistSession: true,
-      autoRefreshToken: true,
-    },
-    global: {
-      headers: getAdminHeaders()
-    }
-  });
-};
-
-// Proxy para interceptar operações críticas e garantir headers atualizados
-export const supabase = new Proxy(supabaseClient, {
-  get(target, prop) {
-    // Para operações RPC (que usam headers), criar nova instância com headers atualizados
-    if (prop === 'rpc') {
-      const freshClient = createSupabaseWithUpdatedHeaders();
-      console.log('🔄 Criando RPC com headers atualizados:', getAdminHeaders());
-      return freshClient.rpc.bind(freshClient);
-    }
-    
-    // Para outras operações, usar cliente original
-    const value = target[prop as keyof typeof target];
-    return typeof value === 'function' ? value.bind(target) : value;
+    detectSessionInUrl: true
   }
 });
