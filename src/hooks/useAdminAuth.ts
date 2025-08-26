@@ -87,16 +87,10 @@ export const useAdminAuth = () => {
         const result = data[0];
         
         if (result.success) {
-          const adminData = result.admin_data as AdminUser;
+          // Function now handles session creation internally
+          const adminData = result.admin as AdminUser;
+          const token = result.session_token;
           
-          // Create secure session
-          const { data: sessionData, error: sessionError } = await supabase.rpc('create_admin_session', {
-            p_admin_id: adminData.id
-          });
-
-          if (sessionError) throw sessionError;
-
-          const token = sessionData;
           setAdminUser(adminData);
           setSessionToken(token);
           localStorage.setItem('admin_session_token', token);
@@ -107,13 +101,13 @@ export const useAdminAuth = () => {
           return { 
             success: true, 
             error: null,
-            requiresPasswordUpdate: result.requires_password_update 
+            requiresPasswordUpdate: false
           };
         } else {
           return { 
             success: false, 
-            error: 'Email ou senha incorretos',
-            requiresPasswordUpdate: result.requires_password_update || false
+            error: result.error || 'Email ou senha incorretos',
+            requiresPasswordUpdate: false
           };
         }
       } else {

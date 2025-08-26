@@ -2700,7 +2700,7 @@ export type Database = {
       }
       authenticate_admin_secure: {
         Args: { p_email: string; p_password: string }
-        Returns: Json
+        Returns: Json[]
       }
       authenticate_admin_simple: {
         Args: { p_email: string; p_password: string }
