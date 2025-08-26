@@ -407,34 +407,43 @@ export type Database = {
       }
       blog_comments: {
         Row: {
-          author_email: string
           author_name: string
           content: string
           created_at: string
+          display_name: string | null
+          email_hash: string | null
           id: string
           is_approved: boolean
+          is_hidden: boolean | null
           parent_id: string | null
           post_id: string
+          user_id: string | null
         }
         Insert: {
-          author_email: string
           author_name: string
           content: string
           created_at?: string
+          display_name?: string | null
+          email_hash?: string | null
           id?: string
           is_approved?: boolean
+          is_hidden?: boolean | null
           parent_id?: string | null
           post_id: string
+          user_id?: string | null
         }
         Update: {
-          author_email?: string
           author_name?: string
           content?: string
           created_at?: string
+          display_name?: string | null
+          email_hash?: string | null
           id?: string
           is_approved?: boolean
+          is_hidden?: boolean | null
           parent_id?: string | null
           post_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {

@@ -5,16 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { MessageCircle, Send, Reply } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { useSecureComments } from "@/hooks/useSecureComments";
-
-// Interface removida - agora está no hook
+import { useSecureBlogComments } from "@/hooks/useSecureBlogComments";
 
 interface CommentSectionProps {
   postId: string;
 }
 
 const CommentSection = ({ postId }: CommentSectionProps) => {
-  const { comments, loading, addComment } = useSecureComments(postId);
+  const { comments, loading, addComment } = useSecureBlogComments(postId);
   const [newComment, setNewComment] = useState("");
   const [authorName, setAuthorName] = useState("");
   const [authorEmail, setAuthorEmail] = useState("");
@@ -102,7 +100,7 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
               />
               <Input
                 type="email"
-                placeholder="Seu email"
+                placeholder="Seu email (não será exibido)"
                 value={authorEmail}
                 onChange={(e) => setAuthorEmail(e.target.value)}
                 required
@@ -115,6 +113,9 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
               rows={4}
               required
             />
+            <p className="text-xs text-muted-foreground">
+              Seu email é usado apenas para moderação e nunca será exibido publicamente.
+            </p>
             <Button type="submit" disabled={isSubmitting}>
               <Send className="h-4 w-4 mr-2" />
               {isSubmitting ? "Enviando..." : "Enviar Comentário"}
@@ -130,7 +131,7 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
             <CardContent className="pt-4">
               <div className="flex justify-between items-start mb-2">
                 <div>
-                  <h5 className="font-medium">{comment.author_name}</h5>
+                  <h5 className="font-medium">{comment.display_name}</h5>
                   <p className="text-sm text-muted-foreground">
                     {formatDate(comment.created_at)}
                   </p>
@@ -152,7 +153,7 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
                   <CardContent className="pt-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h6 className="font-medium text-sm">{reply.author_name}</h6>
+                        <h6 className="font-medium text-sm">{reply.display_name}</h6>
                         <p className="text-xs text-muted-foreground">
                           {formatDate(reply.created_at)}
                         </p>
