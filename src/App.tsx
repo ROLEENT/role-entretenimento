@@ -56,7 +56,7 @@ import GamificationPage from "./pages/GamificationPage";
 // Removed: GroupsPage, MusicPage, MusicCallbackPage
 import NotFound from "./pages/NotFound";
 import AdminMetricsTestimonials from "./pages/AdminMetricsTestimonials";
-import AdminNotificationsPage from "./pages/admin/AdminNotifications";
+import AdminNotifications from "./pages/AdminNotifications";
 import AdminAnalyticsReportsPage from "./pages/admin/AdminAnalyticsReports";
 import AdminEventsManagementPage from "./pages/admin/AdminEventsManagement";
 import AdminPerformancePage from "./pages/admin/AdminPerformance";
@@ -125,7 +125,7 @@ function App() {
                   <Route path="categories" element={<AdminCategoriesManagement />} />
                   <Route path="analytics" element={<AdminAnalytics />} />
                   <Route path="analytics-reports" element={<AdminAnalyticsReportsPage />} />
-                  <Route path="notifications" element={<AdminNotificationsPage />} />
+                  <Route path="notifications" element={<AdminNotifications />} />
                    <Route path="events" element={<AdminEventsManagementPage />} />
                    <Route path="events/create" element={<AdminEventCreate />} />
                    <Route path="events/edit/:id" element={<AdminEventEdit />} />
