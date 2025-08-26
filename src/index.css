@@ -285,6 +285,35 @@ All colors MUST be HSL.
     min-height: calc(100vh - env(safe-area-inset-top, 0px));
   }
 
+  /* Featured Highlights Carousel - Sympla Style */
+  .featured-highlights-carousel {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-padding: 0 2rem;
+  }
+
+  .featured-highlights-carousel::-webkit-scrollbar {
+    display: none;
+  }
+
+  .featured-highlight-card {
+    scroll-margin-left: 1.5rem;
+    scroll-margin-right: 1.5rem;
+  }
+
+  /* Smooth momentum scrolling for iOS */
+  .featured-highlights-carousel {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Hover effects for desktop */
+  @media (hover: hover) {
+    .featured-highlight-card:hover {
+      transform: translateY(-4px);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+
   /* iOS Safari specific fixes */
   @supports (-webkit-touch-callout: none) {
     .mobile-auth-button {

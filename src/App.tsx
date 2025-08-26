@@ -90,7 +90,7 @@ function App() {
                 
                 {/* Destaques Routes */}
                 <Route path="/destaques" element={<DestaquesPage />} />
-                <Route path="/destaques/:cidade" element={<DestaquesPage />} />
+                <Route path="/destaques/:cidade" element={<CityHighlightsPage />} />
                 <Route path="/destaque/:id" element={<HighlightDetailPage />} />
                 <Route path="/destaques/:cidade/:data" element={<BlogArticle />} />
                 

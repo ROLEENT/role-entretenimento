@@ -123,66 +123,66 @@ const FeaturedHighlights = () => {
           </p>
         </div>
 
-        {/* Carrossel Horizontal - Estilo Sympla */}
+        {/* Carrossel Horizontal - Sympla Style */}
         <div className="relative">
-          {/* Fade gradient nas bordas */}
-          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none"></div>
+          {/* Fade gradients nas bordas */}
+          <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background via-background/80 to-transparent z-10 pointer-events-none md:w-16"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background via-background/80 to-transparent z-10 pointer-events-none md:w-16"></div>
           
           <div 
-            className="overflow-x-auto scrollbar-hide pb-4 mb-8"
+            className="featured-highlights-carousel overflow-x-auto scrollbar-hide pb-4 mb-8"
             style={{ 
               scrollBehavior: 'smooth',
               scrollSnapType: 'x mandatory'
             }}
           >
-            <div className="flex gap-4 px-4" style={{ width: 'max-content' }}>
+            <div className="flex gap-3 px-6 md:gap-4 md:px-8" style={{ width: 'max-content' }}>
               {highlights.map((highlight) => (
                 <Link 
                   key={highlight.id} 
                   to={`/destaque/${highlight.id}`}
-                  className="block flex-shrink-0 w-72 md:w-80"
+                  className="block flex-shrink-0 w-[280px] md:w-[320px] featured-highlight-card"
                   style={{ scrollSnapAlign: 'start' }}
                 >
-                  <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-0 bg-card/60 backdrop-blur-sm h-full">
+                  <Card className="group overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border-0 bg-card/80 backdrop-blur-sm h-full hover:bg-card">
                     <div className="relative overflow-hidden">
                       <img
                         src={getImageUrl(highlight.image_url)}
                         alt={`${highlight.event_title} em ${highlight.venue}`}
-                        className="w-full h-44 object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-40 md:h-44 object-cover group-hover:scale-105 transition-transform duration-700"
                         onError={(e) => {
                           e.currentTarget.src = '/placeholder.jpg';
                         }}
                       />
                       
-                      {/* Gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                      {/* Enhanced gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
                       
-                      <div className="absolute top-3 left-3">
-                        <Badge className="bg-primary/90 text-primary-foreground text-xs font-medium backdrop-blur-sm">
+                      <div className="absolute top-2 left-3">
+                        <Badge className="bg-primary/95 text-primary-foreground text-xs font-medium backdrop-blur-sm shadow-sm">
+                          <MapPin className="w-3 h-3 mr-1" />
                           {getCityDisplayName(highlight.city)}
                         </Badge>
                       </div>
                       
-                      <div className="absolute top-3 right-3">
-                        <div className="flex items-center gap-1 bg-black/70 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
+                      <div className="absolute top-2 right-3">
+                        <div className="flex items-center gap-1 bg-black/80 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full shadow-sm">
                           <Heart className="w-3 h-3 fill-red-500 text-red-500" />
                           <span className="font-medium">{highlight.like_count || 0}</span>
                         </div>
                       </div>
                       
                       {/* Título na parte inferior da imagem */}
-                      <div className="absolute bottom-3 left-3 right-3">
-                        <h3 className="font-bold text-white text-sm line-clamp-2 drop-shadow-lg">
+                      <div className="absolute bottom-2 left-3 right-3">
+                        <h3 className="font-bold text-white text-sm md:text-base line-clamp-2 drop-shadow-lg">
                           {highlight.event_title}
                         </h3>
                       </div>
                     </div>
 
-                    <CardContent className="p-4 space-y-3">
-                      <div className="space-y-2">
-                        <div className="flex items-center text-muted-foreground text-sm">
-                          <MapPin className="mr-1 h-3 w-3 flex-shrink-0" />
+                    <CardContent className="p-3 md:p-4 space-y-2 md:space-y-3">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center text-muted-foreground text-xs md:text-sm">
                           <span className="line-clamp-1 font-medium">{highlight.venue}</span>
                         </div>
 
@@ -200,24 +200,13 @@ const FeaturedHighlights = () => {
                             <Badge 
                               key={index}
                               variant="outline" 
-                              className="text-xs px-2 py-0.5 border-primary/20 text-primary bg-primary/5"
+                              className="text-xs px-2 py-0.5 border-primary/30 text-primary bg-primary/10 hover:bg-primary/20"
                             >
                               {reason}
                             </Badge>
                           ))}
                         </div>
                       )}
-
-                      <Button
-                        size="sm"
-                        className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                        asChild
-                      >
-                        <span>
-                          Ver Destaque
-                          <ArrowRight className="ml-2 h-3 w-3 group-hover:translate-x-1 transition-transform" />
-                        </span>
-                      </Button>
                     </CardContent>
                   </Card>
                 </Link>
