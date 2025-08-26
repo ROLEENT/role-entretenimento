@@ -2,43 +2,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { User } from "@supabase/supabase-js";
 import { FileText, Calendar, MapPin, Users, MessageSquare, Tag, Image, User as UserIcon, Star, BarChart3, Bell, Settings } from "lucide-react";
 import { AdminStats } from "@/components/AdminStats";
 import { AdminDashboard as AdminDashboardComponent } from "@/components/admin/AdminDashboard";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      toast.success("Logout realizado com sucesso");
-      navigate("/admin/login");
-    } catch (error) {
-      console.error("Logout error:", error);
-      toast.error("Erro no logout");
-    }
-  };
 
   const adminCards = [
     {
@@ -169,7 +139,7 @@ const AdminDashboard = () => {
         <div>
           <h1 className="text-3xl font-bold">Painel Administrativo</h1>
           <p className="text-muted-foreground mt-2">
-            Bem-vindo, {user?.email}
+            Bem-vindo ao sistema administrativo da ROLÊ
           </p>
         </div>
         
@@ -180,7 +150,6 @@ const AdminDashboard = () => {
               Perfil
             </Link>
           </Button>
-          <Button onClick={handleLogout} variant="outline">Sair</Button>
         </div>
       </div>
 

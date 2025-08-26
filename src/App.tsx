@@ -62,6 +62,7 @@ import AdminEventsManagementPage from "./pages/admin/AdminEventsManagement";
 import AdminPerformancePage from "./pages/admin/AdminPerformance";
 import AdminAdSensePage from "./pages/admin/AdminAdSense";
 import AdminNewsletter from "./pages/admin/AdminNewsletter";
+import AdminEventManagement from "./pages/AdminEventManagement";
 // Removed: Chatbot import
 import ScrollToTop from "./components/ScrollToTop";
 import DiscoverUsers from "./pages/DiscoverUsers";
@@ -126,6 +127,7 @@ function App() {
                   <Route path="analytics-reports" element={<AdminAnalyticsReportsPage />} />
                   <Route path="notifications" element={<AdminNotificationsPage />} />
                   <Route path="events-management" element={<AdminEventsManagementPage />} />
+                  <Route path="event-management" element={<AdminEventManagement />} />
                   <Route path="performance" element={<AdminPerformancePage />} />
                    <Route path="organizers" element={<AdminOrganizers />} />
                    <Route path="adsense" element={<AdminAdSensePage />} />
