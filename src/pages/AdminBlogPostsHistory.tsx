@@ -131,12 +131,22 @@ const AdminBlogPostsHistory = () => {
 
   const handleRestoreRevision = async (revision: BlogPostRevision) => {
     if (!selectedPost) return;
+    
+    if (!confirm(`Tem certeza que deseja restaurar a revisão #${revision.revision_number}? Esta ação não pode ser desfeita.`)) {
+      return;
+    }
 
     try {
-      const { error } = await supabase.rpc('restore_blog_post_revision', {
-        p_post_id: selectedPost.id,
-        p_revision_id: revision.id
-      });
+      // Implementar restauração manual já que não temos a função RPC
+      const { error } = await supabase
+        .from('blog_posts')
+        .update({
+          title: revision.title,
+          summary: revision.summary,
+          content_html: revision.content_json.content_html || '',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', selectedPost.id);
 
       if (error) throw error;
 
