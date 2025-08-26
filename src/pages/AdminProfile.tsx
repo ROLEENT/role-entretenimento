@@ -1,6 +1,7 @@
 // src/pages/AdminProfile.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { User } from '@supabase/supabase-js';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Save, User, Lock } from 'lucide-react';
+import { ArrowLeft, Save, User as UserIcon, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -17,7 +18,8 @@ import { useSimulationMode } from '@/hooks/useSimulationMode';
 
 const AdminProfile = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, adminUser, loading } = useAdminAuth();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const { isSimulating } = useSimulationMode();
@@ -26,31 +28,45 @@ const AdminProfile = () => {
   const [passwordForm, setPasswordForm] = useState({ current_password: '', new_password: '', confirm_password: '' });
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!loading && !user) {
       navigate('/admin/login');
       return;
     }
     (async () => {
-      if (!adminUser?.id) return;
+      if (!user?.id) return;
       const { data: prof, error } = await supabase
         .from('profiles')
         .select('display_name')
-        .eq('user_id', adminUser.id)
+        .eq('user_id', user.id)
         .maybeSingle();
       if (error) console.error('Erro ao carregar display_name:', error);
       setProfileForm({
         full_name: prof?.display_name || '',
-        email: adminUser.email || ''
+        email: user.email || ''
       });
     })();
-  }, [isAuthenticated, adminUser, loading, navigate]);
+  }, [user, loading, navigate]);
 
   const handleProfileUpdate = async () => {
     if (!profileForm.full_name || !profileForm.email) {
       toast.error('Preencha todos os campos');
       return;
     }
-    if (!adminUser?.id) {
+    if (!user?.id) {
       toast.error('Usuário não identificado');
       return;
     }
@@ -58,10 +74,10 @@ const AdminProfile = () => {
       setSaving(true);
       const { error: upsertErr } = await supabase
         .from('profiles')
-        .upsert({ user_id: adminUser.id, display_name: profileForm.full_name }, { onConflict: 'user_id' });
+        .upsert({ user_id: user.id, display_name: profileForm.full_name }, { onConflict: 'user_id' });
       if (upsertErr) throw upsertErr;
 
-      const currentEmail = adminUser.email || '';
+      const currentEmail = user.email || '';
       if (profileForm.email !== currentEmail) {
         const { error: emailErr } = await supabase.auth.updateUser({ email: profileForm.email });
         if (emailErr) throw emailErr;
@@ -106,7 +122,7 @@ const AdminProfile = () => {
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center"><div className="animate-pulse text-lg">Carregando...</div></div>;
   }
-  if (!isAuthenticated) return null;
+  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -127,7 +143,7 @@ const AdminProfile = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><User className="h-5 w-5" />Informações Pessoais</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="flex items-center gap-2"><UserIcon className="h-5 w-5" />Informações Pessoais</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="full_name">Nome Completo</Label>
@@ -167,9 +183,9 @@ const AdminProfile = () => {
           <CardHeader><CardTitle>Informações da Conta</CardTitle></CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div><Label className="text-muted-foreground">ID da Conta</Label><p className="font-mono text-sm">{adminUser?.id}</p></div>
+              <div><Label className="text-muted-foreground">ID da Conta</Label><p className="font-mono text-sm">{user?.id}</p></div>
               <div><Label className="text-muted-foreground">Tipo de Conta</Label><p className="text-sm">Administrador</p></div>
-              <div><Label className="text-muted-foreground">Email</Label><p className="text-sm">{adminUser?.email}</p></div>
+              <div><Label className="text-muted-foreground">Email</Label><p className="text-sm">{user?.email}</p></div>
               <div><Label className="text-muted-foreground">Status</Label><p className="text-sm text-green-600">Ativo</p></div>
             </div>
           </CardContent>

@@ -5,12 +5,27 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { FileText, Calendar, MapPin, Users, MessageSquare, Tag, Image, User, Star, BarChart3, Bell, Settings } from "lucide-react";
+import { useEffect, useState } from "react";
+import { User } from "@supabase/supabase-js";
+import { FileText, Calendar, MapPin, Users, MessageSquare, Tag, Image, User as UserIcon, Star, BarChart3, Bell, Settings } from "lucide-react";
 import { AdminStats } from "@/components/AdminStats";
 import { AdminDashboard as AdminDashboardComponent } from "@/components/admin/AdminDashboard";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -154,18 +169,18 @@ const AdminDashboard = () => {
         <div>
           <h1 className="text-3xl font-bold">Painel Administrativo</h1>
           <p className="text-muted-foreground mt-2">
-            Bem-vindo, {adminUser?.full_name || adminUser?.email}
+            Bem-vindo, {user?.email}
           </p>
         </div>
         
         <div className="flex gap-2">
           <Button asChild variant="outline">
             <Link to="/admin/profile">
-              <User className="w-4 h-4 mr-2" />
+              <UserIcon className="w-4 h-4 mr-2" />
               Perfil
             </Link>
           </Button>
-          <Button onClick={logoutAdmin} variant="outline">Sair</Button>
+          <Button onClick={handleLogout} variant="outline">Sair</Button>
         </div>
       </div>
 

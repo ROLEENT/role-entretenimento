@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { User } from '@supabase/supabase-js';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,9 +16,21 @@ const AdminPasswordUpdate = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   
-  const { updatePassword, adminUser } = useAdminAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,13 +48,15 @@ const AdminPasswordUpdate = () => {
     setIsLoading(true);
 
     try {
-      const result = await updatePassword(newPassword);
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
       
-      if (result.success) {
+      if (!error) {
         toast.success('Senha atualizada com sucesso!');
         navigate('/admin');
       } else {
-        toast.error(result.error || 'Erro ao atualizar senha');
+        toast.error(error.message || 'Erro ao atualizar senha');
       }
     } catch (error) {
       toast.error('Erro ao atualizar senha');
@@ -49,7 +65,7 @@ const AdminPasswordUpdate = () => {
     }
   };
 
-  if (!adminUser) {
+  if (!user) {
     navigate('/admin/login');
     return null;
   }
