@@ -2700,7 +2700,12 @@ export type Database = {
       }
       authenticate_admin_secure: {
         Args: { p_email: string; p_password: string }
-        Returns: Json[]
+        Returns: {
+          admin_id: string
+          message: string
+          session_token: string
+          success: boolean
+        }[]
       }
       authenticate_admin_simple: {
         Args: { p_email: string; p_password: string }
@@ -3078,7 +3083,8 @@ export type Database = {
         Returns: {
           admin_email: string
           admin_id: string
-          is_valid: boolean
+          admin_name: string
+          valid: boolean
         }[]
       }
       validate_username: {

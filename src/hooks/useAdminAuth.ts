@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface AdminUser {
   id: string;
   email: string;
   full_name: string;
-  is_admin: boolean;
 }
 
 interface SecureAdminSession {
-  sessionToken: string;
-  adminData: AdminUser;
-  expiresAt: string;
+  session_token: string;
+  admin: AdminUser;
 }
 
 export const useAdminAuth = () => {
@@ -22,28 +21,36 @@ export const useAdminAuth = () => {
   // Validate session token with the server
   const validateSession = async (token: string): Promise<boolean> => {
     try {
+      console.log('🔍 Validando sessão admin...');
+      
       const { data, error } = await supabase.rpc('validate_admin_session', {
         p_session_token: token
       });
 
+      console.log('📥 Resposta validação:', { data, error });
+
       if (error || !data || data.length === 0) {
+        console.log('❌ Erro na validação ou dados vazios');
         return false;
       }
 
-      const session = data[0];
-      if (session.is_valid) {
+      const response = data[0];
+      if (response?.valid) {
+        console.log('✅ Sessão válida!', response);
+        
         setAdminUser({
-          id: session.admin_id,
-          email: session.admin_email,
-          full_name: session.admin_email, // Will be updated from admin data
-          is_admin: true
+          id: response.admin_id,
+          email: response.admin_email,
+          full_name: response.admin_name || 'Admin'
         });
         setSessionToken(token);
         return true;
       }
+      
+      console.log('❌ Sessão inválida');
       return false;
     } catch (error) {
-      console.error('Session validation error:', error);
+      console.error('❌ Erro na validação de sessão:', error);
       return false;
     }
   };
@@ -76,27 +83,41 @@ export const useAdminAuth = () => {
     setLoading(true);
     
     try {
+      console.log('🔄 Tentando login admin:', email);
+      
       const { data, error } = await supabase.rpc('authenticate_admin_secure', {
         p_email: email,
         p_password: password
       });
 
-      if (error) throw error;
+      console.log('📥 Resposta do login:', { data, error });
+
+      if (error) {
+        console.error('❌ Erro na função de login:', error);
+        toast.error('Erro interno do servidor');
+        return { success: false, error: 'Erro interno do servidor', requiresPasswordUpdate: false };
+      }
 
       if (data && data.length > 0) {
-        const result = data[0];
+        const response = data[0];
         
-        if (result.success) {
-          // Function now handles session creation internally
-          const adminData = result.admin as AdminUser;
-          const token = result.session_token;
+        if (response.success) {
+          console.log('✅ Login bem-sucedido!', response);
+          
+          const adminData: AdminUser = {
+            id: response.admin_id,
+            email: email,
+            full_name: 'Admin ROLE'
+          };
           
           setAdminUser(adminData);
-          setSessionToken(token);
-          localStorage.setItem('admin_session_token', token);
+          setSessionToken(response.session_token);
+          localStorage.setItem('admin_session_token', response.session_token);
           
           // Clean up legacy storage
           localStorage.removeItem('admin_session');
+          
+          toast.success('Login realizado com sucesso!');
           
           return { 
             success: true, 
@@ -104,18 +125,23 @@ export const useAdminAuth = () => {
             requiresPasswordUpdate: false
           };
         } else {
+          console.error('❌ Login falhou:', response.message);
+          toast.error(response.message || 'Email ou senha incorretos');
           return { 
             success: false, 
-            error: result.error || 'Email ou senha incorretos',
+            error: response.message || 'Email ou senha incorretos',
             requiresPasswordUpdate: false
           };
         }
       } else {
-        return { success: false, error: 'Erro na autenticação' };
+        console.error('❌ Dados vazios na resposta');
+        toast.error('Erro na autenticação');
+        return { success: false, error: 'Erro na autenticação', requiresPasswordUpdate: false };
       }
     } catch (error: any) {
-      console.error('Login error:', error);
-      return { success: false, error: error.message || 'Erro no login' };
+      console.error('❌ Erro no login:', error);
+      toast.error('Erro ao fazer login');
+      return { success: false, error: error.message || 'Erro no login', requiresPasswordUpdate: false };
     } finally {
       setLoading(false);
     }
