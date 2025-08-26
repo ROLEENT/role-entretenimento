@@ -100,18 +100,18 @@ const AdminDashboard = () => {
       priority: "medium"
     },
     {
-      title: "Relatórios Detalhados",
-      description: "Análises avançadas e exports",
+      title: "Relatórios Avançados",
+      description: "Analytics e exports detalhados",
       icon: FileText,
-      path: "/admin/analytics-reports",
+      path: "/admin/reports",
       bgColor: "bg-blue-500/10",
       priority: "high"
     },
     {
-      title: "Notificações Push",
-      description: "Enviar notificações para usuários",
+      title: "Push Notifications",
+      description: "Campanhas de notificação push",
       icon: Bell,
-      path: "/admin/notifications",
+      path: "/admin/push-notifications",
       bgColor: "bg-orange-500/10",
       priority: "high"
     },
@@ -124,11 +124,19 @@ const AdminDashboard = () => {
       priority: "high"
     },
     {
-      title: "Performance",
-      description: "Otimizações e monitoramento",
+      title: "Performance Monitor",
+      description: "Monitoramento de sistema",
       icon: Settings,
-      path: "/admin/performance",
+      path: "/admin/performance-monitor",
       bgColor: "bg-violet-500/10",
+      priority: "medium"
+    },
+    {
+      title: "Organizadores",
+      description: "Gerenciar organizadores",
+      icon: Users,
+      path: "/admin/organizers",
+      bgColor: "bg-emerald-500/10",
       priority: "medium"
     }
   ];
