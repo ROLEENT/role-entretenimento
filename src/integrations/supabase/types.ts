@@ -47,6 +47,45 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_audit_log: {
+        Row: {
+          action: string
+          admin_email: string
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string | null
+          table_name: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          admin_email: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          admin_email?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       admin_sessions: {
         Row: {
           admin_id: string
@@ -403,13 +442,6 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "blog_comments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blog_comments_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "blog_comments_public"
             referencedColumns: ["id"]
           },
         ]
@@ -921,13 +953,6 @@ export type Database = {
             columns: ["organizer_id"]
             isOneToOne: false
             referencedRelation: "organizers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "events_organizer_id_fkey"
-            columns: ["organizer_id"]
-            isOneToOne: false
-            referencedRelation: "organizers_public"
             referencedColumns: ["id"]
           },
           {
@@ -2331,75 +2356,7 @@ export type Database = {
       }
     }
     Views: {
-      blog_comments_public: {
-        Row: {
-          author_name: string | null
-          content: string | null
-          created_at: string | null
-          id: string | null
-          parent_id: string | null
-          post_id: string | null
-        }
-        Insert: {
-          author_name?: string | null
-          content?: string | null
-          created_at?: string | null
-          id?: string | null
-          parent_id?: string | null
-          post_id?: string | null
-        }
-        Update: {
-          author_name?: string | null
-          content?: string | null
-          created_at?: string | null
-          id?: string | null
-          parent_id?: string | null
-          post_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "blog_comments_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "blog_comments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blog_comments_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "blog_comments_public"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      organizers_public: {
-        Row: {
-          created_at: string | null
-          id: string | null
-          instagram: string | null
-          name: string | null
-          site: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string | null
-          instagram?: string | null
-          name?: string | null
-          site?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string | null
-          instagram?: string | null
-          name?: string | null
-          site?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       add_blog_comment_secure: {
@@ -2746,6 +2703,17 @@ export type Database = {
           post_title: string
         }[]
       }
+      get_blog_comments_safe: {
+        Args: { p_post_id: string }
+        Returns: {
+          author_name: string
+          content: string
+          created_at: string
+          id: string
+          parent_id: string
+          post_id: string
+        }[]
+      }
       get_contact_messages: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -2814,6 +2782,17 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_organizer_public_safe: {
+        Args: { p_organizer_id: string }
+        Returns: {
+          created_at: string
+          id: string
+          instagram: string
+          name: string
+          site: string
+          updated_at: string
+        }[]
+      }
       get_partner_admin_data: {
         Args: { partner_id: string }
         Returns: {
@@ -2873,6 +2852,10 @@ export type Database = {
         Args: { uid: string }
         Returns: boolean
       }
+      is_admin_secure: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       is_admin_session: {
         Args: { session_email: string }
         Returns: boolean
@@ -2901,6 +2884,16 @@ export type Database = {
           jobname: string
           schedule: string
         }[]
+      }
+      log_admin_action: {
+        Args: {
+          p_action: string
+          p_new_values?: Json
+          p_old_values?: Json
+          p_record_id?: string
+          p_table_name?: string
+        }
+        Returns: undefined
       }
       mark_all_notifications_read: {
         Args: Record<PropertyKey, never>
