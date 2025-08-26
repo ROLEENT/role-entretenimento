@@ -27,13 +27,14 @@ export const useEventManagement = () => {
         p_title: data.title,
         p_slug: data.slug,
         p_city: data.city,
-        p_venue_id: data.venue_id || null,
         p_start_at: data.start_at,
+        p_venue_id: data.venue_id || null,
         p_end_at: data.end_at || null,
         p_organizer_id: data.organizer_id || null,
         p_cover_url: data.cover_url || null,
         p_tags: data.tags,
-        p_status: data.status
+        p_status: data.status,
+        p_description: data.description || null
       });
 
       if (error) throw error;
@@ -58,13 +59,14 @@ export const useEventManagement = () => {
         p_title: data.title,
         p_slug: data.slug,
         p_city: data.city,
-        p_venue_id: data.venue_id || null,
         p_start_at: data.start_at,
+        p_venue_id: data.venue_id || null,
         p_end_at: data.end_at || null,
         p_organizer_id: data.organizer_id || null,
         p_cover_url: data.cover_url || null,
         p_tags: data.tags,
-        p_status: data.status
+        p_status: data.status,
+        p_description: data.description || null
       });
 
       if (error) throw error;
@@ -114,6 +116,32 @@ export const useEventManagement = () => {
     }
   }, []);
 
+  const getEvent = useCallback(async (eventId: string) => {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase
+        .from('events')
+        .select(`
+          *,
+          venues:venue_id (id, name, address),
+          organizers:organizer_id (id, name),
+          event_categories(category_id)
+        `)
+        .eq('id', eventId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error: any) {
+      console.error('Error fetching event:', error);
+      toast.error(error.message || 'Erro ao carregar evento');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const deleteEvent = useCallback(async (eventId: string) => {
     try {
       setLoading(true);
@@ -136,11 +164,44 @@ export const useEventManagement = () => {
     }
   }, []);
 
+  const getVenues = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('venues')
+        .select('id, name, address')
+        .order('name');
+
+      if (error) throw error;
+      return data || [];
+    } catch (error: any) {
+      console.error('Error fetching venues:', error);
+      return [];
+    }
+  }, []);
+
+  const getOrganizers = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('organizers')
+        .select('id, name')
+        .order('name');
+
+      if (error) throw error;
+      return data || [];
+    } catch (error: any) {
+      console.error('Error fetching organizers:', error);
+      return [];
+    }
+  }, []);
+
   return {
     loading,
     createEvent,
     updateEvent,
     getEvents,
-    deleteEvent
+    getEvent,
+    deleteEvent,
+    getVenues,
+    getOrganizers
   };
 };

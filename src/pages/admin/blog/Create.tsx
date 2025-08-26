@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,14 +7,33 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save, Upload } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { useBlogManagement, type BlogPostFormData } from '@/hooks/useBlogManagement';
+import { useCategoryManagement } from '@/hooks/useCategoryManagement';
 import { uploadImage } from '@/lib/simpleUpload';
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 export default function AdminBlogCreate() {
   const navigate = useNavigate();
   const { loading, createPost } = useBlogManagement();
+  const { getCategories } = useCategoryManagement();
   const [uploading, setUploading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    const data = await getCategories('blog');
+    setCategories(data);
+  };
 
   const [formData, setFormData] = useState<BlogPostFormData>({
     title: '',
@@ -74,6 +93,15 @@ export default function AdminBlogCreate() {
   const handleTagsChange = (tagsString: string) => {
     const tags = tagsString.split(',').map(tag => tag.trim()).filter(Boolean);
     setFormData(prev => ({ ...prev, tags }));
+  };
+
+  const handleCategoryToggle = (categoryId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      category_ids: prev.category_ids.includes(categoryId)
+        ? prev.category_ids.filter(id => id !== categoryId)
+        : [...prev.category_ids, categoryId]
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -172,6 +200,29 @@ export default function AdminBlogCreate() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Categories */}
+        {categories.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Categorias</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {categories.map(category => (
+                  <Badge
+                    key={category.id}
+                    variant={formData.category_ids.includes(category.id) ? "default" : "outline"}
+                    className="cursor-pointer"
+                    onClick={() => handleCategoryToggle(category.id)}
+                  >
+                    {category.name}
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Metadata */}
         <Card>

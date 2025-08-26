@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Upload, Calendar } from 'lucide-react';
+import { ArrowLeft, Save, Upload } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { useEventManagement, type EventFormData } from '@/hooks/useEventManagement';
-import { supabase } from '@/integrations/supabase/client';
 import { uploadImage } from '@/lib/simpleUpload';
 
 interface Venue {
@@ -25,10 +25,11 @@ interface Organizer {
 
 export default function AdminEventCreate() {
   const navigate = useNavigate();
-  const { loading, createEvent } = useEventManagement();
+  const { loading, createEvent, getVenues, getOrganizers } = useEventManagement();
+  const [uploading, setUploading] = useState(false);
   const [venues, setVenues] = useState<Venue[]>([]);
   const [organizers, setOrganizers] = useState<Organizer[]>([]);
-  const [uploading, setUploading] = useState(false);
+  const [tagInput, setTagInput] = useState('');
 
   const [formData, setFormData] = useState<EventFormData>({
     title: '',
@@ -41,42 +42,27 @@ export default function AdminEventCreate() {
     organizer_id: '',
     cover_url: '',
     tags: [],
-    status: 'active'
+    status: 'draft'
   });
 
   const cities = ['Porto Alegre', 'Florianópolis', 'Curitiba', 'São Paulo', 'Rio de Janeiro'];
+  const statusOptions = [
+    { value: 'draft', label: 'Rascunho' },
+    { value: 'active', label: 'Ativo' },
+    { value: 'archived', label: 'Arquivado' }
+  ];
 
   useEffect(() => {
-    fetchVenues();
-    fetchOrganizers();
+    fetchData();
   }, []);
 
-  const fetchVenues = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('venues')
-        .select('id, name, address')
-        .order('name');
-      
-      if (error) throw error;
-      setVenues(data || []);
-    } catch (error) {
-      console.error('Error fetching venues:', error);
-    }
-  };
-
-  const fetchOrganizers = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('organizers')
-        .select('id, name')
-        .order('name');
-      
-      if (error) throw error;
-      setOrganizers(data || []);
-    } catch (error) {
-      console.error('Error fetching organizers:', error);
-    }
+  const fetchData = async () => {
+    const [venuesData, organizersData] = await Promise.all([
+      getVenues(),
+      getOrganizers()
+    ]);
+    setVenues(venuesData);
+    setOrganizers(organizersData);
   };
 
   const generateSlug = (title: string) => {
@@ -114,16 +100,36 @@ export default function AdminEventCreate() {
     }
   };
 
-  const handleTagsChange = (tagsString: string) => {
-    const tags = tagsString.split(',').map(tag => tag.trim()).filter(Boolean);
-    setFormData(prev => ({ ...prev, tags }));
+  const addTag = () => {
+    if (!tagInput.trim()) return;
+    
+    const newTag = tagInput.trim();
+    if (!formData.tags.includes(newTag)) {
+      setFormData(prev => ({
+        ...prev,
+        tags: [...prev.tags, newTag]
+      }));
+    }
+    setTagInput('');
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.title || !formData.start_at || !formData.city) {
-      toast.error('Título, data de início e cidade são obrigatórios');
+    if (!formData.title || !formData.city || !formData.start_at) {
+      toast.error('Título, cidade e data de início são obrigatórios');
+      return;
+    }
+
+    if (formData.end_at && formData.end_at < formData.start_at) {
+      toast.error('Data fim deve ser posterior à data início');
       return;
     }
 
@@ -188,27 +194,9 @@ export default function AdminEventCreate() {
               />
             </div>
 
-            <div>
-              <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
-              <Input
-                id="tags"
-                value={formData.tags.join(', ')}
-                onChange={(e) => handleTagsChange(e.target.value)}
-                placeholder="música, festa, show"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Date and Location */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Data e Local</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="start_at">Data/Hora de Início *</Label>
+                <Label htmlFor="start_at">Data/Hora Início *</Label>
                 <Input
                   id="start_at"
                   type="datetime-local"
@@ -218,7 +206,7 @@ export default function AdminEventCreate() {
                 />
               </div>
               <div>
-                <Label htmlFor="end_at">Data/Hora de Fim</Label>
+                <Label htmlFor="end_at">Data/Hora Fim</Label>
                 <Input
                   id="end_at"
                   type="datetime-local"
@@ -227,8 +215,16 @@ export default function AdminEventCreate() {
                 />
               </div>
             </div>
+          </CardContent>
+        </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Location and Organization */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Local e Organização</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="city">Cidade *</Label>
                 <Select value={formData.city} onValueChange={(value) => setFormData(prev => ({ ...prev, city: value }))}>
@@ -249,6 +245,7 @@ export default function AdminEventCreate() {
                     <SelectValue placeholder="Selecione o local" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="">Nenhum</SelectItem>
                     {venues.map(venue => (
                       <SelectItem key={venue.id} value={venue.id}>
                         {venue.name} - {venue.address}
@@ -257,34 +254,63 @@ export default function AdminEventCreate() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            <div>
-              <Label htmlFor="organizer_id">Organizador</Label>
-              <Select value={formData.organizer_id} onValueChange={(value) => setFormData(prev => ({ ...prev, organizer_id: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o organizador" />
-                </SelectTrigger>
-                <SelectContent>
-                  {organizers.map(organizer => (
-                    <SelectItem key={organizer.id} value={organizer.id}>
-                      {organizer.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div>
+                <Label htmlFor="organizer_id">Organizador</Label>
+                <Select value={formData.organizer_id} onValueChange={(value) => setFormData(prev => ({ ...prev, organizer_id: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o organizador" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Nenhum</SelectItem>
+                    {organizers.map(organizer => (
+                      <SelectItem key={organizer.id} value={organizer.id}>
+                        {organizer.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Media and Settings */}
+        {/* Tags */}
         <Card>
           <CardHeader>
-            <CardTitle>Imagem e Configurações</CardTitle>
+            <CardTitle>Tags</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Adicionar tag..."
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+              />
+              <Button type="button" onClick={addTag} variant="outline">
+                Adicionar
+              </Button>
+            </div>
+            {formData.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {formData.tags.map((tag) => (
+                  <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => removeTag(tag)}>
+                    {tag} ×
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Media and Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Mídia e Status</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="cover_image">Imagem de Capa</Label>
+              <Label htmlFor="cover_url">Imagem de Capa</Label>
               <div className="space-y-2">
                 {formData.cover_url && (
                   <div className="flex items-center gap-2">
@@ -316,9 +342,11 @@ export default function AdminEventCreate() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Ativo</SelectItem>
-                  <SelectItem value="pending">Pendente</SelectItem>
-                  <SelectItem value="rejected">Rejeitado</SelectItem>
+                  {statusOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
