@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Save, Eye, Upload, X } from "lucide-react";
 import { User } from "@supabase/supabase-js";
 import RichTextEditor from "@/components/ui/rich-text-editor";
+import { CategorySelector } from "@/components/CategorySelector";
 
 interface BlogPostForm {
   title: string;
@@ -20,6 +21,7 @@ interface BlogPostForm {
   content_html: string;
   cover_image: string;
   tags: string[];
+  category_ids: string[];
   featured: boolean;
   status: 'draft' | 'published' | 'scheduled';
   scheduled_at: string;
@@ -41,6 +43,7 @@ const AdminPostEditor = () => {
     content_html: "",
     cover_image: "",
     tags: [],
+    category_ids: [],
     featured: false,
     status: 'draft',
     scheduled_at: ""
@@ -91,6 +94,7 @@ const AdminPostEditor = () => {
         content_html: data.content_html,
         cover_image: data.cover_image,
         tags: data.tags || [],
+        category_ids: data.category_ids || [],
         featured: data.featured,
         status: data.status,
         scheduled_at: data.scheduled_at ? new Date(data.scheduled_at).toISOString().slice(0, 16) : ""
@@ -336,6 +340,22 @@ const AdminPostEditor = () => {
               onChange={(value) => setFormData(prev => ({ ...prev, content_html: value }))}
               placeholder="Escreva o conteúdo do artigo aqui..."
               className="mb-4"
+            />
+          </CardContent>
+        </Card>
+
+        {/* Categories */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Categorias</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CategorySelector
+              selectedCategories={formData.category_ids}
+              onCategoriesChange={(categoryIds) => 
+                setFormData(prev => ({ ...prev, category_ids: categoryIds }))
+              }
+              placeholder="Selecionar categorias para o post..."
             />
           </CardContent>
         </Card>

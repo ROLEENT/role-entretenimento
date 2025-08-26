@@ -597,27 +597,33 @@ export type Database = {
       categories: {
         Row: {
           color: string | null
+          color_hex: string | null
           created_at: string
           description: string | null
           id: string
           name: string
           slug: string
+          type: Database["public"]["Enums"]["category_type"] | null
         }
         Insert: {
           color?: string | null
+          color_hex?: string | null
           created_at?: string
           description?: string | null
           id?: string
           name: string
           slug: string
+          type?: Database["public"]["Enums"]["category_type"] | null
         }
         Update: {
           color?: string | null
+          color_hex?: string | null
           created_at?: string
           description?: string | null
           id?: string
           name?: string
           slug?: string
+          type?: Database["public"]["Enums"]["category_type"] | null
         }
         Relationships: []
       }
@@ -2950,6 +2956,10 @@ export type Database = {
         Args: { user_email: string }
         Returns: undefined
       }
+      generate_category_slug: {
+        Args: { category_name: string }
+        Returns: string
+      }
       generate_confirmation_token: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -3262,6 +3272,14 @@ export type Database = {
     Enums: {
       article_status: "draft" | "published" | "scheduled"
       badge_type: "activity" | "achievement" | "special" | "milestone"
+      category_type:
+        | "general"
+        | "music"
+        | "art"
+        | "food"
+        | "sports"
+        | "technology"
+        | "business"
       city:
         | "porto_alegre"
         | "florianopolis"
@@ -3399,6 +3417,15 @@ export const Constants = {
     Enums: {
       article_status: ["draft", "published", "scheduled"],
       badge_type: ["activity", "achievement", "special", "milestone"],
+      category_type: [
+        "general",
+        "music",
+        "art",
+        "food",
+        "sports",
+        "technology",
+        "business",
+      ],
       city: [
         "porto_alegre",
         "florianopolis",
