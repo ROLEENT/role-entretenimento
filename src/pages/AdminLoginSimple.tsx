@@ -5,22 +5,45 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminLoginSimple = () => {
   const [email, setEmail] = useState("fiih@roleentretenimento.com");
   const [password, setPassword] = useState("2025Fast!");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
-  const { adminUser, loading, loginAdmin, isAuthenticated } = useAdminAuth();
 
   useEffect(() => {
-    if (!loading && isAuthenticated) {
-      navigate("/admin");
-    }
-  }, [loading, isAuthenticated, navigate]);
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          // Check if user is admin
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('is_admin')
+            .eq('user_id', session.user.id)
+            .single();
+          
+          if (profile?.is_admin) {
+            navigate("/admin");
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
+  }, [navigate]);
 
   // Show loading while checking authentication
-  if (loading) {
+  if (isCheckingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-secondary/20 p-4">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -30,16 +53,48 @@ const AdminLoginSimple = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
-      const result = await loginAdmin(email, password);
-      
-      if (result.success) {
-        navigate("/admin");
+      // Use Supabase Auth directly
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        toast.error("Email ou senha inválidos");
+        return;
       }
+
+      if (!data.user) {
+        toast.error("Erro na autenticação");
+        return;
+      }
+
+      // Check if user has admin privileges
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('user_id', data.user.id)
+        .single();
+
+      if (profileError || !profile?.is_admin) {
+        // Sign out the user if they're not admin
+        await supabase.auth.signOut();
+        toast.error("Conta sem acesso ao Admin");
+        return;
+      }
+
+      // User is admin, redirect to dashboard
+      toast.success("Login realizado com sucesso!");
+      navigate("/admin");
+      
     } catch (error) {
       console.error("Login error:", error);
       toast.error("Erro inesperado no login");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -84,8 +139,8 @@ const AdminLoginSimple = () => {
               />
             </div>
             
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Entrar
             </Button>
           </form>
