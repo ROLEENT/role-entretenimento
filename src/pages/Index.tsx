@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
-import FeaturedHighlights from "@/components/FeaturedHighlights";
-import CitiesGrid from "@/components/CitiesGrid";
+import { CityHighlightSlider } from "@/components/CityHighlightSlider";
+import StatsSection from "@/components/StatsSection";
 import FeaturedEventsToday from "@/components/FeaturedEventsToday";
 import FeaturedBlogPosts from "@/components/FeaturedBlogPosts";
 import Newsletter from "@/components/Newsletter";
@@ -29,12 +29,34 @@ const Index = () => {
           <HeroSection />
           
           <ScrollAnimationWrapper>
-            <FeaturedHighlights />
+            <StatsSection />
           </ScrollAnimationWrapper>
           
-          <ScrollAnimationWrapper>
-            <CitiesGrid />
-          </ScrollAnimationWrapper>
+          <div className="container mx-auto px-4 space-y-8">
+            <ScrollAnimationWrapper>
+              <CityHighlightSlider 
+                city="porto_alegre" 
+                title="Porto Alegre" 
+                citySlug="porto-alegre"
+              />
+            </ScrollAnimationWrapper>
+            
+            <ScrollAnimationWrapper>
+              <CityHighlightSlider 
+                city="sao_paulo" 
+                title="São Paulo" 
+                citySlug="sao-paulo"
+              />
+            </ScrollAnimationWrapper>
+            
+            <ScrollAnimationWrapper>
+              <CityHighlightSlider 
+                city="florianopolis" 
+                title="Florianópolis" 
+                citySlug="florianopolis"
+              />
+            </ScrollAnimationWrapper>
+          </div>
           
           <ScrollAnimationWrapper>
             <FeaturedEventsToday />

@@ -50,6 +50,7 @@ const Header = () => {
     { name: "Início", href: "/" },
     { name: "Eventos", href: "/eventos" },
     { name: "Destaques", href: "/destaques" },
+    { name: "Cidades", href: "/cidades" },
     { name: "Descobrir", href: "/descobrir" },
     { name: "Meu Calendário", href: "/calendario" },
     { name: "Conquistas", href: "/conquistas" },

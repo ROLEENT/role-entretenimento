@@ -18,6 +18,7 @@ import UserTerms from "./pages/UserTerms";
 import OrganizerTerms from "./pages/OrganizerTerms";
 import Help from "./pages/Help";
 import DestaquesHub from "./pages/DestaquesHub";
+import CitiesPage from "./pages/CitiesPage";
 import BlogArticle from "./pages/BlogArticle";
 import HighlightsPage from "./pages/HighlightsPage";
 import CityHighlightsPage from "./pages/CityHighlightsPage";
@@ -93,6 +94,7 @@ function App() {
                 <Route path="/destaques/:cidade" element={<CityHighlightsPage />} />
                 <Route path="/destaque/:id" element={<HighlightDetailPage />} />
                 <Route path="/destaques/:cidade/:data" element={<BlogArticle />} />
+                <Route path="/cidades" element={<CitiesPage />} />
                 
                 {/* Highlights Routes */}
                 <Route path="/highlights" element={<HighlightsPage />} />
