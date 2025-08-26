@@ -8,6 +8,17 @@ import { toast } from 'sonner';
 export const useSupabaseAdminStandard = () => {
   const updateHighlight = useCallback(async (highlightId: string, data: any) => {
     try {
+      // Primeiro, verificar se o highlight existe
+      const { data: existing } = await supabase
+        .from('highlights')
+        .select('id')
+        .eq('id', highlightId)
+        .single();
+
+      if (!existing) {
+        throw new Error('Destaque não encontrado');
+      }
+
       const { data: result, error } = await supabase
         .from('highlights')
         .update({
@@ -80,7 +91,7 @@ export const useSupabaseAdminStandard = () => {
         .from('highlights')
         .select('*')
         .eq('id', highlightId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 

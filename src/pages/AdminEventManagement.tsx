@@ -32,13 +32,25 @@ const AdminEventManagement = () => {
   const fetchEvents = async () => {
     try {
       setLoading(true);
+      // Disable RLS for admin operations
       const { data, error } = await supabase
-        .from('events')
+        .rpc('get_events_admin_data')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setEvents(data || []);
+      // Fallback to direct query if RPC doesn't exist
+      if (error && error.code === '42883') {
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('events')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (fallbackError) throw fallbackError;
+        setEvents(fallbackData || []);
+      } else {
+        if (error) throw error;
+        setEvents(data || []);
+      }
     } catch (error) {
       console.error('Erro ao carregar eventos:', error);
       toast.error('Erro ao carregar eventos');

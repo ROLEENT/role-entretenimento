@@ -1,4 +1,5 @@
-// Simple redirect component - this file is called by the routing
+import AdminHighlightEditor from '@/pages/AdminHighlightEditor';
+
 export default function AdminHighlightCreate() {
-  return null;
+  return <AdminHighlightEditor />;
 }

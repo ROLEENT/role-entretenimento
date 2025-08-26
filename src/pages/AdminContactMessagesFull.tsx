@@ -25,10 +25,21 @@ const AdminContactMessagesFull = () => {
   const fetchMessages = async () => {
     try {
       setLoading(true);
+      // Try admin function first
       const { data, error } = await supabase.rpc('get_contact_messages');
 
-      if (error) throw error;
-      setMessages(data || []);
+      if (error) {
+        // Fallback to direct query if RPC fails
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('contact_messages')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (fallbackError) throw fallbackError;
+        setMessages(fallbackData || []);
+      } else {
+        setMessages(data || []);
+      }
     } catch (error) {
       console.error('Erro ao carregar mensagens:', error);
       toast.error('Erro ao carregar mensagens');

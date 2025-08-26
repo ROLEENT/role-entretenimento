@@ -49,12 +49,19 @@ export default function AdminHighlightsIndex() {
   const fetchHighlights = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      let query = supabase
         .from('highlights')
-        .select('*')
-        .ilike('event_title', searchTerm ? `%${searchTerm}%` : '%')
-        .eq(selectedCity ? 'city' : 'id', selectedCity || 'id')
-        .order('sort_order', { ascending: true });
+        .select('*');
+
+      if (searchTerm) {
+        query = query.ilike('event_title', `%${searchTerm}%`);
+      }
+
+      if (selectedCity) {
+        query = query.eq('city', selectedCity);
+      }
+
+      const { data, error } = await query.order('sort_order', { ascending: true });
 
       if (error) throw error;
       setHighlights((data as Highlight[]) || []);

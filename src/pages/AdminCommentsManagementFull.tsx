@@ -27,10 +27,31 @@ const AdminCommentsManagementFull = () => {
   const fetchComments = async () => {
     try {
       setLoading(true);
+      // Try admin function first
       const { data, error } = await supabase.rpc('get_blog_comments_admin');
 
-      if (error) throw error;
-      setComments(data || []);
+      if (error) {
+        // Fallback to direct query if RPC fails
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('blog_comments')
+          .select(`
+            *,
+            blog_posts(title)
+          `)
+          .order('created_at', { ascending: false });
+        
+        if (fallbackError) throw fallbackError;
+        
+        // Transform data to match expected format
+        const transformedData = fallbackData?.map(comment => ({
+          ...comment,
+          post_title: comment.blog_posts?.title || 'Post não encontrado'
+        })) || [];
+        
+        setComments(transformedData);
+      } else {
+        setComments(data || []);
+      }
     } catch (error) {
       console.error('Erro ao carregar comentários:', error);
       toast.error('Erro ao carregar comentários');
