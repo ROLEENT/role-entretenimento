@@ -147,27 +147,35 @@ const Header = () => {
                   <ThemeToggle />
                 </div>
                 
-                <nav className="flex-1 py-8">
-                  <div className="space-y-6">
-                    {navigation.map((item) => (
-                      <Link
-                        key={item.name}
-                        to={item.href}
-                        className="block text-lg font-medium text-foreground hover:text-primary transition-colors"
-                      >
-                        {item.name}
-                      </Link>
-                    ))}
-                  </div>
-                </nav>
-
-                <div className="border-t pt-6 space-y-4">
+                {/* Minha Conta - Movido para o topo */}
+                <div className="py-4 border-b">
                   <Button variant="ghost" className="w-full justify-start" asChild>
-                    <Link to="/perfil">
+                    <Link to={user ? "/perfil" : "/auth"}>
                       <User className="h-4 w-4 mr-2" />
-                      Minha Conta
+                      {user ? "Minha Conta" : "Entrar"}
                     </Link>
                   </Button>
+                </div>
+                
+                {/* Navegação com scroll */}
+                <div className="flex-1 overflow-y-auto">
+                  <nav className="py-6">
+                    <div className="space-y-4">
+                      {navigation.map((item) => (
+                        <Link
+                          key={item.name}
+                          to={item.href}
+                          className="block text-lg font-medium text-foreground hover:text-primary transition-colors px-2 py-1 rounded-md hover:bg-muted"
+                        >
+                          {item.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </nav>
+                </div>
+
+                {/* Área do Admin fixada na parte inferior */}
+                <div className="border-t pt-4 pb-2">
                   <Button variant="gradient" className="w-full" asChild>
                     <Link to="/admin/login">
                       Área do Admin
