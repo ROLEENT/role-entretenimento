@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useToast } from "./ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Newsletter = () => {
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -22,15 +24,42 @@ const Newsletter = () => {
 
     setIsLoading(true);
     
-    // Simular envio do newsletter
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.functions.invoke('newsletter-signup', {
+        body: {
+          email,
+          name: name || undefined,
+          preferences: {
+            events: true,
+            highlights: true,
+            weekly: true
+          }
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
       toast({
         title: "Inscrição realizada!",
-        description: "Você receberá nossos destaques semanais em breve.",
+        description: data.requiresConfirmation 
+          ? "Verifique seu email para confirmar sua inscrição."
+          : "Você receberá nossos destaques semanais em breve.",
       });
+      
       setEmail("");
+      setName("");
+    } catch (error: any) {
+      console.error('Newsletter signup error:', error);
+      toast({
+        title: "Erro na inscrição",
+        description: error.message || "Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -44,18 +73,28 @@ const Newsletter = () => {
             Assine a newsletter e receba semanalmente o que tem de mais relevante na cena cultural.
           </p>
           
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <Input
-              type="email"
-              placeholder="Seu melhor e-mail"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="flex-1"
-              autoComplete="email"
-            />
-            <Button type="submit" disabled={isLoading} className="sm:px-8">
-              {isLoading ? "Enviando..." : "Assinar"}
+          <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Input
+                type="text"
+                placeholder="Seu nome (opcional)"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="flex-1"
+                autoComplete="name"
+              />
+              <Input
+                type="email"
+                placeholder="Seu melhor e-mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="flex-1"
+                autoComplete="email"
+              />
+            </div>
+            <Button type="submit" disabled={isLoading} className="w-full sm:w-auto sm:px-8">
+              {isLoading ? "Enviando..." : "Assinar Newsletter"}
             </Button>
           </form>
           

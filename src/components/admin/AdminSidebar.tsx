@@ -10,7 +10,8 @@ import {
   User,
   LogOut,
   TrendingUp,
-  MessageSquare
+  MessageSquare,
+  Mail
 } from "lucide-react";
 import {
   Sidebar,
@@ -30,6 +31,7 @@ const mainItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
   { title: "Destaques", url: "/admin/highlights", icon: Sparkles },
   { title: "Criar Destaque", url: "/admin/highlights/create", icon: Calendar },
+  { title: "Newsletter", url: "/admin/newsletter", icon: Mail },
   { title: "Métricas", url: "/admin/metrics", icon: TrendingUp },
   { title: "Depoimentos", url: "/admin/testimonials", icon: MessageSquare },
   { title: "Organizadores", url: "/admin/organizers", icon: Building2 },
