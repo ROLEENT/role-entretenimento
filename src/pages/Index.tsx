@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
+import FeaturedHighlights from "@/components/FeaturedHighlights";
 import CitiesGrid from "@/components/CitiesGrid";
 import FeaturedEventsToday from "@/components/FeaturedEventsToday";
 import FeaturedBlogPosts from "@/components/FeaturedBlogPosts";
@@ -26,6 +27,10 @@ const Index = () => {
         <Header />
         <main id="main-content" className="mt-0">
           <HeroSection />
+          
+          <ScrollAnimationWrapper>
+            <FeaturedHighlights />
+          </ScrollAnimationWrapper>
           
           <ScrollAnimationWrapper>
             <CitiesGrid />
