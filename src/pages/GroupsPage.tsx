@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +12,7 @@ import { GroupCard } from '@/components/GroupCard';
 import { CompanionRequestCard } from '@/components/CompanionRequestCard';
 import { useGroups } from '@/hooks/useGroups';
 import { useEventCompanions } from '@/hooks/useEventCompanions';
-import SEOHead from '@/components/SEOHead';
+import { Helmet } from 'react-helmet';
 
 const CITIES = ['São Paulo', 'Rio de Janeiro', 'Curitiba', 'Porto Alegre', 'Florianópolis'];
 const CATEGORIES = ['Jazz', 'Rock', 'MPB', 'Teatro', 'Eletrônica', 'Pop', 'Indie', 'Clássica'];
@@ -53,13 +55,15 @@ export default function GroupsPage() {
   }, [selectedCity, selectedCategory]);
 
   return (
-    <>
-      <SEOHead 
-        title="Grupos e Comunidades - Rolê"
-        description="Encontre grupos por interesse musical e cultural. Conecte-se com pessoas que compartilham suas paixões e descubra novos eventos em sua cidade."
-      />
+    <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Grupos & Companhias - ROLÊ</title>
+        <meta name="description" content="Encontre grupos com interesses similares ou procure companhia para eventos culturais no ROLÊ." />
+      </Helmet>
+      <Header />
       
-      <div className="container mx-auto px-4 py-8">
+      <main className="pt-20">
+        <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Grupos e Comunidades</h1>
           <p className="text-muted-foreground">
@@ -242,7 +246,9 @@ export default function GroupsPage() {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
-    </>
+        </div>
+      </main>
+      <Footer />
+    </div>
   );
 }

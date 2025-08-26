@@ -1,5 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import { Trophy, Award, Target, TrendingUp } from 'lucide-react';
 import GamificationDashboard from '@/components/GamificationDashboard';
 import { useAuth } from '@/hooks/useAuth';
@@ -11,13 +13,14 @@ const GamificationPage: React.FC = () => {
 
   if (!user) {
     return (
-      <>
+      <div className="min-h-screen bg-gradient-to-br from-background to-accent/30">
         <Helmet>
           <title>Sistema de Conquistas - ROLÊ</title>
           <meta name="description" content="Ganhe pontos, conquiste badges e suba no ranking participando de eventos culturais no ROLÊ." />
         </Helmet>
-
-        <div className="min-h-screen bg-gradient-to-br from-background to-accent/30">
+        <Header />
+        
+        <main className="pt-20">
           <div className="container mx-auto px-4 py-16">
             <div className="max-w-md mx-auto text-center">
               <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -80,19 +83,21 @@ const GamificationPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
-      </>
+        </main>
+        <Footer />
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-background to-accent/30">
       <Helmet>
         <title>Minhas Conquistas - ROLÊ</title>
         <meta name="description" content="Acompanhe seus pontos, badges e posição no ranking do ROLÊ." />
       </Helmet>
-
-      <div className="min-h-screen bg-gradient-to-br from-background to-accent/30">
+      <Header />
+      
+      <main className="pt-20">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
             <div className="mb-8">
@@ -105,8 +110,9 @@ const GamificationPage: React.FC = () => {
             <GamificationDashboard />
           </div>
         </div>
-      </div>
-    </>
+      </main>
+      <Footer />
+    </div>
   );
 };
 

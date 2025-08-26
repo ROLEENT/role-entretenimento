@@ -332,65 +332,75 @@ const Profile = () => {
                 )}
                 
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                     {isEditingName ? (
-                      <div className="flex items-center gap-2 flex-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
                         <Input
                           value={tempDisplayName}
                           onChange={(e) => setTempDisplayName(e.target.value)}
-                          className="text-2xl font-bold"
+                          className="text-xl sm:text-2xl font-bold"
                           placeholder="Digite seu nome"
                         />
-                        <Button size="sm" onClick={handleSaveDisplayName} disabled={loading}>
-                          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={handleCancelEditName}>
-                          <X className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={handleSaveDisplayName} disabled={loading}>
+                            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={handleCancelEditName}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ) : (
-                      <>
-                        <h2 className="text-3xl font-bold text-foreground">
-                          {displayName || 'Usuário'}
-                        </h2>
-                        {user.profile?.is_verified && (
-                          <UserCheck className="h-6 w-6 text-primary" />
-                        )}
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
+                        <div className="flex items-center gap-2">
+                          <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+                            {displayName || 'Usuário'}
+                          </h2>
+                          {user.profile?.is_verified && (
+                            <UserCheck className="h-6 w-6 text-primary" />
+                          )}
+                        </div>
                         {isOwnProfile && (
-                          <Button size="sm" variant="ghost" onClick={() => setIsEditingName(true)}>
+                          <Button size="sm" variant="ghost" onClick={() => setIsEditingName(true)} className="self-start sm:self-center">
                             <Edit2 className="h-4 w-4" />
                           </Button>
                         )}
-                      </>
+                      </div>
                     )}
                   </div>
 
                   {/* Username */}
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                     {isEditingUsername ? (
-                      <div className="flex items-center gap-2">
-                        <AtSign className="h-4 w-4 text-muted-foreground" />
-                        <Input
-                          value={tempUsername}
-                          onChange={(e) => setTempUsername(e.target.value)}
-                          placeholder="username"
-                          className="text-sm"
-                        />
-                        <Button size="sm" onClick={handleSaveUsername} disabled={loading}>
-                          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => setIsEditingUsername(false)}>
-                          <X className="h-4 w-4" />
-                        </Button>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
+                        <div className="flex items-center gap-2">
+                          <AtSign className="h-4 w-4 text-muted-foreground" />
+                          <Input
+                            value={tempUsername}
+                            onChange={(e) => setTempUsername(e.target.value)}
+                            placeholder="username"
+                            className="text-sm"
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={handleSaveUsername} disabled={loading}>
+                            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => setIsEditingUsername(false)}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-1">
-                        <AtSign className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">
-                          {user.profile?.username || 'Definir username'}
-                        </span>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
+                        <div className="flex items-center gap-1">
+                          <AtSign className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">
+                            {user.profile?.username || 'Definir username'}
+                          </span>
+                        </div>
                         {isOwnProfile && (
-                          <Button size="sm" variant="ghost" onClick={() => setIsEditingUsername(true)}>
+                          <Button size="sm" variant="ghost" onClick={() => setIsEditingUsername(true)} className="self-start sm:self-center">
                             <Edit2 className="h-3 w-3" />
                           </Button>
                         )}

@@ -8,6 +8,7 @@ const Newsletter = () => {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,48 +64,75 @@ const Newsletter = () => {
   };
 
   return (
-    <section className="py-16 bg-muted/30" aria-labelledby="newsletter-title">
+    <section className="py-16 bg-gradient-to-br from-primary/5 to-secondary/5">
       <div className="container mx-auto px-4">
-        <div className="max-w-2xl mx-auto text-center">
-          <h2 id="newsletter-title" className="text-3xl font-bold text-foreground mb-4">
-            Não perca o melhor do ROLÊ
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-4 text-foreground">
+            📬 Receba os Melhores Eventos por Email
           </h2>
-          <p className="text-lg text-muted-foreground mb-8">
-            Assine a newsletter e receba semanalmente o que tem de mais relevante na cena cultural.
+          <p className="text-lg text-muted-foreground mb-2">
+            Cadastre-se para receber nossa seleção semanal dos eventos mais imperdíveis da sua cidade
           </p>
           
-          <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto">
-            <div className="flex flex-col sm:flex-row gap-4">
+          <Button 
+            variant="link" 
+            onClick={() => setShowDetails(!showDetails)}
+            className="text-sm text-primary mb-6"
+          >
+            {showDetails ? "Ocultar detalhes" : "Como funciona?"}
+          </Button>
+
+          {showDetails && (
+            <div className="bg-card/50 backdrop-blur-sm rounded-lg p-6 mb-8 text-left">
+              <h3 className="font-semibold mb-4 text-center">🎯 Como Funciona a Newsletter do ROLÊ:</h3>
+              <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
+                <div className="space-y-2">
+                  <p><strong>📅 Quando:</strong> Toda sexta-feira</p>
+                  <p><strong>📍 Onde:</strong> Eventos das principais capitais</p>
+                  <p><strong>🎭 O que:</strong> Shows, teatro, exposições, festivais</p>
+                </div>
+                <div className="space-y-2">
+                  <p><strong>🏆 Curadoria:</strong> Seleção dos nossos especialistas</p>
+                  <p><strong>🎨 Formato:</strong> Visual, com fotos e descrições</p>
+                  <p><strong>🔄 Frequência:</strong> Sem spam, apenas qualidade</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 type="text"
                 placeholder="Seu nome (opcional)"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="flex-1"
-                autoComplete="name"
+                className="h-12 text-base"
               />
               <Input
                 type="email"
-                placeholder="Seu melhor e-mail"
+                placeholder="Seu melhor email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="flex-1"
-                autoComplete="email"
+                className="h-12 text-base"
               />
             </div>
-            <Button type="submit" disabled={isLoading} className="w-full sm:w-auto sm:px-8">
-              {isLoading ? "Enviando..." : "Assinar Newsletter"}
+            
+            <Button 
+              type="submit" 
+              disabled={isLoading}
+              className="w-full md:w-auto px-8 py-3 text-lg font-semibold bg-gradient-primary hover:opacity-90"
+            >
+              {isLoading ? "Inscrevendo..." : "📧 Quero Receber os Destaques!"}
             </Button>
           </form>
-          
-          <p className="text-sm text-muted-foreground mt-4">
-            Ao assinar, você concorda com nossa{" "}
-            <a href="/politica" className="text-primary hover:underline">
-              Política de Privacidade
-            </a>
-            .
-          </p>
+
+          <div className="mt-6 text-xs text-muted-foreground space-y-1">
+            <p>✅ Enviamos apenas conteúdo de qualidade cultural</p>
+            <p>🔒 Seus dados estão protegidos e nunca serão compartilhados</p>
+            <p>❌ Cancele quando quiser com 1 clique</p>
+          </div>
         </div>
       </div>
     </section>

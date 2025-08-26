@@ -130,13 +130,14 @@ const FeaturedHighlights = () => {
           </div>
         </div>
 
-        {/* Two Large Cards Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {highlights.map((highlight) => (
-            <Card
-              key={highlight.id}
-              className="group overflow-hidden bg-gradient-card hover:shadow-elevated transition-all duration-500 hover:-translate-y-2 border-0"
-            >
+        {/* Horizontal Scroll Layout for Mobile-First */}
+        <div className="overflow-x-auto pb-4 mb-8">
+          <div className="flex gap-6 min-w-full" style={{ width: 'max-content' }}>
+            {highlights.map((highlight) => (
+              <Card
+                key={highlight.id}
+                className="group overflow-hidden bg-gradient-card hover:shadow-elevated transition-all duration-500 hover:-translate-y-2 border-0 flex-shrink-0 w-80 sm:w-96"
+              >
               <div className="relative overflow-hidden">
                 <img
                   src={getImageUrl(highlight.image_url)}
@@ -212,8 +213,9 @@ const FeaturedHighlights = () => {
                   </Link>
                 </Button>
               </CardContent>
-            </Card>
-          ))}
+              </Card>
+            ))}
+          </div>
         </div>
 
         {/* Call to Action */}
