@@ -456,7 +456,7 @@ export type Database = {
           content: string
           created_at: string
           display_name: string | null
-          email_hash: string | null
+          email_hash: string
           id: string
           is_approved: boolean
           is_hidden: boolean | null
@@ -469,7 +469,7 @@ export type Database = {
           content: string
           created_at?: string
           display_name?: string | null
-          email_hash?: string | null
+          email_hash: string
           id?: string
           is_approved?: boolean
           is_hidden?: boolean | null
@@ -482,7 +482,7 @@ export type Database = {
           content?: string
           created_at?: string
           display_name?: string | null
-          email_hash?: string | null
+          email_hash?: string
           id?: string
           is_approved?: boolean
           is_hidden?: boolean | null
@@ -503,24 +503,21 @@ export type Database = {
       blog_likes: {
         Row: {
           created_at: string
-          email_hash: string | null
+          email_hash: string
           id: string
           post_id: string
-          user_email: string
         }
         Insert: {
           created_at?: string
-          email_hash?: string | null
+          email_hash: string
           id?: string
           post_id: string
-          user_email: string
         }
         Update: {
           created_at?: string
-          email_hash?: string | null
+          email_hash?: string
           id?: string
           post_id?: string
-          user_email?: string
         }
         Relationships: []
       }
@@ -3243,13 +3240,14 @@ export type Database = {
       get_contact_messages: {
         Args: Record<PropertyKey, never>
         Returns: {
-          body: string
           created_at: string
           email_hash: string
           handled: boolean
           handled_by: string
           id: string
+          message: string
           name: string
+          status: string
           subject: string
         }[]
       }

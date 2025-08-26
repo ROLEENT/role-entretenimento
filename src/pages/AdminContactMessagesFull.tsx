@@ -14,6 +14,7 @@ interface ContactMessage {
   email_hash: string;
   subject: string;
   body: string;
+  message: string;
   handled: boolean;
   handled_by: string | null;
   created_at: string;
@@ -87,7 +88,7 @@ const AdminContactMessagesFull = () => {
     const csvData = filteredMessages.map(message => ({
       name: message.name,
       subject: message.subject,
-      body: message.body.replace(/\n/g, ' '),
+      body: (message.body || message.message || '').replace(/\n/g, ' '),
       handled: message.handled ? 'Sim' : 'Não',
       created_at: formatDate(message.created_at)
     }));
@@ -238,7 +239,7 @@ const AdminContactMessagesFull = () => {
                 <div className="mb-4">
                   <h4 className="font-medium mb-2">Mensagem:</h4>
                   <p className="text-sm bg-muted p-4 rounded-lg whitespace-pre-wrap">
-                    {message.body}
+                    {message.body || message.message}
                   </p>
                 </div>
                 
