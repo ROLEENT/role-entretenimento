@@ -910,57 +910,72 @@ export type Database = {
       events: {
         Row: {
           city: string
+          cover_url: string | null
           created_at: string
           date_end: string | null
           date_start: string
           description: string | null
+          end_at: string | null
           external_url: string | null
           id: string
           image_url: string | null
           organizer_id: string | null
           price_max: number | null
           price_min: number | null
+          slug: string | null
           source: string | null
+          start_at: string | null
           state: string
           status: string | null
+          tags: string[] | null
           title: string
           updated_at: string
           venue_id: string | null
         }
         Insert: {
           city: string
+          cover_url?: string | null
           created_at?: string
           date_end?: string | null
           date_start: string
           description?: string | null
+          end_at?: string | null
           external_url?: string | null
           id?: string
           image_url?: string | null
           organizer_id?: string | null
           price_max?: number | null
           price_min?: number | null
+          slug?: string | null
           source?: string | null
+          start_at?: string | null
           state: string
           status?: string | null
+          tags?: string[] | null
           title: string
           updated_at?: string
           venue_id?: string | null
         }
         Update: {
           city?: string
+          cover_url?: string | null
           created_at?: string
           date_end?: string | null
           date_start?: string
           description?: string | null
+          end_at?: string | null
           external_url?: string | null
           id?: string
           image_url?: string | null
           organizer_id?: string | null
           price_max?: number | null
           price_min?: number | null
+          slug?: string | null
           source?: string | null
+          start_at?: string | null
           state?: string
           status?: string | null
+          tags?: string[] | null
           title?: string
           updated_at?: string
           venue_id?: string | null
@@ -2506,6 +2521,21 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_create_event: {
+        Args: {
+          p_city: string
+          p_cover_url?: string
+          p_end_at: string
+          p_organizer_id: string
+          p_slug: string
+          p_start_at: string
+          p_status?: string
+          p_tags?: string[]
+          p_title: string
+          p_venue_id: string
+        }
+        Returns: string
+      }
       admin_create_highlight: {
         Args: {
           p_admin_email: string
@@ -2635,6 +2665,22 @@ export type Database = {
           p_is_published: boolean
         }
         Returns: boolean
+      }
+      admin_update_event: {
+        Args: {
+          p_city: string
+          p_cover_url?: string
+          p_end_at: string
+          p_event_id: string
+          p_organizer_id: string
+          p_slug: string
+          p_start_at: string
+          p_status?: string
+          p_tags?: string[]
+          p_title: string
+          p_venue_id: string
+        }
+        Returns: undefined
       }
       admin_update_highlight: {
         Args: {
@@ -2820,6 +2866,10 @@ export type Database = {
       }
       generate_confirmation_token: {
         Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_event_slug: {
+        Args: { p_event_id?: string; p_title: string }
         Returns: string
       }
       get_blog_comments_admin: {

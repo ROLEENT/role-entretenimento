@@ -3,27 +3,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Calendar, 
   MapPin, 
   Users, 
-  Eye, 
   Edit, 
   Trash2, 
-  CheckCircle, 
-  XCircle,
   Search,
   Filter,
   Plus,
   MoreHorizontal,
-  Settings
+  Upload,
+  Image as ImageIcon,
+  Clock,
+  Tag
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -31,49 +32,87 @@ import { ptBR } from 'date-fns/locale';
 interface Event {
   id: string;
   title: string;
+  slug: string;
   description: string;
-  date_start: string;
-  date_end: string | null;
+  start_at: string;
+  end_at: string | null;
   city: string;
   state: string;
   status: string;
-  image_url: string | null;
+  cover_url: string | null;
+  tags: string[];
+  venue_id: string | null;
+  organizer_id: string | null;
   created_at: string;
-  venue?: {
+  updated_at: string;
+  venues?: {
+    id: string;
     name: string;
     address: string;
   };
-  organizer?: {
+  organizers?: {
+    id: string;
     name: string;
-  };
-  _count?: {
-    checkins: number;
-    reviews: number;
-    favorites: number;
   };
 }
 
-interface BulkAction {
-  type: 'approve' | 'reject' | 'delete';
-  label: string;
-  icon: React.ComponentType<any>;
-  variant: 'default' | 'destructive';
+interface Venue {
+  id: string;
+  name: string;
+  address: string;
+}
+
+interface Organizer {
+  id: string;
+  name: string;
+}
+
+interface EventFormData {
+  title: string;
+  slug: string;
+  description: string;
+  start_at: string;
+  end_at: string;
+  city: string;
+  venue_id: string;
+  organizer_id: string;
+  cover_url: string;
+  tags: string[];
+  status: string;
 }
 
 export function AdminEventsManagement() {
   const [events, setEvents] = useState<Event[]>([]);
+  const [venues, setVenues] = useState<Venue[]>([]);
+  const [organizers, setOrganizers] = useState<Organizer[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'pending' | 'rejected'>('all');
   const [cityFilter, setCityFilter] = useState('all');
-  const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
-  const [showBulkActions, setShowBulkActions] = useState(false);
+  const [cities, setCities] = useState<string[]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<string | null>(null);
-  const [cities, setCities] = useState<string[]>([]);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [formData, setFormData] = useState<EventFormData>({
+    title: '',
+    slug: '',
+    description: '',
+    start_at: '',
+    end_at: '',
+    city: '',
+    venue_id: '',
+    organizer_id: '',
+    cover_url: '',
+    tags: [],
+    status: 'active'
+  });
 
   useEffect(() => {
     fetchEvents();
+    fetchVenues();
+    fetchOrganizers();
     fetchCities();
   }, [statusFilter, cityFilter]);
 
@@ -85,8 +124,8 @@ export function AdminEventsManagement() {
         .from('events')
         .select(`
           *,
-          venues:venue_id (name, address),
-          organizers:organizer_id (name)
+          venues:venue_id (id, name, address),
+          organizers:organizer_id (id, name)
         `)
         .order('created_at', { ascending: false });
 
@@ -101,33 +140,40 @@ export function AdminEventsManagement() {
       const { data, error } = await query;
 
       if (error) throw error;
-
-      // Fetch engagement metrics for each event
-      const eventsWithMetrics = await Promise.all(
-        (data || []).map(async (event) => {
-          const [checkinsResult, reviewsResult, favoritesResult] = await Promise.all([
-            supabase.from('event_checkins').select('id').eq('event_id', event.id),
-            supabase.from('event_reviews').select('id').eq('event_id', event.id),
-            supabase.from('event_favorites').select('id').eq('event_id', event.id)
-          ]);
-
-          return {
-            ...event,
-            _count: {
-              checkins: checkinsResult.data?.length || 0,
-              reviews: reviewsResult.data?.length || 0,
-              favorites: favoritesResult.data?.length || 0
-            }
-          };
-        })
-      );
-
-      setEvents(eventsWithMetrics);
+      setEvents(data || []);
     } catch (error) {
       console.error('Error fetching events:', error);
       toast.error('Erro ao carregar eventos');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchVenues = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('venues')
+        .select('id, name, address')
+        .order('name');
+
+      if (error) throw error;
+      setVenues(data || []);
+    } catch (error) {
+      console.error('Error fetching venues:', error);
+    }
+  };
+
+  const fetchOrganizers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('organizers')
+        .select('id, name')
+        .order('name');
+
+      if (error) throw error;
+      setOrganizers(data || []);
+    } catch (error) {
+      console.error('Error fetching organizers:', error);
     }
   };
 
@@ -139,7 +185,6 @@ export function AdminEventsManagement() {
         .order('city');
 
       if (error) throw error;
-
       const uniqueCities = [...new Set(data?.map(d => d.city) || [])];
       setCities(uniqueCities);
     } catch (error) {
@@ -147,91 +192,163 @@ export function AdminEventsManagement() {
     }
   };
 
-  const handleStatusChange = async (eventId: string, newStatus: string) => {
+  const handleFileUpload = async (file: File) => {
     try {
-      const { error } = await supabase
+      setUploading(true);
+      
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
         .from('events')
-        .update({ status: newStatus })
-        .eq('id', eventId);
+        .upload(fileName, file);
 
-      if (error) throw error;
+      if (uploadError) throw uploadError;
 
-      toast.success(`Evento ${newStatus === 'active' ? 'aprovado' : 'rejeitado'} com sucesso`);
-      fetchEvents();
+      const { data: { publicUrl } } = supabase.storage
+        .from('events')
+        .getPublicUrl(fileName);
+
+      setFormData(prev => ({ ...prev, cover_url: publicUrl }));
+      toast.success('Imagem enviada com sucesso');
     } catch (error) {
-      console.error('Error updating event status:', error);
-      toast.error('Erro ao atualizar status do evento');
+      console.error('Error uploading file:', error);
+      toast.error('Erro ao enviar imagem');
+    } finally {
+      setUploading(false);
     }
   };
 
-  const handleDeleteEvent = async (eventId: string) => {
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s]/g, '')
+      .replace(/\s+/g, '-')
+      .trim();
+  };
+
+  const handleTitleChange = (title: string) => {
+    setFormData(prev => ({
+      ...prev,
+      title,
+      slug: generateSlug(title)
+    }));
+  };
+
+  const handleSaveEvent = async () => {
+    try {
+      if (!formData.title || !formData.start_at || !formData.city) {
+        toast.error('Preencha todos os campos obrigatórios');
+        return;
+      }
+
+      if (editingEvent) {
+        const { error } = await supabase.rpc('admin_update_event', {
+          p_event_id: editingEvent.id,
+          p_title: formData.title,
+          p_slug: formData.slug,
+          p_city: formData.city,
+          p_venue_id: formData.venue_id || null,
+          p_start_at: formData.start_at,
+          p_end_at: formData.end_at || null,
+          p_organizer_id: formData.organizer_id || null,
+          p_cover_url: formData.cover_url || null,
+          p_tags: formData.tags,
+          p_status: formData.status
+        });
+
+        if (error) throw error;
+        toast.success('Evento atualizado com sucesso');
+      } else {
+        const { error } = await supabase.rpc('admin_create_event', {
+          p_title: formData.title,
+          p_slug: formData.slug,
+          p_city: formData.city,
+          p_venue_id: formData.venue_id || null,
+          p_start_at: formData.start_at,
+          p_end_at: formData.end_at || null,
+          p_organizer_id: formData.organizer_id || null,
+          p_cover_url: formData.cover_url || null,
+          p_tags: formData.tags,
+          p_status: formData.status
+        });
+
+        if (error) throw error;
+        toast.success('Evento criado com sucesso');
+      }
+
+      setDialogOpen(false);
+      setEditingEvent(null);
+      resetForm();
+      fetchEvents();
+    } catch (error: any) {
+      console.error('Error saving event:', error);
+      toast.error(error.message || 'Erro ao salvar evento');
+    }
+  };
+
+  const handleDeleteEvent = async () => {
+    if (!eventToDelete) return;
+
     try {
       const { error } = await supabase
         .from('events')
         .delete()
-        .eq('id', eventId);
+        .eq('id', eventToDelete);
 
       if (error) throw error;
 
       toast.success('Evento removido com sucesso');
-      fetchEvents();
       setDeleteDialogOpen(false);
       setEventToDelete(null);
+      fetchEvents();
     } catch (error) {
       console.error('Error deleting event:', error);
       toast.error('Erro ao remover evento');
     }
   };
 
-  const handleBulkAction = async (action: string) => {
-    if (selectedEvents.length === 0) return;
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      slug: '',
+      description: '',
+      start_at: '',
+      end_at: '',
+      city: '',
+      venue_id: '',
+      organizer_id: '',
+      cover_url: '',
+      tags: [],
+      status: 'active'
+    });
+  };
 
-    try {
-      let updates: any = {};
-      let successMessage = '';
-
-      switch (action) {
-        case 'approve':
-          updates = { status: 'active' };
-          successMessage = `${selectedEvents.length} eventos aprovados`;
-          break;
-        case 'reject':
-          updates = { status: 'rejected' };
-          successMessage = `${selectedEvents.length} eventos rejeitados`;
-          break;
-        case 'delete':
-          if (confirm(`Tem certeza que deseja remover ${selectedEvents.length} eventos?`)) {
-            await supabase
-              .from('events')
-              .delete()
-              .in('id', selectedEvents);
-            successMessage = `${selectedEvents.length} eventos removidos`;
-          }
-          break;
-      }
-
-      if (action !== 'delete') {
-        await supabase
-          .from('events')
-          .update(updates)
-          .in('id', selectedEvents);
-      }
-
-      toast.success(successMessage);
-      setSelectedEvents([]);
-      setShowBulkActions(false);
-      fetchEvents();
-    } catch (error) {
-      console.error('Error performing bulk action:', error);
-      toast.error('Erro ao executar ação em lote');
-    }
+  const openEditDialog = (event: Event) => {
+    setEditingEvent(event);
+    setFormData({
+      title: event.title,
+      slug: event.slug,
+      description: event.description || '',
+      start_at: event.start_at?.split('.')[0] || '',
+      end_at: event.end_at?.split('.')[0] || '',
+      city: event.city,
+      venue_id: event.venue_id || '',
+      organizer_id: event.organizer_id || '',
+      cover_url: event.cover_url || '',
+      tags: event.tags || [],
+      status: event.status
+    });
+    setDialogOpen(true);
   };
 
   const filteredEvents = events.filter(event =>
     event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     event.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    event.organizer?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    event.venue?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    event.organizers?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    event.venues?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusBadge = (status: string) => {
@@ -247,12 +364,6 @@ export function AdminEventsManagement() {
     }
   };
 
-  const bulkActions: BulkAction[] = [
-    { type: 'approve', label: 'Aprovar Selecionados', icon: CheckCircle, variant: 'default' },
-    { type: 'reject', label: 'Rejeitar Selecionados', icon: XCircle, variant: 'default' },
-    { type: 'delete', label: 'Remover Selecionados', icon: Trash2, variant: 'destructive' }
-  ];
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -264,16 +375,183 @@ export function AdminEventsManagement() {
           </p>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Button onClick={() => setShowBulkActions(!showBulkActions)}>
-            <Settings className="h-4 w-4 mr-2" />
-            Ações em Lote
-          </Button>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Evento
-          </Button>
-        </div>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger asChild>
+            <Button onClick={() => { resetForm(); setEditingEvent(null); }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Evento
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{editingEvent ? 'Editar Evento' : 'Novo Evento'}</DialogTitle>
+              <DialogDescription>
+                {editingEvent ? 'Edite as informações do evento' : 'Crie um novo evento na plataforma'}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="grid gap-6 py-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Título *</Label>
+                  <Input
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => handleTitleChange(e.target.value)}
+                    placeholder="Nome do evento"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="slug">Slug *</Label>
+                  <Input
+                    id="slug"
+                    value={formData.slug}
+                    onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
+                    placeholder="url-amigavel"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Descrição</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Descrição do evento"
+                  rows={3}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="start_at">Data/Hora Início *</Label>
+                  <Input
+                    id="start_at"
+                    type="datetime-local"
+                    value={formData.start_at}
+                    onChange={(e) => setFormData(prev => ({ ...prev, start_at: e.target.value }))}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="end_at">Data/Hora Fim</Label>
+                  <Input
+                    id="end_at"
+                    type="datetime-local"
+                    value={formData.end_at}
+                    onChange={(e) => setFormData(prev => ({ ...prev, end_at: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="city">Cidade *</Label>
+                  <Input
+                    id="city"
+                    value={formData.city}
+                    onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                    placeholder="São Paulo"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="venue_id">Local</Label>
+                  <Select value={formData.venue_id} onValueChange={(value) => setFormData(prev => ({ ...prev, venue_id: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o local" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {venues.map(venue => (
+                        <SelectItem key={venue.id} value={venue.id}>
+                          {venue.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="organizer_id">Organizador</Label>
+                  <Select value={formData.organizer_id} onValueChange={(value) => setFormData(prev => ({ ...prev, organizer_id: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o organizador" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {organizers.map(organizer => (
+                        <SelectItem key={organizer.id} value={organizer.id}>
+                          {organizer.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Capa do Evento</Label>
+                <div className="flex items-center gap-4">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
+                    disabled={uploading}
+                  />
+                  {uploading && <span className="text-sm text-muted-foreground">Enviando...</span>}
+                </div>
+                {formData.cover_url && (
+                  <div className="mt-2">
+                    <img
+                      src={formData.cover_url}
+                      alt="Preview"
+                      className="w-32 h-24 object-cover rounded border"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
+                  <Input
+                    id="tags"
+                    value={formData.tags.join(', ')}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      tags: e.target.value.split(',').map(tag => tag.trim()).filter(Boolean)
+                    }))}
+                    placeholder="música, festa, show"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Status do evento" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Ativo</SelectItem>
+                      <SelectItem value="pending">Pendente</SelectItem>
+                      <SelectItem value="rejected">Rejeitado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveEvent}>
+                {editingEvent ? 'Atualizar' : 'Criar'} Evento
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Filters */}
@@ -320,51 +598,12 @@ export function AdminEventsManagement() {
               </SelectContent>
             </Select>
 
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                checked={selectedEvents.length === filteredEvents.length && filteredEvents.length > 0}
-                onCheckedChange={(checked) => {
-                  if (checked) {
-                    setSelectedEvents(filteredEvents.map(e => e.id));
-                  } else {
-                    setSelectedEvents([]);
-                  }
-                }}
-              />
-              <label className="text-sm">
-                Selecionar Todos ({selectedEvents.length})
-              </label>
-            </div>
+            <Button variant="outline" onClick={fetchEvents}>
+              Atualizar
+            </Button>
           </div>
         </CardContent>
       </Card>
-
-      {/* Bulk Actions */}
-      {showBulkActions && selectedEvents.length > 0 && (
-        <Card className="border-primary">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">
-                {selectedEvents.length} evento(s) selecionado(s):
-              </span>
-              {bulkActions.map((action) => {
-                const Icon = action.icon;
-                return (
-                  <Button
-                    key={action.type}
-                    variant={action.variant}
-                    size="sm"
-                    onClick={() => handleBulkAction(action.type)}
-                  >
-                    <Icon className="h-4 w-4 mr-2" />
-                    {action.label}
-                  </Button>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Events List */}
       <div className="grid gap-4">
@@ -390,20 +629,9 @@ export function AdminEventsManagement() {
             <Card key={event.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
-                  <Checkbox
-                    checked={selectedEvents.includes(event.id)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setSelectedEvents([...selectedEvents, event.id]);
-                      } else {
-                        setSelectedEvents(selectedEvents.filter(id => id !== event.id));
-                      }
-                    }}
-                  />
-                  
-                  {event.image_url && (
+                  {event.cover_url && (
                     <img
-                      src={event.image_url}
+                      src={event.cover_url}
                       alt={event.title}
                       className="w-20 h-20 object-cover rounded"
                     />
@@ -414,8 +642,13 @@ export function AdminEventsManagement() {
                       <div>
                         <h3 className="font-semibold text-lg truncate">{event.title}</h3>
                         <p className="text-sm text-muted-foreground mb-2">
-                          {event.description?.substring(0, 150)}...
+                          Slug: {event.slug}
                         </p>
+                        {event.description && (
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {event.description.substring(0, 150)}...
+                          </p>
+                        )}
                       </div>
                       {getStatusBadge(event.status)}
                     </div>
@@ -424,35 +657,33 @@ export function AdminEventsManagement() {
                       <div className="flex items-center gap-2 text-sm">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span>
-                          {format(new Date(event.date_start), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                          {format(new Date(event.start_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                         </span>
                       </div>
                       
                       <div className="flex items-center gap-2 text-sm">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span>{event.venue?.name || 'Sem local'} - {event.city}</span>
+                        <span>{event.venues?.name || 'Sem local'} - {event.city}</span>
                       </div>
                       
                       <div className="flex items-center gap-2 text-sm">
                         <Users className="h-4 w-4 text-muted-foreground" />
-                        <span>{event.organizer?.name || 'Sem organizador'}</span>
+                        <span>{event.organizers?.name || 'Sem organizador'}</span>
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <CheckCircle className="h-4 w-4" />
-                        {event._count?.checkins || 0} check-ins
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Eye className="h-4 w-4" />
-                        {event._count?.reviews || 0} avaliações
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        {event._count?.favorites || 0} favoritos
-                      </span>
-                    </div>
+                    {event.tags && event.tags.length > 0 && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <Tag className="h-4 w-4 text-muted-foreground" />
+                        <div className="flex gap-1 flex-wrap">
+                          {event.tags.map(tag => (
+                            <Badge key={tag} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
                   <DropdownMenu>
@@ -462,17 +693,9 @@ export function AdminEventsManagement() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => openEditDialog(event)}>
                         <Edit className="h-4 w-4 mr-2" />
                         Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleStatusChange(event.id, 'active')}>
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Aprovar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleStatusChange(event.id, 'rejected')}>
-                        <XCircle className="h-4 w-4 mr-2" />
-                        Rejeitar
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         className="text-destructive"
@@ -497,17 +720,14 @@ export function AdminEventsManagement() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar Remoção</AlertDialogTitle>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
             <AlertDialogDescription>
               Tem certeza que deseja remover este evento? Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => eventToDelete && handleDeleteEvent(eventToDelete)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
+            <AlertDialogAction onClick={handleDeleteEvent}>
               Remover
             </AlertDialogAction>
           </AlertDialogFooter>
