@@ -19,8 +19,11 @@ import LazyImage from '@/components/LazyImage';
 type CityEnum = 'porto_alegre' | 'sao_paulo' | 'rio_de_janeiro' | 'florianopolis' | 'curitiba';
 
 const citySlugMapping: Record<string, CityEnum> = {
+  'porto_alegre': 'porto_alegre',
   'porto-alegre': 'porto_alegre',
+  'sao_paulo': 'sao_paulo',
   'sao-paulo': 'sao_paulo', 
+  'rio_de_janeiro': 'rio_de_janeiro',
   'rio-de-janeiro': 'rio_de_janeiro',
   'florianopolis': 'florianopolis',
   'curitiba': 'curitiba'
@@ -55,7 +58,8 @@ const CityHighlightsPage = () => {
     setFilteredHighlights(filtered);
   }, [highlights, searchTerm]);
 
-  const cityData = cidade ? citiesData[cidade] : null;
+  const cityKey = cidade ? cidade.replace(/_/g, '-') : null;
+  const cityData = cityKey ? citiesData[cityKey] : null;
   const cityName = cityEnum ? cityDisplayNames[cityEnum] : '';
 
   if (!cityEnum || !cityData) {
