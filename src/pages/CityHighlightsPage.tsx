@@ -73,7 +73,7 @@ const CityHighlightsPage = () => {
               A cidade "{cidade}" não foi encontrada.
             </p>
             <Button asChild>
-              <Link to="/highlights">
+              <Link to="/destaques">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Voltar aos Destaques
               </Link>
@@ -156,7 +156,7 @@ const CityHighlightsPage = () => {
                 variant="ghost" 
                 className="absolute top-0 left-0 text-white hover:bg-white/20"
               >
-                <Link to="/highlights">
+                <Link to="/destaques">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Voltar aos Destaques
                 </Link>
@@ -236,7 +236,7 @@ const CityHighlightsPage = () => {
                           Ainda não temos destaques publicados para {cityName}. Volte em breve!
                         </p>
                         <Button asChild>
-                          <Link to="/highlights">
+                          <Link to="/destaques">
                             Ver outros destaques
                           </Link>
                         </Button>
@@ -270,7 +270,7 @@ const CityHighlightsPage = () => {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
-                  <Link to="/highlights">
+                  <Link to="/destaques">
                     Outros Destaques
                   </Link>
                 </Button>
