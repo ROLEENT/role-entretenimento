@@ -476,6 +476,50 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_post_revisions: {
+        Row: {
+          change_description: string | null
+          content_json: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          post_id: string
+          revision_number: number
+          summary: string | null
+          title: string | null
+        }
+        Insert: {
+          change_description?: string | null
+          content_json?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          post_id: string
+          revision_number?: number
+          summary?: string | null
+          title?: string | null
+        }
+        Update: {
+          change_description?: string | null
+          content_json?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          post_id?: string
+          revision_number?: number
+          summary?: string | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_post_revisions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           author_id: string
@@ -3130,6 +3174,10 @@ export type Database = {
       }
       reset_daily_notification_count: {
         Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      restore_blog_post_revision: {
+        Args: { p_post_id: string; p_revision_id: string }
         Returns: undefined
       }
       search_users_by_username: {
