@@ -2534,33 +2534,45 @@ export type Database = {
         Row: {
           address: string
           city: string
+          contacts_json: Json | null
+          cover_url: string | null
           created_at: string
           id: string
           lat: number | null
           lng: number | null
+          map_url: string | null
           name: string
+          slug: string | null
           state: string
           updated_at: string
         }
         Insert: {
           address: string
           city: string
+          contacts_json?: Json | null
+          cover_url?: string | null
           created_at?: string
           id?: string
           lat?: number | null
           lng?: number | null
+          map_url?: string | null
           name: string
+          slug?: string | null
           state: string
           updated_at?: string
         }
         Update: {
           address?: string
           city?: string
+          contacts_json?: Json | null
+          cover_url?: string | null
           created_at?: string
           id?: string
           lat?: number | null
           lng?: number | null
+          map_url?: string | null
           name?: string
+          slug?: string | null
           state?: string
           updated_at?: string
         }
@@ -2944,6 +2956,10 @@ export type Database = {
       }
       generate_event_slug: {
         Args: { p_event_id?: string; p_title: string }
+        Returns: string
+      }
+      generate_venue_slug: {
+        Args: { venue_name: string }
         Returns: string
       }
       get_blog_comments_admin: {
