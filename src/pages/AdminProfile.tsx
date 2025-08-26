@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Save, User as UserIcon, Lock, Eye, EyeOff } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { useAdminToast } from '@/hooks/useAdminToast';
+import { SaveButton, UpdateButton } from '@/components/ui/admin-button';
 
 interface ProfileData {
   display_name: string;
@@ -17,6 +18,7 @@ interface ProfileData {
 
 const AdminProfile = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useAdminToast();
   
   // Estados principais
   const [user, setUser] = useState<User | null>(null);
@@ -79,33 +81,20 @@ const AdminProfile = () => {
       });
 
     } catch (error: any) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar os dados do perfil",
-        variant: "destructive"
-      });
+      showError(error, 'Não foi possível carregar os dados do perfil');
     } finally {
       setLoading(false);
     }
   };
 
-  // Salvar nome e e-mail
   const handleProfileUpdate = async () => {
     if (!profileForm.display_name.trim()) {
-      toast({
-        title: "Erro",
-        description: "O nome de exibição é obrigatório",
-        variant: "destructive"
-      });
+      showError(new Error('O nome de exibição é obrigatório'));
       return;
     }
 
     if (!profileForm.email.trim()) {
-      toast({
-        title: "Erro", 
-        description: "O e-mail é obrigatório",
-        variant: "destructive"
-      });
+      showError(new Error('O e-mail é obrigatório'));
       return;
     }
 
@@ -129,17 +118,10 @@ const AdminProfile = () => {
         if (emailError) throw emailError;
       }
 
-      toast({
-        title: "Sucesso",
-        description: "Perfil atualizado com sucesso!"
-      });
+      showSuccess('Perfil atualizado com sucesso!');
 
     } catch (error: any) {
-      toast({
-        title: "Erro",
-        description: error.message || "Não foi possível atualizar o perfil",
-        variant: "destructive"
-      });
+      showError(error, 'Não foi possível atualizar o perfil');
     } finally {
       setSaving(false);
     }
@@ -147,42 +129,23 @@ const AdminProfile = () => {
 
   // Trocar senha
   const handlePasswordUpdate = async () => {
-    // Validar preenchimento
     if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
-      toast({
-        title: "Erro",
-        description: "Preencha todos os campos de senha",
-        variant: "destructive"
-      });
+      showError(new Error('Preencha todos os campos de senha'));
       return;
     }
 
-    // Validar confirmação
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast({
-        title: "Erro",
-        description: "As senhas não coincidem",
-        variant: "destructive"
-      });
+      showError(new Error('As senhas não coincidem'));
       return;
     }
 
-    // Validar força de senha
     if (passwordForm.newPassword.length < 8) {
-      toast({
-        title: "Erro",
-        description: "A nova senha deve ter pelo menos 8 caracteres",
-        variant: "destructive"
-      });
+      showError(new Error('A nova senha deve ter pelo menos 8 caracteres'));
       return;
     }
 
     if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(passwordForm.newPassword)) {
-      toast({
-        title: "Erro",
-        description: "A nova senha deve conter pelo menos uma letra minúscula, uma maiúscula e um número",
-        variant: "destructive"
-      });
+      showError(new Error('A nova senha deve conter pelo menos uma letra minúscula, uma maiúscula e um número'));
       return;
     }
 
@@ -203,17 +166,10 @@ const AdminProfile = () => {
         confirmPassword: ''
       });
 
-      toast({
-        title: "Sucesso",
-        description: "Senha atualizada com sucesso!"
-      });
+      showSuccess('Senha atualizada com sucesso!');
 
     } catch (error: any) {
-      toast({
-        title: "Erro",
-        description: error.message || "Não foi possível atualizar a senha",
-        variant: "destructive"
-      });
+      showError(error, 'Não foi possível atualizar a senha');
     } finally {
       setSaving(false);
     }
@@ -276,14 +232,14 @@ const AdminProfile = () => {
                 />
               </div>
 
-              <Button 
+              <SaveButton 
                 onClick={handleProfileUpdate} 
                 disabled={saving}
                 className="w-full"
               >
                 <Save className="h-4 w-4 mr-2" />
-                {saving ? 'Salvando...' : 'Salvar Alterações'}
-              </Button>
+                Salvar Alterações
+              </SaveButton>
             </CardContent>
           </Card>
 
@@ -365,15 +321,15 @@ const AdminProfile = () => {
                 </div>
               </div>
 
-              <Button 
+              <UpdateButton 
                 onClick={handlePasswordUpdate}
                 disabled={saving}
                 className="w-full"
                 variant="outline"
               >
                 <Lock className="h-4 w-4 mr-2" />
-                {saving ? 'Atualizando...' : 'Atualizar Senha'}
-              </Button>
+                Atualizar Senha
+              </UpdateButton>
             </CardContent>
           </Card>
         </div>
