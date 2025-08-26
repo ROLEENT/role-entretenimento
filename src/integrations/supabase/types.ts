@@ -1521,6 +1521,45 @@ export type Database = {
         }
         Relationships: []
       }
+      js_errors: {
+        Row: {
+          column_number: number | null
+          created_at: string
+          error_message: string
+          error_stack: string | null
+          id: string
+          line_number: number | null
+          page_url: string
+          session_id: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          column_number?: number | null
+          created_at?: string
+          error_message: string
+          error_stack?: string | null
+          id?: string
+          line_number?: number | null
+          page_url: string
+          session_id: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          column_number?: number | null
+          created_at?: string
+          error_message?: string
+          error_stack?: string | null
+          id?: string
+          line_number?: number | null
+          page_url?: string
+          session_id?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       metrics: {
         Row: {
           created_at: string
@@ -1977,6 +2016,48 @@ export type Database = {
           types?: string[] | null
           updated_at?: string
           website?: string | null
+        }
+        Relationships: []
+      }
+      perf_metrics: {
+        Row: {
+          connection_type: string | null
+          created_at: string
+          device_memory: number | null
+          id: string
+          metric_name: string
+          metric_value: number
+          page_url: string
+          session_id: string
+          unit: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          connection_type?: string | null
+          created_at?: string
+          device_memory?: number | null
+          id?: string
+          metric_name: string
+          metric_value: number
+          page_url: string
+          session_id: string
+          unit?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          connection_type?: string | null
+          created_at?: string
+          device_memory?: number | null
+          id?: string
+          metric_name?: string
+          metric_value?: number
+          page_url?: string
+          session_id?: string
+          unit?: string
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -3242,6 +3323,16 @@ export type Database = {
           website: string
         }[]
       }
+      get_performance_summary: {
+        Args: { days_back?: number }
+        Returns: {
+          avg_value: number
+          count: number
+          metric_name: string
+          p75_value: number
+          p95_value: number
+        }[]
+      }
       get_post_likes_count: {
         Args: { p_post_id: string }
         Returns: number
@@ -3249,6 +3340,15 @@ export type Database = {
       get_secure_comment_count: {
         Args: { p_post_id: string }
         Returns: number
+      }
+      get_top_errors: {
+        Args: { days_back?: number; limit_count?: number }
+        Returns: {
+          affected_pages: string[]
+          count: number
+          error_message: string
+          last_occurred: string
+        }[]
       }
       get_user_checkin_status: {
         Args: { p_event_id: string; p_user_id: string }
