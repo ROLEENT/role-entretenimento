@@ -64,6 +64,7 @@ import AdminAdSensePage from "./pages/admin/AdminAdSense";
 import AdminNewsletter from "./pages/admin/AdminNewsletter";
 import { Chatbot } from "./components/Chatbot";
 import ScrollToTop from "./components/ScrollToTop";
+import DiscoverUsers from "./pages/DiscoverUsers";
 
 const queryClient = new QueryClient();
 
@@ -142,6 +143,7 @@ function App() {
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/perfil" element={<Profile />} />
                 <Route path="/feed" element={<FeedPage />} />
+                <Route path="/descobrir" element={<DiscoverUsers />} />
                 <Route path="/eventos/semana/:data" element={<WeeklyHighlights />} />
                 <Route path="/calendario" element={<CalendarPage />} />
                 <Route path="/conquistas" element={<GamificationPage />} />
