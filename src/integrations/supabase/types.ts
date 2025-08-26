@@ -2836,14 +2836,14 @@ export type Database = {
         Args: {
           p_city: string
           p_cover_url?: string
-          p_end_at: string
-          p_organizer_id: string
+          p_end_at?: string
+          p_organizer_id?: string
           p_slug: string
-          p_start_at: string
+          p_start_at?: string
           p_status?: string
           p_tags?: string[]
           p_title: string
-          p_venue_id: string
+          p_venue_id?: string
         }
         Returns: string
       }
@@ -2981,17 +2981,17 @@ export type Database = {
         Args: {
           p_city: string
           p_cover_url?: string
-          p_end_at: string
+          p_end_at?: string
           p_event_id: string
-          p_organizer_id: string
+          p_organizer_id?: string
           p_slug: string
-          p_start_at: string
+          p_start_at?: string
           p_status?: string
           p_tags?: string[]
           p_title: string
-          p_venue_id: string
+          p_venue_id?: string
         }
-        Returns: undefined
+        Returns: boolean
       }
       admin_update_highlight: {
         Args: {
