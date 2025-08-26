@@ -1,11 +1,46 @@
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 /**
- * Hook para operações administrativas usando Supabase Auth padrão
+ * Hook para operações administrativas com autenticação real
  */
 export const useSupabaseAdminStandard = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    checkAdminAuth();
+  }, []);
+
+  const checkAdminAuth = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/admin/login');
+        return;
+      }
+
+      const { data: isAdmin, error } = await supabase.rpc('is_admin', {
+        uid: session.user.id
+      });
+
+      if (error || !isAdmin) {
+        toast.error('Acesso negado: privilégios de administrador necessários');
+        navigate('/admin/login');
+        return;
+      }
+
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Erro na verificação de autenticação:', error);
+      navigate('/admin/login');
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const updateHighlight = useCallback(async (highlightId: string, data: any) => {
     try {
       // Primeiro, verificar se o highlight existe
@@ -111,6 +146,8 @@ export const useSupabaseAdminStandard = () => {
     updateHighlight,
     createHighlight,
     getHighlightById,
-    isAuthenticated: true // Será sempre true se chegou aqui através da proteção de rota
+    isAuthenticated,
+    isLoading,
+    checkAdminAuth
   };
 };

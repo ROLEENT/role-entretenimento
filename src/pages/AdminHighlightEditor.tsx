@@ -35,7 +35,7 @@ const AdminHighlightEditor = () => {
   const [reasons, setReasons] = useState<string[]>([]);
   const [newReason, setNewReason] = useState('');
   
-  const { createHighlight, updateHighlight, getHighlightById } = useSupabaseAdminStandard();
+  const { createHighlight, updateHighlight, getHighlightById, isAuthenticated, isLoading: authLoading } = useSupabaseAdminStandard();
 
   const form = useForm<HighlightFormData>({
     resolver: zodResolver(highlightSchema),
@@ -146,12 +146,16 @@ const AdminHighlightEditor = () => {
     }
   };
 
-  if (isLoading && isEditing) {
+  if (authLoading || (isLoading && isEditing)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <LoadingSpinner />
       </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    return null; // O hook já redirecionou para login
   }
 
   return (
