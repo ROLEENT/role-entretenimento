@@ -1,90 +1,160 @@
-// src/pages/admin/partners/List.tsx
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Plus, Search, Edit, Trash2, ExternalLink } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
-import { listPartners, deletePartner, togglePartnerActive } from "@/lib/repositories/partners";
+import { Link } from "react-router-dom";
 
-export default function AdminPartnersList() {
-  const navigate = useNavigate();
-  const [q, setQ] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [rows, setRows] = useState<any[]>([]);
-  const [count, setCount] = useState(0);
-
-  async function load() {
-    setLoading(true);
-    try {
-      const { data, count } = await listPartners({ q, page: 1, pageSize: 20 });
-      setRows(data || []);
-      setCount(count || 0);
-    } catch (e: any) {
-      toast.error(e.message || "Erro ao carregar parceiros");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => { load(); }, []);
-
+export default function PartnersList() {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Parceiros ({count})</CardTitle>
-        <div className="flex gap-2">
-          <Input placeholder="Buscar por nome..." value={q} onChange={(e) => setQ(e.target.value)} />
-          <Button onClick={load} disabled={loading}>Buscar</Button>
-          <Button onClick={() => navigate("/admin/partners/new")}>Novo</Button>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Parceiros</h1>
+          <p className="text-muted-foreground">
+            Gerencie parcerias e colaborações
+          </p>
         </div>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Logo</TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead>Cidade</TableHead>
-              <TableHead>Instagram</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((r) => (
-              <TableRow key={r.id}>
-                <TableCell>{r.logo_url ? <img src={r.logo_url} alt={r.name} className="h-8 w-8 rounded object-cover" /> : "-"}</TableCell>
-                <TableCell className="font-medium">{r.name}</TableCell>
-                <TableCell>{r.city || "-"}</TableCell>
-                <TableCell>{r.instagram ? <a className="underline" href={`https://instagram.com/${r.instagram.replace('@','')}`} target="_blank">{r.instagram}</a> : "-"}</TableCell>
-                <TableCell>{r.contact_email || "-"}</TableCell>
-                <TableCell>{r.is_active ? <Badge>Ativo</Badge> : <Badge variant="secondary">Inativo</Badge>}</TableCell>
-                <TableCell className="text-right space-x-2">
-                  <Button variant="outline" size="sm" onClick={() => navigate(`/admin/partners/${r.id}`)}>Editar</Button>
-                  <Button variant="outline" size="sm" onClick={async () => {
-                    try {
-                      await togglePartnerActive(r.id, !r.is_active);
-                      toast.success('Status atualizado');
-                      load();
-                    } catch (e: any) { toast.error(e.message); }
-                  }}>{r.is_active ? 'Desativar' : 'Ativar'}</Button>
-                  <Button variant="destructive" size="sm" onClick={async () => {
-                    if (!confirm('Excluir parceiro?')) return;
-                    try { await deletePartner(r.id); toast.success('Excluído'); load(); } catch (e: any) { toast.error(e.message); }
-                  }}>Excluir</Button>
-                </TableCell>
-              </TableRow>
-            ))}
-            {rows.length === 0 && (
-              <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground">Nenhum parceiro encontrado</TableCell></TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+        <Button asChild>
+          <Link to="/admin/partners/new" className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Novo Parceiro
+          </Link>
+        </Button>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Search className="h-5 w-5" />
+            Buscar Parceiros
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Input
+            placeholder="Buscar por nome, categoria ou cidade..."
+            className="max-w-md"
+          />
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <h3 className="font-semibold mb-1">Teatro São Pedro</h3>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Teatro histórico no centro de Porto Alegre
+                </p>
+                <Badge variant="default">Ativo</Badge>
+              </div>
+            </div>
+            
+            <div className="space-y-2 text-sm text-muted-foreground mb-4">
+              <div>📍 Porto Alegre, RS</div>
+              <div>🎭 Teatro & Cultura</div>
+              <div>⭐ Parceiro Premium</div>
+            </div>
+
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" asChild>
+                <Link to="/admin/partners/1/edit">
+                  <Edit className="h-3 w-3" />
+                </Link>
+              </Button>
+              <Button size="sm" variant="outline">
+                <ExternalLink className="h-3 w-3" />
+              </Button>
+              <Button size="sm" variant="destructive">
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <h3 className="font-semibold mb-1">Bar do Goethe</h3>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Casa noturna com programação cultural diversa
+                </p>
+                <Badge variant="default">Ativo</Badge>
+              </div>
+            </div>
+            
+            <div className="space-y-2 text-sm text-muted-foreground mb-4">
+              <div>📍 Porto Alegre, RS</div>
+              <div>🍻 Bar & Música</div>
+              <div>⭐ Parceiro Básico</div>
+            </div>
+
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" asChild>
+                <Link to="/admin/partners/2/edit">
+                  <Edit className="h-3 w-3" />
+                </Link>
+              </Button>
+              <Button size="sm" variant="outline">
+                <ExternalLink className="h-3 w-3" />
+              </Button>
+              <Button size="sm" variant="destructive">
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <h3 className="font-semibold mb-1">Galeria Mamute</h3>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Espaço de arte contemporânea
+                </p>
+                <Badge variant="secondary">Pendente</Badge>
+              </div>
+            </div>
+            
+            <div className="space-y-2 text-sm text-muted-foreground mb-4">
+              <div>📍 Florianópolis, SC</div>
+              <div>🎨 Arte & Exposições</div>
+              <div>⭐ Em análise</div>
+            </div>
+
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" asChild>
+                <Link to="/admin/partners/3/edit">
+                  <Edit className="h-3 w-3" />
+                </Link>
+              </Button>
+              <Button size="sm" variant="outline">
+                <ExternalLink className="h-3 w-3" />
+              </Button>
+              <Button size="sm" variant="destructive">
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          Mostrando 3 de 12 parceiros
+        </p>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" disabled>
+            Anterior
+          </Button>
+          <Button variant="outline" size="sm">
+            Próximo
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }
