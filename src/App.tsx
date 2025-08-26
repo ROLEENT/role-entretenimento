@@ -50,9 +50,7 @@ import WeeklyHighlights from "./pages/WeeklyHighlights";
 import FeedPage from "./pages/FeedPage";
 import CalendarPage from "./pages/CalendarPage";
 import GamificationPage from "./pages/GamificationPage";
-import GroupsPage from "./pages/GroupsPage";
-import MusicPage from "./pages/MusicPage";
-import MusicCallbackPage from "./pages/MusicCallbackPage";
+// Removed: GroupsPage, MusicPage, MusicCallbackPage
 import NotFound from "./pages/NotFound";
 import AdminMetricsIndex from "./pages/admin/metrics/Index";
 import AdminTestimonialsIndex from "./pages/admin/testimonials/Index";
@@ -62,7 +60,7 @@ import AdminEventsManagementPage from "./pages/admin/AdminEventsManagement";
 import AdminPerformancePage from "./pages/admin/AdminPerformance";
 import AdminAdSensePage from "./pages/admin/AdminAdSense";
 import AdminNewsletter from "./pages/admin/AdminNewsletter";
-import { Chatbot } from "./components/Chatbot";
+// Removed: Chatbot import
 import ScrollToTop from "./components/ScrollToTop";
 import DiscoverUsers from "./pages/DiscoverUsers";
 
@@ -147,15 +145,13 @@ function App() {
                 <Route path="/eventos/semana/:data" element={<WeeklyHighlights />} />
                 <Route path="/calendario" element={<CalendarPage />} />
                 <Route path="/conquistas" element={<GamificationPage />} />
-                <Route path="/grupos" element={<GroupsPage />} />
-                <Route path="/musica" element={<MusicPage />} />
-                <Route path="/music/callback" element={<MusicCallbackPage />} />
+                {/* Removed: Groups and Music routes */}
                 
                 {/* Catch-all route MUST be last */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
               
-              <Chatbot />
+              {/* Removed: Chatbot component */}
               <PWAInstallPrompt />
             </BrowserRouter>
           </ErrorBoundary>
