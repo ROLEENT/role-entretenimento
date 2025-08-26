@@ -149,7 +149,7 @@ const DestaquesHub = () => {
                         <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
                         <div className="absolute top-4 right-4">
                           <Badge variant={hasContent ? "default" : "secondary"}>
-                            {hasContent ? "Ativo" : "Em breve"}
+                            {hasContent ? "Ativo" : "Confira"}
                           </Badge>
                         </div>
                         <div className="absolute bottom-4 left-4 text-white">
