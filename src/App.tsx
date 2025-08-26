@@ -31,6 +31,7 @@ const HighlightDetailPage = lazy(() => import("./pages/HighlightDetailPage"));
 
 // Admin pages - lazy loaded for performance
 const AdminLoginSimple = lazy(() => import("./pages/AdminLoginSimple"));
+const AdminResetPassword = lazy(() => import("./pages/AdminResetPassword"));
 const AdminSignup = lazy(() => import("./pages/AdminSignup"));
 const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
@@ -127,6 +128,7 @@ function App() {
                 
                 {/* Admin Routes - Clean structure */}
                 <Route path="/admin/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLoginSimple /></Suspense>} />
+                <Route path="/admin/reset-password" element={<Suspense fallback={<AdminLoadingFallback />}><AdminResetPassword /></Suspense>} />
                 <Route path="/admin/signup" element={<Suspense fallback={<AdminLoadingFallback />}><AdminSignup /></Suspense>} />
                 <Route path="/admin/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLayout /></Suspense>} />
                 
