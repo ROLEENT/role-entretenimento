@@ -3519,6 +3519,15 @@ export type Database = {
         Args: { email_param: string }
         Returns: boolean
       }
+      validate_admin_file_upload: {
+        Args: {
+          bucket_name: string
+          file_name: string
+          file_size: number
+          mime_type: string
+        }
+        Returns: boolean
+      }
       validate_admin_session: {
         Args: { p_session_token: string }
         Returns: {
