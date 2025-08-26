@@ -57,7 +57,7 @@ import GamificationPage from "./pages/GamificationPage";
 import NotFound from "./pages/NotFound";
 import AdminMetricsTestimonials from "./pages/AdminMetricsTestimonials";
 import AdminNotifications from "./pages/AdminNotifications";
-import AdminAnalyticsReportsPage from "./pages/admin/AdminAnalyticsReports";
+import AdminAnalyticsReports from "./pages/AdminAnalyticsReports";
 import AdminEventsManagementPage from "./pages/admin/AdminEventsManagement";
 import AdminPerformancePage from "./pages/admin/AdminPerformance";
 import AdminAdSensePage from "./pages/admin/AdminAdSense";
@@ -124,7 +124,7 @@ function App() {
                   <Route path="venues" element={<AdminVenuesManagement />} />
                   <Route path="categories" element={<AdminCategoriesManagement />} />
                   <Route path="analytics" element={<AdminAnalytics />} />
-                  <Route path="analytics-reports" element={<AdminAnalyticsReportsPage />} />
+                  <Route path="analytics-reports" element={<AdminAnalyticsReports />} />
                   <Route path="notifications" element={<AdminNotifications />} />
                    <Route path="events" element={<AdminEventsManagementPage />} />
                    <Route path="events/create" element={<AdminEventCreate />} />

@@ -265,6 +265,51 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          city: string | null
+          created_at: string
+          event_data: Json | null
+          event_name: string
+          id: string
+          ip_address: unknown | null
+          page_url: string | null
+          referrer: string | null
+          session_id: string | null
+          source: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          event_data?: Json | null
+          event_name: string
+          id?: string
+          ip_address?: unknown | null
+          page_url?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          source?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          event_data?: Json | null
+          event_name?: string
+          id?: string
+          ip_address?: unknown | null
+          page_url?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          source?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       approved_admins: {
         Row: {
           approved_by: string
@@ -2625,7 +2670,18 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      analytics_summary: {
+        Row: {
+          city: string | null
+          date: string | null
+          event_count: number | null
+          event_name: string | null
+          source: string | null
+          unique_sessions: number | null
+          unique_users: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       add_blog_comment_secure: {
@@ -3011,6 +3067,44 @@ export type Database = {
         Args: { venue_name: string }
         Returns: string
       }
+      get_analytics_data: {
+        Args: {
+          p_city?: string
+          p_end_date?: string
+          p_event_name?: string
+          p_limit?: number
+          p_offset?: number
+          p_source?: string
+          p_start_date?: string
+        }
+        Returns: {
+          city: string
+          date: string
+          event_count: number
+          event_name: string
+          source: string
+          unique_sessions: number
+          unique_users: number
+        }[]
+      }
+      get_analytics_totals: {
+        Args: {
+          p_city?: string
+          p_end_date?: string
+          p_source?: string
+          p_start_date?: string
+        }
+        Returns: {
+          top_cities: Json
+          top_sources: Json
+          total_clicks: number
+          total_conversions: number
+          total_events: number
+          total_pageviews: number
+          unique_sessions: number
+          unique_users: number
+        }[]
+      }
       get_blog_comments_admin: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -3046,6 +3140,21 @@ export type Database = {
           id: string
           name: string
           subject: string
+        }[]
+      }
+      get_daily_analytics: {
+        Args: {
+          p_city?: string
+          p_end_date?: string
+          p_source?: string
+          p_start_date?: string
+        }
+        Returns: {
+          clicks: number
+          conversions: number
+          date: string
+          pageviews: number
+          unique_users: number
         }[]
       }
       get_highlight_like_count: {
@@ -3267,6 +3376,18 @@ export type Database = {
       test_basic_operations: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      track_analytics_event: {
+        Args: {
+          p_city?: string
+          p_event_data?: Json
+          p_event_name: string
+          p_page_url?: string
+          p_referrer?: string
+          p_session_id?: string
+          p_source?: string
+        }
+        Returns: string
       }
       unsubscribe_newsletter: {
         Args: { p_token: string }
