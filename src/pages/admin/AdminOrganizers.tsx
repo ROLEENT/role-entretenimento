@@ -1,18 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-// Removed useAdminAuth - using Supabase Auth via AdminProtectedRoute
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -31,63 +23,118 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, Plus, Edit, Trash2, ExternalLink } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { 
+  Search, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  ExternalLink, 
+  Upload,
+  Image as ImageIcon,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 interface Organizer {
   id: string;
   name: string;
+  handle: string | null;
+  site_url: string | null;
+  logo_url: string | null;
   contact_email: string;
-  site: string | null;
-  instagram: string | null;
   created_at: string;
   updated_at: string;
 }
 
 interface OrganizerForm {
   name: string;
+  handle: string;
+  site_url: string;
+  logo_url: string;
   contact_email: string;
-  site: string;
-  instagram: string;
+}
+
+interface PaginationData {
+  page: number;
+  perPage: number;
+  total: number;
+  totalPages: number;
 }
 
 const AdminOrganizers = () => {
-  // Authentication handled by AdminProtectedRoute
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
   const [organizers, setOrganizers] = useState<Organizer[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingOrganizer, setEditingOrganizer] = useState<Organizer | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  // Paginação
+  const [pagination, setPagination] = useState<PaginationData>({
+    page: 1,
+    perPage: 10,
+    total: 0,
+    totalPages: 0
+  });
 
   const [form, setForm] = useState<OrganizerForm>({
     name: '',
+    handle: '',
+    site_url: '',
+    logo_url: '',
     contact_email: '',
-    site: '',
-    instagram: '',
   });
 
   const [errors, setErrors] = useState<Partial<OrganizerForm>>({});
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string>('');
 
   useEffect(() => {
     loadOrganizers();
-  }, []);
+  }, [pagination.page, searchTerm]);
 
-  const loadOrganizers = async () => {
+  const loadOrganizers = useCallback(async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+
+      // Calcular offset para paginação
+      const offset = (pagination.page - 1) * pagination.perPage;
+
+      // Query com paginação e busca
+      let query = supabase
         .from('organizers')
-        .select('*')
+        .select('*', { count: 'exact' });
+
+      // Aplicar filtro de busca se houver
+      if (searchTerm.trim()) {
+        query = query.ilike('name', `%${searchTerm}%`);
+      }
+
+      // Aplicar paginação e ordenação
+      const { data, error, count } = await query
+        .range(offset, offset + pagination.perPage - 1)
         .order('name');
 
       if (error) throw error;
 
       setOrganizers(data || []);
+      
+      // Atualizar dados de paginação
+      setPagination(prev => ({
+        ...prev,
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / prev.perPage)
+      }));
+
     } catch (error: any) {
       toast({
         title: 'Erro',
@@ -97,7 +144,7 @@ const AdminOrganizers = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.perPage, searchTerm]);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<OrganizerForm> = {};
@@ -112,8 +159,88 @@ const AdminOrganizers = () => {
       newErrors.contact_email = 'Email inválido';
     }
 
+    if (form.handle && !/^[a-zA-Z0-9_-]+$/.test(form.handle)) {
+      newErrors.handle = 'Handle deve conter apenas letras, números, _ e -';
+    }
+
+    if (form.site_url && !/^https?:\/\/.+/.test(form.site_url)) {
+      newErrors.site_url = 'URL deve começar com http:// ou https://';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const uploadLogo = async (file: File): Promise<string | null> => {
+    try {
+      setUploading(true);
+
+      // Gerar nome único para o arquivo
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `logos/${fileName}`;
+
+      // Upload para storage
+      const { error: uploadError } = await supabase.storage
+        .from('organizers')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Obter URL pública
+      const { data } = supabase.storage
+        .from('organizers')
+        .getPublicUrl(filePath);
+
+      return data.publicUrl;
+
+    } catch (error: any) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao fazer upload da logo: ' + error.message,
+        variant: 'destructive'
+      });
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validar tipo de arquivo
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Erro',
+        description: 'Por favor, selecione um arquivo de imagem',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Validar tamanho (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'Erro',
+        description: 'O arquivo deve ter no máximo 5MB',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setLogoFile(file);
+
+    // Criar preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setLogoPreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -124,11 +251,22 @@ const AdminOrganizers = () => {
     try {
       setSaving(true);
 
+      let logoUrl = form.logo_url;
+
+      // Upload da logo se houver arquivo selecionado
+      if (logoFile) {
+        const uploadedUrl = await uploadLogo(logoFile);
+        if (uploadedUrl) {
+          logoUrl = uploadedUrl;
+        }
+      }
+
       const organizerData = {
         name: form.name.trim(),
+        handle: form.handle.trim() || null,
+        site_url: form.site_url.trim() || null,
+        logo_url: logoUrl || null,
         contact_email: form.contact_email.trim(),
-        site: form.site.trim() || null,
-        instagram: form.instagram.trim() || null,
       };
 
       if (editingOrganizer) {
@@ -174,11 +312,14 @@ const AdminOrganizers = () => {
     setEditingOrganizer(organizer);
     setForm({
       name: organizer.name,
+      handle: organizer.handle || '',
+      site_url: organizer.site_url || '',
+      logo_url: organizer.logo_url || '',
       contact_email: organizer.contact_email,
-      site: organizer.site || '',
-      instagram: organizer.instagram || '',
     });
+    setLogoPreview(organizer.logo_url || '');
     setErrors({});
+    setLogoFile(null);
     setIsDialogOpen(true);
   };
 
@@ -209,19 +350,35 @@ const AdminOrganizers = () => {
   const resetForm = () => {
     setForm({
       name: '',
+      handle: '',
+      site_url: '',
+      logo_url: '',
       contact_email: '',
-      site: '',
-      instagram: '',
     });
     setEditingOrganizer(null);
     setErrors({});
+    setLogoFile(null);
+    setLogoPreview('');
   };
 
-  const filteredOrganizers = organizers.filter((organizer) =>
-    organizer.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
 
-  if (loading) {
+  const handlePageChange = (newPage: number) => {
+    setPagination(prev => ({ ...prev, page: newPage }));
+  };
+
+  const handlePerPageChange = (newPerPage: string) => {
+    setPagination(prev => ({
+      ...prev,
+      page: 1,
+      perPage: parseInt(newPerPage)
+    }));
+  };
+
+  if (loading && pagination.page === 1) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
@@ -236,7 +393,7 @@ const AdminOrganizers = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Organizadores</h1>
+          <h1 className="text-3xl font-bold gradient-text">Organizadores</h1>
           <p className="text-muted-foreground">
             Gerencie os organizadores de eventos
           </p>
@@ -244,29 +401,71 @@ const AdminOrganizers = () => {
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={resetForm}>
+            <Button onClick={resetForm} className="bg-gradient-primary hover:opacity-90">
               <Plus className="w-4 h-4 mr-2" />
               Novo Organizador
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingOrganizer ? 'Editar Organizador' : 'Novo Organizador'}
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Logo Upload */}
               <div className="space-y-2">
-                <Label htmlFor="name">Nome *</Label>
-                <Input
-                  id="name"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Nome do organizador"
-                />
-                {errors.name && (
-                  <p className="text-sm text-destructive">{errors.name}</p>
-                )}
+                <Label>Logo</Label>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      disabled={uploading}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      PNG, JPG ou WebP. Máximo 5MB.
+                    </p>
+                  </div>
+                  {logoPreview && (
+                    <div className="w-16 h-16 rounded-lg border overflow-hidden bg-muted">
+                      <img
+                        src={logoPreview}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nome *</Label>
+                  <Input
+                    id="name"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    placeholder="Nome do organizador"
+                  />
+                  {errors.name && (
+                    <p className="text-sm text-destructive">{errors.name}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="handle">Handle</Label>
+                  <Input
+                    id="handle"
+                    value={form.handle}
+                    onChange={(e) => setForm({ ...form, handle: e.target.value })}
+                    placeholder="@organizador"
+                  />
+                  {errors.handle && (
+                    <p className="text-sm text-destructive">{errors.handle}</p>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -284,23 +483,16 @@ const AdminOrganizers = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="site">Site</Label>
+                <Label htmlFor="site_url">Site URL</Label>
                 <Input
-                  id="site"
-                  value={form.site}
-                  onChange={(e) => setForm({ ...form, site: e.target.value })}
+                  id="site_url"
+                  value={form.site_url}
+                  onChange={(e) => setForm({ ...form, site_url: e.target.value })}
                   placeholder="https://siteorganizador.com"
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="instagram">Instagram</Label>
-                <Input
-                  id="instagram"
-                  value={form.instagram}
-                  onChange={(e) => setForm({ ...form, instagram: e.target.value })}
-                  placeholder="@organizador"
-                />
+                {errors.site_url && (
+                  <p className="text-sm text-destructive">{errors.site_url}</p>
+                )}
               </div>
 
               <div className="flex justify-end space-x-2 pt-4">
@@ -308,12 +500,12 @@ const AdminOrganizers = () => {
                   type="button"
                   variant="outline"
                   onClick={() => setIsDialogOpen(false)}
-                  disabled={saving}
+                  disabled={saving || uploading}
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={saving}>
-                  {saving ? 'Salvando...' : editingOrganizer ? 'Atualizar' : 'Criar'}
+                <Button type="submit" disabled={saving || uploading}>
+                  {saving ? 'Salvando...' : uploading ? 'Enviando logo...' : editingOrganizer ? 'Atualizar' : 'Criar'}
                 </Button>
               </div>
             </form>
@@ -324,19 +516,41 @@ const AdminOrganizers = () => {
       <Card>
         <CardHeader>
           <CardTitle>Lista de Organizadores</CardTitle>
-          <div className="flex items-center space-x-2">
-            <Search className="w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por nome..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
-            />
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center space-x-2 flex-1">
+              <Search className="w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nome..."
+                value={searchTerm}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="max-w-sm"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Itens por página:</span>
+              <Select value={pagination.perPage.toString()} onValueChange={handlePerPageChange}>
+                <SelectTrigger className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
-          {filteredOrganizers.length === 0 ? (
+          {loading ? (
             <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-2 text-muted-foreground">Carregando...</p>
+            </div>
+          ) : organizers.length === 0 ? (
+            <div className="text-center py-8">
+              <ImageIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">
                 {searchTerm
                   ? 'Nenhum organizador encontrado.'
@@ -344,49 +558,48 @@ const AdminOrganizers = () => {
               </p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Site</TableHead>
-                  <TableHead>Instagram</TableHead>
-                  <TableHead>Criado em</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredOrganizers.map((organizer) => (
-                  <TableRow key={organizer.id}>
-                    <TableCell className="font-medium">{organizer.name}</TableCell>
-                    <TableCell>{organizer.contact_email}</TableCell>
-                    <TableCell>
-                      {organizer.site ? (
-                        <a
-                          href={organizer.site}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center text-primary hover:underline"
-                        >
-                          <ExternalLink className="w-3 h-3 mr-1" />
-                          Site
-                        </a>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {organizer.instagram ? (
-                        <span className="text-sm">{organizer.instagram}</span>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {new Date(organizer.created_at).toLocaleDateString('pt-BR')}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end space-x-2">
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {organizers.map((organizer) => (
+                  <Card key={organizer.id} className="hover-lift">
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        {organizer.logo_url ? (
+                          <img
+                            src={organizer.logo_url}
+                            alt={`Logo ${organizer.name}`}
+                            className="w-12 h-12 rounded-lg object-cover bg-muted"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
+                            <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold truncate">{organizer.name}</h3>
+                          {organizer.handle && (
+                            <Badge variant="outline" className="text-xs">
+                              {organizer.handle}
+                            </Badge>
+                          )}
+                          <p className="text-sm text-muted-foreground truncate">
+                            {organizer.contact_email}
+                          </p>
+                          {organizer.site_url && (
+                            <a
+                              href={organizer.site_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-primary hover:underline flex items-center gap-1 mt-1"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              Site
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-end gap-2 mt-4">
                         <Button
                           variant="outline"
                           size="sm"
@@ -420,11 +633,43 @@ const AdminOrganizers = () => {
                           </AlertDialogContent>
                         </AlertDialog>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </CardContent>
+                  </Card>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+
+              {/* Paginação */}
+              {pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between mt-6">
+                  <div className="text-sm text-muted-foreground">
+                    Mostrando {(pagination.page - 1) * pagination.perPage + 1} a{' '}
+                    {Math.min(pagination.page * pagination.perPage, pagination.total)} de{' '}
+                    {pagination.total} organizadores
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(pagination.page - 1)}
+                      disabled={pagination.page === 1}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+                    <span className="text-sm">
+                      Página {pagination.page} de {pagination.totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(pagination.page + 1)}
+                      disabled={pagination.page === pagination.totalPages}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
