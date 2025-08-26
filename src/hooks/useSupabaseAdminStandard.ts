@@ -1,57 +1,13 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useAuth } from '@/hooks/useAuth';
 
 /**
- * Hook para operações administrativas com autenticação real
+ * Hook para operações administrativas (modo desenvolvimento - sem autenticação)
  */
 export const useSupabaseAdminStandard = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const { user, session } = useAuth();
-
-  useEffect(() => {
-    checkAdminAuth();
-  }, [user, session]);
-
-  const checkAdminAuth = async () => {
-    try {
-      // Se não há sessão ou usuário, não está autenticado
-      if (!session || !user) {
-        setIsAuthenticated(false);
-        setIsLoading(false);
-        return;
-      }
-
-      // Verifica se é admin
-      const { data: isAdmin, error } = await supabase.rpc('is_admin', {
-        uid: user.id
-      });
-
-      if (error) {
-        console.error('❌ Erro ao verificar permissões admin:', error);
-        toast.error('Erro ao verificar permissões');
-        setIsAuthenticated(false);
-        return;
-      }
-
-      if (!isAdmin) {
-        console.log('❌ Usuário não é admin:', user.email);
-        toast.error('Acesso negado: privilégios de administrador necessários');
-        setIsAuthenticated(false);
-        return;
-      }
-
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error('❌ Erro na verificação de autenticação:', error);
-      toast.error('Erro na verificação de autenticação');
-      setIsAuthenticated(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [isAuthenticated] = useState(true); // Sempre autenticado em desenvolvimento
+  const [isLoading] = useState(false); // Nunca carregando
   const updateHighlight = useCallback(async (highlightId: string, data: any) => {
     try {
       // Primeiro, verificar se o highlight existe
@@ -158,7 +114,6 @@ export const useSupabaseAdminStandard = () => {
     createHighlight,
     getHighlightById,
     isAuthenticated,
-    isLoading,
-    checkAdminAuth
+    isLoading
   };
 };
