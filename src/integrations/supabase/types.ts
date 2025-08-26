@@ -3610,7 +3610,7 @@ export type Database = {
         Returns: boolean
       }
       validate_admin_email: {
-        Args: { email_param: string }
+        Args: { user_email: string }
         Returns: boolean
       }
       validate_admin_file_upload: {
