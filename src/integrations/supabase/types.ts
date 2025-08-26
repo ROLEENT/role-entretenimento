@@ -1381,6 +1381,111 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_campaigns: {
+        Row: {
+          content_html: string
+          content_text: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          scheduled_at: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+          target_audience: Json | null
+          template_type: string | null
+          title: string
+          total_clicked: number | null
+          total_opened: number | null
+          total_recipients: number | null
+          total_sent: number | null
+          updated_at: string
+        }
+        Insert: {
+          content_html: string
+          content_text?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+          target_audience?: Json | null
+          template_type?: string | null
+          title: string
+          total_clicked?: number | null
+          total_opened?: number | null
+          total_recipients?: number | null
+          total_sent?: number | null
+          updated_at?: string
+        }
+        Update: {
+          content_html?: string
+          content_text?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          target_audience?: Json | null
+          template_type?: string | null
+          title?: string
+          total_clicked?: number | null
+          total_opened?: number | null
+          total_recipients?: number | null
+          total_sent?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      newsletter_subscribers: {
+        Row: {
+          city: string | null
+          confirmation_token: string | null
+          confirmed_at: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          preferences: Json | null
+          status: string
+          subscribed_at: string
+          unsubscribed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          confirmation_token?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          preferences?: Json | null
+          status?: string
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          confirmation_token?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          preferences?: Json | null
+          status?: string
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notification_analytics: {
         Row: {
           avg_delivery_time_ms: number | null
@@ -2646,6 +2751,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
+      confirm_newsletter_subscription: {
+        Args: { p_token: string }
+        Returns: boolean
+      }
       create_activity: {
         Args: {
           p_actor_id: string
@@ -2689,6 +2798,10 @@ export type Database = {
       ensure_admin_role: {
         Args: { user_email: string }
         Returns: undefined
+      }
+      generate_confirmation_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       get_blog_comments_admin: {
         Args: Record<PropertyKey, never>
@@ -2933,6 +3046,10 @@ export type Database = {
       test_basic_operations: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      unsubscribe_newsletter: {
+        Args: { p_token: string }
+        Returns: boolean
       }
       update_admin_password_secure: {
         Args: { p_admin_id: string; p_new_password: string }
