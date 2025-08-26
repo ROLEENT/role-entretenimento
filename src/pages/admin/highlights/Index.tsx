@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-// Removed useAdminAuth - using Supabase Auth via AdminProtectedRoute
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -31,7 +30,7 @@ interface Highlight {
 }
 
 export default function AdminHighlightsIndex() {
-  // Authentication handled by AdminProtectedRoute
+  console.log('🔍 AdminHighlightsIndex: Componente carregado');
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -48,6 +47,7 @@ export default function AdminHighlightsIndex() {
 
   const fetchHighlights = async () => {
     try {
+      console.log('🔍 fetchHighlights: Iniciando busca');
       setLoading(true);
       let query = supabase
         .from('highlights')
@@ -63,9 +63,14 @@ export default function AdminHighlightsIndex() {
 
       const { data, error } = await query.order('sort_order', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro na query:', error);
+        throw error;
+      }
+      console.log('✅ Dados carregados:', data?.length, 'highlights');
       setHighlights((data as Highlight[]) || []);
     } catch (error) {
+      console.error('❌ Erro completo ao carregar destaques:', error);
       toast({
         title: "Erro",
         description: "Não foi possível carregar os destaques",
@@ -148,8 +153,6 @@ export default function AdminHighlightsIndex() {
     
     return matchesStatus;
   });
-
-  // Authentication handled by AdminProtectedRoute
 
   return (
     <div className="space-y-6">
