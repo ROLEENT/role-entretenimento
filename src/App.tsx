@@ -1,73 +1,95 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { queryClient } from "@/lib/queryClient";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { DevCacheButton } from "./components/DevCacheButton";
+import { Suspense, lazy } from "react";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
-// Pages
-import Index from "./pages/Index";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import SpamPolicy from "./pages/SpamPolicy";
-import UserTerms from "./pages/UserTerms";
-import OrganizerTerms from "./pages/OrganizerTerms";
-import Help from "./pages/Help";
-import DestaquesHub from "./pages/DestaquesHub";
-import CitiesPage from "./pages/CitiesPage";
-import BlogArticle from "./pages/BlogArticle";
-import HighlightsPage from "./pages/HighlightsPage";
-import CityHighlightsPage from "./pages/CityHighlightsPage";
-import CityHighlights from "./pages/CityHighlights";
-import HighlightDetailPage from "./pages/HighlightDetailPage";
-import AdminLoginSimple from "./pages/AdminLoginSimple";
-import AdminSignup from "./pages/AdminSignup";
-import AdminLayout from "./layouts/AdminLayout";
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminHighlightsManagement from "./pages/AdminHighlightsManagement";
-import AdminHighlightEditor from "./pages/AdminHighlightEditor";
-import AdminEventCreate from "./pages/AdminEventCreate";
-import AdminEventEdit from "./pages/AdminEventEdit";
-import AdminPartnersManagement from "./pages/AdminPartnersManagement";
-import AdminAdvertisements from "./pages/AdminAdvertisements";
-import AdminPostEditor from "./pages/AdminPostEditor";
-import AdminBlogPostsHistory from "./pages/AdminBlogPostsHistory";
-import AdminCommentsManagement from "./pages/AdminCommentsManagement";
-import AdminContactMessages from "./pages/AdminContactMessages";
-import AdminVenuesManagement from "./pages/AdminVenuesManagement";
-import AdminCategoriesManagement from "./pages/AdminCategoriesManagement";
-import AdminAnalytics from "./pages/AdminAnalytics";
-import AdminOrganizers from "./pages/admin/AdminOrganizers";
-import AdminProfile from "./pages/AdminProfile";
+// Lazy load pages for better performance
+const Index = lazy(() => import("./pages/Index"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const SpamPolicy = lazy(() => import("./pages/SpamPolicy"));
+const UserTerms = lazy(() => import("./pages/UserTerms"));
+const OrganizerTerms = lazy(() => import("./pages/OrganizerTerms"));
+const Help = lazy(() => import("./pages/Help"));
+const DestaquesHub = lazy(() => import("./pages/DestaquesHub"));
+const CitiesPage = lazy(() => import("./pages/CitiesPage"));
+const BlogArticle = lazy(() => import("./pages/BlogArticle"));
+const HighlightsPage = lazy(() => import("./pages/HighlightsPage"));
+const CityHighlightsPage = lazy(() => import("./pages/CityHighlightsPage"));
+const CityHighlights = lazy(() => import("./pages/CityHighlights"));
+const HighlightDetailPage = lazy(() => import("./pages/HighlightDetailPage"));
 
-import EventsPage from "./pages/EventsPage";
-import EventDetailPage from "./pages/EventDetailPage";
-import CreateEventPage from "./pages/CreateEventPage";
-import AuthPage from "./pages/AuthPage";
-import Profile from "./pages/Profile";
-import WeeklyHighlights from "./pages/WeeklyHighlights";
-import FeedPage from "./pages/FeedPage";
-import CalendarPage from "./pages/CalendarPage";
-import GamificationPage from "./pages/GamificationPage";
-// Removed: GroupsPage, MusicPage, MusicCallbackPage
-import NotFound from "./pages/NotFound";
-import AdminMetricsTestimonials from "./pages/AdminMetricsTestimonials";
-import AdminNotifications from "./pages/AdminNotifications";
-import AdminAnalyticsReports from "./pages/AdminAnalyticsReports";
-import AdminEventsManagementPage from "./pages/admin/AdminEventsManagement";
-import AdminPerformancePage from "./pages/admin/AdminPerformance";
-import AdminAdSensePage from "./pages/admin/AdminAdSense";
-import AdminNewsletter from "./pages/admin/AdminNewsletter";
-import AdminEventManagement from "./pages/AdminEventManagement";
-// Removed: Chatbot import
-import ScrollToTop from "./components/ScrollToTop";
-import DiscoverUsers from "./pages/DiscoverUsers";
+// Admin pages - lazy loaded for performance
+const AdminLoginSimple = lazy(() => import("./pages/AdminLoginSimple"));
+const AdminSignup = lazy(() => import("./pages/AdminSignup"));
+const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdminHighlightsManagement = lazy(() => import("./pages/AdminHighlightsManagement"));
+const AdminHighlightEditor = lazy(() => import("./pages/AdminHighlightEditor"));
+const AdminEventCreate = lazy(() => import("./pages/AdminEventCreate"));
+const AdminEventEdit = lazy(() => import("./pages/AdminEventEdit"));
+const AdminPartnersManagement = lazy(() => import("./pages/AdminPartnersManagement"));
+const AdminAdvertisements = lazy(() => import("./pages/AdminAdvertisements"));
+const AdminPostEditor = lazy(() => import("./pages/AdminPostEditor"));
+const AdminBlogPostsHistory = lazy(() => import("./pages/AdminBlogPostsHistory"));
+const AdminCommentsManagement = lazy(() => import("./pages/AdminCommentsManagement"));
+const AdminContactMessages = lazy(() => import("./pages/AdminContactMessages"));
+const AdminVenuesManagement = lazy(() => import("./pages/AdminVenuesManagement"));
+const AdminCategoriesManagement = lazy(() => import("./pages/AdminCategoriesManagement"));
+const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
+const AdminOrganizers = lazy(() => import("./pages/admin/AdminOrganizers"));
+const AdminProfile = lazy(() => import("./pages/AdminProfile"));
+const AdminAnalyticsReports = lazy(() => import("./pages/AdminAnalyticsReports"));
+const AdminPerformance = lazy(() => import("./pages/AdminPerformance"));
+const AdminNotifications = lazy(() => import("./pages/AdminNotifications"));
+const AdminEventsManagementPage = lazy(() => import("./pages/admin/AdminEventsManagement"));
+const AdminAdSensePage = lazy(() => import("./pages/admin/AdminAdSense"));
+const AdminNewsletter = lazy(() => import("./pages/admin/AdminNewsletter"));
+const AdminEventManagement = lazy(() => import("./pages/AdminEventManagement"));
+const AdminMetricsTestimonials = lazy(() => import("./pages/AdminMetricsTestimonials"));
 
-const queryClient = new QueryClient();
+// User pages - lazy loaded
+const EventsPage = lazy(() => import("./pages/EventsPage"));
+const EventDetailPage = lazy(() => import("./pages/EventDetailPage"));
+const CreateEventPage = lazy(() => import("./pages/CreateEventPage"));
+const AuthPage = lazy(() => import("./pages/AuthPage"));
+const Profile = lazy(() => import("./pages/Profile"));
+const WeeklyHighlights = lazy(() => import("./pages/WeeklyHighlights"));
+const FeedPage = lazy(() => import("./pages/FeedPage"));
+const CalendarPage = lazy(() => import("./pages/CalendarPage"));
+const GamificationPage = lazy(() => import("./pages/GamificationPage"));
+const DiscoverUsers = lazy(() => import("./pages/DiscoverUsers"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const ScrollToTop = lazy(() => import("./components/ScrollToTop"));
+
+// Optimized loading components
+const AdminLoadingFallback = () => (
+  <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="text-center">
+      <LoadingSpinner />
+      <p className="mt-4 text-muted-foreground">Carregando painel administrativo...</p>
+    </div>
+  </div>
+);
+
+const PageLoadingFallback = () => (
+  <div className="min-h-[400px] flex items-center justify-center">
+    <div className="text-center">
+      <LoadingSpinner />
+      <p className="mt-4 text-muted-foreground">Carregando página...</p>
+    </div>
+  </div>
+);
 
 function App() {
   return (
@@ -76,8 +98,9 @@ function App() {
         <ThemeProvider>
           <ErrorBoundary>
             <BrowserRouter>
-              <ScrollToTop />
-              <DevCacheButton />
+              <Suspense fallback={<PageLoadingFallback />}>
+                <ScrollToTop />
+                <DevCacheButton />
               
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -102,11 +125,11 @@ function App() {
                 <Route path="/highlights" element={<HighlightsPage />} />
                 <Route path="/cidade/:cidade" element={<CityHighlights />} />
                 
-                {/* Admin Routes */}
-                <Route path="/admin/login" element={<AdminLoginSimple />} />
-                <Route path="/admin/signup" element={<AdminSignup />} />
+                {/* Admin Routes with optimized loading */}
+                <Route path="/admin/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLoginSimple /></Suspense>} />
+                <Route path="/admin/signup" element={<Suspense fallback={<AdminLoadingFallback />}><AdminSignup /></Suspense>} />
                 <Route path="/admin/update-password" element={<Navigate to="/admin/profile" replace />} />
-                <Route path="/admin" element={<AdminLayout />}>
+                <Route path="/admin" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLayout /></Suspense>}>
                   <Route index element={<AdminDashboard />} />
                   <Route path="highlights" element={<AdminHighlightsManagement />} />
                   <Route path="highlights/create" element={<AdminHighlightEditor />} />
@@ -124,16 +147,16 @@ function App() {
                   <Route path="venues" element={<AdminVenuesManagement />} />
                   <Route path="categories" element={<AdminCategoriesManagement />} />
                   <Route path="analytics" element={<AdminAnalytics />} />
-                  <Route path="analytics-reports" element={<AdminAnalyticsReports />} />
-                  <Route path="notifications" element={<AdminNotifications />} />
-                   <Route path="events" element={<AdminEventsManagementPage />} />
-                   <Route path="events/create" element={<AdminEventCreate />} />
-                   <Route path="events/edit/:id" element={<AdminEventEdit />} />
-                   <Route path="events-management" element={<AdminEventsManagementPage />} />
-                   <Route path="event-management" element={<AdminEventManagement />} />
-                  <Route path="performance" element={<AdminPerformancePage />} />
-                   <Route path="organizers" element={<AdminOrganizers />} />
-                   <Route path="adsense" element={<AdminAdSensePage />} />
+                   <Route path="analytics-reports" element={<AdminAnalyticsReports />} />
+                   <Route path="notifications" element={<AdminNotifications />} />
+                    <Route path="events" element={<AdminEventsManagementPage />} />
+                    <Route path="events/create" element={<AdminEventCreate />} />
+                    <Route path="events/edit/:id" element={<AdminEventEdit />} />
+                    <Route path="events-management" element={<AdminEventsManagementPage />} />
+                    <Route path="event-management" element={<AdminEventManagement />} />
+                   <Route path="performance" element={<AdminPerformance />} />
+                    <Route path="organizers" element={<AdminOrganizers />} />
+                    <Route path="adsense" element={<AdminAdSensePage />} />
                    <Route path="newsletter" element={<AdminNewsletter />} />
                    <Route path="profile" element={<AdminProfile />} />
                 </Route>
@@ -159,12 +182,13 @@ function App() {
                 <Route path="*" element={<NotFound />} />
               </Routes>
               
-              {/* Removed: Chatbot component */}
+              </Suspense>
               <PWAInstallPrompt />
             </BrowserRouter>
           </ErrorBoundary>
           <Toaster />
           <Sonner />
+          <ReactQueryDevtools initialIsOpen={false} />
         </ThemeProvider>
       </TooltipProvider>
     </QueryClientProvider>
