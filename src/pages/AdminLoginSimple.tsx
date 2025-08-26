@@ -8,8 +8,8 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const AdminLoginSimple = () => {
-  const [email, setEmail] = useState("admin@role.com.br");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("fiih@roleentretenimento.com");
+  const [password, setPassword] = useState("2025Fast!");
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
