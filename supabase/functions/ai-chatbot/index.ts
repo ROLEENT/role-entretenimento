@@ -146,12 +146,11 @@ Se o usuário perguntar sobre eventos, use a função search_events para encontr
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4.1-2025-04-14',
+        model: 'gpt-5-2025-08-07',
         messages,
         tools,
         tool_choice: 'auto',
-        max_tokens: 1000,
-        temperature: 0.7,
+        max_completion_tokens: 1000,
       }),
     });
 
