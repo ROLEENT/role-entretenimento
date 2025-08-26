@@ -1,22 +1,12 @@
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
+import CitiesGrid from "@/components/CitiesGrid";
 import FeaturedEventsToday from "@/components/FeaturedEventsToday";
-
-import HowItWorks from "@/components/HowItWorks";
-import MagazineBanner from "@/components/MagazineBanner";
-import StatsSection from "@/components/StatsSection";
+import FeaturedBlogPosts from "@/components/FeaturedBlogPosts";
 import Newsletter from "@/components/Newsletter";
-import Testimonials from "@/components/Testimonials";
-import PartnersVenues from "@/components/PartnersVenues";
 import Footer from "@/components/Footer";
 import BackToTop from "@/components/BackToTop";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
-import FavoritesPanel from "@/components/FavoritesPanel";
-import GeolocationEvents from "@/components/GeolocationEvents";
-import FeaturedHighlights from "@/components/FeaturedHighlights";
-import FeaturedBlogPosts from "@/components/FeaturedBlogPosts";
-import PersonalizedRecommendations from "@/components/PersonalizedRecommendations";
-import PWAFeatures from "@/components/PWAFeatures";
 import { NotificationPermissionPrompt } from "@/components/NotificationPermissionPrompt";
 import { Toaster } from "@/components/ui/sonner";
 import SEOOptimizations from "@/components/SEOOptimizations";
@@ -36,41 +26,19 @@ const Index = () => {
         <Header />
         <main id="main-content" className="mt-0">
           <HeroSection />
+          
           <ScrollAnimationWrapper>
-            <FeaturedHighlights />
+            <CitiesGrid />
           </ScrollAnimationWrapper>
+          
           <ScrollAnimationWrapper>
             <FeaturedEventsToday />
           </ScrollAnimationWrapper>
-        <ScrollAnimationWrapper>
-          <GeolocationEvents />
-        </ScrollAnimationWrapper>
-        <GoogleAdSense position="in-feed" pageType="homepage" />
-        <ScrollAnimationWrapper>
-          <PersonalizedRecommendations />
-        </ScrollAnimationWrapper>
-          <FeaturedBlogPosts />
+          
           <ScrollAnimationWrapper>
-            <HowItWorks />
+            <FeaturedBlogPosts />
           </ScrollAnimationWrapper>
-          <ScrollAnimationWrapper>
-            <MagazineBanner />
-          </ScrollAnimationWrapper>
-          <ScrollAnimationWrapper>
-            <StatsSection />
-          </ScrollAnimationWrapper>
-          <ScrollAnimationWrapper>
-            <Testimonials />
-          </ScrollAnimationWrapper>
-          <ScrollAnimationWrapper>
-            <PartnersVenues />
-          </ScrollAnimationWrapper>
-          <ScrollAnimationWrapper>
-            <FavoritesPanel />
-          </ScrollAnimationWrapper>
-          <ScrollAnimationWrapper>
-            <PWAFeatures />
-          </ScrollAnimationWrapper>
+          
           <ScrollAnimationWrapper>
             <Newsletter />
           </ScrollAnimationWrapper>
