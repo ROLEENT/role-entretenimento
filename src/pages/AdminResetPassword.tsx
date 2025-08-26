@@ -87,12 +87,16 @@ const AdminResetPassword = () => {
 
       if (error) throw error;
 
-      toast.success("Senha redefinida com sucesso! Fazendo login...");
+      toast.success("Senha redefinida com sucesso! Redirecionando...");
       
-      // Aguardar um momento e redirecionar para admin
-      setTimeout(() => {
-        navigate("/admin");
-      }, 1500);
+      // Verificar sessão e redirecionar imediatamente
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/admin", { replace: true });
+      } else {
+        toast.error("Erro na sessão. Redirecionando para login...");
+        navigate("/admin/login", { replace: true });
+      }
 
     } catch (error: any) {
       console.error("Password reset error:", error);

@@ -42,7 +42,13 @@ export const useAuth = () => {
         setSession(session);
         setUser(session?.user as AuthUser || null);
         setIsAdmin(false);
-        setLoading(false);
+        
+        // Aguardar um pouco antes de definir loading como false para garantir estabilidade
+        setTimeout(() => {
+          if (isMounted) {
+            setLoading(false);
+          }
+        }, 100);
       }
     );
 

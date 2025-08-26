@@ -15,6 +15,8 @@ export const AdminAuthGuard = ({ children }: AdminAuthGuardProps) => {
   const { user, session, loading } = useAuth();
 
   useEffect(() => {
+    let mounted = true;
+    
     const checkAdminAccess = async () => {
       try {
         // Se ainda está carregando auth, aguarda
@@ -25,6 +27,19 @@ export const AdminAuthGuard = ({ children }: AdminAuthGuardProps) => {
         // Se não há sessão, redireciona para login
         if (!session || !user) {
           console.log('❌ Sem sessão ativa, redirecionando para login');
+          if (mounted) {
+            navigate('/admin/login');
+          }
+          return;
+        }
+
+        // Aguardar um pouco para garantir que a sessão está estável
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Verifica novamente se ainda temos sessão válida
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (!currentSession && mounted) {
+          console.log('❌ Sessão perdida, redirecionando para login');
           navigate('/admin/login');
           return;
         }
@@ -36,28 +51,42 @@ export const AdminAuthGuard = ({ children }: AdminAuthGuardProps) => {
 
         if (error) {
           console.error('❌ Erro ao verificar permissões admin:', error);
-          navigate('/admin/login');
+          if (mounted) {
+            navigate('/admin/login');
+          }
           return;
         }
 
         if (!isAdmin) {
           console.log('❌ Usuário não é admin:', user.email);
-          alert(`Acesso negado. Apenas administradores podem acessar esta área.\n\nSeu email: ${user.email}\nEmails autorizados: admin@role.com.br, fiih@roleentretenimento.com`);
-          navigate('/');
+          if (mounted) {
+            alert(`Acesso negado. Apenas administradores podem acessar esta área.\n\nSeu email: ${user.email}\nEmails autorizados: admin@role.com.br, fiih@roleentretenimento.com`);
+            navigate('/');
+          }
           return;
         }
 
         console.log('✅ Usuário admin autenticado:', user.email);
-        setIsAuthorized(true);
+        if (mounted) {
+          setIsAuthorized(true);
+        }
       } catch (error) {
         console.error('❌ Erro na verificação de autenticação:', error);
-        navigate('/admin/login');
+        if (mounted) {
+          navigate('/admin/login');
+        }
       } finally {
-        setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     checkAdminAccess();
+    
+    return () => {
+      mounted = false;
+    };
   }, [user, session, loading, navigate]);
 
   // Mostra loading enquanto verifica auth
