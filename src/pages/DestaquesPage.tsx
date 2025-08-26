@@ -79,6 +79,8 @@ const DestaquesPage = () => {
   const loadCityHighlights = async () => {
     try {
       setLoading(true);
+      console.log('🔍 Carregando destaques para cidade:', cidade);
+      
       const offset = (currentPage - 1) * highlightsPerPage;
 
       const { data, count, error } = await supabase
@@ -89,12 +91,24 @@ const DestaquesPage = () => {
         .order('created_at', { ascending: false })
         .range(offset, offset + highlightsPerPage - 1);
 
-      if (error) throw error;
+      console.log('🔍 Resultado da query:', { data, count, error, cidade });
+
+      if (error) {
+        console.error('❌ Erro na query Supabase:', error);
+        throw error;
+      }
 
       setHighlights(data || []);
       setTotalHighlights(count || 0);
+      
+      console.log('✅ Destaques carregados:', data?.length || 0);
     } catch (error) {
-      console.error('Erro ao carregar destaques da cidade:', error);
+      console.error('❌ Erro ao carregar destaques da cidade:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar os destaques desta cidade",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }

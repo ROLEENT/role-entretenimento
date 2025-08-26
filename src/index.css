@@ -302,4 +302,23 @@ All colors MUST be HSL.
       border: 2px solid currentColor !important;
     }
   }
+
+  /* Scrollbar customization for carousel */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Scroll snap for smooth carousel experience */
+  .scroll-snap-x {
+    scroll-snap-type: x mandatory;
+  }
+  
+  .scroll-snap-start {
+    scroll-snap-align: start;
+  }
 }
