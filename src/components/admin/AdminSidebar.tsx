@@ -61,20 +61,9 @@ export function AdminSidebar() {
   const getNavClass = (path: string) => 
     isActive(path) ? "bg-muted text-primary font-medium" : "hover:bg-muted/50";
 
-  const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        toast.error("Erro ao fazer logout");
-        return;
-      }
-      
-      toast.success("Logout realizado com sucesso");
-      navigate("/admin/login");
-    } catch (error) {
-      console.error("Logout error:", error);
-      toast.error("Erro inesperado no logout");
-    }
+  // Logout temporariamente removido - sem autenticação
+  const handleLogout = () => {
+    navigate("/");
   };
 
   return (
@@ -115,12 +104,7 @@ export function AdminSidebar() {
                 </SidebarMenuItem>
               ))}
               
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={handleLogout} className="hover:bg-muted/50 text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  {!collapsed && <span>Sair</span>}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {/* Logout removido temporariamente */}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
