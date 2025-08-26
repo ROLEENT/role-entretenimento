@@ -134,5 +134,9 @@ export const authService = {
 
   onAuthStateChange(callback: (event: string, session: Session | null) => void) {
     return supabase.auth.onAuthStateChange(callback);
+  },
+
+  getSession() {
+    return supabase.auth.getSession();
   }
 };

@@ -33,7 +33,26 @@ export const useAuth = () => {
 
     clearCorruptedData();
 
-    // Simplified auth state listener
+    // Get initial session synchronously
+    const getInitialSession = async () => {
+      try {
+        const currentUser = await authService.getCurrentUser();
+        if (isMounted) {
+          setUser(currentUser);
+          // Get session from Supabase
+          const { data: { session } } = await authService.getSession();
+          setSession(session);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error getting initial session:', error);
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    // Auth state listener - only update state, no delays
     const { data: { subscription } } = authService.onAuthStateChange(
       (event, session) => {
         if (!isMounted) return;
@@ -42,28 +61,20 @@ export const useAuth = () => {
         setSession(session);
         setUser(session?.user as AuthUser || null);
         setIsAdmin(false);
+        setLoading(false);
         
-        // Aguardar um pouco antes de definir loading como false para garantir estabilidade
-        setTimeout(() => {
-          if (isMounted) {
-            setLoading(false);
-          }
-        }, 100);
+        // Clear admin cache on auth change
+        if (event === 'SIGNED_OUT') {
+          Object.keys(sessionStorage).forEach(key => {
+            if (key.startsWith('admin_check_')) {
+              sessionStorage.removeItem(key);
+            }
+          });
+        }
       }
     );
 
-    // Simple initial session check
-    authService.getCurrentUser()
-      .then((authUser) => {
-        if (!isMounted) return;
-        setUser(authUser);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Auth initialization error:', error);
-        if (!isMounted) return;
-        setLoading(false);
-      });
+    getInitialSession();
 
     return () => {
       isMounted = false;

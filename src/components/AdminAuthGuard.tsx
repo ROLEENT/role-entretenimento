@@ -24,8 +24,8 @@ export const AdminAuthGuard = ({ children }: AdminAuthGuardProps) => {
           return;
         }
 
-        // Se não há sessão, redireciona para login
-        if (!session || !user) {
+        // Se não há sessão ou usuário, redireciona para login
+        if (!session?.user || !user) {
           console.log('❌ Sem sessão ativa, redirecionando para login');
           if (mounted) {
             navigate('/admin/login');
@@ -33,15 +33,23 @@ export const AdminAuthGuard = ({ children }: AdminAuthGuardProps) => {
           return;
         }
 
-        // Aguardar um pouco para garantir que a sessão está estável
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Verifica cache de admin primeiro (evita chamadas desnecessárias)
+        const adminCacheKey = `admin_check_${user.id}`;
+        const cachedResult = sessionStorage.getItem(adminCacheKey);
+        const cacheTime = sessionStorage.getItem(`${adminCacheKey}_time`);
         
-        // Verifica novamente se ainda temos sessão válida
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
-        if (!currentSession && mounted) {
-          console.log('❌ Sessão perdida, redirecionando para login');
-          navigate('/admin/login');
-          return;
+        // Cache válido por 5 minutos
+        if (cachedResult && cacheTime && 
+            (Date.now() - parseInt(cacheTime)) < 5 * 60 * 1000) {
+          const isAdmin = cachedResult === 'true';
+          if (isAdmin) {
+            console.log('✅ Admin verificado via cache:', user.email);
+            if (mounted) {
+              setIsAuthorized(true);
+              setIsLoading(false);
+            }
+            return;
+          }
         }
 
         // Verifica se é admin através da função do banco
@@ -56,6 +64,10 @@ export const AdminAuthGuard = ({ children }: AdminAuthGuardProps) => {
           }
           return;
         }
+
+        // Armazena resultado no cache
+        sessionStorage.setItem(adminCacheKey, isAdmin.toString());
+        sessionStorage.setItem(`${adminCacheKey}_time`, Date.now().toString());
 
         if (!isAdmin) {
           console.log('❌ Usuário não é admin:', user.email);
@@ -87,7 +99,7 @@ export const AdminAuthGuard = ({ children }: AdminAuthGuardProps) => {
     return () => {
       mounted = false;
     };
-  }, [user, session, loading, navigate]);
+  }, [user?.id, session?.user?.id, loading, navigate]);
 
   // Mostra loading enquanto verifica auth
   if (loading || isLoading) {
