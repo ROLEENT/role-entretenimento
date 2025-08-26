@@ -22,6 +22,7 @@ import { Toaster } from "@/components/ui/sonner";
 import SEOOptimizations from "@/components/SEOOptimizations";
 import AccessibilityEnhancements from "@/components/AccessibilityEnhancements";
 import { GoogleAdSense } from "@/components/GoogleAdSense";
+import { Chatbot } from "@/components/Chatbot";
 
 const Index = () => {
   return (
@@ -78,6 +79,7 @@ const Index = () => {
         <Footer />
         <NotificationPermissionPrompt />
         <BackToTop />
+        <Chatbot />
         <Toaster />
       </div>
     </AccessibilityEnhancements>
