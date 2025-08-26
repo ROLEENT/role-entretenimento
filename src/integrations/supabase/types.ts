@@ -476,6 +476,42 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_post_categories: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          post_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          post_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_post_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_post_categories_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_post_revisions: {
         Row: {
           change_description: string | null
@@ -524,6 +560,7 @@ export type Database = {
         Row: {
           author_id: string
           author_name: string
+          category_ids: string[] | null
           city: string
           content_html: string
           cover_image: string
@@ -545,6 +582,7 @@ export type Database = {
         Insert: {
           author_id: string
           author_name: string
+          category_ids?: string[] | null
           city: string
           content_html: string
           cover_image: string
@@ -566,6 +604,7 @@ export type Database = {
         Update: {
           author_id?: string
           author_name?: string
+          category_ids?: string[] | null
           city?: string
           content_html?: string
           cover_image?: string
@@ -3241,6 +3280,10 @@ export type Database = {
       }
       update_admin_profile: {
         Args: { p_admin_id: string; p_email: string; p_full_name: string }
+        Returns: undefined
+      }
+      update_blog_post_categories: {
+        Args: { p_category_ids: string[]; p_post_id: string }
         Returns: undefined
       }
       user_liked_highlight: {

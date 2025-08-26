@@ -371,14 +371,14 @@ const AdminCategories: React.FC = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {filteredCategories.map((category) => (
-              <Card key={category.id}>
+              <Card key={category.id} className="hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <Badge 
                       style={{ backgroundColor: category.color_hex, color: '#fff' }}
-                      className="text-xs"
+                      className="text-xs font-medium"
                     >
                       {categoryTypes.find(t => t.value === category.type)?.label}
                     </Badge>
@@ -387,12 +387,13 @@ const AdminCategories: React.FC = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleEdit(category)}
+                        className="h-8 w-8 p-0"
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive">
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </AlertDialogTrigger>
@@ -400,13 +401,16 @@ const AdminCategories: React.FC = () => {
                           <AlertDialogHeader>
                             <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
                             <AlertDialogDescription>
-                              Tem certeza que deseja deletar a categoria "{category.name}"?
-                              Esta ação não pode ser desfeita.
+                              Tem certeza que deseja deletar a categoria "<strong>{category.name}</strong>"?
+                              Esta ação não pode ser desfeita e pode afetar posts e eventos relacionados.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(category.id)}>
+                            <AlertDialogAction 
+                              onClick={() => handleDelete(category.id)}
+                              className="bg-destructive hover:bg-destructive/90"
+                            >
                               Deletar
                             </AlertDialogAction>
                           </AlertDialogFooter>
@@ -416,16 +420,36 @@ const AdminCategories: React.FC = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
-                    <h3 className="font-semibold text-foreground">{category.name}</h3>
-                    <p className="text-sm text-muted-foreground">/{category.slug}</p>
+                  <div className="space-y-3">
+                    <div>
+                      <h3 className="font-semibold text-foreground text-lg">{category.name}</h3>
+                      <p className="text-sm text-muted-foreground font-mono">/{category.slug}</p>
+                    </div>
                     {category.description && (
-                      <p className="text-sm text-muted-foreground">{category.description}</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{category.description}</p>
                     )}
-                    <div 
-                      className="w-full h-3 rounded"
-                      style={{ backgroundColor: category.color_hex }}
-                    />
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="w-4 h-4 rounded-full border border-border"
+                        style={{ backgroundColor: category.color_hex }}
+                      />
+                      <span className="text-xs font-mono text-muted-foreground">{category.color_hex}</span>
+                    </div>
+                    <div className="pt-2 border-t border-border">
+                      <div className="flex flex-wrap gap-1">
+                        <Badge 
+                          variant="outline" 
+                          className="text-xs"
+                          style={{ 
+                            borderColor: category.color_hex + '40',
+                            backgroundColor: category.color_hex + '10',
+                            color: category.color_hex
+                          }}
+                        >
+                          #{category.name.toLowerCase().replace(/\s+/g, '')}
+                        </Badge>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
