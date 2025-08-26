@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
@@ -25,7 +24,9 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const mainItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
@@ -46,7 +47,7 @@ const bottomItems = [
 export function AdminSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
-  const { logoutAdmin } = useAdminAuth();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
 
@@ -60,8 +61,20 @@ export function AdminSidebar() {
   const getNavClass = (path: string) => 
     isActive(path) ? "bg-muted text-primary font-medium" : "hover:bg-muted/50";
 
-  const handleLogout = () => {
-    logoutAdmin();
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        toast.error("Erro ao fazer logout");
+        return;
+      }
+      
+      toast.success("Logout realizado com sucesso");
+      navigate("/admin/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Erro inesperado no logout");
+    }
   };
 
   return (

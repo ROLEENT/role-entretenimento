@@ -25,6 +25,7 @@ import CityHighlightsPage from "./pages/CityHighlightsPage";
 import CityHighlights from "./pages/CityHighlights";
 import HighlightDetailPage from "./pages/HighlightDetailPage";
 import AdminLoginSimple from "./pages/AdminLoginSimple";
+import AdminSignup from "./pages/AdminSignup";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminHighlightsManagement from "./pages/AdminHighlightsManagement";
@@ -102,6 +103,7 @@ function App() {
                 
                 {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLoginSimple />} />
+                <Route path="/admin/signup" element={<AdminSignup />} />
                 <Route path="/admin/update-password" element={<AdminPasswordUpdate />} />
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route index element={<AdminDashboard />} />
