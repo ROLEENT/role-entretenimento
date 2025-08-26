@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 /**
  * Hook para operações administrativas com autenticação real
@@ -9,34 +9,45 @@ import { useNavigate } from 'react-router-dom';
 export const useSupabaseAdminStandard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
+  const { user, session } = useAuth();
 
   useEffect(() => {
     checkAdminAuth();
-  }, []);
+  }, [user, session]);
 
   const checkAdminAuth = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate('/admin/login');
+      // Se não há sessão ou usuário, não está autenticado
+      if (!session || !user) {
+        setIsAuthenticated(false);
+        setIsLoading(false);
         return;
       }
 
+      // Verifica se é admin
       const { data: isAdmin, error } = await supabase.rpc('is_admin', {
-        uid: session.user.id
+        uid: user.id
       });
 
-      if (error || !isAdmin) {
+      if (error) {
+        console.error('❌ Erro ao verificar permissões admin:', error);
+        toast.error('Erro ao verificar permissões');
+        setIsAuthenticated(false);
+        return;
+      }
+
+      if (!isAdmin) {
+        console.log('❌ Usuário não é admin:', user.email);
         toast.error('Acesso negado: privilégios de administrador necessários');
-        navigate('/admin/login');
+        setIsAuthenticated(false);
         return;
       }
 
       setIsAuthenticated(true);
     } catch (error) {
-      console.error('Erro na verificação de autenticação:', error);
-      navigate('/admin/login');
+      console.error('❌ Erro na verificação de autenticação:', error);
+      toast.error('Erro na verificação de autenticação');
+      setIsAuthenticated(false);
     } finally {
       setIsLoading(false);
     }

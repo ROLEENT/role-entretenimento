@@ -111,8 +111,17 @@ const AdminLoginSimple = () => {
             throw loginError;
           }
         } else {
-          // Garantir que o usuário tenha role admin após login bem-sucedido
-          await supabase.rpc('ensure_admin_role', { user_email: email });
+          // Verificar se usuário é admin após login
+          const { data: isAdmin } = await supabase.rpc('is_admin');
+          
+          if (!isAdmin) {
+            await supabase.auth.signOut();
+            toast.error(`Acesso negado. Apenas administradores podem acessar.\n\nSeu email: ${email}\nEmails autorizados: admin@role.com.br, fiih@roleentretenimento.com`, {
+              duration: 10000
+            });
+            return;
+          }
+          
           toast.success("Login realizado com sucesso!");
         }
       }
