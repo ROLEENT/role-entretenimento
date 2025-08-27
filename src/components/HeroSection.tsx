@@ -19,14 +19,14 @@ const HeroSection = () => {
         <picture>
           <source 
             media="(max-width: 768px)" 
-            srcSet="/lovable-uploads/cdc0b49f-3677-4549-9ba3-3f6a8e2fd03d.png" 
+            srcSet="/lovable-uploads/5e4b1601-d271-4d2d-9dbf-a72b0c5201ae.png" 
           />
           <source 
             media="(min-width: 769px)" 
-            srcSet="/lovable-uploads/89b46487-da76-4e20-8484-d989e320bc84.png" 
+            srcSet="/lovable-uploads/b550e416-eaad-4855-9077-811cb7c38c55.png" 
           />
           <img
-            src="/lovable-uploads/89b46487-da76-4e20-8484-d989e320bc84.png"
+            src="/lovable-uploads/b550e416-eaad-4855-9077-811cb7c38c55.png"
             alt="Curadoria independente de cultura e experiências"
             className="w-full h-full object-cover"
             loading="eager"
