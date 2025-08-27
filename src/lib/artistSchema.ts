@@ -1,0 +1,46 @@
+import { z } from 'zod';
+
+export const artistSchema = z.object({
+  stage_name: z.string().min(1, 'Nome artístico é obrigatório').max(200, 'Nome muito longo'),
+  artist_type: z.enum(['banda', 'dj', 'solo', 'drag'], {
+    errorMap: () => ({ message: 'Tipo de artista é obrigatório' })
+  }),
+  city: z.string().min(1, 'Cidade é obrigatória'),
+  instagram: z.string().min(1, 'Instagram é obrigatório'),
+  booking_email: z.string().email('Email inválido'),
+  booking_whatsapp: z.string().min(1, 'WhatsApp é obrigatório'),
+  bio_short: z.string().min(1, 'Bio curta é obrigatória').max(300, 'Bio curta muito longa'),
+  profile_image_url: z.string().min(1, 'Foto de perfil é obrigatória'),
+  bio_long: z.string().max(1500, 'Bio longa muito longa').optional(),
+  cover_image_url: z.string().optional(),
+  real_name: z.string().optional(),
+  pronouns: z.string().optional(),
+  website_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  spotify_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  soundcloud_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  youtube_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  beatport_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  audius_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  presskit_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  show_format: z.string().optional(),
+  tech_audio: z.string().optional(),
+  tech_light: z.string().optional(),
+  tech_stage: z.string().optional(),
+  tech_rider_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  set_time_minutes: z.number().min(1, 'Tempo de set deve ser maior que 0').optional(),
+  team_size: z.number().min(1, 'Tamanho do time deve ser maior que 0').optional(),
+  fee_range: z.string().optional(),
+  home_city: z.string().optional(),
+  cities_active: z.array(z.string()).default([]),
+  availability_days: z.array(z.string()).default([]),
+  accommodation_notes: z.string().optional(),
+  image_rights_authorized: z.boolean().default(false),
+  image_credits: z.string().optional(),
+  responsible_name: z.string().optional(),
+  responsible_role: z.string().optional(),
+  internal_notes: z.string().optional(),
+  status: z.enum(['active', 'inactive']).default('active'),
+  priority: z.number().default(0),
+});
+
+export type ArtistFormData = z.infer<typeof artistSchema>;
