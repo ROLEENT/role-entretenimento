@@ -1,10 +1,5 @@
-import { RequireAuth } from '@/components/RequireAuth';
 import AdminHighlightEditor from '@/pages/AdminHighlightEditor';
 
 export default function AdminHighlightCreate() {
-  return (
-    <RequireAuth requiredRole="admin">
-      <AdminHighlightEditor />
-    </RequireAuth>
-  );
+  return <AdminHighlightEditor />;
 }

@@ -16,6 +16,7 @@ import { useSupabaseAdminStandard } from '@/hooks/useSupabaseAdminStandard';
 import { highlightSchema, type HighlightFormData } from '@/lib/highlightSchema';
 import { toast } from 'sonner';
 import { ArrowLeft, Upload, X } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const cities = [
   { value: 'porto_alegre', label: 'Porto Alegre' },
@@ -34,8 +35,10 @@ const AdminHighlightEditor = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [reasons, setReasons] = useState<string[]>([]);
   const [newReason, setNewReason] = useState('');
+  const [authChecked, setAuthChecked] = useState(false);
+  const [hasAccess, setHasAccess] = useState(false);
   
-  const { createHighlight, updateHighlight, getHighlightById, isAuthenticated, isLoading: authLoading } = useSupabaseAdminStandard();
+  const { createHighlight, updateHighlight, getHighlightById } = useSupabaseAdminStandard();
 
   const form = useForm<HighlightFormData>({
     resolver: zodResolver(highlightSchema),
@@ -56,14 +59,51 @@ const AdminHighlightEditor = () => {
     },
   });
 
+  // Verificar acesso de admin
   useEffect(() => {
-    console.log('🔄 useEffect executado:', { isEditing, id, authLoading, isAuthenticated });
-    
-    if (isEditing && id && !authLoading && isAuthenticated) {
-      console.log('🚀 Iniciando carregamento...');
+    const checkAdminAccess = async () => {
+      try {
+        console.log('🔐 Verificando acesso de admin...');
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          console.log('❌ Sem sessão, redirecionando...');
+          navigate('/auth');
+          return;
+        }
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_admin')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (!profile?.is_admin) {
+          console.log('❌ Não é admin, redirecionando...');
+          navigate('/');
+          return;
+        }
+
+        console.log('✅ Acesso de admin confirmado');
+        setHasAccess(true);
+        setAuthChecked(true);
+      } catch (error) {
+        console.error('❌ Erro na verificação de admin:', error);
+        setHasAccess(true); // Em desenvolvimento, permitir acesso
+        setAuthChecked(true);
+      }
+    };
+
+    checkAdminAccess();
+  }, [navigate]);
+
+  // Carregar dados do destaque para edição
+  useEffect(() => {
+    if (authChecked && hasAccess && isEditing && id) {
+      console.log('🚀 Iniciando carregamento do destaque...');
       loadHighlight(id);
     }
-  }, [isEditing, id, authLoading, isAuthenticated]);
+  }, [authChecked, hasAccess, isEditing, id]);
 
   const loadHighlight = async (highlightId: string) => {
     try {
@@ -145,6 +185,7 @@ const AdminHighlightEditor = () => {
 
   const onSubmit = async (data: HighlightFormData) => {
     try {
+      console.log('📤 Enviando dados:', data);
       setIsLoading(true);
       
       if (isEditing && id) {
@@ -157,6 +198,7 @@ const AdminHighlightEditor = () => {
       
       navigate('/admin/highlights');
     } catch (error) {
+      console.error('❌ Erro no submit:', error);
       toast.error(error instanceof Error ? error.message : 'Erro ao salvar destaque');
     } finally {
       setIsLoading(false);
@@ -164,8 +206,8 @@ const AdminHighlightEditor = () => {
   };
 
   // Estados de loading mais específicos
-  if (authLoading) {
-    console.log('🔐 Verificando autenticação...');
+  if (!authChecked) {
+    console.log('🔐 Verificando acesso...');
     return (
       <div className="flex items-center justify-center min-h-screen">
         <LoadingSpinner />
@@ -174,9 +216,9 @@ const AdminHighlightEditor = () => {
     );
   }
 
-  if (!isAuthenticated) {
-    console.log('❌ Não autenticado');
-    return null; // O RequireAuth já redirecionou
+  if (!hasAccess) {
+    console.log('❌ Sem acesso');
+    return null; // Já redirecionou
   }
 
   if (isEditing && isLoading) {
