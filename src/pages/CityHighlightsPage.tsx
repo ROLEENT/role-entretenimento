@@ -228,7 +228,7 @@ const CityHighlightsPage = () => {
         {/* Highlights Grid */}
         <ScrollAnimationWrapper>
           <section className="py-16">
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-2 md:px-4">
               {filteredHighlights.length === 0 ? (
                 <Card className="p-12 text-center">
                   <CardContent>
@@ -258,7 +258,7 @@ const CityHighlightsPage = () => {
                   </CardContent>
                 </Card>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
                   {filteredHighlights.map((highlight) => (
                     <HighlightCard key={highlight.id} highlight={highlight} />
                   ))}

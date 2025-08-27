@@ -25,20 +25,28 @@ export function MobileSafeImage({
 
   useEffect(() => {
     if (loading === 'lazy' && imgRef.current) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              setIsLoading(false);
-              observer.unobserve(entry.target);
-            }
-          });
-        },
-        { threshold: 0.1, rootMargin: '50px' }
-      );
+      // Check if element is already in a scroll-animated container
+      const isInScrollContainer = imgRef.current.closest('.animate-on-scroll');
+      
+      if (!isInScrollContainer) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                setIsLoading(false);
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.1, rootMargin: '50px' }
+        );
 
-      observer.observe(imgRef.current);
-      return () => observer.disconnect();
+        observer.observe(imgRef.current);
+        return () => observer.disconnect();
+      } else {
+        // If in scroll container, show immediately to avoid conflicts
+        setIsLoading(false);
+      }
     } else {
       setIsLoading(false);
     }

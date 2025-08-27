@@ -196,6 +196,20 @@ body {
     transform: translateY(0);
   }
 
+  /* Mobile-specific override to ensure visibility */
+  @media (max-width: 640px) {
+    .animate-on-scroll {
+      opacity: 1;
+      transform: translateY(0);
+      transition: none;
+    }
+    
+    .animate-on-scroll.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .hover-lift {
     transition: var(--transition-smooth);
   }
