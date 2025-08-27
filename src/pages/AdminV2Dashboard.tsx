@@ -163,6 +163,15 @@ export default function AdminV2Dashboard() {
                 Gerenciar Destaques
               </Button>
 
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={() => navigate('/admin-v2/events')}
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                Gerenciar Eventos
+              </Button>
+
               <div className="pt-4 border-t">
                 <p className="text-sm text-muted-foreground mb-2">Sistema Antigo (Backup)</p>
                 <Button 
