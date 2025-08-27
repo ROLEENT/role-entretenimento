@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
-import AdminRouter from "@/routes/AdminRouter";
+import AdminV2Router from "@/routes/AdminV2Router";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AdminAuthGuard } from "@/components/AdminAuthGuard";
 import { Toaster } from "@/components/ui/toaster";
@@ -27,7 +27,7 @@ export default function AdminLayout() {
             </header>
             <main className="p-6">
               <ErrorBoundary>
-                <AdminRouter />
+                <AdminV2Router />
               </ErrorBoundary>
             </main>
           </SidebarInset>

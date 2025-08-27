@@ -4,19 +4,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from 'react-router-dom';
 import { artistSchema, type ArtistFormData } from '@/lib/artistSchema';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AdminFileUpload } from '@/components/ui/admin-file-upload';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
-import { X } from 'lucide-react';
-import { useArtistManagement } from '@/hooks/useArtistManagement';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { X, Loader2, Plus } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ArtistFormProps {
   mode: 'create' | 'edit';
@@ -26,11 +24,11 @@ export default function ArtistForm({ mode }: ArtistFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<string[]>([]);
   const [availabilityDays, setAvailabilityDays] = useState<string[]>([]);
   const [newCity, setNewCity] = useState('');
   const [newDay, setNewDay] = useState('');
-  const { createArtist, updateArtist, getArtist, loading } = useArtistManagement();
 
   const form = useForm<ArtistFormData>({
     resolver: zodResolver(artistSchema),
@@ -55,55 +53,113 @@ export default function ArtistForm({ mode }: ArtistFormProps) {
 
   useEffect(() => {
     if (mode === 'edit' && id) {
-      const loadArtist = async () => {
-        try {
-          const artist = await getArtist(id);
-          if (artist) {
-            // Set form values with artist data
-            form.reset({
-              ...artist,
-              cities_active: artist.cities_active || [],
-              availability_days: artist.availability_days || [],
-              image_rights_authorized: artist.image_rights_authorized || false,
-              status: artist.status || 'active',
-              priority: artist.priority || 0,
-            });
-            setCities(artist.cities_active || []);
-            setAvailabilityDays(artist.availability_days || []);
-          }
-        } catch (error) {
-          console.error('Error loading artist:', error);
-          toast({
-            title: 'Erro',
-            description: 'Erro ao carregar dados do artista.',
-            variant: 'destructive',
-          });
-          navigate('/admin-v2/artists');
-        }
-      };
-      
-      loadArtist();
+      fetchArtist(id);
     }
-  }, [mode, id, getArtist, form, navigate, toast]);
+  }, [mode, id]);
+
+  const fetchArtist = async (artistId: string) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('artists')
+        .select('*')
+        .eq('id', artistId)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        form.reset({
+          ...data,
+          cities_active: data.cities_active || [],
+          availability_days: data.availability_days || [],
+          image_rights_authorized: data.image_rights_authorized || false,
+          status: data.status || 'active',
+          priority: data.priority || 0,
+        });
+        setCities(data.cities_active || []);
+        setAvailabilityDays(data.availability_days || []);
+      }
+    } catch (error) {
+      console.error('Error fetching artist:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível carregar o artista.',
+        variant: 'destructive',
+      });
+      navigate('/admin-v2/artists');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onSubmit = async (data: ArtistFormData) => {
+    setLoading(true);
     try {
+      // Gerar slug único
+      const baseSlug = data.stage_name
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .trim();
+
+      let slug = baseSlug;
+      let counter = 1;
+      
+      // Verificar se slug já existe
+      while (true) {
+        const { data: existingArtist } = await supabase
+          .from('artists')
+          .select('id')
+          .eq('slug', slug)
+          .neq('id', mode === 'edit' ? id : '')
+          .single();
+        
+        if (!existingArtist) break;
+        slug = `${baseSlug}-${counter}`;
+        counter++;
+      }
+
       const artistData = {
         ...data,
+        slug,
         cities_active: cities,
         availability_days: availabilityDays,
       };
 
       if (mode === 'create') {
-        await createArtist(artistData);
-      } else if (mode === 'edit' && id) {
-        await updateArtist(id, artistData);
+        const { error } = await supabase.from('artists').insert(artistData);
+        if (error) throw error;
+        
+        toast({
+          title: 'Sucesso',
+          description: 'Artista criado com sucesso!',
+        });
+      } else {
+        const { error } = await supabase
+          .from('artists')
+          .update(artistData)
+          .eq('id', id);
+        if (error) throw error;
+        
+        toast({
+          title: 'Sucesso',
+          description: 'Artista atualizado com sucesso!',
+        });
       }
 
       navigate('/admin-v2/artists');
     } catch (error) {
       console.error('Error saving artist:', error);
-      // Error toast is already shown in the hook
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível salvar o artista.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -131,731 +187,326 @@ export default function ArtistForm({ mode }: ArtistFormProps) {
 
   if (loading && mode === 'edit') {
     return (
-      <div className="flex items-center justify-center h-96">
-        <LoadingSpinner />
+      <div className="flex items-center justify-center h-48">
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">
+    <div className="container mx-auto p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">
           {mode === 'create' ? 'Criar Artista' : 'Editar Artista'}
         </h1>
-        <p className="text-muted-foreground">
-          {mode === 'create' 
-            ? 'Cadastre um novo artista, banda, DJ ou drag'
-            : 'Edite as informações do artista'
-          }
-        </p>
       </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Identificação */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Identificação</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="stage_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome Artístico *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nome artístico..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Campos Obrigatórios */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Campos Obrigatórios</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="stage_name">Nome Artístico *</Label>
+                <Input
+                  id="stage_name"
+                  {...form.register('stage_name')}
+                  placeholder="Nome artístico..."
                 />
+                {form.formState.errors.stage_name && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {form.formState.errors.stage_name.message}
+                  </p>
+                )}
+              </div>
 
-                <FormField
-                  control={form.control}
-                  name="artist_type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tipo de Artista *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione o tipo..." />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="banda">Banda</SelectItem>
-                          <SelectItem value="dj">DJ</SelectItem>
-                          <SelectItem value="solo">Artista Solo</SelectItem>
-                          <SelectItem value="drag">Drag</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              <div>
+                <Label htmlFor="artist_type">Tipo de Artista *</Label>
+                <Select onValueChange={(value) => form.setValue('artist_type', value as "banda" | "dj" | "solo" | "drag")}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="banda">Banda</SelectItem>
+                    <SelectItem value="dj">DJ</SelectItem>
+                    <SelectItem value="solo">Artista Solo</SelectItem>
+                    <SelectItem value="drag">Drag</SelectItem>
+                  </SelectContent>
+                </Select>
+                {form.formState.errors.artist_type && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {form.formState.errors.artist_type.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="city">Cidade Base *</Label>
+                <Input
+                  id="city"
+                  {...form.register('city')}
+                  placeholder="Porto Alegre, São Paulo..."
                 />
+                {form.formState.errors.city && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {form.formState.errors.city.message}
+                  </p>
+                )}
+              </div>
 
-                <FormField
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cidade Base *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Porto Alegre, São Paulo..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              <div>
+                <Label htmlFor="instagram">Instagram *</Label>
+                <Input
+                  id="instagram"
+                  {...form.register('instagram')}
+                  placeholder="@usuario (sem https://)"
                 />
+                {form.formState.errors.instagram && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {form.formState.errors.instagram.message}
+                  </p>
+                )}
+              </div>
 
-                <FormField
-                  control={form.control}
-                  name="instagram"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Instagram *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="@usuario (sem https://)" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              <div>
+                <Label htmlFor="booking_email">Email de Booking *</Label>
+                <Input
+                  id="booking_email"
+                  type="email"
+                  {...form.register('booking_email')}
+                  placeholder="booking@artista.com"
                 />
+                {form.formState.errors.booking_email && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {form.formState.errors.booking_email.message}
+                  </p>
+                )}
+              </div>
 
-                <FormField
-                  control={form.control}
-                  name="booking_email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email de Booking *</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="booking@artista.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              <div>
+                <Label htmlFor="booking_whatsapp">WhatsApp de Booking *</Label>
+                <Input
+                  id="booking_whatsapp"
+                  {...form.register('booking_whatsapp')}
+                  placeholder="(51) 99999-9999"
                 />
+                {form.formState.errors.booking_whatsapp && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {form.formState.errors.booking_whatsapp.message}
+                  </p>
+                )}
+              </div>
+            </div>
 
-                <FormField
-                  control={form.control}
-                  name="booking_whatsapp"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>WhatsApp de Booking *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="(51) 99999-9999" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+            <div>
+              <AdminFileUpload
+                bucket="artists"
+                onUploadComplete={(url) => form.setValue('profile_image_url', url)}
+                currentUrl={form.watch('profile_image_url')}
+                label="Foto de Perfil 1x1 *"
+              />
+              {form.formState.errors.profile_image_url && (
+                <p className="text-red-500 text-sm mt-1">
+                  {form.formState.errors.profile_image_url.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="bio_short">Bio Curta ({watchedBioShort?.length || 0}/300) *</Label>
+              <Textarea
+                id="bio_short"
+                {...form.register('bio_short')}
+                placeholder="Descrição breve do artista..."
+                maxLength={300}
+                rows={3}
+              />
+              {form.formState.errors.bio_short && (
+                <p className="text-red-500 text-sm mt-1">
+                  {form.formState.errors.bio_short.message}
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Campos Complementares */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Campos Complementares</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="real_name">Nome Civil</Label>
+                <Input
+                  id="real_name"
+                  {...form.register('real_name')}
+                  placeholder="João Silva"
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="profile_image_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Foto de Perfil 1x1 *</FormLabel>
-                    <FormControl>
-                      <AdminFileUpload
-                        bucket="artists"
-                        currentUrl={field.value}
-                        onUploadComplete={(url) => field.onChange(url)}
-                        label="Selecionar Foto de Perfil"
-                        className="w-full"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="bio_short"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bio Curta (até 300 caracteres) *</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Descrição breve do artista..."
-                        className="min-h-[80px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <div className="text-sm text-muted-foreground">
-                      {watchedBioShort?.length || 0}/300 caracteres
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Links e Mídia */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Links e Mídia</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="real_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome Civil (opcional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="João Silva" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="pronouns"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Pronomes (opcional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="ele/dele, ela/dela..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="website_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Site ou Linktree</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://linktr.ee/artista" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="spotify_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Spotify</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://open.spotify.com/artist/..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="soundcloud_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>SoundCloud</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://soundcloud.com/artista" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="youtube_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>YouTube</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://youtube.com/@artista" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="beatport_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Beatport</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://beatport.com/artist/..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="audius_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Audius</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://audius.co/artista" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              <div>
+                <Label htmlFor="pronouns">Pronomes</Label>
+                <Input
+                  id="pronouns"
+                  {...form.register('pronouns')}
+                  placeholder="ele/dele, ela/dela..."
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="cover_image_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Foto de Capa 16x9</FormLabel>
-                    <FormControl>
-                      <AdminFileUpload
-                        bucket="artists"
-                        currentUrl={field.value}
-                        onUploadComplete={(url) => field.onChange(url)}
-                        label="Selecionar Foto de Capa"
-                        className="w-full"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="bio_long"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Release Longo (até 1500 caracteres)</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Biografia completa do artista..."
-                        className="min-h-[120px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <div className="text-sm text-muted-foreground">
-                      {field.value?.length || 0}/1500 caracteres
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="presskit_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Press Kit</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://presskit.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Técnica */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Técnica</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="show_format"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Formato do Show</FormLabel>
-                      <FormControl>
-                        <Input placeholder="DJ set, live, banda, performance drag" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="set_time_minutes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tempo de Set (minutos)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          placeholder="60"
-                          {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="team_size"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Número de Pessoas no Time</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          placeholder="3"
-                          {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              <div>
+                <Label htmlFor="website_url">Site ou Linktree</Label>
+                <Input
+                  id="website_url"
+                  {...form.register('website_url')}
+                  placeholder="https://linktr.ee/artista"
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="tech_audio"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Necessidades de Áudio</FormLabel>
-                    <FormControl>
-                      <Input placeholder="2 CDJ 3000 + DJM 900, 2 XLR" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="tech_light"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Necessidades de Luz</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Mínimo wash no palco" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="tech_stage"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Necessidades de Palco</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Mesa 2m, tomada 220V" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="tech_rider_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stage Plot ou Rider Técnico</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://rider.com/documento.pdf" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Comercial e Logística */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Comercial e Logística</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="fee_range"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Faixa de Cachê (interno)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="R$ 500 - R$ 1500" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="home_city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cidade de Origem</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Para cálculo de deslocamento" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              <div>
+                <Label htmlFor="spotify_url">Spotify</Label>
+                <Input
+                  id="spotify_url"
+                  {...form.register('spotify_url')}
+                  placeholder="https://open.spotify.com/artist/..."
                 />
               </div>
 
-              {/* Cidades onde atua */}
-              <div className="space-y-2">
-                <FormLabel>Cidades em que Atua</FormLabel>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Adicionar cidade..."
-                    value={newCity}
-                    onChange={(e) => setNewCity(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCity())}
-                  />
-                  <Button type="button" onClick={addCity}>Adicionar</Button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {cities.map((city) => (
-                    <Badge key={city} variant="secondary" className="gap-1">
-                      {city}
-                      <X 
-                        className="h-3 w-3 cursor-pointer" 
-                        onClick={() => removeCity(city)}
-                      />
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              {/* Disponibilidade */}
-              <div className="space-y-2">
-                <FormLabel>Disponibilidade</FormLabel>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Segunda, Terça, Fins de semana..."
-                    value={newDay}
-                    onChange={(e) => setNewDay(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addAvailabilityDay())}
-                  />
-                  <Button type="button" onClick={addAvailabilityDay}>Adicionar</Button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {availabilityDays.map((day) => (
-                    <Badge key={day} variant="secondary" className="gap-1">
-                      {day}
-                      <X 
-                        className="h-3 w-3 cursor-pointer" 
-                        onClick={() => removeAvailabilityDay(day)}
-                      />
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <FormField
-                control={form.control}
-                name="accommodation_notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Observações de Hospedagem e Logística</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Necessidades especiais, preferências..."
-                        className="min-h-[80px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Mídia e Direitos */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Mídia e Direitos</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="image_rights_authorized"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>
-                        Autorização de uso de imagem no site do ROLÊ
-                      </FormLabel>
-                    </div>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="image_credits"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Créditos das Fotos</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Fotógrafo: João Silva" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Campos Internos */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Interno ROLÊ (não exibir)</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="responsible_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Responsável</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nome do responsável" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="responsible_role"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cargo</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Manager, Produtor..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              <div>
+                <Label htmlFor="fee_range">Faixa de Cachê</Label>
+                <Input
+                  id="fee_range"
+                  {...form.register('fee_range')}
+                  placeholder="R$ 500 - R$ 1500"
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="internal_notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Observações Internas</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Observações internas..."
-                        className="min-h-[80px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Status</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="active">Ativo</SelectItem>
-                          <SelectItem value="inactive">Inativo</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="priority"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Prioridade</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          min="0" 
-                          {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              <div>
+                <Label htmlFor="home_city">Cidade de Origem</Label>
+                <Input
+                  id="home_city"
+                  {...form.register('home_city')}
+                  placeholder="Para cálculo de deslocamento"
                 />
               </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          <Separator />
+            <div>
+              <AdminFileUpload
+                bucket="artists"
+                onUploadComplete={(url) => form.setValue('cover_image_url', url)}
+                currentUrl={form.watch('cover_image_url')}
+                label="Foto de Capa 16x9"
+              />
+            </div>
 
-          <div className="flex gap-4">
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Salvando...' : (mode === 'create' ? 'Criar Artista' : 'Salvar Alterações')}
-            </Button>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => navigate('/admin-v2/artists')}
-            >
-              Cancelar
-            </Button>
-          </div>
-        </form>
-      </Form>
+            <div>
+              <Label htmlFor="bio_long">Release Longo (até 1500 caracteres)</Label>
+              <Textarea
+                id="bio_long"
+                {...form.register('bio_long')}
+                placeholder="Biografia completa do artista..."
+                maxLength={1500}
+                rows={4}
+              />
+              <div className="text-sm text-muted-foreground mt-1">
+                {form.watch('bio_long')?.length || 0}/1500 caracteres
+              </div>
+            </div>
+
+            {/* Cidades onde atua */}
+            <div>
+              <Label>Cidades em que Atua</Label>
+              <div className="flex gap-2 mt-2">
+                <Input
+                  placeholder="Adicionar cidade..."
+                  value={newCity}
+                  onChange={(e) => setNewCity(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCity())}
+                />
+                <Button type="button" onClick={addCity} size="sm">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {cities.map((city) => (
+                  <Badge key={city} variant="secondary" className="gap-1">
+                    {city}
+                    <button
+                      type="button"
+                      onClick={() => removeCity(city)}
+                      className="ml-1 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* Disponibilidade */}
+            <div>
+              <Label>Disponibilidade</Label>
+              <div className="flex gap-2 mt-2">
+                <Input
+                  placeholder="Segunda, Terça, Fins de semana..."
+                  value={newDay}
+                  onChange={(e) => setNewDay(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addAvailabilityDay())}
+                />
+                <Button type="button" onClick={addAvailabilityDay} size="sm">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {availabilityDays.map((day) => (
+                  <Badge key={day} variant="secondary" className="gap-1">
+                    {day}
+                    <button
+                      type="button"
+                      onClick={() => removeAvailabilityDay(day)}
+                      className="ml-1 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* Autorização de imagem */}
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="image_rights_authorized"
+                checked={form.watch('image_rights_authorized')}
+                onCheckedChange={(value) => form.setValue('image_rights_authorized', value as boolean)}
+              />
+              <Label htmlFor="image_rights_authorized">
+                Autorização de uso de imagem no site do ROLÊ
+              </Label>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Botões de Ação */}
+        <div className="flex gap-2">
+          <Button type="submit" disabled={loading}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {mode === 'create' ? 'Criar Artista' : 'Salvar Alterações'}
+          </Button>
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => navigate('/admin-v2/artists')}
+          >
+            Cancelar
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }

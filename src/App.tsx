@@ -139,23 +139,7 @@ function App() {
 
                 {/* Admin V2 - MVP System */}
                 <Route path="/admin-v2/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Login /></Suspense>} />
-                <Route path="/admin-v2" element={<Navigate to="/admin-v2/dashboard" replace />} />
-                <Route path="/admin-v2/dashboard" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Dashboard /></Suspense>} />
-                <Route path="/admin-v2/highlights" element={<Suspense fallback={<AdminLoadingFallback />}><AdminHighlightsIndex /></Suspense>} />
-                <Route path="/admin-v2/highlights/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminHighlightCreate /></Suspense>} />
-                <Route path="/admin-v2/highlights/edit/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminHighlightEdit /></Suspense>} />
-                <Route path="/admin-v2/events" element={<Suspense fallback={<AdminLoadingFallback />}><AdminEventsIndex /></Suspense>} />
-                <Route path="/admin-v2/events/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminEventCreate /></Suspense>} />
-                <Route path="/admin-v2/events/edit/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminEventEdit /></Suspense>} />
-                <Route path="/admin-v2/venues" element={<Suspense fallback={<AdminLoadingFallback />}><AdminVenuesIndex /></Suspense>} />
-                <Route path="/admin-v2/venues/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminVenueCreate /></Suspense>} />
-                <Route path="/admin-v2/venues/edit/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminVenueEdit /></Suspense>} />
-                <Route path="/admin-v2/organizers" element={<Suspense fallback={<AdminLoadingFallback />}><AdminOrganizersIndex /></Suspense>} />
-                <Route path="/admin-v2/organizers/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminOrganizerCreate /></Suspense>} />
-                <Route path="/admin-v2/organizers/edit/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminOrganizerEdit /></Suspense>} />
-                <Route path="/admin-v2/artists" element={<Suspense fallback={<AdminLoadingFallback />}><AdminArtistsIndex /></Suspense>} />
-                <Route path="/admin-v2/artists/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminArtistCreate /></Suspense>} />
-                <Route path="/admin-v2/artists/edit/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminArtistEdit /></Suspense>} />
+                <Route path="/admin-v2/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLayout /></Suspense>} />
 
                 {/* Admin Old - Backup system */}
                 <Route path="/admin-old/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLayoutOld /></Suspense>} />
