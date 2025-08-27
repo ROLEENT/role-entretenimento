@@ -87,6 +87,14 @@ export function AdminFileUpload({
       console.log('[ADMIN FILE UPLOAD] Bucket:', bucket);
       console.log('[ADMIN FILE UPLOAD] Filename:', fileName);
       console.log('[ADMIN FILE UPLOAD] Admin email:', adminEmail);
+      console.log('[ADMIN FILE UPLOAD] Expected path will be:', `/${bucket}/${fileName}`);
+      
+      // Debug específico para organizadores
+      if (bucket === 'organizers') {
+        console.log('[ORGANIZERS DEBUG] ✅ Bucket correto identificado: organizers');
+        console.log('[ORGANIZERS DEBUG] ✅ Admin email válido:', adminEmail);
+        console.log('[ORGANIZERS DEBUG] ✅ Filename sendo usado:', fileName);
+      }
       
       const uploadOptions = {
         cacheControl: '3600',
@@ -106,7 +114,17 @@ export function AdminFileUpload({
         console.error('[ADMIN FILE UPLOAD] ====== UPLOAD ERROR ======');
         console.error('[ADMIN FILE UPLOAD] Error details:', error);
         console.error('[ADMIN FILE UPLOAD] Error message:', error.message);
-        // console.error('[ADMIN FILE UPLOAD] Error cause:', error.cause); // Removido - não existe na interface StorageError
+        console.error('[ADMIN FILE UPLOAD] Bucket usado:', bucket);
+        console.error('[ADMIN FILE UPLOAD] Admin client headers:', uploadOptions.headers);
+        
+        // Debug específico para erro RLS de organizadores
+        if (bucket === 'organizers' && error.message?.includes('row-level security')) {
+          console.error('[ORGANIZERS DEBUG] ❌ RLS ERROR DETECTED!');
+          console.error('[ORGANIZERS DEBUG] ❌ Admin email being sent:', adminEmail);
+          console.error('[ORGANIZERS DEBUG] ❌ Expected bucket path: /organizers/');
+          console.error('[ORGANIZERS DEBUG] ❌ Actual upload path from error: Check network tab for actual path');
+        }
+        
         throw error;
       }
 
