@@ -12,7 +12,6 @@ import { NotificationPermissionPrompt } from "@/components/NotificationPermissio
 import { Toaster } from "@/components/ui/sonner";
 import SEOOptimizations from "@/components/SEOOptimizations";
 import AccessibilityEnhancements from "@/components/AccessibilityEnhancements";
-import { GoogleAdSense } from "@/components/GoogleAdSense";
 // Removed: Chatbot import
 
 const Index = () => {
@@ -70,9 +69,6 @@ const Index = () => {
             <Newsletter />
           </ScrollAnimationWrapper>
         </main>
-        {!window.location.pathname.startsWith('/admin') && (
-          <GoogleAdSense position="footer" pageType="homepage" />
-        )}
         <Footer />
         <NotificationPermissionPrompt />
         <BackToTop />

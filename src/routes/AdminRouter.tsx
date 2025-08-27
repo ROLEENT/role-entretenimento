@@ -37,7 +37,7 @@ import AdminArtistEdit from '@/pages/admin/artists/Edit';
 // Marketing & Monetization
 import AdminPartners from '@/pages/admin/partners/Index';
 import AdminAdvertisements from '@/pages/admin/advertisements/Index';
-import AdminAdSense from '@/pages/admin/adsense/Index';
+
 import AdminNewsletter from '@/pages/admin/newsletter/Index';
 import AdminPushNotifications from '@/pages/admin/push-notifications/Index';
 
@@ -105,7 +105,7 @@ export default function AdminRouter() {
         <Route path="advertisements/:id/edit" element={<AdminAdvertisements />} />
         <Route path="advertisements/new" element={<AdminAdvertisements />} />
         
-        <Route path="adsense" element={<AdminAdSense />} />
+        
         <Route path="newsletter" element={<AdminNewsletter />} />
         <Route path="push-notifications" element={<AdminPushNotifications />} />
         

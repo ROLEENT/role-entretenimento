@@ -82,11 +82,6 @@ const mainMenuItems = [
     url: "/admin/advertisements",
     icon: Image,
   },
-  {
-    title: "Google AdSense",
-    url: "/admin/adsense",
-    icon: DollarSign,
-  },
 ];
 
 const analyticsMenuItems = [
