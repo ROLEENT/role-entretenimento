@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useHighlightsByCity } from '@/hooks/useHighlights';
+import { useHighlightsByCity, CityEnum } from '@/hooks/useHighlights';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
@@ -16,7 +16,7 @@ import ScrollAnimationWrapper from '@/components/ScrollAnimationWrapper';
 import { citiesData } from '@/data/citiesData';
 import LazyImage from '@/components/LazyImage';
 
-type CityEnum = 'porto_alegre' | 'sao_paulo' | 'rio_de_janeiro' | 'florianopolis' | 'curitiba';
+
 
 const citySlugMapping: Record<string, CityEnum> = {
   'porto_alegre': 'porto_alegre',
