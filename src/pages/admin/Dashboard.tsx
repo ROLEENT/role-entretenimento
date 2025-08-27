@@ -10,7 +10,8 @@ import {
   TrendingUp,
   Bell,
   Target,
-  Zap
+  Zap,
+  Mic
 } from "lucide-react";
 
 const quickActions = [
@@ -27,6 +28,13 @@ const quickActions = [
     icon: Calendar,
     path: "/admin/events/create",
     bgColor: "bg-gradient-to-r from-blue-500 to-cyan-500"
+  },
+  {
+    title: "Criar Artista",
+    description: "Adicionar novo artista",
+    icon: Mic,
+    path: "/admin/artists/create",
+    bgColor: "bg-gradient-to-r from-violet-500 to-purple-500"
   },
   {
     title: "Post no Blog",
@@ -50,6 +58,7 @@ const managementSections = [
     items: [
       { title: "Destaques", path: "/admin/highlights", icon: Sparkles },
       { title: "Eventos", path: "/admin/events", icon: Calendar },
+      { title: "Artistas", path: "/admin/artists", icon: Mic },
       { title: "Blog", path: "/admin/blog", icon: FileText },
     ]
   },
