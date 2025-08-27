@@ -3,7 +3,7 @@ import { ArrowRight, MapPin, Star } from "lucide-react";
 import { useParallax } from "@/hooks/useParallax";
 import { useResponsive } from "@/hooks/useResponsive";
 import { Link } from "react-router-dom";
-import heroBanner from "@/assets/hero-banner.jpg";
+// import newHeroBanner from "@/assets/new-hero-banner.png";
 
 const HeroSection = () => {
   const parallaxRef = useParallax(0.3);
@@ -17,7 +17,7 @@ const HeroSection = () => {
         className="absolute inset-0 z-0 parallax-bg scale-105"
       >
         <img
-          src={heroBanner}
+          src="/lovable-uploads/f4d291fd-617b-4bff-86cc-04b0f8665f5d.png"
           alt="Cultura e entretenimento"
           className="w-full h-full object-cover"
         />
