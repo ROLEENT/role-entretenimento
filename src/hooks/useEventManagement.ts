@@ -4,17 +4,20 @@ import { toast } from 'sonner';
 
 export interface EventFormData {
   title: string;
-  slug: string;
+  slug?: string;
   description: string;
   start_at: string;
-  end_at: string;
+  end_at?: string;
   city: string;
   state?: string;
-  venue_id: string;
-  organizer_id: string;
-  cover_url: string;
-  tags: string[];
-  status: string;
+  venue_id?: string;
+  organizer_id?: string;
+  cover_url?: string;
+  tags?: string[];
+  status?: string;
+  price_min?: number;
+  price_max?: number;
+  external_url?: string;
 }
 
 export const useEventManagement = () => {
@@ -192,10 +195,13 @@ export const useEventManagement = () => {
         .select('id, name, address')
         .order('name');
 
-      if (error) throw error;
+      if (error) {
+        console.warn('Venues table not available:', error);
+        return [];
+      }
       return data || [];
     } catch (error: any) {
-      console.error('Error fetching venues:', error);
+      console.warn('Error fetching venues:', error);
       return [];
     }
   }, []);
@@ -207,10 +213,13 @@ export const useEventManagement = () => {
         .select('id, name')
         .order('name');
 
-      if (error) throw error;
+      if (error) {
+        console.warn('Organizers table not available:', error);
+        return [];
+      }
       return data || [];
     } catch (error: any) {
-      console.error('Error fetching organizers:', error);
+      console.warn('Error fetching organizers:', error);
       return [];
     }
   }, []);

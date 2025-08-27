@@ -102,13 +102,14 @@ export default function AdminEventCreate() {
   const fetchData = async () => {
     try {
       const [venuesData, organizersData] = await Promise.all([
-        getVenues(),
-        getOrganizers()
+        getVenues().catch(() => []),
+        getOrganizers().catch(() => [])
       ]);
       setVenues(venuesData || []);
       setOrganizers(organizersData || []);
     } catch (error) {
-      console.error('Erro ao carregar dados:', error);
+      console.warn('Erro ao carregar dados auxiliares:', error);
+      // Continue mesmo se não conseguir carregar venues/organizers
     }
   };
 
