@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { eventSchema, EventFormData } from '@/lib/eventSchema';
 import { useArtistManagement } from '@/hooks/useArtistManagement';
+import { AdminFileUpload } from '@/components/ui/admin-file-upload';
 
 interface EventFormProps {
   mode: 'create' | 'edit';
@@ -245,11 +246,11 @@ export default function EventForm({ mode }: EventFormProps) {
               </div>
 
               <div>
-                <Label htmlFor="cover_url">URL da Imagem de Capa *</Label>
-                <Input
-                  id="cover_url"
-                  {...form.register('cover_url')}
-                  placeholder="https://exemplo.com/imagem.jpg"
+                <AdminFileUpload
+                  bucket="events"
+                  onUploadComplete={(url) => form.setValue('cover_url', url)}
+                  currentUrl={form.watch('cover_url')}
+                  label="Imagem de Capa do Evento *"
                 />
                 {form.formState.errors.cover_url && (
                   <p className="text-red-500 text-sm mt-1">
