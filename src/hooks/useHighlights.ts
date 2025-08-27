@@ -23,31 +23,47 @@ interface Highlight {
   is_published: boolean;
 }
 
-export const useHighlightsByCity = (city: CityEnum) => {
+export const useHighlightsByCity = (city: CityEnum | null) => {
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchHighlights = async () => {
+      console.log('🔍 useHighlightsByCity - Buscando destaques para cidade:', city);
+      
+      if (!city) {
+        console.log('⚠️ Cidade não fornecida, limpando destaques');
+        setHighlights([]);
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         setError(null);
+        
+        console.log('📡 Executando query no Supabase para cidade:', city);
 
         const { data, error: fetchError } = await supabase
           .from('highlights')
           .select('*')
-        .eq('city', city as any)
-        .eq('is_published', true as any)
+          .eq('city', city as any)
+          .eq('is_published', true as any)
           .order('event_date', { ascending: false, nullsFirst: false })
           .order('sort_order', { ascending: true })
           .order('created_at', { ascending: false });
 
-        if (fetchError) throw fetchError;
+        if (fetchError) {
+          console.error('❌ Erro do Supabase:', fetchError);
+          throw fetchError;
+        }
 
-      setHighlights((data as any) || []);
+        console.log('✅ Destaques carregados:', data?.length || 0, 'itens');
+        console.log('📄 Dados recebidos:', data);
+        setHighlights((data as any) || []);
       } catch (err) {
-        console.error('Error fetching highlights:', err);
+        console.error('💥 Erro inesperado:', err);
         setError(err instanceof Error ? err.message : 'Unknown error');
         setHighlights([]);
       } finally {

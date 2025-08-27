@@ -39,12 +39,21 @@ const cityDisplayNames: Record<CityEnum, string> = {
 
 const CityHighlightsPage = () => {
   const { cidade } = useParams<{ cidade: string }>();
+  
+  console.log('🏙️ CityHighlightsPage - Parâmetro cidade recebido:', cidade);
+  
   const cityEnum = cidade ? citySlugMapping[cidade] : null;
-  const { highlights, loading, error } = useHighlightsByCity(cityEnum as CityEnum);
+  
+  console.log('🗺️ Cidade mapeada para enum:', cityEnum);
+  console.log('📋 Mapeamento disponível:', Object.keys(citySlugMapping));
+  
+  const { highlights, loading, error } = useHighlightsByCity(cityEnum);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredHighlights, setFilteredHighlights] = useState(highlights);
 
   useEffect(() => {
+    console.log('🔄 Atualizando highlights filtrados:', highlights.length, 'destaques disponíveis');
+    
     let filtered = highlights;
 
     if (searchTerm) {
@@ -53,6 +62,7 @@ const CityHighlightsPage = () => {
         highlight.venue.toLowerCase().includes(searchTerm.toLowerCase()) ||
         highlight.role_text.toLowerCase().includes(searchTerm.toLowerCase())
       );
+      console.log('🔍 Filtrados por busca:', filtered.length, 'resultados');
     }
 
     setFilteredHighlights(filtered);
@@ -62,7 +72,8 @@ const CityHighlightsPage = () => {
   const cityData = cityKey ? citiesData[cityKey] : null;
   const cityName = cityEnum ? cityDisplayNames[cityEnum] : '';
 
-  if (!cityEnum || !cityData) {
+  if (cidade && (!cityEnum || !cityData)) {
+    console.log('❌ Cidade não mapeada ou dados não encontrados:', { cidade, cityEnum, cityData: !!cityData });
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -86,6 +97,7 @@ const CityHighlightsPage = () => {
   }
 
   if (loading) {
+    console.log('⏳ Carregando destaques para:', cityEnum);
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -109,6 +121,7 @@ const CityHighlightsPage = () => {
   }
 
   if (error) {
+    console.log('💥 Erro ao carregar destaques:', error);
     return (
       <div className="min-h-screen bg-background">
         <Header />
