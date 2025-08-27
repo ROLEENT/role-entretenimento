@@ -8,26 +8,38 @@ export const useSecureHighlightLikes = (highlightId: string) => {
 
   const fetchLikeData = async () => {
     try {
-      // Use secure functions that don't expose user IDs
-      const [countResult, hasLikedResult] = await Promise.all([
-        supabase.rpc('get_highlight_like_count', { p_highlight_id: highlightId }),
-        supabase.rpc('user_liked_highlight', { p_highlight_id: highlightId })
-      ]);
+      setLoading(true);
+      
+      // Buscar contagem de likes diretamente da tabela
+      const { count: likeCountData, error: likeCountError } = await supabase
+        .from('highlight_likes')
+        .select('*', { count: 'exact', head: true })
+        .eq('highlight_id', highlightId);
 
-      if (countResult.error) {
-        console.error('Error getting like count:', countResult.error);
+      // Verificar se usuário curtiu (se autenticado)
+      const { data: { user } } = await supabase.auth.getUser();
+      let hasLikedData = false;
+      
+      if (user) {
+        const { data: userLikeData, error: userLikeError } = await supabase
+          .from('highlight_likes')
+          .select('*')
+          .eq('highlight_id', highlightId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        hasLikedData = !!userLikeData && !userLikeError;
+      }
+
+      if (likeCountError) {
+        console.error('Erro ao buscar contagem de likes:', likeCountError);
         return;
       }
 
-      if (hasLikedResult.error) {
-        console.error('Error checking like status:', hasLikedResult.error);
-        return;
-      }
-
-      setLikeCount(countResult.data || 0);
-      setHasLiked(hasLikedResult.data || false);
+      setLikeCount(likeCountData || 0);
+      setHasLiked(hasLikedData);
     } catch (error) {
-      console.error('Error fetching like data:', error);
+      console.error('Erro ao buscar dados de likes:', error);
     } finally {
       setLoading(false);
     }

@@ -34,30 +34,8 @@ const AdminLoginSimple = lazy(() => import("./pages/AdminLoginSimple"));
 const AdminResetPassword = lazy(() => import("./pages/AdminResetPassword"));
 const AdminSignup = lazy(() => import("./pages/AdminSignup"));
 const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
-const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-const AdminHighlightsManagement = lazy(() => import("./pages/AdminHighlightsManagement"));
-const AdminHighlightEditor = lazy(() => import("./pages/AdminHighlightEditor"));
-const AdminEventCreate = lazy(() => import("./pages/AdminEventCreate"));
-const AdminEventEdit = lazy(() => import("./pages/AdminEventEdit"));
-const AdminPartnersManagement = lazy(() => import("./pages/AdminPartnersManagement"));
-const AdminAdvertisements = lazy(() => import("./pages/AdminAdvertisements"));
-const AdminPostEditor = lazy(() => import("./pages/AdminPostEditor"));
-const AdminBlogPostsHistory = lazy(() => import("./pages/AdminBlogPostsHistory"));
-const AdminCommentsManagement = lazy(() => import("./pages/AdminCommentsManagement"));
-const AdminContactMessages = lazy(() => import("./pages/AdminContactMessages"));
-const AdminVenuesManagement = lazy(() => import("./pages/AdminVenuesManagement"));
-const AdminCategoriesManagement = lazy(() => import("./pages/AdminCategoriesManagement"));
-const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
-const AdminOrganizers = lazy(() => import("./pages/admin/AdminOrganizers"));
-const AdminProfile = lazy(() => import("./pages/AdminProfile"));
-const AdminAnalyticsReports = lazy(() => import("./pages/AdminAnalyticsReports"));
-const AdminPerformance = lazy(() => import("./pages/AdminPerformance"));
-const AdminNotifications = lazy(() => import("./pages/AdminNotifications"));
-const AdminEventsManagementPage = lazy(() => import("./pages/admin/AdminEventsManagement"));
-const AdminAdSensePage = lazy(() => import("./pages/admin/AdminAdSense"));
-const AdminNewsletter = lazy(() => import("./pages/admin/AdminNewsletter"));
-const AdminEventManagement = lazy(() => import("./pages/AdminEventManagement"));
-const AdminMetricsTestimonials = lazy(() => import("./pages/AdminMetricsTestimonials"));
+
+// Core admin pages for external routing
 const HighlightsListPage = lazy(() => import("./pages/HighlightsListPage"));
 const HighlightsCreatePage = lazy(() => import("./pages/HighlightsCreatePage"));
 
