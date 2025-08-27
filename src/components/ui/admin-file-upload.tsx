@@ -63,7 +63,15 @@ export function AdminFileUpload({
       
       // Get admin email and create admin client
       const adminEmail = getAdminEmail();
-      const adminClient = createAdminSupabaseClient(adminEmail || undefined);
+      console.log('[ADMIN FILE UPLOAD] Admin email:', adminEmail);
+      
+      if (!adminEmail) {
+        throw new Error('Email do admin não encontrado. Faça login novamente.');
+      }
+      
+      const adminClient = createAdminSupabaseClient(adminEmail);
+      
+      console.log('[ADMIN FILE UPLOAD] Uploading to bucket:', bucket, 'filename:', fileName);
       
       const { data, error } = await adminClient.storage
         .from(bucket)
@@ -73,15 +81,18 @@ export function AdminFileUpload({
         });
 
       if (error) {
+        console.error('[ADMIN FILE UPLOAD] Upload error:', error);
         throw error;
       }
 
+      console.log('[ADMIN FILE UPLOAD] Upload success:', data);
+      
       const publicUrl = getPublicUrl(`${bucket}/${data.path}`);
       onUploadComplete?.(publicUrl, data.path);
       showSuccess('Arquivo enviado com sucesso!');
       
     } catch (error: any) {
-      console.error('[ADMIN] Upload error:', error);
+      console.error('[ADMIN FILE UPLOAD] Upload error:', error);
       showError(error, 'Erro ao fazer upload do arquivo');
       setPreview(currentUrl || null);
     } finally {
