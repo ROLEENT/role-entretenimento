@@ -101,7 +101,7 @@ export default function GroupsPage() {
                       <SelectValue placeholder="Cidade" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todas as cidades</SelectItem>
+                      <SelectItem value="all">Todas as cidades</SelectItem>
                       {CITIES.map(city => (
                         <SelectItem key={city} value={city}>{city}</SelectItem>
                       ))}
@@ -113,7 +113,7 @@ export default function GroupsPage() {
                       <SelectValue placeholder="Categoria" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todas as categorias</SelectItem>
+                      <SelectItem value="all">Todas as categorias</SelectItem>
                       {CATEGORIES.map(category => (
                         <SelectItem key={category} value={category}>{category}</SelectItem>
                       ))}

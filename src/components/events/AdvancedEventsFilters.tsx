@@ -235,7 +235,7 @@ export const AdvancedEventsFilters: React.FC<AdvancedEventsFiltersProps> = ({
                 <SelectValue placeholder="Todas as cidades" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas as cidades</SelectItem>
+                <SelectItem value="all">Todas as cidades</SelectItem>
                 {cities.map((city) => (
                   <SelectItem key={city.id} value={city.id}>
                     {city.name} {city.count && `(${city.count})`}

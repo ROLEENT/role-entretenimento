@@ -136,7 +136,7 @@ export default function AdminNewsletter() {
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos</SelectItem>
+                    <SelectItem value="all">Todos</SelectItem>
                     <SelectItem value="confirmed">Confirmados</SelectItem>
                     <SelectItem value="pending">Pendentes</SelectItem>
                     <SelectItem value="unsubscribed">Cancelados</SelectItem>
@@ -147,7 +147,7 @@ export default function AdminNewsletter() {
                     <SelectValue placeholder="Cidade" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todas</SelectItem>
+                    <SelectItem value="all">Todas</SelectItem>
                     <SelectItem value="Porto Alegre">Porto Alegre</SelectItem>
                     <SelectItem value="São Paulo">São Paulo</SelectItem>
                     <SelectItem value="Rio de Janeiro">Rio de Janeiro</SelectItem>

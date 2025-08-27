@@ -112,7 +112,7 @@ const DiscoverUsers = () => {
                     <SelectValue placeholder="Filtrar por cidade" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todas as cidades</SelectItem>
+                    <SelectItem value="all">Todas as cidades</SelectItem>
                     {cities.map((city) => (
                       <SelectItem key={city} value={city}>
                         {city}

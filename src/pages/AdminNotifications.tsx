@@ -302,7 +302,7 @@ const AdminNotifications: React.FC = () => {
                       <SelectValue placeholder="Todas as cidades" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todas as cidades</SelectItem>
+                      <SelectItem value="all">Todas as cidades</SelectItem>
                       {cities.map(city => (
                         <SelectItem key={city} value={city}>
                           {city} ({stats.by_city[city] || 0})
@@ -321,7 +321,7 @@ const AdminNotifications: React.FC = () => {
                       <SelectValue placeholder="Todas as categorias" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todas as categorias</SelectItem>
+                      <SelectItem value="all">Todas as categorias</SelectItem>
                       {categories.map(cat => (
                         <SelectItem key={cat.value} value={cat.value}>
                           {cat.label}

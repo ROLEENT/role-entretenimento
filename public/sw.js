@@ -1,5 +1,5 @@
 // Service Worker simples e compatível
-const CACHE_NAME = 'role-admin-v1';
+const CACHE_NAME = 'role-admin-v3';
 
 // Install event
 self.addEventListener('install', (event) => {

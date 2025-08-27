@@ -58,6 +58,8 @@ const AdminAdSensePage = lazy(() => import("./pages/admin/AdminAdSense"));
 const AdminNewsletter = lazy(() => import("./pages/admin/AdminNewsletter"));
 const AdminEventManagement = lazy(() => import("./pages/AdminEventManagement"));
 const AdminMetricsTestimonials = lazy(() => import("./pages/AdminMetricsTestimonials"));
+const HighlightsListPage = lazy(() => import("./pages/HighlightsListPage"));
+const HighlightsCreatePage = lazy(() => import("./pages/HighlightsCreatePage"));
 
 // User pages - lazy loaded
 const EventsPage = lazy(() => import("./pages/EventsPage"));
@@ -130,6 +132,8 @@ function App() {
                 <Route path="/admin/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLoginSimple /></Suspense>} />
                 <Route path="/admin/reset-password" element={<Suspense fallback={<AdminLoadingFallback />}><AdminResetPassword /></Suspense>} />
                 <Route path="/admin/signup" element={<Suspense fallback={<AdminLoadingFallback />}><AdminSignup /></Suspense>} />
+                <Route path="/admin/highlights" element={<Suspense fallback={<AdminLoadingFallback />}><HighlightsListPage /></Suspense>} />
+                <Route path="/admin/highlights/create" element={<Suspense fallback={<AdminLoadingFallback />}><HighlightsCreatePage /></Suspense>} />
                 <Route path="/admin/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLayout /></Suspense>} />
                 
                 {/* Events Routes */}

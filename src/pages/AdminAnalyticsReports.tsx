@@ -336,7 +336,7 @@ const AdminAnalyticsReports: React.FC = () => {
                       <SelectValue placeholder="Todas as cidades" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todas as cidades</SelectItem>
+                      <SelectItem value="all">Todas as cidades</SelectItem>
                       {cities.map(city => (
                         <SelectItem key={city} value={city}>{city}</SelectItem>
                       ))}
@@ -350,7 +350,7 @@ const AdminAnalyticsReports: React.FC = () => {
                       <SelectValue placeholder="Todas as fontes" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todas as fontes</SelectItem>
+                      <SelectItem value="all">Todas as fontes</SelectItem>
                       {sources.map(source => (
                         <SelectItem key={source} value={source}>{source}</SelectItem>
                       ))}
@@ -364,7 +364,7 @@ const AdminAnalyticsReports: React.FC = () => {
                       <SelectValue placeholder="Todos os eventos" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todos os eventos</SelectItem>
+                      <SelectItem value="all">Todos os eventos</SelectItem>
                       {eventNames.map(event => (
                         <SelectItem key={event} value={event}>{event}</SelectItem>
                       ))}

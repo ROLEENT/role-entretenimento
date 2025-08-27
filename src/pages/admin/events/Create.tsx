@@ -245,7 +245,7 @@ export default function AdminEventCreate() {
                     <SelectValue placeholder="Selecione o local" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Nenhum</SelectItem>
+                    <SelectItem value="none">Nenhum</SelectItem>
                     {venues.map(venue => (
                       <SelectItem key={venue.id} value={venue.id}>
                         {venue.name} - {venue.address}
@@ -261,7 +261,7 @@ export default function AdminEventCreate() {
                     <SelectValue placeholder="Selecione o organizador" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Nenhum</SelectItem>
+                    <SelectItem value="none">Nenhum</SelectItem>
                     {organizers.map(organizer => (
                       <SelectItem key={organizer.id} value={organizer.id}>
                         {organizer.name}

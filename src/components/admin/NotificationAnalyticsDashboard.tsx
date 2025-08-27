@@ -153,7 +153,7 @@ export const NotificationAnalyticsDashboard = () => {
                   <SelectValue placeholder="Todos os tipos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os tipos</SelectItem>
+                  <SelectItem value="all">Todos os tipos</SelectItem>
                   <SelectItem value="new_events">Novos Eventos</SelectItem>
                   <SelectItem value="event_reminders">Lembretes</SelectItem>
                   <SelectItem value="weekly_highlights">Destaques</SelectItem>
@@ -168,7 +168,7 @@ export const NotificationAnalyticsDashboard = () => {
                   <SelectValue placeholder="Todas as cidades" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas as cidades</SelectItem>
+                  <SelectItem value="all">Todas as cidades</SelectItem>
                   <SelectItem value="São Paulo">São Paulo</SelectItem>
                   <SelectItem value="Rio de Janeiro">Rio de Janeiro</SelectItem>
                   <SelectItem value="Curitiba">Curitiba</SelectItem>

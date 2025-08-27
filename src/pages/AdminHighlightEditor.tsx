@@ -192,18 +192,18 @@ const AdminHighlightEditor = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Cidade</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select value={field.value ?? undefined} onValueChange={field.onChange}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecione a cidade" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {cities.map((city) => (
-                            <SelectItem key={city.value} value={city.value}>
+                          {Array.isArray(cities) ? cities.map((city) => (
+                            <SelectItem key={city.value} value={String(city.value)}>
                               {city.label}
                             </SelectItem>
-                          ))}
+                          )) : []}
                         </SelectContent>
                       </Select>
                       <FormMessage />

@@ -71,7 +71,7 @@ export default function AdvertisementsList() {
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="active">Ativos</SelectItem>
                 <SelectItem value="paused">Pausados</SelectItem>
                 <SelectItem value="expired">Expirados</SelectItem>
