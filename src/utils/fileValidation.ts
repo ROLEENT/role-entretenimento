@@ -53,10 +53,11 @@ export function generateFileName(originalName: string, bucket: string): string {
   const randomStr = Math.random().toString(36).substring(2, 8);
   const extension = originalName.split('.').pop();
   
-  return `${bucket}/${timestamp}-${randomStr}.${extension}`;
+  // NÃO duplicar o bucket no path - ele já é especificado no storage.from()
+  return `${timestamp}-${randomStr}.${extension}`;
 }
 
-export function getPublicUrl(filePath: string): string {
+export function getPublicUrl(bucket: string, filePath: string): string {
   const supabaseUrl = "https://nutlcbnruabjsxecqpnd.supabase.co";
-  return `${supabaseUrl}/storage/v1/object/public/${filePath}`;
+  return `${supabaseUrl}/storage/v1/object/public/${bucket}/${filePath}`;
 }

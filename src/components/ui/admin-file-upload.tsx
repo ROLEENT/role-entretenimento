@@ -69,6 +69,11 @@ export function AdminFileUpload({
         throw new Error('Email do admin não encontrado. Faça login novamente.');
       }
       
+      // Verificar se admin é válido antes de tentar upload
+      if (!adminEmail.includes('@')) {
+        throw new Error('Email do admin inválido. Faça login novamente.');
+      }
+      
       const adminClient = createAdminSupabaseClient(adminEmail);
       
       console.log('[ADMIN FILE UPLOAD] Uploading to bucket:', bucket, 'filename:', fileName);
@@ -87,7 +92,7 @@ export function AdminFileUpload({
 
       console.log('[ADMIN FILE UPLOAD] Upload success:', data);
       
-      const publicUrl = getPublicUrl(`${bucket}/${data.path}`);
+      const publicUrl = getPublicUrl(bucket, data.path);
       onUploadComplete?.(publicUrl, data.path);
       showSuccess('Arquivo enviado com sucesso!');
       
