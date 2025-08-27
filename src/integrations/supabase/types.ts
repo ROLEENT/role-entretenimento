@@ -1112,6 +1112,54 @@ export type Database = {
           },
         ]
       }
+      event_engagement: {
+        Row: {
+          created_at: string
+          engagement_type: string
+          event_id: string | null
+          highlight_id: string | null
+          id: string
+          metadata: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          engagement_type: string
+          event_id?: string | null
+          highlight_id?: string | null
+          id?: string
+          metadata?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          engagement_type?: string
+          event_id?: string | null
+          highlight_id?: string | null
+          id?: string
+          metadata?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_engagement_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_engagement_highlight_id_fkey"
+            columns: ["highlight_id"]
+            isOneToOne: false
+            referencedRelation: "highlights"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_favorites: {
         Row: {
           created_at: string
