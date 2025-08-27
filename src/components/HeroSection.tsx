@@ -3,7 +3,8 @@ import { ArrowRight, MapPin, Star } from "lucide-react";
 import { useParallax } from "@/hooks/useParallax";
 import { useResponsive } from "@/hooks/useResponsive";
 import { Link } from "react-router-dom";
-// import newHeroBanner from "@/assets/new-hero-banner.png";
+import { ImageFallback } from "./ui/image-fallback";
+import heroBanner from "@/assets/hero-banner.jpg";
 
 const HeroSection = () => {
   const parallaxRef = useParallax(0.3);
@@ -16,14 +17,12 @@ const HeroSection = () => {
         ref={parallaxRef}
         className="absolute inset-0 z-0 parallax-bg scale-105"
       >
-        <img
+        <ImageFallback
           src={`/lovable-uploads/1b1881aa-51f5-49c3-83e7-14f6c7d06137.png?v=${Date.now()}`}
           alt="Curadoria independente de cultura e experiências"
           className="w-full h-full object-cover object-center md:object-center"
-          loading="eager"
-          decoding="async"
-          onLoad={() => console.log('Banner carregado com sucesso!')}
-          onError={(e) => console.error('Erro ao carregar banner:', e)}
+          fallback={heroBanner}
+          showIcon={false}
         />
         
       </div>
