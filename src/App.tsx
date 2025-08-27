@@ -43,6 +43,13 @@ const HighlightsCreatePage = lazy(() => import("./pages/HighlightsCreatePage"));
 const AdminSimple = lazy(() => import("./pages/AdminSimple"));
 const AdminSimpleForm = lazy(() => import("./pages/AdminSimpleForm"));
 
+// Admin V2 - MVP System
+const AdminV2Login = lazy(() => import("./pages/AdminV2Login"));
+const AdminV2Dashboard = lazy(() => import("./pages/AdminV2Dashboard"));
+
+// Admin Old Layout
+const AdminLayoutOld = lazy(() => import("./layouts/AdminLayoutOld"));
+
 // User pages - lazy loaded
 const EventsPage = lazy(() => import("./pages/EventsPage"));
 const EventDetailPage = lazy(() => import("./pages/EventDetailPage"));
@@ -115,13 +122,20 @@ function App() {
                 <Route path="/admin-simple/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminSimpleForm /></Suspense>} />
                 <Route path="/admin-simple/edit/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminSimpleForm /></Suspense>} />
 
-                {/* Admin Routes - Clean structure */}
+                {/* Admin V2 - MVP System */}
+                <Route path="/admin-v2/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Login /></Suspense>} />
+                <Route path="/admin-v2/dashboard" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Dashboard /></Suspense>} />
+
+                {/* Admin Old - Backup system */}
+                <Route path="/admin-old/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLayoutOld /></Suspense>} />
+
+                {/* Admin Routes - Redirect to V2 */}
                 <Route path="/admin/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLoginSimple /></Suspense>} />
                 <Route path="/admin/reset-password" element={<Suspense fallback={<AdminLoadingFallback />}><AdminResetPassword /></Suspense>} />
                 <Route path="/admin/signup" element={<Suspense fallback={<AdminLoadingFallback />}><AdminSignup /></Suspense>} />
                 <Route path="/admin/highlights" element={<Suspense fallback={<AdminLoadingFallback />}><HighlightsListPage /></Suspense>} />
                 <Route path="/admin/highlights/create" element={<Suspense fallback={<AdminLoadingFallback />}><HighlightsCreatePage /></Suspense>} />
-                <Route path="/admin/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLayout /></Suspense>} />
+                <Route path="/admin/*" element={<Navigate to="/admin-v2/login" replace />} />
                 
                 {/* Events Routes */}
                 <Route path="/eventos" element={<EventsPage />} />
