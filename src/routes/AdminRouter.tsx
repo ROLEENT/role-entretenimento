@@ -26,6 +26,10 @@ import AdminProfiles from '@/pages/admin/profiles/Index';
 import AdminComments from '@/pages/admin/comments/Index';
 import AdminContactMessages from '@/pages/admin/contact-messages/Index';
 import AdminOrganizers from '@/pages/admin/organizers/Index';
+import AdminOrganizerCreate from '@/pages/admin/organizers/Create';
+import AdminOrganizerEdit from '@/pages/admin/organizers/Edit';
+import AdminVenueCreate from '@/pages/admin/venues/Create';
+import AdminVenueEdit from '@/pages/admin/venues/Edit';
 import AdminArtists from '@/pages/admin/artists/Index';
 import AdminArtistCreate from '@/pages/admin/artists/Create';
 import AdminArtistEdit from '@/pages/admin/artists/Edit';
@@ -75,7 +79,10 @@ export default function AdminRouter() {
         <Route path="blog/history" element={<AdminBlogHistory />} />
         
         <Route path="categories" element={<AdminCategories />} />
+        
         <Route path="venues" element={<AdminVenues />} />
+        <Route path="venues/create" element={<AdminVenueCreate />} />
+        <Route path="venues/:id/edit" element={<AdminVenueEdit />} />
         
         <Route path="artists" element={<AdminArtists />} />
         <Route path="artists/create" element={<AdminArtistCreate />} />
@@ -86,6 +93,8 @@ export default function AdminRouter() {
         <Route path="comments" element={<AdminComments />} />
         <Route path="contact-messages" element={<AdminContactMessages />} />
         <Route path="organizers" element={<AdminOrganizers />} />
+        <Route path="organizers/create" element={<AdminOrganizerCreate />} />
+        <Route path="organizers/:id/edit" element={<AdminOrganizerEdit />} />
         
         {/* Marketing & Monetization */}
         <Route path="partners" element={<AdminPartners />} />

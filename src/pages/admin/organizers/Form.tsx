@@ -1,19 +1,59 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate, useParams } from 'react-router-dom';
 import { organizerSchema, type OrganizerFormData } from '@/lib/organizerSchema';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useAdminV2Auth } from '@/hooks/useAdminV2Auth';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminFileUpload } from '@/components/ui/admin-file-upload';
 import { Badge } from '@/components/ui/badge';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { ArrowLeft, Plus, X } from 'lucide-react';
+import { AdminBreadcrumbs } from '@/components/admin/AdminBreadcrumbs';
 import { useToast } from '@/hooks/use-toast';
-import { Separator } from '@/components/ui/separator';
-import { X } from 'lucide-react';
+
+const organizerTypes = [
+  { value: 'organizador', label: 'Organizador' },
+  { value: 'produtora', label: 'Produtora' },
+  { value: 'coletivo', label: 'Coletivo' },
+  { value: 'selo', label: 'Selo' },
+];
+
+const cities = [
+  'Porto Alegre',
+  'São Paulo',
+  'Rio de Janeiro',
+  'Florianópolis',
+  'Curitiba',
+  'Belo Horizonte',
+  'Salvador',
+  'Brasília',
+  'Recife',
+  'Fortaleza'
+];
+
+const musicGenres = [
+  'Rock',
+  'Pop',
+  'Eletrônica',
+  'Hip Hop',
+  'Reggae',
+  'Folk',
+  'Jazz',
+  'Blues',
+  'Country',
+  'Funk',
+  'MPB',
+  'Sertanejo',
+  'Forró',
+  'Pagode',
+  'Samba'
+];
 
 interface OrganizerFormProps {
   mode: 'create' | 'edit';
@@ -22,12 +62,12 @@ interface OrganizerFormProps {
 export default function OrganizerForm({ mode }: OrganizerFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { user } = useAdminV2Auth();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [cities, setCities] = useState<string[]>([]);
-  const [genres, setGenres] = useState<string[]>([]);
-  const [newCity, setNewCity] = useState('');
-  const [newGenre, setNewGenre] = useState('');
+  const [loading, setLoading] = useState(mode === 'edit');
+  const [saving, setSaving] = useState(false);
+  const [tempCity, setTempCity] = useState('');
+  const [tempGenre, setTempGenre] = useState('');
 
   const form = useForm<OrganizerFormData>({
     resolver: zodResolver(organizerSchema),
@@ -38,507 +78,580 @@ export default function OrganizerForm({ mode }: OrganizerFormProps) {
       contact_email: '',
       contact_whatsapp: '',
       instagram: '',
+      logo_url: '',
+      bio_short: '',
+      bio_long: '',
+      website_url: '',
+      portfolio_url: '',
+      cover_image_url: '',
       cities_active: [],
       genres: [],
+      responsible_name: '',
+      responsible_role: '',
+      booking_whatsapp: '',
+      booking_email: '',
+      internal_notes: '',
       status: 'active',
       priority: 0,
-    }
+    },
   });
 
-  const watchedCities = form.watch('cities_active');
-  const watchedGenres = form.watch('genres');
+  const { watch, setValue, handleSubmit, formState: { errors, isValid } } = form;
+  const citiesActive = watch('cities_active');
+  const genres = watch('genres');
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        handleSubmit(onSubmit)();
+      }
+      if (e.key === 'Escape') {
+        navigate('/admin-v2/organizers');
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleSubmit, navigate]);
+
+  // Carregar dados para edição
   useEffect(() => {
     if (mode === 'edit' && id) {
-      // TODO: Fetch organizer data
-      setLoading(true);
-      // Simulated fetch - replace with actual API call
-      setTimeout(() => {
-        setLoading(false);
-      }, 1000);
+      loadOrganizer();
     }
   }, [mode, id]);
 
-  const onSubmit = async (data: OrganizerFormData) => {
+  const loadOrganizer = async () => {
     try {
-      setLoading(true);
-      
-      // Generate slug from name
-      const slug = data.name.toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .trim();
-
-      const organizerData = {
-        ...data,
-        slug,
-        cities_active: cities,
-        genres: genres,
-      };
-
-      console.log('Organizer data:', organizerData);
-      
-      // TODO: Implement actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast({
-        title: mode === 'create' ? 'Organizador criado!' : 'Organizador atualizado!',
-        description: 'Os dados foram salvos com sucesso.',
-      });
-
-      navigate('/admin-v2/organizers');
-    } catch (error) {
-      console.error('Error saving organizer:', error);
-      toast({
-        title: 'Erro',
-        description: 'Erro ao salvar organizador.',
-        variant: 'destructive',
-      });
-    } finally {
+      // Mock data - em produção seria uma chamada à API
+      setTimeout(() => {
+        form.reset({
+          name: 'Produtora Music Wave',
+          type: 'produtora',
+          city: 'Porto Alegre',
+          contact_email: 'contato@musicwave.com',
+          contact_whatsapp: '+5551999999999',
+          instagram: '@musicwave',
+          bio_short: 'Produtora especializada em eventos eletrônicos',
+          bio_long: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
+          website_url: 'https://musicwave.com',
+          cities_active: ['Porto Alegre', 'São Paulo'],
+          genres: ['Eletrônica', 'House'],
+          status: 'active',
+          priority: 0,
+        });
+        setLoading(false);
+      }, 1000);
+    } catch (error: any) {
+      console.error('Erro ao carregar organizador:', error);
       setLoading(false);
     }
   };
 
+  const onSubmit = async (data: OrganizerFormData) => {
+    setSaving(true);
+    try {
+      // Aqui seria a chamada à API
+      console.log('Dados do organizador:', data);
+      
+      toast({
+        title: mode === 'create' ? 'Organizador criado!' : 'Organizador atualizado!',
+        description: `O organizador foi ${mode === 'create' ? 'criado' : 'atualizado'} com sucesso.`,
+      });
+      
+      navigate('/admin-v2/organizers');
+    } catch (error: any) {
+      console.error('Erro ao salvar organizador:', error);
+      toast({
+        title: 'Erro ao salvar',
+        description: error.message || 'Ocorreu um erro inesperado.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const addCity = () => {
-    if (newCity.trim() && !cities.includes(newCity.trim())) {
-      setCities(prev => [...prev, newCity.trim()]);
-      setNewCity('');
+    if (tempCity.trim() && !citiesActive.includes(tempCity.trim())) {
+      setValue('cities_active', [...citiesActive, tempCity.trim()]);
+      setTempCity('');
     }
   };
 
   const removeCity = (cityToRemove: string) => {
-    setCities(prev => prev.filter(city => city !== cityToRemove));
+    setValue('cities_active', citiesActive.filter(city => city !== cityToRemove));
   };
 
   const addGenre = () => {
-    if (newGenre.trim() && !genres.includes(newGenre.trim())) {
-      setGenres(prev => [...prev, newGenre.trim()]);
-      setNewGenre('');
+    if (tempGenre.trim() && !genres.includes(tempGenre.trim())) {
+      setValue('genres', [...genres, tempGenre.trim()]);
+      setTempGenre('');
     }
   };
 
   const removeGenre = (genreToRemove: string) => {
-    setGenres(prev => prev.filter(genre => genre !== genreToRemove));
+    setValue('genres', genres.filter(genre => genre !== genreToRemove));
   };
 
-  if (loading && mode === 'edit') {
+  if (loading) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="text-center">Carregando...</div>
-        </CardContent>
-      </Card>
+      <div className="p-6">
+        <LoadingSpinner size="lg" text="Carregando organizador..." />
+      </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">
-          {mode === 'create' ? 'Criar Organizador' : 'Editar Organizador'}
-        </h1>
-        <p className="text-muted-foreground">
-          {mode === 'create' 
-            ? 'Cadastre um novo organizador, produtora ou coletivo'
-            : 'Edite as informações do organizador'
-          }
-        </p>
+    <div className="p-6 max-w-4xl mx-auto">
+      <AdminBreadcrumbs />
+      
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" onClick={() => navigate('/admin-v2/organizers')}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">
+              {mode === 'create' ? 'Criar Novo Organizador' : 'Editar Organizador'}
+            </h1>
+            <p className="text-muted-foreground">
+              {mode === 'create' 
+                ? 'Preencha os dados do novo organizador'
+                : 'Altere os dados do organizador selecionado'
+              }
+            </p>
+          </div>
+        </div>
+        
+        <div className="text-sm text-muted-foreground">
+          <kbd className="px-2 py-1 bg-muted rounded text-xs">Ctrl+S</kbd> para salvar • 
+          <kbd className="px-2 py-1 bg-muted rounded text-xs ml-1">Esc</kbd> para voltar
+        </div>
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Campos Obrigatórios */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Campos Obrigatórios</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome Oficial *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nome do organizador..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tipo de Perfil *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Coluna Esquerda */}
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Campos Obrigatórios</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nome *</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione o tipo..." />
-                          </SelectTrigger>
+                          <Input placeholder="Ex: Produtora Music Wave" {...field} />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="organizador">Organizador</SelectItem>
-                          <SelectItem value="produtora">Produtora</SelectItem>
-                          <SelectItem value="coletivo">Coletivo</SelectItem>
-                          <SelectItem value="selo">Selo</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cidade Sede *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Porto Alegre, São Paulo..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="contact_email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email de Contato *</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="contato@exemplo.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="contact_whatsapp"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>WhatsApp *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="(51) 99999-9999" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="instagram"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Instagram *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="@usuario (sem https://)" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="logo_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Logo do Projeto *</FormLabel>
-                    <FormControl>
-                      <AdminFileUpload
-                        bucket="organizers"
-                        currentUrl={field.value}
-                        onUploadComplete={(url) => field.onChange(url)}
-                        label="Selecionar Logo"
-                        className="w-full"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Campos Complementares */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Campos Complementares</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="bio_short"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bio Curta (200-300 caracteres)</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Descrição breve do organizador..."
-                        className="min-h-[80px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <div className="text-sm text-muted-foreground">
-                      {field.value?.length || 0}/300 caracteres
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="website_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Site ou Linktree</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://linktr.ee/usuario" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="portfolio_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Portfólio ou Mídia Kit</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://portfolio.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Cidades onde atua */}
-              <div className="space-y-2">
-                <FormLabel>Cidades onde Atua</FormLabel>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Adicionar cidade..."
-                    value={newCity}
-                    onChange={(e) => setNewCity(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCity())}
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  <Button type="button" onClick={addCity}>Adicionar</Button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {cities.map((city) => (
-                    <Badge key={city} variant="secondary" className="gap-1">
-                      {city}
-                      <X 
-                        className="h-3 w-3 cursor-pointer" 
-                        onClick={() => removeCity(city)}
-                      />
-                    </Badge>
-                  ))}
-                </div>
-              </div>
 
-              {/* Gêneros principais */}
-              <div className="space-y-2">
-                <FormLabel>Principais Gêneros ou Cenas</FormLabel>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Adicionar gênero..."
-                    value={newGenre}
-                    onChange={(e) => setNewGenre(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addGenre())}
-                  />
-                  <Button type="button" onClick={addGenre}>Adicionar</Button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {genres.map((genre) => (
-                    <Badge key={genre} variant="secondary" className="gap-1">
-                      {genre}
-                      <X 
-                        className="h-3 w-3 cursor-pointer" 
-                        onClick={() => removeGenre(genre)}
-                      />
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <FormField
-                control={form.control}
-                name="cover_image_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Foto de Capa</FormLabel>
-                    <FormControl>
-                      <AdminFileUpload
-                        bucket="organizers"
-                        currentUrl={field.value}
-                        onUploadComplete={(url) => field.onChange(url)}
-                        label="Selecionar Foto de Capa"
-                        className="w-full"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Campos Internos */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Campos Internos (não exibir no site)</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="responsible_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome do Responsável</FormLabel>
-                      <FormControl>
-                        <Input placeholder="João Silva" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="responsible_role"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cargo</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Diretor, Produtor..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="booking_whatsapp"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>WhatsApp de Booking</FormLabel>
-                      <FormControl>
-                        <Input placeholder="(51) 99999-9999" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="booking_email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email de Contrato</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="booking@exemplo.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="internal_notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Observações Internas do ROLÊ</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Observações internas..."
-                        className="min-h-[80px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Status</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormField
+                    control={form.control}
+                    name="type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tipo *</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {organizerTypes.map(type => (
+                                <SelectItem key={type.value} value={type.value}>
+                                  {type.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="active">Ativo</SelectItem>
-                          <SelectItem value="inactive">Inativo</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="priority"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Prioridade de Exibição</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          min="0" 
-                          {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cidade Principal *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Porto Alegre" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="contact_email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email de Contato *</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="contato@exemplo.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="contact_whatsapp"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>WhatsApp *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="+5551999999999" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="instagram"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Instagram *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="@usuario" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Campos Complementares</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="logo_url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Logo</FormLabel>
+                        <AdminFileUpload
+                          bucket="organizers"
+                          currentUrl={field.value}
+                          onUploadComplete={field.onChange}
+                          label="Logo do Organizador"
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </CardContent>
-          </Card>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-          <Separator />
+                  <FormField
+                    control={form.control}
+                    name="cover_image_url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Imagem de Capa</FormLabel>
+                        <AdminFileUpload
+                          bucket="organizers"
+                          currentUrl={field.value}
+                          onUploadComplete={field.onChange}
+                          label="Imagem de Capa"
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-          <div className="flex gap-4">
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Salvando...' : (mode === 'create' ? 'Criar Organizador' : 'Salvar Alterações')}
-            </Button>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => navigate('/admin-v2/organizers')}
-            >
+                  <FormField
+                    control={form.control}
+                    name="bio_short"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Bio Curta</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Descrição curta para cards e listagens..."
+                            className="min-h-[80px]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <div className="text-sm text-muted-foreground text-right">
+                          {field.value?.length || 0}/300 caracteres
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="bio_long"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Bio Longa</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Descrição completa para página de perfil..."
+                            className="min-h-[120px]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <div className="text-sm text-muted-foreground text-right">
+                          {field.value?.length || 0}/1500 caracteres
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-1 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="website_url"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Website</FormLabel>
+                          <FormControl>
+                            <Input placeholder="https://..." {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="portfolio_url"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Portfólio</FormLabel>
+                          <FormControl>
+                            <Input placeholder="https://..." {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Coluna Direita */}
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Cidades de Atuação</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Adicionar cidade..."
+                      value={tempCity}
+                      onChange={(e) => setTempCity(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCity())}
+                    />
+                    <Button type="button" onClick={addCity} size="sm">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {citiesActive.map((city) => (
+                      <Badge key={city} variant="secondary" className="flex items-center gap-1">
+                        {city}
+                        <X
+                          className="h-3 w-3 cursor-pointer"
+                          onClick={() => removeCity(city)}
+                        />
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Gêneros Musicais</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Adicionar gênero..."
+                      value={tempGenre}
+                      onChange={(e) => setTempGenre(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addGenre())}
+                    />
+                    <Button type="button" onClick={addGenre} size="sm">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {genres.map((genre) => (
+                      <Badge key={genre} variant="secondary" className="flex items-center gap-1">
+                        {genre}
+                        <X
+                          className="h-3 w-3 cursor-pointer"
+                          onClick={() => removeGenre(genre)}
+                        />
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Campos Internos</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="responsible_name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nome do Responsável</FormLabel>
+                          <FormControl>
+                            <Input placeholder="João Silva" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="responsible_role"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Cargo do Responsável</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Diretor" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="booking_whatsapp"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>WhatsApp Booking</FormLabel>
+                          <FormControl>
+                            <Input placeholder="+5551999999999" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="booking_email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email Booking</FormLabel>
+                          <FormControl>
+                            <Input type="email" placeholder="booking@exemplo.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="internal_notes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Observações Internas</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Notas para uso interno da equipe..."
+                            className="min-h-[100px]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="status"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Status</FormLabel>
+                          <FormControl>
+                            <Select value={field.value} onValueChange={field.onChange}>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="active">Ativo</SelectItem>
+                                <SelectItem value="inactive">Inativo</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="priority"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Prioridade</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="0" 
+                              {...field} 
+                              onChange={(e) => field.onChange(Number(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-6 border-t">
+            <Button type="button" variant="outline" onClick={() => navigate('/admin-v2/organizers')}>
               Cancelar
+            </Button>
+            <Button type="submit" disabled={saving || !isValid}>
+              {saving ? 'Salvando...' : mode === 'create' ? 'Criar Organizador' : 'Atualizar Organizador'}
             </Button>
           </div>
         </form>

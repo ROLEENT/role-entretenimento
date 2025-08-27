@@ -8,41 +8,43 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Plus, Search, MoreHorizontal, Edit, Trash2, Building2, Clock, Instagram, Globe } from 'lucide-react';
+import { Plus, Search, MoreHorizontal, Edit, Trash2, MapPin, Users, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-interface Organizer {
+interface Venue {
   id: string;
   name: string;
   type: string;
+  address: string;
   city: string;
-  contact_email: string;
-  contact_whatsapp?: string;
-  instagram?: string;
-  website_url?: string;
-  logo_url?: string;
+  state: string;
+  capacity?: number;
   status: 'active' | 'inactive';
+  instagram?: string;
   created_at: string;
 }
 
 const typeLabels = {
-  organizador: 'Organizador',
-  produtora: 'Produtora',
-  coletivo: 'Coletivo',
-  selo: 'Selo'
+  bar: 'Bar',
+  clube: 'Clube',
+  casa_de_shows: 'Casa de Shows',
+  teatro: 'Teatro',
+  galeria: 'Galeria',
+  espaco_cultural: 'Espaço Cultural',
+  restaurante: 'Restaurante'
 };
 
-export default function OrganizersList() {
+export default function VenuesList() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [organizers, setOrganizers] = useState<Organizer[]>([]);
+  const [venues, setVenues] = useState<Venue[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredOrganizers = organizers.filter(organizer =>
-    organizer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    organizer.contact_email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    organizer.city.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredVenues = venues.filter(venue =>
+    venue.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    venue.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    venue.address.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const getTypeLabel = (type: string) => typeLabels[type as keyof typeof typeLabels] || type;
@@ -58,27 +60,29 @@ export default function OrganizersList() {
   useEffect(() => {
     // Mock data - em produção seria uma chamada à API
     setTimeout(() => {
-      setOrganizers([
+      setVenues([
         {
           id: '1',
-          name: 'Produtora Music Wave',
-          type: 'produtora',
+          name: 'Bar do Zeca',
+          type: 'bar',
+          address: 'Rua das Flores, 123',
           city: 'Porto Alegre',
-          contact_email: 'contato@musicwave.com',
-          contact_whatsapp: '+5551999999999',
-          instagram: '@musicwave',
-          website_url: 'https://musicwave.com',
+          state: 'RS',
+          capacity: 150,
           status: 'active',
+          instagram: '@barzeca',
           created_at: '2024-01-15T10:00:00Z'
         },
         {
           id: '2',
-          name: 'Coletivo Underground',
-          type: 'coletivo',
-          city: 'São Paulo',
-          contact_email: 'info@underground.com',
-          instagram: '@underground_sp',
+          name: 'Teatro Municipal',
+          type: 'teatro',
+          address: 'Av. Borges de Medeiros, 456',
+          city: 'Porto Alegre',
+          state: 'RS',
+          capacity: 800,
           status: 'active',
+          instagram: '@teatromunicipal',
           created_at: '2024-01-10T10:00:00Z'
         }
       ]);
@@ -86,15 +90,15 @@ export default function OrganizersList() {
     }, 1000);
   }, []);
 
-  const handleDelete = async (organizerId: string) => {
-    if (!confirm('Tem certeza que deseja excluir este organizador?')) return;
+  const handleDelete = async (venueId: string) => {
+    if (!confirm('Tem certeza que deseja excluir este local?')) return;
     
     try {
-      // Aqui seria a chamada para deletar o organizador
-      setOrganizers(organizers.filter(o => o.id !== organizerId));
+      // Aqui seria a chamada para deletar o local
+      setVenues(venues.filter(v => v.id !== venueId));
       toast({
-        title: 'Organizador excluído',
-        description: 'O organizador foi excluído com sucesso.',
+        title: 'Local excluído',
+        description: 'O local foi excluído com sucesso.',
       });
     } catch (error: any) {
       toast({
@@ -108,7 +112,7 @@ export default function OrganizersList() {
   if (loading) {
     return (
       <div className="p-6">
-        <LoadingSpinner size="lg" text="Carregando organizadores..." />
+        <LoadingSpinner size="lg" text="Carregando locais..." />
       </div>
     );
   }
@@ -119,14 +123,14 @@ export default function OrganizersList() {
       
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Gerenciar Organizadores</h1>
+          <h1 className="text-2xl font-bold">Gerenciar Locais</h1>
           <p className="text-muted-foreground">
-            Gerencie os organizadores cadastrados na plataforma
+            Gerencie os locais cadastrados na plataforma
           </p>
         </div>
-        <Button onClick={() => navigate('/admin-v2/organizers/create')}>
+        <Button onClick={() => navigate('/admin-v2/venues/create')}>
           <Plus className="h-4 w-4 mr-2" />
-          Novo Organizador
+          Novo Local
         </Button>
       </div>
 
@@ -134,12 +138,12 @@ export default function OrganizersList() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Search className="h-5 w-5" />
-            Buscar Organizadores
+            Buscar Locais
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Input
-            placeholder="Buscar por nome, email ou cidade..."
+            placeholder="Buscar por nome, cidade ou endereço..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="max-w-md"
@@ -147,31 +151,22 @@ export default function OrganizersList() {
         </CardContent>
       </Card>
 
-      {filteredOrganizers.length === 0 ? (
+      {filteredVenues.length === 0 ? (
         <EmptyState
-          msg={searchQuery ? "Nenhum organizador corresponde aos critérios de busca." : "Não há organizadores cadastrados ainda."}
-          actionLabel="Criar Primeiro Organizador"
-          onAction={() => navigate('/admin-v2/organizers/create')}
+          msg={searchQuery ? "Nenhum local corresponde aos critérios de busca." : "Não há locais cadastrados ainda."}
+          actionLabel="Criar Primeiro Local"
+          onAction={() => navigate('/admin-v2/venues/create')}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredOrganizers.map((organizer) => (
-            <Card key={organizer.id} className="relative">
+          {filteredVenues.map((venue) => (
+            <Card key={venue.id} className="relative">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      {organizer.logo_url && (
-                        <img
-                          src={organizer.logo_url}
-                          alt={organizer.name}
-                          className="w-8 h-8 rounded object-cover"
-                        />
-                      )}
-                      <h3 className="font-semibold">{organizer.name}</h3>
-                    </div>
-                    <Badge variant={getStatusColor(organizer.status)}>
-                      {organizer.status === 'active' ? 'Ativo' : 'Inativo'}
+                    <h3 className="font-semibold">{venue.name}</h3>
+                    <Badge variant={getStatusColor(venue.status)}>
+                      {venue.status === 'active' ? 'Ativo' : 'Inativo'}
                     </Badge>
                   </div>
                   <DropdownMenu>
@@ -181,12 +176,12 @@ export default function OrganizersList() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => navigate(`/admin-v2/organizers/${organizer.id}/edit`)}>
+                      <DropdownMenuItem onClick={() => navigate(`/admin-v2/venues/${venue.id}/edit`)}>
                         <Edit className="h-4 w-4 mr-2" />
                         Editar
                       </DropdownMenuItem>
                       <DropdownMenuItem 
-                        onClick={() => handleDelete(organizer.id)}
+                        onClick={() => handleDelete(venue.id)}
                         className="text-destructive"
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
@@ -199,35 +194,33 @@ export default function OrganizersList() {
               <CardContent className="space-y-3">
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline">{getTypeLabel(organizer.type)}</Badge>
+                    <Badge variant="outline">{getTypeLabel(venue.type)}</Badge>
                   </div>
                   
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Building2 className="h-4 w-4" />
-                    <span>{organizer.city}</span>
+                  <div className="flex items-start gap-2 text-muted-foreground">
+                    <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <div>{venue.address}</div>
+                      <div>{venue.city}, {venue.state}</div>
+                    </div>
                   </div>
                   
-                  <div className="text-muted-foreground">
-                    <span className="font-medium">Email:</span> {organizer.contact_email}
-                  </div>
-                  
-                  {organizer.instagram && (
+                  {venue.capacity && (
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <Instagram className="h-4 w-4" />
-                      <span>{organizer.instagram}</span>
+                      <Users className="h-4 w-4" />
+                      <span>Capacidade: {venue.capacity} pessoas</span>
                     </div>
                   )}
                   
-                  {organizer.website_url && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Globe className="h-4 w-4" />
-                      <span className="truncate">Website</span>
+                  {venue.instagram && (
+                    <div className="text-muted-foreground">
+                      <span className="font-medium">Instagram:</span> {venue.instagram}
                     </div>
                   )}
                   
                   <div className="flex items-center gap-2 text-muted-foreground pt-2 border-t">
                     <Clock className="h-4 w-4" />
-                    <span>Criado em {formatDate(organizer.created_at)}</span>
+                    <span>Criado em {formatDate(venue.created_at)}</span>
                   </div>
                 </div>
               </CardContent>
