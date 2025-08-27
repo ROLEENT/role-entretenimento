@@ -42,8 +42,8 @@ export function getAdminEmail(): string | null {
   if (typeof window === 'undefined') return null;
   
   try {
-    // Try to get from admin session first
-    const adminSession = localStorage.getItem('admin_session');
+    // Try to get from admin-v2 session first (CORRETO!)
+    const adminSession = localStorage.getItem('admin-v2-session');
     if (adminSession) {
       const session = JSON.parse(adminSession);
       return session.email || null;
