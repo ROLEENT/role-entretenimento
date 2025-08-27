@@ -11,7 +11,7 @@ const Footer = () => {
 
   const quickLinks = [
     { name: "Home", href: "/" },
-    { name: "Eventos", href: "/eventos" },
+    { name: "Vitrine Cultural", href: "/eventos" },
     { name: "Destaques", href: "/destaques" },
     { name: "Contato", href: "/contato" }
   ];

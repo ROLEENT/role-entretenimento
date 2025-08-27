@@ -78,7 +78,7 @@ const FeaturedEventsToday = () => {
       <ResponsiveContainer className="container mx-auto" padding={isMobile ? 'sm' : 'md'}>
         <div className="text-center mb-12">
           <h2 className={`${isMobile ? 'text-2xl' : 'text-3xl md:text-5xl'} font-bold text-foreground mb-6`}>
-            EVENTOS POPULARES EM 🇧🇷 BRASIL
+            VITRINE CULTURAL POPULAR EM 🇧🇷 BRASIL
           </h2>
           
           <div className="flex justify-center mb-8">
@@ -187,7 +187,7 @@ const FeaturedEventsToday = () => {
             className={`${isMobile ? 'w-full max-w-sm' : 'px-8 py-3'} text-lg touch-target`}
           >
             <Link to={`/eventos`}>
-              Ver Todos os Eventos
+              Ver Toda a Vitrine Cultural
             </Link>
           </Button>
         </div>

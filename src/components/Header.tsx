@@ -48,7 +48,7 @@ const Header = () => {
 
   const navigation = [
     { name: "Início", href: "/" },
-    { name: "Eventos", href: "/eventos" },
+    { name: "Vitrine Cultural", href: "/eventos" },
     { name: "Destaques", href: "/destaques" },
     { name: "Sobre", href: "/sobre" },
     { name: "Contato", href: "/contato" },
