@@ -11,7 +11,7 @@ const HeroSection = () => {
   const { isMobile, isTablet } = useResponsive();
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className={`relative ${isMobile ? 'mobile-hero-section' : 'min-h-screen'} flex items-center justify-center overflow-hidden`}>
       {/* Background Image with Parallax and Overlay */}
       <div 
         ref={parallaxRef}
@@ -20,13 +20,13 @@ const HeroSection = () => {
         <img
           src="/lovable-uploads/c54b5b60-7254-4f87-9d77-a1d7c118c11b.png"
           alt="Curadoria independente de cultura e experiências"
-          className="w-full h-full object-cover object-center md:object-center"
+          className={`w-full h-full object-cover ${isMobile ? 'object-center' : 'object-center md:object-center'}`}
         />
         
       </div>
 
       {/* Content - Buttons positioned at bottom */}
-      <div className="absolute bottom-8 left-0 right-0 z-10">
+      <div className={`absolute ${isMobile ? 'bottom-4' : 'bottom-8'} left-0 right-0 z-10 ${isMobile ? 'mobile-hero-content' : ''}`}>
         <div className="container mx-auto px-4">
           <div className={`flex ${isMobile ? 'flex-col w-full' : 'flex-col sm:flex-row'} gap-4 justify-center items-center animate-scale-in`} style={{ animationDelay: '0.4s' }}>
             <Button
