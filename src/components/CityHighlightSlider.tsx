@@ -126,7 +126,7 @@ export const CityHighlightSlider = ({ city, title, citySlug }: CityHighlightSlid
             asChild 
             className={`${isMobile ? 'w-full' : ''} touch-target`}
           >
-            <Link to={`/destaques/${citySlug?.replace(/-/g, '_')}`}>
+            <Link to={`/destaques/${citySlug}`}>
               Ver todos de {title}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
