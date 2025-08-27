@@ -39,6 +39,10 @@ const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
 const HighlightsListPage = lazy(() => import("./pages/HighlightsListPage"));
 const HighlightsCreatePage = lazy(() => import("./pages/HighlightsCreatePage"));
 
+// Admin Simple - Nova versão direta
+const AdminSimple = lazy(() => import("./pages/AdminSimple"));
+const AdminSimpleForm = lazy(() => import("./pages/AdminSimpleForm"));
+
 // User pages - lazy loaded
 const EventsPage = lazy(() => import("./pages/EventsPage"));
 const EventDetailPage = lazy(() => import("./pages/EventDetailPage"));
@@ -106,6 +110,11 @@ function App() {
                 <Route path="/highlights" element={<HighlightsPage />} />
                 <Route path="/cidade/:cidade" element={<CityHighlights />} />
                 
+                {/* Admin Simple - Novo sistema direto */}
+                <Route path="/admin-simple" element={<Suspense fallback={<AdminLoadingFallback />}><AdminSimple /></Suspense>} />
+                <Route path="/admin-simple/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminSimpleForm /></Suspense>} />
+                <Route path="/admin-simple/edit/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminSimpleForm /></Suspense>} />
+
                 {/* Admin Routes - Clean structure */}
                 <Route path="/admin/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLoginSimple /></Suspense>} />
                 <Route path="/admin/reset-password" element={<Suspense fallback={<AdminLoadingFallback />}><AdminResetPassword /></Suspense>} />
