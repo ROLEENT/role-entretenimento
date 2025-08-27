@@ -62,8 +62,6 @@ const AdminArtistsIndex = lazy(() => import("./pages/admin/artists/Index"));
 const AdminArtistCreate = lazy(() => import("./pages/admin/artists/Create"));
 const AdminArtistEdit = lazy(() => import("./pages/admin/artists/Edit"));
 
-// Admin Old Layout
-const AdminLayoutOld = lazy(() => import("./layouts/AdminLayoutOld"));
 
 // User pages - lazy loaded
 const EventsPage = lazy(() => import("./pages/EventsPage"));
@@ -141,8 +139,6 @@ function App() {
                 <Route path="/admin-v2/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Login /></Suspense>} />
                 <Route path="/admin-v2/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLayout /></Suspense>} />
 
-                {/* Admin Old - Backup system */}
-                <Route path="/admin-old/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLayoutOld /></Suspense>} />
 
                 {/* Admin Routes - Redirect to V2 */}
                 <Route path="/admin/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLoginSimple /></Suspense>} />

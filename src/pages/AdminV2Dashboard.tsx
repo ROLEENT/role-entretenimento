@@ -199,17 +199,6 @@ export default function AdminV2Dashboard() {
                 Gerenciar Organizadores
               </Button>
 
-              <div className="pt-4 border-t">
-                <p className="text-sm text-muted-foreground mb-2">Sistema Antigo (Backup)</p>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="w-full justify-start text-muted-foreground"
-                  onClick={() => navigate('/admin-old')}
-                >
-                  Acessar Admin Antigo
-                </Button>
-              </div>
             </CardContent>
           </Card>
         </div>
