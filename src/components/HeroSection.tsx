@@ -17,11 +17,13 @@ const HeroSection = () => {
         className="absolute inset-0 z-0 parallax-bg scale-105"
       >
         <img
-          src="/lovable-uploads/1b1881aa-51f5-49c3-83e7-14f6c7d06137.png"
+          src={`/lovable-uploads/1b1881aa-51f5-49c3-83e7-14f6c7d06137.png?v=${Date.now()}`}
           alt="Curadoria independente de cultura e experiências"
           className="w-full h-full object-cover object-center md:object-center"
           loading="eager"
           decoding="async"
+          onLoad={() => console.log('Banner carregado com sucesso!')}
+          onError={(e) => console.error('Erro ao carregar banner:', e)}
         />
         
       </div>
