@@ -56,52 +56,80 @@ export function AdminFileUpload({
     };
     reader.readAsDataURL(file);
 
-    // Upload file
+    // Upload file - VERSÃO COM LOGS DETALHADOS
     setUploading(true);
     try {
+      console.log('[ADMIN FILE UPLOAD] ====== INICIANDO UPLOAD ======');
+      console.log('[ADMIN FILE UPLOAD] File:', file.name, 'Size:', file.size, 'Type:', file.type);
+      
       const fileName = generateFileName(file.name, bucket);
+      console.log('[ADMIN FILE UPLOAD] Generated filename:', fileName);
       
       // Get admin email and create admin client
       const adminEmail = getAdminEmail();
-      console.log('[ADMIN FILE UPLOAD] Admin email:', adminEmail);
+      console.log('[ADMIN FILE UPLOAD] Admin email obtido:', adminEmail);
       
       if (!adminEmail) {
+        console.error('[ADMIN FILE UPLOAD] Email do admin não encontrado');
         throw new Error('Email do admin não encontrado. Faça login novamente.');
       }
       
       // Verificar se admin é válido antes de tentar upload
       if (!adminEmail.includes('@')) {
+        console.error('[ADMIN FILE UPLOAD] Email do admin inválido:', adminEmail);
         throw new Error('Email do admin inválido. Faça login novamente.');
       }
       
+      console.log('[ADMIN FILE UPLOAD] Criando client admin...');
       const adminClient = createAdminSupabaseClient(adminEmail);
       
-      console.log('[ADMIN FILE UPLOAD] Uploading to bucket:', bucket, 'filename:', fileName);
+      console.log('[ADMIN FILE UPLOAD] ====== EXECUTANDO UPLOAD ======');
+      console.log('[ADMIN FILE UPLOAD] Bucket:', bucket);
+      console.log('[ADMIN FILE UPLOAD] Filename:', fileName);
+      console.log('[ADMIN FILE UPLOAD] Admin email:', adminEmail);
+      
+      const uploadOptions = {
+        cacheControl: '3600',
+        upsert: false,
+        headers: {
+          'x-admin-email': adminEmail
+        }
+      };
+      
+      console.log('[ADMIN FILE UPLOAD] Upload options:', uploadOptions);
       
       const { data, error } = await adminClient.storage
         .from(bucket)
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+        .upload(fileName, file, uploadOptions);
 
       if (error) {
-        console.error('[ADMIN FILE UPLOAD] Upload error:', error);
+        console.error('[ADMIN FILE UPLOAD] ====== UPLOAD ERROR ======');
+        console.error('[ADMIN FILE UPLOAD] Error details:', error);
+        console.error('[ADMIN FILE UPLOAD] Error message:', error.message);
+        // console.error('[ADMIN FILE UPLOAD] Error cause:', error.cause); // Removido - não existe na interface StorageError
         throw error;
       }
 
-      console.log('[ADMIN FILE UPLOAD] Upload success:', data);
+      console.log('[ADMIN FILE UPLOAD] ====== UPLOAD SUCCESS ======');
+      console.log('[ADMIN FILE UPLOAD] Upload data:', data);
+      console.log('[ADMIN FILE UPLOAD] File path:', data.path);
       
       const publicUrl = getPublicUrl(bucket, data.path);
+      console.log('[ADMIN FILE UPLOAD] Public URL gerada:', publicUrl);
+      
       onUploadComplete?.(publicUrl, data.path);
       showSuccess('Arquivo enviado com sucesso!');
       
     } catch (error: any) {
-      console.error('[ADMIN FILE UPLOAD] Upload error:', error);
+      console.error('[ADMIN FILE UPLOAD] ====== UPLOAD FAILED ======');
+      console.error('[ADMIN FILE UPLOAD] Error objeto completo:', error);
+      console.error('[ADMIN FILE UPLOAD] Error message:', error.message);
+      console.error('[ADMIN FILE UPLOAD] Error stack:', error.stack);
       showError(error, 'Erro ao fazer upload do arquivo');
       setPreview(currentUrl || null);
     } finally {
       setUploading(false);
+      console.log('[ADMIN FILE UPLOAD] ====== UPLOAD FINALIZADO ======');
     }
   };
 

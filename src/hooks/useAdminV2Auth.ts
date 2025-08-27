@@ -23,9 +23,11 @@ export const useAdminV2Auth = (): AdminV2AuthState & { logout: () => void } => {
         // Verificar se não expirou (24h)
         const isExpired = Date.now() - parsed.timestamp > 24 * 60 * 60 * 1000;
         if (!isExpired && parsed.user && parsed.session) {
+          console.log('[ADMIN V2 AUTH] Restoring session from localStorage:', parsed.user.email);
           setUser(parsed.user);
           setSession(parsed.session);
         } else {
+          console.log('[ADMIN V2 AUTH] Session expired or invalid, removing from localStorage');
           localStorage.removeItem('admin-v2-session');
         }
       } catch (error) {
@@ -41,12 +43,15 @@ export const useAdminV2Auth = (): AdminV2AuthState & { logout: () => void } => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
+          console.log('[ADMIN V2 AUTH] Saving session to localStorage:', session.user.email);
           localStorage.setItem('admin-v2-session', JSON.stringify({
             user: session.user,
             session: session,
+            email: session.user.email, // Garantir que email está sempre disponível
             timestamp: Date.now()
           }));
         } else {
+          console.log('[ADMIN V2 AUTH] Removing session from localStorage');
           localStorage.removeItem('admin-v2-session');
         }
       }
