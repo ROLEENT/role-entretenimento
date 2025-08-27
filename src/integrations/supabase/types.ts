@@ -3174,6 +3174,22 @@ export type Database = {
         Args: { p_admin_id: string }
         Returns: string
       }
+      create_event_secure: {
+        Args: {
+          p_city: string
+          p_cover_url?: string
+          p_description?: string
+          p_organizer_id?: string
+          p_price_max?: number
+          p_price_min?: number
+          p_slug: string
+          p_start_at: string
+          p_tags?: string[]
+          p_title: string
+          p_venue_id?: string
+        }
+        Returns: string
+      }
       create_notification: {
         Args: {
           p_data?: Json
@@ -3199,6 +3215,10 @@ export type Database = {
       delete_blog_comment: {
         Args: { p_comment_id: string }
         Returns: undefined
+      }
+      delete_event_secure: {
+        Args: { p_event_id: string }
+        Returns: boolean
       }
       ensure_admin_role: {
         Args: { user_email: string }
@@ -3600,6 +3620,20 @@ export type Database = {
       update_blog_post_categories: {
         Args: { p_category_ids: string[]; p_post_id: string }
         Returns: undefined
+      }
+      update_event_secure: {
+        Args: {
+          p_cover_url?: string
+          p_description?: string
+          p_event_id: string
+          p_price_max?: number
+          p_price_min?: number
+          p_start_at?: string
+          p_tags?: string[]
+          p_title: string
+          p_venue_id?: string
+        }
+        Returns: boolean
       }
       user_liked_highlight: {
         Args: { p_highlight_id: string }
