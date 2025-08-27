@@ -17,12 +17,10 @@ const HeroSection = () => {
         ref={parallaxRef}
         className="absolute inset-0 z-0 parallax-bg scale-105"
       >
-        <ImageFallback
-          src={`/lovable-uploads/1b1881aa-51f5-49c3-83e7-14f6c7d06137.png?v=${Date.now()}`}
+        <img
+          src="/lovable-uploads/c54b5b60-7254-4f87-9d77-a1d7c118c11b.png"
           alt="Curadoria independente de cultura e experiências"
           className="w-full h-full object-cover object-center md:object-center"
-          fallback={heroBanner}
-          showIcon={false}
         />
         
       </div>
