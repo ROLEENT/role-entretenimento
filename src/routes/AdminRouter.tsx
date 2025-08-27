@@ -26,6 +26,9 @@ import AdminProfiles from '@/pages/admin/profiles/Index';
 import AdminComments from '@/pages/admin/comments/Index';
 import AdminContactMessages from '@/pages/admin/contact-messages/Index';
 import AdminOrganizers from '@/pages/admin/organizers/Index';
+import AdminArtists from '@/pages/admin/artists/Index';
+import AdminArtistCreate from '@/pages/admin/artists/Create';
+import AdminArtistEdit from '@/pages/admin/artists/Edit';
 
 // Marketing & Monetization
 import AdminPartners from '@/pages/admin/partners/Index';
@@ -73,6 +76,10 @@ export default function AdminRouter() {
         
         <Route path="categories" element={<AdminCategories />} />
         <Route path="venues" element={<AdminVenues />} />
+        
+        <Route path="artists" element={<AdminArtists />} />
+        <Route path="artists/create" element={<AdminArtistCreate />} />
+        <Route path="artists/:id/edit" element={<AdminArtistEdit />} />
         
         {/* User Management */}
         <Route path="profiles" element={<AdminProfiles />} />

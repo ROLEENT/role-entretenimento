@@ -13,6 +13,7 @@ import { X, Plus, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { eventSchema, EventFormData } from '@/lib/eventSchema';
+import { useArtistManagement } from '@/hooks/useArtistManagement';
 
 interface EventFormProps {
   mode: 'create' | 'edit';
@@ -30,6 +31,11 @@ export default function EventForm({ mode }: EventFormProps) {
   const [organizers, setOrganizers] = useState<any[]>([]);
   const [newTag, setNewTag] = useState('');
   const [characterCount, setCharacterCount] = useState(0);
+  const [selectedArtists, setSelectedArtists] = useState<any[]>([]);
+  const [artistSearch, setArtistSearch] = useState('');
+  const [artistSearchResults, setArtistSearchResults] = useState<any[]>([]);
+  
+  const { searchArtists } = useArtistManagement();
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
@@ -176,6 +182,28 @@ export default function EventForm({ mode }: EventFormProps) {
   const removeTag = (tagToRemove: string) => {
     const currentTags = form.getValues('tags');
     form.setValue('tags', currentTags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleArtistSearch = async (searchTerm: string) => {
+    setArtistSearch(searchTerm);
+    if (searchTerm.length >= 2) {
+      const results = await searchArtists(searchTerm);
+      setArtistSearchResults(results);
+    } else {
+      setArtistSearchResults([]);
+    }
+  };
+
+  const addArtist = (artist: any) => {
+    if (!selectedArtists.find(a => a.id === artist.id)) {
+      setSelectedArtists(prev => [...prev, artist]);
+    }
+    setArtistSearch('');
+    setArtistSearchResults([]);
+  };
+
+  const removeArtist = (artistId: string) => {
+    setSelectedArtists(prev => prev.filter(artist => artist.id !== artistId));
   };
 
   if (loading && mode === 'edit') {
@@ -412,6 +440,55 @@ export default function EventForm({ mode }: EventFormProps) {
                   </Badge>
                 ))}
               </div>
+            </div>
+
+            {/* Artistas */}
+            <div>
+              <Label htmlFor="artist-search">Artistas</Label>
+              <div className="relative">
+                <Input
+                  id="artist-search"
+                  type="text"
+                  placeholder="Digite para buscar artistas..."
+                  value={artistSearch}
+                  onChange={(e) => handleArtistSearch(e.target.value)}
+                />
+                {artistSearchResults.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-background border rounded-md shadow-md max-h-48 overflow-y-auto">
+                    {artistSearchResults.map((artist) => (
+                      <button
+                        key={artist.id}
+                        type="button"
+                        className="w-full px-3 py-2 text-left hover:bg-muted flex items-center justify-between"
+                        onClick={() => addArtist(artist)}
+                      >
+                        <span>{artist.stage_name}</span>
+                        <Badge variant="outline">{artist.artist_type}</Badge>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {selectedArtists.length > 0 && (
+                <div className="mt-3">
+                  <Label>Artistas Selecionados</Label>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {selectedArtists.map((artist) => (
+                      <Badge key={artist.id} variant="secondary" className="gap-2">
+                        {artist.stage_name}
+                        <button
+                          type="button"
+                          onClick={() => removeArtist(artist.id)}
+                          className="text-muted-foreground hover:text-foreground"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

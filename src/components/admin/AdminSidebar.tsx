@@ -21,7 +21,8 @@ import {
   Bell,
   BarChart3,
   Shield,
-  Zap
+  Zap,
+  Mic
 } from "lucide-react";
 import {
   Sidebar,
@@ -44,6 +45,7 @@ const contentItems = [
   { title: "Blog", url: "/admin-v2/blog", icon: FileText },
   { title: "Categorias", url: "/admin-v2/categories", icon: FolderOpen },
   { title: "Venues", url: "/admin-v2/venues", icon: MapPin },
+  { title: "Artistas", url: "/admin-v2/artists", icon: Mic },
 ];
 
 const userItems = [
