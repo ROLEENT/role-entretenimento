@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DeleteButton, PublishButton } from '@/components/ui/admin-button';
-import { Plus, Edit, Eye, EyeOff, Search } from 'lucide-react';
+import { Plus, Edit, Eye, EyeOff, Search, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdminV2Auth } from '@/hooks/useAdminV2Auth';
 
@@ -91,11 +91,19 @@ export default function AdminHighlightsList() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Gerenciar Destaques</h1>
-          <p className="text-muted-foreground">
-            {highlights.length} destaques • {highlights.filter(h => h.is_published).length} publicados
-          </p>
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/admin-v2" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Voltar ao Dashboard
+            </Link>
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">Gerenciar Destaques</h1>
+            <p className="text-muted-foreground">
+              {highlights.length} destaques • {highlights.filter(h => h.is_published).length} publicados
+            </p>
+          </div>
         </div>
         <Button asChild>
           <Link to="/admin-v2/highlights/create">
