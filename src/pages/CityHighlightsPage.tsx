@@ -184,21 +184,29 @@ const CityHighlightsPage = () => {
               <div className="absolute inset-0 bg-black/60" />
             </div>
             <div className="relative container mx-auto px-4 text-center text-white">
-              <Button 
-                asChild 
-                variant="ghost" 
-                className="absolute top-0 left-0 text-white hover:bg-white/20"
-              >
-                <Link to="/destaques">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Voltar aos Destaques
-                </Link>
-              </Button>
+              {/* Mobile: Button positioned outside container flow */}
+              <div className="absolute -top-4 left-4 md:top-0 md:left-0 z-10">
+                <Button 
+                  asChild 
+                  variant="ghost" 
+                  className="text-white hover:bg-white/20 px-2 py-1 md:px-3 md:py-2"
+                  size="sm"
+                >
+                  <Link to="/destaques">
+                    <ArrowLeft className="w-4 h-4 mr-1 md:mr-2" />
+                    <span className="hidden sm:inline">Voltar aos Destaques</span>
+                    <span className="sm:hidden">Voltar</span>
+                  </Link>
+                </Button>
+              </div>
               
-              <Badge className="mb-4 bg-white/20 text-white border-white/30">
-                <MapPin className="w-4 h-4 mr-2" />
-                {cityData.state}
-              </Badge>
+              {/* Mobile: Add top padding and position badge with margin */}
+              <div className="pt-8 md:pt-0">
+                <Badge className="mb-4 bg-white/20 text-white border-white/30">
+                  <MapPin className="w-4 h-4 mr-2" />
+                  {cityData.state}
+                </Badge>
+              </div>
               
               <h1 className="text-4xl md:text-6xl font-bold mb-6">
                 Destaques em {cityName}
