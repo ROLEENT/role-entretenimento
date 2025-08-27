@@ -8,7 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Calendar, Clock, ArrowRight } from "lucide-react";
-import { useBlogData, getCitiesWithPosts, getLatestPostByCity, BlogPost } from "@/hooks/useBlogData";
+import { getCitiesWithPosts, getLatestPostByCity, BlogPost } from "@/hooks/useBlogData";
+import { useHighlightsStats } from "@/hooks/useHighlightsStats";
 import { citiesData } from "@/data/citiesData";
 import { supabase } from "@/integrations/supabase/client";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
@@ -16,7 +17,7 @@ import { CityHighlightSlider } from "@/components/CityHighlightSlider";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const DestaquesHub = () => {
-  const { posts: allPosts, isLoading } = useBlogData();
+  const { totalHighlights, totalCities, isLoading } = useHighlightsStats();
   const [citiesWithContent, setCitiesWithContent] = useState<string[]>([]);
   const [latestPosts, setLatestPosts] = useState<Record<string, BlogPost>>({});
 
@@ -101,11 +102,11 @@ const DestaquesHub = () => {
                 </Badge>
                 <Badge variant="outline" className="px-4 py-2">
                   <MapPin className="w-4 h-4 mr-2" />
-                  {citiesWithContent.length} cidades
+                  {totalCities} cidades
                 </Badge>
                 <Badge variant="outline" className="px-4 py-2">
                   <Clock className="w-4 h-4 mr-2" />
-                  {allPosts.length} artigos publicados
+                  {totalHighlights} eventos publicados
                 </Badge>
               </div>
             </div>
