@@ -51,6 +51,26 @@ const CityHighlightsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredHighlights, setFilteredHighlights] = useState(highlights);
 
+  // Force scroll to top when page loads
+  useEffect(() => {
+    // Wait for content to load, then ensure we're at top
+    const scrollToTop = () => {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'instant'
+      });
+    };
+    
+    // Immediate scroll
+    scrollToTop();
+    
+    // Backup scroll after content loads
+    const timeout = setTimeout(scrollToTop, 100);
+    
+    return () => clearTimeout(timeout);
+  }, [cidade]);
+
   useEffect(() => {
     console.log('🔄 Atualizando highlights filtrados:', highlights.length, 'destaques disponíveis');
     

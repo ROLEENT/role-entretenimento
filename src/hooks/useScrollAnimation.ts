@@ -22,13 +22,13 @@ export const useScrollAnimation = () => {
       observerOptions
     );
 
-    // Fallback timeout for mobile
+    // Fallback timeout for mobile - don't interfere with initial scroll
     const fallbackTimeout = setTimeout(() => {
       if (ref.current && !ref.current.classList.contains('visible')) {
-        console.log('🔧 Mobile fallback: Force showing element');
+        // Don't change scroll position, just make visible
         ref.current.classList.add('visible');
       }
-    }, isMobile ? 1500 : 3000);
+    }, isMobile ? 1000 : 2000);
 
     if (ref.current) {
       observer.observe(ref.current);
