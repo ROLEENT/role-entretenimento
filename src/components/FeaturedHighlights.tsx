@@ -136,7 +136,7 @@ const FeaturedHighlights = () => {
               scrollSnapType: 'x mandatory'
             }}
           >
-            <div className="flex gap-3 px-6 md:gap-4 md:px-8" style={{ width: 'max-content' }}>
+            <div className="flex gap-3 px-6 md:gap-4 md:px-8 min-w-full">
               {highlights.map((highlight) => (
                 <Link 
                   key={highlight.id} 

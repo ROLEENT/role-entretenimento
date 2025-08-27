@@ -14,7 +14,7 @@ const HeroSection = () => {
       {/* Background Image with Parallax and Overlay */}
       <div 
         ref={parallaxRef}
-        className="absolute inset-0 z-0 parallax-bg scale-110"
+        className="absolute inset-0 z-0 parallax-bg scale-105"
       >
         <img
           src={heroBanner}
