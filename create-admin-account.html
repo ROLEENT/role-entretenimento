@@ -15,26 +15,51 @@
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51dGxjYm5ydWFianN4ZWNxcG5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MTcwOTgsImV4cCI6MjA3MTA5MzA5OH0.K_rfijLK9e3EbDxU4uddtY0sUMUvtH-yHNEbW8Ohp5c'
         );
         
-        async function createAccount() {
+        async function createAccount(email, password, accountName) {
             try {
                 const { data, error } = await supabase.functions.invoke('create-admin-user', {
-                    body: { 
-                        email: 'fiih@roleentretenimento.com', 
-                        password: 'AdminRole2025!' 
-                    }
+                    body: { email, password }
                 });
                 
                 if (error) {
-                    document.getElementById('result').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+                    return { success: false, error: error.message, account: accountName };
                 } else {
-                    document.getElementById('result').innerHTML = `<p style="color: green;">Success! Account created: ${JSON.stringify(data)}</p>`;
+                    return { success: true, data, account: accountName };
                 }
             } catch (err) {
-                document.getElementById('result').innerHTML = `<p style="color: red;">Error: ${err.message}</p>`;
+                return { success: false, error: err.message, account: accountName };
             }
         }
+
+        async function createAllAccounts() {
+            const accounts = [
+                { email: 'fiih@roleentretenimento.com', password: '2007Britney!', name: 'Fiih' },
+                { email: 'guilherme@roleentretenimento.com', password: 'admin123', name: 'Guilherme' }
+            ];
+
+            let results = [];
+            
+            for (const account of accounts) {
+                const result = await createAccount(account.email, account.password, account.name);
+                results.push(result);
+            }
+
+            // Display results
+            let html = '<h2>Resultados da Criação de Contas:</h2>';
+            results.forEach(result => {
+                if (result.success) {
+                    html += `<p style="color: green;">✅ ${result.account}: Conta criada com sucesso!</p>`;
+                    html += `<pre style="background: #f0f0f0; padding: 10px; margin: 5px 0;">${JSON.stringify(result.data, null, 2)}</pre>`;
+                } else {
+                    html += `<p style="color: red;">❌ ${result.account}: Erro - ${result.error}</p>`;
+                }
+                html += '<hr>';
+            });
+
+            document.getElementById('result').innerHTML = html;
+        }
         
-        createAccount();
+        createAllAccounts();
     </script>
 </body>
 </html>
