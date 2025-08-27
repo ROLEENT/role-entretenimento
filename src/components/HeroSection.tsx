@@ -17,7 +17,7 @@ const HeroSection = () => {
         className="absolute inset-0 z-0 parallax-bg scale-105"
       >
         <img
-          src="/lovable-uploads/b550e416-eaad-4855-9077-811cb7c38c55.png"
+          src="/lovable-uploads/1b1881aa-51f5-49c3-83e7-14f6c7d06137.png"
           alt="Curadoria independente de cultura e experiências"
           className="w-full h-full object-cover object-center md:object-center"
           loading="eager"
