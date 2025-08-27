@@ -21,6 +21,11 @@ export function useAdSense({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Skip AdSense for admin routes
+    if (window.location.pathname.startsWith('/admin')) {
+      return;
+    }
+
     // Check if AdSense is already loaded
     if (window.adsbygoogle) {
       setIsLoaded(true);
@@ -29,6 +34,13 @@ export function useAdSense({
 
     const loadAdSense = () => {
       try {
+        // Check if script already exists to prevent multiple loads
+        const existingScript = document.querySelector(`script[src*="${publisherId}"]`);
+        if (existingScript) {
+          setIsLoaded(true);
+          return;
+        }
+
         // Create script element
         const script = document.createElement('script');
         script.async = true;
@@ -44,12 +56,14 @@ export function useAdSense({
           // Initialize adsbygoogle array if it doesn't exist
           window.adsbygoogle = window.adsbygoogle || [];
           
-          // Enable auto ads if requested
-          if (enableAutoAds) {
+          // Enable auto ads if requested (only once)
+          if (enableAutoAds && !document.querySelector('[data-adsbygoogle-loaded]')) {
             window.adsbygoogle.push({
               google_ad_client: publisherId,
               enable_page_level_ads: enablePageLevelAds
             });
+            // Mark as loaded to prevent duplicate calls
+            document.body.setAttribute('data-adsbygoogle-loaded', 'true');
           }
           
           setIsLoaded(true);

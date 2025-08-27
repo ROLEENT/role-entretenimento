@@ -70,7 +70,9 @@ const Index = () => {
             <Newsletter />
           </ScrollAnimationWrapper>
         </main>
-        <GoogleAdSense position="footer" pageType="homepage" />
+        {!window.location.pathname.startsWith('/admin') && (
+          <GoogleAdSense position="footer" pageType="homepage" />
+        )}
         <Footer />
         <NotificationPermissionPrompt />
         <BackToTop />

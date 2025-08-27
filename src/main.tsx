@@ -13,7 +13,9 @@ optimizeForMobile();
 // Initialize performance monitoring
 initPerformanceMonitoring();
 
-// Register service worker for caching
-registerServiceWorker();
+// Register service worker for caching (skip for admin routes)
+if (!window.location.pathname.startsWith('/admin')) {
+  registerServiceWorker();
+}
 
 createRoot(document.getElementById("root")!).render(<App />);

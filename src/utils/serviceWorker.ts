@@ -1,12 +1,18 @@
 // Service Worker utilities for caching and offline support
 
 export const registerServiceWorker = async () => {
+  // Skip service worker registration for admin routes
+  if (window.location.pathname.startsWith('/admin')) {
+    console.log('SW registration skipped for admin routes');
+    return;
+  }
+
   if ('serviceWorker' in navigator) {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
       console.log('SW registered: ', registration);
       
-      // Listen for updates
+      // Listen for updates with error handling
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
         if (newWorker) {
@@ -20,6 +26,18 @@ export const registerServiceWorker = async () => {
           });
         }
       });
+
+      // Handle update errors gracefully
+      try {
+        await registration.update();
+      } catch (updateError) {
+        // Ignore 404 errors from service worker updates
+        if (updateError instanceof TypeError && updateError.message.includes('Not found')) {
+          console.warn('SW update failed (404), ignoring:', updateError.message);
+        } else {
+          console.warn('SW update failed:', updateError);
+        }
+      }
       
       return registration;
     } catch (error) {

@@ -19,6 +19,11 @@ interface AdSenseConfig {
 }
 
 export function GoogleAdSense({ position, pageType, className = '', fallback }: GoogleAdSenseProps) {
+  // Skip AdSense for admin routes
+  if (window.location.pathname.startsWith('/admin')) {
+    return null;
+  }
+
   const [adConfig, setAdConfig] = useState<AdSenseConfig | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
