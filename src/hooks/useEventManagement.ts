@@ -9,6 +9,7 @@ export interface EventFormData {
   start_at: string;
   end_at: string;
   city: string;
+  state?: string;
   venue_id: string;
   organizer_id: string;
   cover_url: string;
@@ -23,24 +24,35 @@ export const useEventManagement = () => {
     try {
       setLoading(true);
       
-      const { data: eventId, error } = await supabase.rpc('admin_create_event', {
-        p_title: data.title,
-        p_slug: data.slug,
-        p_city: data.city,
-        p_start_at: data.start_at,
-        p_venue_id: data.venue_id || null,
-        p_end_at: data.end_at || null,
-        p_organizer_id: data.organizer_id || null,
-        p_cover_url: data.cover_url || null,
-        p_tags: data.tags,
-        p_status: data.status,
-        p_description: data.description || null
-      });
+      const eventData = {
+        title: data.title,
+        slug: data.slug,
+        description: data.description || null,
+        city: data.city,
+        state: data.state || 'SP', // Default state if not provided
+        date_start: data.start_at,
+        date_end: data.end_at || null,
+        start_at: data.start_at,
+        end_at: data.end_at || null,
+        venue_id: data.venue_id || null,
+        organizer_id: data.organizer_id || null,
+        cover_url: data.cover_url || null,
+        image_url: data.cover_url || null,
+        tags: data.tags || [],
+        status: data.status || 'active',
+        source: 'internal'
+      };
+
+      const { data: createdEvent, error } = await supabase
+        .from('events')
+        .insert(eventData)
+        .select()
+        .single();
 
       if (error) throw error;
       
       toast.success('Evento criado com sucesso!');
-      return eventId;
+      return createdEvent.id;
     } catch (error: any) {
       console.error('Error creating event:', error);
       toast.error(error.message || 'Erro ao criar evento');
@@ -54,20 +66,29 @@ export const useEventManagement = () => {
     try {
       setLoading(true);
       
-      const { error } = await supabase.rpc('admin_update_event', {
-        p_event_id: eventId,
-        p_title: data.title,
-        p_slug: data.slug,
-        p_city: data.city,
-        p_start_at: data.start_at,
-        p_venue_id: data.venue_id || null,
-        p_end_at: data.end_at || null,
-        p_organizer_id: data.organizer_id || null,
-        p_cover_url: data.cover_url || null,
-        p_tags: data.tags,
-        p_status: data.status,
-        p_description: data.description || null
-      });
+      const eventData = {
+        title: data.title,
+        slug: data.slug,
+        description: data.description || null,
+        city: data.city,
+        state: data.state || 'SP',
+        date_start: data.start_at,
+        date_end: data.end_at || null,
+        start_at: data.start_at,
+        end_at: data.end_at || null,
+        venue_id: data.venue_id || null,
+        organizer_id: data.organizer_id || null,
+        cover_url: data.cover_url || null,
+        image_url: data.cover_url || null,
+        tags: data.tags || [],
+        status: data.status || 'active',
+        updated_at: new Date().toISOString()
+      };
+
+      const { error } = await supabase
+        .from('events')
+        .update(eventData)
+        .eq('id', eventId);
 
       if (error) throw error;
       
