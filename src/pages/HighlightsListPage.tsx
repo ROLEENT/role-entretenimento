@@ -86,10 +86,16 @@ export default function HighlightsListPage() {
     try {
       const { error } = await supabase
         .from('highlights')
-        .update({ is_published: !currentStatus })
+        .update({ 
+          is_published: !currentStatus,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Toggle publish error:', error);
+        throw error;
+      }
 
       toast({
         title: "Sucesso",
@@ -98,9 +104,10 @@ export default function HighlightsListPage() {
 
       fetchHighlights();
     } catch (error) {
+      console.error('Toggle publish failed:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível alterar o status",
+        description: error instanceof Error ? error.message : "Não foi possível alterar o status",
         variant: "destructive"
       });
     }
@@ -110,12 +117,17 @@ export default function HighlightsListPage() {
     if (!confirm('Tem certeza que deseja excluir este destaque?')) return;
 
     try {
+      console.log('Tentando excluir destaque:', id);
+      
       const { error } = await supabase
         .from('highlights')
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Delete error:', error);
+        throw error;
+      }
 
       toast({
         title: "Sucesso",
@@ -124,9 +136,10 @@ export default function HighlightsListPage() {
 
       fetchHighlights();
     } catch (error) {
+      console.error('Delete failed:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível excluir o destaque",
+        description: error instanceof Error ? error.message : "Não foi possível excluir o destaque",
         variant: "destructive"
       });
     }

@@ -10,12 +10,14 @@ export const useSupabaseAdminStandard = () => {
   const [isLoading] = useState(false); // Nunca carregando
   const updateHighlight = useCallback(async (highlightId: string, data: any) => {
     try {
+      console.log('🔄 Atualizando destaque:', highlightId, data);
+
       // Primeiro, verificar se o highlight existe
       const { data: existing } = await supabase
         .from('highlights')
         .select('id')
         .eq('id', highlightId)
-        .single();
+        .maybeSingle();
 
       if (!existing) {
         throw new Error('Destaque não encontrado');
@@ -29,33 +31,37 @@ export const useSupabaseAdminStandard = () => {
           venue: data.venue,
           ticket_url: data.ticket_url || null,
           role_text: data.role_text,
-          selection_reasons: data.selection_reasons,
+          selection_reasons: data.selection_reasons || [],
           image_url: data.image_url,
           photo_credit: data.photo_credit || null,
           event_date: data.event_date || null,
           event_time: data.event_time || null,
           ticket_price: data.ticket_price || null,
-          sort_order: data.sort_order,
-          is_published: data.is_published,
+          sort_order: data.sort_order || 100,
+          is_published: data.is_published || false,
           updated_at: new Date().toISOString()
         })
         .eq('id', highlightId)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro na atualização:', error);
+        throw error;
+      }
 
-      toast.success('Destaque atualizado com sucesso!');
+      console.log('✅ Destaque atualizado com sucesso:', result);
       return { data: result };
     } catch (error) {
       console.error('❌ Erro ao atualizar destaque:', error);
-      toast.error(error instanceof Error ? error.message : 'Erro ao atualizar destaque');
       throw error;
     }
   }, []);
 
   const createHighlight = useCallback(async (data: any) => {
     try {
+      console.log('🆕 Criando destaque:', data);
+
       const { data: result, error } = await supabase
         .from('highlights')
         .insert({
@@ -64,47 +70,54 @@ export const useSupabaseAdminStandard = () => {
           venue: data.venue,
           ticket_url: data.ticket_url || null,
           role_text: data.role_text,
-          selection_reasons: data.selection_reasons,
+          selection_reasons: data.selection_reasons || [],
           image_url: data.image_url,
           photo_credit: data.photo_credit || null,
           event_date: data.event_date || null,
           event_time: data.event_time || null,
           ticket_price: data.ticket_price || null,
-          sort_order: data.sort_order,
-          is_published: data.is_published
+          sort_order: data.sort_order || 100,
+          is_published: data.is_published || false
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro na criação:', error);
+        throw error;
+      }
 
-      toast.success('Destaque criado com sucesso!');
+      console.log('✅ Destaque criado com sucesso:', result);
       return { data: result };
     } catch (error) {
       console.error('❌ Erro ao criar destaque:', error);
-      toast.error(error instanceof Error ? error.message : 'Erro ao criar destaque');
       throw error;
     }
   }, []);
 
   const getHighlightById = useCallback(async (highlightId: string) => {
     try {
+      console.log('🔍 Carregando destaque:', highlightId);
+
       const { data: result, error } = await supabase
         .from('highlights')
         .select('*')
         .eq('id', highlightId)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro na consulta:', error);
+        throw error;
+      }
 
       if (!result) {
         throw new Error('Destaque não encontrado');
       }
 
+      console.log('✅ Destaque carregado:', result);
       return result;
     } catch (error) {
       console.error('❌ Erro ao carregar destaque:', error);
-      toast.error(error instanceof Error ? error.message : 'Erro ao carregar destaque');
       throw error;
     }
   }, []);
