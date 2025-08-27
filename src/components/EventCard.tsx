@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Heart, Share2, MapPin, Calendar, DollarSign, CalendarPlus, Users, Music } from 'lucide-react';
+import { Share2, MapPin, Calendar, DollarSign, CalendarPlus, Users, Music } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useFavorites, type FavoriteEvent } from '@/hooks/useFavorites';
+import { type FavoriteEvent } from '@/hooks/useFavorites';
 import { usePersonalCalendar } from '@/hooks/usePersonalCalendar';
 import { useAuth } from '@/hooks/useAuth';
 import { StarRatingDisplay } from '@/components/ui/star-rating';
 import { reviewStatsService } from '@/services/reviewService';
 import { useNativeShare } from '@/hooks/useNativeShare';
 import { useCommentCount } from '@/hooks/useCommentCount';
+import { EngagementSystem } from './EngagementSystem';
 import ShareDialog from './ShareDialog';
 import { MobileSafeImage } from './ui/mobile-safe-image';
 import { useResponsive } from '@/hooks/useResponsive';
@@ -24,7 +25,6 @@ interface EventCardProps {
 }
 
 const EventCard = ({ event, className }: EventCardProps) => {
-  const { toggleFavorite, isFavorite } = useFavorites();
   const { shareOrFallback } = useNativeShare();
   const { addFavoriteToCalendar } = usePersonalCalendar();
   const { user } = useAuth();
@@ -32,7 +32,6 @@ const EventCard = ({ event, className }: EventCardProps) => {
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 });
   const { commentCount } = useCommentCount(event.id, 'event');
-  const favorite = isFavorite(event.id);
 
   useEffect(() => {
     const fetchReviewStats = async () => {
@@ -91,18 +90,6 @@ const EventCard = ({ event, className }: EventCardProps) => {
             sizes={isMobile ? '(max-width: 768px) 100vw' : '(max-width: 1024px) 50vw, 33vw'}
           />
           <div className={`absolute top-3 right-3 flex ${isMobile ? 'gap-1' : 'gap-2'}`}>
-            <Button
-              size="sm"
-              variant="secondary"
-              className={`touch-target bg-background/80 backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-background/90 ${isMobile ? 'h-8 w-8 p-0' : 'h-8 w-8 p-0'}`}
-              onClick={() => toggleFavorite(event)}
-            >
-              <Heart className={`transition-all duration-300 ${isMobile ? 'h-3 w-3' : 'h-4 w-4'} ${
-                favorite 
-                  ? 'fill-destructive text-destructive animate-pulse' 
-                  : 'hover:scale-110'
-              }`} />
-            </Button>
             <Button
               size="sm"
               variant="secondary"
@@ -167,6 +154,17 @@ const EventCard = ({ event, className }: EventCardProps) => {
               {event.description}
             </p>
           )}
+
+          {/* Engagement System */}
+          <div className="border-t pt-3">
+            <EngagementSystem 
+              entityId={event.id}
+              entityType="event"
+              size="sm"
+              variant="compact"
+              showCounts={true}
+            />
+          </div>
 
           <div className="flex gap-2">
             <Button className="flex-1 transition-all duration-200 hover:scale-[1.02] hover:shadow-md">

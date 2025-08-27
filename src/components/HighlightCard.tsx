@@ -10,6 +10,7 @@ import { reviewStatsService } from "@/services/reviewService";
 import { useNativeShare } from "@/hooks/useNativeShare";
 import { useResponsive } from "@/hooks/useResponsive";
 import { formatHighlightDate, formatEventDateTime } from "@/utils/dateUtils";
+import { EngagementSystem } from "./EngagementSystem";
 import { toast } from 'sonner';
 
 type CityEnum = 'porto_alegre' | 'sao_paulo' | 'rio_de_janeiro' | 'florianopolis' | 'curitiba';
@@ -177,6 +178,17 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
               />
             </div>
           )}
+        </div>
+
+        {/* Engagement System */}
+        <div className="border-t pt-4 mb-4">
+          <EngagementSystem 
+            entityId={highlight.id}
+            entityType="highlight"
+            size="sm"
+            variant="default"
+            showCounts={true}
+          />
         </div>
 
         {/* Ticket Button */}
