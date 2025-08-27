@@ -1,0 +1,516 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { highlightSchema, type HighlightFormData } from '@/lib/highlightSchema';
+import { useAdminV2Auth } from '@/hooks/useAdminV2Auth';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AdminFileUpload } from '@/components/ui/admin-file-upload';
+import { SaveButton, PublishButton } from '@/components/ui/admin-button';
+import { Badge } from '@/components/ui/badge';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { ArrowLeft, Plus, X } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
+const cities = [
+  { value: 'porto_alegre', label: 'Porto Alegre' },
+  { value: 'florianopolis', label: 'Florianópolis' },
+  { value: 'curitiba', label: 'Curitiba' },
+  { value: 'sao_paulo', label: 'São Paulo' },
+  { value: 'rio_de_janeiro', label: 'Rio de Janeiro' },
+];
+
+interface HighlightFormProps {
+  mode: 'create' | 'edit';
+}
+
+export default function HighlightForm({ mode }: HighlightFormProps) {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const { user } = useAdminV2Auth();
+  const [loading, setLoading] = useState(mode === 'edit');
+  const [saving, setSaving] = useState(false);
+  const [newReason, setNewReason] = useState('');
+
+  const form = useForm<HighlightFormData>({
+    resolver: zodResolver(highlightSchema),
+    defaultValues: {
+      city: 'porto_alegre',
+      event_title: '',
+      venue: '',
+      ticket_url: '',
+      role_text: '',
+      selection_reasons: [],
+      image_url: '',
+      photo_credit: '',
+      event_date: '',
+      event_time: '',
+      ticket_price: '',
+      sort_order: 100,
+      is_published: false,
+    },
+  });
+
+  const { watch, setValue, handleSubmit } = form;
+  const selectionReasons = watch('selection_reasons');
+
+  // Carregar dados para edição
+  useEffect(() => {
+    if (mode === 'edit' && id && user?.email) {
+      loadHighlight();
+    }
+  }, [mode, id, user?.email]);
+
+  const loadHighlight = async () => {
+    if (!user?.email || !id) return;
+
+    try {
+      const { data, error } = await supabase.rpc('admin_get_highlight_by_id', {
+        p_admin_email: user.email,
+        p_highlight_id: id
+      });
+
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        const highlight = data[0];
+        
+        // Preencher o formulário
+        form.reset({
+          city: highlight.city,
+          event_title: highlight.event_title,
+          venue: highlight.venue,
+          ticket_url: highlight.ticket_url || '',
+          role_text: highlight.role_text,
+          selection_reasons: highlight.selection_reasons || [],
+          image_url: highlight.image_url,
+          photo_credit: highlight.photo_credit || '',
+          event_date: highlight.event_date || '',
+          event_time: highlight.event_time || '',
+          ticket_price: highlight.ticket_price || '',
+          sort_order: highlight.sort_order || 100,
+          is_published: highlight.is_published,
+        });
+      }
+    } catch (error: any) {
+      console.error('Erro ao carregar destaque:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onSubmit = async (data: HighlightFormData) => {
+    if (!user?.email) return;
+
+    setSaving(true);
+    try {
+      if (mode === 'create') {
+        const { error } = await supabase.rpc('admin_create_highlight_v2', {
+          p_admin_email: user.email,
+          p_city: data.city,
+          p_event_title: data.event_title,
+          p_venue: data.venue,
+          p_ticket_url: data.ticket_url || null,
+          p_role_text: data.role_text,
+          p_selection_reasons: data.selection_reasons,
+          p_image_url: data.image_url,
+          p_photo_credit: data.photo_credit || null,
+          p_event_date: data.event_date || null,
+          p_event_time: data.event_time || null,
+          p_ticket_price: data.ticket_price || null,
+          p_sort_order: data.sort_order || 100,
+          p_is_published: data.is_published,
+        });
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.rpc('admin_update_highlight_v2', {
+          p_admin_email: user.email,
+          p_highlight_id: id!,
+          p_city: data.city,
+          p_event_title: data.event_title,
+          p_venue: data.venue,
+          p_ticket_url: data.ticket_url || null,
+          p_role_text: data.role_text,
+          p_selection_reasons: data.selection_reasons,
+          p_image_url: data.image_url,
+          p_photo_credit: data.photo_credit || null,
+          p_event_date: data.event_date || null,
+          p_event_time: data.event_time || null,
+          p_ticket_price: data.ticket_price || null,
+          p_sort_order: data.sort_order || 100,
+          p_is_published: data.is_published,
+        });
+
+        if (error) throw error;
+      }
+
+      navigate('/admin-v2/highlights');
+    } catch (error: any) {
+      console.error('Erro ao salvar destaque:', error);
+      throw error;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const addReason = () => {
+    if (newReason.trim()) {
+      const updatedReasons = [...selectionReasons, newReason.trim()];
+      setValue('selection_reasons', updatedReasons);
+      setNewReason('');
+    }
+  };
+
+  const removeReason = (index: number) => {
+    const updatedReasons = selectionReasons.filter((_, i) => i !== index);
+    setValue('selection_reasons', updatedReasons);
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <LoadingSpinner size="lg" text="Carregando destaque..." />
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex items-center gap-4 mb-6">
+        <Button variant="outline" onClick={() => navigate('/admin-v2/highlights')}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Voltar
+        </Button>
+        <div>
+          <h1 className="text-2xl font-bold">
+            {mode === 'create' ? 'Criar Novo Destaque' : 'Editar Destaque'}
+          </h1>
+          <p className="text-muted-foreground">
+            {mode === 'create' 
+              ? 'Preencha os dados do novo destaque semanal'
+              : 'Altere os dados do destaque selecionado'
+            }
+          </p>
+        </div>
+      </div>
+
+      <Form {...form}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Coluna Esquerda */}
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Informações Básicas</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cidade</FormLabel>
+                        <FormControl>
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {cities.map(city => (
+                                <SelectItem key={city.value} value={city.value}>
+                                  {city.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="event_title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Título do Evento</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Ex: Festa de Ano Novo no Rooftop" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="venue"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Local</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Ex: Beira Mar Shopping" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="event_date"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Data do Evento</FormLabel>
+                          <FormControl>
+                            <Input type="date" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="event_time"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Horário</FormLabel>
+                          <FormControl>
+                            <Input type="time" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="ticket_price"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Preço</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Ex: R$ 50,00" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="ticket_url"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Link do Ingresso</FormLabel>
+                          <FormControl>
+                            <Input placeholder="https://..." {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Texto do ROLE</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <FormField
+                    control={form.control}
+                    name="role_text"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Descrição</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Escreva o texto que aparecerá no destaque (50-400 caracteres)..."
+                            className="min-h-[120px]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <div className="text-sm text-muted-foreground text-right">
+                          {field.value?.length || 0}/400 caracteres
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Coluna Direita */}
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Imagem do Destaque</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <FormField
+                    control={form.control}
+                    name="image_url"
+                    render={({ field }) => (
+                      <FormItem>
+                      <AdminFileUpload
+                        bucket="events"
+                        currentUrl={field.value}
+                        onUploadComplete={(url) => field.onChange(url)}
+                        label="Imagem Principal"
+                      />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="photo_credit"
+                    render={({ field }) => (
+                      <FormItem className="mt-4">
+                        <FormLabel>Crédito da Foto</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Ex: @fotografo_insta" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Motivos de Seleção</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Adicionar motivo..."
+                      value={newReason}
+                      onChange={(e) => setNewReason(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addReason())}
+                    />
+                    <Button type="button" onClick={addReason} size="sm">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div className="space-y-2">
+                    {selectionReasons.map((reason, index) => (
+                      <div key={index} className="flex items-center justify-between gap-2 p-2 bg-muted rounded-lg">
+                        <span className="text-sm">{reason}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeReason(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {selectionReasons.length === 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      Adicione pelo menos um motivo de seleção
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Configurações</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="sort_order"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ordem de Exibição</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="0"
+                            max="999"
+                            {...field}
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="is_published"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between p-4 border rounded-lg">
+                        <div>
+                          <FormLabel>Status de Publicação</FormLabel>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant={field.value ? "default" : "secondary"}>
+                              {field.value ? "Publicado" : "Rascunho"}
+                            </Badge>
+                          </div>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Botões de Ação */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex justify-end gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/admin-v2/highlights')}
+                  disabled={saving}
+                >
+                  Cancelar
+                </Button>
+
+                <SaveButton
+                  disabled={saving}
+                  onClick={handleSubmit(onSubmit)}
+                >
+                  {mode === 'create' ? 'Criar Destaque' : 'Salvar Alterações'}
+                </SaveButton>
+              </div>
+            </CardContent>
+          </Card>
+        </form>
+      </Form>
+    </div>
+  );
+}

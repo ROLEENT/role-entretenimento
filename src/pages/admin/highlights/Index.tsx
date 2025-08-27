@@ -1,10 +1,5 @@
-import { RequireAuth } from '@/components/RequireAuth';
-import HighlightsListPage from '@/pages/HighlightsListPage';
+import AdminHighlightsList from './List';
 
 export default function AdminHighlightsIndex() {
-  return (
-    <RequireAuth requiredRole="admin">
-      <HighlightsListPage />
-    </RequireAuth>
-  );
+  return <AdminHighlightsList />;
 }

@@ -46,6 +46,9 @@ const AdminSimpleForm = lazy(() => import("./pages/AdminSimpleForm"));
 // Admin V2 - MVP System
 const AdminV2Login = lazy(() => import("./pages/AdminV2Login"));
 const AdminV2Dashboard = lazy(() => import("./pages/AdminV2Dashboard"));
+const AdminHighlightsIndex = lazy(() => import("./pages/admin/highlights/Index"));
+const AdminHighlightCreate = lazy(() => import("./pages/admin/highlights/Create"));
+const AdminHighlightEdit = lazy(() => import("./pages/admin/highlights/Edit"));
 
 // Admin Old Layout
 const AdminLayoutOld = lazy(() => import("./layouts/AdminLayoutOld"));
@@ -124,7 +127,11 @@ function App() {
 
                 {/* Admin V2 - MVP System */}
                 <Route path="/admin-v2/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Login /></Suspense>} />
+                <Route path="/admin-v2" element={<Navigate to="/admin-v2/dashboard" replace />} />
                 <Route path="/admin-v2/dashboard" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Dashboard /></Suspense>} />
+                <Route path="/admin-v2/highlights" element={<Suspense fallback={<AdminLoadingFallback />}><AdminHighlightsIndex /></Suspense>} />
+                <Route path="/admin-v2/highlights/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminHighlightCreate /></Suspense>} />
+                <Route path="/admin-v2/highlights/edit/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminHighlightEdit /></Suspense>} />
 
                 {/* Admin Old - Backup system */}
                 <Route path="/admin-old/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLayoutOld /></Suspense>} />

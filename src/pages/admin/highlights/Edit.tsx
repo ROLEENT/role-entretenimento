@@ -1,5 +1,5 @@
-import AdminHighlightEditor from '@/pages/AdminHighlightEditor';
+import HighlightForm from './Form';
 
 export default function AdminHighlightEdit() {
-  return <AdminHighlightEditor />;
+  return <HighlightForm mode="edit" />;
 }
