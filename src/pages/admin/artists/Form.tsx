@@ -15,6 +15,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { X } from 'lucide-react';
+import { useArtistManagement } from '@/hooks/useArtistManagement';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface ArtistFormProps {
   mode: 'create' | 'edit';
@@ -24,11 +26,11 @@ export default function ArtistForm({ mode }: ArtistFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<string[]>([]);
   const [availabilityDays, setAvailabilityDays] = useState<string[]>([]);
   const [newCity, setNewCity] = useState('');
   const [newDay, setNewDay] = useState('');
+  const { createArtist, updateArtist, getArtist, loading } = useArtistManagement();
 
   const form = useForm<ArtistFormData>({
     resolver: zodResolver(artistSchema),
@@ -53,49 +55,55 @@ export default function ArtistForm({ mode }: ArtistFormProps) {
 
   useEffect(() => {
     if (mode === 'edit' && id) {
-      setLoading(true);
-      // TODO: Fetch artist data
-      setTimeout(() => {
-        setLoading(false);
-      }, 1000);
+      const loadArtist = async () => {
+        try {
+          const artist = await getArtist(id);
+          if (artist) {
+            // Set form values with artist data
+            form.reset({
+              ...artist,
+              cities_active: artist.cities_active || [],
+              availability_days: artist.availability_days || [],
+              image_rights_authorized: artist.image_rights_authorized || false,
+              status: artist.status || 'active',
+              priority: artist.priority || 0,
+            });
+            setCities(artist.cities_active || []);
+            setAvailabilityDays(artist.availability_days || []);
+          }
+        } catch (error) {
+          console.error('Error loading artist:', error);
+          toast({
+            title: 'Erro',
+            description: 'Erro ao carregar dados do artista.',
+            variant: 'destructive',
+          });
+          navigate('/admin-v2/artists');
+        }
+      };
+      
+      loadArtist();
     }
-  }, [mode, id]);
+  }, [mode, id, getArtist, form, navigate, toast]);
 
   const onSubmit = async (data: ArtistFormData) => {
     try {
-      setLoading(true);
-      
-      const slug = data.stage_name.toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .trim();
-
       const artistData = {
         ...data,
-        slug,
         cities_active: cities,
         availability_days: availabilityDays,
       };
 
-      console.log('Artist data:', artistData);
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast({
-        title: mode === 'create' ? 'Artista criado!' : 'Artista atualizado!',
-        description: 'Os dados foram salvos com sucesso.',
-      });
+      if (mode === 'create') {
+        await createArtist(artistData);
+      } else if (mode === 'edit' && id) {
+        await updateArtist(id, artistData);
+      }
 
       navigate('/admin-v2/artists');
     } catch (error) {
       console.error('Error saving artist:', error);
-      toast({
-        title: 'Erro',
-        description: 'Erro ao salvar artista.',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
+      // Error toast is already shown in the hook
     }
   };
 
@@ -123,11 +131,9 @@ export default function ArtistForm({ mode }: ArtistFormProps) {
 
   if (loading && mode === 'edit') {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="text-center">Carregando...</div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center h-96">
+        <LoadingSpinner />
+      </div>
     );
   }
 

@@ -1,47 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-
-export interface ArtistFormData {
-  stage_name: string;
-  artist_type: 'banda' | 'dj' | 'solo' | 'drag';
-  city: string;
-  instagram: string;
-  booking_email: string;
-  booking_whatsapp: string;
-  bio_short: string;
-  profile_image_url: string;
-  bio_long?: string;
-  cover_image_url?: string;
-  real_name?: string;
-  pronouns?: string;
-  website_url?: string;
-  spotify_url?: string;
-  soundcloud_url?: string;
-  youtube_url?: string;
-  beatport_url?: string;
-  audius_url?: string;
-  presskit_url?: string;
-  show_format?: string;
-  tech_audio?: string;
-  tech_light?: string;
-  tech_stage?: string;
-  tech_rider_url?: string;
-  set_time_minutes?: number;
-  team_size?: number;
-  fee_range?: string;
-  home_city?: string;
-  cities_active?: string[];
-  availability_days?: string[];
-  accommodation_notes?: string;
-  image_rights_authorized?: boolean;
-  image_credits?: string;
-  responsible_name?: string;
-  responsible_role?: string;
-  internal_notes?: string;
-  status?: 'active' | 'inactive';
-  priority?: number;
-}
+import type { ArtistFormData } from '@/lib/artistSchema';
 
 export const useArtistManagement = () => {
   const [loading, setLoading] = useState(false);
@@ -50,14 +10,30 @@ export const useArtistManagement = () => {
     try {
       setLoading(true);
       
-      // Gerar slug
-      const slug = data.stage_name
+      // Gerar slug único
+      const baseSlug = data.stage_name
         .toLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9\s-]/g, '')
         .replace(/\s+/g, '-')
         .trim();
+
+      let slug = baseSlug;
+      let counter = 1;
+      
+      // Verificar se slug já existe e criar versão única
+      while (true) {
+        const { data: existingArtist } = await supabase
+          .from('artists')
+          .select('id')
+          .eq('slug', slug)
+          .single();
+        
+        if (!existingArtist) break;
+        slug = `${baseSlug}-${counter}`;
+        counter++;
+      }
 
       const artistData = {
         ...data,
@@ -69,13 +45,16 @@ export const useArtistManagement = () => {
         priority: data.priority || 0
       };
 
-      // Por enquanto, simular criação
-      // TODO: Implementar quando tabela artists for criada no Supabase
-      console.log('Creating artist:', artistData);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const { data: newArtist, error } = await supabase
+        .from('artists')
+        .insert([artistData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
       toast.success('Artista criado com sucesso!');
-      return `mock-id-${Date.now()}`;
+      return newArtist.id;
     } catch (error: any) {
       console.error('Error creating artist:', error);
       toast.error(error.message || 'Erro ao criar artista');
@@ -89,7 +68,8 @@ export const useArtistManagement = () => {
     try {
       setLoading(true);
       
-      const slug = data.stage_name
+      // Gerar novo slug se o nome foi alterado
+      const baseSlug = data.stage_name
         .toLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
@@ -97,18 +77,37 @@ export const useArtistManagement = () => {
         .replace(/\s+/g, '-')
         .trim();
 
+      let slug = baseSlug;
+      let counter = 1;
+      
+      // Verificar se slug já existe (exceto para o artista atual)
+      while (true) {
+        const { data: existingArtist } = await supabase
+          .from('artists')
+          .select('id')
+          .eq('slug', slug)
+          .neq('id', artistId)
+          .single();
+        
+        if (!existingArtist) break;
+        slug = `${baseSlug}-${counter}`;
+        counter++;
+      }
+
       const artistData = {
         ...data,
         slug,
         cities_active: data.cities_active || [],
         availability_days: data.availability_days || [],
-        image_rights_authorized: data.image_rights_authorized || false,
-        updated_at: new Date().toISOString()
+        image_rights_authorized: data.image_rights_authorized || false
       };
 
-      // Por enquanto, simular atualização
-      console.log('Updating artist:', artistId, artistData);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase
+        .from('artists')
+        .update(artistData)
+        .eq('id', artistId);
+
+      if (error) throw error;
       
       toast.success('Artista atualizado com sucesso!');
       return true;
@@ -125,23 +124,33 @@ export const useArtistManagement = () => {
     try {
       setLoading(true);
       
-      // Por enquanto, retornar dados mock
-      await new Promise(resolve => setTimeout(resolve, 500));
+      let query = supabase.from('artists').select('*');
       
-      const mockArtists = [
-        {
-          id: '1',
-          stage_name: 'DJ Example',
-          artist_type: 'dj',
-          city: 'São Paulo',
-          instagram: '@djexample',
-          status: 'active',
-          profile_image_url: '/placeholder.svg',
-          created_at: '2024-01-15T10:00:00Z'
-        }
-      ];
+      // Aplicar filtros
+      if (filters.status && filters.status !== 'all') {
+        query = query.eq('status', filters.status);
+      }
       
-      return mockArtists;
+      if (filters.city && filters.city !== 'all') {
+        query = query.eq('city', filters.city);
+      }
+      
+      if (filters.artist_type && filters.artist_type !== 'all') {
+        query = query.eq('artist_type', filters.artist_type);
+      }
+      
+      if (filters.search) {
+        query = query.or(`stage_name.ilike.%${filters.search}%,instagram.ilike.%${filters.search}%`);
+      }
+      
+      // Ordenar por data de criação (mais recente primeiro)
+      query = query.order('created_at', { ascending: false });
+      
+      const { data: artists, error } = await query;
+      
+      if (error) throw error;
+      
+      return artists || [];
     } catch (error: any) {
       console.error('Error fetching artists:', error);
       toast.error(error.message || 'Erro ao carregar artistas');
@@ -155,25 +164,24 @@ export const useArtistManagement = () => {
     try {
       setLoading(true);
       
-      // Por enquanto, retornar dados mock
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
       if (artistId === 'new') return null;
       
-      const mockArtist = {
-        id: artistId,
-        stage_name: 'DJ Example',
-        artist_type: 'dj',
-        city: 'São Paulo',
-        instagram: '@djexample',
-        booking_email: 'booking@djexample.com',
-        booking_whatsapp: '+5511999999999',
-        bio_short: 'DJ especializado em house music',
-        profile_image_url: '/placeholder.svg',
-        status: 'active'
-      };
+      const { data: artist, error } = await supabase
+        .from('artists')
+        .select('*')
+        .eq('id', artistId)
+        .single();
       
-      return mockArtist;
+      if (error) {
+        if (error.code === 'PGRST116') {
+          toast.error('Artista não encontrado');
+        } else {
+          throw error;
+        }
+        return null;
+      }
+      
+      return artist;
     } catch (error: any) {
       console.error('Error fetching artist:', error);
       toast.error(error.message || 'Erro ao carregar artista');
@@ -187,8 +195,12 @@ export const useArtistManagement = () => {
     try {
       setLoading(true);
       
-      // Por enquanto, simular exclusão
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const { error } = await supabase
+        .from('artists')
+        .delete()
+        .eq('id', artistId);
+        
+      if (error) throw error;
       
       toast.success('Artista removido com sucesso!');
       return true;
@@ -203,17 +215,18 @@ export const useArtistManagement = () => {
 
   const searchArtists = useCallback(async (searchTerm: string) => {
     try {
-      // Por enquanto, busca mock para autocomplete
-      await new Promise(resolve => setTimeout(resolve, 300));
+      if (!searchTerm.trim()) return [];
       
-      const mockResults = [
-        { id: '1', stage_name: 'DJ Example', artist_type: 'dj' },
-        { id: '2', stage_name: 'Banda Rock', artist_type: 'banda' }
-      ].filter(artist => 
-        artist.stage_name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      const { data: artists, error } = await supabase
+        .from('artists')
+        .select('id, stage_name, artist_type')
+        .or(`stage_name.ilike.%${searchTerm}%,instagram.ilike.%${searchTerm}%`)
+        .eq('status', 'active')
+        .limit(10);
+        
+      if (error) throw error;
       
-      return mockResults;
+      return artists || [];
     } catch (error: any) {
       console.error('Error searching artists:', error);
       return [];

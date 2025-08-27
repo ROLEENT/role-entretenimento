@@ -411,6 +411,141 @@ export type Database = {
         }
         Relationships: []
       }
+      artists: {
+        Row: {
+          accommodation_notes: string | null
+          artist_type: string
+          audius_url: string | null
+          availability_days: string[] | null
+          beatport_url: string | null
+          bio_long: string | null
+          bio_short: string
+          booking_email: string
+          booking_whatsapp: string
+          cities_active: string[] | null
+          city: string
+          cover_image_url: string | null
+          created_at: string | null
+          fee_range: string | null
+          home_city: string | null
+          id: string
+          image_credits: string | null
+          image_rights_authorized: boolean | null
+          instagram: string
+          internal_notes: string | null
+          presskit_url: string | null
+          priority: number | null
+          profile_image_url: string
+          pronouns: string | null
+          real_name: string | null
+          responsible_name: string | null
+          responsible_role: string | null
+          set_time_minutes: number | null
+          show_format: string | null
+          slug: string
+          soundcloud_url: string | null
+          spotify_url: string | null
+          stage_name: string
+          status: string | null
+          team_size: number | null
+          tech_audio: string | null
+          tech_light: string | null
+          tech_rider_url: string | null
+          tech_stage: string | null
+          updated_at: string | null
+          website_url: string | null
+          youtube_url: string | null
+        }
+        Insert: {
+          accommodation_notes?: string | null
+          artist_type: string
+          audius_url?: string | null
+          availability_days?: string[] | null
+          beatport_url?: string | null
+          bio_long?: string | null
+          bio_short: string
+          booking_email: string
+          booking_whatsapp: string
+          cities_active?: string[] | null
+          city: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          fee_range?: string | null
+          home_city?: string | null
+          id?: string
+          image_credits?: string | null
+          image_rights_authorized?: boolean | null
+          instagram: string
+          internal_notes?: string | null
+          presskit_url?: string | null
+          priority?: number | null
+          profile_image_url: string
+          pronouns?: string | null
+          real_name?: string | null
+          responsible_name?: string | null
+          responsible_role?: string | null
+          set_time_minutes?: number | null
+          show_format?: string | null
+          slug: string
+          soundcloud_url?: string | null
+          spotify_url?: string | null
+          stage_name: string
+          status?: string | null
+          team_size?: number | null
+          tech_audio?: string | null
+          tech_light?: string | null
+          tech_rider_url?: string | null
+          tech_stage?: string | null
+          updated_at?: string | null
+          website_url?: string | null
+          youtube_url?: string | null
+        }
+        Update: {
+          accommodation_notes?: string | null
+          artist_type?: string
+          audius_url?: string | null
+          availability_days?: string[] | null
+          beatport_url?: string | null
+          bio_long?: string | null
+          bio_short?: string
+          booking_email?: string
+          booking_whatsapp?: string
+          cities_active?: string[] | null
+          city?: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          fee_range?: string | null
+          home_city?: string | null
+          id?: string
+          image_credits?: string | null
+          image_rights_authorized?: boolean | null
+          instagram?: string
+          internal_notes?: string | null
+          presskit_url?: string | null
+          priority?: number | null
+          profile_image_url?: string
+          pronouns?: string | null
+          real_name?: string | null
+          responsible_name?: string | null
+          responsible_role?: string | null
+          set_time_minutes?: number | null
+          show_format?: string | null
+          slug?: string
+          soundcloud_url?: string | null
+          spotify_url?: string | null
+          stage_name?: string
+          status?: string | null
+          team_size?: number | null
+          tech_audio?: string | null
+          tech_light?: string | null
+          tech_rider_url?: string | null
+          tech_stage?: string | null
+          updated_at?: string | null
+          website_url?: string | null
+          youtube_url?: string | null
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           color: string

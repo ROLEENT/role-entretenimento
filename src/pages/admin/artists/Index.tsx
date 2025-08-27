@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Pencil, Trash2, Search, Filter } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useAdminToast } from '@/hooks/useAdminToast';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { useArtistManagement } from '@/hooks/useArtistManagement';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface Artist {
   id: string;
@@ -23,71 +25,46 @@ interface Artist {
 
 export default function AdminArtistsIndex() {
   const [artists, setArtists] = useState<Artist[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [cityFilter, setCityFilter] = useState('all');
+  const [artistTypeFilter, setArtistTypeFilter] = useState('all');
   const { showSuccess, showError } = useAdminToast();
+  const { getArtists, deleteArtist, loading } = useArtistManagement();
+  
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  const loadArtists = useCallback(async () => {
+    try {
+      const filters = {
+        search: debouncedSearchTerm,
+        status: statusFilter,
+        city: cityFilter,
+        artist_type: artistTypeFilter
+      };
+      
+      const artistsData = await getArtists(filters);
+      setArtists(artistsData);
+    } catch (error) {
+      showError(error, 'Erro ao carregar artistas');
+    }
+  }, [getArtists, debouncedSearchTerm, statusFilter, cityFilter, artistTypeFilter, showError]);
 
   useEffect(() => {
     loadArtists();
-  }, []);
-
-  const loadArtists = async () => {
-    try {
-      setLoading(true);
-      // Simular carregamento de artistas - integrar com Supabase quando tabela estiver criada
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockArtists: Artist[] = [
-        {
-          id: '1',
-          stage_name: 'DJ Example',
-          artist_type: 'dj',
-          city: 'São Paulo',
-          instagram: '@djexample',
-          status: 'active',
-          profile_image_url: '/placeholder.svg',
-          created_at: '2024-01-15T10:00:00Z'
-        },
-        {
-          id: '2',
-          stage_name: 'Banda Rock',
-          artist_type: 'banda',
-          city: 'Rio de Janeiro',
-          instagram: '@bandarock',
-          status: 'active',
-          created_at: '2024-01-10T15:30:00Z'
-        }
-      ];
-      
-      setArtists(mockArtists);
-    } catch (error) {
-      showError(error, 'Erro ao carregar artistas');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [loadArtists]);
 
   const handleDelete = async (artistId: string) => {
     try {
-      // Implementar exclusão no Supabase
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setArtists(prev => prev.filter(artist => artist.id !== artistId));
-      showSuccess('Artista removido com sucesso!');
+      await deleteArtist(artistId);
+      await loadArtists(); // Recarregar lista após exclusão
     } catch (error) {
       showError(error, 'Erro ao remover artista');
     }
   };
 
-  const filteredArtists = artists.filter(artist => {
-    const matchesSearch = artist.stage_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         artist.instagram.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || artist.status === statusFilter;
-    const matchesCity = cityFilter === 'all' || artist.city === cityFilter;
-    
-    return matchesSearch && matchesStatus && matchesCity;
-  });
+  // Artists are already filtered on the server side, so we just use them directly
+  const filteredArtists = artists;
 
   const getTypeLabel = (type: string) => {
     const types = {
@@ -173,6 +150,19 @@ export default function AdminArtistsIndex() {
                 <SelectItem value="Florianópolis">Florianópolis</SelectItem>
               </SelectContent>
             </Select>
+
+            <Select value={artistTypeFilter} onValueChange={setArtistTypeFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Tipo de Artista" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os tipos</SelectItem>
+                <SelectItem value="banda">Banda</SelectItem>
+                <SelectItem value="dj">DJ</SelectItem>
+                <SelectItem value="solo">Artista Solo</SelectItem>
+                <SelectItem value="drag">Drag</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -187,9 +177,9 @@ export default function AdminArtistsIndex() {
           {filteredArtists.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-muted-foreground">
-                {searchTerm || statusFilter !== 'all' || cityFilter !== 'all' 
-                  ? 'Nenhum artista encontrado com os filtros aplicados.' 
-                  : 'Nenhum artista cadastrado ainda.'}
+              {searchTerm || statusFilter !== 'all' || cityFilter !== 'all' || artistTypeFilter !== 'all' 
+                ? 'Nenhum artista encontrado com os filtros aplicados.' 
+                : 'Nenhum artista cadastrado ainda.'}
               </p>
             </div>
           ) : (
