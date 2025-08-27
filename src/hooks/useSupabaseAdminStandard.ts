@@ -98,12 +98,24 @@ export const useSupabaseAdminStandard = () => {
   const getHighlightById = useCallback(async (highlightId: string) => {
     try {
       console.log('🔍 Carregando destaque:', highlightId);
+      
+      // Validar se o ID é válido
+      if (!highlightId || highlightId.trim() === '') {
+        throw new Error('ID do destaque inválido');
+      }
 
-      const { data: result, error } = await supabase
+      // Timeout para evitar loading infinito
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout ao carregar destaque')), 10000);
+      });
+
+      const queryPromise = supabase
         .from('highlights')
         .select('*')
         .eq('id', highlightId)
         .maybeSingle();
+
+      const { data: result, error } = await Promise.race([queryPromise, timeoutPromise]) as any;
 
       if (error) {
         console.error('❌ Erro na consulta:', error);
@@ -111,6 +123,7 @@ export const useSupabaseAdminStandard = () => {
       }
 
       if (!result) {
+        console.warn('⚠️ Destaque não encontrado para ID:', highlightId);
         throw new Error('Destaque não encontrado');
       }
 

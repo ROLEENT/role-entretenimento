@@ -57,15 +57,29 @@ const AdminHighlightEditor = () => {
   });
 
   useEffect(() => {
-    if (isEditing && id) {
+    console.log('🔄 useEffect executado:', { isEditing, id, authLoading, isAuthenticated });
+    
+    if (isEditing && id && !authLoading && isAuthenticated) {
+      console.log('🚀 Iniciando carregamento...');
       loadHighlight(id);
     }
-  }, [isEditing, id]);
+  }, [isEditing, id, authLoading, isAuthenticated]);
 
   const loadHighlight = async (highlightId: string) => {
     try {
+      console.log('📋 Iniciando carregamento do destaque:', highlightId);
       setIsLoading(true);
+      
+      // Validar ID antes de fazer a requisição
+      if (!highlightId || highlightId === 'undefined') {
+        console.error('❌ ID inválido:', highlightId);
+        toast.error('ID do destaque inválido');
+        navigate('/admin/highlights');
+        return;
+      }
+      
       const highlight = await getHighlightById(highlightId);
+      console.log('📋 Dados carregados:', highlight);
       
       form.reset({
         city: highlight.city,
@@ -84,8 +98,11 @@ const AdminHighlightEditor = () => {
       });
       
       setReasons(highlight.selection_reasons || []);
+      console.log('✅ Form resetado com sucesso');
     } catch (error) {
-      toast.error('Erro ao carregar destaque');
+      console.error('❌ Erro no loadHighlight:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao carregar destaque';
+      toast.error(errorMessage);
       navigate('/admin/highlights');
     } finally {
       setIsLoading(false);
@@ -146,16 +163,30 @@ const AdminHighlightEditor = () => {
     }
   };
 
-  if (authLoading || (isLoading && isEditing)) {
+  // Estados de loading mais específicos
+  if (authLoading) {
+    console.log('🔐 Verificando autenticação...');
     return (
       <div className="flex items-center justify-center min-h-screen">
         <LoadingSpinner />
+        <span className="ml-2">Verificando acesso...</span>
       </div>
     );
   }
 
   if (!isAuthenticated) {
-    return null; // O hook já redirecionou para login
+    console.log('❌ Não autenticado');
+    return null; // O RequireAuth já redirecionou
+  }
+
+  if (isEditing && isLoading) {
+    console.log('📋 Carregando dados do destaque...');
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner />
+        <span className="ml-2">Carregando destaque...</span>
+      </div>
+    );
   }
 
   return (
