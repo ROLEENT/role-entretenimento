@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { useAdminV2Auth } from '@/hooks/useAdminV2Auth';
 import { useHighlightsAdmin } from '@/hooks/useHighlightsAdmin';
-import { LogOut, Plus, FileText, Eye, Calendar } from 'lucide-react';
+import { LogOut, Plus, FileText, Eye, Calendar, Building, Users } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -170,6 +170,24 @@ export default function AdminV2Dashboard() {
               >
                 <Calendar className="h-4 w-4 mr-2" />
                 Gerenciar Eventos
+              </Button>
+
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={() => navigate('/admin-v2/venues')}
+              >
+                <Building className="h-4 w-4 mr-2" />
+                Gerenciar Locais
+              </Button>
+
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={() => navigate('/admin-v2/organizers')}
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Gerenciar Organizadores
               </Button>
 
               <div className="pt-4 border-t">
