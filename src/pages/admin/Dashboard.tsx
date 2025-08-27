@@ -33,7 +33,7 @@ const quickActions = [
     title: "Criar Artista",
     description: "Adicionar novo artista",
     icon: Mic,
-    path: "/admin/artists/create",
+    path: "/admin-v2/artists/create",
     bgColor: "bg-gradient-to-r from-violet-500 to-purple-500"
   },
   {
@@ -58,7 +58,7 @@ const managementSections = [
     items: [
       { title: "Destaques", path: "/admin/highlights", icon: Sparkles },
       { title: "Eventos", path: "/admin/events", icon: Calendar },
-      { title: "Artistas", path: "/admin/artists", icon: Mic },
+      { title: "Artistas", path: "/admin-v2/artists", icon: Mic },
       { title: "Blog", path: "/admin/blog", icon: FileText },
     ]
   },

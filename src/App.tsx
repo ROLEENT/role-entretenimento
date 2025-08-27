@@ -58,6 +58,9 @@ const AdminVenueEdit = lazy(() => import("./pages/admin/venues/Edit"));
 const AdminOrganizersIndex = lazy(() => import("./pages/admin/organizers/Index"));
 const AdminOrganizerCreate = lazy(() => import("./pages/admin/organizers/Create"));
 const AdminOrganizerEdit = lazy(() => import("./pages/admin/organizers/Edit"));
+const AdminArtistsIndex = lazy(() => import("./pages/admin/artists/Index"));
+const AdminArtistCreate = lazy(() => import("./pages/admin/artists/Create"));
+const AdminArtistEdit = lazy(() => import("./pages/admin/artists/Edit"));
 
 // Admin Old Layout
 const AdminLayoutOld = lazy(() => import("./layouts/AdminLayoutOld"));
@@ -150,6 +153,9 @@ function App() {
                 <Route path="/admin-v2/organizers" element={<Suspense fallback={<AdminLoadingFallback />}><AdminOrganizersIndex /></Suspense>} />
                 <Route path="/admin-v2/organizers/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminOrganizerCreate /></Suspense>} />
                 <Route path="/admin-v2/organizers/edit/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminOrganizerEdit /></Suspense>} />
+                <Route path="/admin-v2/artists" element={<Suspense fallback={<AdminLoadingFallback />}><AdminArtistsIndex /></Suspense>} />
+                <Route path="/admin-v2/artists/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminArtistCreate /></Suspense>} />
+                <Route path="/admin-v2/artists/edit/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminArtistEdit /></Suspense>} />
 
                 {/* Admin Old - Backup system */}
                 <Route path="/admin-old/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLayoutOld /></Suspense>} />
