@@ -368,7 +368,7 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
                     render={({ field }) => (
                       <FormItem>
                       <AdminFileUpload
-                        bucket="events"
+                        bucket="highlights"
                         currentUrl={field.value}
                         onUploadComplete={(url) => field.onChange(url)}
                         label="Imagem Principal"

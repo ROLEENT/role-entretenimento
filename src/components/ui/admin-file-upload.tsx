@@ -9,7 +9,7 @@ import { validateFile, generateFileName, getPublicUrl, type FileValidationOption
 import { useAdminToast } from '@/hooks/useAdminToast';
 
 interface AdminFileUploadProps {
-  bucket: 'events' | 'venues' | 'organizers' | 'posts';
+  bucket: 'events' | 'venues' | 'organizers' | 'posts' | 'highlights';
   onUploadComplete?: (url: string, fileName: string) => void;
   currentUrl?: string;
   label?: string;
