@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import HighlightSkeleton from './HighlightSkeleton';
 import { formatHighlightDateShort } from "@/utils/dateUtils";
+import { LikeSystem } from "./events/LikeSystem";
 
 const FeaturedHighlights = () => {
   const [highlights, setHighlights] = useState<any[]>([]);
@@ -166,9 +167,13 @@ const FeaturedHighlights = () => {
                       </div>
                       
                       <div className="absolute top-2 right-3">
-                        <div className="flex items-center gap-1 bg-black/80 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full shadow-sm">
-                          <Heart className="w-3 h-3 fill-red-500 text-red-500" />
-                          <span className="font-medium">{highlight.like_count || 0}</span>
+                        <div className="bg-black/80 backdrop-blur-sm rounded-full">
+                          <LikeSystem 
+                            entityId={highlight.id} 
+                            entityType="highlight" 
+                            initialLikeCount={highlight.like_count || 0} 
+                            showCount={true}
+                          />
                         </div>
                       </div>
                       

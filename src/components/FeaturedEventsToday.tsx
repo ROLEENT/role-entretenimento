@@ -9,6 +9,7 @@ import { ResponsiveGrid } from "@/components/ui/responsive-grid";
 import { MobileSafeImage } from "@/components/ui/mobile-safe-image";
 import { useResponsive } from "@/hooks/useResponsive";
 import { supabase } from "@/integrations/supabase/client";
+import { LikeSystem } from "@/components/events/LikeSystem";
 
 const FeaturedEventsToday = () => {
   const [selectedCity, setSelectedCity] = useState('São Paulo');
@@ -154,9 +155,16 @@ const FeaturedEventsToday = () => {
                   </div>
 
                   <div className={`flex ${isMobile ? 'flex-col gap-3' : 'items-center justify-between'}`}>
-                    <span className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-primary`}>
-                      {event.price_min === 0 ? 'GRATUITO' : `R$ ${event.price_min}${event.price_max && event.price_max !== event.price_min ? ` - R$ ${event.price_max}` : ''}`}
-                    </span>
+                    <div className="flex items-center gap-4">
+                      <span className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-primary`}>
+                        {event.price_min === 0 ? 'GRATUITO' : `R$ ${event.price_min}${event.price_max && event.price_max !== event.price_min ? ` - R$ ${event.price_max}` : ''}`}
+                      </span>
+                      <LikeSystem 
+                        entityId={event.id} 
+                        entityType="event" 
+                        showCount={true}
+                      />
+                    </div>
                     <Button 
                       size={isMobile ? "default" : "lg"} 
                       className={`${isMobile ? 'w-full' : 'px-8 py-3'} text-base font-semibold group-hover:scale-105 transition-transform touch-target`}
