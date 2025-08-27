@@ -24,15 +24,14 @@ const HeroSection = () => {
         
       </div>
 
-      {/* Content */}
-      <div className={`relative z-10 container mx-auto ${isMobile ? 'px-4' : 'px-4'} text-center animate-fade-in`}>
-        <div className="max-w-4xl mx-auto">
-
+      {/* Content - Buttons positioned at bottom */}
+      <div className="absolute bottom-8 left-0 right-0 z-10">
+        <div className="container mx-auto px-4">
           <div className={`flex ${isMobile ? 'flex-col w-full' : 'flex-col sm:flex-row'} gap-4 justify-center items-center animate-scale-in`} style={{ animationDelay: '0.4s' }}>
             <Button
-              variant="gradient"
+              variant="secondary"
               size={isMobile ? "default" : "lg"}
-              className={`font-semibold ${isMobile ? 'w-full max-w-sm px-6 py-3' : 'px-8 py-4'} rounded-full shadow-glow transition-all duration-300 hover:scale-105 hover-lift touch-target`}
+              className={`font-semibold ${isMobile ? 'w-full max-w-sm px-6 py-3' : 'px-8 py-4'} rounded-full bg-white/90 text-gray-900 hover:bg-white transition-all duration-300 hover:scale-105 shadow-lg backdrop-blur-sm touch-target`}
               asChild
             >
               <Link to="/eventos">
@@ -45,7 +44,7 @@ const HeroSection = () => {
             <Button
               variant="outline"
               size={isMobile ? "default" : "lg"}
-              className={`font-semibold ${isMobile ? 'w-full max-w-sm px-6 py-3' : 'px-8 py-4'} rounded-full bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-all duration-300 hover:scale-105 touch-target`}
+              className={`font-semibold ${isMobile ? 'w-full max-w-sm px-6 py-3' : 'px-8 py-4'} rounded-full bg-black/20 backdrop-blur-sm border-white/30 text-white hover:bg-black/30 transition-all duration-300 hover:scale-105 shadow-lg touch-target`}
               asChild
             >
               <Link to="/destaques">
