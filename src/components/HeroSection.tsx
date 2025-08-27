@@ -16,23 +16,13 @@ const HeroSection = () => {
         ref={parallaxRef}
         className="absolute inset-0 z-0 parallax-bg scale-105"
       >
-        <picture>
-          <source 
-            media="(max-width: 768px)" 
-            srcSet="/lovable-uploads/5e4b1601-d271-4d2d-9dbf-a72b0c5201ae.png" 
-          />
-          <source 
-            media="(min-width: 769px)" 
-            srcSet="/lovable-uploads/b550e416-eaad-4855-9077-811cb7c38c55.png" 
-          />
-          <img
-            src="/lovable-uploads/b550e416-eaad-4855-9077-811cb7c38c55.png"
-            alt="Curadoria independente de cultura e experiências"
-            className="w-full h-full object-cover"
-            loading="eager"
-            decoding="async"
-          />
-        </picture>
+        <img
+          src="/lovable-uploads/b550e416-eaad-4855-9077-811cb7c38c55.png"
+          alt="Curadoria independente de cultura e experiências"
+          className="w-full h-full object-cover object-center md:object-center"
+          loading="eager"
+          decoding="async"
+        />
         
       </div>
 
