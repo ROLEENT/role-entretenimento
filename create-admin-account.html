@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Admin Account</title>
+</head>
+<body>
+    <h1>Creating Admin Account...</h1>
+    <div id="result"></div>
+    
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+        
+        const supabase = createClient(
+            'https://nutlcbnruabjsxecqpnd.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51dGxjYm5ydWFianN4ZWNxcG5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MTcwOTgsImV4cCI6MjA3MTA5MzA5OH0.K_rfijLK9e3EbDxU4uddtY0sUMUvtH-yHNEbW8Ohp5c'
+        );
+        
+        async function createAccount() {
+            try {
+                const { data, error } = await supabase.functions.invoke('create-admin-user', {
+                    body: { 
+                        email: 'fiih@roleentretenimento.com', 
+                        password: 'AdminRole2025!' 
+                    }
+                });
+                
+                if (error) {
+                    document.getElementById('result').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+                } else {
+                    document.getElementById('result').innerHTML = `<p style="color: green;">Success! Account created: ${JSON.stringify(data)}</p>`;
+                }
+            } catch (err) {
+                document.getElementById('result').innerHTML = `<p style="color: red;">Error: ${err.message}</p>`;
+            }
+        }
+        
+        createAccount();
+    </script>
+</body>
+</html>

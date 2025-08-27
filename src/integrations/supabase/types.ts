@@ -3170,6 +3170,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      create_admin_auth_account: {
+        Args: { p_email: string; p_password: string }
+        Returns: string
+      }
       create_admin_session: {
         Args: { p_admin_id: string }
         Returns: string
