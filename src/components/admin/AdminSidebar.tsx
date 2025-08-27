@@ -38,39 +38,39 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const contentItems = [
-  { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-  { title: "Destaques", url: "/admin/highlights", icon: Sparkles },
-  { title: "Eventos", url: "/admin/events", icon: Calendar },
-  { title: "Blog", url: "/admin/blog", icon: FileText },
-  { title: "Categorias", url: "/admin/categories", icon: FolderOpen },
-  { title: "Venues", url: "/admin/venues", icon: MapPin },
+  { title: "Dashboard", url: "/admin-v2", icon: LayoutDashboard },
+  { title: "Destaques", url: "/admin-v2/highlights", icon: Sparkles },
+  { title: "Eventos", url: "/admin-v2/events", icon: Calendar },
+  { title: "Blog", url: "/admin-v2/blog", icon: FileText },
+  { title: "Categorias", url: "/admin-v2/categories", icon: FolderOpen },
+  { title: "Venues", url: "/admin-v2/venues", icon: MapPin },
 ];
 
 const userItems = [
-  { title: "Perfis", url: "/admin/profiles", icon: Users },
-  { title: "Comentários", url: "/admin/comments", icon: MessageSquare },
-  { title: "Contato", url: "/admin/contact-messages", icon: Mail },
-  { title: "Organizadores", url: "/admin/organizers", icon: Building2 },
+  { title: "Perfis", url: "/admin-v2/profiles", icon: Users },
+  { title: "Comentários", url: "/admin-v2/comments", icon: MessageSquare },
+  { title: "Contato", url: "/admin-v2/contact-messages", icon: Mail },
+  { title: "Organizadores", url: "/admin-v2/organizers", icon: Building2 },
 ];
 
 const marketingItems = [
-  { title: "Parceiros", url: "/admin/partners", icon: UserCheck },
-  { title: "Anúncios", url: "/admin/advertisements", icon: Megaphone },
-  { title: "AdSense", url: "/admin/adsense", icon: Target },
-  { title: "Newsletter", url: "/admin/newsletter", icon: Mail },
-  { title: "Push Notifications", url: "/admin/push-notifications", icon: Bell },
+  { title: "Parceiros", url: "/admin-v2/partners", icon: UserCheck },
+  { title: "Anúncios", url: "/admin-v2/advertisements", icon: Megaphone },
+  { title: "AdSense", url: "/admin-v2/adsense", icon: Target },
+  { title: "Newsletter", url: "/admin-v2/newsletter", icon: Mail },
+  { title: "Push Notifications", url: "/admin-v2/push-notifications", icon: Bell },
 ];
 
 const analyticsItems = [
-  { title: "Analytics", url: "/admin/analytics", icon: TrendingUp },
-  { title: "Relatórios", url: "/admin/reports", icon: BarChart3 },
-  { title: "Performance", url: "/admin/performance", icon: Zap },
+  { title: "Analytics", url: "/admin-v2/analytics", icon: TrendingUp },
+  { title: "Relatórios", url: "/admin-v2/reports", icon: BarChart3 },
+  { title: "Performance", url: "/admin-v2/performance", icon: Zap },
 ];
 
 const systemItems = [
-  { title: "Gamificação", url: "/admin/gamification", icon: Trophy },
-  { title: "Configurações", url: "/admin/settings", icon: Settings },
-  { title: "Meu Perfil", url: "/admin/profile", icon: User },
+  { title: "Gamificação", url: "/admin-v2/gamification", icon: Trophy },
+  { title: "Configurações", url: "/admin-v2/settings", icon: Settings },
+  { title: "Meu Perfil", url: "/admin-v2/profile", icon: User },
 ];
 
 export function AdminSidebar() {
@@ -81,8 +81,8 @@ export function AdminSidebar() {
   const collapsed = state === "collapsed";
 
   const isActive = (path: string) => {
-    if (path === "/admin") {
-      return currentPath === "/admin";
+    if (path === "/admin-v2") {
+      return currentPath === "/admin-v2";
     }
     return currentPath.startsWith(path);
   };

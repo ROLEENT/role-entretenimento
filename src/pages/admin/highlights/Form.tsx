@@ -15,8 +15,10 @@ import { AdminFileUpload } from '@/components/ui/admin-file-upload';
 import { SaveButton, PublishButton } from '@/components/ui/admin-button';
 import { Badge } from '@/components/ui/badge';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { ArrowLeft, Plus, X } from 'lucide-react';
+import { ArrowLeft, Plus, X, Save, Eye } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { AdminBreadcrumbs } from '@/components/admin/AdminBreadcrumbs';
+import { useToast } from '@/hooks/use-toast';
 
 const cities = [
   { value: 'porto_alegre', label: 'Porto Alegre' },
@@ -34,9 +36,11 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
   const { user } = useAdminV2Auth();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(mode === 'edit');
   const [saving, setSaving] = useState(false);
   const [newReason, setNewReason] = useState('');
+  const [imagePreview, setImagePreview] = useState<string>('');
 
   const form = useForm<HighlightFormData>({
     resolver: zodResolver(highlightSchema),
@@ -57,8 +61,32 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
     },
   });
 
-  const { watch, setValue, handleSubmit } = form;
+  const { watch, setValue, handleSubmit, formState: { errors, isValid } } = form;
   const selectionReasons = watch('selection_reasons');
+  const imageUrl = watch('image_url');
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        handleSubmit(onSubmit)();
+      }
+      if (e.key === 'Escape') {
+        navigate('/admin-v2/highlights');
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleSubmit, navigate]);
+
+  // Image preview update
+  useEffect(() => {
+    if (imageUrl) {
+      setImagePreview(imageUrl);
+    }
+  }, [imageUrl]);
 
   // Carregar dados para edição
   useEffect(() => {
@@ -151,10 +179,19 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
         if (error) throw error;
       }
 
+      toast({
+        title: mode === 'create' ? 'Destaque criado!' : 'Destaque atualizado!',
+        description: `O destaque foi ${mode === 'create' ? 'criado' : 'atualizado'} com sucesso.`,
+      });
+      
       navigate('/admin-v2/highlights');
     } catch (error: any) {
       console.error('Erro ao salvar destaque:', error);
-      throw error;
+      toast({
+        title: 'Erro ao salvar',
+        description: error.message || 'Ocorreu um erro inesperado.',
+        variant: 'destructive',
+      });
     } finally {
       setSaving(false);
     }
@@ -183,21 +220,30 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="outline" onClick={() => navigate('/admin-v2/highlights')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold">
-            {mode === 'create' ? 'Criar Novo Destaque' : 'Editar Destaque'}
-          </h1>
-          <p className="text-muted-foreground">
-            {mode === 'create' 
-              ? 'Preencha os dados do novo destaque semanal'
-              : 'Altere os dados do destaque selecionado'
-            }
-          </p>
+      <AdminBreadcrumbs />
+      
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" onClick={() => navigate('/admin-v2/highlights')}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">
+              {mode === 'create' ? 'Criar Novo Destaque' : 'Editar Destaque'}
+            </h1>
+            <p className="text-muted-foreground">
+              {mode === 'create' 
+                ? 'Preencha os dados do novo destaque semanal'
+                : 'Altere os dados do destaque selecionado'
+              }
+            </p>
+          </div>
+        </div>
+        
+        <div className="text-sm text-muted-foreground">
+          <kbd className="px-2 py-1 bg-muted rounded text-xs">Ctrl+S</kbd> para salvar • 
+          <kbd className="px-2 py-1 bg-muted rounded text-xs ml-1">Esc</kbd> para voltar
         </div>
       </div>
 
@@ -367,12 +413,24 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
                     name="image_url"
                     render={({ field }) => (
                       <FormItem>
-                      <AdminFileUpload
-                        bucket="highlights"
-                        currentUrl={field.value}
-                        onUploadComplete={(url) => field.onChange(url)}
-                        label="Imagem Principal"
-                      />
+                        <AdminFileUpload
+                          bucket="highlights"
+                          currentUrl={field.value}
+                          onUploadComplete={(url) => {
+                            field.onChange(url);
+                            setImagePreview(url);
+                          }}
+                          label="Imagem Principal"
+                        />
+                        {imagePreview && (
+                          <div className="mt-3">
+                            <img
+                              src={imagePreview}
+                              alt="Preview"
+                              className="w-full h-48 object-cover rounded-lg border"
+                            />
+                          </div>
+                        )}
                         <FormMessage />
                       </FormItem>
                     )}
@@ -487,28 +545,54 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
             </div>
           </div>
 
-          {/* Botões de Ação */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex justify-end gap-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate('/admin-v2/highlights')}
-                  disabled={saving}
-                >
-                  Cancelar
-                </Button>
+          <div className="flex gap-3 pt-6">
+            <SaveButton
+              onClick={handleSubmit(onSubmit)}
+              disabled={saving || !isValid}
+              loadingText="Salvando..."
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Salvar {mode === 'create' ? 'Destaque' : 'Alterações'}
+            </SaveButton>
 
-                <SaveButton
-                  disabled={saving}
-                  onClick={handleSubmit(onSubmit)}
-                >
-                  {mode === 'create' ? 'Criar Destaque' : 'Salvar Alterações'}
-                </SaveButton>
-              </div>
-            </CardContent>
-          </Card>
+            {mode === 'create' && (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setValue('is_published', true);
+                  handleSubmit(onSubmit)();
+                }}
+                disabled={saving || !isValid}
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Salvar e Publicar
+              </Button>
+            )}
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate('/admin-v2/highlights')}
+              disabled={saving}
+            >
+              Cancelar
+            </Button>
+          </div>
+
+          {/* Validation errors summary */}
+          {Object.keys(errors).length > 0 && (
+            <div className="mt-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+              <p className="text-sm font-medium text-destructive mb-2">
+                Corrija os seguintes erros:
+              </p>
+              <ul className="text-sm text-destructive space-y-1">
+                {Object.entries(errors).map(([field, error]) => (
+                  <li key={field}>• {error.message}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </form>
       </Form>
     </div>
