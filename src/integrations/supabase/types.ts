@@ -3555,6 +3555,10 @@ export type Database = {
           username: string
         }[]
       }
+      secure_admin_access: {
+        Args: { admin_email: string }
+        Returns: boolean
+      }
       setup_notification_cron_jobs: {
         Args: Record<PropertyKey, never>
         Returns: undefined
