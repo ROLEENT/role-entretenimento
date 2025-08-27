@@ -169,51 +169,6 @@ export type Database = {
         }
         Relationships: []
       }
-      adsense_settings: {
-        Row: {
-          ad_format: string
-          ad_layout: string | null
-          created_at: string
-          id: string
-          is_active: boolean
-          lazy_loading: boolean
-          page_type: string
-          position: string
-          publisher_id: string
-          responsive: boolean
-          slot_id: string
-          updated_at: string
-        }
-        Insert: {
-          ad_format?: string
-          ad_layout?: string | null
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          lazy_loading?: boolean
-          page_type: string
-          position: string
-          publisher_id: string
-          responsive?: boolean
-          slot_id: string
-          updated_at?: string
-        }
-        Update: {
-          ad_format?: string
-          ad_layout?: string | null
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          lazy_loading?: boolean
-          page_type?: string
-          position?: string
-          publisher_id?: string
-          responsive?: boolean
-          slot_id?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       advertisements: {
         Row: {
           active: boolean | null
