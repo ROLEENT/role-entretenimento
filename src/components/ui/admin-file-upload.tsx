@@ -4,12 +4,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Upload, X, FileImage, Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { createAdminSupabaseClient, getAdminEmail } from '@/lib/supabaseAdmin';
 import { validateFile, generateFileName, getPublicUrl, type FileValidationOptions } from '@/utils/fileValidation';
 import { useAdminToast } from '@/hooks/useAdminToast';
 
 interface AdminFileUploadProps {
-  bucket: 'events' | 'venues' | 'organizers' | 'posts' | 'highlights';
+  bucket: 'events' | 'venues' | 'organizers' | 'posts' | 'highlights' | 'artists';
   onUploadComplete?: (url: string, fileName: string) => void;
   currentUrl?: string;
   label?: string;
@@ -61,7 +61,11 @@ export function AdminFileUpload({
     try {
       const fileName = generateFileName(file.name, bucket);
       
-      const { data, error } = await supabase.storage
+      // Get admin email and create admin client
+      const adminEmail = getAdminEmail();
+      const adminClient = createAdminSupabaseClient(adminEmail || undefined);
+      
+      const { data, error } = await adminClient.storage
         .from(bucket)
         .upload(fileName, file, {
           cacheControl: '3600',

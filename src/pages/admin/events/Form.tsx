@@ -39,11 +39,11 @@ export default function EventForm({ mode }: EventFormProps) {
       cover_url: '',
       start_at: '',
       end_at: '',
-      venue_id: '',
+      venue_name: '',
       city: '',
       state: '',
       external_url: '',
-      organizer_id: '',
+      organizer_name: '',
       price_min: 0,
       price_max: 0,
       tags: [],
@@ -95,11 +95,11 @@ export default function EventForm({ mode }: EventFormProps) {
           cover_url: data.cover_url || '',
           start_at: data.start_at ? new Date(data.start_at).toISOString().slice(0, 16) : '',
           end_at: data.end_at ? new Date(data.end_at).toISOString().slice(0, 16) : '',
-          venue_id: data.venue_id || '',
+          venue_name: data.venue_name || '',
           city: data.city,
           state: data.state,
           external_url: data.external_url || '',
-          organizer_id: data.organizer_id || '',
+          organizer_name: data.organizer_name || '',
           price_min: data.price_min || 0,
           price_max: data.price_max || 0,
           tags: data.tags || [],
@@ -126,7 +126,7 @@ export default function EventForm({ mode }: EventFormProps) {
         start_at: new Date(data.start_at).toISOString(),
         end_at: data.end_at ? new Date(data.end_at).toISOString() : null,
         external_url: data.external_url || null,
-        organizer_id: data.organizer_id || null,
+        organizer_name: data.organizer_name || null,
         price_min: data.price_min || null,
         price_max: data.price_max || null,
       };
@@ -274,22 +274,15 @@ export default function EventForm({ mode }: EventFormProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="venue_id">Local *</Label>
-                <Select onValueChange={(value) => form.setValue('venue_id', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o local" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {venues.map((venue) => (
-                      <SelectItem key={venue.id} value={venue.id}>
-                        {venue.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {form.formState.errors.venue_id && (
+                <Label htmlFor="venue_name">Local *</Label>
+                <Input
+                  id="venue_name"
+                  {...form.register('venue_name')}
+                  placeholder="Ex: Teatro Municipal"
+                />
+                {form.formState.errors.venue_name && (
                   <p className="text-red-500 text-sm mt-1">
-                    {form.formState.errors.venue_id.message}
+                    {form.formState.errors.venue_name.message}
                   </p>
                 )}
               </div>
@@ -360,19 +353,12 @@ export default function EventForm({ mode }: EventFormProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="organizer_id">Organizador</Label>
-              <Select onValueChange={(value) => form.setValue('organizer_id', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o organizador" />
-                </SelectTrigger>
-                <SelectContent>
-                  {organizers.map((organizer) => (
-                    <SelectItem key={organizer.id} value={organizer.id}>
-                      {organizer.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="organizer_name">Organizador</Label>
+              <Input
+                id="organizer_name"
+                {...form.register('organizer_name')}
+                placeholder="Ex: Produtora Musical XYZ"
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

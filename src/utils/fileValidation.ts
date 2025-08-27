@@ -3,7 +3,7 @@
 export interface FileValidationOptions {
   maxSize?: number; // in bytes
   allowedTypes?: string[];
-  bucket: 'events' | 'venues' | 'organizers' | 'posts' | 'highlights';
+  bucket: 'events' | 'venues' | 'organizers' | 'posts' | 'highlights' | 'artists';
 }
 
 export interface ValidationResult {
