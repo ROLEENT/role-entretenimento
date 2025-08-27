@@ -52,6 +52,12 @@ const AdminHighlightEdit = lazy(() => import("./pages/admin/highlights/Edit"));
 const AdminEventsIndex = lazy(() => import("./pages/admin/events/Index"));
 const AdminEventCreate = lazy(() => import("./pages/admin/events/Create"));
 const AdminEventEdit = lazy(() => import("./pages/admin/events/Edit"));
+const AdminVenuesIndex = lazy(() => import("./pages/admin/venues/Index"));
+const AdminVenueCreate = lazy(() => import("./pages/admin/venues/Create"));
+const AdminVenueEdit = lazy(() => import("./pages/admin/venues/Edit"));
+const AdminOrganizersIndex = lazy(() => import("./pages/admin/organizers/Index"));
+const AdminOrganizerCreate = lazy(() => import("./pages/admin/organizers/Create"));
+const AdminOrganizerEdit = lazy(() => import("./pages/admin/organizers/Edit"));
 
 // Admin Old Layout
 const AdminLayoutOld = lazy(() => import("./layouts/AdminLayoutOld"));
@@ -138,6 +144,12 @@ function App() {
                 <Route path="/admin-v2/events" element={<Suspense fallback={<AdminLoadingFallback />}><AdminEventsIndex /></Suspense>} />
                 <Route path="/admin-v2/events/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminEventCreate /></Suspense>} />
                 <Route path="/admin-v2/events/edit/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminEventEdit /></Suspense>} />
+                <Route path="/admin-v2/venues" element={<Suspense fallback={<AdminLoadingFallback />}><AdminVenuesIndex /></Suspense>} />
+                <Route path="/admin-v2/venues/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminVenueCreate /></Suspense>} />
+                <Route path="/admin-v2/venues/edit/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminVenueEdit /></Suspense>} />
+                <Route path="/admin-v2/organizers" element={<Suspense fallback={<AdminLoadingFallback />}><AdminOrganizersIndex /></Suspense>} />
+                <Route path="/admin-v2/organizers/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminOrganizerCreate /></Suspense>} />
+                <Route path="/admin-v2/organizers/edit/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminOrganizerEdit /></Suspense>} />
 
                 {/* Admin Old - Backup system */}
                 <Route path="/admin-old/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLayoutOld /></Suspense>} />
