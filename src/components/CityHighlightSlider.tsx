@@ -45,8 +45,8 @@ export const CityHighlightSlider = ({ city, title, citySlug }: CityHighlightSlid
         let { data: highlightsWithLikes, error } = await supabase
           .from('highlights')
           .select('*')
-          .eq('city', city as any)
-          .eq('is_published', true as any)
+          .eq('city', city)
+          .eq('is_published', true)
           .gte('event_date', thirtyDaysAgo.toISOString().split('T')[0])
           .gt('like_count', 0)
           .order('like_count', { ascending: false })
@@ -60,8 +60,8 @@ export const CityHighlightSlider = ({ city, title, citySlug }: CityHighlightSlid
           const { data: recentHighlights, error: recentError } = await supabase
             .from('highlights')
             .select('*')
-            .eq('city', city as any)
-            .eq('is_published', true as any)
+            .eq('city', city)
+            .eq('is_published', true)
             .order('event_date', { ascending: false, nullsFirst: false })
             .order('sort_order', { ascending: true })
             .order('created_at', { ascending: false })

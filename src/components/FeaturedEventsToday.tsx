@@ -20,38 +20,52 @@ const FeaturedEventsToday = () => {
   // Fetch available cities
   useEffect(() => {
     const fetchCities = async () => {
-      const { data } = await supabase
-        .from('events')
-        .select('city, state')
-        .eq('status', 'active');
-      
-      if (data) {
-        const uniqueCities = [...new Set(data.map(event => event.city))];
-        setCities(uniqueCities);
-        if (uniqueCities.length > 0 && !uniqueCities.includes(selectedCity)) {
-          setSelectedCity(uniqueCities[0]);
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select('city, state')
+          .eq('status', 'active');
+        
+        if (error) throw error;
+        
+        if (data) {
+          const uniqueCities = [...new Set(data.map(event => event.city))];
+          setCities(uniqueCities);
+          if (uniqueCities.length > 0 && !uniqueCities.includes(selectedCity)) {
+            setSelectedCity(uniqueCities[0]);
+          }
         }
+      } catch (error) {
+        console.error('Error fetching cities:', error);
+        setCities([]);
       }
     };
     
     fetchCities();
-  }, []);
+  }, [selectedCity]);
 
   // Fetch events for selected city
   useEffect(() => {
     const fetchEvents = async () => {
-      setLoading(true);
-      const { data } = await supabase
-        .from('events')
-        .select('*')
-        .eq('status', 'active')
-        .eq('city', selectedCity)
-        .gte('date_start', new Date().toISOString())
-        .order('date_start', { ascending: true })
-        .limit(2);
-      
-      setEvents(data || []);
-      setLoading(false);
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('events')
+          .select('*')
+          .eq('status', 'active')
+          .eq('city', selectedCity)
+          .gte('date_start', new Date().toISOString())
+          .order('date_start', { ascending: true })
+          .limit(2);
+        
+        if (error) throw error;
+        setEvents(data || []);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+        setEvents([]);
+      } finally {
+        setLoading(false);
+      }
     };
     
     if (selectedCity) {
