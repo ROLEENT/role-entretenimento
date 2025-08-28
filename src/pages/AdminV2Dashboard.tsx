@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { useSecureAuth } from '@/hooks/useSecureAuth';
 import { useHighlightsAdmin } from '@/hooks/useHighlightsAdmin';
+import { AuthStatusIndicator } from '@/components/admin/AuthStatusIndicator';
 import { LogOut, Plus, FileText, Eye, Calendar, Building, Users, Mic } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -91,6 +92,11 @@ function AdminV2Dashboard() {
               <p className="text-xs text-muted-foreground">No sistema</p>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Auth Status */}
+        <div className="mb-8">
+          <AuthStatusIndicator />
         </div>
 
         {/* Quick Actions */}

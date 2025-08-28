@@ -3480,6 +3480,10 @@ export type Database = {
         Args: { admin_email: string }
         Returns: Json
       }
+      debug_auth_system: {
+        Args: { p_user_email?: string }
+        Returns: Json
+      }
       debug_highlight_workflow: {
         Args: { p_admin_email: string; p_highlight_id?: string }
         Returns: Json
@@ -3939,6 +3943,17 @@ export type Database = {
           admin_id: string
           admin_name: string
           valid: boolean
+        }[]
+      }
+      validate_role_consistency: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          in_admin_users: boolean
+          in_approved_admins: boolean
+          is_consistent: boolean
+          profile_is_admin: boolean
+          profile_role: Database["public"]["Enums"]["user_role"]
+          user_email: string
         }[]
       }
       validate_username: {

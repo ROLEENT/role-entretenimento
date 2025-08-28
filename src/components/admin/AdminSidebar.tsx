@@ -22,7 +22,8 @@ import {
   BarChart3,
   Shield,
   Zap,
-  Mic
+  Mic,
+  Activity
 } from "lucide-react";
 import {
   Sidebar,
@@ -71,6 +72,8 @@ const analyticsItems = [
 
 const systemItems = [
   { title: "Gamificação", url: "/admin-v2/gamification", icon: Trophy },
+  { title: "Segurança & Roles", url: "/admin-v2/security", icon: Shield },
+  { title: "Log de Auditoria", url: "/admin-v2/audit", icon: Activity },
   { title: "Configurações", url: "/admin-v2/settings", icon: Settings },
   { title: "Meu Perfil", url: "/admin-v2/profile", icon: User },
 ];

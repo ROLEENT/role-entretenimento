@@ -34,7 +34,7 @@ export const useSecureAuth = (): SecureAuthState & {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('role')
+        .select('role, is_admin')
         .eq('user_id', user.id)
         .single();
 

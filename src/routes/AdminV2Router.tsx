@@ -57,6 +57,8 @@ import AdminPerformance from '@/pages/admin/performance/Index';
 import AdminGamification from '@/pages/admin/gamification/Index';
 import AdminSettings from '@/pages/admin/settings/Index';
 import AdminProfile from '@/pages/admin/profile/Index';
+import AdminSecurity from '@/pages/admin/security/Index';
+import AdminAudit from '@/pages/admin/audit/Index';
 
 export default function AdminV2Router() {
   return (
@@ -124,6 +126,8 @@ export default function AdminV2Router() {
         <Route path="gamification" element={<AdminGamification />} />
         <Route path="settings" element={<AdminSettings />} />
         <Route path="profile" element={<AdminProfile />} />
+        <Route path="security" element={<AdminSecurity />} />
+        <Route path="audit" element={<AdminAudit />} />
       </Routes>
     </>
   );
