@@ -27,10 +27,6 @@ const Index = () => {
         <main id="main-content" className="mt-0">
           <HeroSection />
           
-          <ScrollAnimationWrapper>
-            <StatsSection />
-          </ScrollAnimationWrapper>
-          
           <div className="container mx-auto px-4 space-y-8">
             <ScrollAnimationWrapper>
               <CityHighlightSlider 
@@ -63,6 +59,10 @@ const Index = () => {
           
           <ScrollAnimationWrapper>
             <FeaturedBlogPosts />
+          </ScrollAnimationWrapper>
+          
+          <ScrollAnimationWrapper>
+            <StatsSection />
           </ScrollAnimationWrapper>
           
           <ScrollAnimationWrapper>
