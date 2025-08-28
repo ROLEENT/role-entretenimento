@@ -7,12 +7,55 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-// Simplified Supabase client - removing custom admin headers logic
+// Supabase client configurado para usar cookies seguros - ETAPA 1
 export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: typeof window !== 'undefined' ? localStorage : undefined,
+    storage: {
+      getItem: (key: string) => {
+        if (typeof window === 'undefined') return null;
+        try {
+          // Tentar cookies primeiro, fallback para localStorage
+          const cookieValue = document.cookie
+            .split('; ')
+            .find(row => row.startsWith(`${key}=`))
+            ?.split('=')[1];
+          
+          return cookieValue ? decodeURIComponent(cookieValue) : localStorage.getItem(key);
+        } catch {
+          return null;
+        }
+      },
+      setItem: (key: string, value: string) => {
+        if (typeof window === 'undefined') return;
+        try {
+          // Usar cookies seguros para sessão
+          const expires = new Date();
+          expires.setDate(expires.getDate() + 7); // 7 dias
+          
+          document.cookie = `${key}=${encodeURIComponent(value)}; expires=${expires.toUTCString()}; path=/; secure; samesite=lax`;
+          
+          // Fallback para localStorage
+          localStorage.setItem(key, value);
+        } catch (error) {
+          console.warn('Erro ao salvar sessão:', error);
+          localStorage.setItem(key, value);
+        }
+      },
+      removeItem: (key: string) => {
+        if (typeof window === 'undefined') return;
+        try {
+          // Remover do cookie
+          document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+          // Remover do localStorage
+          localStorage.removeItem(key);
+        } catch (error) {
+          console.warn('Erro ao remover sessão:', error);
+        }
+      }
+    },
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: false
+    detectSessionInUrl: true,
+    flowType: 'implicit'
   }
 });

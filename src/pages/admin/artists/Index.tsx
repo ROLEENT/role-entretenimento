@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Pencil, Trash2, Search, Filter } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Filter, Shield } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,8 @@ import { useAdminToast } from '@/hooks/useAdminToast';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useArtistManagement } from '@/hooks/useArtistManagement';
 import { useDebounce } from '@/hooks/useDebounce';
+import { withAdminAuth } from '@/components/withAdminAuth';
+import { useSecureAuth } from '@/hooks/useSecureAuth';
 
 interface Artist {
   id: string;
@@ -23,7 +25,7 @@ interface Artist {
   created_at: string;
 }
 
-export default function AdminArtistsIndex() {
+function AdminArtistsIndex() {
   const [artists, setArtists] = useState<Artist[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -32,6 +34,8 @@ export default function AdminArtistsIndex() {
   const { showSuccess, showError } = useAdminToast();
   const { getArtists, deleteArtist, loading } = useArtistManagement();
   
+  // ETAPA 1: Usar o sistema de auth com RBAC
+  const { role, canDelete, isAdmin } = useSecureAuth();
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const loadArtists = useCallback(async () => {
@@ -98,6 +102,15 @@ export default function AdminArtistsIndex() {
           <p className="text-muted-foreground">
             Gerencie artistas e performers da plataforma
           </p>
+          <div className="flex items-center gap-2 mt-2">
+            <Badge variant="outline" className="flex items-center gap-1">
+              <Shield className="h-3 w-3" />
+              {role}
+            </Badge>
+            {canDelete && (
+              <Badge variant="secondary">Pode deletar</Badge>
+            )}
+          </div>
         </div>
         <Button asChild>
           <Link to="/admin-v2/artists/create">
@@ -226,31 +239,38 @@ export default function AdminArtistsIndex() {
                       </Link>
                     </Button>
                     
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Tem certeza que deseja excluir o artista "{artist.stage_name}"? 
-                            Esta ação não pode ser desfeita.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction 
-                            onClick={() => handleDelete(artist.id)}
-                            className="bg-destructive hover:bg-destructive/90"
-                          >
-                            Excluir
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    {/* ETAPA 1: Botão deletar apenas para admins */}
+                    {canDelete ? (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Tem certeza que deseja excluir o artista "{artist.stage_name}"? 
+                              Esta ação não pode ser desfeita.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => handleDelete(artist.id)}
+                              className="bg-destructive hover:bg-destructive/90"
+                            >
+                              Excluir
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    ) : (
+                      <Button variant="outline" size="sm" disabled title="Apenas admins podem deletar">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -261,3 +281,6 @@ export default function AdminArtistsIndex() {
     </div>
   );
 }
+
+// ETAPA 1: Exportar componente protegido que requer role 'editor' ou superior
+export default withAdminAuth(AdminArtistsIndex, 'editor');
