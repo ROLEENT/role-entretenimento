@@ -16,49 +16,35 @@ import { OrganizerFormData } from '@/lib/organizerSchema';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { withAdminAuth } from '@/components/withAdminAuth';
 
-interface Organizer {
-  id: string;
-  name: string;
-  contact_email: string;
-  site: string | null;
-  instagram: string | null;
-  description: string | null;
-  logo_url: string | null;
-  phone: string | null;
-  whatsapp: string | null;
-  founded_year: number | null;
-  specialties: string[];
-  created_at: string;
-}
-
 function AdminOrganizers() {
-  const [organizers, setOrganizers] = useState<Organizer[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingOrganizer, setEditingOrganizer] = useState<Organizer | null>(null);
+  const [editingOrganizer, setEditingOrganizer] = useState<any | null>(null);
   const { organizers, isLoading, createOrganizer, updateOrganizer, deleteOrganizer } = useOrganizerManagement();
 
   const [formData, setFormData] = useState<OrganizerFormData>({
     name: '',
+    type: 'organizador',
+    city: '',
     contact_email: '',
-    site: '',
+    contact_whatsapp: '',
     instagram: '',
-    description: '',
     logo_url: '',
-    phone: '',
-    whatsapp: '',
-    founded_year: undefined,
-    specialties: []
+    bio_short: '',
+    bio_long: '',
+    website_url: '',
+    portfolio_url: '',
+    cover_image_url: '',
+    cities_active: [],
+    genres: [],
+    responsible_name: '',
+    responsible_role: '',
+    booking_whatsapp: '',
+    booking_email: '',
+    internal_notes: '',
+    status: 'active',
+    priority: 0,
   });
-
-  useEffect(() => {
-    fetchOrganizers();
-  }, []);
-
-  const fetchOrganizers = async () => {
-    const data = await getOrganizers(searchTerm);
-    setOrganizers(data);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,46 +63,66 @@ function AdminOrganizers() {
       setDialogOpen(false);
       setEditingOrganizer(null);
       resetForm();
-      fetchOrganizers();
     } catch (error) {
       // Error handled in hook
     }
   };
 
-  const handleEdit = (organizer: Organizer) => {
+  const handleEdit = (organizer: OrganizerData) => {
     setEditingOrganizer(organizer);
     setFormData({
       name: organizer.name,
+      type: organizer.type,
+      city: organizer.city,
       contact_email: organizer.contact_email,
-      site: organizer.site || '',
-      instagram: organizer.instagram || '',
-      description: organizer.description || '',
+      contact_whatsapp: organizer.contact_whatsapp,
+      instagram: organizer.instagram,
       logo_url: organizer.logo_url || '',
-      phone: organizer.phone || '',
-      whatsapp: organizer.whatsapp || '',
-      founded_year: organizer.founded_year || undefined,
-      specialties: organizer.specialties || []
+      bio_short: organizer.bio_short || '',
+      bio_long: organizer.bio_long || '',
+      website_url: organizer.website_url || '',
+      portfolio_url: organizer.portfolio_url || '',
+      cover_image_url: organizer.cover_image_url || '',
+      cities_active: organizer.cities_active || [],
+      genres: organizer.genres || [],
+      responsible_name: organizer.responsible_name || '',
+      responsible_role: organizer.responsible_role || '',
+      booking_whatsapp: organizer.booking_whatsapp || '',
+      booking_email: organizer.booking_email || '',
+      internal_notes: organizer.internal_notes || '',
+      status: organizer.status,
+      priority: organizer.priority,
     });
     setDialogOpen(true);
   };
 
   const handleDelete = async (organizerId: string) => {
     await deleteOrganizer(organizerId);
-    fetchOrganizers();
   };
 
   const resetForm = () => {
     setFormData({
       name: '',
+      type: 'organizador',
+      city: '',
       contact_email: '',
-      site: '',
+      contact_whatsapp: '',
       instagram: '',
-      description: '',
       logo_url: '',
-      phone: '',
-      whatsapp: '',
-      founded_year: undefined,
-      specialties: []
+      bio_short: '',
+      bio_long: '',
+      website_url: '',
+      portfolio_url: '',
+      cover_image_url: '',
+      cities_active: [],
+      genres: [],
+      responsible_name: '',
+      responsible_role: '',
+      booking_whatsapp: '',
+      booking_email: '',
+      internal_notes: '',
+      status: 'active',
+      priority: 0,
     });
   };
 
@@ -184,15 +190,28 @@ function AdminOrganizers() {
                 </div>
                 
                 <div>
-                  <Label htmlFor="founded_year">Ano de Fundação</Label>
+                  <Label htmlFor="type">Tipo *</Label>
+                  <Select value={formData.type} onValueChange={(value) => setFormData(prev => ({ ...prev, type: value as any }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="organizador">Organizador</SelectItem>
+                      <SelectItem value="produtora">Produtora</SelectItem>
+                      <SelectItem value="coletivo">Coletivo</SelectItem>
+                      <SelectItem value="selo">Selo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <Label htmlFor="city">Cidade *</Label>
                   <Input
-                    id="founded_year"
-                    type="number"
-                    value={formData.founded_year || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, founded_year: e.target.value ? parseInt(e.target.value) : undefined }))}
-                    placeholder="2020"
-                    min="1900"
-                    max={new Date().getFullYear()}
+                    id="city"
+                    value={formData.city}
+                    onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                    placeholder="São Paulo"
+                    required
                   />
                 </div>
                 
@@ -209,31 +228,22 @@ function AdminOrganizers() {
                 </div>
                 
                 <div>
-                  <Label htmlFor="phone">Telefone</Label>
+                  <Label htmlFor="contact_whatsapp">WhatsApp *</Label>
                   <Input
-                    id="phone"
-                    value={formData.phone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                    id="contact_whatsapp"
+                    value={formData.contact_whatsapp}
+                    onChange={(e) => setFormData(prev => ({ ...prev, contact_whatsapp: e.target.value }))}
                     placeholder="(11) 99999-9999"
+                    required
                   />
                 </div>
                 
                 <div>
-                  <Label htmlFor="whatsapp">WhatsApp</Label>
+                  <Label htmlFor="website_url">Website</Label>
                   <Input
-                    id="whatsapp"
-                    value={formData.whatsapp}
-                    onChange={(e) => setFormData(prev => ({ ...prev, whatsapp: e.target.value }))}
-                    placeholder="(11) 99999-9999"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="site">Website</Label>
-                  <Input
-                    id="site"
-                    value={formData.site}
-                    onChange={(e) => setFormData(prev => ({ ...prev, site: e.target.value }))}
+                    id="website_url"
+                    value={formData.website_url}
+                    onChange={(e) => setFormData(prev => ({ ...prev, website_url: e.target.value }))}
                     placeholder="https://site.com"
                   />
                 </div>
@@ -250,35 +260,35 @@ function AdminOrganizers() {
               </div>
               
               <div>
-                <Label htmlFor="specialties">Especialidades</Label>
+                <Label htmlFor="genres">Gêneros</Label>
                 <Input
-                  id="specialties"
-                  value={formData.specialties?.join(', ') || ''}
+                  id="genres"
+                  value={formData.genres?.join(', ') || ''}
                   onChange={(e) => setFormData(prev => ({ 
                     ...prev, 
-                    specialties: e.target.value.split(',').map(s => s.trim()).filter(s => s) 
+                    genres: e.target.value.split(',').map(s => s.trim()).filter(s => s) 
                   }))}
                   placeholder="Música eletrônica, Shows, Festivais"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  Separe múltiplas especialidades com vírgulas
+                  Separe múltiplos gêneros com vírgulas
                 </p>
               </div>
               
               <div>
-                <Label htmlFor="description">Descrição</Label>
+                <Label htmlFor="bio_short">Bio Curta</Label>
                 <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Descrição detalhada do organizador, história, missão..."
-                  rows={4}
+                  id="bio_short"
+                  value={formData.bio_short}
+                  onChange={(e) => setFormData(prev => ({ ...prev, bio_short: e.target.value }))}
+                  placeholder="Descrição breve do organizador..."
+                  rows={2}
                 />
               </div>
               
               <div className="flex gap-2">
-                <Button type="submit" disabled={loading}>
-                  {loading ? 'Salvando...' : (editingOrganizer ? 'Atualizar' : 'Criar')}
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? 'Salvando...' : (editingOrganizer ? 'Atualizar' : 'Criar')}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                   Cancelar
@@ -308,7 +318,7 @@ function AdminOrganizers() {
                 className="pl-10"
               />
             </div>
-            <Button variant="outline" onClick={fetchOrganizers}>
+            <Button variant="outline">
               Buscar
             </Button>
           </div>
@@ -317,7 +327,7 @@ function AdminOrganizers() {
 
       {/* Organizers List */}
       <div className="grid gap-4">
-        {loading ? (
+        {isLoading ? (
           [...Array(3)].map((_, i) => (
             <Card key={i}>
               <CardContent className="p-6">
@@ -351,11 +361,11 @@ function AdminOrganizers() {
                         <span>{organizer.contact_email}</span>
                       </div>
                       
-                      {organizer.site && (
+                      {organizer.website_url && (
                         <div className="flex items-center gap-2 text-sm">
                           <Globe className="h-4 w-4 text-muted-foreground" />
-                          <a href={organizer.site} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                            {organizer.site}
+                          <a href={organizer.website_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                            {organizer.website_url}
                           </a>
                         </div>
                       )}
@@ -368,9 +378,9 @@ function AdminOrganizers() {
                       )}
                     </div>
                     
-                    {organizer.description && (
+                    {organizer.bio_short && (
                       <p className="text-sm text-muted-foreground mb-4">
-                        {organizer.description}
+                        {organizer.bio_short}
                       </p>
                     )}
                     
