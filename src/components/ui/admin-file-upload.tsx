@@ -16,6 +16,7 @@ interface AdminFileUploadProps {
   className?: string;
   maxSize?: number;
   allowedTypes?: string[];
+  adminEmail?: string; // New optional prop for admin email
 }
 
 export function AdminFileUpload({
@@ -26,6 +27,7 @@ export function AdminFileUpload({
   className,
   maxSize,
   allowedTypes,
+  adminEmail, // Accept admin email as prop
 }: AdminFileUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(currentUrl || null);
@@ -65,34 +67,34 @@ export function AdminFileUpload({
       const fileName = generateFileName(file.name, bucket);
       console.log('[ADMIN FILE UPLOAD] Generated filename:', fileName);
       
-      // Get admin email and create admin client
-      const adminEmail = getAdminEmail();
-      console.log('[ADMIN FILE UPLOAD] Admin email obtido:', adminEmail);
+      // Get admin email - try prop first, then fallback to getAdminEmail
+      const emailToUse = adminEmail || await getAdminEmail();
+      console.log('[ADMIN FILE UPLOAD] Admin email obtido:', emailToUse);
       
-      if (!adminEmail) {
+      if (!emailToUse) {
         console.error('[ADMIN FILE UPLOAD] Email do admin não encontrado');
         throw new Error('Email do admin não encontrado. Faça login novamente.');
       }
       
       // Verificar se admin é válido antes de tentar upload
-      if (!adminEmail.includes('@')) {
-        console.error('[ADMIN FILE UPLOAD] Email do admin inválido:', adminEmail);
+      if (!emailToUse.includes('@')) {
+        console.error('[ADMIN FILE UPLOAD] Email do admin inválido:', emailToUse);
         throw new Error('Email do admin inválido. Faça login novamente.');
       }
       
       console.log('[ADMIN FILE UPLOAD] Criando client admin...');
-      const adminClient = createAdminSupabaseClient(adminEmail);
+      const adminClient = createAdminSupabaseClient(emailToUse);
       
       console.log('[ADMIN FILE UPLOAD] ====== EXECUTANDO UPLOAD ======');
       console.log('[ADMIN FILE UPLOAD] Bucket:', bucket);
       console.log('[ADMIN FILE UPLOAD] Filename:', fileName);
-      console.log('[ADMIN FILE UPLOAD] Admin email:', adminEmail);
+      console.log('[ADMIN FILE UPLOAD] Admin email:', emailToUse);
       console.log('[ADMIN FILE UPLOAD] Expected path will be:', `/${bucket}/${fileName}`);
       
       // Debug específico para organizadores
       if (bucket === 'organizers') {
         console.log('[ORGANIZERS DEBUG] ✅ Bucket correto identificado: organizers');
-        console.log('[ORGANIZERS DEBUG] ✅ Admin email válido:', adminEmail);
+        console.log('[ORGANIZERS DEBUG] ✅ Admin email válido:', emailToUse);
         console.log('[ORGANIZERS DEBUG] ✅ Filename sendo usado:', fileName);
       }
       
@@ -100,7 +102,7 @@ export function AdminFileUpload({
         cacheControl: '3600',
         upsert: false,
         headers: {
-          'x-admin-email': adminEmail
+          'x-admin-email': emailToUse
         }
       };
       
@@ -120,7 +122,7 @@ export function AdminFileUpload({
         // Debug específico para erro RLS de organizadores
         if (bucket === 'organizers' && error.message?.includes('row-level security')) {
           console.error('[ORGANIZERS DEBUG] ❌ RLS ERROR DETECTED!');
-          console.error('[ORGANIZERS DEBUG] ❌ Admin email being sent:', adminEmail);
+          console.error('[ORGANIZERS DEBUG] ❌ Admin email being sent:', emailToUse);
           console.error('[ORGANIZERS DEBUG] ❌ Expected bucket path: /organizers/');
           console.error('[ORGANIZERS DEBUG] ❌ Actual upload path from error: Check network tab for actual path');
         }

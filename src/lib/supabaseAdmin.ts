@@ -76,13 +76,13 @@ export function createAdminSupabaseClient(adminEmail?: string) {
 }
 
 // Get admin email from localStorage or session - VERSÃO APRIMORADA
-export function getAdminEmail(): string | null {
+export async function getAdminEmail(): Promise<string | null> {
   if (typeof window === 'undefined') return null;
   
   try {
     console.log('[GET ADMIN EMAIL] Iniciando busca por email do admin...');
     
-    // Try to get from admin-v2 session first (MÉTODO PRIMÁRIO)
+    // Method 1: Try to get from admin-v2 session first (MÉTODO PRIMÁRIO)
     const adminSession = localStorage.getItem('admin-v2-session');
     console.log('[GET ADMIN EMAIL] Admin session raw:', adminSession);
     
@@ -101,6 +101,19 @@ export function getAdminEmail(): string | null {
       } else if (session.user?.email) {
         console.log('[GET ADMIN EMAIL] Email encontrado no admin session user:', session.user.email);
         return session.user.email;
+      }
+    }
+
+    // Method 2: Try direct access to current supabase session
+    if (typeof window !== 'undefined' && (window as any).supabase) {
+      try {
+        const { data: { session } } = await (window as any).supabase.auth.getSession();
+        if (session?.user?.email) {
+          console.log('[GET ADMIN EMAIL] Email encontrado na sessão ativa do Supabase:', session.user.email);
+          return session.user.email;
+        }
+      } catch (err) {
+        console.log('[GET ADMIN EMAIL] Erro ao tentar acessar sessão do Supabase:', err);
       }
     }
     

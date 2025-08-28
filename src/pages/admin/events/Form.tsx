@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { eventSchema, EventFormData } from '@/lib/eventSchema';
 import { useArtistManagement } from '@/hooks/useArtistManagement';
 import { AdminFileUpload } from '@/components/ui/admin-file-upload';
+import { useAdminEmail } from '@/hooks/useAdminEmail';
 
 interface EventFormProps {
   mode: 'create' | 'edit';
@@ -27,6 +28,7 @@ export default function EventForm({ mode }: EventFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
+  const adminEmail = useAdminEmail();
   const [loading, setLoading] = useState(false);
   const [venues, setVenues] = useState<any[]>([]);
   const [organizers, setOrganizers] = useState<any[]>([]);
@@ -249,6 +251,7 @@ export default function EventForm({ mode }: EventFormProps) {
                 <AdminFileUpload
                   bucket="events"
                   onUploadComplete={(url) => form.setValue('cover_url', url)}
+                  adminEmail={adminEmail}
                   currentUrl={form.watch('cover_url')}
                   label="Imagem de Capa do Evento *"
                 />

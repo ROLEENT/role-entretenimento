@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminFileUpload } from '@/components/ui/admin-file-upload';
+import { useAdminEmail } from '@/hooks/useAdminEmail';
 import { SaveButton, PublishButton } from '@/components/ui/admin-button';
 import { Badge } from '@/components/ui/badge';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -37,6 +38,7 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
   const { id } = useParams();
   const { user } = useAdminV2Auth();
   const { toast } = useToast();
+  const adminEmail = useAdminEmail();
   const [loading, setLoading] = useState(mode === 'edit');
   const [saving, setSaving] = useState(false);
   const [newReason, setNewReason] = useState('');
@@ -416,6 +418,7 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
                         <AdminFileUpload
                           bucket="highlights"
                           currentUrl={field.value}
+                          adminEmail={adminEmail}
                           onUploadComplete={(url) => {
                             field.onChange(url);
                             setImagePreview(url);
