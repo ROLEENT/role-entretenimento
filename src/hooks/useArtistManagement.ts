@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { createAdminSupabaseClient, getAdminEmail } from '@/lib/supabaseAdmin';
 import { toast } from 'sonner';
 import type { ArtistFormData } from '@/lib/artistSchema';
 
@@ -9,6 +10,20 @@ export const useArtistManagement = () => {
   const createArtist = useCallback(async (data: ArtistFormData) => {
     try {
       setLoading(true);
+      console.log('[ARTIST MANAGEMENT] ====== INICIANDO CRIAÇÃO DE ARTISTA ======');
+      console.log('[ARTIST MANAGEMENT] Data recebida:', data);
+      
+      // Obter email do admin
+      const adminEmail = await getAdminEmail();
+      console.log('[ARTIST MANAGEMENT] Admin email obtido:', adminEmail);
+      
+      if (!adminEmail) {
+        throw new Error('Email do administrador não encontrado. Faça login novamente.');
+      }
+      
+      // Criar cliente admin com headers corretos
+      const adminClient = createAdminSupabaseClient(adminEmail);
+      console.log('[ARTIST MANAGEMENT] Cliente admin criado');
       
       // Gerar slug único
       const baseSlug = data.stage_name
@@ -22,13 +37,24 @@ export const useArtistManagement = () => {
       let slug = baseSlug;
       let counter = 1;
       
+      console.log('[ARTIST MANAGEMENT] Base slug:', baseSlug);
+      
       // Verificar se slug já existe e criar versão única
       while (true) {
-        const { data: existingArtist } = await supabase
+        console.log('[ARTIST MANAGEMENT] Verificando slug:', slug);
+        
+        const { data: existingArtist, error: slugError } = await adminClient
           .from('artists')
           .select('id')
           .eq('slug', slug)
-          .single();
+          .maybeSingle();
+        
+        if (slugError) {
+          console.error('[ARTIST MANAGEMENT] Erro ao verificar slug:', slugError);
+          throw slugError;
+        }
+        
+        console.log('[ARTIST MANAGEMENT] Artista existente com slug:', existingArtist);
         
         if (!existingArtist) break;
         slug = `${baseSlug}-${counter}`;
@@ -45,28 +71,54 @@ export const useArtistManagement = () => {
         priority: data.priority || 0
       };
 
-      const { data: newArtist, error } = await supabase
+      console.log('[ARTIST MANAGEMENT] Dados finais para inserção:', artistData);
+
+      const { data: newArtist, error } = await adminClient
         .from('artists')
         .insert([artistData])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('[ARTIST MANAGEMENT] Erro na inserção:', error);
+        throw error;
+      }
 
+      console.log('[ARTIST MANAGEMENT] Artista criado com sucesso:', newArtist);
       toast.success('Artista criado com sucesso!');
       return newArtist.id;
     } catch (error: any) {
-      console.error('Error creating artist:', error);
-      toast.error(error.message || 'Erro ao criar artista');
+      console.error('[ARTIST MANAGEMENT] ERRO GERAL:', error);
+      
+      let errorMessage = 'Erro ao criar artista';
+      
+      if (error.code === '42501') {
+        errorMessage = 'Permissões insuficientes. Verifique se você está logado como administrador.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
       throw error;
     } finally {
       setLoading(false);
+      console.log('[ARTIST MANAGEMENT] ====== FIM DA CRIAÇÃO DE ARTISTA ======');
     }
   }, []);
 
   const updateArtist = useCallback(async (artistId: string, data: ArtistFormData) => {
     try {
       setLoading(true);
+      console.log('[ARTIST MANAGEMENT] ====== ATUALIZANDO ARTISTA ======');
+      
+      // Obter email do admin
+      const adminEmail = await getAdminEmail();
+      if (!adminEmail) {
+        throw new Error('Email do administrador não encontrado. Faça login novamente.');
+      }
+      
+      // Criar cliente admin com headers corretos
+      const adminClient = createAdminSupabaseClient(adminEmail);
       
       // Gerar novo slug se o nome foi alterado
       const baseSlug = data.stage_name
@@ -82,12 +134,14 @@ export const useArtistManagement = () => {
       
       // Verificar se slug já existe (exceto para o artista atual)
       while (true) {
-        const { data: existingArtist } = await supabase
+        const { data: existingArtist, error: slugError } = await adminClient
           .from('artists')
           .select('id')
           .eq('slug', slug)
           .neq('id', artistId)
-          .single();
+          .maybeSingle();
+        
+        if (slugError) throw slugError;
         
         if (!existingArtist) break;
         slug = `${baseSlug}-${counter}`;
@@ -102,7 +156,7 @@ export const useArtistManagement = () => {
         image_rights_authorized: data.image_rights_authorized || false
       };
 
-      const { error } = await supabase
+      const { error } = await adminClient
         .from('artists')
         .update(artistData)
         .eq('id', artistId);
@@ -112,8 +166,16 @@ export const useArtistManagement = () => {
       toast.success('Artista atualizado com sucesso!');
       return true;
     } catch (error: any) {
-      console.error('Error updating artist:', error);
-      toast.error(error.message || 'Erro ao atualizar artista');
+      console.error('[ARTIST MANAGEMENT] Error updating artist:', error);
+      
+      let errorMessage = 'Erro ao atualizar artista';
+      if (error.code === '42501') {
+        errorMessage = 'Permissões insuficientes. Verifique se você está logado como administrador.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
       throw error;
     } finally {
       setLoading(false);
@@ -122,8 +184,11 @@ export const useArtistManagement = () => {
 
   const getArtists = useCallback(async (filters: any = {}) => {
     try {
+      // Obter email do admin para operações administrativas
+      const adminEmail = await getAdminEmail();
+      const client = adminEmail ? createAdminSupabaseClient(adminEmail) : supabase;
       
-      let query = supabase.from('artists').select('*');
+      let query = client.from('artists').select('*');
       
       // Aplicar filtros
       if (filters.status && filters.status !== 'all') {
@@ -151,7 +216,7 @@ export const useArtistManagement = () => {
       
       return artists || [];
     } catch (error: any) {
-      console.error('Error fetching artists:', error);
+      console.error('[ARTIST MANAGEMENT] Error fetching artists:', error);
       toast.error(error.message || 'Erro ao carregar artistas');
       return [];
     }
@@ -163,24 +228,29 @@ export const useArtistManagement = () => {
       
       if (artistId === 'new') return null;
       
-      const { data: artist, error } = await supabase
+      // Obter email do admin para operações administrativas
+      const adminEmail = await getAdminEmail();
+      const client = adminEmail ? createAdminSupabaseClient(adminEmail) : supabase;
+      
+      const { data: artist, error } = await client
         .from('artists')
         .select('*')
         .eq('id', artistId)
-        .single();
+        .maybeSingle();
       
       if (error) {
-        if (error.code === 'PGRST116') {
-          toast.error('Artista não encontrado');
-        } else {
-          throw error;
-        }
+        console.error('[ARTIST MANAGEMENT] Error fetching artist:', error);
+        throw error;
+      }
+      
+      if (!artist) {
+        toast.error('Artista não encontrado');
         return null;
       }
       
       return artist;
     } catch (error: any) {
-      console.error('Error fetching artist:', error);
+      console.error('[ARTIST MANAGEMENT] Error fetching artist:', error);
       toast.error(error.message || 'Erro ao carregar artista');
       return null;
     } finally {
@@ -192,7 +262,15 @@ export const useArtistManagement = () => {
     try {
       setLoading(true);
       
-      const { error } = await supabase
+      // Obter email do admin
+      const adminEmail = await getAdminEmail();
+      if (!adminEmail) {
+        throw new Error('Email do administrador não encontrado. Faça login novamente.');
+      }
+      
+      const adminClient = createAdminSupabaseClient(adminEmail);
+      
+      const { error } = await adminClient
         .from('artists')
         .delete()
         .eq('id', artistId);
@@ -202,8 +280,16 @@ export const useArtistManagement = () => {
       toast.success('Artista removido com sucesso!');
       return true;
     } catch (error: any) {
-      console.error('Error deleting artist:', error);
-      toast.error(error.message || 'Erro ao remover artista');
+      console.error('[ARTIST MANAGEMENT] Error deleting artist:', error);
+      
+      let errorMessage = 'Erro ao remover artista';
+      if (error.code === '42501') {
+        errorMessage = 'Permissões insuficientes. Verifique se você está logado como administrador.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
       throw error;
     } finally {
       setLoading(false);
