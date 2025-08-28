@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Share2, MapPin, Calendar, DollarSign, CalendarPlus, Users, Music } from 'lucide-react';
+import { Share2, MapPin, Calendar, DollarSign, CalendarPlus, Users, Music, CheckCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,8 +10,7 @@ import { StarRatingDisplay } from '@/components/ui/star-rating';
 import { reviewStatsService } from '@/services/reviewService';
 import { useNativeShare } from '@/hooks/useNativeShare';
 import { useCommentCount } from '@/hooks/useCommentCount';
-import { EngagementSystem } from './EngagementSystem';
-import { LikeSystem } from './events/LikeSystem';
+import { CompactEngagementSystem } from './CompactEngagementSystem';
 import ShareDialog from './ShareDialog';
 import { MobileSafeImage } from './ui/mobile-safe-image';
 import { useResponsive } from '@/hooks/useResponsive';
@@ -156,22 +155,13 @@ const EventCard = ({ event, className }: EventCardProps) => {
             </p>
           )}
 
-          {/* Engagement System and Like Button */}
-          <div className="border-t pt-3 space-y-2">
-            <EngagementSystem 
+          {/* Compact Engagement System with Like Button */}
+          <div className="border-t pt-3">
+            <CompactEngagementSystem 
               entityId={event.id}
               entityType="event"
-              size="sm"
-              variant="compact"
               showCounts={true}
             />
-            <div className="flex justify-start">
-              <LikeSystem 
-                entityId={event.id}
-                entityType="event"
-                showCount={true}
-              />
-            </div>
           </div>
 
           <div className="flex gap-2">

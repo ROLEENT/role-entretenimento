@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, ExternalLink, Ticket, Calendar, Share2, MessageCircle } from "lucide-react";
+import { MapPin, ExternalLink, Ticket, Calendar, Share2, MessageCircle, CheckCircle } from "lucide-react";
 import { useCommentCount } from '@/hooks/useCommentCount';
 import { MobileSafeImage } from "@/components/ui/mobile-safe-image";
 import { StarRatingDisplay } from "@/components/ui/star-rating";
@@ -10,8 +10,7 @@ import { reviewStatsService } from "@/services/reviewService";
 import { useNativeShare } from "@/hooks/useNativeShare";
 import { useResponsive } from "@/hooks/useResponsive";
 import { formatHighlightDate, formatEventDateTime } from "@/utils/dateUtils";
-import { EngagementSystem } from "./EngagementSystem";
-import { LikeSystem } from "./events/LikeSystem";
+import { CompactEngagementSystem } from "./CompactEngagementSystem";
 import { toast } from 'sonner';
 
 type CityEnum = 'porto_alegre' | 'sao_paulo' | 'rio_de_janeiro' | 'florianopolis' | 'curitiba';
@@ -181,22 +180,13 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
           )}
         </div>
 
-        {/* Engagement System and Like Button */}
-        <div className="border-t pt-4 mb-4 space-y-3">
-          <EngagementSystem 
+        {/* Compact Engagement System with Like Button */}
+        <div className="border-t pt-4 mb-4">
+          <CompactEngagementSystem 
             entityId={highlight.id}
             entityType="highlight"
-            size="sm"
-            variant="default"
             showCounts={true}
           />
-          <div className="flex justify-start">
-            <LikeSystem 
-              entityId={highlight.id}
-              entityType="highlight"
-              showCount={true}
-            />
-          </div>
         </div>
 
         {/* Ticket Button */}
