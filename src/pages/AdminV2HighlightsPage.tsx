@@ -35,21 +35,7 @@ interface Highlight {
   status: 'draft' | 'published';
   image_url: string | null;
   updated_at: string;
-  updated_by?: {
-    full_name?: string;
-    email?: string;
-  } | {
-    full_name?: string;
-    email?: string;
-  }[];
-  deleted_at?: string | null;
-  deleted_by?: {
-    full_name?: string;
-    email?: string;
-  } | {
-    full_name?: string;
-    email?: string;
-  }[];
+  created_at: string;
 }
 
 type SituationStatus = 'scheduled' | 'active' | 'expired' | 'incomplete';
@@ -159,17 +145,11 @@ export default function AdminV2HighlightsPage() {
           status,
           image_url,
           updated_at,
-          deleted_at,
-          updated_by:profiles!highlights_updated_by_fkey(full_name, email),
-          deleted_by:profiles!highlights_deleted_by_fkey(full_name, email)
+          created_at
         `);
 
-      // Filter by trash status
-      if (showTrash) {
-        query = query.not('deleted_at', 'is', null);
-      } else {
-        query = query.is('deleted_at', null);
-      }
+      // For now, just show all highlights (soft delete not implemented yet)
+      // TODO: Implement soft delete with deleted_at column
 
       // Apply filters
       if (searchTerm) {
@@ -191,11 +171,7 @@ export default function AdminV2HighlightsPage() {
       
       if (error) throw error;
       
-      let filteredHighlights = (data || []).map((item: any) => ({
-        ...item,
-        updated_by: Array.isArray(item.updated_by) ? item.updated_by[0] : item.updated_by,
-        deleted_by: Array.isArray(item.deleted_by) ? item.deleted_by[0] : item.deleted_by,
-      })) as Highlight[];
+      let filteredHighlights = (data || []) as Highlight[];
 
       // Apply situation filter
       if (selectedSituation) {
@@ -319,23 +295,14 @@ export default function AdminV2HighlightsPage() {
 
   const handleDelete = async (ids: string[], permanent = false) => {
     try {
-      if (permanent) {
-        const { error } = await supabase
-          .from('highlights')
-          .delete()
-          .in('id', ids);
-        
-        if (error) throw error;
-        toast.success(`${ids.length} destaque(s) apagado(s) definitivamente`);
-      } else {
-        const { error } = await supabase
-          .from('highlights')
-          .update({ deleted_at: new Date().toISOString() })
-          .in('id', ids);
-        
-        if (error) throw error;
-        toast.success(`${ids.length} destaque(s) movido(s) para lixeira`);
-      }
+      // For now, always do permanent delete since soft delete is not implemented
+      const { error } = await supabase
+        .from('highlights')
+        .delete()
+        .in('id', ids);
+      
+      if (error) throw error;
+      toast.success(`${ids.length} destaque(s) apagado(s) definitivamente`);
       
       loadHighlights();
       setSelectedItems(new Set());
@@ -346,21 +313,8 @@ export default function AdminV2HighlightsPage() {
   };
 
   const handleRestore = async (ids: string[]) => {
-    try {
-      const { error } = await supabase
-        .from('highlights')
-        .update({ deleted_at: null })
-        .in('id', ids);
-      
-      if (error) throw error;
-      
-      toast.success(`${ids.length} destaque(s) restaurado(s) com sucesso`);
-      loadHighlights();
-      setSelectedItems(new Set());
-    } catch (error) {
-      console.error('Error restoring highlights:', error);
-      toast.error('Erro ao restaurar destaques');
-    }
+    // Restore functionality not implemented yet since soft delete is not available
+    toast.error('Funcionalidade de restaurar não disponível ainda');
   };
 
   const handleDuplicate = async (highlight: Highlight) => {
@@ -736,10 +690,7 @@ export default function AdminV2HighlightsPage() {
                                 </Badge>
                               </td>
                               <td className="p-4 text-sm text-muted-foreground">
-                                {Array.isArray(highlight.updated_by) 
-                                  ? highlight.updated_by[0]?.full_name || highlight.updated_by[0]?.email || '—'
-                                  : highlight.updated_by?.full_name || highlight.updated_by?.email || '—'
-                                }
+                                —
                               </td>
                               <td className="p-4 text-sm text-muted-foreground">
                                 {format(new Date(highlight.updated_at), 'dd/MM/yy HH:mm', { locale: ptBR })}
@@ -904,13 +855,10 @@ export default function AdminV2HighlightsPage() {
                             <td className="p-4 font-medium">{highlight.event_title}</td>
                             <td className="p-4">{cities.find(c => c.value === highlight.city)?.label || highlight.city}</td>
                             <td className="p-4 text-sm text-muted-foreground">
-                              {Array.isArray(highlight.deleted_by)
-                                ? highlight.deleted_by[0]?.full_name || highlight.deleted_by[0]?.email || '—'
-                                : highlight.deleted_by?.full_name || highlight.deleted_by?.email || '—'
-                              }
+                              —
                             </td>
                             <td className="p-4 text-sm text-muted-foreground">
-                              {highlight.deleted_at && format(new Date(highlight.deleted_at), 'dd/MM/yy HH:mm', { locale: ptBR })}
+                              —
                             </td>
                             <td className="p-4">
                               <div className="flex items-center gap-1">
