@@ -17,12 +17,13 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { useFollow } from '@/hooks/useFollow';
 import { useUserSearch } from '@/hooks/useUserSearch';
 import EventCard from '@/components/EventCard';
-import { User, Edit2, Save, X, Loader2, LogOut, Heart, Calendar, MapPin, ExternalLink, UserCheck, Users, UserPlus, AtSign, Settings, Bell, Trophy } from 'lucide-react';
+import { User, Edit2, Save, X, Loader2, LogOut, Heart, Calendar, MapPin, ExternalLink, UserCheck, Users, UserPlus, AtSign, Settings, Bell, Trophy, Ticket, CheckCircle, Star } from 'lucide-react';
 import { NotificationSettings } from '@/components/NotificationSettings';
 import { AvatarUpload } from '@/components/AvatarUpload';
 import PointsDisplay from '@/components/PointsDisplay';
 import BadgeDisplay from '@/components/BadgeDisplay';
 import { useGamification } from '@/hooks/useGamification';
+import { useUserEngagement } from '@/hooks/useUserEngagement';
 import { toast } from 'sonner';
 
 const Profile = () => {
@@ -33,6 +34,7 @@ const Profile = () => {
   const { stats, loading: followLoading, toggleFollow, getFollowers, getFollowing } = useFollow(username ? user?.id : undefined);
   const { validateUsername } = useUserSearch();
   const { userBadges, userPoints, getLevelDetails } = useGamification();
+  const { interests, tickets, attendance, likes, loading: engagementLoading } = useUserEngagement();
   
   const [loading, setLoading] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
@@ -483,10 +485,22 @@ const Profile = () => {
                        <PointsDisplay compact className="mr-2" />
                      )}
                      
-                     <Badge variant="outline" className="gap-1">
-                       <Heart className="h-3 w-3" />
-                       {favorites.length} favoritos
-                     </Badge>
+                      <Badge variant="outline" className="gap-1">
+                        <Heart className="h-3 w-3" />
+                        {favorites.length} favoritos
+                      </Badge>
+                      <Badge variant="outline" className="gap-1">
+                        <Star className="h-3 w-3" />
+                        {interests.length} interesses
+                      </Badge>
+                      <Badge variant="outline" className="gap-1">
+                        <Ticket className="h-3 w-3" />
+                        {tickets.length} ingressos
+                      </Badge>
+                      <Badge variant="outline" className="gap-1">
+                        <CheckCircle className="h-3 w-3" />
+                        {attendance.length} comparecimentos
+                      </Badge>
                      {isOwnProfile && (
                        <Button variant="outline" size="sm" onClick={handleSignOut}>
                          <LogOut className="h-4 w-4 mr-1" />
@@ -501,12 +515,14 @@ const Profile = () => {
 
           {/* Profile Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-6 lg:grid-cols-8">
               <TabsTrigger value="favorites">Favoritos</TabsTrigger>
+              <TabsTrigger value="interests">Interesses</TabsTrigger>
+              <TabsTrigger value="tickets">Ingressos</TabsTrigger>
+              <TabsTrigger value="attendance">Presença</TabsTrigger>
+              <TabsTrigger value="likes">Curtidas</TabsTrigger>
               <TabsTrigger value="badges">Conquistas</TabsTrigger>
-              <TabsTrigger value="followers">Seguidores</TabsTrigger>
-              <TabsTrigger value="following">Seguindo</TabsTrigger>
-              {isOwnProfile && <TabsTrigger value="settings">Configurações</TabsTrigger>}
+              {isOwnProfile && <TabsTrigger value="settings">Config.</TabsTrigger>}
               {isOwnProfile && <TabsTrigger value="calendar">Calendário</TabsTrigger>}
             </TabsList>
             
@@ -551,6 +567,186 @@ const Profile = () => {
               </Card>
             </TabsContent>
 
+            {/* Interests Tab */}
+            <TabsContent value="interests" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="h-5 w-5" />
+                    Eventos de Interesse ({interests.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {engagementLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    </div>
+                  ) : interests.length > 0 ? (
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {interests.map((interest) => (
+                        <EventCard
+                          key={interest.id}
+                          event={{
+                            ...interest.events,
+                            price: interest.events?.price || 0,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Star className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                      <h3 className="font-medium mb-1">Nenhum interesse registrado</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Demonstre interesse em eventos para vê-los aqui
+                      </p>
+                      <Button asChild>
+                        <Link to="/eventos">Explorar Eventos</Link>
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Tickets Tab */}
+            <TabsContent value="tickets" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Ticket className="h-5 w-5" />
+                    Ingressos Comprados ({tickets.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {engagementLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    </div>
+                  ) : tickets.length > 0 ? (
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {tickets.map((ticket) => (
+                        <EventCard
+                          key={ticket.id}
+                          event={{
+                            ...ticket.events,
+                            price: ticket.events?.price || 0,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Ticket className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                      <h3 className="font-medium mb-1">Nenhum ingresso registrado</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Marque quando comprar ingressos para vê-los aqui
+                      </p>
+                      <Button asChild>
+                        <Link to="/eventos">Explorar Eventos</Link>
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Attendance Tab */}
+            <TabsContent value="attendance" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5" />
+                    Eventos que Comparecerá ({attendance.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {engagementLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    </div>
+                  ) : attendance.length > 0 ? (
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {attendance.map((attend) => (
+                        <EventCard
+                          key={attend.id}
+                          event={{
+                            ...attend.events,
+                            price: attend.events?.price || 0,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                      <h3 className="font-medium mb-1">Nenhuma presença confirmada</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Confirme presença em eventos para vê-los aqui
+                      </p>
+                      <Button asChild>
+                        <Link to="/eventos">Explorar Eventos</Link>
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Likes Tab */}
+            <TabsContent value="likes" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Heart className="h-5 w-5" />
+                    Destaques Curtidos ({likes.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {engagementLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    </div>
+                  ) : likes.length > 0 ? (
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {likes.map((like) => (
+                        <Card key={like.id} className="group hover:shadow-md transition-shadow">
+                          <div className="aspect-video relative overflow-hidden rounded-t-lg">
+                            <img 
+                              src={like.highlights?.image_url} 
+                              alt={like.highlights?.event_title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                            />
+                          </div>
+                          <CardContent className="p-4">
+                            <h3 className="font-medium text-sm mb-1">{like.highlights?.event_title}</h3>
+                            <p className="text-xs text-muted-foreground mb-2">{like.highlights?.venue}</p>
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <span>{like.highlights?.city}</span>
+                              <span>{new Date(like.highlights?.event_date).toLocaleDateString('pt-BR')}</span>
+                            </div>
+                            <Button asChild size="sm" className="w-full mt-3">
+                              <Link to={`/destaques/${like.highlights?.id}`}>Ver Destaque</Link>
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                      <h3 className="font-medium mb-1">Nenhum destaque curtido</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Curta destaques para vê-los aqui
+                      </p>
+                      <Button asChild>
+                        <Link to="/destaques">Ver Destaques</Link>
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
             
             <TabsContent value="badges" className="space-y-4">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
