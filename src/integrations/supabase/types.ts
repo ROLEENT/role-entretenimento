@@ -1184,6 +1184,7 @@ export type Database = {
           city: string
           cover_url: string | null
           created_at: string
+          created_by: string | null
           date_end: string | null
           date_start: string
           description: string | null
@@ -1202,12 +1203,14 @@ export type Database = {
           tags: string[] | null
           title: string
           updated_at: string
+          updated_by: string | null
           venue_id: string | null
         }
         Insert: {
           city: string
           cover_url?: string | null
           created_at?: string
+          created_by?: string | null
           date_end?: string | null
           date_start: string
           description?: string | null
@@ -1226,12 +1229,14 @@ export type Database = {
           tags?: string[] | null
           title: string
           updated_at?: string
+          updated_by?: string | null
           venue_id?: string | null
         }
         Update: {
           city?: string
           cover_url?: string | null
           created_at?: string
+          created_by?: string | null
           date_end?: string | null
           date_start?: string
           description?: string | null
@@ -1250,6 +1255,7 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string
+          updated_by?: string | null
           venue_id?: string | null
         }
         Relationships: [
@@ -1602,7 +1608,10 @@ export type Database = {
       highlights: {
         Row: {
           city: Database["public"]["Enums"]["city"]
+          cover_url: string | null
           created_at: string
+          created_by: string | null
+          end_at: string | null
           event_date: string | null
           event_time: string | null
           event_title: string
@@ -1613,15 +1622,23 @@ export type Database = {
           photo_credit: string | null
           role_text: string
           selection_reasons: string[]
+          slug: string | null
           sort_order: number | null
+          start_at: string | null
+          status: Database["public"]["Enums"]["highlight_status"] | null
+          summary: string | null
           ticket_price: string | null
           ticket_url: string | null
           updated_at: string
+          updated_by: string | null
           venue: string
         }
         Insert: {
           city: Database["public"]["Enums"]["city"]
+          cover_url?: string | null
           created_at?: string
+          created_by?: string | null
+          end_at?: string | null
           event_date?: string | null
           event_time?: string | null
           event_title: string
@@ -1632,15 +1649,23 @@ export type Database = {
           photo_credit?: string | null
           role_text: string
           selection_reasons?: string[]
+          slug?: string | null
           sort_order?: number | null
+          start_at?: string | null
+          status?: Database["public"]["Enums"]["highlight_status"] | null
+          summary?: string | null
           ticket_price?: string | null
           ticket_url?: string | null
           updated_at?: string
+          updated_by?: string | null
           venue: string
         }
         Update: {
           city?: Database["public"]["Enums"]["city"]
+          cover_url?: string | null
           created_at?: string
+          created_by?: string | null
+          end_at?: string | null
           event_date?: string | null
           event_time?: string | null
           event_title?: string
@@ -1651,10 +1676,15 @@ export type Database = {
           photo_credit?: string | null
           role_text?: string
           selection_reasons?: string[]
+          slug?: string | null
           sort_order?: number | null
+          start_at?: string | null
+          status?: Database["public"]["Enums"]["highlight_status"] | null
+          summary?: string | null
           ticket_price?: string | null
           ticket_url?: string | null
           updated_at?: string
+          updated_by?: string | null
           venue?: string
         }
         Relationships: []
@@ -2083,28 +2113,40 @@ export type Database = {
         Row: {
           contact_email: string
           created_at: string
+          email: string | null
           id: string
           instagram: string | null
           name: string
+          phone: string | null
           site: string | null
+          site_url: string | null
+          slug: string | null
           updated_at: string
         }
         Insert: {
           contact_email: string
           created_at?: string
+          email?: string | null
           id?: string
           instagram?: string | null
           name: string
+          phone?: string | null
           site?: string | null
+          site_url?: string | null
+          slug?: string | null
           updated_at?: string
         }
         Update: {
           contact_email?: string
           created_at?: string
+          email?: string | null
           id?: string
           instagram?: string | null
           name?: string
+          phone?: string | null
           site?: string | null
+          site_url?: string | null
+          slug?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -2875,6 +2917,7 @@ export type Database = {
       venues: {
         Row: {
           address: string
+          capacity: number | null
           city: string
           contacts_json: Json | null
           cover_url: string | null
@@ -2890,6 +2933,7 @@ export type Database = {
         }
         Insert: {
           address: string
+          capacity?: number | null
           city: string
           contacts_json?: Json | null
           cover_url?: string | null
@@ -2905,6 +2949,7 @@ export type Database = {
         }
         Update: {
           address?: string
+          capacity?: number | null
           city?: string
           contacts_json?: Json | null
           cover_url?: string | null
@@ -3110,6 +3155,22 @@ export type Database = {
         Args: { p_admin_email: string; p_artist_id: string }
         Returns: boolean
       }
+      admin_delete_event: {
+        Args: { p_event_id: string }
+        Returns: boolean
+      }
+      admin_delete_highlight: {
+        Args: { p_highlight_id: string }
+        Returns: boolean
+      }
+      admin_delete_organizer: {
+        Args: { p_organizer_id: string }
+        Returns: boolean
+      }
+      admin_delete_venue: {
+        Args: { p_venue_id: string }
+        Returns: boolean
+      }
       admin_get_artist_by_id: {
         Args: { p_admin_email: string; p_artist_id: string }
         Returns: {
@@ -3212,6 +3273,20 @@ export type Database = {
       admin_get_highlight_by_id_v3: {
         Args: { p_admin_email: string; p_highlight_id: string }
         Returns: Json
+      }
+      admin_toggle_event_published: {
+        Args: { p_event_id: string }
+        Returns: {
+          id: string
+          status: Database["public"]["Enums"]["event_status"]
+        }[]
+      }
+      admin_toggle_highlight_published: {
+        Args: { p_highlight_id: string }
+        Returns: {
+          id: string
+          status: Database["public"]["Enums"]["highlight_status"]
+        }[]
       }
       admin_update_artist: {
         Args: {
@@ -3522,6 +3597,10 @@ export type Database = {
       }
       generate_event_slug: {
         Args: { p_event_id?: string; p_title: string }
+        Returns: string
+      }
+      generate_unique_slug: {
+        Args: { base_text: string; id_to_exclude?: string; table_name: string }
         Returns: string
       }
       generate_venue_slug: {
@@ -3996,6 +4075,8 @@ export type Database = {
         | "curitiba"
         | "sao_paulo"
         | "rio_de_janeiro"
+      event_status: "draft" | "published"
+      highlight_status: "draft" | "published"
       user_level: "bronze" | "silver" | "gold" | "platinum" | "diamond"
       user_role: "admin" | "editor" | "moderator"
     }
@@ -4144,6 +4225,8 @@ export const Constants = {
         "sao_paulo",
         "rio_de_janeiro",
       ],
+      event_status: ["draft", "published"],
+      highlight_status: ["draft", "published"],
       user_level: ["bronze", "silver", "gold", "platinum", "diamond"],
       user_role: ["admin", "editor", "moderator"],
     },
