@@ -18,7 +18,7 @@ import { z } from 'zod';
 interface FormField {
   name: string;
   label: string;
-  type: 'text' | 'textarea' | 'select' | 'checkbox' | 'file' | 'array' | 'email' | 'url' | 'number';
+  type: 'text' | 'textarea' | 'select' | 'checkbox' | 'file' | 'array' | 'email' | 'url' | 'number' | 'datetime-local';
   placeholder?: string;
   description?: string;
   options?: { value: string; label: string }[];
@@ -159,7 +159,7 @@ export function AdminForm({
                   {...formField}
                 />
               )}
-              {field.type === 'number' && (
+               {field.type === 'number' && (
                 <Input
                   type="number"
                   placeholder={field.placeholder}
@@ -168,6 +168,13 @@ export function AdminForm({
                   max={field.max}
                   {...formField}
                   onChange={(e) => formField.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                />
+              )}
+              {field.type === 'datetime-local' && (
+                <Input
+                  type="datetime-local"
+                  disabled={field.disabled}
+                  {...formField}
                 />
               )}
               {field.type === 'textarea' && (

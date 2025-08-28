@@ -9,15 +9,18 @@ export interface EventFormData {
   start_at: string;
   end_at?: string;
   city: string;
-  state?: string;
-  venue_id?: string;
-  organizer_id?: string;
+  state: string;
+  venue_name: string;
+  venue_address?: string;
+  organizer_name?: string;
   cover_url?: string;
   tags?: string[];
   status?: string;
   price_min?: number;
   price_max?: number;
   external_url?: string;
+  category?: string;
+  artists?: string[];
 }
 
 export const useEventManagement = () => {
@@ -29,18 +32,22 @@ export const useEventManagement = () => {
       
       const eventData = {
         title: data.title,
-        slug: data.slug,
+        slug: data.slug || data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
         description: data.description || null,
         city: data.city,
-        state: data.state || 'SP', // Default state if not provided
+        state: data.state,
         date_start: data.start_at,
         date_end: data.end_at || null,
         start_at: data.start_at,
         end_at: data.end_at || null,
-        venue_id: data.venue_id || null,
-        organizer_id: data.organizer_id || null,
+        venue_name: data.venue_name,
+        venue_address: data.venue_address || null,
+        organizer_name: data.organizer_name || null,
         cover_url: data.cover_url || null,
         image_url: data.cover_url || null,
+        external_url: data.external_url || null,
+        price_min: data.price_min || null,
+        price_max: data.price_max || null,
         tags: data.tags || [],
         status: data.status || 'active',
         source: 'internal'
@@ -71,18 +78,22 @@ export const useEventManagement = () => {
       
       const eventData = {
         title: data.title,
-        slug: data.slug,
+        slug: data.slug || data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
         description: data.description || null,
         city: data.city,
-        state: data.state || 'SP',
+        state: data.state,
         date_start: data.start_at,
         date_end: data.end_at || null,
         start_at: data.start_at,
         end_at: data.end_at || null,
-        venue_id: data.venue_id || null,
-        organizer_id: data.organizer_id || null,
+        venue_name: data.venue_name,
+        venue_address: data.venue_address || null,
+        organizer_name: data.organizer_name || null,
         cover_url: data.cover_url || null,
         image_url: data.cover_url || null,
+        external_url: data.external_url || null,
+        price_min: data.price_min || null,
+        price_max: data.price_max || null,
         tags: data.tags || [],
         status: data.status || 'active',
         updated_at: new Date().toISOString()
@@ -119,12 +130,23 @@ export const useEventManagement = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (filters.status && filters.status !== 'all') {
+      // Apply filters
+      if (filters.status && filters.status !== '') {
         query = query.eq('status', filters.status);
       }
 
-      if (filters.city && filters.city !== 'all') {
+      if (filters.city && filters.city !== '') {
         query = query.eq('city', filters.city);
+      }
+
+      if (filters.search && filters.search.trim() !== '') {
+        query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%,city.ilike.%${filters.search}%`);
+      }
+
+      // Apply pagination if provided
+      if (filters.limit) {
+        const offset = ((filters.page || 1) - 1) * filters.limit;
+        query = query.range(offset, offset + filters.limit - 1);
       }
 
       const { data, error } = await query;
