@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSecureAuth } from '@/hooks/useSecureAuth';
 import { useHighlightsAdmin } from '@/hooks/useHighlightsAdmin';
 import { AuthStatusIndicator } from '@/components/admin/AuthStatusIndicator';
+import { SecurityIndicator } from '@/components/admin/SecurityIndicator';
 import { LogOut, Plus, FileText, Eye, Calendar, Building, Users, Mic } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -94,8 +95,9 @@ function AdminV2Dashboard() {
           </Card>
         </div>
 
-        {/* Auth Status */}
-        <div className="mb-8">
+        {/* Security & Auth Status */}
+        <div className="mb-8 space-y-4">
+          <SecurityIndicator isSecure={true} showDetails={false} />
           <AuthStatusIndicator />
         </div>
 
