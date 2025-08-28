@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminBreadcrumbs } from "@/components/admin/AdminBreadcrumbs";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
@@ -25,6 +26,7 @@ export default function AdminLayout() {
               </div>
             </header>
             <main className="p-6">
+              <AdminBreadcrumbs />
               <ErrorBoundary>
                 <Outlet />
               </ErrorBoundary>
