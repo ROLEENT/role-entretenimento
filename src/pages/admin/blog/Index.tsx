@@ -81,7 +81,7 @@ export default function AdminBlog() {
           </p>
         </div>
         <Button asChild>
-          <Link to="/admin/blog/create" className="flex items-center gap-2">
+          <Link to="/admin-v2/blog/create" className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
             Novo Post
           </Link>
@@ -181,7 +181,7 @@ export default function AdminBlog() {
                   </div>
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline" asChild>
-                      <Link to={`/admin/blog/edit/${post.id}`}>
+                      <Link to={`/admin-v2/blog/edit/${post.id}`}>
                         <Edit className="h-3 w-3" />
                       </Link>
                     </Button>

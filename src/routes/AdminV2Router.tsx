@@ -32,6 +32,7 @@ import AdminHighlightEdit from '@/pages/admin/highlights/Edit';
 // Blog Management
 import AdminBlog from '@/pages/admin/blog/Index';
 import AdminBlogCreate from '@/pages/admin/blog/Create';
+import AdminBlogEdit from '@/pages/admin/blog/Edit';
 
 // Category Management
 import AdminCategories from '@/pages/admin/categories/Index';
@@ -98,6 +99,7 @@ export default function AdminV2Router() {
         {/* Blog Management */}
         <Route path="blog" element={<AdminBlog />} />
         <Route path="blog/create" element={<AdminBlogCreate />} />
+        <Route path="blog/:id/edit" element={<AdminBlogEdit />} />
         
         {/* Category Management */}
         <Route path="categories" element={<AdminCategories />} />
