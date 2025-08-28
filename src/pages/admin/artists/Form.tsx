@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AdminFileUpload } from '@/components/ui/admin-file-upload';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useAdminEmail } from '@/hooks/useAdminEmail';
 import { Checkbox } from '@/components/ui/checkbox';
 import { X, Loader2, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,6 +25,7 @@ export default function ArtistForm({ mode }: ArtistFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
+  const adminEmail = useAdminEmail();
   const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<string[]>([]);
   const [availabilityDays, setAvailabilityDays] = useState<string[]>([]);
@@ -307,6 +309,7 @@ export default function ArtistForm({ mode }: ArtistFormProps) {
                 onUploadComplete={(url) => form.setValue('profile_image_url', url)}
                 currentUrl={form.watch('profile_image_url')}
                 label="Foto de Perfil 1x1 *"
+                adminEmail={adminEmail}
               />
               {form.formState.errors.profile_image_url && (
                 <p className="text-red-500 text-sm mt-1">
@@ -401,6 +404,7 @@ export default function ArtistForm({ mode }: ArtistFormProps) {
                 onUploadComplete={(url) => form.setValue('cover_image_url', url)}
                 currentUrl={form.watch('cover_image_url')}
                 label="Foto de Capa 16x9"
+                adminEmail={adminEmail}
               />
             </div>
 
