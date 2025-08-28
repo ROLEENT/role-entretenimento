@@ -3579,13 +3579,22 @@ export type Database = {
         Returns: boolean
       }
       create_activity: {
-        Args: {
-          p_actor_id: string
-          p_data?: Json
-          p_object_id?: string
-          p_object_type?: string
-          p_type: string
-        }
+        Args:
+          | {
+              p_actor_id: string
+              p_data?: Json
+              p_object_id: string
+              p_object_type: string
+              p_type: string
+              p_user_id: string
+            }
+          | {
+              p_actor_id: string
+              p_data?: Json
+              p_object_id?: string
+              p_object_type?: string
+              p_type: string
+            }
         Returns: undefined
       }
       create_admin_auth_account: {
