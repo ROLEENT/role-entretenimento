@@ -11,6 +11,7 @@ import { reviewStatsService } from '@/services/reviewService';
 import { useNativeShare } from '@/hooks/useNativeShare';
 import { useCommentCount } from '@/hooks/useCommentCount';
 import { EngagementSystem } from './EngagementSystem';
+import { LikeSystem } from './events/LikeSystem';
 import ShareDialog from './ShareDialog';
 import { MobileSafeImage } from './ui/mobile-safe-image';
 import { useResponsive } from '@/hooks/useResponsive';
@@ -155,8 +156,8 @@ const EventCard = ({ event, className }: EventCardProps) => {
             </p>
           )}
 
-          {/* Engagement System */}
-          <div className="border-t pt-3">
+          {/* Engagement System and Like Button */}
+          <div className="border-t pt-3 space-y-2">
             <EngagementSystem 
               entityId={event.id}
               entityType="event"
@@ -164,6 +165,13 @@ const EventCard = ({ event, className }: EventCardProps) => {
               variant="compact"
               showCounts={true}
             />
+            <div className="flex justify-start">
+              <LikeSystem 
+                entityId={event.id}
+                entityType="event"
+                showCount={true}
+              />
+            </div>
           </div>
 
           <div className="flex gap-2">

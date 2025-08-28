@@ -75,6 +75,18 @@ export const useSecureHighlightLikes = (highlightId: string) => {
           });
 
         if (error) throw error;
+
+        // Criar atividade no feed para curtidas de highlights
+        await supabase.rpc('create_activity', {
+          p_user_id: user.user.id,
+          p_actor_id: user.user.id,
+          p_type: 'highlight_like',
+          p_object_type: 'highlight',
+          p_object_id: highlightId,
+          p_data: {
+            highlight_title: 'Destaque'
+          }
+        });
       }
 
       // Refresh data

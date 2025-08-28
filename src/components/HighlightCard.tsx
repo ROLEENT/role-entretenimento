@@ -11,6 +11,7 @@ import { useNativeShare } from "@/hooks/useNativeShare";
 import { useResponsive } from "@/hooks/useResponsive";
 import { formatHighlightDate, formatEventDateTime } from "@/utils/dateUtils";
 import { EngagementSystem } from "./EngagementSystem";
+import { LikeSystem } from "./events/LikeSystem";
 import { toast } from 'sonner';
 
 type CityEnum = 'porto_alegre' | 'sao_paulo' | 'rio_de_janeiro' | 'florianopolis' | 'curitiba';
@@ -180,8 +181,8 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
           )}
         </div>
 
-        {/* Engagement System */}
-        <div className="border-t pt-4 mb-4">
+        {/* Engagement System and Like Button */}
+        <div className="border-t pt-4 mb-4 space-y-3">
           <EngagementSystem 
             entityId={highlight.id}
             entityType="highlight"
@@ -189,6 +190,13 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
             variant="default"
             showCounts={true}
           />
+          <div className="flex justify-start">
+            <LikeSystem 
+              entityId={highlight.id}
+              entityType="highlight"
+              showCount={true}
+            />
+          </div>
         </div>
 
         {/* Ticket Button */}
