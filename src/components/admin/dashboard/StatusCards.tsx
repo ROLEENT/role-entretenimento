@@ -69,36 +69,37 @@ export const StatusCards = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {cards.map((card) => (
         <Card 
           key={card.title} 
-          className="cursor-pointer hover:shadow-md transition-shadow min-h-[140px] flex flex-col"
+          className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1 min-h-[160px] border-0 shadow-sm bg-gradient-to-br from-card to-card/80"
           onClick={card.onClick}
         >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 flex-shrink-0">
-            <CardTitle className="text-sm font-medium truncate">{card.title}</CardTitle>
-            <card.icon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-          </CardHeader>
-          <CardContent className="flex-1 flex flex-col justify-between p-4 pt-0">
-            <div className="text-2xl font-bold mb-2">{card.total}</div>
+          <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full">
+            {/* Número grande em destaque */}
+            <div className="text-4xl font-bold font-spartan text-primary mb-2">
+              {card.total}
+            </div>
             
+            {/* Título/Rótulo */}
+            <div className="text-sm font-medium font-garet text-muted-foreground mb-4">
+              {card.title}
+            </div>
+            
+            {/* Status badges para Destaques e Eventos */}
             {('published' in card && 'draft' in card) && (
-              <div className="flex flex-wrap gap-1 mb-2">
-                <Badge variant="default" className="text-xs max-w-fit">
-                  <Eye className="h-3 w-3 mr-1 flex-shrink-0" />
-                  <span className="truncate">{card.published} pub.</span>
-                </Badge>
-                <Badge variant="secondary" className="text-xs max-w-fit">
-                  <FileText className="h-3 w-3 mr-1 flex-shrink-0" />
-                  <span className="truncate">{card.draft} rasc.</span>
-                </Badge>
+              <div className="flex gap-2 text-xs">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-success"></div>
+                  <span className="text-success font-medium">{card.published}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>
+                  <span className="text-muted-foreground font-medium">{card.draft}</span>
+                </div>
               </div>
             )}
-            
-            <p className="text-xs text-muted-foreground mt-auto">
-              Clique para gerenciar
-            </p>
           </CardContent>
         </Card>
       ))}
