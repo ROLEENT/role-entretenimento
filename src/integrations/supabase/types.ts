@@ -2970,6 +2970,94 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_create_artist: {
+        Args: {
+          p_accommodation_notes?: string
+          p_admin_email: string
+          p_artist_type: string
+          p_audius_url?: string
+          p_availability_days?: string[]
+          p_beatport_url?: string
+          p_bio_long?: string
+          p_bio_short: string
+          p_booking_email: string
+          p_booking_whatsapp: string
+          p_cities_active?: string[]
+          p_city: string
+          p_cover_image_url?: string
+          p_fee_range?: string
+          p_home_city?: string
+          p_image_credits?: string
+          p_image_rights_authorized?: boolean
+          p_instagram: string
+          p_internal_notes?: string
+          p_presskit_url?: string
+          p_priority?: number
+          p_profile_image_url: string
+          p_pronouns?: string
+          p_real_name?: string
+          p_responsible_name?: string
+          p_responsible_role?: string
+          p_set_time_minutes?: number
+          p_show_format?: string
+          p_slug: string
+          p_soundcloud_url?: string
+          p_spotify_url?: string
+          p_stage_name: string
+          p_status?: string
+          p_team_size?: number
+          p_tech_audio?: string
+          p_tech_light?: string
+          p_tech_rider_url?: string
+          p_tech_stage?: string
+          p_website_url?: string
+          p_youtube_url?: string
+        }
+        Returns: {
+          accommodation_notes: string
+          artist_type: string
+          audius_url: string
+          availability_days: string[]
+          beatport_url: string
+          bio_long: string
+          bio_short: string
+          booking_email: string
+          booking_whatsapp: string
+          cities_active: string[]
+          city: string
+          cover_image_url: string
+          created_at: string
+          fee_range: string
+          home_city: string
+          id: string
+          image_credits: string
+          image_rights_authorized: boolean
+          instagram: string
+          internal_notes: string
+          presskit_url: string
+          priority: number
+          profile_image_url: string
+          pronouns: string
+          real_name: string
+          responsible_name: string
+          responsible_role: string
+          set_time_minutes: number
+          show_format: string
+          slug: string
+          soundcloud_url: string
+          spotify_url: string
+          stage_name: string
+          status: string
+          team_size: number
+          tech_audio: string
+          tech_light: string
+          tech_rider_url: string
+          tech_stage: string
+          updated_at: string
+          website_url: string
+          youtube_url: string
+        }[]
+      }
       admin_create_event: {
         Args:
           | {
@@ -3073,9 +3161,60 @@ export type Database = {
           venue: string
         }[]
       }
+      admin_delete_artist: {
+        Args: { p_admin_email: string; p_artist_id: string }
+        Returns: boolean
+      }
       admin_delete_highlight: {
         Args: { p_admin_email: string; p_highlight_id: string }
         Returns: boolean
+      }
+      admin_get_artist_by_id: {
+        Args: { p_admin_email: string; p_artist_id: string }
+        Returns: {
+          accommodation_notes: string
+          artist_type: string
+          audius_url: string
+          availability_days: string[]
+          beatport_url: string
+          bio_long: string
+          bio_short: string
+          booking_email: string
+          booking_whatsapp: string
+          cities_active: string[]
+          city: string
+          cover_image_url: string
+          created_at: string
+          fee_range: string
+          home_city: string
+          id: string
+          image_credits: string
+          image_rights_authorized: boolean
+          instagram: string
+          internal_notes: string
+          presskit_url: string
+          priority: number
+          profile_image_url: string
+          pronouns: string
+          real_name: string
+          responsible_name: string
+          responsible_role: string
+          set_time_minutes: number
+          show_format: string
+          slug: string
+          soundcloud_url: string
+          spotify_url: string
+          stage_name: string
+          status: string
+          team_size: number
+          tech_audio: string
+          tech_light: string
+          tech_rider_url: string
+          tech_stage: string
+          updated_at: string
+          website_url: string
+          youtube_url: string
+        }[]
       }
       admin_get_highlight_by_id: {
         Args: { p_admin_email: string; p_highlight_id: string }
@@ -3128,6 +3267,95 @@ export type Database = {
           p_is_published: boolean
         }
         Returns: boolean
+      }
+      admin_update_artist: {
+        Args: {
+          p_accommodation_notes?: string
+          p_admin_email: string
+          p_artist_id: string
+          p_artist_type: string
+          p_audius_url?: string
+          p_availability_days?: string[]
+          p_beatport_url?: string
+          p_bio_long?: string
+          p_bio_short: string
+          p_booking_email: string
+          p_booking_whatsapp: string
+          p_cities_active?: string[]
+          p_city: string
+          p_cover_image_url?: string
+          p_fee_range?: string
+          p_home_city?: string
+          p_image_credits?: string
+          p_image_rights_authorized?: boolean
+          p_instagram: string
+          p_internal_notes?: string
+          p_presskit_url?: string
+          p_priority?: number
+          p_profile_image_url: string
+          p_pronouns?: string
+          p_real_name?: string
+          p_responsible_name?: string
+          p_responsible_role?: string
+          p_set_time_minutes?: number
+          p_show_format?: string
+          p_slug: string
+          p_soundcloud_url?: string
+          p_spotify_url?: string
+          p_stage_name: string
+          p_status?: string
+          p_team_size?: number
+          p_tech_audio?: string
+          p_tech_light?: string
+          p_tech_rider_url?: string
+          p_tech_stage?: string
+          p_website_url?: string
+          p_youtube_url?: string
+        }
+        Returns: {
+          accommodation_notes: string
+          artist_type: string
+          audius_url: string
+          availability_days: string[]
+          beatport_url: string
+          bio_long: string
+          bio_short: string
+          booking_email: string
+          booking_whatsapp: string
+          cities_active: string[]
+          city: string
+          cover_image_url: string
+          created_at: string
+          fee_range: string
+          home_city: string
+          id: string
+          image_credits: string
+          image_rights_authorized: boolean
+          instagram: string
+          internal_notes: string
+          presskit_url: string
+          priority: number
+          profile_image_url: string
+          pronouns: string
+          real_name: string
+          responsible_name: string
+          responsible_role: string
+          set_time_minutes: number
+          show_format: string
+          slug: string
+          soundcloud_url: string
+          spotify_url: string
+          stage_name: string
+          status: string
+          team_size: number
+          tech_audio: string
+          tech_light: string
+          tech_rider_url: string
+          tech_stage: string
+          updated_at: string
+          website_url: string
+          youtube_url: string
+        }[]
       }
       admin_update_event: {
         Args:

@@ -1,11 +1,23 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { createAdminSupabaseClient, getAdminEmail } from '@/lib/supabaseAdmin';
+import { useAdminV2Auth } from '@/hooks/useAdminV2Auth';
 import { toast } from 'sonner';
 import type { ArtistFormData } from '@/lib/artistSchema';
 
 export const useArtistManagement = () => {
   const [loading, setLoading] = useState(false);
+  const { user } = useAdminV2Auth();
+
+  // Função para gerar slug único
+  const generateSlug = (name: string): string => {
+    return name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .trim();
+  };
 
   const createArtist = useCallback(async (data: ArtistFormData) => {
     try {
@@ -13,87 +25,79 @@ export const useArtistManagement = () => {
       console.log('[ARTIST MANAGEMENT] ====== INICIANDO CRIAÇÃO DE ARTISTA ======');
       console.log('[ARTIST MANAGEMENT] Data recebida:', data);
       
-      // Obter email do admin
-      const adminEmail = await getAdminEmail();
-      console.log('[ARTIST MANAGEMENT] Admin email obtido:', adminEmail);
-      
-      if (!adminEmail) {
+      if (!user?.email) {
         throw new Error('Email do administrador não encontrado. Faça login novamente.');
       }
       
-      // Criar cliente admin com headers corretos
-      const adminClient = createAdminSupabaseClient(adminEmail);
-      console.log('[ARTIST MANAGEMENT] Cliente admin criado');
-      
       // Gerar slug único
-      const baseSlug = data.stage_name
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .trim();
+      const slug = generateSlug(data.stage_name);
+      console.log('[ARTIST MANAGEMENT] Slug gerado:', slug);
 
-      let slug = baseSlug;
-      let counter = 1;
-      
-      console.log('[ARTIST MANAGEMENT] Base slug:', baseSlug);
-      
-      // Verificar se slug já existe e criar versão única
-      while (true) {
-        console.log('[ARTIST MANAGEMENT] Verificando slug:', slug);
-        
-        const { data: existingArtist, error: slugError } = await adminClient
-          .from('artists')
-          .select('id')
-          .eq('slug', slug)
-          .maybeSingle();
-        
-        if (slugError) {
-          console.error('[ARTIST MANAGEMENT] Erro ao verificar slug:', slugError);
-          throw slugError;
-        }
-        
-        console.log('[ARTIST MANAGEMENT] Artista existente com slug:', existingArtist);
-        
-        if (!existingArtist) break;
-        slug = `${baseSlug}-${counter}`;
-        counter++;
-      }
+      console.log('[ARTIST MANAGEMENT] Chamando RPC function admin_create_artist');
 
-      const artistData = {
-        ...data,
-        slug,
-        cities_active: data.cities_active || [],
-        availability_days: data.availability_days || [],
-        image_rights_authorized: data.image_rights_authorized || false,
-        status: data.status || 'active',
-        priority: data.priority || 0
-      };
-
-      console.log('[ARTIST MANAGEMENT] Dados finais para inserção:', artistData);
-
-      const { data: newArtist, error } = await adminClient
-        .from('artists')
-        .insert([artistData])
-        .select()
-        .single();
+      // Usar RPC function para criar artista
+      const { data: result, error } = await supabase.rpc('admin_create_artist', {
+        p_admin_email: user.email,
+        p_stage_name: data.stage_name,
+        p_artist_type: data.artist_type,
+        p_city: data.city,
+        p_instagram: data.instagram,
+        p_booking_email: data.booking_email,
+        p_booking_whatsapp: data.booking_whatsapp,
+        p_bio_short: data.bio_short,
+        p_profile_image_url: data.profile_image_url,
+        p_slug: slug,
+        p_bio_long: data.bio_long || null,
+        p_real_name: data.real_name || null,
+        p_pronouns: data.pronouns || null,
+        p_home_city: data.home_city || null,
+        p_fee_range: data.fee_range || null,
+        p_website_url: data.website_url || null,
+        p_spotify_url: data.spotify_url || null,
+        p_soundcloud_url: data.soundcloud_url || null,
+        p_youtube_url: data.youtube_url || null,
+        p_beatport_url: data.beatport_url || null,
+        p_audius_url: data.audius_url || null,
+        p_responsible_name: data.responsible_name || null,
+        p_responsible_role: data.responsible_role || null,
+        p_image_credits: data.image_credits || null,
+        p_cover_image_url: data.cover_image_url || null,
+        p_accommodation_notes: data.accommodation_notes || null,
+        p_tech_rider_url: data.tech_rider_url || null,
+        p_presskit_url: data.presskit_url || null,
+        p_show_format: data.show_format || null,
+        p_team_size: data.team_size || null,
+        p_set_time_minutes: data.set_time_minutes || null,
+        p_tech_stage: data.tech_stage || null,
+        p_tech_audio: data.tech_audio || null,
+        p_tech_light: data.tech_light || null,
+        p_internal_notes: data.internal_notes || null,
+        p_cities_active: data.cities_active || [],
+        p_availability_days: data.availability_days || [],
+        p_priority: data.priority || 0,
+        p_status: 'active',
+        p_image_rights_authorized: data.image_rights_authorized || false
+      });
 
       if (error) {
-        console.error('[ARTIST MANAGEMENT] Erro na inserção:', error);
+        console.error('[ARTIST MANAGEMENT] RPC error:', error);
         throw error;
       }
 
-      console.log('[ARTIST MANAGEMENT] Artista criado com sucesso:', newArtist);
+      console.log('[ARTIST MANAGEMENT] Artista criado com sucesso:', result);
       toast.success('Artista criado com sucesso!');
-      return newArtist.id;
+      return result[0]?.id;
     } catch (error: any) {
       console.error('[ARTIST MANAGEMENT] ERRO GERAL:', error);
       
       let errorMessage = 'Erro ao criar artista';
       
-      if (error.code === '42501') {
-        errorMessage = 'Permissões insuficientes. Verifique se você está logado como administrador.';
+      if (error.message?.includes('já existe')) {
+        errorMessage = 'Já existe um artista com este nome';
+      } else if (error.message?.includes('obrigatório')) {
+        errorMessage = error.message;
+      } else if (error.message?.includes('admin não encontrado')) {
+        errorMessage = 'Permissões insuficientes para criar artista';
       } else if (error.message) {
         errorMessage = error.message;
       }
@@ -104,73 +108,86 @@ export const useArtistManagement = () => {
       setLoading(false);
       console.log('[ARTIST MANAGEMENT] ====== FIM DA CRIAÇÃO DE ARTISTA ======');
     }
-  }, []);
+  }, [user?.email]);
 
   const updateArtist = useCallback(async (artistId: string, data: ArtistFormData) => {
     try {
       setLoading(true);
       console.log('[ARTIST MANAGEMENT] ====== ATUALIZANDO ARTISTA ======');
       
-      // Obter email do admin
-      const adminEmail = await getAdminEmail();
-      if (!adminEmail) {
+      if (!user?.email) {
         throw new Error('Email do administrador não encontrado. Faça login novamente.');
       }
       
-      // Criar cliente admin com headers corretos
-      const adminClient = createAdminSupabaseClient(adminEmail);
-      
-      // Gerar novo slug se o nome foi alterado
-      const baseSlug = data.stage_name
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .trim();
+      // Gerar slug único
+      const slug = generateSlug(data.stage_name);
+      console.log('[ARTIST MANAGEMENT] Slug gerado:', slug);
 
-      let slug = baseSlug;
-      let counter = 1;
-      
-      // Verificar se slug já existe (exceto para o artista atual)
-      while (true) {
-        const { data: existingArtist, error: slugError } = await adminClient
-          .from('artists')
-          .select('id')
-          .eq('slug', slug)
-          .neq('id', artistId)
-          .maybeSingle();
-        
-        if (slugError) throw slugError;
-        
-        if (!existingArtist) break;
-        slug = `${baseSlug}-${counter}`;
-        counter++;
+      console.log('[ARTIST MANAGEMENT] Chamando RPC function admin_update_artist');
+
+      // Usar RPC function para atualizar artista
+      const { data: result, error } = await supabase.rpc('admin_update_artist', {
+        p_admin_email: user.email,
+        p_artist_id: artistId,
+        p_stage_name: data.stage_name,
+        p_artist_type: data.artist_type,
+        p_city: data.city,
+        p_instagram: data.instagram,
+        p_booking_email: data.booking_email,
+        p_booking_whatsapp: data.booking_whatsapp,
+        p_bio_short: data.bio_short,
+        p_profile_image_url: data.profile_image_url,
+        p_slug: slug,
+        p_bio_long: data.bio_long || null,
+        p_real_name: data.real_name || null,
+        p_pronouns: data.pronouns || null,
+        p_home_city: data.home_city || null,
+        p_fee_range: data.fee_range || null,
+        p_website_url: data.website_url || null,
+        p_spotify_url: data.spotify_url || null,
+        p_soundcloud_url: data.soundcloud_url || null,
+        p_youtube_url: data.youtube_url || null,
+        p_beatport_url: data.beatport_url || null,
+        p_audius_url: data.audius_url || null,
+        p_responsible_name: data.responsible_name || null,
+        p_responsible_role: data.responsible_role || null,
+        p_image_credits: data.image_credits || null,
+        p_cover_image_url: data.cover_image_url || null,
+        p_accommodation_notes: data.accommodation_notes || null,
+        p_tech_rider_url: data.tech_rider_url || null,
+        p_presskit_url: data.presskit_url || null,
+        p_show_format: data.show_format || null,
+        p_team_size: data.team_size || null,
+        p_set_time_minutes: data.set_time_minutes || null,
+        p_tech_stage: data.tech_stage || null,
+        p_tech_audio: data.tech_audio || null,
+        p_tech_light: data.tech_light || null,
+        p_internal_notes: data.internal_notes || null,
+        p_cities_active: data.cities_active || [],
+        p_availability_days: data.availability_days || [],
+        p_priority: data.priority || 0,
+        p_status: data.status || 'active',
+        p_image_rights_authorized: data.image_rights_authorized || false
+      });
+
+      if (error) {
+        console.error('[ARTIST MANAGEMENT] RPC error:', error);
+        throw error;
       }
 
-      const artistData = {
-        ...data,
-        slug,
-        cities_active: data.cities_active || [],
-        availability_days: data.availability_days || [],
-        image_rights_authorized: data.image_rights_authorized || false
-      };
-
-      const { error } = await adminClient
-        .from('artists')
-        .update(artistData)
-        .eq('id', artistId);
-
-      if (error) throw error;
-      
+      console.log('[ARTIST MANAGEMENT] Artista atualizado com sucesso:', result);
       toast.success('Artista atualizado com sucesso!');
       return true;
     } catch (error: any) {
       console.error('[ARTIST MANAGEMENT] Error updating artist:', error);
       
       let errorMessage = 'Erro ao atualizar artista';
-      if (error.code === '42501') {
-        errorMessage = 'Permissões insuficientes. Verifique se você está logado como administrador.';
+      if (error.message?.includes('já existe')) {
+        errorMessage = 'Já existe um artista com este nome';
+      } else if (error.message?.includes('obrigatório')) {
+        errorMessage = error.message;
+      } else if (error.message?.includes('admin não encontrado')) {
+        errorMessage = 'Permissões insuficientes para atualizar artista';
       } else if (error.message) {
         errorMessage = error.message;
       }
@@ -180,15 +197,12 @@ export const useArtistManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user?.email]);
 
   const getArtists = useCallback(async (filters: any = {}) => {
     try {
-      // Obter email do admin para operações administrativas
-      const adminEmail = await getAdminEmail();
-      const client = adminEmail ? createAdminSupabaseClient(adminEmail) : supabase;
-      
-      let query = client.from('artists').select('*');
+      // Para buscar artistas, usar query normal (não precisa de RPC)
+      let query = supabase.from('artists').select('*');
       
       // Aplicar filtros
       if (filters.status && filters.status !== 'all') {
@@ -228,27 +242,33 @@ export const useArtistManagement = () => {
       
       if (artistId === 'new') return null;
       
-      // Obter email do admin para operações administrativas
-      const adminEmail = await getAdminEmail();
-      const client = adminEmail ? createAdminSupabaseClient(adminEmail) : supabase;
-      
-      const { data: artist, error } = await client
-        .from('artists')
-        .select('*')
-        .eq('id', artistId)
-        .maybeSingle();
-      
+      if (!user?.email) {
+        // Se não tiver email do admin, tentar busca normal
+        const { data: artist, error } = await supabase
+          .from('artists')
+          .select('*')
+          .eq('id', artistId)
+          .maybeSingle();
+        
+        if (error) throw error;
+        return artist;
+      }
+
+      console.log('[ARTIST MANAGEMENT] Chamando RPC function admin_get_artist_by_id');
+
+      // Usar RPC function para buscar artista
+      const { data, error } = await supabase.rpc('admin_get_artist_by_id', {
+        p_admin_email: user.email,
+        p_artist_id: artistId
+      });
+
       if (error) {
-        console.error('[ARTIST MANAGEMENT] Error fetching artist:', error);
+        console.error('[ARTIST MANAGEMENT] RPC error:', error);
         throw error;
       }
-      
-      if (!artist) {
-        toast.error('Artista não encontrado');
-        return null;
-      }
-      
-      return artist;
+
+      console.log('[ARTIST MANAGEMENT] Artista recuperado:', data);
+      return data?.[0] || null;
     } catch (error: any) {
       console.error('[ARTIST MANAGEMENT] Error fetching artist:', error);
       toast.error(error.message || 'Erro ao carregar artista');
@@ -256,35 +276,38 @@ export const useArtistManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user?.email]);
 
   const deleteArtist = useCallback(async (artistId: string) => {
     try {
       setLoading(true);
       
-      // Obter email do admin
-      const adminEmail = await getAdminEmail();
-      if (!adminEmail) {
+      if (!user?.email) {
         throw new Error('Email do administrador não encontrado. Faça login novamente.');
       }
-      
-      const adminClient = createAdminSupabaseClient(adminEmail);
-      
-      const { error } = await adminClient
-        .from('artists')
-        .delete()
-        .eq('id', artistId);
-        
-      if (error) throw error;
-      
+
+      console.log('[ARTIST MANAGEMENT] Chamando RPC function admin_delete_artist');
+
+      // Usar RPC function para deletar artista
+      const { data, error } = await supabase.rpc('admin_delete_artist', {
+        p_admin_email: user.email,
+        p_artist_id: artistId
+      });
+
+      if (error) {
+        console.error('[ARTIST MANAGEMENT] RPC error:', error);
+        throw error;
+      }
+
+      console.log('[ARTIST MANAGEMENT] Artista deletado com sucesso');
       toast.success('Artista removido com sucesso!');
       return true;
     } catch (error: any) {
       console.error('[ARTIST MANAGEMENT] Error deleting artist:', error);
       
       let errorMessage = 'Erro ao remover artista';
-      if (error.code === '42501') {
-        errorMessage = 'Permissões insuficientes. Verifique se você está logado como administrador.';
+      if (error.message?.includes('admin não encontrado')) {
+        errorMessage = 'Permissões insuficientes para deletar artista';
       } else if (error.message) {
         errorMessage = error.message;
       }
@@ -294,7 +317,7 @@ export const useArtistManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user?.email]);
 
   const searchArtists = useCallback(async (searchTerm: string) => {
     try {
