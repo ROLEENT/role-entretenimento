@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAdminV2Auth } from '@/hooks/useAdminV2Auth';
+import { useSecureAuth } from '@/hooks/useSecureAuth';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface ProtectedAdminRouteProps {
@@ -8,34 +8,40 @@ interface ProtectedAdminRouteProps {
 }
 
 export const ProtectedAdminRoute = ({ children }: ProtectedAdminRouteProps) => {
-  const { user, status } = useAdminV2Auth();
+  const { user, loading, isAuthenticated, isAdmin } = useSecureAuth();
   
-  // Log de debugging temporário
+  // Log de debugging
   console.log('[PROTECTED ADMIN ROUTE]', {
-    status,
+    loading,
+    isAuthenticated,
+    isAdmin,
     userEmail: user?.email,
     timestamp: new Date().toISOString()
   });
 
-  // Se ainda está carregando, mostrar loading (NÃO redirecionar)
-  if (status === 'loading') {
+  // Se ainda está carregando, mostrar loading
+  if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner />
-          <p className="mt-4 text-muted-foreground">Carregando autenticação...</p>
+          <p className="mt-4 text-muted-foreground">Verificando autenticação...</p>
         </div>
       </div>
     );
   }
 
-  // Se status error OU não tem email do usuário, redirecionar para login
-  if (status === 'error' || !user?.email) {
-    console.log('[PROTECTED ADMIN ROUTE] Redirecionando para login:', { status, hasUserEmail: !!user?.email });
+  // Se não está autenticado ou não é admin, redirecionar para login
+  if (!isAuthenticated || !isAdmin) {
+    console.log('[PROTECTED ADMIN ROUTE] Acesso negado:', { 
+      isAuthenticated, 
+      isAdmin, 
+      userEmail: user?.email 
+    });
     return <Navigate to="/admin-v2/login" replace />;
   }
 
-  // Se chegou aqui, está autenticado - renderizar conteúdo
-  console.log('[PROTECTED ADMIN ROUTE] Usuário autenticado:', user.email);
+  // Se chegou aqui, é admin autenticado - renderizar conteúdo
+  console.log('[PROTECTED ADMIN ROUTE] Admin autenticado:', user?.email);
   return children ? <>{children}</> : <Outlet />;
 };
