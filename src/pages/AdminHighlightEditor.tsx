@@ -114,7 +114,7 @@ const AdminHighlightEditor = () => {
       if (!highlightId || highlightId === 'undefined') {
         console.error('❌ ID inválido:', highlightId);
         toast.error('ID do destaque inválido');
-        navigate('/admin/highlights');
+        navigate('/admin-v2/highlights');
         return;
       }
       
@@ -143,7 +143,7 @@ const AdminHighlightEditor = () => {
       console.error('❌ Erro no loadHighlight:', error);
       const errorMessage = error instanceof Error ? error.message : 'Erro ao carregar destaque';
       toast.error(errorMessage);
-      navigate('/admin/highlights');
+      navigate('/admin-v2/highlights');
     } finally {
       setIsLoading(false);
     }
@@ -196,7 +196,7 @@ const AdminHighlightEditor = () => {
         toast.success('Destaque criado com sucesso!');
       }
       
-      navigate('/admin/highlights');
+      navigate('/admin-v2/highlights');
     } catch (error) {
       console.error('❌ Erro no submit:', error);
       toast.error(error instanceof Error ? error.message : 'Erro ao salvar destaque');
@@ -234,7 +234,7 @@ const AdminHighlightEditor = () => {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-8">
-        <Button variant="ghost" onClick={() => navigate('/admin/highlights')} className="mb-4">
+        <Button variant="ghost" onClick={() => navigate('/admin-v2/highlights')} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Voltar para Destaques
         </Button>
@@ -529,7 +529,7 @@ const AdminHighlightEditor = () => {
                 <Button 
                   type="button" 
                   variant="outline" 
-                  onClick={() => navigate('/admin/highlights')}
+                  onClick={() => navigate('/admin-v2/highlights')}
                 >
                   Cancelar
                 </Button>

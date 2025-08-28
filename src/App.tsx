@@ -33,6 +33,8 @@ const HighlightDetailPage = lazy(() => import("./pages/HighlightDetailPage"));
 // Admin V2 - Essential Components Only
 const AdminV2Login = lazy(() => import("./pages/AdminV2Login"));
 const AdminV2Dashboard = lazy(() => import("./pages/AdminV2Dashboard"));
+const AdminV2HighlightsPage = lazy(() => import("./pages/AdminV2HighlightsPage"));
+const AdminHighlightEditor = lazy(() => import("./pages/AdminHighlightEditor"));
 const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
 
 
@@ -108,6 +110,10 @@ function App() {
                 <Route path="/admin-v2/*" element={<ProtectedAdminRoute><Suspense fallback={<AdminLoadingFallback />}><AdminLayout /></Suspense></ProtectedAdminRoute>}>
                   {/* Dashboard - Clean Start */}
                   <Route index element={<AdminV2Dashboard />} />
+                  {/* Highlights Management */}
+                  <Route path="highlights" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2HighlightsPage /></Suspense>} />
+                  <Route path="highlights/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminHighlightEditor /></Suspense>} />
+                  <Route path="highlights/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminHighlightEditor /></Suspense>} />
                 </Route>
                 
                 {/* Catch-all admin redirect */}
