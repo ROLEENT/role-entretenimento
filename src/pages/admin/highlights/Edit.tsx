@@ -1,5 +1,5 @@
 import HighlightForm from './Form';
 
-export default function AdminHighlightEdit() {
+export default function EditHighlight() {
   return <HighlightForm mode="edit" />;
 }

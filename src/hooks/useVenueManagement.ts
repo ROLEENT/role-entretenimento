@@ -89,12 +89,18 @@ export const useVenueManagement = () => {
 
   const deleteVenue = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('venues')
-        .delete()
-        .eq('id', id);
+      console.log('[VENUE MANAGEMENT] Deletando local:', id);
+      
+      const { data, error } = await supabase
+        .rpc('admin_delete_venue', { p_venue_id: id });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[VENUE MANAGEMENT] Erro ao deletar local:', error);
+        throw error;
+      }
+      
+      console.log('[VENUE MANAGEMENT] Local deletado');
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['venues'] });
@@ -104,6 +110,7 @@ export const useVenueManagement = () => {
       });
     },
     onError: (error: any) => {
+      console.error('[VENUE MANAGEMENT] Erro na exclusão:', error);
       toast({
         title: 'Erro',
         description: error.message || 'Erro ao excluir local',

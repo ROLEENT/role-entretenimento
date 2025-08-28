@@ -89,12 +89,18 @@ export const useOrganizerManagement = () => {
 
   const deleteOrganizer = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('organizers')
-        .delete()
-        .eq('id', id);
+      console.log('[ORGANIZER MANAGEMENT] Deletando organizador:', id);
+      
+      const { data, error } = await supabase
+        .rpc('admin_delete_organizer', { p_organizer_id: id });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[ORGANIZER MANAGEMENT] Erro ao deletar organizador:', error);
+        throw error;
+      }
+      
+      console.log('[ORGANIZER MANAGEMENT] Organizador deletado');
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['organizers'] });
@@ -104,6 +110,7 @@ export const useOrganizerManagement = () => {
       });
     },
     onError: (error: any) => {
+      console.error('[ORGANIZER MANAGEMENT] Erro na exclusão:', error);
       toast({
         title: 'Erro',
         description: error.message || 'Erro ao excluir organizador',

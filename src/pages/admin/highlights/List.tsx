@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useHighlightsAdmin } from '@/hooks/useHighlightsAdmin';
+import { useHighlightsManagement } from '@/hooks/useHighlightsManagement';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,8 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DeleteButton, PublishButton } from '@/components/ui/admin-button';
 import { Plus, Edit, Eye, EyeOff, Search, ArrowLeft } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useSecureAuth } from '@/hooks/useSecureAuth';
 import { withAdminAuth } from '@/components/withAdminAuth';
 
 const cities = [
@@ -24,67 +22,55 @@ const cities = [
 ];
 
 function AdminHighlightsList() {
-  const { highlights, loading, error, refreshHighlights } = useHighlightsAdmin();
-  const { user } = useSecureAuth();
+  const { highlights, isLoading, deleteHighlight, togglePublished } = useHighlightsManagement();
   const [searchTerm, setSearchTerm] = useState('');
   const [cityFilter, setCityFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [loadingAction, setLoadingAction] = useState<string | null>(null);
+
+  console.log('[HIGHLIGHTS LIST] Highlights:', highlights);
 
   const filteredHighlights = highlights.filter(highlight => {
-    const matchesSearch = highlight.event_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         highlight.venue.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (highlight.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (highlight.summary || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCity = cityFilter === 'all' || highlight.city === cityFilter;
     const matchesStatus = statusFilter === 'all' || 
-                         (statusFilter === 'published' && highlight.is_published) ||
-                         (statusFilter === 'draft' && !highlight.is_published);
+                         (statusFilter === 'published' && highlight.status === 'published') ||
+                         (statusFilter === 'draft' && highlight.status === 'draft');
     
     return matchesSearch && matchesCity && matchesStatus;
   });
 
-  const handleTogglePublish = async (highlightId: string, currentStatus: boolean) => {
-    if (!user?.email) return;
-    
-    const { error } = await supabase.rpc('admin_toggle_highlight_published', {
-      p_admin_email: user.email,
-      p_highlight_id: highlightId,
-      p_is_published: !currentStatus
-    });
-
-    if (error) throw error;
-    refreshHighlights();
+  const handleTogglePublish = async (highlightId: string) => {
+    setLoadingAction(highlightId);
+    try {
+      console.log('[HIGHLIGHTS LIST] Alterando status do highlight:', highlightId);
+      await togglePublished(highlightId);
+    } catch (error) {
+      console.error('[HIGHLIGHTS LIST] Erro ao alterar status:', error);
+    } finally {
+      setLoadingAction(null);
+    }
   };
 
   const handleDelete = async (highlightId: string) => {
-    if (!user?.email) return;
-    
-    const { error } = await supabase.rpc('admin_delete_highlight', {
-      p_admin_email: user.email,
-      p_highlight_id: highlightId
-    });
-
-    if (error) throw error;
-    refreshHighlights();
+    if (window.confirm('Tem certeza que deseja excluir este destaque?')) {
+      setLoadingAction(highlightId);
+      try {
+        console.log('[HIGHLIGHTS LIST] Deletando highlight:', highlightId);
+        await deleteHighlight(highlightId);
+      } catch (error) {
+        console.error('[HIGHLIGHTS LIST] Erro ao deletar highlight:', error);
+      } finally {
+        setLoadingAction(null);
+      }
+    }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="p-6">
         <LoadingSpinner size="lg" text="Carregando destaques..." />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6">
-        <Card>
-          <CardContent className="p-6 text-center">
-            <p className="text-destructive">Erro ao carregar destaques: {error}</p>
-            <Button onClick={refreshHighlights} className="mt-4">
-              Tentar Novamente
-            </Button>
-          </CardContent>
-        </Card>
       </div>
     );
   }
@@ -102,7 +88,7 @@ function AdminHighlightsList() {
           <div>
             <h1 className="text-2xl font-bold">Gerenciar Destaques</h1>
             <p className="text-muted-foreground">
-              {highlights.length} destaques • {highlights.filter(h => h.is_published).length} publicados
+              {highlights.length} destaques • {highlights.filter(h => h.status === 'published').length} publicados
             </p>
           </div>
         </div>
@@ -125,7 +111,7 @@ function AdminHighlightsList() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar por título ou local..."
+                  placeholder="Buscar por título..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-9"
@@ -178,10 +164,8 @@ function AdminHighlightsList() {
             <TableRow>
               <TableHead>Imagem</TableHead>
               <TableHead>Título</TableHead>
-              <TableHead>Local</TableHead>
               <TableHead>Cidade</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Likes</TableHead>
               <TableHead>Criado em</TableHead>
               <TableHead>Ações</TableHead>
             </TableRow>
@@ -190,25 +174,25 @@ function AdminHighlightsList() {
             {filteredHighlights.map((highlight) => (
               <TableRow key={highlight.id}>
                 <TableCell>
-                  <img
-                    src={highlight.image_url}
-                    alt={highlight.event_title}
-                    className="w-16 h-16 object-cover rounded-lg"
-                  />
+                  {highlight.cover_url && (
+                    <img
+                      src={highlight.cover_url}
+                      alt={highlight.title}
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
+                  )}
                 </TableCell>
                 <TableCell className="font-medium">
-                  {highlight.event_title}
+                  {highlight.title}
                 </TableCell>
-                <TableCell>{highlight.venue}</TableCell>
                 <TableCell>
                   {cities.find(c => c.value === highlight.city)?.label || highlight.city}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={highlight.is_published ? "default" : "secondary"}>
-                    {highlight.is_published ? "Publicado" : "Rascunho"}
+                  <Badge variant={highlight.status === 'published' ? "default" : "secondary"}>
+                    {highlight.status === 'published' ? "Publicado" : "Rascunho"}
                   </Badge>
                 </TableCell>
-                <TableCell>{highlight.like_count}</TableCell>
                 <TableCell>
                   {new Date(highlight.created_at).toLocaleDateString('pt-BR')}
                 </TableCell>
@@ -221,11 +205,12 @@ function AdminHighlightsList() {
                     </Button>
                     
                     <PublishButton
-                      variant={highlight.is_published ? "outline" : "default"}
+                      variant={highlight.status === 'published' ? "outline" : "default"}
                       size="sm"
-                      onClick={() => handleTogglePublish(highlight.id, highlight.is_published)}
+                      onClick={() => handleTogglePublish(highlight.id)}
+                      disabled={loadingAction === highlight.id}
                     >
-                      {highlight.is_published ? (
+                      {highlight.status === 'published' ? (
                         <EyeOff className="h-4 w-4" />
                       ) : (
                         <Eye className="h-4 w-4" />
@@ -235,6 +220,7 @@ function AdminHighlightsList() {
                     <DeleteButton
                       size="sm"
                       onClick={() => handleDelete(highlight.id)}
+                      disabled={loadingAction === highlight.id}
                     >
                       Excluir
                     </DeleteButton>
