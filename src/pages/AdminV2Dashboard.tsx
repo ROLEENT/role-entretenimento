@@ -2,15 +2,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
-import { useAdminV2Auth } from '@/hooks/useAdminV2Auth';
+import { useSecureAuth } from '@/hooks/useSecureAuth';
 import { useHighlightsAdmin } from '@/hooks/useHighlightsAdmin';
 import { LogOut, Plus, FileText, Eye, Calendar, Building, Users, Mic } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { withAdminAuth } from '@/components/withAdminAuth';
 
-export default function AdminV2Dashboard() {
+function AdminV2Dashboard() {
   const navigate = useNavigate();
-  const { user, logout } = useAdminV2Auth();
+  const { user, logout } = useSecureAuth();
   const { highlights, loading } = useHighlightsAdmin();
 
   const publishedHighlights = highlights.filter(h => h.is_published);
@@ -206,3 +207,5 @@ export default function AdminV2Dashboard() {
     </div>
   );
 }
+
+export default withAdminAuth(AdminV2Dashboard, 'admin');

@@ -1,6 +1,6 @@
-import { useAdminV2Auth } from './useAdminV2Auth';
+import { useSecureAuth } from './useSecureAuth';
 
 export function useAdminEmail(): string | undefined {
-  const { user } = useAdminV2Auth();
+  const { user } = useSecureAuth();
   return user?.email;
 }

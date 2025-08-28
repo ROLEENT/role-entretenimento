@@ -3,8 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { highlightSchema, type HighlightFormData } from '@/lib/highlightSchema';
-import { useAdminV2Auth } from '@/hooks/useAdminV2Auth';
+import { useSecureAuth } from '@/hooks/useSecureAuth';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { withAdminAuth } from '@/components/withAdminAuth';
 import { HighlightEditSkeleton } from '@/components/HighlightEditSkeleton';
 import { ErrorBox } from '@/components/ui/error-box';
 import { Button } from '@/components/ui/button';
@@ -35,10 +36,10 @@ interface HighlightFormProps {
   mode: 'create' | 'edit';
 }
 
-export default function HighlightForm({ mode }: HighlightFormProps) {
+function HighlightForm({ mode }: HighlightFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { user, status } = useAdminV2Auth();
+  const { user, loading: authLoading } = useSecureAuth();
   const { toast } = useToast();
   const adminEmail = useAdminEmail();
   const [loading, setLoading] = useState(mode === 'edit');
@@ -95,13 +96,13 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
 
   // Carregar dados para edição
   useEffect(() => {
-    console.log('[EDIT] status', status, 'id', id, 'user', user?.email);
+    console.log('[EDIT] authLoading', authLoading, 'id', id, 'user', user?.email);
     
-    if (mode === 'edit' && id) {
-      console.log('[EDIT] disparando loadHighlight', { id, status, user: user?.email });
+    if (mode === 'edit' && id && !authLoading && user) {
+      console.log('[EDIT] disparando loadHighlight', { id, user: user?.email });
       loadHighlight();
     }
-  }, [mode, id]);
+  }, [mode, id, authLoading, user]);
 
   const loadHighlight = async () => {
     if (!id) return;
@@ -251,11 +252,11 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
   };
 
   // Guards de carregamento e erro
-  if (status === 'loading') {
+  if (authLoading) {
     return <HighlightEditSkeleton />;
   }
 
-  if (status === 'error') {
+  if (!user) {
     return (
       <ErrorBox
         title="Sessão Expirada"
@@ -698,3 +699,5 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
     </div>
   );
 }
+
+export default withAdminAuth(HighlightForm, 'editor');

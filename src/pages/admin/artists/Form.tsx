@@ -16,12 +16,13 @@ import { useAdminEmail } from '@/hooks/useAdminEmail';
 import { Checkbox } from '@/components/ui/checkbox';
 import { X, Loader2, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { withAdminAuth } from '@/components/withAdminAuth';
 
 interface ArtistFormProps {
   mode: 'create' | 'edit';
 }
 
-export default function ArtistForm({ mode }: ArtistFormProps) {
+function ArtistForm({ mode }: ArtistFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
@@ -514,3 +515,5 @@ export default function ArtistForm({ mode }: ArtistFormProps) {
     </div>
   );
 }
+
+export default withAdminAuth(ArtistForm, 'editor');

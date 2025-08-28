@@ -1,12 +1,12 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAdminV2Auth } from '@/hooks/useAdminV2Auth';
+import { useSecureAuth } from '@/hooks/useSecureAuth';
 import { toast } from 'sonner';
 import type { ArtistFormData } from '@/lib/artistSchema';
 
 export const useArtistManagement = () => {
   const [loading, setLoading] = useState(false);
-  const { user } = useAdminV2Auth();
+  const { user } = useSecureAuth();
 
   // Função para gerar slug único
   const generateSlug = (name: string): string => {

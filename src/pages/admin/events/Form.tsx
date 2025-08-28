@@ -16,6 +16,7 @@ import { eventSchema, EventFormData } from '@/lib/eventSchema';
 import { useArtistManagement } from '@/hooks/useArtistManagement';
 import { AdminFileUpload } from '@/components/ui/admin-file-upload';
 import { useAdminEmail } from '@/hooks/useAdminEmail';
+import { withAdminAuth } from '@/components/withAdminAuth';
 
 interface EventFormProps {
   mode: 'create' | 'edit';
@@ -24,7 +25,7 @@ interface EventFormProps {
 const cities = ['São Paulo', 'Rio de Janeiro', 'Belo Horizonte', 'Porto Alegre', 'Curitiba', 'Florianópolis'];
 const states = ['SP', 'RJ', 'MG', 'RS', 'PR', 'SC'];
 
-export default function EventForm({ mode }: EventFormProps) {
+function EventForm({ mode }: EventFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
@@ -515,3 +516,5 @@ export default function EventForm({ mode }: EventFormProps) {
     </div>
   );
 }
+
+export default withAdminAuth(EventForm, 'editor');

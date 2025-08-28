@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { EmptyState } from '@/components/ui/empty-state';
 import { Plus, Search, MoreHorizontal, Edit, Trash2, MapPin, Users, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { withAdminAuth } from '@/components/withAdminAuth';
 
 interface Venue {
   id: string;
@@ -34,7 +35,7 @@ const typeLabels = {
   restaurante: 'Restaurante'
 };
 
-export default function VenuesList() {
+function VenuesList() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [venues, setVenues] = useState<Venue[]>([]);
@@ -231,3 +232,5 @@ export default function VenuesList() {
     </div>
   );
 }
+
+export default withAdminAuth(VenuesList, 'editor');

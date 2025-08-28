@@ -13,13 +13,14 @@ import { Plus, Search, Filter, MoreVertical, Eye, Edit, Trash2, Calendar, MapPin
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { withAdminAuth } from '@/components/withAdminAuth';
 
 const cities = [
   'São Paulo', 'Rio de Janeiro', 'Belo Horizonte', 'Salvador', 
   'Brasília', 'Fortaleza', 'Recife', 'Curitiba', 'Porto Alegre', 'Goiânia'
 ];
 
-export default function AdminEventsIndex() {
+function AdminEventsIndex() {
   const navigate = useNavigate();
   const { getEvents, deleteEvent, loading } = useEventManagement();
   
@@ -314,3 +315,5 @@ export default function AdminEventsIndex() {
     </div>
   );
 }
+
+export default withAdminAuth(AdminEventsIndex, 'editor');

@@ -11,7 +11,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { DeleteButton, PublishButton } from '@/components/ui/admin-button';
 import { Plus, Edit, Eye, EyeOff, Search, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAdminV2Auth } from '@/hooks/useAdminV2Auth';
+import { useSecureAuth } from '@/hooks/useSecureAuth';
+import { withAdminAuth } from '@/components/withAdminAuth';
 
 const cities = [
   { value: 'all', label: 'Todas as cidades' },
@@ -22,9 +23,9 @@ const cities = [
   { value: 'rio_de_janeiro', label: 'Rio de Janeiro' },
 ];
 
-export default function AdminHighlightsList() {
+function AdminHighlightsList() {
   const { highlights, loading, error, refreshHighlights } = useHighlightsAdmin();
-  const { user } = useAdminV2Auth();
+  const { user } = useSecureAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [cityFilter, setCityFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -255,3 +256,5 @@ export default function AdminHighlightsList() {
     </div>
   );
 }
+
+export default withAdminAuth(AdminHighlightsList, 'editor');

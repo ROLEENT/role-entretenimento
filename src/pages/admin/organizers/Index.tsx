@@ -13,6 +13,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useOrganizerManagement, type OrganizerFormData } from '@/hooks/useOrganizerManagement';
 import { ImageUpload } from '@/components/admin/ImageUpload';
+import { withAdminAuth } from '@/components/withAdminAuth';
 
 interface Organizer {
   id: string;
@@ -29,7 +30,7 @@ interface Organizer {
   created_at: string;
 }
 
-export default function AdminOrganizers() {
+function AdminOrganizers() {
   const [organizers, setOrganizers] = useState<Organizer[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -413,3 +414,5 @@ export default function AdminOrganizers() {
     </div>
   );
 }
+
+export default withAdminAuth(AdminOrganizers, 'editor');

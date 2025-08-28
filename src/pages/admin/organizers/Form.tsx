@@ -3,8 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { organizerSchema, type OrganizerFormData } from '@/lib/organizerSchema';
-import { useAdminV2Auth } from '@/hooks/useAdminV2Auth';
+import { useSecureAuth } from '@/hooks/useSecureAuth';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { withAdminAuth } from '@/components/withAdminAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -59,10 +60,10 @@ interface OrganizerFormProps {
   mode: 'create' | 'edit';
 }
 
-export default function OrganizerForm({ mode }: OrganizerFormProps) {
+function OrganizerForm({ mode }: OrganizerFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { user } = useAdminV2Auth();
+  const { user } = useSecureAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(mode === 'edit');
   const [saving, setSaving] = useState(false);
@@ -659,3 +660,5 @@ export default function OrganizerForm({ mode }: OrganizerFormProps) {
     </div>
   );
 }
+
+export default withAdminAuth(OrganizerForm, 'editor');

@@ -14,12 +14,13 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { X } from 'lucide-react';
+import { withAdminAuth } from '@/components/withAdminAuth';
 
 interface VenueFormProps {
   mode: 'create' | 'edit';
 }
 
-export default function VenueForm({ mode }: VenueFormProps) {
+function VenueForm({ mode }: VenueFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
@@ -617,3 +618,5 @@ export default function VenueForm({ mode }: VenueFormProps) {
     </div>
   );
 }
+
+export default withAdminAuth(VenueForm, 'editor');

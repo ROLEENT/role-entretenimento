@@ -1,5 +1,8 @@
 import AdminHighlightsList from './List';
+import { withAdminAuth } from '@/components/withAdminAuth';
 
-export default function AdminHighlightsIndex() {
+function AdminHighlightsIndex() {
   return <AdminHighlightsList />;
 }
+
+export default withAdminAuth(AdminHighlightsIndex, 'editor');
