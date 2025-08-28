@@ -3,26 +3,21 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import AdminV2Router from "@/routes/AdminV2Router";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { AdminAuthGuard } from "@/components/AdminAuthGuard";
+import { AdminV2AuthGuard } from "@/components/AdminV2AuthGuard";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
 export default function AdminLayout() {
   return (
     <ErrorBoundary>
-      {/* AdminAuthGuard temporariamente desabilitado para bypass */}
-      <SidebarProvider>
+      <AdminV2AuthGuard>
+        <SidebarProvider>
         <div className="flex min-h-screen w-full">
           <AdminSidebar />
           <SidebarInset className="flex-1">
             <header className="sticky top-0 z-10 bg-background/80 backdrop-blur border-b">
               <div className="flex items-center gap-2 px-4 h-14">
-                <h1 className="text-sm font-medium">Administração</h1>
-                <div className="ml-auto">
-                  <span className="text-xs bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 px-2 py-1 rounded">
-                    Modo Desenvolvimento - Auth Desabilitada
-                  </span>
-                </div>
+                <h1 className="text-sm font-medium">Administração V2</h1>
               </div>
             </header>
             <main className="p-6">
@@ -34,7 +29,8 @@ export default function AdminLayout() {
         </div>
         <Toaster />
         <SonnerToaster />
-      </SidebarProvider>
+        </SidebarProvider>
+      </AdminV2AuthGuard>
     </ErrorBoundary>
   );
 }

@@ -29,6 +29,17 @@ import AdminHighlights from '@/pages/admin/highlights/Index';
 import AdminHighlightCreate from '@/pages/admin/highlights/Create';
 import AdminHighlightEdit from '@/pages/admin/highlights/Edit';
 
+// Blog Management
+import AdminBlog from '@/pages/admin/blog/Index';
+import AdminBlogCreate from '@/pages/admin/blog/Create';
+
+// Category Management
+import AdminCategories from '@/pages/admin/categories/Index';
+
+// User Management
+import AdminComments from '@/pages/admin/comments/Index';
+import AdminContactMessages from '@/pages/admin/contact-messages/Index';
+
 export default function AdminV2Router() {
   return (
     <>
@@ -66,6 +77,17 @@ export default function AdminV2Router() {
         <Route path="highlights" element={<AdminHighlights />} />
         <Route path="highlights/create" element={<AdminHighlightCreate />} />
         <Route path="highlights/:id/edit" element={<AdminHighlightEdit />} />
+        
+        {/* Blog Management */}
+        <Route path="blog" element={<AdminBlog />} />
+        <Route path="blog/create" element={<AdminBlogCreate />} />
+        
+        {/* Category Management */}
+        <Route path="categories" element={<AdminCategories />} />
+        
+        {/* User Management */}
+        <Route path="comments" element={<AdminComments />} />
+        <Route path="contact-messages" element={<AdminContactMessages />} />
       </Routes>
     </>
   );
