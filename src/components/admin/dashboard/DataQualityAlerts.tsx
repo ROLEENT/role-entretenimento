@@ -57,14 +57,14 @@ export const DataQualityAlerts = () => {
     (issues?.duplicateSlugs?.length || 0) > 0;
 
   return (
-    <Card className="min-h-[400px] flex flex-col">
-      <CardHeader className="flex-shrink-0">
-        <CardTitle className="flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5" />
+    <Card className="min-h-[500px] flex flex-col shadow-md border-0 bg-gradient-card">
+      <CardHeader className="flex-shrink-0 pb-4">
+        <CardTitle className="flex items-center gap-3 text-xl font-bold">
+          <AlertTriangle className="h-6 w-6 text-primary" />
           Qualidade dos Dados
         </CardTitle>
-        <CardDescription>
-          {showAll ? 'Todos os problemas de qualidade' : 'Principais problemas de qualidade dos dados'}
+        <CardDescription className="text-base">
+          {showAll ? 'Todos os problemas de qualidade' : 'Principais alertas de qualidade'}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 p-4">
@@ -77,48 +77,48 @@ export const DataQualityAlerts = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {/* Destaques com dados faltantes */}
+            {/* Grupo: Sem imagem de capa */}
             {issues?.highlightsMissingData && issues.highlightsMissingData.length > 0 && (
-              <Alert className="border-red-200 bg-red-50/50">
-                <AlertTriangle className="h-4 w-4 text-red-600" />
-                <AlertTitle className="text-red-800">Dados faltantes (Destaques)</AlertTitle>
+              <Alert className="border-destructive/30 bg-destructive/5">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
                 <AlertDescription>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <FileX className="h-4 w-4" />
-                      <span>{issues.highlightsMissingData.length} destaques</span>
-                      <Badge variant="destructive" className="text-xs">Crítico</Badge>
+                  <div className="space-y-3">
+                    <div className="font-semibold text-destructive text-lg">
+                      Sem imagem de capa ({issues.highlightsMissingData.length} itens)
+                    </div>
+                    <div className="text-sm text-destructive/80">
+                      Destaques sem imagem de capa prejudicam o engajamento
                     </div>
                     <Button 
                       size="sm" 
-                      variant="outline" 
+                      className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                       onClick={() => navigate('/admin-highlight-editor')}
                     >
-                      Corrigir
+                      Corrigir Todos
                     </Button>
                   </div>
                 </AlertDescription>
               </Alert>
             )}
 
-            {/* Eventos com dados faltantes */}
+            {/* Grupo: Sem slug */}
             {issues?.eventsMissingData && issues.eventsMissingData.length > 0 && (
-              <Alert className="border-yellow-200 bg-yellow-50/50">
-                <AlertCircle className="h-4 w-4 text-yellow-600" />
-                <AlertTitle className="text-yellow-800">Dados faltantes (Eventos)</AlertTitle>
+              <Alert className="border-warning/50 bg-warning/10">
+                <AlertCircle className="h-5 w-5 text-warning" />
                 <AlertDescription>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <FileX className="h-4 w-4" />
-                      <span>{issues.eventsMissingData.length} eventos</span>
-                      <Badge variant="outline" className="text-xs bg-yellow-100">Aviso</Badge>
+                  <div className="space-y-3">
+                    <div className="font-semibold text-warning-foreground text-lg">
+                      Sem slug ({issues.eventsMissingData.length} itens)
+                    </div>
+                    <div className="text-sm text-warning-foreground/80">
+                      Eventos sem slug podem causar problemas de SEO
                     </div>
                     <Button 
                       size="sm" 
-                      variant="outline" 
+                      className="bg-warning hover:bg-warning/90 text-warning-foreground"
                       onClick={() => navigate('/admin-event-management')}
                     >
-                      Corrigir
+                      Corrigir Todos
                     </Button>
                   </div>
                 </AlertDescription>

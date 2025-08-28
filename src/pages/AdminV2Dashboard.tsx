@@ -35,42 +35,35 @@ function AdminV2Dashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8 space-y-8">
-        {/* Ações Rápidas */}
+      <main className="max-w-7xl mx-auto px-6 py-8 space-y-10">
+        {/* 1. Ações Rápidas - linha inteira */}
         <QuickActions />
 
-        {/* Pesquisa Global */}
+        {/* 2. Pesquisa Global - linha inteira */}
         <GlobalSearch />
 
-        {/* Status Editorial - Contadores */}
-        <div>
-          <h2 className="text-lg font-semibold mb-4">Status Editorial</h2>
+        {/* 3. Status Editorial - linha inteira */}
+        <div className="space-y-6">
+          <h2 className="text-xl font-bold text-foreground">Status Editorial</h2>
           <StatusCards />
         </div>
 
-        {/* Hoje e Próximos 7 dias */}
-        <div>
-          <h2 className="text-lg font-semibold mb-4">Agenda</h2>
+        {/* 4. Agenda - 2 blocos lado a lado */}
+        <div className="space-y-6">
+          <h2 className="text-xl font-bold text-foreground">Agenda</h2>
           <UpcomingEvents />
         </div>
 
-        {/* Layout principal reorganizado por prioridade */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Coluna 1: Itens Recentes (Prioridade 1) */}
-          <div className="lg:col-span-1">
-            <RecentItems />
-          </div>
+        {/* 5. Layout principal: Itens Recentes e Qualidade dos Dados */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <RecentItems />
+          <DataQualityAlerts />
+        </div>
 
-          {/* Coluna 2: Qualidade dos Dados (Prioridade 2) */}
-          <div className="lg:col-span-1">
-            <DataQualityAlerts />
-          </div>
-
-          {/* Coluna 3: Sessão e Sistema (Prioridades 3 e 4) */}
-          <div className="lg:col-span-1 space-y-8">
-            <SessionInfo />
-            <SystemHealth />
-          </div>
+        {/* 6. Layout inferior: Sessão e Saúde do Sistema */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <SessionInfo />
+          <SystemHealth />
         </div>
       </main>
     </div>

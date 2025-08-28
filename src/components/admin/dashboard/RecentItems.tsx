@@ -49,13 +49,13 @@ export const RecentItems = () => {
     switch (status) {
       case 'published':
       case 'active':
-        return 'default'; // Verde
+        return 'default' as const; // Verde
       case 'draft':
-        return 'secondary'; // Cinza
+        return 'secondary' as const; // Cinza
       case 'error':
-        return 'destructive'; // Vermelho
+        return 'destructive' as const; // Vermelho
       default:
-        return 'outline';
+        return 'outline' as const;
     }
   };
 
@@ -112,14 +112,14 @@ export const RecentItems = () => {
   }
 
   return (
-    <Card className="min-h-[400px] flex flex-col">
-      <CardHeader className="flex-shrink-0">
-        <CardTitle className="flex items-center gap-2">
-          <Clock className="h-5 w-5" />
+    <Card className="min-h-[500px] flex flex-col shadow-md border-0 bg-gradient-card">
+      <CardHeader className="flex-shrink-0 pb-4">
+        <CardTitle className="flex items-center gap-3 text-xl font-bold">
+          <Clock className="h-6 w-6 text-primary" />
           Itens Recentes
         </CardTitle>
-        <CardDescription>
-          {showAll ? 'Todos os itens recentes' : '5 itens editados recentemente'}
+        <CardDescription className="text-base">
+          {showAll ? 'Todos os itens recentes' : 'Últimos 5 itens editados'}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 p-4">
@@ -172,7 +172,13 @@ export const RecentItems = () => {
                       {item.status && (
                         <Badge 
                           variant={getStatusVariant(item.status)}
-                          className="text-xs"
+                          className={`text-xs font-semibold ${
+                            getStatusVariant(item.status) === 'default' 
+                              ? 'bg-success text-success-foreground' 
+                              : getStatusVariant(item.status) === 'destructive'
+                              ? 'bg-destructive text-destructive-foreground'
+                              : ''
+                          }`}
                         >
                           {getStatusLabel(item.status)}
                         </Badge>
@@ -182,11 +188,10 @@ export const RecentItems = () => {
                           <TooltipTrigger asChild>
                             <Button
                               size="sm"
-                              variant="outline"
+                              className="h-8 w-8 p-0 bg-primary hover:bg-primary-hover text-primary-foreground"
                               onClick={() => navigate(getEditUrl(item))}
-                              className="h-8 w-8 p-0"
                             >
-                              <Edit className="h-3 w-3 text-primary" />
+                              <Edit className="h-3 w-3" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -197,9 +202,9 @@ export const RecentItems = () => {
                           <TooltipTrigger asChild>
                             <Button
                               size="sm"
-                              variant="ghost"
+                              variant="outline"
                               onClick={() => window.open(getEditUrl(item), '_blank')}
-                              className="h-8 w-8 p-0"
+                              className="h-8 w-8 p-0 border-muted-foreground/30 hover:bg-muted"
                             >
                               <ExternalLink className="h-3 w-3 text-muted-foreground" />
                             </Button>
@@ -220,7 +225,7 @@ export const RecentItems = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => setShowAll(true)}
-                    className="w-full"
+                    className="w-full border-primary text-primary hover:bg-primary/10"
                   >
                     <Eye className="h-4 w-4 mr-2" />
                     Ver todos ({recentItems.length} itens)

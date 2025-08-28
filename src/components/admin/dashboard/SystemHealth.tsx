@@ -47,34 +47,37 @@ export const SystemHealth = () => {
   }
 
   return (
-    <Card className="min-h-[280px] flex flex-col">
-      <CardHeader className="flex-shrink-0">
-        <CardTitle className="flex items-center gap-2">
-          <Activity className="h-5 w-5" />
+    <Card className="min-h-[450px] flex flex-col shadow-md border-0 bg-gradient-card">
+      <CardHeader className="flex-shrink-0 pb-4">
+        <CardTitle className="flex items-center gap-3 text-xl font-bold">
+          <Activity className="h-6 w-6 text-primary" />
           Saúde do Sistema
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-base">
           Status dos serviços essenciais
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 flex-1 p-4">
-        {/* Storage - Movido para o topo e mais visível */}
+        {/* Storage - Destaque no topo */}
         {health.storage.usage && (
-          <div className="p-3 border rounded-lg bg-muted/20">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <HardDrive className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium text-sm">Uso do Storage</span>
+          <div className="p-4 border-2 border-primary/20 rounded-xl bg-gradient-to-r from-primary/5 to-transparent">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <HardDrive className="h-5 w-5 text-primary" />
+                <span className="font-bold text-lg">Uso do Storage</span>
               </div>
-              <Badge variant={health.storage.status === 'ok' ? 'default' : 'destructive'}>
+              <Badge 
+                variant={health.storage.status === 'ok' ? 'default' : 'destructive'}
+                className="text-sm font-bold bg-primary text-primary-foreground"
+              >
                 {health.storage.usage.percentage}%
               </Badge>
             </div>
             <Progress 
               value={health.storage.usage.percentage} 
-              className="h-3" 
+              className="h-4" 
             />
-            <div className="text-xs text-muted-foreground mt-1">
+            <div className="text-sm text-muted-foreground mt-2 font-medium">
               {health.storage.usage.used}GB / {health.storage.usage.total}GB utilizados
             </div>
           </div>
@@ -88,13 +91,13 @@ export const SystemHealth = () => {
           <div className="grid grid-cols-1 gap-2">
             {/* Autenticação */}
             <div className="flex items-center justify-between p-2 rounded-md bg-muted/10">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 {health.auth.status === 'ok' ? (
-                  <CheckCircle2 className="h-4 w-4 text-green-500 animate-pulse" />
+                  <CheckCircle2 className="h-5 w-5 text-success animate-pulse" />
                 ) : (
-                  <AlertCircle className="h-4 w-4 text-red-500" />
+                  <AlertCircle className="h-5 w-5 text-destructive" />
                 )}
-                <span className="text-sm">Autenticação</span>
+                <span className="text-sm font-medium">Autenticação</span>
               </div>
               {health.auth.status !== 'ok' && (
                 <Badge variant="destructive" className="text-xs">
@@ -105,15 +108,15 @@ export const SystemHealth = () => {
 
             {/* Banco de Dados */}
             <div className="flex items-center justify-between p-2 rounded-md bg-muted/10">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 {health.database.status === 'ok' ? (
-                  <CheckCircle2 className="h-4 w-4 text-green-500 animate-pulse" />
+                  <CheckCircle2 className="h-5 w-5 text-success animate-pulse" />
                 ) : (
-                  <AlertCircle className="h-4 w-4 text-red-500" />
+                  <AlertCircle className="h-5 w-5 text-destructive" />
                 )}
-                <span className="text-sm">Banco de Dados</span>
+                <span className="text-sm font-medium">Banco de Dados</span>
                 {health.database.responseTime && (
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-muted-foreground font-medium">
                     ({health.database.responseTime}ms)
                   </span>
                 )}
@@ -127,13 +130,13 @@ export const SystemHealth = () => {
 
             {/* Storage */}
             <div className="flex items-center justify-between p-2 rounded-md bg-muted/10">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 {health.storage.status === 'ok' ? (
-                  <CheckCircle2 className="h-4 w-4 text-green-500 animate-pulse" />
+                  <CheckCircle2 className="h-5 w-5 text-success animate-pulse" />
                 ) : (
-                  <AlertCircle className="h-4 w-4 text-red-500" />
+                  <AlertCircle className="h-5 w-5 text-destructive" />
                 )}
-                <span className="text-sm">Storage</span>
+                <span className="text-sm font-medium">Storage</span>
               </div>
               {health.storage.status !== 'ok' && (
                 <Badge variant="destructive" className="text-xs">

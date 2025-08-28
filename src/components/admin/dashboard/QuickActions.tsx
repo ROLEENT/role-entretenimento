@@ -48,20 +48,23 @@ export const QuickActions = () => {
           Crie novos conteúdos rapidamente
         </CardDescription>
       </CardHeader>
-      <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+      <CardContent className="flex flex-wrap gap-4 justify-center md:justify-start">
         {actions.map((action) => (
           <Button
             key={action.label}
             variant={action.variant}
-            className="h-auto p-4 flex flex-col items-center gap-2"
+            size="lg"
+            className={`h-16 px-6 flex items-center gap-3 text-base font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg ${
+              action.variant === 'default' 
+                ? 'bg-primary hover:bg-primary-hover text-primary-foreground shadow-lg' 
+                : 'border-primary text-primary hover:bg-primary/10'
+            }`}
             onClick={action.action}
           >
-            <action.icon className="h-6 w-6" />
-            <div className="text-center">
-              <div className="font-medium">{action.label}</div>
-              <div className="text-xs text-muted-foreground">
-                {action.description}
-              </div>
+            <action.icon className="h-7 w-7" />
+            <div>
+              <div className="font-bold">{action.label}</div>
+              <div className="text-xs opacity-80">{action.description}</div>
             </div>
           </Button>
         ))}

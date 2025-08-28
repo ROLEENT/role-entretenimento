@@ -90,13 +90,13 @@ export const SessionInfo = () => {
   };
 
   return (
-    <Card className="min-h-[320px] flex flex-col">
-      <CardHeader className="flex-shrink-0">
-        <CardTitle className="flex items-center gap-2">
-          <User className="h-5 w-5" />
+    <Card className="min-h-[450px] flex flex-col shadow-md border-0 bg-gradient-card">
+      <CardHeader className="flex-shrink-0 pb-4">
+        <CardTitle className="flex items-center gap-3 text-xl font-bold">
+          <User className="h-6 w-6 text-primary" />
           Sessão e Segurança
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-base">
           Informações da sessão atual e segurança
         </CardDescription>
       </CardHeader>
@@ -118,21 +118,21 @@ export const SessionInfo = () => {
           </Alert>
         )}
 
-        {/* Informações do usuário - Melhor destaque */}
-        <div className="p-4 border rounded-lg bg-gradient-to-r from-primary/5 to-transparent">
+        {/* Informações do usuário - Destaque maior */}
+        <div className="p-6 border-2 border-primary/20 rounded-xl bg-gradient-to-r from-primary/5 to-transparent">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="h-10 w-10 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                <User className="h-5 w-5 text-primary" />
+            <div className="flex items-center gap-4 min-w-0 flex-1">
+              <div className="h-12 w-12 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                <User className="h-6 w-6 text-primary" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="font-semibold text-base truncate">{session.user.email}</div>
-                <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <Badge variant={getRoleBadgeVariant(session.user.role)} className="text-xs">
+                <div className="font-bold text-lg text-primary truncate">{session.user.email}</div>
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                  <Badge variant={getRoleBadgeVariant(session.user.role)} className="text-sm font-semibold bg-primary text-primary-foreground">
                     {getRoleLabel(session.user.role)}
                   </Badge>
                   {session.user.role === 'admin' && (
-                    <Badge variant="outline" className="text-xs border-primary text-primary">
+                    <Badge variant="outline" className="text-sm border-success text-success font-semibold">
                       <Shield className="h-3 w-3 mr-1" />
                       Acesso Total
                     </Badge>
@@ -141,12 +141,11 @@ export const SessionInfo = () => {
               </div>
             </div>
             <Button 
-              variant="destructive" 
-              size="sm" 
+              size="lg"
               onClick={handleLogout}
-              className="ml-4 bg-red-600 hover:bg-red-700"
+              className="ml-4 bg-destructive hover:bg-destructive/90 text-destructive-foreground font-bold"
             >
-              <LogOut className="h-4 w-4 mr-2" />
+              <LogOut className="h-5 w-5 mr-2" />
               Sair
             </Button>
           </div>

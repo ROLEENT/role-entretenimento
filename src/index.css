@@ -25,20 +25,30 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 280 100% 60%;
+    /* ROLÊ Brand Colors */
+    --primary: 275 100% 75%; /* #c77dff */
     --primary-foreground: 0 0% 100%;
+    --primary-hover: 270 100% 70%; /* #a356d6 */
 
-    --secondary: 320 100% 70%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 210 40% 98%;
+    --secondary-foreground: 275 100% 75%;
 
-    --muted: 240 5% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 13% 91%; /* #e9ecef */
+    --muted-foreground: 0 0% 18%; /* #2e2e2e */
 
-    --accent: 290 100% 65%;
+    --accent: 275 100% 75%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 55%; /* #dc3545 */
+    --destructive-foreground: 0 0% 100%;
+
+    /* Status Colors */
+    --success: 134 61% 41%; /* #28a745 */
+    --success-foreground: 0 0% 100%;
+    --warning: 45 100% 51%; /* #ffc107 */
+    --warning-foreground: 0 0% 0%;
+    --info: 201 96% 32%;
+    --info-foreground: 0 0% 100%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
@@ -88,20 +98,30 @@ All colors MUST be HSL.
     --popover: 220 27% 12%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 280 100% 70%;
-    --primary-foreground: 0 0% 100%;
+    /* ROLÊ Brand Colors - Dark Mode */
+    --primary: 275 100% 80%; /* Lighter for dark mode */
+    --primary-foreground: 0 0% 0%;
+    --primary-hover: 275 100% 85%;
 
-    --secondary: 320 100% 75%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 240 5% 10%;
+    --secondary-foreground: 275 100% 80%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 84%; /* #f3f3f7 */
 
-    --accent: 290 100% 70%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 275 100% 80%;
+    --accent-foreground: 0 0% 0%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Status Colors - Dark Mode */
+    --success: 134 61% 51%;
+    --success-foreground: 0 0% 100%;
+    --warning: 45 100% 61%;
+    --warning-foreground: 0 0% 0%;
+    --info: 201 96% 42%;
+    --info-foreground: 0 0% 100%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;

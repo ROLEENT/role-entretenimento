@@ -43,19 +43,20 @@ export const GlobalSearch = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Search className="h-5 w-5" />
+        <CardTitle className="flex items-center gap-2 text-xl font-bold">
+          <Search className="h-6 w-6" />
           Pesquisa Global
         </CardTitle>
-        <CardDescription>
-          Busque por título ou slug para edição rápida
+        <CardDescription className="text-muted-foreground">
+          Busque por título, slug, artista, evento ou organizador
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <Input
-            placeholder="Digite título ou slug..."
+            placeholder="Buscar por título, slug, artista, evento ou organizador"
             value={searchTerm}
+            className="text-base h-12 border-2 focus:border-primary"
             onChange={(e) => {
               setSearchTerm(e.target.value);
               if (e.target.value.length >= 2) {
@@ -68,11 +69,22 @@ export const GlobalSearch = () => {
               if (e.key === 'Enter') {
                 handleSearch();
               }
+              if (e.key === '/') {
+                e.preventDefault();
+                e.currentTarget.focus();
+              }
             }}
           />
-          <Button onClick={handleSearch} disabled={!searchTerm.trim()}>
-            <Search className="h-4 w-4" />
+          <Button 
+            onClick={handleSearch} 
+            disabled={!searchTerm.trim()}
+            className="h-12 px-6 bg-primary hover:bg-primary-hover"
+          >
+            <Search className="h-5 w-5" />
           </Button>
+        </div>
+        <div className="text-xs text-muted-foreground">
+          Dica: Pressione "/" para focar na busca
         </div>
 
         {showResults && searchTerm.length >= 2 && (
