@@ -3216,6 +3216,58 @@ export type Database = {
           youtube_url: string
         }[]
       }
+      admin_get_artists: {
+        Args: {
+          p_admin_email: string
+          p_city?: string
+          p_search?: string
+          p_status?: string
+        }
+        Returns: {
+          accommodation_notes: string
+          artist_type: string
+          audius_url: string
+          availability_days: string[]
+          beatport_url: string
+          bio_long: string
+          bio_short: string
+          booking_email: string
+          booking_whatsapp: string
+          cities_active: string[]
+          city: string
+          cover_image_url: string
+          created_at: string
+          fee_range: string
+          home_city: string
+          id: string
+          image_credits: string
+          image_rights_authorized: boolean
+          instagram: string
+          internal_notes: string
+          presskit_url: string
+          priority: number
+          profile_image_url: string
+          pronouns: string
+          real_name: string
+          responsible_name: string
+          responsible_role: string
+          set_time_minutes: number
+          show_format: string
+          slug: string
+          soundcloud_url: string
+          spotify_url: string
+          stage_name: string
+          status: string
+          team_size: number
+          tech_audio: string
+          tech_light: string
+          tech_rider_url: string
+          tech_stage: string
+          updated_at: string
+          website_url: string
+          youtube_url: string
+        }[]
+      }
       admin_get_highlight_by_id: {
         Args: { p_admin_email: string; p_highlight_id: string }
         Returns: {
