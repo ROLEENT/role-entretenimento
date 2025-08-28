@@ -69,16 +69,21 @@ export default function AdminV2HighlightsPage() {
   }>({ open: false, type: 'bulk_delete', items: [] });
   const [titleConfirmation, setTitleConfirmation] = useState('');
   
-  // URL State
+  // URL State - Convert empty/missing to "all" sentinel
   const searchTerm = searchParams.get('search') || '';
   const selectedCities = searchParams.get('cities')?.split(',').filter(Boolean) || [];
-  const selectedStatus = searchParams.get('status') || '';
-  const selectedSituation = searchParams.get('situation') || '';
-  const selectedQuality = searchParams.get('quality') || '';
+  const selectedStatus = searchParams.get('status') || 'all';
+  const selectedSituation = searchParams.get('situation') || 'all';
+  const selectedQuality = searchParams.get('quality') || 'all';
   const sortField = (searchParams.get('sort') as SortField) || 'updated_at';
   const sortDirection = (searchParams.get('dir') as SortDirection) || 'desc';
   const pageSize = parseInt(searchParams.get('pageSize') || '20');
   const currentPage = parseInt(searchParams.get('page') || '1');
+
+  // Sanitize and validate Select values
+  const sanitizedStatus = ['all', 'draft', 'published'].includes(selectedStatus) ? selectedStatus : 'all';
+  const sanitizedSituation = ['all', 'scheduled', 'active', 'active_today', 'next_7_days', 'expired', 'incomplete'].includes(selectedSituation) ? selectedSituation : 'all';
+  const sanitizedQuality = ['all', 'issues', 'no_cover', 'no_city', 'duplicate_slug'].includes(selectedQuality) ? selectedQuality : 'all';
 
   // Calculate situation for a highlight
   const calculateSituation = (highlight: Highlight): SituationStatus => {
@@ -160,8 +165,8 @@ export default function AdminV2HighlightsPage() {
         query = query.in('city', selectedCities);
       }
       
-      if (selectedStatus) {
-        query = query.eq('status', selectedStatus);
+      if (sanitizedStatus && sanitizedStatus !== 'all') {
+        query = query.eq('status', sanitizedStatus);
       }
 
       // Sort
@@ -174,28 +179,28 @@ export default function AdminV2HighlightsPage() {
       let filteredHighlights = (data || []) as Highlight[];
 
       // Apply situation filter
-      if (selectedSituation) {
+      if (sanitizedSituation && sanitizedSituation !== 'all') {
         filteredHighlights = filteredHighlights.filter(highlight => {
           const situation = calculateSituation(highlight);
           
-          switch (selectedSituation) {
+          switch (sanitizedSituation) {
             case 'active_today':
               return situation === 'active' && highlight.start_at && isToday(new Date(highlight.start_at));
             case 'next_7_days':
               return situation === 'scheduled' && highlight.start_at && 
                      isBefore(new Date(highlight.start_at), addDays(new Date(), 7));
             default:
-              return situation === selectedSituation;
+              return situation === sanitizedSituation;
           }
         });
       }
 
       // Apply quality filter
-      if (selectedQuality) {
+      if (sanitizedQuality && sanitizedQuality !== 'all') {
         filteredHighlights = filteredHighlights.filter(highlight => {
           const issues = getQualityIssues(highlight);
           
-          switch (selectedQuality) {
+          switch (sanitizedQuality) {
             case 'no_cover':
               return !highlight.image_url;
             case 'no_city':
@@ -203,8 +208,10 @@ export default function AdminV2HighlightsPage() {
             case 'duplicate_slug':
               // TODO: Implement duplicate slug detection
               return false;
-            default:
+            case 'issues':
               return issues.length > 0;
+            default:
+              return false;
           }
         });
       }
@@ -241,8 +248,12 @@ export default function AdminV2HighlightsPage() {
   };
 
   // Handle filters
-  const handleCityFilter = (cities: string[]) => {
-    updateSearchParams({ cities, page: 1 });
+  const handleCityFilter = (value: string) => {
+    if (value === 'all' || !value) {
+      updateSearchParams({ cities: null, page: 1 });
+    } else {
+      updateSearchParams({ cities: [value], page: 1 });
+    }
   };
 
   const handleSort = (field: SortField) => {
@@ -427,7 +438,7 @@ export default function AdminV2HighlightsPage() {
             {/* Filters and Search */}
             <Card>
               <CardContent className="pt-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                   {/* Search */}
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -441,37 +452,37 @@ export default function AdminV2HighlightsPage() {
                   </div>
 
                   {/* City Filter */}
-                  <Select value={selectedCities.join(',')} onValueChange={(value) => handleCityFilter(value ? [value] : [])}>
+                  <Select value={selectedCities.length > 0 ? selectedCities[0] : 'all'} onValueChange={handleCityFilter}>
                     <SelectTrigger>
                       <SelectValue placeholder="Todas as cidades" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todas as cidades</SelectItem>
-                      {cities.map(city => (
+                      <SelectItem value="all">Todas as cidades</SelectItem>
+                      {cities.filter(city => city.value && city.value.trim()).map(city => (
                         <SelectItem key={city.value} value={city.value}>{city.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
 
                   {/* Status Filter */}
-                  <Select value={selectedStatus} onValueChange={(value) => updateSearchParams({ status: value, page: 1 })}>
+                  <Select value={sanitizedStatus} onValueChange={(value) => updateSearchParams({ status: value === 'all' ? null : value, page: 1 })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Todos os status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todos os status</SelectItem>
+                      <SelectItem value="all">Todos os status</SelectItem>
                       <SelectItem value="draft">Rascunho</SelectItem>
                       <SelectItem value="published">Publicado</SelectItem>
                     </SelectContent>
                   </Select>
 
                   {/* Situation Filter */}
-                  <Select value={selectedSituation} onValueChange={(value) => updateSearchParams({ situation: value, page: 1 })}>
+                  <Select value={sanitizedSituation} onValueChange={(value) => updateSearchParams({ situation: value === 'all' ? null : value, page: 1 })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Todas as situações" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todas as situações</SelectItem>
+                      <SelectItem value="all">Todas as situações</SelectItem>
                       <SelectItem value="scheduled">Agendado</SelectItem>
                       <SelectItem value="active">Ativo</SelectItem>
                       <SelectItem value="active_today">Ativo hoje</SelectItem>
@@ -480,11 +491,25 @@ export default function AdminV2HighlightsPage() {
                       <SelectItem value="incomplete">Incompleto</SelectItem>
                     </SelectContent>
                   </Select>
+
+                  {/* Quality Filter */}
+                  <Select value={sanitizedQuality} onValueChange={(value) => updateSearchParams({ quality: value === 'all' ? null : value, page: 1 })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Qualidade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="issues">Com problemas</SelectItem>
+                      <SelectItem value="no_cover">Sem capa</SelectItem>
+                      <SelectItem value="no_city">Sem cidade</SelectItem>
+                      <SelectItem value="duplicate_slug">Slug duplicado</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="flex items-center justify-between mt-4">
                   <div className="flex items-center gap-2">
-                    {(searchTerm || selectedCities.length > 0 || selectedStatus || selectedSituation) && (
+                    {(searchTerm || selectedCities.length > 0 || sanitizedStatus !== 'all' || sanitizedSituation !== 'all' || sanitizedQuality !== 'all') && (
                       <Button variant="outline" size="sm" onClick={clearFilters}>
                         <X className="h-4 w-4 mr-2" />
                         Limpar filtros
@@ -546,7 +571,7 @@ export default function AdminV2HighlightsPage() {
                     <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                     <h3 className="text-lg font-medium text-foreground mb-2">Nenhum destaque encontrado</h3>
                     <p className="text-muted-foreground mb-4">
-                      {searchTerm || selectedCities.length > 0 || selectedStatus || selectedSituation 
+                      {searchTerm || selectedCities.length > 0 || sanitizedStatus !== 'all' || sanitizedSituation !== 'all' || sanitizedQuality !== 'all'
                         ? 'Tente ajustar os filtros de busca.'
                         : 'Crie seu primeiro destaque para começar.'
                       }
