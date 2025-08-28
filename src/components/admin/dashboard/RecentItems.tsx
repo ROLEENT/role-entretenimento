@@ -24,10 +24,10 @@ export const RecentItems = () => {
 
   const getEditUrl = (item: any) => {
     switch (item.type) {
-      case 'highlight': return `/admin-v2/highlights/${item.id}/edit`;
-      case 'event': return `/admin-v2/events/${item.id}/edit`;
-      case 'venue': return `/admin-v2/venues/${item.id}/edit`;
-      case 'organizer': return `/admin-v2/organizers/${item.id}/edit`;
+      case 'highlight': return `/admin-highlight-editor?id=${item.id}`;
+      case 'event': return `/admin-event-edit/${item.id}`;
+      case 'venue': return '/admin-venues-management';
+      case 'organizer': return '/admin-organizers';
       default: return '#';
     }
   };

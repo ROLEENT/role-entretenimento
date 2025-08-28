@@ -19,9 +19,9 @@ export const GlobalSearch = () => {
     if (exactMatch) {
       // Navegar direto para edição se match exato
       if (exactMatch.type === 'highlight') {
-        navigate(`/admin-v2/highlights/${exactMatch.id}/edit`);
+        navigate(`/admin-highlight-editor?id=${exactMatch.id}`);
       } else {
-        navigate(`/admin-v2/events/${exactMatch.id}/edit`);
+        navigate(`/admin-event-edit/${exactMatch.id}`);
       }
       setShowResults(false);
       setSearchTerm('');
@@ -32,9 +32,9 @@ export const GlobalSearch = () => {
 
   const handleResultClick = (result: any) => {
     if (result.type === 'highlight') {
-      navigate(`/admin-v2/highlights/${result.id}/edit`);
+      navigate(`/admin-highlight-editor?id=${result.id}`);
     } else {
-      navigate(`/admin-v2/events/${result.id}/edit`);
+      navigate(`/admin-event-edit/${result.id}`);
     }
     setShowResults(false);
     setSearchTerm('');

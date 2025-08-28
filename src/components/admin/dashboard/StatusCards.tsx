@@ -44,7 +44,7 @@ export const StatusCards = () => {
       total: stats?.highlights.total || 0,
       published: stats?.highlights.published || 0,
       draft: stats?.highlights.draft || 0,
-      onClick: () => navigate('/admin-v2/highlights'),
+      onClick: () => navigate('/admin-highlight-editor'),
     },
     {
       title: 'Eventos',
@@ -52,19 +52,19 @@ export const StatusCards = () => {
       total: stats?.events.total || 0,
       published: stats?.events.published || 0,
       draft: stats?.events.draft || 0,
-      onClick: () => navigate('/admin-v2/events'),
+      onClick: () => navigate('/admin-event-management'),
     },
     {
       title: 'Locais',
       icon: Building,
       total: stats?.venues || 0,
-      onClick: () => navigate('/admin-v2/venues'),
+      onClick: () => navigate('/admin-venues-management'),
     },
     {
       title: 'Organizadores',
       icon: Users,
       total: stats?.organizers || 0,
-      onClick: () => navigate('/admin-v2/organizers'),
+      onClick: () => navigate('/admin-organizers'),
     },
   ];
 
@@ -87,11 +87,11 @@ export const StatusCards = () => {
               <div className="flex gap-2 mt-2">
                 <Badge variant="default" className="text-xs">
                   <Eye className="h-3 w-3 mr-1" />
-                  {card.published} pub
+                  {card.published} publicados
                 </Badge>
                 <Badge variant="secondary" className="text-xs">
                   <FileText className="h-3 w-3 mr-1" />
-                  {card.draft} draft
+                  {card.draft} rascunhos
                 </Badge>
               </div>
             )}

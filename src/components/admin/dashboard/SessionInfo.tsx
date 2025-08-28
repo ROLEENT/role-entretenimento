@@ -16,7 +16,7 @@ export const SessionInfo = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate('/admin-v2/login');
+    navigate('/admin-login');
   };
 
   if (isLoading) {
@@ -48,7 +48,7 @@ export const SessionInfo = () => {
           <div className="text-destructive mb-4">
             Erro na sessão ou não autenticado
           </div>
-          <Button onClick={() => navigate('/admin-v2/login')}>
+          <Button onClick={() => navigate('/admin-login')}>
             Fazer Login
           </Button>
         </CardContent>

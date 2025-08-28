@@ -88,7 +88,7 @@ export const useDashboardStats = () => {
         events: {
           total: events.length,
           draft: events.filter(e => e.status === 'draft').length,
-          published: events.filter(e => e.status === 'published').length,
+          published: events.filter(e => e.status === 'active').length,
         },
         venues: venuesResult.data?.length || 0,
         organizers: organizersResult.data?.length || 0,

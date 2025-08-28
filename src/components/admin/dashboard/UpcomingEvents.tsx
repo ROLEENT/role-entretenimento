@@ -71,7 +71,7 @@ export const UpcomingEvents = () => {
                 <div
                   key={`event-${event.id}`}
                   className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer"
-                  onClick={() => navigate(`/admin-v2/events/${event.id}/edit`)}
+                  onClick={() => navigate(`/admin-event-edit/${event.id}`)}
                 >
                   <div className="flex items-center gap-3">
                     <Calendar className="h-4 w-4 text-blue-500" />
@@ -98,7 +98,7 @@ export const UpcomingEvents = () => {
                 <div
                   key={`highlight-${highlight.id}`}
                   className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer"
-                  onClick={() => navigate(`/admin-v2/highlights/${highlight.id}/edit`)}
+                  onClick={() => navigate(`/admin-highlight-editor?id=${highlight.id}`)}
                 >
                   <div className="flex items-center gap-3">
                     <Star className="h-4 w-4 text-purple-500" />
@@ -147,7 +147,7 @@ export const UpcomingEvents = () => {
                 <div
                   key={`event-${event.id}`}
                   className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer"
-                  onClick={() => navigate(`/admin-v2/events/${event.id}/edit`)}
+                  onClick={() => navigate(`/admin-event-edit/${event.id}`)}
                 >
                   <div className="flex items-center gap-3">
                     <Calendar className="h-4 w-4 text-blue-500" />
@@ -174,7 +174,7 @@ export const UpcomingEvents = () => {
                 <div
                   key={`highlight-${highlight.id}`}
                   className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer"
-                  onClick={() => navigate(`/admin-v2/highlights/${highlight.id}/edit`)}
+                  onClick={() => navigate(`/admin-highlight-editor?id=${highlight.id}`)}
                 >
                   <div className="flex items-center gap-3">
                     <Star className="h-4 w-4 text-purple-500" />

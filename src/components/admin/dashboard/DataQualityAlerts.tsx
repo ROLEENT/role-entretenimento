@@ -100,7 +100,7 @@ export const DataQualityAlerts = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => navigate(`/admin-v2/highlights/${highlight.id}/edit`)}
+                          onClick={() => navigate(`/admin-highlight-editor?id=${highlight.id}`)}
                         >
                           <ExternalLink className="h-3 w-3" />
                         </Button>
@@ -110,7 +110,7 @@ export const DataQualityAlerts = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => navigate('/admin-v2/highlights?filter=missing-data')}
+                        onClick={() => navigate('/admin-highlight-editor')}
                       >
                         Ver todos ({issues.highlightsMissingData.length})
                       </Button>
@@ -147,7 +147,7 @@ export const DataQualityAlerts = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => navigate(`/admin-v2/events/${event.id}/edit`)}
+                          onClick={() => navigate(`/admin-event-edit/${event.id}`)}
                         >
                           <ExternalLink className="h-3 w-3" />
                         </Button>
@@ -157,7 +157,7 @@ export const DataQualityAlerts = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => navigate('/admin-v2/events?filter=missing-data')}
+                        onClick={() => navigate('/admin-event-management')}
                       >
                         Ver todos ({issues.eventsMissingData.length})
                       </Button>
