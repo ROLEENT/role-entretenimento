@@ -98,149 +98,54 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
   }, [mode, id, user?.email]);
 
   const loadHighlight = async () => {
-    console.log('[ADMIN HIGHLIGHTS] === INÍCIO DO LOAD HIGHLIGHT ===');
-    console.log('[ADMIN HIGHLIGHTS] ID recebido:', id);
-    console.log('[ADMIN HIGHLIGHTS] user disponível:', !!user);
-    console.log('[ADMIN HIGHLIGHTS] user.email:', user?.email);
-    
-    if (!user?.email || !id) {
-      console.error('[ADMIN HIGHLIGHTS] ERRO: Parâmetros faltando', { 
-        userEmail: user?.email, 
-        highlightId: id 
-      });
-      return;
-    }
+    if (!user?.email || !id) return;
 
     setLoading(true);
     
     try {
-      // Primeiro, fazer debug do workflow
-      console.log('[ADMIN HIGHLIGHTS] Fazendo debug do workflow...');
-      
-      const { data: debugData, error: debugError } = await supabase.rpc('debug_highlight_workflow', {
-        p_admin_email: user.email,
-        p_highlight_id: id
-      });
-      
-      console.log('[ADMIN HIGHLIGHTS] Debug workflow result:', debugData);
-      
-      if (debugError || !debugData?.admin_valid) {
-        console.error('[ADMIN HIGHLIGHTS] Problema de autenticação detectado:', debugData);
-        throw new Error(`Problema de autenticação: ${debugData?.error_message || 'Admin não autorizado'}`);
-      }
-      
-      if (!debugData?.highlight_exists) {
-        throw new Error('Destaque não encontrado no sistema');
-      }
-      
-      // Se tudo OK, carregar os dados
-      console.log('[ADMIN HIGHLIGHTS] Iniciando RPC call...');
-      
       const { data, error } = await supabase.rpc('admin_get_highlight_by_id', {
         p_admin_email: user.email,
         p_highlight_id: id
       });
-      
-      console.log('[ADMIN HIGHLIGHTS] RPC response:', { data, error });
-      console.log('[ADMIN HIGHLIGHTS] Data type:', typeof data);
-      console.log('[ADMIN HIGHLIGHTS] Data is array:', Array.isArray(data));
-      console.log('[ADMIN HIGHLIGHTS] Data length:', data?.length);
 
-      if (error) {
-        console.error('[ADMIN HIGHLIGHTS] ERRO RPC:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
-        throw error;
-      }
+      if (error) throw error;
       
       if (data && data.length > 0) {
         const highlight = data[0];
-        console.log('[ADMIN HIGHLIGHTS] Highlight encontrado:', highlight);
-        console.log('[ADMIN HIGHLIGHTS] Campos do highlight:', Object.keys(highlight));
         
-        // Converter dados para formato correto
         const formData = {
           city: highlight.city,
           event_title: highlight.event_title || '',
           venue: highlight.venue || '',
           ticket_url: highlight.ticket_url || '',
           role_text: highlight.role_text || '',
-          selection_reasons: Array.isArray(highlight.selection_reasons) ? highlight.selection_reasons : [],
+          selection_reasons: Array.isArray(highlight.selection_reasons) ? highlight.selection_reasons : ['Padrão'],
           image_url: highlight.image_url || '',
           photo_credit: highlight.photo_credit || '',
-          event_date: highlight.event_date ? highlight.event_date : '',
-          event_time: highlight.event_time ? highlight.event_time : '',
+          event_date: highlight.event_date || '',
+          event_time: highlight.event_time || '',
           ticket_price: highlight.ticket_price || '',
           sort_order: Number(highlight.sort_order) || 100,
           is_published: Boolean(highlight.is_published),
         };
         
-        console.log('[ADMIN HIGHLIGHTS] Form data preparado:', formData);
+        form.reset(formData);
         
-        // Validar dados antes de definir no form
-        try {
-          console.log('[ADMIN HIGHLIGHTS] Validando dados com schema...');
-          const validatedData = highlightSchema.parse(formData);
-          console.log('[ADMIN HIGHLIGHTS] Dados validados com sucesso:', validatedData);
-          
-          form.reset(formData);
-          
-          console.log('[ADMIN HIGHLIGHTS] Form resetado com sucesso');
-          
-          toast({
-            title: 'Destaque carregado',
-            description: 'Dados carregados com sucesso.',
-          });
-          
-        } catch (validationError: any) {
-          console.error('[ADMIN HIGHLIGHTS] ERRO DE VALIDAÇÃO:', validationError);
-          console.error('[ADMIN HIGHLIGHTS] Erros específicos:', validationError.issues);
-          
-          // Tentar reset mesmo com erro de validação, apenas removendo campos problemáticos
-          const safeFormData = {
-            ...formData,
-            selection_reasons: Array.isArray(formData.selection_reasons) && formData.selection_reasons.length > 0 
-              ? formData.selection_reasons 
-              : ['Motivo padrão'],
-            role_text: formData.role_text && formData.role_text.length >= 50 
-              ? formData.role_text 
-              : 'Texto padrão para atender requisito mínimo de 50 caracteres.'
-          };
-          
-          console.log('[ADMIN HIGHLIGHTS] Tentando com dados seguros:', safeFormData);
-          form.reset(safeFormData);
-          
-          toast({
-            title: 'Destaque carregado com ajustes',
-            description: 'Alguns dados foram ajustados para atender aos requisitos.',
-            variant: 'default',
-          });
-        }
-        
+        toast({
+          title: 'Destaque carregado',
+          description: 'Dados carregados com sucesso.',
+        });
       } else {
-        console.warn('[ADMIN HIGHLIGHTS] AVISO: Nenhum dado retornado');
-        console.log('[ADMIN HIGHLIGHTS] Raw data response:', data);
-        
-        throw new Error('Nenhum dados foi retornado pela consulta');
+        throw new Error('Destaque não encontrado');
       }
     } catch (error: any) {
-      console.error('[ADMIN HIGHLIGHTS] === ERRO GERAL ===');
-      console.error('[ADMIN HIGHLIGHTS] Error object:', error);
-      console.error('[ADMIN HIGHLIGHTS] Error message:', error?.message);
-      console.error('[ADMIN HIGHLIGHTS] Error code:', error?.code);
-      console.error('[ADMIN HIGHLIGHTS] Error details:', error?.details);
-      
       toast({
         title: 'Erro ao carregar destaque',
-        description: error?.message || 'Erro desconhecido ao carregar destaque.',
+        description: error?.message || 'Erro desconhecido.',
         variant: 'destructive',
       });
     } finally {
       setLoading(false);
-      console.log('[ADMIN HIGHLIGHTS] === FIM DO LOAD HIGHLIGHT ===');
     }
   };
 
@@ -297,7 +202,6 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
       
       navigate('/admin-v2/highlights');
     } catch (error: any) {
-      console.error('Erro ao salvar destaque:', error);
       toast({
         title: 'Erro ao salvar',
         description: error.message || 'Ocorreu um erro inesperado.',
