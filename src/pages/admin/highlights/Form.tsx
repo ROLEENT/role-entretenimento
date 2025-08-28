@@ -93,22 +93,36 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
     }
   }, [imageUrl]);
 
-  // Carregar dados para edição - só quando status === 'ready' e ID válido
+  // Carregar dados para edição
   useEffect(() => {
-    if (mode === 'edit' && id && status === 'ready' && user?.email) {
+    console.log('[EDIT] status', status, 'id', id, 'user', user?.email);
+    
+    if (mode === 'edit' && id) {
+      console.log('[EDIT] disparando loadHighlight', { id, status, user: user?.email });
       loadHighlight();
     }
   }, [mode, id, status, user?.email]);
 
   const loadHighlight = async () => {
-    if (!user?.email || !id) return;
+    if (!id) return;
 
+    // Fallback para email do localStorage se user?.email não estiver disponível
+    const saved = JSON.parse(localStorage.getItem('admin-v2-session') || '{}');
+    const email = user?.email || saved?.email;
+    
+    if (!email) {
+      console.warn('[EDIT] sem email de admin');
+      setLoadError('NO_EMAIL');
+      return;
+    }
+
+    console.log('[EDIT] chamando RPC', { id, email });
     setLoading(true);
     setLoadError(null);
     
     try {
       const { data, error } = await supabase.rpc('admin_get_highlight_by_id', {
-        p_admin_email: user.email,
+        p_admin_email: email,
         p_highlight_id: id
       });
 

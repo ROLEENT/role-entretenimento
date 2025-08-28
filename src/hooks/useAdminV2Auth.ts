@@ -20,6 +20,22 @@ export const useAdminV2Auth = (): AdminV2AuthState & { logout: () => void } => {
   const [lastSavedEmail, setLastSavedEmail] = useState<string | null>(null);
 
   useEffect(() => {
+    // Configurar listener de mudanças de auth PRIMEIRO
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('[ADMIN V2 AUTH] Auth state change:', event, session?.user?.email);
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Atualizar status baseado na sessão
+        if (session?.user) {
+          setStatus('ready');
+        } else {
+          setStatus('error');
+        }
+      }
+    );
+
     // Verificar sessão salva no localStorage
     const savedSession = localStorage.getItem('admin-v2-session');
     if (savedSession) {
@@ -31,6 +47,7 @@ export const useAdminV2Auth = (): AdminV2AuthState & { logout: () => void } => {
           console.log('[ADMIN V2 AUTH] Restoring session from localStorage:', parsed.user.email);
           setUser(parsed.user);
           setSession(parsed.session);
+          setStatus('ready');
         } else {
           console.log('[ADMIN V2 AUTH] Session expired or invalid, removing from localStorage');
           localStorage.removeItem('admin-v2-session');
@@ -41,47 +58,34 @@ export const useAdminV2Auth = (): AdminV2AuthState & { logout: () => void } => {
       }
     }
 
-    // Configurar listener de mudanças de auth
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Salvar no localStorage apenas se o email mudou (evitar loop)
-        const currentEmail = session?.user?.email;
-        if (currentEmail && currentEmail !== lastSavedEmail) {
-          console.log('[ADMIN V2 AUTH] Saving session to localStorage:', currentEmail);
-          localStorage.setItem('admin-v2-session', JSON.stringify({
-            user: session.user,
-            session: session,
-            email: currentEmail,
-            timestamp: Date.now()
-          }));
-          setLastSavedEmail(currentEmail);
-        } else if (!currentEmail && lastSavedEmail) {
-          console.log('[ADMIN V2 AUTH] Removing session from localStorage');
-          localStorage.removeItem('admin-v2-session');
-          setLastSavedEmail(null);
-        }
-        
-        // Atualizar status baseado na sessão
-        if (session?.user) {
-          setStatus('ready');
-        } else {
-          setStatus('error');
-        }
-      }
-    );
-
     // Verificar sessão atual do Supabase
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setSession(session);
         setUser(session.user);
         setStatus('ready');
-        setLastSavedEmail(session.user.email || null);
+        
+        // Salvar no localStorage se não existe ou mudou
+        const savedSession = localStorage.getItem('admin-v2-session');
+        const currentEmail = session.user.email;
+        
+        if (currentEmail) {
+          const shouldSave = !savedSession || 
+            JSON.parse(savedSession)?.email !== currentEmail;
+          
+          if (shouldSave) {
+            console.log('[ADMIN V2 AUTH] Saving session to localStorage:', currentEmail);
+            localStorage.setItem('admin-v2-session', JSON.stringify({
+              user: session.user,
+              session: session,
+              email: currentEmail,
+              timestamp: Date.now()
+            }));
+          }
+        }
       } else {
         setStatus('error');
+        localStorage.removeItem('admin-v2-session');
       }
       setLoading(false);
     }).catch(() => {
