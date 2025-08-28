@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -84,21 +84,31 @@ export function AdminForm({
   const navigate = useNavigate();
   const [dynamicArrays, setDynamicArrays] = useState<Record<string, string[]>>({});
 
+  // Memoizar defaultValues para evitar recálculos
+  const memoizedDefaultValues = useMemo(() => {
+    return { ...defaultValues };
+  }, [defaultValues]);
+
   const form = useForm({
     resolver: zodResolver(schema),
-    defaultValues: {
-      ...defaultValues,
-      ...fields.reduce((acc, field) => {
-        if (field.type === 'array' && defaultValues[field.name]) {
-          setDynamicArrays(prev => ({
-            ...prev,
-            [field.name]: defaultValues[field.name] || []
-          }));
-        }
-        return acc;
-      }, {})
-    }
+    defaultValues: memoizedDefaultValues
   });
+
+  // Inicializar arrays dinâmicos apenas uma vez
+  useEffect(() => {
+    console.log('[ADMIN FORM] Inicializando arrays dinâmicos');
+    const initialArrays: Record<string, string[]> = {};
+    
+    fields.forEach(field => {
+      if (field.type === 'array' && defaultValues[field.name]) {
+        initialArrays[field.name] = defaultValues[field.name] || [];
+      }
+    });
+    
+    if (Object.keys(initialArrays).length > 0) {
+      setDynamicArrays(initialArrays);
+    }
+  }, [fields, defaultValues]);
 
   const handleCancel = () => {
     if (onCancel) {
