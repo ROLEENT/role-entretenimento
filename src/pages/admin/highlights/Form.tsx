@@ -121,7 +121,7 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
     setLoadError(null);
     
     try {
-      const { data, error } = await supabase.rpc('admin_get_highlight_by_id', {
+      const { data, error } = await supabase.rpc('admin_get_highlight_by_id_v3', {
         p_admin_email: email,
         p_highlight_id: id
       });
@@ -138,8 +138,8 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
         return;
       }
       
-      if (data && data.length > 0) {
-        const highlight = data[0];
+      if (data) {
+        const highlight = data;
         
         const formData = {
           city: highlight.city,
@@ -180,7 +180,7 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
     setSaving(true);
     try {
       if (mode === 'create') {
-        const { error } = await supabase.rpc('admin_create_highlight_v2', {
+        const { data: result, error } = await supabase.rpc('admin_create_highlight_v3', {
           p_admin_email: user.email,
           p_city: data.city,
           p_event_title: data.event_title,
@@ -199,7 +199,7 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
 
         if (error) throw error;
       } else {
-        const { error } = await supabase.rpc('admin_update_highlight_v2', {
+        const { data: result, error } = await supabase.rpc('admin_update_highlight_v3', {
           p_admin_email: user.email,
           p_highlight_id: id!,
           p_city: data.city,
