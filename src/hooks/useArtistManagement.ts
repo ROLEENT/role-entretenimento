@@ -122,7 +122,6 @@ export const useArtistManagement = () => {
 
   const getArtists = useCallback(async (filters: any = {}) => {
     try {
-      setLoading(true);
       
       let query = supabase.from('artists').select('*');
       
@@ -155,8 +154,6 @@ export const useArtistManagement = () => {
       console.error('Error fetching artists:', error);
       toast.error(error.message || 'Erro ao carregar artistas');
       return [];
-    } finally {
-      setLoading(false);
     }
   }, []);
 

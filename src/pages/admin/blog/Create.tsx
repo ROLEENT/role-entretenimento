@@ -114,7 +114,7 @@ export default function AdminBlogCreate() {
 
     try {
       await createPost(formData);
-      navigate('/admin/blog');
+      navigate('/admin-v2/blog');
     } catch (error) {
       // Error already handled in the hook
     }
@@ -123,7 +123,7 @@ export default function AdminBlogCreate() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" onClick={() => navigate('/admin/blog')}>
+        <Button variant="outline" onClick={() => navigate('/admin-v2/blog')}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Voltar
         </Button>
@@ -312,7 +312,7 @@ export default function AdminBlogCreate() {
             <Save className="h-4 w-4 mr-2" />
             {loading ? 'Criando...' : 'Criar Post'}
           </Button>
-          <Button type="button" variant="outline" onClick={() => navigate('/admin/blog')}>
+          <Button type="button" variant="outline" onClick={() => navigate('/admin-v2/blog')}>
             Cancelar
           </Button>
         </div>
