@@ -1,26 +1,22 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+
 import { useNavigate } from 'react-router-dom';
 import { useSecureAuth } from '@/hooks/useSecureAuth';
-import { useHighlightsAdmin } from '@/hooks/useHighlightsAdmin';
+
 import { AuthStatusIndicator } from '@/components/admin/AuthStatusIndicator';
 import { SecurityIndicator } from '@/components/admin/SecurityIndicator';
 import { LogOut, Plus, FileText, Eye, Calendar, Building, Users, Mic } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import { withAdminAuth } from '@/components/withAdminAuth';
 
 function AdminV2Dashboard() {
   const navigate = useNavigate();
   const { user, logout } = useSecureAuth();
-  const { highlights, loading } = useHighlightsAdmin();
-
-  const publishedHighlights = highlights.filter(h => h.is_published);
-  const draftHighlights = highlights.filter(h => !h.is_published);
-  const recentHighlights = highlights
-    .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-    .slice(0, 5);
+  // Simplified dashboard - will be populated when highlights system is rebuilt
+  const loading = false;
+  const publishedHighlights: any[] = [];
+  const draftHighlights: any[] = [];
+  const recentHighlights: any[] = [];
 
   const handleLogout = () => {
     logout();
@@ -88,7 +84,7 @@ function AdminV2Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {loading ? '...' : highlights.length}
+                0
               </div>
               <p className="text-xs text-muted-foreground">No sistema</p>
             </CardContent>
@@ -112,37 +108,7 @@ function AdminV2Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {loading ? (
-                <p className="text-muted-foreground">Carregando...</p>
-              ) : recentHighlights.length === 0 ? (
-                <p className="text-muted-foreground">Nenhum destaque encontrado</p>
-              ) : (
-                <div className="space-y-3">
-                  {recentHighlights.map((highlight) => (
-                    <div
-                      key={highlight.id}
-                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
-                      onClick={() => navigate(`/admin-v2/highlights/edit/${highlight.id}`)}
-                    >
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">{highlight.event_title}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {highlight.venue} • {highlight.city}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(highlight.updated_at), {
-                            addSuffix: true,
-                            locale: ptBR
-                          })}
-                        </p>
-                      </div>
-                      <Badge variant={highlight.is_published ? "default" : "secondary"}>
-                        {highlight.is_published ? "Publicado" : "Rascunho"}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <p className="text-muted-foreground">Sistema de destaques será recriado em breve</p>
             </CardContent>
           </Card>
 
@@ -157,55 +123,55 @@ function AdminV2Dashboard() {
             <CardContent className="space-y-4">
               <Button 
                 className="w-full justify-start" 
-                onClick={() => navigate('/admin-v2/highlights/create')}
+                disabled
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Criar Novo Destaque
+                Criar Novo Destaque (Em breve)
               </Button>
               
               <Button 
                 variant="outline" 
                 className="w-full justify-start"
-                onClick={() => navigate('/admin-v2/highlights')}
+                disabled
               >
                 <FileText className="h-4 w-4 mr-2" />
-                Gerenciar Destaques
+                Gerenciar Destaques (Em breve)
               </Button>
 
               <Button 
                 variant="outline" 
                 className="w-full justify-start"
-                onClick={() => navigate('/admin-v2/events')}
+                disabled
               >
                 <Calendar className="h-4 w-4 mr-2" />
-                Gerenciar Eventos
+                Gerenciar Eventos (Em breve)
               </Button>
 
               <Button 
                 variant="outline" 
                 className="w-full justify-start"
-                onClick={() => navigate('/admin-v2/venues')}
+                disabled
               >
                 <Building className="h-4 w-4 mr-2" />
-                Gerenciar Locais
+                Gerenciar Locais (Em breve)
               </Button>
 
               <Button 
                 variant="outline" 
                 className="w-full justify-start"
-                onClick={() => navigate('/admin-v2/artists')}
+                disabled
               >
                 <Mic className="h-4 w-4 mr-2" />
-                Gerenciar Artistas
+                Gerenciar Artistas (Em breve)
               </Button>
 
               <Button 
                 variant="outline" 
                 className="w-full justify-start"
-                onClick={() => navigate('/admin-v2/organizers')}
+                disabled
               >
                 <Users className="h-4 w-4 mr-2" />
-                Gerenciar Organizadores
+                Gerenciar Organizadores (Em breve)
               </Button>
 
             </CardContent>

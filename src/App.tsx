@@ -30,44 +30,10 @@ const CityHighlightsPage = lazy(() => import("./pages/CityHighlightsPage"));
 const CityHighlights = lazy(() => import("./pages/CityHighlights"));
 const HighlightDetailPage = lazy(() => import("./pages/HighlightDetailPage"));
 
-// Admin pages - lazy loaded for performance
-const AdminLoginSimple = lazy(() => import("./pages/AdminLoginSimple"));
-const AdminResetPassword = lazy(() => import("./pages/AdminResetPassword"));
-const AdminSignup = lazy(() => import("./pages/AdminSignup"));
-const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
-
-// Core admin pages for external routing
-const HighlightsListPage = lazy(() => import("./pages/HighlightsListPage"));
-const HighlightsCreatePage = lazy(() => import("./pages/HighlightsCreatePage"));
-
-// Admin Old Pages - Still functional
-const AdminEventManagementOld = lazy(() => import("./pages/AdminEventManagement"));
-const AdminEventCreateOld = lazy(() => import("./pages/AdminEventCreate"));
-const AdminHighlightsManagement = lazy(() => import("./pages/AdminHighlightsManagement"));
-const AdminEventsManagementPage = lazy(() => import("./pages/admin/AdminEventsManagement"));
-
-// Admin Simple - Nova versão direta
-const AdminSimple = lazy(() => import("./pages/AdminSimple"));
-const AdminSimpleForm = lazy(() => import("./pages/AdminSimpleForm"));
-
-// Admin V2 - MVP System
+// Admin V2 - Essential Components Only
 const AdminV2Login = lazy(() => import("./pages/AdminV2Login"));
 const AdminV2Dashboard = lazy(() => import("./pages/AdminV2Dashboard"));
-const AdminHighlightsIndex = lazy(() => import("./pages/admin/highlights/Index"));
-const AdminHighlightCreate = lazy(() => import("./pages/admin/highlights/Create"));
-const AdminHighlightEdit = lazy(() => import("./pages/admin/highlights/Edit"));
-const AdminEventsIndex = lazy(() => import("./pages/admin/events/Index"));
-const AdminEventCreate = lazy(() => import("./pages/admin/events/Create"));
-const AdminEventEdit = lazy(() => import("./pages/admin/events/Edit"));
-const AdminVenuesIndex = lazy(() => import("./pages/admin/venues/Index"));
-const AdminVenueCreate = lazy(() => import("./pages/admin/venues/Create"));
-const AdminVenueEdit = lazy(() => import("./pages/admin/venues/Edit"));
-const AdminOrganizersIndex = lazy(() => import("./pages/admin/organizers/Index"));
-const AdminOrganizerCreate = lazy(() => import("./pages/admin/organizers/Create"));
-const AdminOrganizerEdit = lazy(() => import("./pages/admin/organizers/Edit"));
-const AdminArtistsIndex = lazy(() => import("./pages/admin/artists/Index"));
-const AdminArtistCreate = lazy(() => import("./pages/admin/artists/Create"));
-const AdminArtistEdit = lazy(() => import("./pages/admin/artists/Edit"));
+const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
 
 
 // User pages - lazy loaded
@@ -137,55 +103,14 @@ function App() {
                 <Route path="/highlights" element={<HighlightsPage />} />
                 <Route path="/cidade/:cidade" element={<CityHighlights />} />
                 
-                {/* Admin Simple - Novo sistema direto */}
-                <Route path="/admin-simple" element={<Suspense fallback={<AdminLoadingFallback />}><AdminSimple /></Suspense>} />
-                <Route path="/admin-simple/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminSimpleForm /></Suspense>} />
-                <Route path="/admin-simple/edit/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminSimpleForm /></Suspense>} />
-
-                {/* Admin V2 - MVP System */}
+                {/* Admin V2 - Clean System */}
                 <Route path="/admin-v2/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Login /></Suspense>} />
                 <Route path="/admin-v2/*" element={<ProtectedAdminRoute><Suspense fallback={<AdminLoadingFallback />}><AdminLayout /></Suspense></ProtectedAdminRoute>}>
-                  {/* Dashboard */}
+                  {/* Dashboard - Clean Start */}
                   <Route index element={<AdminV2Dashboard />} />
-                  
-                  {/* Artist Management */}
-                  <Route path="artists" element={<AdminArtistsIndex />} />
-                  <Route path="artists/create" element={<AdminArtistCreate />} />
-                  <Route path="artists/:id/edit" element={<AdminArtistEdit />} />
-                  
-                  {/* Venue Management */}
-                  <Route path="venues" element={<AdminVenuesIndex />} />
-                  <Route path="venues/create" element={<AdminVenueCreate />} />
-                  <Route path="venues/:id/edit" element={<AdminVenueEdit />} />
-                  
-                  {/* Event Management */}
-                  <Route path="events" element={<AdminEventsIndex />} />
-                  <Route path="events/create" element={<AdminEventCreate />} />
-                  <Route path="events/:id/edit" element={<AdminEventEdit />} />
-                  
-                  {/* Organizer Management */}
-                  <Route path="organizers" element={<AdminOrganizersIndex />} />
-                  <Route path="organizers/create" element={<AdminOrganizerCreate />} />
-                  <Route path="organizers/:id/edit" element={<AdminOrganizerEdit />} />
-                  
-                  {/* Highlight Management */}
-                  <Route path="highlights" element={<AdminHighlightsIndex />} />
-                  <Route path="highlights/create" element={<AdminHighlightCreate />} />
-                  <Route path="highlights/:id/edit" element={<AdminHighlightEdit />} />
                 </Route>
-
-
-                {/* Admin Routes - Specific routes for still functional pages */}
-                <Route path="/admin/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLoginSimple /></Suspense>} />
-                <Route path="/admin/reset-password" element={<Suspense fallback={<AdminLoadingFallback />}><AdminResetPassword /></Suspense>} />
-                <Route path="/admin/signup" element={<Suspense fallback={<AdminLoadingFallback />}><AdminSignup /></Suspense>} />
-                <Route path="/admin/highlights" element={<Suspense fallback={<AdminLoadingFallback />}><HighlightsListPage /></Suspense>} />
-                <Route path="/admin/highlights/create" element={<Suspense fallback={<AdminLoadingFallback />}><HighlightsCreatePage /></Suspense>} />
-                <Route path="/admin/highlights-management" element={<Suspense fallback={<AdminLoadingFallback />}><AdminHighlightsManagement /></Suspense>} />
-                <Route path="/admin/event/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminEventCreateOld /></Suspense>} />
-                <Route path="/admin/events-management" element={<Suspense fallback={<AdminLoadingFallback />}><AdminEventManagementOld /></Suspense>} />
                 
-                {/* Catch-all admin redirect - Must be last */}
+                {/* Catch-all admin redirect */}
                 <Route path="/admin/*" element={<Navigate to="/admin-v2/login" replace />} />
                 
                 {/* Events Routes */}
