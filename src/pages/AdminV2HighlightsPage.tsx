@@ -9,19 +9,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
 import { 
   Plus, Search, Filter, MoreHorizontal, Edit, ExternalLink, Copy, 
   Eye, EyeOff, FileText, Trash, RotateCcw, AlertTriangle, 
   ChevronDown, ChevronUp, Calendar, MapPin, Image, Link,
-  RefreshCw, X, SortAsc, SortDesc
+  RefreshCw, X, SortAsc, SortDesc, Clock, Settings2,
+  CheckSquare, Square, Grid3X3, List, AlertCircle
 } from 'lucide-react';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { format, isAfter, isBefore, isToday, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 // Types
 interface Highlight {
@@ -35,12 +38,15 @@ interface Highlight {
   status: 'draft' | 'published';
   image_url: string | null;
   updated_at: string;
+  updated_by: string | null;
   created_at: string;
 }
 
 type SituationStatus = 'scheduled' | 'active' | 'expired' | 'incomplete';
 type SortField = 'updated_at' | 'start_at' | 'event_title';
 type SortDirection = 'asc' | 'desc';
+type ViewMode = 'table' | 'cards';
+type DensityMode = 'compact' | 'comfortable';
 
 const cities = [
   { value: 'porto_alegre', label: 'Porto Alegre' },
@@ -48,6 +54,25 @@ const cities = [
   { value: 'curitiba', label: 'Curitiba' },
   { value: 'sao_paulo', label: 'São Paulo' },
   { value: 'rio_de_janeiro', label: 'Rio de Janeiro' },
+];
+
+const situationFilters = [
+  { value: 'all', label: 'Todas as situações' },
+  { value: 'scheduled', label: 'Agendado' },
+  { value: 'active', label: 'Ativo' },
+  { value: 'active_today', label: 'Ativo hoje' },
+  { value: 'next_7_days', label: 'Próximos 7 dias' },
+  { value: 'expired', label: 'Expirado' },
+  { value: 'incomplete', label: 'Incompleto' },
+];
+
+const qualityFilters = [
+  { value: 'all', label: 'Todos' },
+  { value: 'issues', label: 'Com problemas' },
+  { value: 'no_cover', label: 'Sem capa' },
+  { value: 'no_city', label: 'Sem cidade' },
+  { value: 'invalid_dates', label: 'Datas invertidas' },
+  { value: 'duplicate_slug', label: 'Slug duplicado' },
 ];
 
 export default function AdminV2HighlightsPage() {
@@ -60,6 +85,10 @@ export default function AdminV2HighlightsPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [showTrash, setShowTrash] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('table');
+  const [densityMode, setDensityMode] = useState<DensityMode>('comfortable');
+  const [showSecondaryColumns, setShowSecondaryColumns] = useState(false);
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     type: 'bulk_delete' | 'permanent_delete' | 'publish' | 'unpublish';
@@ -79,11 +108,19 @@ export default function AdminV2HighlightsPage() {
   const sortDirection = (searchParams.get('dir') as SortDirection) || 'desc';
   const pageSize = parseInt(searchParams.get('pageSize') || '20');
   const currentPage = parseInt(searchParams.get('page') || '1');
+  const dateRangeStart = searchParams.get('dateStart') || '';
+  const dateRangeEnd = searchParams.get('dateEnd') || '';
 
   // Sanitize and validate Select values
   const sanitizedStatus = ['all', 'draft', 'published'].includes(selectedStatus) ? selectedStatus : 'all';
-  const sanitizedSituation = ['all', 'scheduled', 'active', 'active_today', 'next_7_days', 'expired', 'incomplete'].includes(selectedSituation) ? selectedSituation : 'all';
-  const sanitizedQuality = ['all', 'issues', 'no_cover', 'no_city', 'duplicate_slug'].includes(selectedQuality) ? selectedQuality : 'all';
+  const sanitizedSituation = situationFilters.map(s => s.value).includes(selectedSituation) ? selectedSituation : 'all';
+  const sanitizedQuality = qualityFilters.map(q => q.value).includes(selectedQuality) ? selectedQuality : 'all';
+
+  // Check if user has permissions
+  const userRole = 'admin'; // TODO: Get from context/auth
+  const canPublish = ['admin', 'editor'].includes(userRole);
+  const canDelete = userRole === 'admin';
+  const canPermanentDelete = userRole === 'admin';
 
   // Calculate situation for a highlight
   const calculateSituation = (highlight: Highlight): SituationStatus => {
@@ -110,10 +147,26 @@ export default function AdminV2HighlightsPage() {
   // Get situation badge style
   const getSituationBadge = (situation: SituationStatus) => {
     const variants = {
-      scheduled: { variant: 'secondary' as const, label: 'Agendado', className: '' },
-      active: { variant: 'default' as const, label: 'Ativo', className: 'bg-success text-success-foreground' },
-      expired: { variant: 'destructive' as const, label: 'Expirado', className: '' },
-      incomplete: { variant: 'secondary' as const, label: 'Incompleto', className: 'bg-warning text-warning-foreground' }
+      scheduled: { 
+        variant: 'secondary' as const, 
+        label: 'Agendado', 
+        className: 'bg-gray-100 text-gray-800 border-gray-200' 
+      },
+      active: { 
+        variant: 'default' as const, 
+        label: 'Ativo', 
+        className: 'bg-green-100 text-green-800 border-green-200' 
+      },
+      expired: { 
+        variant: 'destructive' as const, 
+        label: 'Expirado', 
+        className: 'bg-red-100 text-red-800 border-red-200' 
+      },
+      incomplete: { 
+        variant: 'secondary' as const, 
+        label: 'Incompleto', 
+        className: 'bg-yellow-100 text-yellow-800 border-yellow-200' 
+      }
     };
     return variants[situation];
   };
@@ -121,14 +174,34 @@ export default function AdminV2HighlightsPage() {
   // Get quality issues for a highlight
   const getQualityIssues = (highlight: Highlight) => {
     const issues = [];
-    if (!highlight.image_url) issues.push('Sem capa');
-    if (!highlight.city) issues.push('Sem cidade');
-    if (!highlight.slug) issues.push('Sem slug');
+    if (!highlight.image_url) issues.push({ key: 'no_cover', label: 'Sem capa', action: 'Adicionar capa' });
+    if (!highlight.city) issues.push({ key: 'no_city', label: 'Sem cidade', action: 'Definir cidade' });
+    if (!highlight.slug) issues.push({ key: 'no_slug', label: 'Sem slug', action: 'Gerar slug' });
     if (highlight.start_at && highlight.end_at && isAfter(new Date(highlight.start_at), new Date(highlight.end_at))) {
-      issues.push('Datas invertidas');
+      issues.push({ key: 'invalid_dates', label: 'Datas invertidas', action: 'Corrigir datas' });
     }
     // TODO: Check for duplicate slug
     return issues;
+  };
+
+  // Format period display
+  const formatPeriod = (startAt: string | null, endAt: string | null) => {
+    if (!startAt || !endAt) return null;
+    
+    try {
+      const start = new Date(startAt);
+      const end = new Date(endAt);
+      
+      if (format(start, 'dd/MM/yyyy') === format(end, 'dd/MM/yyyy')) {
+        // Same day
+        return `${format(start, 'dd/MM/yyyy HH:mm', { locale: ptBR })} - ${format(end, 'HH:mm', { locale: ptBR })}`;
+      } else {
+        // Different days
+        return `${format(start, 'dd/MM/yyyy HH:mm', { locale: ptBR })} → ${format(end, 'dd/MM/yyyy HH:mm', { locale: ptBR })}`;
+      }
+    } catch {
+      return 'Data inválida';
+    }
   };
 
   // Load highlights
@@ -150,11 +223,9 @@ export default function AdminV2HighlightsPage() {
           status,
           image_url,
           updated_at,
+          updated_by,
           created_at
         `);
-
-      // For now, just show all highlights (soft delete not implemented yet)
-      // TODO: Implement soft delete with deleted_at column
 
       // Apply filters
       if (searchTerm) {
@@ -167,6 +238,14 @@ export default function AdminV2HighlightsPage() {
       
       if (sanitizedStatus && sanitizedStatus !== 'all') {
         query = query.eq('status', sanitizedStatus);
+      }
+
+      // Date range filter
+      if (dateRangeStart) {
+        query = query.gte('start_at', dateRangeStart);
+      }
+      if (dateRangeEnd) {
+        query = query.lte('end_at', dateRangeEnd);
       }
 
       // Sort
@@ -205,6 +284,9 @@ export default function AdminV2HighlightsPage() {
               return !highlight.image_url;
             case 'no_city':
               return !highlight.city;
+            case 'invalid_dates':
+              return highlight.start_at && highlight.end_at && 
+                     isAfter(new Date(highlight.start_at), new Date(highlight.end_at));
             case 'duplicate_slug':
               // TODO: Implement duplicate slug detection
               return false;
@@ -248,12 +330,8 @@ export default function AdminV2HighlightsPage() {
   };
 
   // Handle filters
-  const handleCityFilter = (value: string) => {
-    if (value === 'all' || !value) {
-      updateSearchParams({ cities: null, page: 1 });
-    } else {
-      updateSearchParams({ cities: [value], page: 1 });
-    }
+  const handleCityFilter = (values: string[]) => {
+    updateSearchParams({ cities: values.length > 0 ? values : null, page: 1 });
   };
 
   const handleSort = (field: SortField) => {
@@ -278,11 +356,22 @@ export default function AdminV2HighlightsPage() {
   };
 
   const toggleSelectAll = () => {
-    if (selectedItems.size === highlights.length) {
+    if (selectedItems.size === paginatedHighlights.length) {
       setSelectedItems(new Set());
     } else {
-      setSelectedItems(new Set(highlights.map(h => h.id)));
+      setSelectedItems(new Set(paginatedHighlights.map(h => h.id)));
     }
+  };
+
+  // Toggle row expansion
+  const toggleRowExpansion = (id: string) => {
+    const newExpanded = new Set(expandedRows);
+    if (newExpanded.has(id)) {
+      newExpanded.delete(id);
+    } else {
+      newExpanded.add(id);
+    }
+    setExpandedRows(newExpanded);
   };
 
   // Actions
@@ -313,7 +402,7 @@ export default function AdminV2HighlightsPage() {
         .in('id', ids);
       
       if (error) throw error;
-      toast.success(`${ids.length} destaque(s) apagado(s) definitivamente`);
+      toast.success(`${ids.length} destaque(s) ${permanent ? 'apagado(s) definitivamente' : 'movido(s) para lixeira'}`);
       
       loadHighlights();
       setSelectedItems(new Set());
@@ -331,7 +420,17 @@ export default function AdminV2HighlightsPage() {
   const handleDuplicate = async (highlight: Highlight) => {
     try {
       const newTitle = `${highlight.event_title} - Cópia`;
-      const newSlug = `${highlight.slug || 'destaque'}-copia-${Date.now()}`;
+      let newSlug = `${highlight.slug || 'destaque'}-copia`;
+      
+      // Check for unique slug
+      const { data: existingSlugs } = await supabase
+        .from('highlights')
+        .select('slug')
+        .like('slug', `${newSlug}%`);
+      
+      if (existingSlugs && existingSlugs.length > 0) {
+        newSlug = `${newSlug}-${Date.now()}`;
+      }
       
       const { error } = await supabase
         .from('highlights')
@@ -358,9 +457,51 @@ export default function AdminV2HighlightsPage() {
   };
 
   const copyLink = (highlight: Highlight) => {
-    const url = `${window.location.origin}/destaque/${highlight.id}`;
+    const url = `${window.location.origin}/destaque/${highlight.slug || highlight.id}`;
     navigator.clipboard.writeText(url);
     toast.success('Link copiado para área de transferência');
+  };
+
+  const generateSlug = async (highlightId: string, title: string) => {
+    try {
+      const baseSlug = title
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, '-')
+        .substr(0, 50);
+      
+      let finalSlug = baseSlug;
+      let counter = 1;
+      
+      // Check for uniqueness
+      while (true) {
+        const { data } = await supabase
+          .from('highlights')
+          .select('id')
+          .eq('slug', finalSlug)
+          .neq('id', highlightId);
+        
+        if (!data || data.length === 0) break;
+        
+        finalSlug = `${baseSlug}-${counter}`;
+        counter++;
+      }
+      
+      const { error } = await supabase
+        .from('highlights')
+        .update({ slug: finalSlug })
+        .eq('id', highlightId);
+      
+      if (error) throw error;
+      
+      toast.success('Slug gerado automaticamente');
+      loadHighlights();
+    } catch (error) {
+      console.error('Error generating slug:', error);
+      toast.error('Erro ao gerar slug');
+    }
   };
 
   // Keyboard shortcuts
@@ -389,6 +530,11 @@ export default function AdminV2HighlightsPage() {
   const startIndex = (currentPage - 1) * pageSize;
   const paginatedHighlights = highlights.slice(startIndex, startIndex + pageSize);
 
+  // Check if any filters are active
+  const hasActiveFilters = searchTerm || selectedCities.length > 0 || sanitizedStatus !== 'all' || 
+                          sanitizedSituation !== 'all' || sanitizedQuality !== 'all' || 
+                          dateRangeStart || dateRangeEnd;
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -397,6 +543,216 @@ export default function AdminV2HighlightsPage() {
       </div>
     );
   }
+
+  // Render thumbnail
+  const renderThumbnail = (highlight: Highlight) => (
+    <div className="w-8 h-8 rounded border overflow-hidden bg-muted flex-shrink-0">
+      {highlight.image_url ? (
+        <img 
+          src={highlight.image_url} 
+          alt={highlight.event_title}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center">
+          <Image className="h-4 w-4 text-muted-foreground" />
+        </div>
+      )}
+    </div>
+  );
+
+  // Render highlight card (mobile)
+  const renderHighlightCard = (highlight: Highlight) => {
+    const situation = calculateSituation(highlight);
+    const situationBadge = getSituationBadge(situation);
+    const qualityIssues = getQualityIssues(highlight);
+    const cityLabel = cities.find(c => c.value === highlight.city)?.label || highlight.city;
+    const isExpanded = expandedRows.has(highlight.id);
+
+    return (
+      <Card key={highlight.id} className="rounded-xl">
+        <CardContent className="p-4">
+          <div className="space-y-3">
+            {/* Header */}
+            <div className="flex items-start gap-3">
+              <Checkbox
+                checked={selectedItems.has(highlight.id)}
+                onCheckedChange={() => toggleSelection(highlight.id)}
+                className="mt-1"
+              />
+              {renderThumbnail(highlight)}
+              <div className="flex-1 min-w-0">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <h3 className="font-medium text-foreground line-clamp-2 leading-snug">
+                      {highlight.event_title}
+                    </h3>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{highlight.event_title}</p>
+                  </TooltipContent>
+                </Tooltip>
+                {qualityIssues.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {qualityIssues.map(issue => (
+                      <Tooltip key={issue.key}>
+                        <TooltipTrigger asChild>
+                          <Badge 
+                            variant="secondary" 
+                            className="text-xs bg-yellow-100 text-yellow-800 border-yellow-200"
+                          >
+                            {issue.label}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{issue.action}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleRowExpansion(highlight.id)}
+              >
+                {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </Button>
+            </div>
+
+            {/* Status row */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Badge 
+                  variant={situationBadge.variant}
+                  className={situationBadge.className}
+                >
+                  {situationBadge.label}
+                </Badge>
+                <Badge variant={highlight.status === 'published' ? 'default' : 'secondary'}>
+                  {highlight.status === 'published' ? 'Publicado' : 'Rascunho'}
+                </Badge>
+              </div>
+              
+              <div className="flex items-center gap-1">
+                {canPublish && (
+                  highlight.status === 'draft' ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handlePublish([highlight.id], true)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Publicar</TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handlePublish([highlight.id], false)}
+                        >
+                          <EyeOff className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Despublicar</TooltipContent>
+                    </Tooltip>
+                  )
+                )}
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => navigate(`/admin-v2/highlights/${highlight.id}/edit`)}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Editar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleDuplicate(highlight)}>
+                      <FileText className="h-4 w-4 mr-2" />
+                      Duplicar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => window.open(`/destaque/${highlight.slug || highlight.id}`, '_blank')}>
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Visualizar no site
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => copyLink(highlight)}>
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copiar link
+                    </DropdownMenuItem>
+                    {qualityIssues.some(issue => issue.key === 'no_slug') && (
+                      <DropdownMenuItem onClick={() => generateSlug(highlight.id, highlight.event_title)}>
+                        <Link className="h-4 w-4 mr-2" />
+                        Gerar slug
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator />
+                    {canDelete && (
+                      <DropdownMenuItem 
+                        onClick={() => setConfirmDialog({ open: true, type: 'bulk_delete', items: [highlight.id] })}
+                        className="text-destructive"
+                      >
+                        <Trash className="h-4 w-4 mr-2" />
+                        Mover para Lixeira
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+
+            {/* Meta info */}
+            <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <MapPin className="h-3 w-3" />
+                <span>{cityLabel}</span>
+              </div>
+              {highlight.start_at && highlight.end_at && (
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  <span>{formatPeriod(highlight.start_at, highlight.end_at)}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Expanded details */}
+            <Collapsible open={isExpanded}>
+              <CollapsibleContent className="space-y-2 pt-2 border-t">
+                <div className="grid grid-cols-1 gap-2 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Slug: </span>
+                    <span className="font-mono text-xs">
+                      {highlight.slug || <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Sem slug</Badge>}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-muted-foreground">Atualizado em: </span>
+                    <span>{format(new Date(highlight.updated_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}</span>
+                  </div>
+                  {highlight.updated_by && (
+                    <div>
+                      <span className="text-muted-foreground">Por: </span>
+                      <span>{highlight.updated_by}</span>
+                    </div>
+                  )}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <TooltipProvider>
@@ -407,10 +763,54 @@ export default function AdminV2HighlightsPage() {
             <h1 className="text-3xl font-bold font-spartan text-foreground">Destaques</h1>
             <p className="text-muted-foreground">Gerencie destaques culturais e eventos em destaque</p>
           </div>
-          <Button onClick={() => navigate('/admin-v2/highlights/create')} className="bg-primary hover:bg-primary-hover">
-            <Plus className="mr-2 h-4 w-4" />
-            Criar Destaque
-          </Button>
+          <div className="flex items-center gap-2">
+            {/* View Options */}
+            <div className="hidden md:flex items-center gap-2 border rounded-lg p-1">
+              <Button
+                variant={viewMode === 'table' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('table')}
+              >
+                <List className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'cards' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('cards')}
+              >
+                <Grid3X3 className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Density Toggle */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Settings2 className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setDensityMode('compact')}>
+                  <CheckSquare className={`h-4 w-4 mr-2 ${densityMode === 'compact' ? 'opacity-100' : 'opacity-0'}`} />
+                  Modo compacto
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setDensityMode('comfortable')}>
+                  <CheckSquare className={`h-4 w-4 mr-2 ${densityMode === 'comfortable' ? 'opacity-100' : 'opacity-0'}`} />
+                  Modo confortável
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setShowSecondaryColumns(!showSecondaryColumns)}>
+                  <CheckSquare className={`h-4 w-4 mr-2 ${showSecondaryColumns ? 'opacity-100' : 'opacity-0'}`} />
+                  Colunas secundárias
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button onClick={() => navigate('/admin-v2/highlights/create')} className="bg-primary hover:bg-primary-hover">
+              <Plus className="mr-2 h-4 w-4" />
+              Criar Destaque
+            </Button>
+          </div>
         </div>
 
         {/* Error Alert */}
@@ -435,94 +835,114 @@ export default function AdminV2HighlightsPage() {
           </TabsList>
 
           <TabsContent value="active" className="space-y-4">
-            {/* Filters and Search */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                  {/* Search */}
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="search-input"
-                      placeholder="Buscar por título ou slug..."
-                      value={searchTerm}
-                      onChange={(e) => handleSearch(e.target.value)}
-                      className="pl-9"
-                    />
+            {/* Sticky Filters */}
+            <div className="sticky top-0 z-10 bg-background/80 backdrop-blur border-b">
+              <Card>
+                <CardContent className="pt-6">
+                  {/* Main filters row */}
+                  <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                    {/* Search */}
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="search-input"
+                        placeholder="Buscar por título ou slug..."
+                        value={searchTerm}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+
+                    {/* Date Range */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        type="date"
+                        value={dateRangeStart}
+                        onChange={(e) => updateSearchParams({ dateStart: e.target.value, page: 1 })}
+                        placeholder="Data início"
+                      />
+                      <Input
+                        type="date"
+                        value={dateRangeEnd}
+                        onChange={(e) => updateSearchParams({ dateEnd: e.target.value, page: 1 })}
+                        placeholder="Data fim"
+                      />
+                    </div>
+
+                    {/* City Filter */}
+                    <Select value={selectedCities.length > 0 ? selectedCities[0] : 'all'} onValueChange={(value) => {
+                      if (value === 'all') {
+                        handleCityFilter([]);
+                      } else {
+                        handleCityFilter([value]);
+                      }
+                    }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Todas as cidades" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todas as cidades</SelectItem>
+                        {cities.map(city => (
+                          <SelectItem key={city.value} value={city.value}>{city.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {/* Situation Filter */}
+                    <Select value={sanitizedSituation} onValueChange={(value) => updateSearchParams({ situation: value === 'all' ? null : value, page: 1 })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Todas as situações" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {situationFilters.map(filter => (
+                          <SelectItem key={filter.value} value={filter.value}>{filter.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {/* Status Filter */}
+                    <Select value={sanitizedStatus} onValueChange={(value) => updateSearchParams({ status: value === 'all' ? null : value, page: 1 })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Todos os status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos os status</SelectItem>
+                        <SelectItem value="draft">Rascunho</SelectItem>
+                        <SelectItem value="published">Publicado</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    {/* Quality Filter */}
+                    <Select value={sanitizedQuality} onValueChange={(value) => updateSearchParams({ quality: value === 'all' ? null : value, page: 1 })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Qualidade" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {qualityFilters.map(filter => (
+                          <SelectItem key={filter.value} value={filter.value}>{filter.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
-                  {/* City Filter */}
-                  <Select value={selectedCities.length > 0 ? selectedCities[0] : 'all'} onValueChange={handleCityFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todas as cidades" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todas as cidades</SelectItem>
-                      {cities.filter(city => city.value && city.value.trim()).map(city => (
-                        <SelectItem key={city.value} value={city.value}>{city.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  {/* Status Filter */}
-                  <Select value={sanitizedStatus} onValueChange={(value) => updateSearchParams({ status: value === 'all' ? null : value, page: 1 })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todos os status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todos os status</SelectItem>
-                      <SelectItem value="draft">Rascunho</SelectItem>
-                      <SelectItem value="published">Publicado</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  {/* Situation Filter */}
-                  <Select value={sanitizedSituation} onValueChange={(value) => updateSearchParams({ situation: value === 'all' ? null : value, page: 1 })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todas as situações" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todas as situações</SelectItem>
-                      <SelectItem value="scheduled">Agendado</SelectItem>
-                      <SelectItem value="active">Ativo</SelectItem>
-                      <SelectItem value="active_today">Ativo hoje</SelectItem>
-                      <SelectItem value="next_7_days">Próximos 7 dias</SelectItem>
-                      <SelectItem value="expired">Expirado</SelectItem>
-                      <SelectItem value="incomplete">Incompleto</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  {/* Quality Filter */}
-                  <Select value={sanitizedQuality} onValueChange={(value) => updateSearchParams({ quality: value === 'all' ? null : value, page: 1 })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Qualidade" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todos</SelectItem>
-                      <SelectItem value="issues">Com problemas</SelectItem>
-                      <SelectItem value="no_cover">Sem capa</SelectItem>
-                      <SelectItem value="no_city">Sem cidade</SelectItem>
-                      <SelectItem value="duplicate_slug">Slug duplicado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex items-center justify-between mt-4">
-                  <div className="flex items-center gap-2">
-                    {(searchTerm || selectedCities.length > 0 || sanitizedStatus !== 'all' || sanitizedSituation !== 'all' || sanitizedQuality !== 'all') && (
-                      <Button variant="outline" size="sm" onClick={clearFilters}>
-                        <X className="h-4 w-4 mr-2" />
-                        Limpar filtros
-                      </Button>
-                    )}
+                  {/* Filter actions */}
+                  <div className="flex items-center justify-between mt-4">
+                    <div className="flex items-center gap-2">
+                      {hasActiveFilters && (
+                        <Button variant="outline" size="sm" onClick={clearFilters}>
+                          <X className="h-4 w-4 mr-2" />
+                          Limpar filtros
+                        </Button>
+                      )}
+                    </div>
+                    
+                    <div className="text-sm text-muted-foreground">
+                      {highlights.length} destaque(s) encontrado(s)
+                    </div>
                   </div>
-                  
-                  <div className="text-sm text-muted-foreground">
-                    {highlights.length} destaque(s) encontrado(s)
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Bulk Actions */}
             {selectedItems.size > 0 && (
@@ -533,67 +953,79 @@ export default function AdminV2HighlightsPage() {
                       {selectedItems.size} item(s) selecionado(s)
                     </span>
                     <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => setConfirmDialog({ open: true, type: 'publish', items: Array.from(selectedItems) })}
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
-                        Publicar
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => setConfirmDialog({ open: true, type: 'unpublish', items: Array.from(selectedItems) })}
-                      >
-                        <EyeOff className="h-4 w-4 mr-2" />
-                        Despublicar
-                      </Button>
-                      <Button 
-                        variant="destructive" 
-                        size="sm"
-                        onClick={() => setConfirmDialog({ open: true, type: 'bulk_delete', items: Array.from(selectedItems) })}
-                      >
-                        <Trash className="h-4 w-4 mr-2" />
-                        Mover para Lixeira
-                      </Button>
+                      {canPublish && (
+                        <>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setConfirmDialog({ open: true, type: 'publish', items: Array.from(selectedItems) })}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            Publicar
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setConfirmDialog({ open: true, type: 'unpublish', items: Array.from(selectedItems) })}
+                          >
+                            <EyeOff className="h-4 w-4 mr-2" />
+                            Despublicar
+                          </Button>
+                        </>
+                      )}
+                      {canDelete && (
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => setConfirmDialog({ open: true, type: 'bulk_delete', items: Array.from(selectedItems) })}
+                        >
+                          <Trash className="h-4 w-4 mr-2" />
+                          Mover para Lixeira
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {/* Table */}
-            <Card>
-              <CardContent className="p-0">
-                {highlights.length === 0 ? (
-                  <div className="text-center py-12">
-                    <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-medium text-foreground mb-2">Nenhum destaque encontrado</h3>
-                    <p className="text-muted-foreground mb-4">
-                      {searchTerm || selectedCities.length > 0 || sanitizedStatus !== 'all' || sanitizedSituation !== 'all' || sanitizedQuality !== 'all'
-                        ? 'Tente ajustar os filtros de busca.'
-                        : 'Crie seu primeiro destaque para começar.'
-                      }
-                    </p>
-                    <Button onClick={() => navigate('/admin-v2/highlights/create')}>
-                      <Plus className="mr-2 h-4 w-4" />
-                      Criar Destaque
-                    </Button>
-                  </div>
-                ) : (
+            {/* Content */}
+            {highlights.length === 0 ? (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">Nenhum destaque encontrado</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {hasActiveFilters
+                      ? 'Tente ajustar os filtros de busca.'
+                      : 'Crie seu primeiro destaque para começar.'
+                    }
+                  </p>
+                  <Button onClick={() => navigate('/admin-v2/highlights/create')}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Criar Destaque
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : viewMode === 'cards' ? (
+              <div className="space-y-3">
+                {paginatedHighlights.map(renderHighlightCard)}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="p-0">
                   <div className="overflow-x-auto">
                     <table className="w-full">
-                      <thead className="border-b">
+                      <thead className={`border-b sticky top-0 z-20 bg-background ${densityMode === 'compact' ? 'h-10' : 'h-12'}`}>
                         <tr>
-                          <th className="text-left p-4 w-12">
+                          <th className={`text-left ${densityMode === 'compact' ? 'p-2' : 'p-4'} w-12`}>
                             <Checkbox
-                              checked={selectedItems.size === highlights.length && highlights.length > 0}
+                              checked={selectedItems.size === paginatedHighlights.length && paginatedHighlights.length > 0}
                               onCheckedChange={toggleSelectAll}
                             />
                           </th>
-                          <th className="text-left p-4 w-16">Thumb</th>
-                          <th className="text-left p-4 min-w-48">
+                          <th className={`text-left ${densityMode === 'compact' ? 'p-2' : 'p-4'} w-16`}>Thumb</th>
+                          <th className={`text-left ${densityMode === 'compact' ? 'p-2' : 'p-4'} min-w-48`}>
                             <Button variant="ghost" onClick={() => handleSort('event_title')} className="h-auto p-0 font-medium">
                               Título
                               {sortField === 'event_title' && (
@@ -601,9 +1033,10 @@ export default function AdminV2HighlightsPage() {
                               )}
                             </Button>
                           </th>
-                          <th className="text-left p-4">Slug</th>
-                          <th className="text-left p-4">Cidade</th>
-                          <th className="text-left p-4">
+                          <th className={`text-left ${densityMode === 'compact' ? 'p-2' : 'p-4'}`}>Situação</th>
+                          <th className={`text-left ${densityMode === 'compact' ? 'p-2' : 'p-4'}`}>Status</th>
+                          <th className={`text-left ${densityMode === 'compact' ? 'p-2' : 'p-4'}`}>Cidade</th>
+                          <th className={`text-left ${densityMode === 'compact' ? 'p-2' : 'p-4'}`}>
                             <Button variant="ghost" onClick={() => handleSort('start_at')} className="h-auto p-0 font-medium">
                               Período
                               {sortField === 'start_at' && (
@@ -611,18 +1044,21 @@ export default function AdminV2HighlightsPage() {
                               )}
                             </Button>
                           </th>
-                          <th className="text-left p-4">Situação</th>
-                          <th className="text-left p-4">Status</th>
-                          <th className="text-left p-4">Atualizado por</th>
-                          <th className="text-left p-4">
-                            <Button variant="ghost" onClick={() => handleSort('updated_at')} className="h-auto p-0 font-medium">
-                              Atualizado em
-                              {sortField === 'updated_at' && (
-                                sortDirection === 'asc' ? <SortAsc className="ml-2 h-4 w-4" /> : <SortDesc className="ml-2 h-4 w-4" />
-                              )}
-                            </Button>
-                          </th>
-                          <th className="text-left p-4 w-32">Ações</th>
+                          {showSecondaryColumns && (
+                            <>
+                              <th className={`text-left ${densityMode === 'compact' ? 'p-2' : 'p-4'}`}>Slug</th>
+                              <th className={`text-left ${densityMode === 'compact' ? 'p-2' : 'p-4'}`}>Atualizado por</th>
+                              <th className={`text-left ${densityMode === 'compact' ? 'p-2' : 'p-4'}`}>
+                                <Button variant="ghost" onClick={() => handleSort('updated_at')} className="h-auto p-0 font-medium">
+                                  Atualizado em
+                                  {sortField === 'updated_at' && (
+                                    sortDirection === 'asc' ? <SortAsc className="ml-2 h-4 w-4" /> : <SortDesc className="ml-2 h-4 w-4" />
+                                  )}
+                                </Button>
+                              </th>
+                            </>
+                          )}
+                          <th className={`text-left ${densityMode === 'compact' ? 'p-2' : 'p-4'} w-32 sticky right-0 bg-background border-l shadow-[-2px_0_4px_rgba(0,0,0,0.1)]`}>Ações</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -633,27 +1069,17 @@ export default function AdminV2HighlightsPage() {
                           const cityLabel = cities.find(c => c.value === highlight.city)?.label || highlight.city;
 
                           return (
-                            <tr key={highlight.id} className="border-b hover:bg-muted/50">
-                              <td className="p-4">
+                            <tr key={highlight.id} className={`border-b hover:bg-muted/50 ${densityMode === 'compact' ? 'h-12' : 'h-16'}`}>
+                              <td className={densityMode === 'compact' ? 'p-2' : 'p-4'}>
                                 <Checkbox
                                   checked={selectedItems.has(highlight.id)}
                                   onCheckedChange={() => toggleSelection(highlight.id)}
                                 />
                               </td>
-                              <td className="p-4">
-                                {highlight.image_url ? (
-                                  <img 
-                                    src={highlight.image_url} 
-                                    alt={highlight.event_title}
-                                    className="w-8 h-8 rounded border object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-8 h-8 rounded border bg-muted flex items-center justify-center">
-                                    <Image className="h-4 w-4 text-muted-foreground" />
-                                  </div>
-                                )}
+                              <td className={densityMode === 'compact' ? 'p-2' : 'p-4'}>
+                                {renderThumbnail(highlight)}
                               </td>
-                              <td className="p-4">
+                              <td className={densityMode === 'compact' ? 'p-2' : 'p-4'}>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <div className="max-w-48">
@@ -662,11 +1088,23 @@ export default function AdminV2HighlightsPage() {
                                       </div>
                                       {qualityIssues.length > 0 && (
                                         <div className="flex gap-1 mt-1">
-                                          {qualityIssues.map(issue => (
-                                            <Badge key={issue} variant="secondary" className="text-xs bg-warning text-warning-foreground">
-                                              {issue}
-                                            </Badge>
+                                          {qualityIssues.slice(0, 2).map(issue => (
+                                            <Tooltip key={issue.key}>
+                                              <TooltipTrigger asChild>
+                                                <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-800 border-yellow-200">
+                                                  <AlertCircle className="h-3 w-3" />
+                                                </Badge>
+                                              </TooltipTrigger>
+                                              <TooltipContent>
+                                                <p>{issue.label} - {issue.action}</p>
+                                              </TooltipContent>
+                                            </Tooltip>
                                           ))}
+                                          {qualityIssues.length > 2 && (
+                                            <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-800 border-yellow-200">
+                                              +{qualityIssues.length - 2}
+                                            </Badge>
+                                          )}
                                         </div>
                                       )}
                                     </div>
@@ -676,78 +1114,85 @@ export default function AdminV2HighlightsPage() {
                                   </TooltipContent>
                                 </Tooltip>
                               </td>
-                              <td className="p-4">
-                                <div className="font-mono text-sm text-muted-foreground">
-                                  {highlight.slug || <Badge variant="secondary" className="bg-warning text-warning-foreground">Sem slug</Badge>}
-                                </div>
+                              <td className={densityMode === 'compact' ? 'p-2' : 'p-4'}>
+                                <Badge 
+                                  variant={situationBadge.variant}
+                                  className={situationBadge.className}
+                                >
+                                  {situationBadge.label}
+                                </Badge>
                               </td>
-                              <td className="p-4">
+                              <td className={densityMode === 'compact' ? 'p-2' : 'p-4'}>
+                                <Badge 
+                                  variant={highlight.status === 'published' ? 'default' : 'secondary'}
+                                  className={highlight.status === 'published' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+                                >
+                                  {highlight.status === 'published' ? 'Publicado' : 'Rascunho'}
+                                </Badge>
+                              </td>
+                              <td className={densityMode === 'compact' ? 'p-2' : 'p-4'}>
                                 <div className="flex items-center gap-1">
                                   <MapPin className="h-3 w-3 text-muted-foreground" />
                                   <span className="text-sm">{cityLabel}</span>
                                 </div>
                               </td>
-                              <td className="p-4">
+                              <td className={densityMode === 'compact' ? 'p-2' : 'p-4'}>
                                 {highlight.start_at && highlight.end_at ? (
                                   <div className="text-sm">
-                                    <div className="flex items-center gap-1">
-                                      <Calendar className="h-3 w-3 text-muted-foreground" />
-                                      <span>{format(new Date(highlight.start_at), 'dd/MM', { locale: ptBR })}</span>
-                                      <span>→</span>
-                                      <span>{format(new Date(highlight.end_at), 'dd/MM', { locale: ptBR })}</span>
-                                    </div>
+                                    {formatPeriod(highlight.start_at, highlight.end_at)}
                                   </div>
                                 ) : (
-                                  <Badge variant="secondary" className="bg-warning text-warning-foreground">Sem datas</Badge>
+                                  <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">Sem datas</Badge>
                                 )}
                               </td>
-                              <td className="p-4">
-                                <Badge 
-                                  variant={situationBadge.variant}
-                                  className={situationBadge.className || ''}
-                                >
-                                  {situationBadge.label}
-                                </Badge>
-                              </td>
-                              <td className="p-4">
-                                <Badge variant={highlight.status === 'published' ? 'default' : 'secondary'}>
-                                  {highlight.status === 'published' ? 'Publicado' : 'Rascunho'}
-                                </Badge>
-                              </td>
-                              <td className="p-4 text-sm text-muted-foreground">
-                                —
-                              </td>
-                              <td className="p-4 text-sm text-muted-foreground">
-                                {format(new Date(highlight.updated_at), 'dd/MM/yy HH:mm', { locale: ptBR })}
-                              </td>
-                              <td className="p-4">
+                              {showSecondaryColumns && (
+                                <>
+                                  <td className={densityMode === 'compact' ? 'p-2' : 'p-4'}>
+                                    <div className="font-mono text-sm text-muted-foreground max-w-32 truncate">
+                                      {highlight.slug || <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Sem slug</Badge>}
+                                    </div>
+                                  </td>
+                                  <td className={`${densityMode === 'compact' ? 'p-2' : 'p-4'} text-sm text-muted-foreground`}>
+                                    {highlight.updated_by || '—'}
+                                  </td>
+                                  <td className={`${densityMode === 'compact' ? 'p-2' : 'p-4'} text-sm text-muted-foreground`}>
+                                    <div className="flex items-center gap-1">
+                                      <Clock className="h-3 w-3" />
+                                      {format(new Date(highlight.updated_at), 'dd/MM/yy HH:mm', { locale: ptBR })}
+                                    </div>
+                                  </td>
+                                </>
+                              )}
+                              <td className={`${densityMode === 'compact' ? 'p-2' : 'p-4'} sticky right-0 bg-background border-l shadow-[-2px_0_4px_rgba(0,0,0,0.1)]`}>
                                 <div className="flex items-center gap-1">
-                                  {highlight.status === 'draft' ? (
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <Button 
-                                          variant="ghost" 
-                                          size="icon"
-                                          onClick={() => handlePublish([highlight.id], true)}
-                                        >
-                                          <Eye className="h-4 w-4" />
-                                        </Button>
-                                      </TooltipTrigger>
-                                      <TooltipContent>Publicar</TooltipContent>
-                                    </Tooltip>
-                                  ) : (
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <Button 
-                                          variant="ghost" 
-                                          size="icon"
-                                          onClick={() => handlePublish([highlight.id], false)}
-                                        >
-                                          <EyeOff className="h-4 w-4" />
-                                        </Button>
-                                      </TooltipTrigger>
-                                      <TooltipContent>Despublicar</TooltipContent>
-                                    </Tooltip>
+                                  {canPublish && (
+                                    highlight.status === 'draft' ? (
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Button 
+                                            variant="ghost" 
+                                            size="icon"
+                                            onClick={() => handlePublish([highlight.id], true)}
+                                          >
+                                            <Eye className="h-4 w-4" />
+                                          </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>Publicar</TooltipContent>
+                                      </Tooltip>
+                                    ) : (
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Button 
+                                            variant="ghost" 
+                                            size="icon"
+                                            onClick={() => handlePublish([highlight.id], false)}
+                                          >
+                                            <EyeOff className="h-4 w-4" />
+                                          </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>Despublicar</TooltipContent>
+                                      </Tooltip>
+                                    )
                                   )}
                                   
                                   <DropdownMenu>
@@ -765,7 +1210,7 @@ export default function AdminV2HighlightsPage() {
                                         <FileText className="h-4 w-4 mr-2" />
                                         Duplicar
                                       </DropdownMenuItem>
-                                      <DropdownMenuItem onClick={() => window.open(`/destaque/${highlight.id}`, '_blank')}>
+                                      <DropdownMenuItem onClick={() => window.open(`/destaque/${highlight.slug || highlight.id}`, '_blank')}>
                                         <ExternalLink className="h-4 w-4 mr-2" />
                                         Visualizar no site
                                       </DropdownMenuItem>
@@ -773,13 +1218,22 @@ export default function AdminV2HighlightsPage() {
                                         <Copy className="h-4 w-4 mr-2" />
                                         Copiar link
                                       </DropdownMenuItem>
-                                      <DropdownMenuItem 
-                                        onClick={() => setConfirmDialog({ open: true, type: 'bulk_delete', items: [highlight.id] })}
-                                        className="text-destructive"
-                                      >
-                                        <Trash className="h-4 w-4 mr-2" />
-                                        Mover para Lixeira
-                                      </DropdownMenuItem>
+                                      {qualityIssues.some(issue => issue.key === 'no_slug') && (
+                                        <DropdownMenuItem onClick={() => generateSlug(highlight.id, highlight.event_title)}>
+                                          <Link className="h-4 w-4 mr-2" />
+                                          Gerar slug
+                                        </DropdownMenuItem>
+                                      )}
+                                      <DropdownMenuSeparator />
+                                      {canDelete && (
+                                        <DropdownMenuItem 
+                                          onClick={() => setConfirmDialog({ open: true, type: 'bulk_delete', items: [highlight.id] })}
+                                          className="text-destructive"
+                                        >
+                                          <Trash className="h-4 w-4 mr-2" />
+                                          Mover para Lixeira
+                                        </DropdownMenuItem>
+                                      )}
                                     </DropdownMenuContent>
                                   </DropdownMenu>
                                 </div>
@@ -790,13 +1244,13 @@ export default function AdminV2HighlightsPage() {
                       </tbody>
                     </table>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Pagination */}
             {highlights.length > 0 && (
-              <Card>
+              <Card className="sticky bottom-0 z-10">
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -815,7 +1269,7 @@ export default function AdminV2HighlightsPage() {
                     
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-muted-foreground">
-                        Página {currentPage} de {totalPages}
+                        Página {currentPage} de {totalPages} ({highlights.length} itens)
                       </span>
                       <Button 
                         variant="outline" 
@@ -843,128 +1297,16 @@ export default function AdminV2HighlightsPage() {
           <TabsContent value="trash" className="space-y-4">
             {/* Trash Content */}
             <Card>
-              <CardContent className="p-0">
-                {highlights.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Trash className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-medium text-foreground mb-2">Lixeira vazia</h3>
-                    <p className="text-muted-foreground">Nenhum destaque foi excluído recentemente.</p>
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="border-b">
-                        <tr>
-                          <th className="text-left p-4 w-12">
-                            <Checkbox
-                              checked={selectedItems.size === highlights.length && highlights.length > 0}
-                              onCheckedChange={toggleSelectAll}
-                            />
-                          </th>
-                          <th className="text-left p-4">Título</th>
-                          <th className="text-left p-4">Cidade</th>
-                          <th className="text-left p-4">Excluído por</th>
-                          <th className="text-left p-4">Excluído em</th>
-                          <th className="text-left p-4 w-32">Ações</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {paginatedHighlights.map((highlight) => (
-                          <tr key={highlight.id} className="border-b hover:bg-muted/50">
-                            <td className="p-4">
-                              <Checkbox
-                                checked={selectedItems.has(highlight.id)}
-                                onCheckedChange={() => toggleSelection(highlight.id)}
-                              />
-                            </td>
-                            <td className="p-4 font-medium">{highlight.event_title}</td>
-                            <td className="p-4">{cities.find(c => c.value === highlight.city)?.label || highlight.city}</td>
-                            <td className="p-4 text-sm text-muted-foreground">
-                              —
-                            </td>
-                            <td className="p-4 text-sm text-muted-foreground">
-                              —
-                            </td>
-                            <td className="p-4">
-                              <div className="flex items-center gap-1">
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="icon"
-                                      onClick={() => handleRestore([highlight.id])}
-                                    >
-                                      <RotateCcw className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Restaurar</TooltipContent>
-                                </Tooltip>
-                                
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="icon"
-                                      onClick={() => setConfirmDialog({ 
-                                        open: true, 
-                                        type: 'permanent_delete', 
-                                        items: [highlight.id],
-                                        requireTitle: true,
-                                        title: highlight.event_title
-                                      })}
-                                      className="text-destructive hover:text-destructive"
-                                    >
-                                      <X className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Apagar definitivamente</TooltipContent>
-                                </Tooltip>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+              <CardContent className="text-center py-12">
+                <Trash className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">Lixeira vazia</h3>
+                <p className="text-muted-foreground">
+                  Funcionalidade de lixeira será implementada em breve.
+                  <br />
+                  Por enquanto, exclusões são permanentes.
+                </p>
               </CardContent>
             </Card>
-
-            {/* Bulk Actions for Trash */}
-            {selectedItems.size > 0 && (
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">
-                      {selectedItems.size} item(s) selecionado(s)
-                    </span>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleRestore(Array.from(selectedItems))}
-                      >
-                        <RotateCcw className="h-4 w-4 mr-2" />
-                        Restaurar
-                      </Button>
-                      <Button 
-                        variant="destructive" 
-                        size="sm"
-                        onClick={() => setConfirmDialog({ 
-                          open: true, 
-                          type: 'permanent_delete', 
-                          items: Array.from(selectedItems),
-                          requireTitle: false
-                        })}
-                      >
-                        <X className="h-4 w-4 mr-2" />
-                        Apagar Definitivamente
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </TabsContent>
         </Tabs>
 
@@ -1042,9 +1384,10 @@ export default function AdminV2HighlightsPage() {
         </Dialog>
 
         {/* Keyboard Shortcuts Help */}
-        <div className="text-xs text-muted-foreground text-center">
-          Atalhos: <kbd className="px-1 py-0.5 text-xs bg-muted rounded">N</kbd> Novo destaque • 
-          <kbd className="px-1 py-0.5 text-xs bg-muted rounded">F</kbd> Focar busca
+        <div className="text-xs text-muted-foreground text-center space-x-4">
+          <span>Atalhos: <kbd className="px-1 py-0.5 text-xs bg-muted rounded">N</kbd> Novo destaque</span>
+          <span>•</span>
+          <span><kbd className="px-1 py-0.5 text-xs bg-muted rounded">F</kbd> Focar busca</span>
         </div>
       </div>
     </TooltipProvider>
