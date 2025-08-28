@@ -5,6 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { highlightSchema, type HighlightFormData } from '@/lib/highlightSchema';
 import { useAdminV2Auth } from '@/hooks/useAdminV2Auth';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { HighlightEditSkeleton } from '@/components/HighlightEditSkeleton';
+import { ErrorBox } from '@/components/ui/error-box';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -36,11 +38,12 @@ interface HighlightFormProps {
 export default function HighlightForm({ mode }: HighlightFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { user } = useAdminV2Auth();
+  const { user, status } = useAdminV2Auth();
   const { toast } = useToast();
   const adminEmail = useAdminEmail();
   const [loading, setLoading] = useState(mode === 'edit');
   const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [newReason, setNewReason] = useState('');
   const [imagePreview, setImagePreview] = useState<string>('');
 
@@ -90,17 +93,18 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
     }
   }, [imageUrl]);
 
-  // Carregar dados para edição
+  // Carregar dados para edição - só quando status === 'ready' e ID válido
   useEffect(() => {
-    if (mode === 'edit' && id && user?.email) {
+    if (mode === 'edit' && id && status === 'ready' && user?.email) {
       loadHighlight();
     }
-  }, [mode, id, user?.email]);
+  }, [mode, id, status, user?.email]);
 
   const loadHighlight = async () => {
     if (!user?.email || !id) return;
 
     setLoading(true);
+    setLoadError(null);
     
     try {
       const { data, error } = await supabase.rpc('admin_get_highlight_by_id', {
@@ -108,7 +112,17 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
         p_highlight_id: id
       });
 
-      if (error) throw error;
+      if (error) {
+        // Tratar erros específicos
+        if (error.message?.includes('not found') || error.code === 'PGRST116') {
+          setLoadError('HIGHLIGHT_NOT_FOUND');
+        } else if (error.message?.includes('denied') || error.code === '42501') {
+          setLoadError('ACCESS_DENIED');
+        } else {
+          setLoadError(`RPC_ERROR: ${error.message}`);
+        }
+        return;
+      }
       
       if (data && data.length > 0) {
         const highlight = data[0];
@@ -136,14 +150,11 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
           description: 'Dados carregados com sucesso.',
         });
       } else {
-        throw new Error('Destaque não encontrado');
+        setLoadError('HIGHLIGHT_NOT_FOUND');
       }
     } catch (error: any) {
-      toast({
-        title: 'Erro ao carregar destaque',
-        description: error?.message || 'Erro desconhecido.',
-        variant: 'destructive',
-      });
+      console.error('Error loading highlight:', error);
+      setLoadError(`NETWORK_ERROR: ${error?.message || 'Erro de conexão'}`);
     } finally {
       setLoading(false);
     }
@@ -225,11 +236,70 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
     setValue('selection_reasons', updatedReasons);
   };
 
-  if (loading) {
+  // Guards de carregamento e erro
+  if (status === 'loading') {
+    return <HighlightEditSkeleton />;
+  }
+
+  if (status === 'error') {
     return (
-      <div className="p-6">
-        <LoadingSpinner size="lg" text="Carregando destaque..." />
-      </div>
+      <ErrorBox
+        title="Sessão Expirada"
+        message="Sua sessão de administrador expirou. Faça login novamente."
+        onBack={() => navigate('/admin-v2/login')}
+        type="warning"
+      />
+    );
+  }
+
+  if (mode === 'edit' && !id) {
+    return (
+      <ErrorBox
+        title="ID Inválido"
+        message="ID do destaque não foi fornecido na URL."
+        onBack={() => navigate('/admin-v2/highlights')}
+        type="warning"
+      />
+    );
+  }
+
+  if (loading) {
+    return <HighlightEditSkeleton />;
+  }
+
+  if (loadError) {
+    const getErrorInfo = (error: string) => {
+      if (error === 'HIGHLIGHT_NOT_FOUND') {
+        return {
+          title: 'Destaque Não Encontrado',
+          message: 'O destaque solicitado não existe ou foi removido.',
+          type: 'warning' as const
+        };
+      }
+      if (error === 'ACCESS_DENIED') {
+        return {
+          title: 'Acesso Não Autorizado',
+          message: 'Você não tem permissão para acessar este destaque.',
+          type: 'error' as const
+        };
+      }
+      return {
+        title: 'Erro ao Carregar',
+        message: 'Não foi possível carregar o destaque.',
+        type: 'error' as const
+      };
+    };
+
+    const errorInfo = getErrorInfo(loadError);
+    return (
+      <ErrorBox
+        title={errorInfo.title}
+        message={errorInfo.message}
+        details={loadError}
+        onRetry={loadHighlight}
+        onBack={() => navigate('/admin-v2/highlights')}
+        type={errorInfo.type}
+      />
     );
   }
 
