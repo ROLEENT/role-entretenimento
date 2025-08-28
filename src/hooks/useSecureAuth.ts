@@ -29,12 +29,21 @@ export const useSecureAuth = (): SecureAuthState & {
 
   const checkRole = async (): Promise<UserRole | null> => {
     try {
-      const { data, error } = await supabase.rpc('get_current_user_role');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+
       if (error) {
         console.error('Erro ao verificar role:', error);
         return null;
       }
-      return data as UserRole;
+      
+      return data?.role as UserRole || null;
     } catch (error) {
       console.error('Erro ao verificar role:', error);
       return null;
