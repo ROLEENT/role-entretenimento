@@ -1,15 +1,19 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bell, Calendar, Users, Heart, ArrowLeft } from 'lucide-react';
+import { Bell, Calendar, Users, Heart, ArrowLeft, TestTube } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import NotificationSystem from '@/components/NotificationSystem';
 import ActivityFeed from '@/components/ActivityFeed';
 import { useAuth } from '@/hooks/useAuth';
 import SEOHead from '@/components/SEOHead';
+import { useActivityFeed } from '@/hooks/useActivityFeed';
+import { useSecureActivityFeed } from '@/hooks/useSecureActivityFeed';
 
 const FeedPage = () => {
   const { user } = useAuth();
+  const { activities } = useActivityFeed();
+  const { createTestData } = useSecureActivityFeed();
 
   if (!user) {
     return (
@@ -86,18 +90,24 @@ const FeedPage = () => {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-4">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Seguindo:</span>
-                          <span className="font-semibold">
+                      <div className="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                          <div className="text-xl font-bold text-primary">
                             {user.profile?.following_count || 0}
-                          </span>
+                          </div>
+                          <div className="text-xs text-muted-foreground">Seguindo</div>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Seguidores:</span>
-                          <span className="font-semibold">
+                        <div>
+                          <div className="text-xl font-bold text-primary">
                             {user.profile?.followers_count || 0}
-                          </span>
+                          </div>
+                          <div className="text-xs text-muted-foreground">Seguidores</div>
+                        </div>
+                        <div>
+                          <div className="text-xl font-bold text-green-600">
+                            {activities.length || 0}
+                          </div>
+                          <div className="text-xs text-muted-foreground">Atividades</div>
                         </div>
                       </div>
                     </CardContent>
@@ -124,6 +134,16 @@ const FeedPage = () => {
                           Editar Perfil
                         </Link>
                       </Button>
+                      {process.env.NODE_ENV === 'development' && (
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-start text-amber-600 border-amber-200"
+                          onClick={createTestData}
+                        >
+                          <TestTube className="h-4 w-4 mr-2" />
+                          Dados de Teste
+                        </Button>
+                      )}
                     </CardContent>
                   </Card>
                 </div>

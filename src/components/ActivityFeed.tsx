@@ -2,13 +2,29 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Heart, UserPlus, Calendar, MessageCircle, User, RefreshCw } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Heart, UserPlus, Calendar, MessageCircle, User, RefreshCw, Filter, ThumbsUp, Activity, CalendarDays } from 'lucide-react';
 import { useActivityFeed } from '@/hooks/useActivityFeed';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const ActivityFeed = () => {
   const { activities, loading, getActivityMessage, refetch } = useActivityFeed();
+  const [selectedFilter, setSelectedFilter] = useState<string>('all');
+
+  const activityTypes = [
+    { value: 'all', label: 'Todas', icon: Activity },
+    { value: 'follow', label: 'Seguindo', icon: UserPlus },
+    { value: 'event_favorite', label: 'Eventos', icon: Heart },
+    { value: 'highlight_like', label: 'Destaques', icon: ThumbsUp },
+    { value: 'comment', label: 'Comentários', icon: MessageCircle },
+  ];
+
+  const filteredActivities = selectedFilter === 'all' 
+    ? activities 
+    : activities.filter(activity => activity.type === selectedFilter);
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -17,7 +33,7 @@ const ActivityFeed = () => {
       case 'event_favorite':
         return <Heart className="h-4 w-4 text-red-500" />;
       case 'highlight_like':
-        return <Heart className="h-4 w-4 text-pink-500" />;
+        return <ThumbsUp className="h-4 w-4 text-green-500" />;
       case 'comment':
         return <MessageCircle className="h-4 w-4 text-green-500" />;
       case 'profile_update':
@@ -81,20 +97,50 @@ const ActivityFeed = () => {
             <RefreshCw className="h-4 w-4" />
           </Button>
         </div>
+        
+        {/* Filtros */}
+        <div className="mt-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Filtrar por:</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {activityTypes.map((type) => {
+              const Icon = type.icon;
+              return (
+                <Badge
+                  key={type.value}
+                  variant={selectedFilter === type.value ? "default" : "outline"}
+                  className="cursor-pointer hover:bg-primary/10 transition-colors"
+                  onClick={() => setSelectedFilter(type.value)}
+                >
+                  <Icon className="h-3 w-3 mr-1" />
+                  {type.label}
+                </Badge>
+              );
+            })}
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-96">
-          {activities.length === 0 ? (
+          {filteredActivities.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Nenhuma atividade recente</p>
-              <p className="text-sm mt-1">
-                Siga pessoas para ver suas atividades aqui
-              </p>
+              <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              {selectedFilter === 'all' ? (
+                <>
+                  <p>Nenhuma atividade recente</p>
+                  <p className="text-sm mt-1">
+                    Siga pessoas para ver suas atividades aqui
+                  </p>
+                </>
+              ) : (
+                <p>Nenhuma atividade do tipo "{activityTypes.find(t => t.value === selectedFilter)?.label}" encontrada</p>
+              )}
             </div>
           ) : (
             <div className="space-y-4">
-              {activities.map((activity) => (
+              {filteredActivities.map((activity) => (
                 <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
                   <Avatar className="h-10 w-10">
                     <AvatarImage 
@@ -113,15 +159,43 @@ const ActivityFeed = () => {
                         {getActivityMessage(activity)}
                       </p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                      <CalendarDays className="h-3 w-3" />
                       {formatTime(activity.created_at)}
                     </p>
                     
-                    {/* Informações adicionais baseado no tipo */}
-                    {activity.type === 'event_favorite' && activity.data?.event_title && (
-                      <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
-                        <strong>Evento:</strong> {activity.data.event_title}
-                      </div>
+                    {/* Informações contextuais com links */}
+                    {activity.type === 'event_favorite' && activity.data?.event_title && activity.object_id && (
+                      <Link 
+                        to={`/eventos/${activity.object_id}`}
+                        className="block mt-2 p-2 bg-red-50 dark:bg-red-950/20 rounded-md hover:bg-red-100 dark:hover:bg-red-950/30 transition-colors"
+                      >
+                        <p className="text-xs font-medium text-red-700 dark:text-red-300">
+                          📅 Evento: {activity.data.event_title}
+                        </p>
+                      </Link>
+                    )}
+                    
+                    {activity.type === 'highlight_like' && activity.object_id && (
+                      <Link 
+                        to={`/destaques/${activity.object_id}`}
+                        className="block mt-2 p-2 bg-green-50 dark:bg-green-950/20 rounded-md hover:bg-green-100 dark:hover:bg-green-950/30 transition-colors"
+                      >
+                        <p className="text-xs font-medium text-green-700 dark:text-green-300">
+                          ⭐ Destaque curtido
+                        </p>
+                      </Link>
+                    )}
+                    
+                    {activity.type === 'follow' && activity.object_id && (
+                      <Link 
+                        to={`/usuarios/${activity.object_id}`}
+                        className="block mt-2 p-2 bg-blue-50 dark:bg-blue-950/20 rounded-md hover:bg-blue-100 dark:hover:bg-blue-950/30 transition-colors"
+                      >
+                        <p className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                          👤 Ver perfil
+                        </p>
+                      </Link>
                     )}
                   </div>
                 </div>
