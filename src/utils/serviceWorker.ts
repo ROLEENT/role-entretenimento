@@ -1,6 +1,10 @@
 // Service Worker utilities for caching and offline support
 
 export const registerServiceWorker = async () => {
+  // Skip service worker registration temporarily due to missing sw.js
+  console.log('SW registration temporarily disabled - sw.js not found');
+  return;
+
   // Skip service worker registration for admin routes
   if (window.location.pathname.startsWith('/admin')) {
     console.log('SW registration skipped for admin routes');

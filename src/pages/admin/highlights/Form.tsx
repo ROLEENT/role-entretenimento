@@ -129,7 +129,19 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
         });
       }
     } catch (error: any) {
-      console.error('Erro ao carregar destaque:', error);
+      console.error('[ADMIN HIGHLIGHTS] Erro detalhado ao carregar destaque:', {
+        error,
+        message: error?.message,
+        code: error?.code,
+        highlightId: id,
+        userEmail: user?.email
+      });
+      
+      toast({
+        title: 'Erro ao carregar destaque',
+        description: error?.message || 'Não foi possível carregar os dados do destaque. Verifique suas permissões.',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
