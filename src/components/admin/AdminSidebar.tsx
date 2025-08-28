@@ -1,4 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
+import { useState } from "react";
 import { 
   LayoutDashboard, 
   Sparkles, 
@@ -23,7 +24,9 @@ import {
   Shield,
   Zap,
   Mic,
-  Activity
+  Activity,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import {
   Sidebar,
@@ -37,6 +40,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useNavigate } from "react-router-dom";
 
 const contentItems = [
@@ -85,6 +89,15 @@ export function AdminSidebar() {
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
 
+  // Estados para grupos colapsáveis
+  const [openGroups, setOpenGroups] = useState({
+    content: true,
+    users: false,
+    marketing: false,
+    analytics: false,
+    system: false,
+  });
+
   const isActive = (path: string) => {
     if (path === "/admin-v2") {
       return currentPath === "/admin-v2";
@@ -92,43 +105,84 @@ export function AdminSidebar() {
     return currentPath.startsWith(path);
   };
 
-  const getNavClass = (path: string) => 
-    isActive(path) ? "bg-muted text-primary font-medium" : "hover:bg-muted/50";
+  const getNavClass = (path: string) => {
+    if (isActive(path)) {
+      return "bg-primary/10 text-primary font-medium border-r-2 border-primary";
+    }
+    return "hover:bg-muted/50";
+  };
 
   const handleLogout = () => {
     navigate("/");
   };
 
-  const SidebarSection = ({ title, items }: { title: string, items: typeof contentItems }) => (
-    <SidebarGroup>
-      <SidebarGroupLabel>{title}</SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
-                <NavLink to={item.url} className={getNavClass(item.url)}>
-                  <item.icon className="mr-2 h-4 w-4" />
-                  {!collapsed && <span>{item.title}</span>}
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
-  );
+  // Verificar se algum item do grupo está ativo para manter aberto
+  const isGroupActive = (items: typeof contentItems) => {
+    return items.some(item => isActive(item.url));
+  };
+
+  const toggleGroup = (groupKey: keyof typeof openGroups) => {
+    setOpenGroups(prev => ({
+      ...prev,
+      [groupKey]: !prev[groupKey]
+    }));
+  };
+
+  const CollapsibleSidebarSection = ({ 
+    title, 
+    items, 
+    groupKey, 
+    defaultOpen = false 
+  }: { 
+    title: string, 
+    items: typeof contentItems,
+    groupKey: keyof typeof openGroups,
+    defaultOpen?: boolean
+  }) => {
+    const isOpen = openGroups[groupKey] || isGroupActive(items);
+    
+    return (
+      <SidebarGroup className="mb-2">
+        <Collapsible open={isOpen} onOpenChange={() => toggleGroup(groupKey)}>
+          <CollapsibleTrigger asChild>
+            <SidebarGroupLabel className="cursor-pointer hover:bg-muted/50 p-2 rounded-md flex items-center justify-between">
+              <span>{title}</span>
+              {!collapsed && (
+                isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
+              )}
+            </SidebarGroupLabel>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink to={item.url} className={getNavClass(item.url)}>
+                        <item.icon className="mr-2 h-4 w-4" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </CollapsibleContent>
+        </Collapsible>
+      </SidebarGroup>
+    );
+  };
 
   return (
     <Sidebar className={collapsed ? "w-14" : "w-60"} collapsible="icon">
       <SidebarTrigger className="m-2 self-end" />
       
-      <SidebarContent>
-        <SidebarSection title="Conteúdo" items={contentItems} />
-        <SidebarSection title="Usuários" items={userItems} />
-        <SidebarSection title="Marketing" items={marketingItems} />
-        <SidebarSection title="Analytics" items={analyticsItems} />
-        <SidebarSection title="Sistema" items={systemItems} />
+      <SidebarContent className="space-y-2">
+        <CollapsibleSidebarSection title="Conteúdo" items={contentItems} groupKey="content" defaultOpen />
+        <CollapsibleSidebarSection title="Usuários" items={userItems} groupKey="users" />
+        <CollapsibleSidebarSection title="Marketing" items={marketingItems} groupKey="marketing" />
+        <CollapsibleSidebarSection title="Analytics" items={analyticsItems} groupKey="analytics" />
+        <CollapsibleSidebarSection title="Sistema" items={systemItems} groupKey="system" />
       </SidebarContent>
     </Sidebar>
   );

@@ -1,15 +1,17 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, FileX, MapPin, Calendar, Users, Building, ExternalLink } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { AlertTriangle, CheckCircle, Info, AlertCircle, Eye, Image, Link, FileX } from 'lucide-react';
 import { useDataQualityIssues } from '@/hooks/useDashboardData';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 export const DataQualityAlerts = () => {
   const { data: issues, isLoading, error } = useDataQualityIssues();
   const navigate = useNavigate();
+  const [showAll, setShowAll] = useState(false);
 
   if (isLoading) {
     return (
@@ -37,7 +39,7 @@ export const DataQualityAlerts = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center text-destructive">
-          Erro ao verificar qualidade dos dados
+          Erro ao carregar alertas de qualidade
           <button 
             onClick={() => window.location.reload()} 
             className="block mx-auto mt-2 text-sm underline"
@@ -62,64 +64,38 @@ export const DataQualityAlerts = () => {
           Qualidade dos Dados
         </CardTitle>
         <CardDescription>
-          Pendências e dados faltantes
+          {showAll ? 'Todos os problemas de qualidade' : 'Principais problemas de qualidade dos dados'}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 p-4">
         {!hasIssues ? (
-          <div className="text-center text-muted-foreground py-8 flex-1 flex flex-col items-center justify-center">
-            <div className="text-green-600 mb-2 text-2xl">✓</div>
-            <div>Todos os dados estão em ordem</div>
+          <div className="text-center text-muted-foreground py-8 flex-1 flex items-center justify-center">
+            <div>
+              <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
+              <div>Todos os dados estão em ordem!</div>
+            </div>
           </div>
         ) : (
-          <div className="space-y-3 max-h-80 overflow-y-auto">
+          <div className="space-y-4">
             {/* Destaques com dados faltantes */}
             {issues?.highlightsMissingData && issues.highlightsMissingData.length > 0 && (
-              <Alert>
-                <FileX className="h-4 w-4" />
+              <Alert className="border-red-200 bg-red-50/50">
+                <AlertTriangle className="h-4 w-4 text-red-600" />
+                <AlertTitle className="text-red-800">Dados faltantes (Destaques)</AlertTitle>
                 <AlertDescription>
-                  <div className="font-medium mb-2">
-                    {issues.highlightsMissingData.length} destaques com dados faltantes
-                  </div>
-                  <div className="space-y-2">
-                    {issues.highlightsMissingData.slice(0, 3).map((highlight) => (
-                      <div
-                        key={highlight.id}
-                        className="flex items-center justify-between p-2 bg-muted/50 rounded"
-                      >
-                        <div className="min-w-0 flex-1 mr-2">
-                          <div className="text-sm font-medium truncate">{highlight.event_title}</div>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {highlight.issues.slice(0, 2).map((issue) => (
-                              <Badge key={issue} variant="destructive" className="text-xs">
-                                {issue}
-                              </Badge>
-                            ))}
-                            {highlight.issues.length > 2 && (
-                              <Badge variant="outline" className="text-xs">
-                                +{highlight.issues.length - 2}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => navigate(`/admin-highlight-editor?id=${highlight.id}`)}
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
-                    {issues.highlightsMissingData.length > 3 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigate('/admin-highlight-editor')}
-                      >
-                        Ver todos ({issues.highlightsMissingData.length})
-                      </Button>
-                    )}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FileX className="h-4 w-4" />
+                      <span>{issues.highlightsMissingData.length} destaques</span>
+                      <Badge variant="destructive" className="text-xs">Crítico</Badge>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => navigate('/admin-highlight-editor')}
+                    >
+                      Corrigir
+                    </Button>
                   </div>
                 </AlertDescription>
               </Alert>
@@ -127,46 +103,23 @@ export const DataQualityAlerts = () => {
 
             {/* Eventos com dados faltantes */}
             {issues?.eventsMissingData && issues.eventsMissingData.length > 0 && (
-              <Alert>
-                <Calendar className="h-4 w-4" />
+              <Alert className="border-yellow-200 bg-yellow-50/50">
+                <AlertCircle className="h-4 w-4 text-yellow-600" />
+                <AlertTitle className="text-yellow-800">Dados faltantes (Eventos)</AlertTitle>
                 <AlertDescription>
-                  <div className="font-medium mb-2">
-                    {issues.eventsMissingData.length} eventos com dados faltantes
-                  </div>
-                  <div className="space-y-2">
-                    {issues.eventsMissingData.slice(0, 3).map((event) => (
-                      <div
-                        key={event.id}
-                        className="flex items-center justify-between p-2 bg-muted/50 rounded"
-                      >
-                        <div>
-                          <div className="text-sm font-medium">{event.title}</div>
-                          <div className="flex gap-1 mt-1">
-                            {event.issues.map((issue) => (
-                              <Badge key={issue} variant="destructive" className="text-xs">
-                                {issue}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => navigate(`/admin-event-edit/${event.id}`)}
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
-                    {issues.eventsMissingData.length > 3 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigate('/admin-event-management')}
-                      >
-                        Ver todos ({issues.eventsMissingData.length})
-                      </Button>
-                    )}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FileX className="h-4 w-4" />
+                      <span>{issues.eventsMissingData.length} eventos</span>
+                      <Badge variant="outline" className="text-xs bg-yellow-100">Aviso</Badge>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => navigate('/admin-event-management')}
+                    >
+                      Corrigir
+                    </Button>
                   </div>
                 </AlertDescription>
               </Alert>
@@ -174,37 +127,41 @@ export const DataQualityAlerts = () => {
 
             {/* Slugs duplicados */}
             {issues?.duplicateSlugs && issues.duplicateSlugs.length > 0 && (
-              <Alert>
-                <AlertTriangle className="h-4 w-4" />
+              <Alert className="border-yellow-200 bg-yellow-50/50">
+                <Info className="h-4 w-4 text-yellow-600" />
+                <AlertTitle className="text-yellow-800">Slugs duplicados</AlertTitle>
                 <AlertDescription>
-                  <div className="font-medium mb-2">
-                    {issues.duplicateSlugs.length} slugs duplicados encontrados
-                  </div>
-                  <div className="space-y-2">
-                    {issues.duplicateSlugs.slice(0, 3).map((item) => (
-                      <div
-                        key={item.slug}
-                        className="flex items-center justify-between p-2 bg-muted/50 rounded"
-                      >
-                        <div>
-                          <div className="text-sm font-medium">/{item.slug}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {item.count} itens com mesmo slug
-                          </div>
-                        </div>
-                        <Badge variant="outline" className="text-xs">
-                          {item.type}
-                        </Badge>
-                      </div>
-                    ))}
-                    {issues.duplicateSlugs.length > 3 && (
-                      <div className="text-xs text-muted-foreground">
-                        +{issues.duplicateSlugs.length - 3} mais...
-                      </div>
-                    )}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="h-4 w-4" />
+                      <span>{issues.duplicateSlugs.length} conflitos</span>
+                      <Badge variant="outline" className="text-xs bg-yellow-100">Aviso</Badge>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => navigate('/admin-event-management')}
+                    >
+                      Revisar
+                    </Button>
                   </div>
                 </AlertDescription>
               </Alert>
+            )}
+
+            {/* Botão Ver Todos */}
+            {!showAll && (
+              <div className="pt-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAll(true)}
+                  className="w-full"
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  Ver detalhes completos
+                </Button>
+              </div>
             )}
           </div>
         )}

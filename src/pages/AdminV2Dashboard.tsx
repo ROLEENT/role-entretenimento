@@ -54,22 +54,22 @@ function AdminV2Dashboard() {
           <UpcomingEvents />
         </div>
 
-        {/* Layout principal com 3 colunas */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Itens Recentes */}
+        {/* Layout principal reorganizado por prioridade */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Coluna 1: Itens Recentes (Prioridade 1) */}
           <div className="lg:col-span-1">
             <RecentItems />
           </div>
 
-          {/* Qualidade dos Dados */}
+          {/* Coluna 2: Qualidade dos Dados (Prioridade 2) */}
           <div className="lg:col-span-1">
             <DataQualityAlerts />
           </div>
 
-          {/* Saúde do Sistema + Sessão */}
-          <div className="lg:col-span-1 space-y-4">
-            <SystemHealth />
+          {/* Coluna 3: Sessão e Sistema (Prioridades 3 e 4) */}
+          <div className="lg:col-span-1 space-y-8">
             <SessionInfo />
+            <SystemHealth />
           </div>
         </div>
       </main>

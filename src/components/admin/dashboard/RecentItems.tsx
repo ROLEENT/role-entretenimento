@@ -1,16 +1,19 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Edit, Star, Calendar, Building, Users } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Clock, Edit, Star, Calendar, Building, Users, ExternalLink, Eye } from 'lucide-react';
 import { useRecentActivity } from '@/hooks/useRecentActivity';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useState } from 'react';
 
 export const RecentItems = () => {
   const { data: recentItems, isLoading, error } = useRecentActivity();
   const navigate = useNavigate();
+  const [showAll, setShowAll] = useState(false);
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -39,6 +42,34 @@ export const RecentItems = () => {
       case 'venue': return 'Local';
       case 'organizer': return 'Organizador';
       default: return type;
+    }
+  };
+
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case 'published':
+      case 'active':
+        return 'default'; // Verde
+      case 'draft':
+        return 'secondary'; // Cinza
+      case 'error':
+        return 'destructive'; // Vermelho
+      default:
+        return 'outline';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'published':
+      case 'active':
+        return 'Publicado';
+      case 'draft':
+        return 'Rascunho';
+      case 'error':
+        return 'Erro';
+      default:
+        return status;
     }
   };
 
@@ -88,7 +119,7 @@ export const RecentItems = () => {
           Itens Recentes
         </CardTitle>
         <CardDescription>
-          5 itens editados recentemente
+          {showAll ? 'Todos os itens recentes' : '5 itens editados recentemente'}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 p-4">
@@ -97,57 +128,120 @@ export const RecentItems = () => {
             Nenhum item editado recentemente
           </div>
         ) : (
-          <div className="space-y-3 max-h-80 overflow-y-auto">
-            {recentItems.map((item) => {
-              const Icon = getIcon(item.type);
-              return (
-                <div
-                  key={`${item.type}-${item.id}`}
-                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50"
-                >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <Icon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <div className="min-w-0 flex-1">
-                      <div className="font-medium text-sm truncate">{item.title}</div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span className="flex-shrink-0">{getTypeLabel(item.type)}</span>
-                        {item.city && (
-                          <>
-                            <span>•</span>
-                            <span className="truncate">{item.city}</span>
-                          </>
-                        )}
-                        <span>•</span>
-                        <span className="flex-shrink-0">
-                          {formatDistanceToNow(new Date(item.updatedAt), {
-                            addSuffix: true,
-                            locale: ptBR,
-                          })}
-                        </span>
+          <TooltipProvider>
+            <div className="space-y-3">
+              {(showAll ? recentItems : recentItems.slice(0, 5)).map((item) => {
+                const Icon = getIcon(item.type);
+                return (
+                  <div
+                    key={`${item.type}-${item.id}`}
+                    className="flex items-start justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex items-start gap-3 min-w-0 flex-1">
+                      <Icon className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-1" />
+                      <div className="min-w-0 flex-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="font-medium text-sm line-clamp-2 leading-5 cursor-help">
+                              {item.title}
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="max-w-xs">{item.title}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1 flex-wrap">
+                          <span className="flex-shrink-0">{getTypeLabel(item.type)}</span>
+                          {item.city && (
+                            <>
+                              <span>•</span>
+                              <span className="truncate">{item.city}</span>
+                            </>
+                          )}
+                          <span>•</span>
+                          <span className="flex-shrink-0">
+                            {formatDistanceToNow(new Date(item.updatedAt), {
+                              addSuffix: true,
+                              locale: ptBR,
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0 ml-3">
+                      {item.status && (
+                        <Badge 
+                          variant={getStatusVariant(item.status)}
+                          className="text-xs"
+                        >
+                          {getStatusLabel(item.status)}
+                        </Badge>
+                      )}
+                      <div className="flex gap-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => navigate(getEditUrl(item))}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Edit className="h-3 w-3 text-primary" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Editar</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => window.open(getEditUrl(item), '_blank')}
+                              className="h-8 w-8 p-0"
+                            >
+                              <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Abrir em nova aba</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    {item.status && (
-                      <Badge 
-                        variant={item.status === 'published' || item.status === 'active' ? 'default' : 'secondary'}
-                        className="text-xs"
-                      >
-                        {item.status === 'published' || item.status === 'active' ? 'Ativo' : 'Rascunho'}
-                      </Badge>
-                    )}
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => navigate(getEditUrl(item))}
-                    >
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                  </div>
+                );
+              })}
+              
+              {recentItems && recentItems.length > 5 && !showAll && (
+                <div className="pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAll(true)}
+                    className="w-full"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Ver todos ({recentItems.length} itens)
+                  </Button>
                 </div>
-              );
-            })}
-          </div>
+              )}
+              
+              {showAll && (
+                <div className="pt-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowAll(false)}
+                    className="w-full"
+                  >
+                    Mostrar menos
+                  </Button>
+                </div>
+              )}
+            </div>
+          </TooltipProvider>
         )}
       </CardContent>
     </Card>
