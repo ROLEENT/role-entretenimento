@@ -3836,6 +3836,7 @@ export type Database = {
         | "sports"
         | "technology"
         | "business"
+        | "blog"
       city:
         | "porto_alegre"
         | "florianopolis"
@@ -3981,6 +3982,7 @@ export const Constants = {
         "sports",
         "technology",
         "business",
+        "blog",
       ],
       city: [
         "porto_alegre",
