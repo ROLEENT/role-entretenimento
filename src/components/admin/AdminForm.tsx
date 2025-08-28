@@ -71,6 +71,16 @@ export function AdminForm({
   isEdit = false,
   adminEmail
 }: AdminFormProps) {
+  console.log('[ADMIN FORM] Inicializando AdminForm com:', {
+    title,
+    fieldsCount: fields?.length,
+    sectionsCount: sections?.length,
+    hasSchema: !!schema,
+    isLoading,
+    adminEmail,
+    defaultValues
+  });
+  
   const navigate = useNavigate();
   const [dynamicArrays, setDynamicArrays] = useState<Record<string, string[]>>({});
 

@@ -13,24 +13,36 @@ interface ArtistFormProps {
 }
 
 function ArtistForm({ mode }: ArtistFormProps) {
+  console.log('[ARTIST FORM] Inicializando com mode:', mode);
+  
   const navigate = useNavigate();
   const { id } = useParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [initialData, setInitialData] = useState<Partial<ArtistFormData>>({});
   
+  console.log('[ARTIST FORM] Hooks inicializados');
+  
   const { showSuccess, showError } = useAdminToast();
+  console.log('[ARTIST FORM] useAdminToast:', { showSuccess, showError });
+  
   const { createArtist, updateArtist, getArtist, loading } = useArtistManagement();
+  console.log('[ARTIST FORM] useArtistManagement:', { createArtist, updateArtist, getArtist, loading });
+  
   const { user } = useSecureAuth();
+  console.log('[ARTIST FORM] useSecureAuth user:', user);
 
   useEffect(() => {
+    console.log('[ARTIST FORM] useEffect executando');
     const fetchArtist = async () => {
       if (mode === 'edit' && id) {
         try {
+          console.log('[ARTIST FORM] Buscando artista:', id);
           const artist = await getArtist(id);
           if (artist) {
             setInitialData(artist);
           }
         } catch (error) {
+          console.error('[ARTIST FORM] Erro ao buscar artista:', error);
           showError(error, 'Erro ao carregar dados do artista');
         }
       }
@@ -129,6 +141,16 @@ function ArtistForm({ mode }: ArtistFormProps) {
     availability_days: [],
     ...initialData
   };
+
+  console.log('[ARTIST FORM] Renderizando formulário:', {
+    mode,
+    isSubmitting,
+    loading,
+    userEmail: user?.email,
+    fieldsLength: fields.length,
+    sectionsLength: sections.length,
+    defaultValues
+  });
 
   return (
     <AdminForm
