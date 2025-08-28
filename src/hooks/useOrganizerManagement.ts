@@ -1,144 +1,144 @@
-import { useState, useCallback } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { OrganizerFormData } from '@/lib/organizerSchema';
+import { useToast } from '@/hooks/use-toast';
 
-export interface OrganizerFormData {
-  name: string;
-  contact_email: string;
-  site: string;
-  instagram: string;
-  description: string;
-  logo_url?: string;
-  phone?: string;
-  whatsapp?: string;
-  founded_year?: number;
-  specialties?: string[];
+export interface OrganizerData extends OrganizerFormData {
+  id: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export const useOrganizerManagement = () => {
-  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const createOrganizer = useCallback(async (data: OrganizerFormData) => {
-    try {
-      setLoading(true);
-      
-      const { data: organizer, error } = await supabase
+  const { data: organizers = [], isLoading, error } = useQuery({
+    queryKey: ['organizers'],
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from('organizers')
-        .insert({
-          name: data.name,
-          contact_email: data.contact_email,
-          site: data.site || null,
-          instagram: data.instagram || null,
-          description: data.description || null,
-          logo_url: data.logo_url || null,
-          phone: data.phone || null,
-          whatsapp: data.whatsapp || null,
-          founded_year: data.founded_year || null,
-          specialties: data.specialties || []
-        })
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as OrganizerData[];
+    },
+  });
+
+  const createOrganizer = useMutation({
+    mutationFn: async (organizerData: OrganizerFormData) => {
+      // Generate slug from name
+      const slug = organizerData.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+
+      const { data, error } = await supabase
+        .from('organizers')
+        .insert([{ ...organizerData, slug }])
         .select()
         .single();
 
       if (error) throw error;
-      
-      toast.success('Organizador criado com sucesso!');
-      return organizer;
-    } catch (error: any) {
-      console.error('Error creating organizer:', error);
-      toast.error(error.message || 'Erro ao criar organizador');
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['organizers'] });
+      toast({
+        title: 'Sucesso',
+        description: 'Organizador criado com sucesso!',
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Erro',
+        description: error.message || 'Erro ao criar organizador',
+        variant: 'destructive',
+      });
+    },
+  });
 
-  const updateOrganizer = useCallback(async (organizerId: string, data: OrganizerFormData) => {
-    try {
-      setLoading(true);
-      
-      const { error } = await supabase
+  const updateOrganizer = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<OrganizerFormData> }) => {
+      const { data: result, error } = await supabase
         .from('organizers')
-        .update({
-          name: data.name,
-          contact_email: data.contact_email,
-          site: data.site || null,
-          instagram: data.instagram || null,
-          description: data.description || null,
-          logo_url: data.logo_url || null,
-          phone: data.phone || null,
-          whatsapp: data.whatsapp || null,
-          founded_year: data.founded_year || null,
-          specialties: data.specialties || [],
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', organizerId);
+        .update(data)
+        .eq('id', id)
+        .select()
+        .single();
 
       if (error) throw error;
-      
-      toast.success('Organizador atualizado com sucesso!');
-      return true;
-    } catch (error: any) {
-      console.error('Error updating organizer:', error);
-      toast.error(error.message || 'Erro ao atualizar organizador');
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['organizers'] });
+      toast({
+        title: 'Sucesso',
+        description: 'Organizador atualizado com sucesso!',
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Erro',
+        description: error.message || 'Erro ao atualizar organizador',
+        variant: 'destructive',
+      });
+    },
+  });
 
-  const getOrganizers = useCallback(async (search?: string) => {
-    try {
-      setLoading(true);
-      
-      let query = supabase
-        .from('organizers')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (search) {
-        query = query.or(`name.ilike.%${search}%,contact_email.ilike.%${search}%`);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-      return data || [];
-    } catch (error: any) {
-      console.error('Error fetching organizers:', error);
-      toast.error(error.message || 'Erro ao carregar organizadores');
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const deleteOrganizer = useCallback(async (organizerId: string) => {
-    try {
-      setLoading(true);
-      
+  const deleteOrganizer = useMutation({
+    mutationFn: async (id: string) => {
       const { error } = await supabase
         .from('organizers')
         .delete()
-        .eq('id', organizerId);
+        .eq('id', id);
 
       if (error) throw error;
-      
-      toast.success('Organizador removido com sucesso!');
-      return true;
-    } catch (error: any) {
-      console.error('Error deleting organizer:', error);
-      toast.error(error.message || 'Erro ao remover organizador');
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['organizers'] });
+      toast({
+        title: 'Sucesso',
+        description: 'Organizador excluído com sucesso!',
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Erro',
+        description: error.message || 'Erro ao excluir organizador',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const getOrganizer = (id: string) => {
+    return useQuery({
+      queryKey: ['organizer', id],
+      queryFn: async () => {
+        const { data, error } = await supabase
+          .from('organizers')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+        return data as OrganizerData;
+      },
+      enabled: !!id,
+    });
+  };
 
   return {
-    loading,
-    createOrganizer,
-    updateOrganizer,
-    getOrganizers,
-    deleteOrganizer
+    organizers,
+    isLoading,
+    error,
+    createOrganizer: createOrganizer.mutateAsync,
+    updateOrganizer: updateOrganizer.mutateAsync,
+    deleteOrganizer: deleteOrganizer.mutateAsync,
+    getOrganizer,
+    isCreating: createOrganizer.isPending,
+    isUpdating: updateOrganizer.isPending,
+    isDeleting: deleteOrganizer.isPending,
   };
 };

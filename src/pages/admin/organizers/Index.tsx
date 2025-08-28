@@ -11,7 +11,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Users, Plus, Search, Edit, Trash2, Mail, Globe, Instagram, Filter } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useOrganizerManagement, type OrganizerFormData } from '@/hooks/useOrganizerManagement';
+import { useOrganizerManagement, type OrganizerData } from '@/hooks/useOrganizerManagement';
+import { OrganizerFormData } from '@/lib/organizerSchema';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { withAdminAuth } from '@/components/withAdminAuth';
 
@@ -35,7 +36,7 @@ function AdminOrganizers() {
   const [searchTerm, setSearchTerm] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingOrganizer, setEditingOrganizer] = useState<Organizer | null>(null);
-  const { loading, getOrganizers, createOrganizer, updateOrganizer, deleteOrganizer } = useOrganizerManagement();
+  const { organizers, isLoading, createOrganizer, updateOrganizer, deleteOrganizer } = useOrganizerManagement();
 
   const [formData, setFormData] = useState<OrganizerFormData>({
     name: '',
@@ -68,7 +69,7 @@ function AdminOrganizers() {
 
     try {
       if (editingOrganizer) {
-        await updateOrganizer(editingOrganizer.id, formData);
+        await updateOrganizer({ id: editingOrganizer.id, data: formData });
       } else {
         await createOrganizer(formData);
       }

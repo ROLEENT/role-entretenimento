@@ -1,15 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AdminBreadcrumbs } from '@/components/admin/AdminBreadcrumbs';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { EmptyState } from '@/components/ui/empty-state';
-import { Plus, Search, MoreHorizontal, Edit, Trash2, Building2, Clock, Instagram, Globe } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { AdminDataTable } from '@/components/admin/AdminDataTable';
+import { useOrganizerManagement } from '@/hooks/useOrganizerManagement';
+import { withAdminAuth } from '@/components/withAdminAuth';
 
 interface Organizer {
   id: string;
@@ -17,11 +10,9 @@ interface Organizer {
   type: string;
   city: string;
   contact_email: string;
-  contact_whatsapp?: string;
   instagram?: string;
   website_url?: string;
-  logo_url?: string;
-  status: 'active' | 'inactive';
+  status: string;
   created_at: string;
 }
 
@@ -29,212 +20,115 @@ const typeLabels = {
   organizador: 'Organizador',
   produtora: 'Produtora',
   coletivo: 'Coletivo',
-  selo: 'Selo'
+  selo: 'Selo',
 };
 
-export default function OrganizersList() {
+function OrganizersList() {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [organizers, setOrganizers] = useState<Organizer[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const { organizers, isLoading, deleteOrganizer } = useOrganizerManagement();
 
-  const filteredOrganizers = organizers.filter(organizer =>
-    organizer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    organizer.contact_email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    organizer.city.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const columns = [
+    {
+      key: 'name',
+      label: 'Nome',
+      sortable: true,
+    },
+    {
+      key: 'type',
+      label: 'Tipo',
+      render: (value: any, organizer: Organizer) => typeLabels[organizer.type as keyof typeof typeLabels] || organizer.type,
+    },
+    {
+      key: 'city',
+      label: 'Cidade',
+      sortable: true,
+    },
+    {
+      key: 'contact_email',
+      label: 'Email',
+    },
+    {
+      key: 'instagram',
+      label: 'Instagram',
+      render: (value: any, organizer: Organizer) => organizer.instagram || '-',
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (value: any, organizer: Organizer) => (
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          organizer.status === 'active' 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-red-100 text-red-800'
+        }`}>
+          {organizer.status === 'active' ? 'Ativo' : 'Inativo'}
+        </span>
+      ),
+    },
+  ];
 
-  const getTypeLabel = (type: string) => typeLabels[type as keyof typeof typeLabels] || type;
+  const filters = [
+    {
+      key: 'type',
+      label: 'Tipo',
+      type: 'select' as const,
+      options: Object.entries(typeLabels).map(([value, label]) => ({ value, label })),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      type: 'select' as const,
+      options: [
+        { value: 'active', label: 'Ativo' },
+        { value: 'inactive', label: 'Inativo' },
+      ],
+    },
+  ];
 
-  const getStatusColor = (status: string) => {
-    return status === 'active' ? 'default' : 'secondary';
-  };
+  const actions = [
+    {
+      type: 'edit' as const,
+      label: 'Editar',
+      onClick: (organizer: Organizer) => navigate(`/admin-v2/organizers/edit/${organizer.id}`),
+    },
+    {
+      type: 'delete' as const,
+      label: 'Excluir',
+      onClick: (organizer: Organizer) => handleDelete(organizer),
+      variant: 'destructive' as const,
+    },
+  ];
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR');
-  };
-
-  useEffect(() => {
-    // Mock data - em produção seria uma chamada à API
-    setTimeout(() => {
-      setOrganizers([
-        {
-          id: '1',
-          name: 'Produtora Music Wave',
-          type: 'produtora',
-          city: 'Porto Alegre',
-          contact_email: 'contato@musicwave.com',
-          contact_whatsapp: '+5551999999999',
-          instagram: '@musicwave',
-          website_url: 'https://musicwave.com',
-          status: 'active',
-          created_at: '2024-01-15T10:00:00Z'
-        },
-        {
-          id: '2',
-          name: 'Coletivo Underground',
-          type: 'coletivo',
-          city: 'São Paulo',
-          contact_email: 'info@underground.com',
-          instagram: '@underground_sp',
-          status: 'active',
-          created_at: '2024-01-10T10:00:00Z'
-        }
-      ]);
-      setLoading(false);
-    }, 1000);
-  }, []);
-
-  const handleDelete = async (organizerId: string) => {
-    if (!confirm('Tem certeza que deseja excluir este organizador?')) return;
-    
-    try {
-      // Aqui seria a chamada para deletar o organizador
-      setOrganizers(organizers.filter(o => o.id !== organizerId));
-      toast({
-        title: 'Organizador excluído',
-        description: 'O organizador foi excluído com sucesso.',
-      });
-    } catch (error: any) {
-      toast({
-        title: 'Erro ao excluir',
-        description: error.message || 'Ocorreu um erro inesperado.',
-        variant: 'destructive',
-      });
+  const handleDelete = async (organizer: Organizer) => {
+    if (window.confirm(`Tem certeza que deseja excluir o organizador "${organizer.name}"?`)) {
+      try {
+        await deleteOrganizer(organizer.id);
+      } catch (error) {
+        console.error('Erro ao excluir organizador:', error);
+      }
     }
   };
 
-  if (loading) {
-    return (
-      <div className="p-6">
-        <LoadingSpinner size="lg" text="Carregando organizadores..." />
-      </div>
-    );
-  }
-
   return (
-    <div className="p-6">
-      <AdminBreadcrumbs />
-      
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Gerenciar Organizadores</h1>
-          <p className="text-muted-foreground">
-            Gerencie os organizadores cadastrados na plataforma
-          </p>
-        </div>
-        <Button onClick={() => navigate('/admin-v2/organizers/create')}>
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Organizador
-        </Button>
-      </div>
-
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Search className="h-5 w-5" />
-            Buscar Organizadores
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Input
-            placeholder="Buscar por nome, email ou cidade..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="max-w-md"
-          />
-        </CardContent>
-      </Card>
-
-      {filteredOrganizers.length === 0 ? (
-        <EmptyState
-          msg={searchQuery ? "Nenhum organizador corresponde aos critérios de busca." : "Não há organizadores cadastrados ainda."}
-          actionLabel="Criar Primeiro Organizador"
-          onAction={() => navigate('/admin-v2/organizers/create')}
-        />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredOrganizers.map((organizer) => (
-            <Card key={organizer.id} className="relative">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      {organizer.logo_url && (
-                        <img
-                          src={organizer.logo_url}
-                          alt={organizer.name}
-                          className="w-8 h-8 rounded object-cover"
-                        />
-                      )}
-                      <h3 className="font-semibold">{organizer.name}</h3>
-                    </div>
-                    <Badge variant={getStatusColor(organizer.status)}>
-                      {organizer.status === 'active' ? 'Ativo' : 'Inativo'}
-                    </Badge>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => navigate(`/admin-v2/organizers/${organizer.id}/edit`)}>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => handleDelete(organizer.id)}
-                        className="text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Excluir
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">{getTypeLabel(organizer.type)}</Badge>
-                  </div>
-                  
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Building2 className="h-4 w-4" />
-                    <span>{organizer.city}</span>
-                  </div>
-                  
-                  <div className="text-muted-foreground">
-                    <span className="font-medium">Email:</span> {organizer.contact_email}
-                  </div>
-                  
-                  {organizer.instagram && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Instagram className="h-4 w-4" />
-                      <span>{organizer.instagram}</span>
-                    </div>
-                  )}
-                  
-                  {organizer.website_url && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Globe className="h-4 w-4" />
-                      <span className="truncate">Website</span>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center gap-2 text-muted-foreground pt-2 border-t">
-                    <Clock className="h-4 w-4" />
-                    <span>Criado em {formatDate(organizer.created_at)}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
+    <AdminDataTable
+      title="Gerenciar Organizadores"
+      description="Gerencie os organizadores de eventos da plataforma"
+      data={organizers}
+      columns={columns}
+      filters={filters}
+      actions={actions}
+      loading={isLoading}
+      searchPlaceholder="Buscar por nome, email ou cidade..."
+      createButton={{
+        label: "Novo Organizador",
+        href: "/admin-v2/organizers/create"
+      }}
+      emptyMessage="Nenhum organizador cadastrado. Comece adicionando seu primeiro organizador."
+      onDelete={async (id: string) => {
+        await deleteOrganizer(id);
+      }}
+    />
   );
 }
+
+export default withAdminAuth(OrganizersList, 'editor');
