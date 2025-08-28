@@ -1,7 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, UserCheck, Activity } from "lucide-react";
 
-export default function AdminProfiles() {
+import { withAdminAuth } from '@/components/withAdminAuth';
+
+function AdminProfiles() {
   return (
     <div className="space-y-6">
       <div>
@@ -45,3 +47,5 @@ export default function AdminProfiles() {
     </div>
   );
 }
+
+export default withAdminAuth(AdminProfiles, 'admin');

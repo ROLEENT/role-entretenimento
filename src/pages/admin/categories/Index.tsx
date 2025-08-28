@@ -34,7 +34,9 @@ const colorOptions = [
   '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6366F1'
 ];
 
-export default function AdminCategories() {
+import { withAdminAuth } from '@/components/withAdminAuth';
+
+function AdminCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -382,3 +384,5 @@ export default function AdminCategories() {
     </div>
   );
 }
+
+export default withAdminAuth(AdminCategories, 'admin');

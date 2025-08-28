@@ -19,7 +19,9 @@ interface Category {
   slug: string;
 }
 
-export default function AdminBlogEdit() {
+import { withAdminAuth } from '@/components/withAdminAuth';
+
+function AdminBlogEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { loading, updatePost } = useBlogManagement();
@@ -408,3 +410,5 @@ export default function AdminBlogEdit() {
     </div>
   );
 }
+
+export default withAdminAuth(AdminBlogEdit, 'editor');

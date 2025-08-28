@@ -24,7 +24,9 @@ interface BlogPost {
   views: number;
 }
 
-export default function AdminBlog() {
+import { withAdminAuth } from '@/components/withAdminAuth';
+
+function AdminBlog() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -231,3 +233,5 @@ export default function AdminBlog() {
     </div>
   );
 }
+
+export default withAdminAuth(AdminBlog, 'editor');

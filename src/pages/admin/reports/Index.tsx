@@ -24,7 +24,9 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-export default function AdminReports() {
+import { withAdminAuth } from '@/components/withAdminAuth';
+
+function AdminReports() {
   const {
     reports,
     metrics,
@@ -424,3 +426,5 @@ export default function AdminReports() {
     </div>
   );
 }
+
+export default withAdminAuth(AdminReports, 'admin');

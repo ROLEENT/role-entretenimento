@@ -2,7 +2,9 @@ import { Routes, Route } from 'react-router-dom';
 import AdvertisementsList from './List';
 import AdvertisementForm from './Form';
 
-export default function AdvertisementsRoutes() {
+import { withAdminAuth } from '@/components/withAdminAuth';
+
+function AdvertisementsRoutes() {
   return (
     <Routes>
       <Route index element={<AdvertisementsList />} />
@@ -11,3 +13,5 @@ export default function AdvertisementsRoutes() {
     </Routes>
   );
 }
+
+export default withAdminAuth(AdvertisementsRoutes, 'editor');

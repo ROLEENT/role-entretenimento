@@ -37,7 +37,9 @@ interface UserBadge {
   };
 }
 
-export default function AdminGamification() {
+import { withAdminAuth } from '@/components/withAdminAuth';
+
+function AdminGamification() {
   const [stats, setStats] = useState<GamificationStats | null>(null);
   const [badges, setBadges] = useState<Badge[]>([]);
   const [recentAchievements, setRecentAchievements] = useState<UserBadge[]>([]);
@@ -256,3 +258,5 @@ export default function AdminGamification() {
     </div>
   );
 }
+
+export default withAdminAuth(AdminGamification, 'admin');

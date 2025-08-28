@@ -356,4 +356,6 @@ const AdminMetricsIndex = () => {
   );
 };
 
-export default AdminMetricsIndex;
+import { withAdminAuth } from '@/components/withAdminAuth';
+
+export default withAdminAuth(AdminMetricsIndex, 'admin');

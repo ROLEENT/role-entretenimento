@@ -19,7 +19,9 @@ interface Category {
   slug: string;
 }
 
-export default function AdminBlogCreate() {
+import { withAdminAuth } from '@/components/withAdminAuth';
+
+function AdminBlogCreate() {
   const navigate = useNavigate();
   const { loading, createPost } = useBlogManagement();
   const { getCategories } = useCategoryManagement();
@@ -320,3 +322,5 @@ export default function AdminBlogCreate() {
     </div>
   );
 }
+
+export default withAdminAuth(AdminBlogCreate, 'editor');
