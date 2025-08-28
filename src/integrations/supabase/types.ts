@@ -3125,24 +3125,41 @@ export type Database = {
         }[]
       }
       admin_create_highlight_v2: {
-        Args: {
-          p_admin_email: string
-          p_city: string
-          p_event_date?: string
-          p_event_time?: string
-          p_event_title: string
-          p_image_url: string
-          p_is_published?: boolean
-          p_photo_credit?: string
-          p_role_text: string
-          p_selection_reasons?: string[]
-          p_sort_order?: number
-          p_ticket_price?: string
-          p_ticket_url?: string
-          p_venue: string
-        }
+        Args:
+          | {
+              p_admin_email: string
+              p_city: string
+              p_event_date?: string
+              p_event_time?: string
+              p_event_title: string
+              p_image_url: string
+              p_is_published?: boolean
+              p_photo_credit?: string
+              p_role_text: string
+              p_selection_reasons?: string[]
+              p_sort_order?: number
+              p_ticket_price?: string
+              p_ticket_url?: string
+              p_venue: string
+            }
+          | {
+              p_admin_email: string
+              p_city: string
+              p_event_date?: string
+              p_event_time?: string
+              p_event_title: string
+              p_image_url?: string
+              p_is_published?: boolean
+              p_photo_credit?: string
+              p_role_text?: string
+              p_selection_reasons?: string[]
+              p_sort_order?: number
+              p_ticket_price?: string
+              p_ticket_url?: string
+              p_venue: string
+            }
         Returns: {
-          city: string
+          city: Database["public"]["Enums"]["city"]
           created_at: string
           event_date: string
           event_time: string
@@ -3481,25 +3498,43 @@ export type Database = {
         }[]
       }
       admin_update_highlight_v2: {
-        Args: {
-          p_admin_email: string
-          p_city: string
-          p_event_date?: string
-          p_event_time?: string
-          p_event_title: string
-          p_highlight_id: string
-          p_image_url: string
-          p_is_published?: boolean
-          p_photo_credit?: string
-          p_role_text: string
-          p_selection_reasons?: string[]
-          p_sort_order?: number
-          p_ticket_price?: string
-          p_ticket_url?: string
-          p_venue: string
-        }
+        Args:
+          | {
+              p_admin_email: string
+              p_city: string
+              p_event_date?: string
+              p_event_time?: string
+              p_event_title: string
+              p_highlight_id: string
+              p_image_url: string
+              p_is_published?: boolean
+              p_photo_credit?: string
+              p_role_text: string
+              p_selection_reasons?: string[]
+              p_sort_order?: number
+              p_ticket_price?: string
+              p_ticket_url?: string
+              p_venue: string
+            }
+          | {
+              p_admin_email: string
+              p_city: string
+              p_event_date?: string
+              p_event_time?: string
+              p_event_title: string
+              p_highlight_id: string
+              p_image_url?: string
+              p_is_published?: boolean
+              p_photo_credit?: string
+              p_role_text?: string
+              p_selection_reasons?: string[]
+              p_sort_order?: number
+              p_ticket_price?: string
+              p_ticket_url?: string
+              p_venue: string
+            }
         Returns: {
-          city: string
+          city: Database["public"]["Enums"]["city"]
           created_at: string
           event_date: string
           event_time: string
