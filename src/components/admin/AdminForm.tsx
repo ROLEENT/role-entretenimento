@@ -18,7 +18,7 @@ import { z } from 'zod';
 interface FormField {
   name: string;
   label: string;
-  type: 'text' | 'textarea' | 'select' | 'checkbox' | 'file' | 'array' | 'email' | 'url' | 'number' | 'datetime-local';
+  type: 'text' | 'textarea' | 'select' | 'multiselect' | 'checkbox' | 'file' | 'array' | 'email' | 'url' | 'number' | 'datetime-local';
   placeholder?: string;
   description?: string;
   options?: { value: string; label: string }[];
@@ -185,7 +185,7 @@ export function AdminForm({
                   {...formField}
                 />
               )}
-              {field.type === 'select' && (
+               {field.type === 'select' && (
                 <Select
                   disabled={field.disabled}
                   onValueChange={formField.onChange}
@@ -202,6 +202,48 @@ export function AdminForm({
                     ))}
                   </SelectContent>
                 </Select>
+              )}
+              {field.type === 'multiselect' && (
+                <div className="space-y-2">
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {(formField.value || []).map((selectedValue: string) => {
+                      const option = field.options?.find(opt => opt.value === selectedValue);
+                      return (
+                        <Badge
+                          key={selectedValue}
+                          variant="secondary"
+                          className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground"
+                          onClick={() => {
+                            const newValue = (formField.value || []).filter((v: string) => v !== selectedValue);
+                            formField.onChange(newValue);
+                          }}
+                        >
+                          {option?.label} ×
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                  <Select
+                    disabled={field.disabled}
+                    onValueChange={(value) => {
+                      const currentValues = formField.value || [];
+                      if (!currentValues.includes(value)) {
+                        formField.onChange([...currentValues, value]);
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={field.placeholder || `Selecionar ${field.label.toLowerCase()}...`} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {field.options?.filter(option => !(formField.value || []).includes(option.value)).map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               )}
               {field.type === 'checkbox' && (
                 <div className="flex items-center space-x-2">

@@ -90,9 +90,25 @@ function AdminEventsIndex() {
       key: 'location',
       label: 'Local',
       render: (item: any) => (
-        <div className="flex items-center text-sm text-muted-foreground">
-          <MapPin className="h-4 w-4 mr-2" />
-          <span className="truncate">{item.city}, {item.state}</span>
+        <div className="text-sm">
+          <div className="flex items-center text-muted-foreground">
+            <MapPin className="h-4 w-4 mr-2" />
+            <span className="truncate">{item.city}, {item.state}</span>
+          </div>
+          {item.venues && (
+            <p className="text-xs text-muted-foreground truncate mt-1">
+              {item.venues.name}
+            </p>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'organizer',
+      label: 'Organizador',
+      render: (item: any) => (
+        <div className="text-sm text-muted-foreground">
+          {item.organizers ? item.organizers.name : '-'}
         </div>
       ),
     },

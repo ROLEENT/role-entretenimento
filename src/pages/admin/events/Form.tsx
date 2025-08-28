@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AdminForm } from '@/components/admin/AdminForm';
 import { eventSchema } from '@/lib/eventSchema';
 import { useEventManagement, EventFormData } from '@/hooks/useEventManagement';
+import { useVenueManagement } from '@/hooks/useVenueManagement';
+import { useOrganizerManagement } from '@/hooks/useOrganizerManagement';
 import { withAdminAuth } from '@/components/withAdminAuth';
 
 interface EventFormProps {
@@ -12,7 +14,19 @@ interface EventFormProps {
 function EventForm({ mode }: EventFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { createEvent, updateEvent, getEvent, loading } = useEventManagement();
+  const { createEvent, updateEvent, getEvent, getArtists, loading } = useEventManagement();
+  const { venues } = useVenueManagement();
+  const { organizers } = useOrganizerManagement();
+  
+  const [artists, setArtists] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchArtists = async () => {
+      const artistsData = await getArtists();
+      setArtists(artistsData);
+    };
+    fetchArtists();
+  }, [getArtists]);
 
   const cities = [
     'São Paulo', 'Rio de Janeiro', 'Belo Horizonte', 'Salvador', 
@@ -33,10 +47,9 @@ function EventForm({ mode }: EventFormProps) {
         start_at: validatedData.start_at,
         city: validatedData.city,
         state: validatedData.state,
-        venue_name: validatedData.venue_name,
+        venue_id: validatedData.venue_id,
         end_at: validatedData.end_at,
-        venue_address: validatedData.venue_address,
-        organizer_name: validatedData.organizer_name,
+        organizer_id: validatedData.organizer_id,
         cover_url: validatedData.cover_url,
         external_url: validatedData.external_url,
         price_min: validatedData.price_min,
@@ -49,7 +62,7 @@ function EventForm({ mode }: EventFormProps) {
         benefits: validatedData.benefits,
         age_range: validatedData.age_range,
         observations: validatedData.observations,
-        artists: validatedData.artists,
+        artist_ids: validatedData.artist_ids,
       };
       
       if (mode === 'create') {
@@ -101,17 +114,14 @@ function EventForm({ mode }: EventFormProps) {
       type: 'datetime-local' as const,
     },
     {
-      name: 'venue_name',
+      name: 'venue_id',
       label: 'Local',
-      type: 'text' as const,
+      type: 'select' as const,
       required: true,
-      placeholder: 'Ex: Teatro Municipal',
-    },
-    {
-      name: 'venue_address',
-      label: 'Endereço do Local',
-      type: 'text' as const,
-      placeholder: 'Ex: Rua das Flores, 123',
+      options: venues.map(venue => ({ 
+        value: venue.id, 
+        label: `${venue.name} - ${venue.address || venue.city}` 
+      })),
     },
     {
       name: 'city',
@@ -134,10 +144,16 @@ function EventForm({ mode }: EventFormProps) {
       placeholder: 'https://exemplo.com/ingressos',
     },
     {
-      name: 'organizer_name',
+      name: 'organizer_id',
       label: 'Organizador',
-      type: 'text' as const,
-      placeholder: 'Ex: Produtora Musical XYZ',
+      type: 'select' as const,
+      options: [
+        { value: '', label: 'Selecionar organizador (opcional)' },
+        ...organizers.map(org => ({ 
+          value: org.id, 
+          label: org.name 
+        }))
+      ],
     },
     {
       name: 'price_min',
@@ -169,6 +185,15 @@ function EventForm({ mode }: EventFormProps) {
       ],
     },
     {
+      name: 'artist_ids',
+      label: 'Artistas',
+      type: 'multiselect' as const,
+      options: artists.map(artist => ({ 
+        value: artist.id, 
+        label: artist.artist_name 
+      })),
+    },
+    {
       name: 'tags',
       label: 'Tags',
       type: 'array' as const,
@@ -179,12 +204,12 @@ function EventForm({ mode }: EventFormProps) {
       label: 'Status',
       type: 'select' as const,
       options: [
-        { value: 'active', label: 'Ativo' },
         { value: 'draft', label: 'Rascunho' },
+        { value: 'active', label: 'Ativo/Publicado' },
         { value: 'cancelled', label: 'Cancelado' },
         { value: 'completed', label: 'Finalizado' },
       ],
-      defaultValue: 'active',
+      defaultValue: 'draft',
     },
   ];
 
@@ -195,11 +220,11 @@ function EventForm({ mode }: EventFormProps) {
     },
     {
       title: 'Data e Local',
-      fields: ['start_at', 'end_at', 'venue_name', 'venue_address', 'city', 'state'],
+      fields: ['start_at', 'end_at', 'venue_id', 'city', 'state'],
     },
     {
       title: 'Detalhes Adicionais',
-      fields: ['external_url', 'organizer_name', 'price_min', 'price_max', 'tags'],
+      fields: ['external_url', 'organizer_id', 'price_min', 'price_max', 'artist_ids', 'tags'],
     },
   ];
 
@@ -215,17 +240,17 @@ function EventForm({ mode }: EventFormProps) {
         cover_url: '',
         start_at: '',
         end_at: '',
-        venue_name: '',
-        venue_address: '',
+        venue_id: '',
         city: '',
         state: '',
         external_url: '',
-        organizer_name: '',
+        organizer_id: '',
         price_min: 0,
         price_max: 0,
         category: '',
+        artist_ids: [],
         tags: [],
-        status: 'active',
+        status: 'draft',
       }}
       onSubmit={handleSubmit}
       onCancel={handleCancel}

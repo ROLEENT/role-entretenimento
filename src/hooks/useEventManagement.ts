@@ -8,11 +8,10 @@ export interface EventFormData {
   start_at: string;
   city: string;
   state: string;
-  venue_name: string;
+  venue_id: string;
   slug?: string;
   end_at?: string;
-  venue_address?: string;
-  organizer_name?: string;
+  organizer_id?: string;
   cover_url?: string;
   tags?: string[];
   status?: string;
@@ -20,7 +19,7 @@ export interface EventFormData {
   price_max?: number;
   external_url?: string;
   category?: string;
-  artists?: string[];
+  artist_ids?: string[];
   instagram_post_url?: string;
   social_links?: string;
   benefits?: string;
@@ -45,16 +44,15 @@ export const useEventManagement = () => {
         date_end: data.end_at || null,
         start_at: data.start_at,
         end_at: data.end_at || null,
-        venue_name: data.venue_name,
-        venue_address: data.venue_address || null,
-        organizer_name: data.organizer_name || null,
+        venue_id: data.venue_id,
+        organizer_id: data.organizer_id || null,
         cover_url: data.cover_url || null,
         image_url: data.cover_url || null,
         external_url: data.external_url || null,
         price_min: data.price_min || null,
         price_max: data.price_max || null,
         tags: data.tags || [],
-        status: data.status || 'active',
+        status: data.status || 'draft',
         source: 'internal'
       };
 
@@ -65,6 +63,11 @@ export const useEventManagement = () => {
         .single();
 
       if (error) throw error;
+
+      // Manage artist relationships
+      if (data.artist_ids && data.artist_ids.length > 0) {
+        await manageEventArtists(createdEvent.id, data.artist_ids);
+      }
       
       toast.success('Evento criado com sucesso!');
       return createdEvent.id;
@@ -91,16 +94,15 @@ export const useEventManagement = () => {
         date_end: data.end_at || null,
         start_at: data.start_at,
         end_at: data.end_at || null,
-        venue_name: data.venue_name,
-        venue_address: data.venue_address || null,
-        organizer_name: data.organizer_name || null,
+        venue_id: data.venue_id,
+        organizer_id: data.organizer_id || null,
         cover_url: data.cover_url || null,
         image_url: data.cover_url || null,
         external_url: data.external_url || null,
         price_min: data.price_min || null,
         price_max: data.price_max || null,
         tags: data.tags || [],
-        status: data.status || 'active',
+        status: data.status || 'draft',
         updated_at: new Date().toISOString()
       };
 
@@ -110,6 +112,11 @@ export const useEventManagement = () => {
         .eq('id', eventId);
 
       if (error) throw error;
+
+      // Update artist relationships
+      if (data.artist_ids !== undefined) {
+        await manageEventArtists(eventId, data.artist_ids);
+      }
       
       toast.success('Evento atualizado com sucesso!');
       return true;
@@ -130,8 +137,13 @@ export const useEventManagement = () => {
         .from('events')
         .select(`
           *,
-          venues:venue_id (id, name, address),
-          organizers:organizer_id (id, name)
+          venues:venue_id (id, name, address, city),
+          organizers:organizer_id (id, name),
+          event_artists (
+            artist_spotify_data:artist_spotify_data_id (
+              id, artist_name, spotify_id
+            )
+          )
         `)
         .order('created_at', { ascending: false });
 
@@ -175,8 +187,13 @@ export const useEventManagement = () => {
         .from('events')
         .select(`
           *,
-          venues:venue_id (id, name, address),
+          venues:venue_id (id, name, address, city),
           organizers:organizer_id (id, name),
+          event_artists (
+            artist_spotify_data:artist_spotify_data_id (
+              id, artist_name, spotify_id
+            )
+          ),
           event_categories(category_id)
         `)
         .eq('id', eventId)
@@ -251,6 +268,52 @@ export const useEventManagement = () => {
     }
   }, []);
 
+  const getArtists = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('artist_spotify_data')
+        .select('id, artist_name, spotify_id')
+        .order('artist_name');
+
+      if (error) {
+        console.warn('Artists table not available:', error);
+        return [];
+      }
+      return data || [];
+    } catch (error: any) {
+      console.warn('Error fetching artists:', error);
+      return [];
+    }
+  }, []);
+
+  const manageEventArtists = useCallback(async (eventId: string, artistIds: string[]) => {
+    try {
+      // Remove existing relationships
+      await supabase
+        .from('event_artists')
+        .delete()
+        .eq('event_id', eventId);
+
+      // Add new relationships
+      if (artistIds.length > 0) {
+        const relationships = artistIds.map((artistId, index) => ({
+          event_id: eventId,
+          artist_spotify_data_id: artistId,
+          is_main_artist: index === 0 // First artist is main
+        }));
+
+        const { error } = await supabase
+          .from('event_artists')
+          .insert(relationships);
+
+        if (error) throw error;
+      }
+    } catch (error: any) {
+      console.warn('Error managing event artists:', error);
+      throw error;
+    }
+  }, []);
+
   return {
     loading,
     createEvent,
@@ -259,6 +322,8 @@ export const useEventManagement = () => {
     getEvent,
     deleteEvent,
     getVenues,
-    getOrganizers
+    getOrganizers,
+    getArtists,
+    manageEventArtists
   };
 };
