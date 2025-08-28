@@ -55,15 +55,19 @@ function AdminV2Dashboard() {
         </div>
 
         {/* Layout principal com 3 colunas */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Itens Recentes */}
-          <RecentItems />
+          <div className="lg:col-span-1">
+            <RecentItems />
+          </div>
 
           {/* Qualidade dos Dados */}
-          <DataQualityAlerts />
+          <div className="lg:col-span-1">
+            <DataQualityAlerts />
+          </div>
 
           {/* Saúde do Sistema + Sessão */}
-          <div className="space-y-6">
+          <div className="lg:col-span-1 space-y-4">
             <SystemHealth />
             <SessionInfo />
           </div>

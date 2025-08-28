@@ -55,8 +55,8 @@ export const DataQualityAlerts = () => {
     (issues?.duplicateSlugs?.length || 0) > 0;
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="min-h-[400px] flex flex-col">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="flex items-center gap-2">
           <AlertTriangle className="h-5 w-5" />
           Qualidade dos Dados
@@ -65,14 +65,14 @@ export const DataQualityAlerts = () => {
           Pendências e dados faltantes
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 p-4">
         {!hasIssues ? (
-          <div className="text-center text-muted-foreground py-8">
-            <div className="text-green-600 mb-2">✓</div>
+          <div className="text-center text-muted-foreground py-8 flex-1 flex flex-col items-center justify-center">
+            <div className="text-green-600 mb-2 text-2xl">✓</div>
             <div>Todos os dados estão em ordem</div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 max-h-80 overflow-y-auto">
             {/* Destaques com dados faltantes */}
             {issues?.highlightsMissingData && issues.highlightsMissingData.length > 0 && (
               <Alert>
@@ -87,14 +87,19 @@ export const DataQualityAlerts = () => {
                         key={highlight.id}
                         className="flex items-center justify-between p-2 bg-muted/50 rounded"
                       >
-                        <div>
-                          <div className="text-sm font-medium">{highlight.event_title}</div>
-                          <div className="flex gap-1 mt-1">
-                            {highlight.issues.map((issue) => (
+                        <div className="min-w-0 flex-1 mr-2">
+                          <div className="text-sm font-medium truncate">{highlight.event_title}</div>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {highlight.issues.slice(0, 2).map((issue) => (
                               <Badge key={issue} variant="destructive" className="text-xs">
                                 {issue}
                               </Badge>
                             ))}
+                            {highlight.issues.length > 2 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{highlight.issues.length - 2}
+                              </Badge>
+                            )}
                           </div>
                         </div>
                         <Button

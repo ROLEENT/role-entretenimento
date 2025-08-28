@@ -47,10 +47,10 @@ export const UpcomingEvents = () => {
   const next7DaysHighlights = upcoming?.next7Days.highlights || [];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* Hoje */}
-      <Card>
-        <CardHeader>
+      <Card className="min-h-[400px] flex flex-col">
+        <CardHeader className="flex-shrink-0">
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
             Hoje
@@ -59,13 +59,13 @@ export const UpcomingEvents = () => {
             Eventos e destaques programados para hoje
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 overflow-hidden p-4">
           {todayEvents.length === 0 && todayHighlights.length === 0 ? (
-            <div className="text-center text-muted-foreground py-8">
+            <div className="text-center text-muted-foreground py-8 flex-1 flex items-center justify-center">
               Nada programado para hoje
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-80 overflow-y-auto">
               {/* Eventos hoje */}
               {todayEvents.map((event) => (
                 <div
@@ -73,21 +73,21 @@ export const UpcomingEvents = () => {
                   className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer"
                   onClick={() => navigate(`/admin-event-edit/${event.id}`)}
                 >
-                  <div className="flex items-center gap-3">
-                    <Calendar className="h-4 w-4 text-blue-500" />
-                    <div>
-                      <div className="font-medium text-sm">{event.title}</div>
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <Calendar className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-sm truncate">{event.title}</div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <MapPin className="h-3 w-3" />
-                        <span>{event.city}</span>
+                        <MapPin className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">{event.city}</span>
                         <span>•</span>
-                        <span>
+                        <span className="flex-shrink-0">
                           {format(new Date(event.date_start), 'HH:mm', { locale: ptBR })}
                         </span>
                       </div>
                     </div>
                   </div>
-                  <Badge variant="default" className="text-xs">
+                  <Badge variant="default" className="text-xs flex-shrink-0">
                     Evento
                   </Badge>
                 </div>
@@ -125,8 +125,8 @@ export const UpcomingEvents = () => {
       </Card>
 
       {/* Próximos 7 dias */}
-      <Card>
-        <CardHeader>
+      <Card className="min-h-[400px] flex flex-col">
+        <CardHeader className="flex-shrink-0">
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
             Próximos 7 Dias
@@ -135,13 +135,13 @@ export const UpcomingEvents = () => {
             Eventos e destaques programados para a semana
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 overflow-hidden p-4">
           {next7DaysEvents.length === 0 && next7DaysHighlights.length === 0 ? (
-            <div className="text-center text-muted-foreground py-8">
+            <div className="text-center text-muted-foreground py-8 flex-1 flex items-center justify-center">
               Nada programado para os próximos 7 dias
             </div>
           ) : (
-            <div className="space-y-3 max-h-64 overflow-y-auto">
+            <div className="space-y-3 max-h-80 overflow-y-auto">
               {/* Eventos próximos 7 dias */}
               {next7DaysEvents.map((event) => (
                 <div

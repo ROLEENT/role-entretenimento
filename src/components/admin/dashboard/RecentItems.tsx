@@ -81,8 +81,8 @@ export const RecentItems = () => {
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="min-h-[400px] flex flex-col">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="flex items-center gap-2">
           <Clock className="h-5 w-5" />
           Itens Recentes
@@ -91,13 +91,13 @@ export const RecentItems = () => {
           5 itens editados recentemente
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 p-4">
         {!recentItems || recentItems.length === 0 ? (
-          <div className="text-center text-muted-foreground py-8">
+          <div className="text-center text-muted-foreground py-8 flex-1 flex items-center justify-center">
             Nenhum item editado recentemente
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 max-h-80 overflow-y-auto">
             {recentItems.map((item) => {
               const Icon = getIcon(item.type);
               return (
@@ -105,20 +105,20 @@ export const RecentItems = () => {
                   key={`${item.type}-${item.id}`}
                   className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50"
                 >
-                  <div className="flex items-center gap-3">
-                    <Icon className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <div className="font-medium text-sm">{item.title}</div>
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <Icon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-sm truncate">{item.title}</div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{getTypeLabel(item.type)}</span>
+                        <span className="flex-shrink-0">{getTypeLabel(item.type)}</span>
                         {item.city && (
                           <>
                             <span>•</span>
-                            <span>{item.city}</span>
+                            <span className="truncate">{item.city}</span>
                           </>
                         )}
                         <span>•</span>
-                        <span>
+                        <span className="flex-shrink-0">
                           {formatDistanceToNow(new Date(item.updatedAt), {
                             addSuffix: true,
                             locale: ptBR,
@@ -127,13 +127,13 @@ export const RecentItems = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     {item.status && (
                       <Badge 
-                        variant={item.status === 'published' ? 'default' : 'secondary'}
+                        variant={item.status === 'published' || item.status === 'active' ? 'default' : 'secondary'}
                         className="text-xs"
                       >
-                        {item.status}
+                        {item.status === 'published' || item.status === 'active' ? 'Ativo' : 'Rascunho'}
                       </Badge>
                     )}
                     <Button

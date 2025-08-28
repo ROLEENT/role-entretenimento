@@ -73,8 +73,8 @@ export const SessionInfo = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="min-h-[240px] flex flex-col">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="flex items-center gap-2">
           <User className="h-5 w-5" />
           Sessão e Segurança
@@ -83,7 +83,7 @@ export const SessionInfo = () => {
           Informações da sessão atual
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 flex-1 p-4">
         {/* Aviso de expiração */}
         {session.isExpiringSoon && (
           <Alert>
@@ -100,20 +100,20 @@ export const SessionInfo = () => {
 
         {/* Informações do usuário */}
         <div className="flex items-center justify-between p-3 border rounded-lg">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center">
-              <User className="h-5 w-5" />
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+              <User className="h-4 w-4" />
             </div>
-            <div>
-              <div className="font-medium">{session.user.email}</div>
-              <div className="flex items-center gap-2 mt-1">
+            <div className="min-w-0 flex-1">
+              <div className="font-medium text-sm truncate">{session.user.email}</div>
+              <div className="flex items-center gap-1 mt-1 flex-wrap">
                 <Badge variant={getRoleBadgeVariant(session.user.role)} className="text-xs">
                   {getRoleLabel(session.user.role)}
                 </Badge>
                 {session.user.role === 'admin' && (
                   <Badge variant="outline" className="text-xs">
                     <Shield className="h-3 w-3 mr-1" />
-                    Acesso Total
+                    Total
                   </Badge>
                 )}
               </div>
