@@ -39,6 +39,23 @@ import AdminCategories from '@/pages/admin/categories/Index';
 // User Management
 import AdminComments from '@/pages/admin/comments/Index';
 import AdminContactMessages from '@/pages/admin/contact-messages/Index';
+import AdminProfiles from '@/pages/admin/profiles/Index';
+
+// Marketing Management
+import AdminPartners from '@/pages/admin/partners/Index';
+import AdminAdvertisements from '@/pages/admin/advertisements/Index';
+import AdminNewsletter from '@/pages/admin/newsletter/Index';
+import AdminPushNotifications from '@/pages/admin/push-notifications/Index';
+
+// Analytics & Reports
+import AdminAnalytics from '@/pages/admin/analytics/Index';
+import AdminReports from '@/pages/admin/reports/Index';
+import AdminPerformance from '@/pages/admin/performance/Index';
+
+// System Management
+import AdminGamification from '@/pages/admin/gamification/Index';
+import AdminSettings from '@/pages/admin/settings/Index';
+import AdminProfile from '@/pages/admin/profile/Index';
 
 export default function AdminV2Router() {
   return (
@@ -86,8 +103,25 @@ export default function AdminV2Router() {
         <Route path="categories" element={<AdminCategories />} />
         
         {/* User Management */}
+        <Route path="profiles" element={<AdminProfiles />} />
         <Route path="comments" element={<AdminComments />} />
         <Route path="contact-messages" element={<AdminContactMessages />} />
+        
+        {/* Marketing Management */}
+        <Route path="partners" element={<AdminPartners />} />
+        <Route path="advertisements" element={<AdminAdvertisements />} />
+        <Route path="newsletter" element={<AdminNewsletter />} />
+        <Route path="push-notifications" element={<AdminPushNotifications />} />
+        
+        {/* Analytics & Reports */}
+        <Route path="analytics" element={<AdminAnalytics />} />
+        <Route path="reports" element={<AdminReports />} />
+        <Route path="performance" element={<AdminPerformance />} />
+        
+        {/* System Management */}
+        <Route path="gamification" element={<AdminGamification />} />
+        <Route path="settings" element={<AdminSettings />} />
+        <Route path="profile" element={<AdminProfile />} />
       </Routes>
     </>
   );
