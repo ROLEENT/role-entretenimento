@@ -3411,6 +3411,14 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
+      check_user_is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      check_user_is_editor_or_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       confirm_newsletter_subscription: {
         Args: { p_token: string }
         Returns: boolean
@@ -3770,7 +3778,7 @@ export type Database = {
         Returns: undefined
       }
       is_admin: {
-        Args: Record<PropertyKey, never> | { uid?: string }
+        Args: { uid?: string }
         Returns: boolean
       }
       is_admin_session: {
