@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bell, Calendar, Users, Heart, ArrowLeft, TestTube } from 'lucide-react';
+import { Bell, Calendar, Users, Heart, ArrowLeft, TestTube, Star, Ticket, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import NotificationSystem from '@/components/NotificationSystem';
 import ActivityFeed from '@/components/ActivityFeed';
@@ -9,11 +9,13 @@ import { useAuth } from '@/hooks/useAuth';
 import SEOHead from '@/components/SEOHead';
 import { useActivityFeed } from '@/hooks/useActivityFeed';
 import { useSecureActivityFeed } from '@/hooks/useSecureActivityFeed';
+import { useUserEngagement } from '@/hooks/useUserEngagement';
 
 const FeedPage = () => {
   const { user } = useAuth();
   const { activities } = useActivityFeed();
   const { createTestData } = useSecureActivityFeed();
+  const { interests, tickets, attendance, likes, loading: engagementLoading } = useUserEngagement();
 
   if (!user) {
     return (
@@ -90,7 +92,7 @@ const FeedPage = () => {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-3 gap-4 text-center">
+                      <div className="grid grid-cols-2 gap-4 text-center">
                         <div>
                           <div className="text-xl font-bold text-primary">
                             {user.profile?.following_count || 0}
@@ -105,11 +107,106 @@ const FeedPage = () => {
                         </div>
                         <div>
                           <div className="text-xl font-bold text-green-600">
-                            {activities.length || 0}
+                            {interests.length || 0}
                           </div>
-                          <div className="text-xs text-muted-foreground">Atividades</div>
+                          <div className="text-xs text-muted-foreground">Interesses</div>
+                        </div>
+                        <div>
+                          <div className="text-xl font-bold text-blue-600">
+                            {tickets.length || 0}
+                          </div>
+                          <div className="text-xs text-muted-foreground">Ingressos</div>
+                        </div>
+                        <div>
+                          <div className="text-xl font-bold text-purple-600">
+                            {attendance.length || 0}
+                          </div>
+                          <div className="text-xs text-muted-foreground">Presença</div>
+                        </div>
+                        <div>
+                          <div className="text-xl font-bold text-red-600">
+                            {likes.length || 0}
+                          </div>
+                          <div className="text-xs text-muted-foreground">Curtidas</div>
                         </div>
                       </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Meu Engajamento */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Star className="h-5 w-5 text-yellow-500" />
+                        Meu Engajamento
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {engagementLoading ? (
+                        <div className="space-y-3">
+                          <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                          <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                          <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {/* Últimos Interesses */}
+                          {interests.length > 0 && (
+                            <div>
+                              <div className="flex items-center gap-2 mb-2">
+                                <Heart className="h-4 w-4 text-green-500" />
+                                <span className="text-sm font-medium">Últimos Interesses</span>
+                              </div>
+                              <div className="space-y-2">
+                                {interests.slice(0, 2).map((interest) => (
+                                  <div key={interest.id} className="text-sm">
+                                    <Link 
+                                      to={`/evento/${interest.events?.id}`}
+                                      className="text-primary hover:underline block truncate"
+                                    >
+                                      {interest.events?.title}
+                                    </Link>
+                                    <span className="text-xs text-muted-foreground">
+                                      {interest.events?.venue?.name} • {interest.events?.city}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Últimas Curtidas */}
+                          {likes.length > 0 && (
+                            <div>
+                              <div className="flex items-center gap-2 mb-2">
+                                <Heart className="h-4 w-4 text-red-500" />
+                                <span className="text-sm font-medium">Últimas Curtidas</span>
+                              </div>
+                              <div className="space-y-2">
+                                {likes.slice(0, 2).map((like) => (
+                                  <div key={like.id} className="text-sm">
+                                    <Link 
+                                      to={`/destaque/${like.highlights?.id}`}
+                                      className="text-primary hover:underline block truncate"
+                                    >
+                                      {like.highlights?.event_title}
+                                    </Link>
+                                    <span className="text-xs text-muted-foreground">
+                                      {like.highlights?.venue} • {like.highlights?.city}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {!interests.length && !likes.length && (
+                            <p className="text-sm text-muted-foreground text-center py-4">
+                              Comece a interagir com eventos e destaques para ver seu engajamento aqui!
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 
@@ -131,7 +228,19 @@ const FeedPage = () => {
                       <Button variant="outline" className="w-full justify-start" asChild>
                         <Link to="/perfil">
                           <Users className="h-4 w-4 mr-2" />
-                          Editar Perfil
+                          Ver Perfil Completo
+                        </Link>
+                      </Button>
+                      <Button variant="outline" className="w-full justify-start" asChild>
+                        <Link to="/perfil?tab=interesses">
+                          <Heart className="h-4 w-4 mr-2" />
+                          Meus Interesses
+                        </Link>
+                      </Button>
+                      <Button variant="outline" className="w-full justify-start" asChild>
+                        <Link to="/perfil?tab=ingressos">
+                          <Ticket className="h-4 w-4 mr-2" />
+                          Meus Ingressos
                         </Link>
                       </Button>
                       {process.env.NODE_ENV === 'development' && (
