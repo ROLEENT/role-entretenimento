@@ -2,90 +2,120 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminDataTable } from '@/components/admin/AdminDataTable';
 import { useVenueManagement } from '@/hooks/useVenueManagement';
+import { MapPin, Mail, Phone, Instagram, Users, Eye, Edit, Trash2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { withAdminAuth } from '@/components/withAdminAuth';
-
-interface Venue {
-  id: string;
-  name: string;
-  type: string;
-  address: string;
-  city: string;
-  state: string;
-  status: string;
-  capacity?: number;
-  instagram?: string;
-  created_at: string;
-}
-
-const typeLabels = {
-  bar: 'Bar',
-  clube: 'Clube',
-  casa_de_shows: 'Casa de Shows',
-  teatro: 'Teatro',
-  galeria: 'Galeria',
-  espaco_cultural: 'Espaço Cultural',
-  restaurante: 'Restaurante',
-};
 
 function VenuesList() {
   const navigate = useNavigate();
-  const { venues, isLoading, deleteVenue } = useVenueManagement();
+  const { venues, deleteVenue, isLoading } = useVenueManagement();
+
+  const handleDelete = async (venueId: string) => {
+    try {
+      await deleteVenue(venueId);
+    } catch (error) {
+      console.error('Error deleting venue:', error);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'active':
+        return <Badge variant="default">Ativo</Badge>;
+      case 'inactive':
+        return <Badge variant="secondary">Inativo</Badge>;
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
+
+  const getTypeBadge = (type: string) => {
+    const typeLabels = {
+      bar: 'Bar',
+      clube: 'Clube',
+      casa_de_shows: 'Casa de Shows',
+      teatro: 'Teatro',
+      galeria: 'Galeria',
+      espaco_cultural: 'Espaço Cultural',
+      restaurante: 'Restaurante'
+    };
+    return <Badge variant="outline">{typeLabels[type as keyof typeof typeLabels] || type}</Badge>;
+  };
 
   const columns = [
     {
       key: 'name',
-      label: 'Nome',
-      sortable: true,
+      label: 'Local',
+      render: (item: any) => (
+        <div className="min-w-0">
+          <p className="font-medium text-foreground truncate">{item.name}</p>
+          <div className="flex items-center gap-2 mt-1">
+            {getTypeBadge(item.type)}
+            {getStatusBadge(item.status || 'active')}
+          </div>
+        </div>
+      ),
     },
     {
-      key: 'type',
-      label: 'Tipo',
-      render: (value: any, venue: Venue) => typeLabels[venue.type as keyof typeof typeLabels] || venue.type,
-    },
-    {
-      key: 'city',
-      label: 'Cidade',
-      sortable: true,
-    },
-    {
-      key: 'address',
-      label: 'Endereço',
+      key: 'location',
+      label: 'Localização',
+      render: (item: any) => (
+        <div className="text-sm">
+          <div className="flex items-center text-muted-foreground">
+            <MapPin className="h-4 w-4 mr-2" />
+            <span className="truncate">{item.city}, {item.state}</span>
+          </div>
+          {item.address && (
+            <p className="text-xs text-muted-foreground truncate mt-1">
+              {item.address}
+            </p>
+          )}
+        </div>
+      ),
     },
     {
       key: 'capacity',
       label: 'Capacidade',
-      render: (value: any, venue: Venue) => venue.capacity || '-',
-    },
-    {
-      key: 'status',
-      label: 'Status',
-      render: (value: any, venue: Venue) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          venue.status === 'active' 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-red-100 text-red-800'
-        }`}>
-          {venue.status === 'active' ? 'Ativo' : 'Inativo'}
-        </span>
+      render: (item: any) => (
+        <div className="flex items-center text-sm text-muted-foreground">
+          <Users className="h-4 w-4 mr-2" />
+          {item.capacity || '-'}
+        </div>
       ),
     },
-  ];
-
-  const filters = [
     {
-      key: 'type',
-      label: 'Tipo de Local',
-      type: 'select' as const,
-      options: Object.entries(typeLabels).map(([value, label]) => ({ value, label })),
+      key: 'contact',
+      label: 'Contato',
+      render: (item: any) => (
+        <div className="text-sm space-y-1">
+          {item.booking_email && (
+            <div className="flex items-center text-muted-foreground">
+              <Mail className="h-3 w-3 mr-2" />
+              <span className="truncate text-xs">{item.booking_email}</span>
+            </div>
+          )}
+          {item.booking_whatsapp && (
+            <div className="flex items-center text-muted-foreground">
+              <Phone className="h-3 w-3 mr-2" />
+              <span className="text-xs">{item.booking_whatsapp}</span>
+            </div>
+          )}
+        </div>
+      ),
     },
     {
-      key: 'status',
-      label: 'Status',
-      type: 'select' as const,
-      options: [
-        { value: 'active', label: 'Ativo' },
-        { value: 'inactive', label: 'Inativo' },
-      ],
+      key: 'social',
+      label: 'Social',
+      render: (item: any) => (
+        <div className="text-sm">
+          {item.instagram && (
+            <div className="flex items-center text-muted-foreground">
+              <Instagram className="h-4 w-4 mr-2" />
+              <span className="text-xs">{item.instagram}</span>
+            </div>
+          )}
+        </div>
+      ),
     },
   ];
 
@@ -93,40 +123,27 @@ function VenuesList() {
     {
       type: 'edit' as const,
       label: 'Editar',
-      onClick: (venue: Venue) => navigate(`/admin-v2/venues/edit/${venue.id}`),
+      href: (item: any) => `/admin-v2/venues/edit/${item.id}`,
     },
     {
       type: 'delete' as const,
       label: 'Excluir',
-      onClick: (venue: Venue) => handleDelete(venue),
-      variant: 'destructive' as const,
+      onClick: (item: any) => handleDelete(item.id),
     },
   ];
 
-  const handleDelete = async (venue: Venue) => {
-    try {
-      await deleteVenue(venue.id);
-    } catch (error) {
-      console.error('Erro ao excluir local:', error);
-    }
-  };
-
   return (
     <AdminDataTable
-      title="Gerenciar Locais"
-      description="Gerencie os locais onde os eventos acontecem"
+      title="Locais"
+      description="Gerenciar bares, casas de show e espaços culturais"
       data={venues}
       columns={columns}
-      filters={filters}
       actions={actions}
       loading={isLoading}
-      searchPlaceholder="Buscar por nome, endereço ou cidade..."
       createButton={{
-        label: "Novo Local",
-        href: "/admin-v2/venues/create"
+        label: 'Novo Local',
+        href: '/admin-v2/venues/create',
       }}
-      emptyMessage="Nenhum local cadastrado. Comece adicionando seu primeiro local."
-      onDelete={deleteVenue}
     />
   );
 }

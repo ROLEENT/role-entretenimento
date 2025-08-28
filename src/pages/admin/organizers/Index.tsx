@@ -2,7 +2,7 @@ import React from 'react';
 import OrganizersList from './List';
 import { withAdminAuth } from '@/components/withAdminAuth';
 
-function AdminOrganizers() {
+function AdminOrganizersIndex() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -18,4 +18,4 @@ function AdminOrganizers() {
   );
 }
 
-export default withAdminAuth(AdminOrganizers);
+export default withAdminAuth(AdminOrganizersIndex, 'editor');

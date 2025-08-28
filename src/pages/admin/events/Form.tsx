@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AdminForm } from '@/components/admin/AdminForm';
 import { eventSchema } from '@/lib/eventSchema';
-import { useEventManagement, EventFormData } from '@/hooks/useEventManagement';
+import { useEventsManagement } from '@/hooks/useEventsManagement';
 import { useVenueManagement } from '@/hooks/useVenueManagement';
 import { useOrganizerManagement } from '@/hooks/useOrganizerManagement';
 import { withAdminAuth } from '@/components/withAdminAuth';
@@ -14,19 +14,13 @@ interface EventFormProps {
 function EventForm({ mode }: EventFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { createEvent, updateEvent, getEvent, getArtists, loading } = useEventManagement();
+  const { createEvent, updateEvent, getEvent, isCreating, isUpdating } = useEventsManagement();
   const { venues } = useVenueManagement();
   const { organizers } = useOrganizerManagement();
-  
-  const [artists, setArtists] = useState<any[]>([]);
 
-  useEffect(() => {
-    const fetchArtists = async () => {
-      const artistsData = await getArtists();
-      setArtists(artistsData);
-    };
-    fetchArtists();
-  }, [getArtists]);
+  const { data: event, isLoading: isLoadingEvent } = mode === 'edit' && id 
+    ? getEvent(id) 
+    : { data: null, isLoading: false };
 
   const cities = [
     'São Paulo', 'Rio de Janeiro', 'Belo Horizonte', 'Salvador', 
@@ -37,38 +31,10 @@ function EventForm({ mode }: EventFormProps) {
 
   const handleSubmit = async (data: any) => {
     try {
-      // Validate the form data using the schema first
-      const validatedData = eventSchema.parse(data);
-      
-      // Transform to EventFormData format
-      const eventData: EventFormData = {
-        title: validatedData.title,
-        description: validatedData.description,
-        start_at: validatedData.start_at,
-        city: validatedData.city,
-        state: validatedData.state,
-        venue_id: validatedData.venue_id,
-        end_at: validatedData.end_at,
-        organizer_id: validatedData.organizer_id,
-        cover_url: validatedData.cover_url,
-        external_url: validatedData.external_url,
-        price_min: validatedData.price_min,
-        price_max: validatedData.price_max,
-        category: validatedData.category,
-        tags: validatedData.tags,
-        status: validatedData.status,
-        instagram_post_url: validatedData.instagram_post_url,
-        social_links: validatedData.social_links,
-        benefits: validatedData.benefits,
-        age_range: validatedData.age_range,
-        observations: validatedData.observations,
-        artist_ids: validatedData.artist_ids,
-      };
-      
       if (mode === 'create') {
-        await createEvent(eventData);
+        await createEvent(data);
       } else if (id) {
-        await updateEvent(id, eventData);
+        await updateEvent({ id, data });
       }
       navigate('/admin-v2/events');
     } catch (error) {
@@ -170,44 +136,12 @@ function EventForm({ mode }: EventFormProps) {
       step: 0.01,
     },
     {
-      name: 'category',
-      label: 'Categoria',
-      type: 'select' as const,
-      options: [
-        { value: 'show', label: 'Show' },
-        { value: 'festival', label: 'Festival' },
-        { value: 'festa', label: 'Festa' },
-        { value: 'teatro', label: 'Teatro' },
-        { value: 'cinema', label: 'Cinema' },
-        { value: 'exposicao', label: 'Exposição' },
-        { value: 'workshop', label: 'Workshop' },
-        { value: 'outros', label: 'Outros' },
-      ],
-    },
-    {
-      name: 'artist_ids',
-      label: 'Artistas',
-      type: 'multiselect' as const,
-      options: artists.map(artist => ({ 
-        value: artist.id, 
-        label: artist.artist_name 
-      })),
-    },
-    {
-      name: 'tags',
-      label: 'Tags',
-      type: 'array' as const,
-      placeholder: 'Adicionar tag...',
-    },
-    {
       name: 'status',
       label: 'Status',
       type: 'select' as const,
       options: [
         { value: 'draft', label: 'Rascunho' },
-        { value: 'active', label: 'Ativo/Publicado' },
-        { value: 'cancelled', label: 'Cancelado' },
-        { value: 'completed', label: 'Finalizado' },
+        { value: 'published', label: 'Publicado' },
       ],
       defaultValue: 'draft',
     },
@@ -216,7 +150,7 @@ function EventForm({ mode }: EventFormProps) {
   const sections = [
     {
       title: 'Informações Básicas',
-      fields: ['title', 'description', 'cover_url', 'category', 'status'],
+      fields: ['title', 'description', 'cover_url', 'status'],
     },
     {
       title: 'Data e Local',
@@ -224,9 +158,17 @@ function EventForm({ mode }: EventFormProps) {
     },
     {
       title: 'Detalhes Adicionais',
-      fields: ['external_url', 'organizer_id', 'price_min', 'price_max', 'artist_ids', 'tags'],
+      fields: ['external_url', 'organizer_id', 'price_min', 'price_max'],
     },
   ];
+
+  if (mode === 'edit' && isLoadingEvent) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <AdminForm
@@ -234,27 +176,10 @@ function EventForm({ mode }: EventFormProps) {
       schema={eventSchema}
       fields={fields}
       sections={sections}
-      defaultValues={mode === 'edit' && id ? undefined : {
-        title: '',
-        description: '',
-        cover_url: '',
-        start_at: '',
-        end_at: '',
-        venue_id: '',
-        city: '',
-        state: '',
-        external_url: '',
-        organizer_id: '',
-        price_min: 0,
-        price_max: 0,
-        category: '',
-        artist_ids: [],
-        tags: [],
-        status: 'draft',
-      }}
+      defaultValues={event || undefined}
       onSubmit={handleSubmit}
       onCancel={handleCancel}
-      isLoading={loading}
+      isLoading={isCreating || isUpdating}
     />
   );
 }

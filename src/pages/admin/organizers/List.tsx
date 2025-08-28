@@ -2,86 +2,109 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminDataTable } from '@/components/admin/AdminDataTable';
 import { useOrganizerManagement } from '@/hooks/useOrganizerManagement';
+import { MapPin, Mail, Phone, Instagram, Eye, Edit, Trash2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { withAdminAuth } from '@/components/withAdminAuth';
-
-interface Organizer {
-  id: string;
-  name: string;
-  type: string;
-  city: string;
-  contact_email: string;
-  instagram?: string;
-  website_url?: string;
-  status: string;
-  created_at: string;
-}
-
-const typeLabels = {
-  organizador: 'Organizador',
-  produtora: 'Produtora',
-  coletivo: 'Coletivo',
-  selo: 'Selo',
-};
 
 function OrganizersList() {
   const navigate = useNavigate();
-  const { organizers, isLoading, deleteOrganizer } = useOrganizerManagement();
+  const { organizers, deleteOrganizer, isLoading } = useOrganizerManagement();
+
+  const handleDelete = async (organizerId: string) => {
+    try {
+      await deleteOrganizer(organizerId);
+    } catch (error) {
+      console.error('Error deleting organizer:', error);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'active':
+        return <Badge variant="default">Ativo</Badge>;
+      case 'inactive':
+        return <Badge variant="secondary">Inativo</Badge>;
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
+
+  const getTypeBadge = (type: string) => {
+    const typeLabels = {
+      organizador: 'Organizador',
+      produtora: 'Produtora',
+      coletivo: 'Coletivo',
+      selo: 'Selo'
+    };
+    return <Badge variant="outline">{typeLabels[type as keyof typeof typeLabels] || type}</Badge>;
+  };
 
   const columns = [
     {
       key: 'name',
-      label: 'Nome',
-      sortable: true,
-    },
-    {
-      key: 'type',
-      label: 'Tipo',
-      render: (value: any, organizer: Organizer) => typeLabels[organizer.type as keyof typeof typeLabels] || organizer.type,
+      label: 'Organizador',
+      render: (item: any) => (
+        <div className="min-w-0">
+          <p className="font-medium text-foreground truncate">{item.name}</p>
+          <div className="flex items-center gap-2 mt-1">
+            {getTypeBadge(item.type)}
+            {getStatusBadge(item.status || 'active')}
+          </div>
+        </div>
+      ),
     },
     {
       key: 'city',
       label: 'Cidade',
-      sortable: true,
-    },
-    {
-      key: 'contact_email',
-      label: 'Email',
-    },
-    {
-      key: 'instagram',
-      label: 'Instagram',
-      render: (value: any, organizer: Organizer) => organizer.instagram || '-',
-    },
-    {
-      key: 'status',
-      label: 'Status',
-      render: (value: any, organizer: Organizer) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          organizer.status === 'active' 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-red-100 text-red-800'
-        }`}>
-          {organizer.status === 'active' ? 'Ativo' : 'Inativo'}
-        </span>
+      render: (item: any) => (
+        <div className="flex items-center text-sm text-muted-foreground">
+          <MapPin className="h-4 w-4 mr-2" />
+          {item.city}
+        </div>
       ),
     },
-  ];
-
-  const filters = [
     {
-      key: 'type',
-      label: 'Tipo',
-      type: 'select' as const,
-      options: Object.entries(typeLabels).map(([value, label]) => ({ value, label })),
+      key: 'contact',
+      label: 'Contato',
+      render: (item: any) => (
+        <div className="text-sm space-y-1">
+          {item.contact_email && (
+            <div className="flex items-center text-muted-foreground">
+              <Mail className="h-3 w-3 mr-2" />
+              <span className="truncate text-xs">{item.contact_email}</span>
+            </div>
+          )}
+          {item.contact_whatsapp && (
+            <div className="flex items-center text-muted-foreground">
+              <Phone className="h-3 w-3 mr-2" />
+              <span className="text-xs">{item.contact_whatsapp}</span>
+            </div>
+          )}
+        </div>
+      ),
     },
     {
-      key: 'status',
-      label: 'Status',
-      type: 'select' as const,
-      options: [
-        { value: 'active', label: 'Ativo' },
-        { value: 'inactive', label: 'Inativo' },
-      ],
+      key: 'social',
+      label: 'Social',
+      render: (item: any) => (
+        <div className="text-sm">
+          {item.instagram && (
+            <div className="flex items-center text-muted-foreground">
+              <Instagram className="h-4 w-4 mr-2" />
+              <span className="text-xs">{item.instagram}</span>
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'priority',
+      label: 'Prioridade',
+      render: (item: any) => (
+        <div className="text-sm text-muted-foreground">
+          {item.priority || 0}
+        </div>
+      ),
     },
   ];
 
@@ -89,43 +112,26 @@ function OrganizersList() {
     {
       type: 'edit' as const,
       label: 'Editar',
-      onClick: (organizer: Organizer) => navigate(`/admin-v2/organizers/edit/${organizer.id}`),
+      href: (item: any) => `/admin-v2/organizers/edit/${item.id}`,
     },
     {
       type: 'delete' as const,
       label: 'Excluir',
-      onClick: (organizer: Organizer) => handleDelete(organizer),
-      variant: 'destructive' as const,
+      onClick: (item: any) => handleDelete(item.id),
     },
   ];
 
-  const handleDelete = async (organizer: Organizer) => {
-    if (window.confirm(`Tem certeza que deseja excluir o organizador "${organizer.name}"?`)) {
-      try {
-        await deleteOrganizer(organizer.id);
-      } catch (error) {
-        console.error('Erro ao excluir organizador:', error);
-      }
-    }
-  };
-
   return (
     <AdminDataTable
-      title="Gerenciar Organizadores"
-      description="Gerencie os organizadores de eventos da plataforma"
+      title="Organizadores"
+      description="Gerenciar organizadores, produtoras e coletivos"
       data={organizers}
       columns={columns}
-      filters={filters}
       actions={actions}
       loading={isLoading}
-      searchPlaceholder="Buscar por nome, email ou cidade..."
       createButton={{
-        label: "Novo Organizador",
-        href: "/admin-v2/organizers/create"
-      }}
-      emptyMessage="Nenhum organizador cadastrado. Comece adicionando seu primeiro organizador."
-      onDelete={async (id: string) => {
-        await deleteOrganizer(id);
+        label: 'Novo Organizador',
+        href: '/admin-v2/organizers/create',
       }}
     />
   );
