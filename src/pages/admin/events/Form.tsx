@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AdminForm } from '@/components/admin/AdminForm';
-import { eventSchema, EventFormData } from '@/lib/eventSchema';
-import { useEventManagement } from '@/hooks/useEventManagement';
+import { eventSchema } from '@/lib/eventSchema';
+import { useEventManagement, EventFormData } from '@/hooks/useEventManagement';
 import { withAdminAuth } from '@/components/withAdminAuth';
 
 interface EventFormProps {
@@ -23,7 +23,35 @@ function EventForm({ mode }: EventFormProps) {
 
   const handleSubmit = async (data: any) => {
     try {
-      const eventData = data as unknown as EventFormData;
+      // Validate the form data using the schema first
+      const validatedData = eventSchema.parse(data);
+      
+      // Transform to EventFormData format
+      const eventData: EventFormData = {
+        title: validatedData.title,
+        description: validatedData.description,
+        start_at: validatedData.start_at,
+        city: validatedData.city,
+        state: validatedData.state,
+        venue_name: validatedData.venue_name,
+        end_at: validatedData.end_at,
+        venue_address: validatedData.venue_address,
+        organizer_name: validatedData.organizer_name,
+        cover_url: validatedData.cover_url,
+        external_url: validatedData.external_url,
+        price_min: validatedData.price_min,
+        price_max: validatedData.price_max,
+        category: validatedData.category,
+        tags: validatedData.tags,
+        status: validatedData.status,
+        instagram_post_url: validatedData.instagram_post_url,
+        social_links: validatedData.social_links,
+        benefits: validatedData.benefits,
+        age_range: validatedData.age_range,
+        observations: validatedData.observations,
+        artists: validatedData.artists,
+      };
+      
       if (mode === 'create') {
         await createEvent(eventData);
       } else if (id) {

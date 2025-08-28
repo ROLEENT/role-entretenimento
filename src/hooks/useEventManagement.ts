@@ -4,13 +4,13 @@ import { toast } from 'sonner';
 
 export interface EventFormData {
   title: string;
-  slug?: string;
   description: string;
   start_at: string;
-  end_at?: string;
   city: string;
   state: string;
   venue_name: string;
+  slug?: string;
+  end_at?: string;
   venue_address?: string;
   organizer_name?: string;
   cover_url?: string;
@@ -21,6 +21,11 @@ export interface EventFormData {
   external_url?: string;
   category?: string;
   artists?: string[];
+  instagram_post_url?: string;
+  social_links?: string;
+  benefits?: string;
+  age_range?: string;
+  observations?: string;
 }
 
 export const useEventManagement = () => {
