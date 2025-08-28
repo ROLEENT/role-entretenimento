@@ -1,17 +1,21 @@
 import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
-import AdminV2Router from "@/routes/AdminV2Router";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { AdminV2AuthGuard } from "@/components/AdminV2AuthGuard";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
+import { Helmet } from 'react-helmet';
 
 export default function AdminLayout() {
   return (
     <ErrorBoundary>
-      <AdminV2AuthGuard>
-        <SidebarProvider>
+      <Helmet>
+        <title>Admin V2 - Plataforma Role</title>
+        <meta name="description" content="Painel administrativo simplificado da plataforma Role" />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+      
+      <SidebarProvider>
         <div className="flex min-h-screen w-full">
           <AdminSidebar />
           <SidebarInset className="flex-1">
@@ -22,15 +26,14 @@ export default function AdminLayout() {
             </header>
             <main className="p-6">
               <ErrorBoundary>
-                <AdminV2Router />
+                <Outlet />
               </ErrorBoundary>
             </main>
           </SidebarInset>
         </div>
         <Toaster />
         <SonnerToaster />
-        </SidebarProvider>
-      </AdminV2AuthGuard>
+      </SidebarProvider>
     </ErrorBoundary>
   );
 }

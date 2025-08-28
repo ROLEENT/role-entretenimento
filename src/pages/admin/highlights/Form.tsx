@@ -101,7 +101,7 @@ export default function HighlightForm({ mode }: HighlightFormProps) {
       console.log('[EDIT] disparando loadHighlight', { id, status, user: user?.email });
       loadHighlight();
     }
-  }, [mode, id, status, user?.email]);
+  }, [mode, id]);
 
   const loadHighlight = async () => {
     if (!id) return;

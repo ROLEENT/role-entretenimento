@@ -11,6 +11,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { DevCacheButton } from "./components/DevCacheButton";
 import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { ProtectedAdminRoute } from "@/components/ProtectedAdminRoute";
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -143,7 +144,35 @@ function App() {
 
                 {/* Admin V2 - MVP System */}
                 <Route path="/admin-v2/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Login /></Suspense>} />
-                <Route path="/admin-v2/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminLayout /></Suspense>} />
+                <Route path="/admin-v2/*" element={<ProtectedAdminRoute><Suspense fallback={<AdminLoadingFallback />}><AdminLayout /></Suspense></ProtectedAdminRoute>}>
+                  {/* Dashboard */}
+                  <Route index element={<AdminV2Dashboard />} />
+                  
+                  {/* Artist Management */}
+                  <Route path="artists" element={<AdminArtistsIndex />} />
+                  <Route path="artists/create" element={<AdminArtistCreate />} />
+                  <Route path="artists/:id/edit" element={<AdminArtistEdit />} />
+                  
+                  {/* Venue Management */}
+                  <Route path="venues" element={<AdminVenuesIndex />} />
+                  <Route path="venues/create" element={<AdminVenueCreate />} />
+                  <Route path="venues/:id/edit" element={<AdminVenueEdit />} />
+                  
+                  {/* Event Management */}
+                  <Route path="events" element={<AdminEventsIndex />} />
+                  <Route path="events/create" element={<AdminEventCreate />} />
+                  <Route path="events/:id/edit" element={<AdminEventEdit />} />
+                  
+                  {/* Organizer Management */}
+                  <Route path="organizers" element={<AdminOrganizersIndex />} />
+                  <Route path="organizers/create" element={<AdminOrganizerCreate />} />
+                  <Route path="organizers/:id/edit" element={<AdminOrganizerEdit />} />
+                  
+                  {/* Highlight Management */}
+                  <Route path="highlights" element={<AdminHighlightsIndex />} />
+                  <Route path="highlights/create" element={<AdminHighlightCreate />} />
+                  <Route path="highlights/:id/edit" element={<AdminHighlightEdit />} />
+                </Route>
 
 
                 {/* Admin Routes - Specific routes for still functional pages */}
