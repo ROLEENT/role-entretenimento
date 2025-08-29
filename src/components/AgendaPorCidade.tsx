@@ -32,15 +32,32 @@ const AgendaPorCidade = () => {
     { name: 'Curitiba', slug: 'curitiba' }
   ];
 
-  const getCurationBadge = (index: number, isHighlighted?: boolean) => {
-    if (index === 0 && isHighlighted) {
-      return { label: "Em alta", icon: Zap, variant: "destructive" as const };
+  const getBadgeConfig = (index: number, tags?: string[]) => {
+    // Randomly assign badges for demo purposes - you can customize this logic
+    const hasHighTraffic = tags?.includes('popular') || Math.random() > 0.7;
+    const isExclusive = tags?.includes('exclusive') || index === 1;
+    const isRecommended = tags?.includes('recommended') || index === 2;
+
+    if (index === 0 && hasHighTraffic) {
+      return { 
+        label: "Em alta", 
+        icon: Zap, 
+        className: "bg-gradient-to-r from-red-500 to-pink-500 text-white border-0 shadow-lg animate-pulse" 
+      };
     }
-    if (index === 1) {
-      return { label: "Exclusivo ROLÊ", icon: Crown, variant: "default" as const };
+    if (isExclusive) {
+      return { 
+        label: "Exclusivo ROLÊ", 
+        icon: Crown, 
+        className: "bg-gradient-to-r from-purple-600 to-purple-800 text-white border-0 shadow-lg" 
+      };
     }
-    if (index === 2) {
-      return { label: "Destaque", icon: Star, variant: "secondary" as const };
+    if (isRecommended) {
+      return { 
+        label: "Recomendado", 
+        icon: Star, 
+        className: "bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 shadow-lg" 
+      };
     }
     return null;
   };
@@ -89,13 +106,23 @@ const AgendaPorCidade = () => {
               AGENDA POR CIDADE
             </h2>
           </div>
-          <div className="grid gap-8">
+          <div className="space-y-12">
             {cities.map((city) => (
               <div key={city.name} className="animate-pulse">
-                <h3 className="h-8 bg-muted rounded mb-4 w-48"></h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="h-8 bg-muted rounded w-48"></div>
+                  <div className="h-10 bg-muted rounded w-40"></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {[...Array(3)].map((_, i) => (
-                    <div key={i} className="h-64 bg-muted rounded-lg"></div>
+                    <div key={i} className="space-y-4">
+                      <div className="h-48 bg-muted rounded-lg"></div>
+                      <div className="space-y-2">
+                        <div className="h-6 bg-muted rounded w-3/4"></div>
+                        <div className="h-4 bg-muted rounded w-1/2"></div>
+                        <div className="h-4 bg-muted rounded w-2/3"></div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -123,90 +150,115 @@ const AgendaPorCidade = () => {
             const events = eventsByCity[city.name] || [];
             
             return (
-              <div key={city.name} className="space-y-8">
+              <div key={city.name} className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className={`font-heading font-bold text-foreground ${isMobile ? 'text-2xl' : 'text-3xl'} flex items-center gap-3`}>
-                    <MapPin className="h-8 w-8 text-primary" />
+                    <MapPin className="h-7 w-7 text-primary" />
                     {city.name}
                   </h3>
-                  <Button variant="outline" asChild>
-                    <Link to={`/agenda/${city.slug}`}>
+                  <Button 
+                    variant="outline" 
+                    asChild
+                    className="hover:bg-primary hover:text-primary-foreground transition-all duration-200 border-primary/20 hover:border-primary"
+                  >
+                    <Link to={`/agenda?city=${encodeURIComponent(city.name)}`}>
                       Ver todos da cidade
                     </Link>
                   </Button>
                 </div>
 
                 {events.length > 0 ? (
-                  <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'} gap-6`}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {events.map((event, index) => {
-                      const curationBadge = getCurationBadge(index, index === 0);
+                      const badgeConfig = getBadgeConfig(index, event.tags);
                       
                       return (
-                        <Card key={event.id} className="group hover:shadow-xl transition-all duration-300 overflow-hidden border-2 hover:border-primary/20">
-                          <div className="relative">
-                            <LazyImage
-                              src={event.cover_url || '/assets/city-placeholder.jpg'}
-                              alt={event.title}
-                              className={`w-full ${isMobile ? 'h-48' : 'h-56'} object-cover group-hover:scale-105 transition-transform duration-500`}
-                            />
-                            
-                            {/* Selo de curadoria */}
-                            {curationBadge && (
-                              <div className="absolute top-3 left-3">
-                                <Badge variant={curationBadge.variant} className="flex items-center gap-1 px-3 py-1 text-xs font-bold shadow-lg">
-                                  <curationBadge.icon className="h-3 w-3" />
-                                  {curationBadge.label}
-                                </Badge>
-                              </div>
-                            )}
-                            
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                          </div>
-                          
-                          <CardContent className={`${isMobile ? 'p-4' : 'p-6'}`}>
-                            <h4 className={`font-bold text-foreground ${isMobile ? 'text-lg' : 'text-xl'} mb-3 line-clamp-2 group-hover:text-primary transition-colors`}>
-                              {event.title}
-                            </h4>
-                            
-                            <div className="space-y-2 mb-4">
-                              <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                                <CalendarDays className="h-4 w-4 text-primary" />
-                                <span>
-                                  {new Date(event.start_at).toLocaleDateString('pt-BR', {
-                                    day: '2-digit',
-                                    month: '2-digit',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                  })}
-                                </span>
-                              </div>
+                        <Link key={event.id} to={`/agenda/${event.id}`} className="block group">
+                          <Card className="h-full hover:shadow-xl transition-all duration-300 overflow-hidden border hover:border-primary/30 hover:scale-[1.02] transform">
+                            <div className="relative">
+                              <LazyImage
+                                src={event.cover_url || '/city-placeholder.jpg'}
+                                alt={event.title}
+                                className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
                               
-                              {event.venue_name && (
-                                <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                                  <MapPin className="h-4 w-4 text-primary" />
-                                  <span className="truncate">{event.venue_name}</span>
+                              {/* Visual Badge */}
+                              {badgeConfig && (
+                                <div className="absolute top-3 left-3">
+                                  <Badge className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold ${badgeConfig.className}`}>
+                                    <badgeConfig.icon className="h-3.5 w-3.5" />
+                                    {badgeConfig.label}
+                                  </Badge>
                                 </div>
                               )}
+                              
+                              {/* Gradient Overlay */}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                             </div>
-
-                            {/* Tags */}
-                            {event.tags && event.tags.length > 0 && (
-                              <div className="flex flex-wrap gap-1 mb-4">
-                                {event.tags.slice(0, 2).map((tag, tagIndex) => (
-                                  <Badge key={tagIndex} variant="outline" className="text-xs">
-                                    {tag}
-                                  </Badge>
-                                ))}
+                            
+                            <CardContent className="p-5 flex flex-col flex-1">
+                              <h4 className="font-bold text-foreground text-lg mb-3 line-clamp-2 group-hover:text-primary transition-colors leading-tight">
+                                {event.title}
+                              </h4>
+                              
+                              {/* Meta Information */}
+                              <div className="space-y-2 mb-4 flex-1">
+                                <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                                  <CalendarDays className="h-4 w-4 text-primary flex-shrink-0" />
+                                  <span className="font-medium">
+                                    {new Date(event.start_at).toLocaleDateString('pt-BR', {
+                                      weekday: 'short',
+                                      day: '2-digit',
+                                      month: 'short',
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })}
+                                  </span>
+                                </div>
+                                
+                                {event.venue_name && (
+                                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                                    <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
+                                    <span className="truncate font-medium">{event.venue_name}</span>
+                                  </div>
+                                )}
                               </div>
-                            )}
-                          </CardContent>
-                        </Card>
+
+                              {/* Tags */}
+                              {event.tags && event.tags.length > 0 && (
+                                <div className="flex flex-wrap gap-1.5">
+                                  {event.tags.slice(0, 2).map((tag, tagIndex) => (
+                                    <Badge 
+                                      key={tagIndex} 
+                                      variant="outline" 
+                                      className="text-xs px-2 py-1 text-muted-foreground border-muted-foreground/30 hover:border-primary hover:text-primary transition-colors"
+                                    >
+                                      {tag}
+                                    </Badge>
+                                  ))}
+                                  {event.tags.length > 2 && (
+                                    <Badge 
+                                      variant="outline" 
+                                      className="text-xs px-2 py-1 text-muted-foreground border-muted-foreground/30"
+                                    >
+                                      +{event.tags.length - 2}
+                                    </Badge>
+                                  )}
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        </Link>
                       );
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <p>Nenhum evento disponível para {city.name}</p>
+                  <div className="text-center py-16 text-muted-foreground bg-muted/20 rounded-lg border-2 border-dashed border-muted">
+                    <div className="max-w-md mx-auto">
+                      <CalendarDays className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                      <p className="text-lg font-medium mb-2">Nenhum evento disponível</p>
+                      <p className="text-sm">Novos eventos em {city.name} serão adicionados em breve</p>
+                    </div>
                   </div>
                 )}
               </div>
