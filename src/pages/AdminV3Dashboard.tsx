@@ -14,6 +14,7 @@ interface DashboardStats {
   published: number;
   today: number;
   thisWeek: number;
+  lastUpdated?: Date;
 }
 
 function DashboardContent() {
@@ -77,7 +78,8 @@ function DashboardContent() {
         drafts: draftsResult.count || 0,
         published: publishedResult.count || 0,
         today: todayResult.count || 0,
-        thisWeek: weekResult.count || 0
+        thisWeek: weekResult.count || 0,
+        lastUpdated: new Date()
       });
 
       toast({
@@ -150,9 +152,6 @@ function DashboardContent() {
   }, []);
 
   const handleCardClick = (cardType: string) => {
-    const today = new Date().toISOString().split('T')[0];
-    const weekFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    
     const params = new URLSearchParams();
     
     switch (cardType) {
@@ -163,14 +162,12 @@ function DashboardContent() {
         params.set('status', 'published');
         break;
       case 'today':
-        params.set('status', 'published');
-        params.set('dateStart', today);
-        params.set('dateEnd', today);
+        params.set('from', 'today');
+        params.set('to', 'today');
         break;
       case 'thisWeek':
-        params.set('status', 'published');
-        params.set('dateStart', today);
-        params.set('dateEnd', weekFromNow);
+        params.set('from', 'today');
+        params.set('to', '+7d');
         break;
     }
     
@@ -226,20 +223,44 @@ function DashboardContent() {
             <Skeleton className="h-4 w-24" />
           </div>
         ) : hasError ? (
-          <div className="flex items-center gap-2 text-destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <span className="text-sm">Erro ao carregar</span>
+          <div className="flex flex-col items-center gap-3 py-4">
+            <AlertTriangle className="h-8 w-8 text-destructive" />
+            <span className="text-sm text-destructive">Erro ao carregar</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onReload();
+              }}
+              className="gap-2"
+            >
+              <RefreshCw className="h-3 w-3" />
+              Tentar de novo
+            </Button>
           </div>
         ) : (
-          <button 
-            onClick={onCardClick}
-            className="text-left w-full group"
-          >
-            <div className="text-3xl font-bold mb-1 group-hover:text-primary transition-colors cursor-pointer">
-              {value.toLocaleString()}
+          <>
+            <button 
+              onClick={onCardClick}
+              className="text-left w-full group"
+            >
+              <div className="text-3xl font-bold mb-1 group-hover:text-primary transition-colors cursor-pointer">
+                {value.toLocaleString()}
+              </div>
+              <p className="text-sm text-muted-foreground">{description}</p>
+            </button>
+            
+            {/* Timestamp footer */}
+            <div className="mt-4 pt-3 border-t border-border/50">
+              <p className="text-xs text-muted-foreground">
+                Atualizado às {stats.lastUpdated ? stats.lastUpdated.toLocaleTimeString('pt-BR', { 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+                }) : '--:--'}
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground">{description}</p>
-          </button>
+          </>
         )}
       </CardContent>
     </Card>
@@ -263,7 +284,13 @@ function DashboardContent() {
             <Plus className="w-4 h-4" />
             Criar Agenda
           </Button>
-          <Button onClick={loadStats} variant="outline" size="sm" className="gap-2">
+          <Button 
+            onClick={loadStats} 
+            variant="outline" 
+            size="sm" 
+            className="gap-2"
+            disabled={loading}
+          >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             Recarregar
           </Button>
