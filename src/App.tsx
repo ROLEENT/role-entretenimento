@@ -33,6 +33,10 @@ const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AdminHighlightForm = lazy(() => import("./pages/AdminHighlightForm"));
 
+// Admin V2 pages - advanced system
+const AdminV2Login = lazy(() => import("./pages/AdminV2Login"));
+const AdminV2Dashboard = lazy(() => import("./pages/AdminV2Dashboard"));
+
 // User pages - lazy loaded
 const EventsPage = lazy(() => import("./pages/EventsPage"));
 const EventDetailPage = lazy(() => import("./pages/EventDetailPage"));
@@ -106,8 +110,9 @@ function App() {
                 <Route path="/admin/highlights/create" element={<AdminHighlightForm />} />
                 <Route path="/admin/highlights/:id/edit" element={<AdminHighlightForm />} />
                 
-                {/* Redirects */}
-                <Route path="/admin-v2/*" element={<Navigate to="/admin/login" replace />} />
+                {/* Admin V2 System */}
+                <Route path="/admin-v2/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Login /></Suspense>} />
+                <Route path="/admin-v2/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Dashboard /></Suspense>} />
                 
                 {/* Events Routes */}
                 <Route path="/eventos" element={<EventsPage />} />
