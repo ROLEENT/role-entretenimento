@@ -78,3 +78,6 @@ verify_jwt = true
 
 [functions.playlist-manager]
 verify_jwt = true
+
+[functions.agenda-api]
+verify_jwt = false

@@ -69,18 +69,13 @@ function validateUrl(url: string | null): boolean {
   return url.startsWith('http://') || url.startsWith('https://');
 }
 
-// Check admin permissions
+// Check admin permissions using auth_role function
 async function checkAdminPermissions(supabase: any, requiredRole: string[] = ['admin', 'editor']) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Não autorizado');
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('user_id', user.id)
-    .single();
-
-  if (!profile || !requiredRole.includes(profile.role)) {
+  const { data, error } = await supabase.rpc('auth_role');
+  if (error || !data || !requiredRole.includes(data)) {
     throw new Error('Permissões insuficientes');
   }
   return user;
