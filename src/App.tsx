@@ -21,6 +21,7 @@ const UserTerms = lazy(() => import("./pages/UserTerms"));
 const OrganizerTerms = lazy(() => import("./pages/OrganizerTerms"));
 const Help = lazy(() => import("./pages/Help"));
 const Agenda = lazy(() => import("./pages/Agenda"));
+const AgendaCidade = lazy(() => import("./pages/AgendaCidade"));
 const DestaquesHub = lazy(() => import("./pages/DestaquesHub"));
 const CitiesPage = lazy(() => import("./pages/CitiesPage"));
 const BlogArticle = lazy(() => import("./pages/BlogArticle"));
@@ -105,7 +106,7 @@ function App() {
                 
                 {/* Agenda Routes */}
                 <Route path="/agenda" element={<Agenda />} />
-                <Route path="/agenda/:cidade" element={<Agenda />} />
+                <Route path="/agenda/:cidade" element={<AgendaCidade />} />
                 
                 {/* Destaques Routes */}
                 <Route path="/destaques" element={<DestaquesHub />} />
