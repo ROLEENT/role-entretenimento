@@ -42,21 +42,24 @@ const AgendaPorCidade = () => {
       return { 
         label: "Em alta", 
         icon: Zap, 
-        className: "bg-gradient-to-r from-red-500 to-pink-500 text-white border-0 shadow-lg animate-pulse" 
+        className: "bg-gradient-to-r from-red-600 to-pink-600 text-white border-0 shadow-xl animate-pulse px-4 py-2 text-sm font-bold",
+        ariaLabel: "Evento em alta - muito procurado"
       };
     }
     if (isExclusive) {
       return { 
         label: "Exclusivo ROLÊ", 
         icon: Crown, 
-        className: "bg-gradient-to-r from-purple-600 to-purple-800 text-white border-0 shadow-lg" 
+        className: "bg-gradient-to-r from-purple-700 to-purple-900 text-white border-0 shadow-xl px-4 py-2 text-sm font-bold",
+        ariaLabel: "Evento exclusivo da curadoria ROLÊ"
       };
     }
     if (isRecommended) {
       return { 
         label: "Recomendado", 
         icon: Star, 
-        className: "bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 shadow-lg" 
+        className: "bg-gradient-to-r from-amber-600 to-orange-600 text-white border-0 shadow-xl px-4 py-2 text-sm font-bold",
+        ariaLabel: "Evento recomendado pela curadoria"
       };
     }
     return null;
@@ -185,8 +188,11 @@ const AgendaPorCidade = () => {
                               {/* Visual Badge */}
                               {badgeConfig && (
                                 <div className="absolute top-3 left-3">
-                                  <Badge className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold ${badgeConfig.className}`}>
-                                    <badgeConfig.icon className="h-3.5 w-3.5" />
+                                  <Badge 
+                                    className={`flex items-center gap-2 ${badgeConfig.className}`}
+                                    aria-label={badgeConfig.ariaLabel}
+                                  >
+                                    <badgeConfig.icon className="h-4 w-4" />
                                     {badgeConfig.label}
                                   </Badge>
                                 </div>

@@ -349,8 +349,8 @@ const Header = () => {
                 
                 {/* Navigation */}
                 <div className="flex-1 overflow-y-auto">
-                  <nav className="py-6" role="navigation" aria-label="Navegação mobile">
-                    <div className="space-y-2">
+                  <nav className="py-8" role="navigation" aria-label="Navegação mobile">
+                    <div className="space-y-4">
                       {navigation.map((item) => {
                         const active = isActive(item.href);
                         return (
@@ -359,7 +359,7 @@ const Header = () => {
                             to={item.href}
                             onClick={() => setMobileMenuOpen(false)}
                             aria-current={active ? "page" : undefined}
-                            className={`block text-lg font-medium transition-colors px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                            className={`block text-lg font-medium transition-colors px-6 py-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
                               active
                                 ? 'text-primary bg-primary/10'
                                 : item.name === 'Agenda'

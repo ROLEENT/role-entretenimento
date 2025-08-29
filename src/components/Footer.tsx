@@ -72,7 +72,8 @@ const Footer = () => {
                 <li key={link.name}>
                   <Link
                     to={link.href}
-                    className="text-background/80 hover:text-primary transition-colors text-sm min-h-[14px] leading-relaxed font-medium"
+                    className="text-background/80 hover:text-primary transition-colors leading-relaxed font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground rounded-sm"
+                    style={{ fontSize: '16px', minHeight: '16px' }}
                   >
                     {link.name}
                   </Link>
@@ -91,7 +92,8 @@ const Footer = () => {
                 <li key={category.name}>
                   <Link
                     to={category.href}
-                    className="text-background/80 hover:text-primary transition-colors text-sm min-h-[14px] leading-relaxed font-medium"
+                    className="text-background/80 hover:text-primary transition-colors leading-relaxed font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground rounded-sm"
+                    style={{ fontSize: '16px', minHeight: '16px' }}
                   >
                     {category.name}
                   </Link>
@@ -114,7 +116,7 @@ const Footer = () => {
                 placeholder="Digite seu email"
                 className="w-full px-4 py-3 rounded-lg bg-background/10 border border-background/30 text-background placeholder:text-background/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm"
               />
-              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg py-3 font-semibold text-sm">
+              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg py-3 font-semibold text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground">
                 Quero receber
               </Button>
             </div>
@@ -127,7 +129,7 @@ const Footer = () => {
             {/* Social Media */}
             <div className={`${isMobile ? 'text-center' : ''}`}>
               <h4 className="font-semibold text-background text-sm mb-4">Siga nas redes sociais</h4>
-              <div className="flex justify-center gap-3">
+              <div className="flex justify-center gap-4">
                 {socialLinks.map((social) => {
                   const IconComponent = social.icon;
                   return (
@@ -135,11 +137,11 @@ const Footer = () => {
                       key={social.label}
                       variant="ghost"
                       size="icon"
-                      className="h-10 w-10 text-background/80 hover:text-primary hover:bg-background/10 rounded-full"
+                      className="h-12 w-12 text-background/80 hover:text-primary hover:bg-background/10 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
                       asChild
                     >
                       <a href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label}>
-                        <IconComponent className="h-5 w-5" />
+                        <IconComponent className="h-6 w-6" />
                       </a>
                     </Button>
                   );
@@ -149,12 +151,13 @@ const Footer = () => {
 
             {/* Legal Links */}
             <div className={`${isMobile ? 'text-center' : 'text-right'}`}>
-              <div className="flex flex-wrap justify-center gap-6 text-sm">
+              <div className="flex flex-wrap justify-center gap-6">
                 {legalLinks.map((link, index) => (
                   <span key={link.name} className="flex items-center">
                     <Link 
                       to={link.href} 
-                      className="text-background/70 hover:text-primary transition-colors font-medium"
+                      className="text-background/70 hover:text-primary transition-colors font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground rounded-sm"
+                      style={{ fontSize: '15px' }}
                     >
                       {link.name}
                     </Link>

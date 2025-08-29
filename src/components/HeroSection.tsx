@@ -8,7 +8,7 @@ const HeroSection = () => {
   const { isMobile } = useResponsive();
 
   return (
-    <section className={`relative ${isMobile ? 'py-24' : 'py-40 lg:py-48'} bg-gradient-to-br from-background via-background/95 to-primary/5 overflow-hidden`}>
+    <section className={`relative ${isMobile ? 'py-16' : 'py-24 lg:py-32'} bg-gradient-to-br from-background via-background/95 to-primary/5 overflow-hidden`}>
       {/* Background Pattern */}
       <div className="absolute inset-0 hero-pattern opacity-30" />
       
@@ -31,12 +31,12 @@ const HeroSection = () => {
           </h1>
           
           {/* Tagline - Centered with max width */}
-          <div className="max-w-[720px] mx-auto mb-6">
+          <div className="max-w-[720px] mx-auto mb-8">
             <p 
               className="font-medium leading-relaxed animate-fade-in text-center" 
               style={{ 
                 animationDelay: '0.3s',
-                color: '#bdbdd2',
+                color: '#9ca3af',
                 fontSize: '18px'
               }}
             >
@@ -53,7 +53,7 @@ const HeroSection = () => {
           <Button
             variant="default"
             size="lg"
-            className={`font-semibold ${isMobile ? 'w-full px-8 py-7 text-lg' : 'px-12 py-7 text-lg'} rounded-full transition-all duration-300 hover:scale-105 hover:shadow-glow group bg-primary hover:bg-primary/90 border-0`}
+            className={`font-semibold ${isMobile ? 'w-full px-8 py-7 text-lg' : 'px-12 py-7 text-lg'} rounded-full transition-all duration-300 hover:scale-105 hover:shadow-glow group bg-primary hover:bg-primary/90 border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background`}
             asChild
           >
             <Link to="/agenda">
@@ -66,7 +66,7 @@ const HeroSection = () => {
           <Button
             variant="outline"
             size="lg"
-            className={`font-semibold ${isMobile ? 'w-full px-8 py-7 text-lg' : 'px-12 py-7 text-lg'} rounded-full transition-all duration-300 hover:scale-105 hover:shadow-lg border-2 border-primary text-primary hover:bg-primary/10 group`}
+            className={`font-semibold ${isMobile ? 'w-full px-8 py-7 text-lg' : 'px-12 py-7 text-lg'} rounded-full transition-all duration-300 hover:scale-105 hover:shadow-lg border-2 border-primary text-primary hover:bg-primary/10 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background`}
             asChild
           >
             <Link to="/destaques">

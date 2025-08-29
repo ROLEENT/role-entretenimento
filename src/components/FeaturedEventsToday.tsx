@@ -156,11 +156,12 @@ const FeaturedEventsToday = () => {
   }
 
   return (
-    <section className={`${isMobile ? 'py-16' : 'py-24'} bg-background relative overflow-hidden`}>
+    <section className={`${isMobile ? 'py-16' : 'py-24'} bg-gradient-to-br from-accent/20 to-muted/30 relative overflow-hidden border-y border-border/50 shadow-inner`}>
       {/* Background Elements */}
       <div className="absolute inset-0">
-        <div className="absolute top-10 left-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 right-10 w-64 h-64 bg-secondary/5 rounded-full blur-3xl" />
+        <div className="absolute top-10 left-10 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-10 right-10 w-64 h-64 bg-secondary/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background/50 to-transparent" />
       </div>
       
       <div className="container mx-auto px-4 relative z-10">
