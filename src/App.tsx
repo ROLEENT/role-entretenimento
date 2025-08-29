@@ -11,6 +11,9 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { DevCacheButton } from "./components/DevCacheButton";
 import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+
+// Preview component
+const PreviewAgenda = lazy(() => import("./pages/PreviewAgenda"));
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
 const About = lazy(() => import("./pages/About"));
@@ -109,6 +112,9 @@ function App() {
                 <Route path="/agenda" element={<Agenda />} />
                 <Route path="/agenda/cidade/:cidade" element={<AgendaCidade />} />
                 <Route path="/agenda/:slug" element={<AgendaDetailPage />} />
+                
+                {/* Preview Routes */}
+                <Route path="/preview/agenda/:slug" element={<PreviewAgenda />} />
                 
                 {/* Destaques Routes */}
                 <Route path="/destaques" element={<DestaquesHub />} />

@@ -61,9 +61,15 @@ import { useNavigationGuard } from '@/hooks/useNavigationGuard';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useSlugHistory } from '@/hooks/useSlugHistory';
 import { usePreviewToken } from '@/hooks/usePreviewToken';
+import { ValidationBadges, PublishErrorSummary } from '@/components/agenda/ValidationBadges';
+import { validateUrl, validatePriceRange, validateOccurrence, getPublishValidationErrors } from '@/utils/agendaValidation';
 import { 
   CITY_OPTIONS, 
   VISIBILITY_OPTIONS,
+  TICKET_STATUS_OPTIONS,
+  TYPE_OPTIONS,
+  AGE_RATING_OPTIONS,
+  ACCESSIBILITY_OPTIONS,
   AgendaDraftSchema,
   type AgendaDraftData
 } from '@/schemas/agenda';
@@ -119,6 +125,8 @@ export function AgendaForm({ mode }: AgendaFormProps) {
   const [currentUpdatedAt, setCurrentUpdatedAt] = useState<string>('');
   const [showConflictDialog, setShowConflictDialog] = useState(false);
   const [conflictData, setConflictData] = useState<any>(null);
+  const [publishErrors, setPublishErrors] = useState<string[]>([]);
+  const [showPublishErrors, setShowPublishErrors] = useState(false);
 
   // Advanced features hooks
   const { saveSlugChange } = useSlugHistory();
@@ -534,6 +542,18 @@ export function AgendaForm({ mode }: AgendaFormProps) {
   const handlePublish = async () => {
     try {
       setPublishing(true);
+      setShowPublishErrors(false);
+      
+      // Validate before publishing
+      const formData = form.getValues();
+      const errors = getPublishValidationErrors(formData);
+      
+      if (errors.length > 0) {
+        setPublishErrors(errors);
+        setShowPublishErrors(true);
+        setPublishing(false);
+        return;
+      }
       
       // Mock publish - replace with actual API call
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -637,6 +657,15 @@ export function AgendaForm({ mode }: AgendaFormProps) {
         onReload={handleReloadData}
         onOverwrite={handleOverwriteData}
         conflictData={conflictData}
+      />
+
+      {/* Validation Badges */}
+      <ValidationBadges formData={formData} mode={mode} />
+
+      {/* Publish Error Summary */}
+      <PublishErrorSummary 
+        errors={publishErrors}
+        onClose={() => setShowPublishErrors(false)}
       />
       {/* Fixed Header */}
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b p-4 -mx-6 mb-6">
@@ -756,16 +785,18 @@ export function AgendaForm({ mode }: AgendaFormProps) {
                         control={form.control}
                         name="item.title"
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Título *</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                onChange={(e) => handleTitleChange(e.target.value)}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
+                           <FormItem>
+                             <FormLabel>Título *</FormLabel>
+                             <FormControl>
+                               <Input 
+                                 {...field} 
+                                 onChange={(e) => handleTitleChange(e.target.value)}
+                                 placeholder="Nome do evento"
+                               />
+                             </FormControl>
+                             <FormMessage />
+                             <p className="text-xs text-muted-foreground">Gera slug automaticamente</p>
+                           </FormItem>
                         )}
                       />
                       
@@ -773,16 +804,18 @@ export function AgendaForm({ mode }: AgendaFormProps) {
                         control={form.control}
                         name="item.slug"
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Slug *</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                onChange={(e) => handleSlugChange(e.target.value)}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
+                           <FormItem>
+                             <FormLabel>Slug *</FormLabel>
+                             <FormControl>
+                               <Input 
+                                 {...field} 
+                                 onChange={(e) => handleSlugChange(e.target.value)}
+                                 placeholder="url-amigavel-do-evento"
+                               />
+                             </FormControl>
+                             <FormMessage />
+                             <p className="text-xs text-muted-foreground">URL única para o evento</p>
+                           </FormItem>
                         )}
                       />
                     </div>
@@ -817,35 +850,65 @@ export function AgendaForm({ mode }: AgendaFormProps) {
                         control={form.control}
                         name="item.start_at"
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Data de Início *</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="datetime-local"
-                                value={toLocalDateTime(field.value)}
-                                onChange={(e) => field.onChange(toUTCString(e.target.value))}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="item.end_at"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Data de Fim *</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="datetime-local"
-                                value={toLocalDateTime(field.value)}
-                                onChange={(e) => field.onChange(toUTCString(e.target.value))}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
+                           <FormItem>
+                             <FormLabel>Data de Início *</FormLabel>
+                             <FormControl>
+                               <Input
+                                 type="datetime-local"
+                                 value={toLocalDateTime(field.value)}
+                                 onChange={(e) => {
+                                   const newValue = toUTCString(e.target.value);
+                                   field.onChange(newValue);
+                                   
+                                   // Validate end date if both are filled
+                                   const endAt = form.getValues('item.end_at');
+                                   if (endAt) {
+                                     const error = validateOccurrence(newValue, endAt);
+                                     if (error) {
+                                       form.setError('item.end_at', { message: error });
+                                     } else {
+                                       form.clearErrors('item.end_at');
+                                     }
+                                   }
+                                 }}
+                               />
+                             </FormControl>
+                             <FormMessage />
+                             <p className="text-xs text-muted-foreground">Hora local, convertida para UTC</p>
+                           </FormItem>
+                         )}
+                       />
+                       
+                       <FormField
+                         control={form.control}
+                         name="item.end_at"
+                         render={({ field }) => (
+                           <FormItem>
+                             <FormLabel>Data de Fim *</FormLabel>
+                             <FormControl>
+                               <Input
+                                 type="datetime-local"
+                                 value={toLocalDateTime(field.value)}
+                                 onChange={(e) => {
+                                   const newValue = toUTCString(e.target.value);
+                                   field.onChange(newValue);
+                                   
+                                   // Validate against start date
+                                   const startAt = form.getValues('item.start_at');
+                                   if (startAt) {
+                                     const error = validateOccurrence(startAt, newValue);
+                                     if (error) {
+                                       form.setError('item.end_at', { message: error });
+                                     } else {
+                                       form.clearErrors('item.end_at');
+                                     }
+                                   }
+                                 }}
+                               />
+                             </FormControl>
+                             <FormMessage />
+                             <p className="text-xs text-muted-foreground">Mínimo 15 min após início</p>
+                           </FormItem>
                         )}
                       />
                     </div>
@@ -910,6 +973,204 @@ export function AgendaForm({ mode }: AgendaFormProps) {
                         <FormMessage />
                       </FormItem>
                     </div>
+                  </CardContent>
+                </AccordionContent>
+              </Card>
+            </AccordionItem>
+
+            {/* Conteúdo */}
+            <AccordionItem value="content">
+              <Card>
+                <AccordionTrigger className="px-6 pt-6 pb-2 hover:no-underline">
+                  <CardTitle>Conteúdo</CardTitle>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <CardContent className="pt-0 space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="item.subtitle"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Subtítulo</FormLabel>
+                          <FormControl>
+                            <Input {...field} value={field.value || ''} placeholder="Descrição breve do evento" />
+                          </FormControl>
+                          <FormMessage />
+                          <p className="text-xs text-muted-foreground">Máximo 300 caracteres</p>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="item.summary"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Resumo</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field} 
+                              value={field.value || ''} 
+                              placeholder="Descrição completa do evento"
+                              rows={4}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                          <p className="text-xs text-muted-foreground">Máximo 500 caracteres. Mínimo 10 para publicar</p>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="item.share_text"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Texto de Compartilhamento</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field} 
+                              value={field.value || ''} 
+                              placeholder="Texto para redes sociais"
+                              rows={3}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                          <p className="text-xs text-muted-foreground">Máximo 280 caracteres</p>
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </AccordionContent>
+              </Card>
+            </AccordionItem>
+
+            {/* Ingressos e Preços */}
+            <AccordionItem value="tickets">
+              <Card>
+                <AccordionTrigger className="px-6 pt-6 pb-2 hover:no-underline">
+                  <CardTitle>Ingressos e Preços</CardTitle>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <CardContent className="pt-0 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="item.price_min"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Preço Mínimo</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="number" 
+                                min="0" 
+                                step="0.01"
+                                {...field}
+                                value={field.value || ''}
+                                onChange={(e) => {
+                                  const value = parseFloat(e.target.value) || undefined;
+                                  field.onChange(value);
+                                  
+                                  // Validate price range
+                                  const priceMax = form.getValues('item.price_max');
+                                  if (value != null && priceMax != null) {
+                                    const error = validatePriceRange(value, priceMax);
+                                    if (error) {
+                                      form.setError('item.price_max', { message: error });
+                                    } else {
+                                      form.clearErrors('item.price_max');
+                                    }
+                                  }
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                            <p className="text-xs text-muted-foreground">Em BRL</p>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="item.price_max"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Preço Máximo</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="number" 
+                                min="0" 
+                                step="0.01"
+                                {...field}
+                                value={field.value || ''}
+                                onChange={(e) => {
+                                  const value = parseFloat(e.target.value) || undefined;
+                                  field.onChange(value);
+                                  
+                                  // Validate price range
+                                  const priceMin = form.getValues('item.price_min');
+                                  if (value != null && priceMin != null) {
+                                    const error = validatePriceRange(priceMin, value);
+                                    if (error) {
+                                      form.setError('item.price_max', { message: error });
+                                    } else {
+                                      form.clearErrors('item.price_max');
+                                    }
+                                  }
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                            <p className="text-xs text-muted-foreground">Deve ser ≥ preço mínimo</p>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="item.currency"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Moeda</FormLabel>
+                            <FormControl>
+                              <Input {...field} value={field.value || 'BRL'} />
+                            </FormControl>
+                            <FormMessage />
+                            <p className="text-xs text-muted-foreground">Padrão: BRL</p>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <FormField
+                      control={form.control}
+                      name="item.ticket_url"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>URL de Ingressos</FormLabel>
+                          <FormControl>
+                            <Input 
+                              {...field} 
+                              value={field.value || ''} 
+                              placeholder="https://exemplo.com/ingressos"
+                              onChange={(e) => {
+                                field.onChange(e.target.value);
+                                
+                                // Validate URL
+                                const error = validateUrl(e.target.value, 'URL de ingressos');
+                                if (error) {
+                                  form.setError('item.ticket_url', { message: error });
+                                } else {
+                                  form.clearErrors('item.ticket_url');
+                                }
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                          <p className="text-xs text-muted-foreground">Deve começar com http:// ou https://</p>
+                        </FormItem>
+                      )}
+                    />
                   </CardContent>
                 </AccordionContent>
               </Card>
@@ -989,6 +1250,7 @@ export function AgendaForm({ mode }: AgendaFormProps) {
                           <Progress value={uploadProgress} />
                         </div>
                       )}
+                      <p className="text-xs text-muted-foreground">Obrigatória para publicar. Clique na imagem para definir ponto focal</p>
                     </div>
                     
                     <FormField
@@ -1001,9 +1263,121 @@ export function AgendaForm({ mode }: AgendaFormProps) {
                             <Input {...field} value={field.value || ''} placeholder="Descrição da imagem para acessibilidade" />
                           </FormControl>
                           <FormMessage />
+                          <p className="text-xs text-muted-foreground">Descreva a imagem para acessibilidade</p>
                         </FormItem>
                       )}
                     />
+                  </CardContent>
+                </AccordionContent>
+              </Card>
+            </AccordionItem>
+
+            {/* Operacional */}
+            <AccordionItem value="operational">
+              <Card>
+                <AccordionTrigger className="px-6 pt-6 pb-2 hover:no-underline">
+                  <CardTitle>Operacional</CardTitle>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <CardContent className="pt-0 space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="item.source_url"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>URL de Origem</FormLabel>
+                          <FormControl>
+                            <Input 
+                              {...field} 
+                              value={field.value || ''} 
+                              placeholder="https://fonte-original.com"
+                              onChange={(e) => {
+                                field.onChange(e.target.value);
+                                
+                                // Validate URL
+                                const error = validateUrl(e.target.value, 'URL de origem');
+                                if (error) {
+                                  form.setError('item.source_url', { message: error });
+                                } else {
+                                  form.clearErrors('item.source_url');
+                                }
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                          <p className="text-xs text-muted-foreground">Deve começar com http:// ou https://</p>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="item.editorial_notes"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Notas Editoriais</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field} 
+                              value={field.value || ''} 
+                              placeholder="Anotações internas"
+                              rows={3}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                          <p className="text-xs text-muted-foreground">Visível apenas para editores</p>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="item.patrocinado"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <div className="space-y-0.5">
+                              <FormLabel>Patrocinado</FormLabel>
+                              <p className="text-xs text-muted-foreground">Conteúdo pago</p>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value || false}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="item.anunciante"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Anunciante</FormLabel>
+                            <FormControl>
+                              <Input {...field} value={field.value || ''} placeholder="Nome do anunciante" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="item.cupom"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Cupom</FormLabel>
+                            <FormControl>
+                              <Input {...field} value={field.value || ''} placeholder="Código promocional" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </CardContent>
                 </AccordionContent>
               </Card>
