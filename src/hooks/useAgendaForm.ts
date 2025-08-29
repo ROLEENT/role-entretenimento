@@ -73,6 +73,9 @@ export function useAgendaForm({ agendaId, mode }: UseAgendaFormProps) {
         return;
       }
 
+      // Helper to convert null to empty string for text fields
+      const asStr = (v: unknown) => (v == null ? '' : String(v));
+      
       // Convert UTC dates to local for form
       const formData: AgendaFormData = {
         ...data,
@@ -81,6 +84,17 @@ export function useAgendaForm({ agendaId, mode }: UseAgendaFormProps) {
         publish_at: data.publish_at ? new Date(data.publish_at) : undefined,
         unpublish_at: data.unpublish_at ? new Date(data.unpublish_at) : undefined,
         tags: data.tags || [],
+        // Convert null to empty strings for optional text fields
+        subtitle: asStr(data.subtitle),
+        summary: asStr(data.summary),
+        ticket_url: asStr(data.ticket_url),
+        cover_url: asStr(data.cover_url),
+        alt_text: asStr(data.alt_text),
+        meta_title: asStr(data.meta_title),
+        meta_description: asStr(data.meta_description),
+        type: asStr(data.type),
+        anunciante: asStr(data.anunciante),
+        cupom: asStr(data.cupom),
       };
 
       setOriginalUpdatedAt(data.updated_at);
