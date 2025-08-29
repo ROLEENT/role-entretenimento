@@ -1090,55 +1090,31 @@ export function AgendaForm({ mode }: AgendaFormProps) {
                         )}
                       />
                       
-                       <FormField
-                         control={form.control}
-                         name="item.ticket_status"
-                         render={({ field }) => (
-                           <FormItem>
-                             <FormLabel>Status do Ingresso</FormLabel>
-                             <Select value={field.value || ""} onValueChange={field.onChange}>
-                               <FormControl>
-                                 <SelectTrigger>
-                                   <SelectValue placeholder="Selecione o status" />
-                                 </SelectTrigger>
-                               </FormControl>
-                               <SelectContent>
-                                 {TICKET_STATUS_OPTIONS.map((status) => (
-                                   <SelectItem key={status.value} value={status.value}>
-                                     {status.label}
-                                   </SelectItem>
-                                 ))}
-                               </SelectContent>
-                             </Select>
-                             <FormMessage />
-                             <p className="text-xs text-muted-foreground">Status atual dos ingressos</p>
-                           </FormItem>
-                         )}
-                       />
-                      
-                      <FormItem>
-                        <FormLabel>Status do Ingresso</FormLabel>
-                        <Select 
-                          value={(form.getValues('item') as any)?.ticket_status || ''} 
-                          onValueChange={(value: 'free' | 'paid' | 'sold_out' | 'invite_only') => {
-                            const currentItem = form.getValues('item');
-                            form.setValue('item', { ...currentItem, ticket_status: value });
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecione status" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="bg-background z-50">
-                            <SelectItem value="free">Gratuito</SelectItem>
-                            <SelectItem value="paid">Pago</SelectItem>
-                            <SelectItem value="sold_out">Esgotado</SelectItem>
-                            <SelectItem value="invite_only">Apenas convite</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
+                        <FormField
+                          control={form.control}
+                          name="item.ticket_status"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Status do Ingresso</FormLabel>
+                              <Select value={field.value || ""} onValueChange={field.onChange}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Selecione o status" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {TICKET_STATUS_OPTIONS.map((status) => (
+                                    <SelectItem key={status.value} value={status.value}>
+                                      {status.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                              <p className="text-xs text-muted-foreground">Status atual dos ingressos</p>
+                            </FormItem>
+                          )}
+                        />
                     </div>
                   </CardContent>
                 </AccordionContent>
