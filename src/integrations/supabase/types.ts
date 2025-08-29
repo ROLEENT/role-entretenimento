@@ -220,6 +220,120 @@ export type Database = {
         }
         Relationships: []
       }
+      agenda_itens: {
+        Row: {
+          alt_text: string | null
+          anunciante: string | null
+          city: string
+          cover_url: string | null
+          created_at: string
+          created_by: string | null
+          cupom: string | null
+          deleted_at: string | null
+          end_at: string
+          event_id: string | null
+          focal_point_x: number | null
+          focal_point_y: number | null
+          id: string
+          meta_description: string | null
+          meta_title: string | null
+          noindex: boolean | null
+          organizer_id: string | null
+          patrocinado: boolean | null
+          preview_token: string | null
+          priority: number | null
+          publish_at: string | null
+          slug: string
+          start_at: string
+          status: Database["public"]["Enums"]["agenda_status"]
+          subtitle: string | null
+          summary: string | null
+          tags: string[] | null
+          ticket_url: string | null
+          title: string
+          type: string | null
+          unpublish_at: string | null
+          updated_at: string
+          updated_by: string | null
+          venue_id: string | null
+          visibility_type: Database["public"]["Enums"]["agenda_visibility"]
+        }
+        Insert: {
+          alt_text?: string | null
+          anunciante?: string | null
+          city: string
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          cupom?: string | null
+          deleted_at?: string | null
+          end_at: string
+          event_id?: string | null
+          focal_point_x?: number | null
+          focal_point_y?: number | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          noindex?: boolean | null
+          organizer_id?: string | null
+          patrocinado?: boolean | null
+          preview_token?: string | null
+          priority?: number | null
+          publish_at?: string | null
+          slug: string
+          start_at: string
+          status?: Database["public"]["Enums"]["agenda_status"]
+          subtitle?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          ticket_url?: string | null
+          title: string
+          type?: string | null
+          unpublish_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          venue_id?: string | null
+          visibility_type?: Database["public"]["Enums"]["agenda_visibility"]
+        }
+        Update: {
+          alt_text?: string | null
+          anunciante?: string | null
+          city?: string
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          cupom?: string | null
+          deleted_at?: string | null
+          end_at?: string
+          event_id?: string | null
+          focal_point_x?: number | null
+          focal_point_y?: number | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          noindex?: boolean | null
+          organizer_id?: string | null
+          patrocinado?: boolean | null
+          preview_token?: string | null
+          priority?: number | null
+          publish_at?: string | null
+          slug?: string
+          start_at?: string
+          status?: Database["public"]["Enums"]["agenda_status"]
+          subtitle?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          ticket_url?: string | null
+          title?: string
+          type?: string | null
+          unpublish_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          venue_id?: string | null
+          visibility_type?: Database["public"]["Enums"]["agenda_visibility"]
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           city: string | null
@@ -3040,6 +3154,126 @@ export type Database = {
       }
     }
     Views: {
+      agenda_public: {
+        Row: {
+          alt_text: string | null
+          anunciante: string | null
+          city: string | null
+          cover_url: string | null
+          created_at: string | null
+          created_by: string | null
+          cupom: string | null
+          deleted_at: string | null
+          end_at: string | null
+          event_id: string | null
+          focal_point_x: number | null
+          focal_point_y: number | null
+          id: string | null
+          meta_description: string | null
+          meta_title: string | null
+          noindex: boolean | null
+          organizer_id: string | null
+          patrocinado: boolean | null
+          preview_token: string | null
+          priority: number | null
+          publish_at: string | null
+          slug: string | null
+          start_at: string | null
+          status: Database["public"]["Enums"]["agenda_status"] | null
+          subtitle: string | null
+          summary: string | null
+          tags: string[] | null
+          ticket_url: string | null
+          title: string | null
+          type: string | null
+          unpublish_at: string | null
+          updated_at: string | null
+          updated_by: string | null
+          venue_id: string | null
+          visibility_type:
+            | Database["public"]["Enums"]["agenda_visibility"]
+            | null
+        }
+        Insert: {
+          alt_text?: string | null
+          anunciante?: string | null
+          city?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          cupom?: string | null
+          deleted_at?: string | null
+          end_at?: string | null
+          event_id?: string | null
+          focal_point_x?: number | null
+          focal_point_y?: number | null
+          id?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          noindex?: boolean | null
+          organizer_id?: string | null
+          patrocinado?: boolean | null
+          preview_token?: string | null
+          priority?: number | null
+          publish_at?: string | null
+          slug?: string | null
+          start_at?: string | null
+          status?: Database["public"]["Enums"]["agenda_status"] | null
+          subtitle?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          ticket_url?: string | null
+          title?: string | null
+          type?: string | null
+          unpublish_at?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          venue_id?: string | null
+          visibility_type?:
+            | Database["public"]["Enums"]["agenda_visibility"]
+            | null
+        }
+        Update: {
+          alt_text?: string | null
+          anunciante?: string | null
+          city?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          cupom?: string | null
+          deleted_at?: string | null
+          end_at?: string | null
+          event_id?: string | null
+          focal_point_x?: number | null
+          focal_point_y?: number | null
+          id?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          noindex?: boolean | null
+          organizer_id?: string | null
+          patrocinado?: boolean | null
+          preview_token?: string | null
+          priority?: number | null
+          publish_at?: string | null
+          slug?: string | null
+          start_at?: string | null
+          status?: Database["public"]["Enums"]["agenda_status"] | null
+          subtitle?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          ticket_url?: string | null
+          title?: string | null
+          type?: string | null
+          unpublish_at?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          venue_id?: string | null
+          visibility_type?:
+            | Database["public"]["Enums"]["agenda_visibility"]
+            | null
+        }
+        Relationships: []
+      }
       analytics_summary: {
         Row: {
           city: string | null
@@ -3501,9 +3735,17 @@ export type Database = {
         }
         Returns: Json
       }
+      agenda_scheduler: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       approve_blog_comment: {
         Args: { p_comment_id: string }
         Returns: undefined
+      }
+      auth_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       authenticate_admin_secure: {
         Args: { p_email: string; p_password: string }
@@ -4147,6 +4389,8 @@ export type Database = {
       }
     }
     Enums: {
+      agenda_status: "draft" | "published"
+      agenda_visibility: "curadoria" | "vitrine"
       article_status: "draft" | "published" | "scheduled"
       badge_type: "activity" | "achievement" | "special" | "milestone"
       category_type:
@@ -4295,6 +4539,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      agenda_status: ["draft", "published"],
+      agenda_visibility: ["curadoria", "vitrine"],
       article_status: ["draft", "published", "scheduled"],
       badge_type: ["activity", "achievement", "special", "milestone"],
       category_type: [
