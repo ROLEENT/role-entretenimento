@@ -65,6 +65,7 @@ const Header = () => {
   const navigation = [
     { name: "Início", href: "/" },
     { name: "Agenda", href: "/agenda" },
+    { name: "Revista", href: "/revista" },
     { name: "Sobre", href: "/sobre" },
     { name: "Contato", href: "/contato" },
   ];
@@ -362,7 +363,7 @@ const Header = () => {
                             className={`block text-lg font-medium transition-colors px-6 py-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
                               active
                                 ? 'text-primary bg-primary/10'
-                                : item.name === 'Agenda'
+                                : (item.name === 'Agenda' || item.name === 'Revista')
                                 ? 'text-primary bg-primary/5 border border-primary/20'
                                 : 'text-foreground hover:text-primary hover:bg-muted'
                             }`}

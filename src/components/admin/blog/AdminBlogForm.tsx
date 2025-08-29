@@ -13,6 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { AdminV3Header } from '@/components/AdminV3Header';
+import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { checkSlugAvailability, generateSlug } from '@/hooks/useAdminBlogPosts';
@@ -320,23 +322,33 @@ export function AdminBlogForm() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={() => navigate('/admin-v3/revista')}>
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Voltar
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold">
-            {id ? 'Editar Artigo' : 'Novo Artigo'}
-          </h1>
-          {isDirty && (
-            <p className="text-sm text-muted-foreground">
-              Alterações não salvas
-            </p>
-          )}
-        </div>
-      </div>
+    <div className="min-h-screen bg-background">
+      <AdminV3Header />
+      <div className="pt-16 p-6">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <AdminV3Breadcrumb 
+            items={[
+              { label: 'Revista', path: '/admin-v3/revista' },
+              { label: id ? 'Editar Artigo' : 'Novo Artigo' }
+            ]} 
+          />
+          
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" onClick={() => navigate('/admin-v3/revista')}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Voltar
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold">
+                {id ? 'Editar Artigo' : 'Novo Artigo'}
+              </h1>
+              {isDirty && (
+                <p className="text-sm text-muted-foreground">
+                  Alterações não salvas
+                </p>
+              )}
+            </div>
+          </div>
 
       <Form {...form}>
         <form className="space-y-6">
@@ -699,6 +711,8 @@ export function AdminBlogForm() {
           </Tabs>
         </form>
       </Form>
+        </div>
+      </div>
     </div>
   );
 }

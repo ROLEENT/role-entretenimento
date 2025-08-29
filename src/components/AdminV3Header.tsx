@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -33,6 +33,7 @@ interface UserProfile {
 
 export function AdminV3Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -176,14 +177,41 @@ export function AdminV3Header() {
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center justify-between">
-          {/* Left side */}
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate('/admin-v3')}
-            className="text-lg font-semibold"
-          >
-            Admin v3
-          </Button>
+          {/* Left side - Logo and Navigation */}
+          <div className="flex items-center gap-6">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/admin-v3')}
+              className="text-lg font-semibold"
+            >
+              Admin v3
+            </Button>
+            
+            {/* Admin Navigation */}
+            <nav className="hidden md:flex items-center gap-4">
+              <Button 
+                variant={location.pathname.startsWith('/admin-v3/agenda') ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => navigate('/admin-v3/agenda')}
+              >
+                Agenda
+              </Button>
+              <Button 
+                variant={location.pathname.startsWith('/admin-v3/agentes') ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => navigate('/admin-v3/agentes')}
+              >
+                Agentes
+              </Button>
+              <Button 
+                variant={location.pathname.startsWith('/admin-v3/revista') ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => navigate('/admin-v3/revista')}
+              >
+                Revista
+              </Button>
+            </nav>
+          </div>
 
           {/* Right side */}
           <div className="flex items-center gap-3">
