@@ -611,35 +611,13 @@ export function AgendaForm({ mode }: AgendaFormProps) {
     }
 
     try {
-      setUploading(true);
-      setUploadProgress(0);
-      
-      // Simulate upload progress
-      const interval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(interval);
-            return 90;
-          }
-          return prev + 10;
-        });
-      }, 100);
-
-      // Mock upload - replace with actual upload logic
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const fileName = `agenda-covers/${Date.now()}-${file.name}`;
-      form.setValue('item.cover_url', fileName);
-      
-      setUploadProgress(100);
-      setUploading(false);
-      
-      toast({
-        title: "Imagem enviada"
-      });
+      const uploadedUrl = await uploadFile(file);
+      if (uploadedUrl) {
+        form.setValue('item.cover_url', uploadedUrl);
+        setHasUnsavedChanges(true);
+      }
     } catch (error) {
       console.error('Upload error:', error);
-      setUploading(false);
       toast({
         title: "Erro no upload",
         variant: "destructive"
@@ -661,12 +639,19 @@ export function AgendaForm({ mode }: AgendaFormProps) {
     });
   };
 
-  const handleRemoveImage = () => {
-    form.setValue('item.cover_url', '');
-    form.setValue('item.alt_text', '');
-    form.setValue('item.focal_point_x', undefined);
-    form.setValue('item.focal_point_y', undefined);
-    setFocalPoint(null);
+  const handleRemoveImage = async () => {
+    const currentUrl = form.getValues('item.cover_url');
+    if (currentUrl) {
+      const deleted = await deleteFile(currentUrl);
+      if (deleted) {
+        form.setValue('item.cover_url', '');
+        form.setValue('item.alt_text', '');
+        form.setValue('item.focal_point_x', undefined);
+        form.setValue('item.focal_point_y', undefined);
+        setFocalPoint(null);
+        setHasUnsavedChanges(true);
+      }
+    }
   };
 
   // Tag management
@@ -897,101 +882,7 @@ export function AgendaForm({ mode }: AgendaFormProps) {
     }
   };
 
-  // Image upload handlers
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const uploadedUrl = await uploadFile(file);
-    if (uploadedUrl) {
-      form.setValue('item.cover_url', uploadedUrl);
-      setHasUnsavedChanges(true);
-    }
-  };
-
-  const handleRemoveImage = async () => {
-    const currentUrl = form.getValues('item.cover_url');
-    if (currentUrl) {
-      const deleted = await deleteFile(currentUrl);
-      if (deleted) {
-        form.setValue('item.cover_url', '');
-        form.setValue('item.alt_text', '');
-        setFocalPoint(null);
-        setHasUnsavedChanges(true);
-      }
-    }
-  };
-
-  const handleImageClick = (event: React.MouseEvent<HTMLImageElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width;
-    const y = (event.clientY - rect.top) / rect.height;
-    
-    setFocalPoint({ x, y });
-    form.setValue('item.focal_point_x', x);
-    form.setValue('item.focal_point_y', y);
-    setHasUnsavedChanges(true);
-  };
-
-  // Convert dates between local timezone and UTC
-  const toLocalDateTime = (isoString: string | undefined) => {
-    if (!isoString) return '';
-    try {
-      const date = new Date(isoString);
-      const offset = date.getTimezoneOffset();
-      const localDate = new Date(date.getTime() - offset * 60 * 1000);
-      return localDate.toISOString().slice(0, 16);
-    } catch {
-      return '';
-    }
-  };
-
-  const toUTCString = (localDateTimeString: string) => {
-    if (!localDateTimeString) return '';
-    try {
-      const localDate = new Date(localDateTimeString);
-      return localDate.toISOString();
-    } catch {
-      return '';
-    }
-  };
-
-  // Occurrence handlers
-  const addOccurrence = () => {
-    setOccurrences([...occurrences, { start_at: '', end_at: '' }]);
-  };
-
-  const removeOccurrence = (index: number) => {
-    setOccurrences(occurrences.filter((_, i) => i !== index));
-  };
-
-  const updateOccurrence = (index: number, field: keyof Occurrence, value: string) => {
-    const updated = [...occurrences];
-    updated[index] = { ...updated[index], [field]: value };
-    setOccurrences(updated);
-    setHasUnsavedChanges(true);
-  };
-
-  // Ticket tier handlers
-  const addTicketTier = () => {
-    setTicketTiers([...ticketTiers, {
-      name: '',
-      price: 0,
-      currency: 'BRL',
-      available: true
-    }]);
-  };
-
-  const removeTicketTier = (index: number) => {
-    setTicketTiers(ticketTiers.filter((_, i) => i !== index));
-  };
-
-  const updateTicketTier = (index: number, field: keyof TicketTier, value: any) => {
-    const updated = [...ticketTiers];
-    updated[index] = { ...updated[index], [field]: value };
-    setTicketTiers(updated);
-    setHasUnsavedChanges(true);
-  };
+  return (
     <div className="space-y-6">
       {/* Edit Conflict Dialog */}
       <EditConflictDialog
@@ -1848,5 +1739,3 @@ export function AgendaForm({ mode }: AgendaFormProps) {
     </div>
   );
 }
-
-export default AgendaForm;
