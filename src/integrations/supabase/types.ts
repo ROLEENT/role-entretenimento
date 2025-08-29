@@ -227,6 +227,7 @@ export type Database = {
           age_rating: string | null
           alt_text: string | null
           anunciante: string | null
+          artists_names: string[] | null
           canonical_url: string | null
           city: string | null
           cover_url: string | null
@@ -280,6 +281,7 @@ export type Database = {
           age_rating?: string | null
           alt_text?: string | null
           anunciante?: string | null
+          artists_names?: string[] | null
           canonical_url?: string | null
           city?: string | null
           cover_url?: string | null
@@ -333,6 +335,7 @@ export type Database = {
           age_rating?: string | null
           alt_text?: string | null
           anunciante?: string | null
+          artists_names?: string[] | null
           canonical_url?: string | null
           city?: string | null
           cover_url?: string | null
@@ -705,7 +708,7 @@ export type Database = {
           booking_email: string
           booking_whatsapp: string
           cities_active: string[] | null
-          city: string
+          city: string | null
           cover_image_url: string | null
           created_at: string | null
           fee_range: string | null
@@ -713,8 +716,9 @@ export type Database = {
           id: string
           image_credits: string | null
           image_rights_authorized: boolean | null
-          instagram: string
+          instagram: string | null
           internal_notes: string | null
+          name: string
           presskit_url: string | null
           priority: number | null
           profile_image_url: string
@@ -740,7 +744,7 @@ export type Database = {
         }
         Insert: {
           accommodation_notes?: string | null
-          artist_type: string
+          artist_type?: string
           audius_url?: string | null
           availability_days?: string[] | null
           beatport_url?: string | null
@@ -749,7 +753,7 @@ export type Database = {
           booking_email: string
           booking_whatsapp: string
           cities_active?: string[] | null
-          city: string
+          city?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           fee_range?: string | null
@@ -757,8 +761,9 @@ export type Database = {
           id?: string
           image_credits?: string | null
           image_rights_authorized?: boolean | null
-          instagram: string
+          instagram?: string | null
           internal_notes?: string | null
+          name: string
           presskit_url?: string | null
           priority?: number | null
           profile_image_url: string
@@ -793,7 +798,7 @@ export type Database = {
           booking_email?: string
           booking_whatsapp?: string
           cities_active?: string[] | null
-          city?: string
+          city?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           fee_range?: string | null
@@ -801,8 +806,9 @@ export type Database = {
           id?: string
           image_credits?: string | null
           image_rights_authorized?: boolean | null
-          instagram?: string
+          instagram?: string | null
           internal_notes?: string | null
+          name?: string
           presskit_url?: string | null
           priority?: number | null
           profile_image_url?: string
@@ -4034,6 +4040,30 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      citext: {
+        Args: { "": boolean } | { "": string } | { "": unknown }
+        Returns: string
+      }
+      citext_hash: {
+        Args: { "": string }
+        Returns: number
+      }
+      citextin: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      citextout: {
+        Args: { "": string }
+        Returns: unknown
+      }
+      citextrecv: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      citextsend: {
+        Args: { "": string }
+        Returns: string
+      }
       confirm_newsletter_subscription: {
         Args: { p_token: string }
         Returns: boolean
@@ -4122,6 +4152,10 @@ export type Database = {
       ensure_admin_role: {
         Args: { user_email: string }
         Returns: undefined
+      }
+      ensure_artist: {
+        Args: { p_artist_type?: string; p_stage_name: string }
+        Returns: string
       }
       generate_category_slug: {
         Args: { category_name: string }
@@ -4490,6 +4524,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      slugify: {
+        Args: { txt: string }
+        Returns: string
+      }
       test_admin_insert: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -4509,6 +4547,14 @@ export type Database = {
           p_source?: string
         }
         Returns: string
+      }
+      unaccent: {
+        Args: { "": string }
+        Returns: string
+      }
+      unaccent_init: {
+        Args: { "": unknown }
+        Returns: unknown
       }
       unsubscribe_newsletter: {
         Args: { p_token: string }
