@@ -11,8 +11,6 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { DevCacheButton } from "./components/DevCacheButton";
 import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { ProtectedAdminRoute } from "@/components/ProtectedAdminRoute";
-
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
 const About = lazy(() => import("./pages/About"));
@@ -30,15 +28,10 @@ const CityHighlightsPage = lazy(() => import("./pages/CityHighlightsPage"));
 const CityHighlights = lazy(() => import("./pages/CityHighlights"));
 const HighlightDetailPage = lazy(() => import("./pages/HighlightDetailPage"));
 
-// Admin V2 - Essential Components Only
-const AdminV2Login = lazy(() => import("./pages/AdminV2Login"));
-const AdminV2Dashboard = lazy(() => import("./pages/AdminV2Dashboard"));
-const AdminV2HighlightsPage = lazy(() => import("./pages/AdminV2HighlightsPage"));
-const AdminHighlightEditor = lazy(() => import("./pages/AdminHighlightEditor"));
-const CreateHighlight = lazy(() => import("./pages/admin-v2/highlights/Create"));
-const EditHighlight = lazy(() => import("./pages/admin-v2/highlights/Edit"));
-const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
-
+// Admin pages - simple system
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdminHighlightForm = lazy(() => import("./pages/AdminHighlightForm"));
 
 // User pages - lazy loaded
 const EventsPage = lazy(() => import("./pages/EventsPage"));
@@ -107,19 +100,14 @@ function App() {
                 <Route path="/highlights" element={<HighlightsPage />} />
                 <Route path="/cidade/:cidade" element={<CityHighlights />} />
                 
-                {/* Admin V2 - Clean System */}
-                <Route path="/admin-v2/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Login /></Suspense>} />
-                <Route path="/admin-v2/*" element={<ProtectedAdminRoute><Suspense fallback={<AdminLoadingFallback />}><AdminLayout /></Suspense></ProtectedAdminRoute>}>
-                  {/* Dashboard - Clean Start */}
-                  <Route index element={<AdminV2Dashboard />} />
-                  {/* Highlights Management */}
-                  <Route path="highlights" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2HighlightsPage /></Suspense>} />
-                  <Route path="highlights/create" element={<Suspense fallback={<AdminLoadingFallback />}><CreateHighlight /></Suspense>} />
-                  <Route path="highlights/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><EditHighlight /></Suspense>} />
-                </Route>
+                {/* Simple Admin System */}
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/highlights/create" element={<AdminHighlightForm />} />
+                <Route path="/admin/highlights/:id/edit" element={<AdminHighlightForm />} />
                 
-                {/* Catch-all admin redirect */}
-                <Route path="/admin/*" element={<Navigate to="/admin-v2/login" replace />} />
+                {/* Redirects */}
+                <Route path="/admin-v2/*" element={<Navigate to="/admin/login" replace />} />
                 
                 {/* Events Routes */}
                 <Route path="/eventos" element={<EventsPage />} />
