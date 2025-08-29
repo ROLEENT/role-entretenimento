@@ -149,12 +149,29 @@ function AgentesContent() {
     }
   };
 
+  const handleClear = () => {
+    if (isDirty) {
+      const confirmed = window.confirm('Deseja realmente limpar todos os campos?');
+      if (confirmed) {
+        form.reset();
+        setIsDirty(false);
+        clearDraft();
+        setSlugStatus('idle');
+      }
+    }
+  };
+
   const handleCancel = () => {
     if (isDirty) {
       confirmNavigation('/admin-v3');
     } else {
       navigate('/admin-v3');
     }
+  };
+
+  const isFormValid = () => {
+    const { name, slug } = formValues;
+    return !!(name?.trim() && slug?.trim() && slugStatus === 'available');
   };
 
   const getSlugStatusIcon = () => {
@@ -183,23 +200,38 @@ function AgentesContent() {
     }
   };
 
-  return (
-    <div className="space-y-6">
+   return (
+    <div className="container mx-auto max-w-4xl space-y-6 p-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Criar Agente</h1>
-          <p className="text-muted-foreground">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Criar Agente</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Cadastre artistas, locais ou organizadores em um só lugar
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleCancel}>
+        
+        {/* Action Buttons */}
+        <div className="flex flex-col-reverse gap-2 sm:flex-row">
+          <Button 
+            variant="outline" 
+            onClick={handleCancel}
+            className="w-full sm:w-auto"
+          >
             Cancelar
           </Button>
           <Button 
+            variant="secondary" 
+            onClick={handleClear}
+            disabled={!isDirty}
+            className="w-full sm:w-auto"
+          >
+            Limpar
+          </Button>
+          <Button 
             onClick={form.handleSubmit(onSubmit)} 
-            disabled={loading || slugStatus === 'taken'}
+            disabled={loading || !isFormValid()}
+            className="w-full sm:w-auto"
           >
             {loading ? 'Salvando...' : 'Salvar Agente'}
           </Button>
@@ -216,25 +248,25 @@ function AgentesContent() {
                 Tipo de Agente
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 md:p-6">
               <FormField
                 control={form.control}
                 name="agent_type"
                 render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel>Selecione o tipo</FormLabel>
+                  <FormItem className="space-y-4">
+                    <FormLabel className="text-base font-medium">Selecione o tipo</FormLabel>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
                         value={field.value}
-                        className="flex gap-6"
+                        className="grid grid-cols-1 sm:grid-cols-3 gap-4"
                       >
                         {AGENT_TYPES.map((type) => (
-                          <FormItem key={type.value} className="flex items-center space-x-3 space-y-0">
+                          <FormItem key={type.value} className="flex items-center space-x-3 space-y-0 rounded-lg border p-4 hover:bg-muted/50 transition-colors">
                             <FormControl>
                               <RadioGroupItem value={type.value} />
                             </FormControl>
-                            <FormLabel className="font-normal cursor-pointer">
+                            <FormLabel className="font-normal cursor-pointer flex-1">
                               {type.label}
                             </FormLabel>
                           </FormItem>
@@ -250,19 +282,19 @@ function AgentesContent() {
 
           {/* Informações Básicas */}
           <Card>
-            <CardHeader>
-              <CardTitle>Informações Básicas</CardTitle>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg">Informações Básicas</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CardContent className="space-y-6 p-4 md:p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nome</FormLabel>
+                      <FormLabel className="text-sm font-medium">Nome *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Nome do agente" {...field} />
+                        <Input placeholder="Nome do agente" {...field} className="h-10" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -274,19 +306,19 @@ function AgentesContent() {
                   name="slug"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Slug</FormLabel>
+                      <FormLabel className="text-sm font-medium">Slug *</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Input placeholder="slug-do-agente" {...field} />
-                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <Input placeholder="slug-do-agente" {...field} className="h-10 pr-10" />
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
                             {getSlugStatusIcon()}
                           </div>
                         </div>
                       </FormControl>
                       {slugStatus !== 'idle' && (
-                        <p className={`text-sm ${
+                        <p className={`text-xs ${
                           slugStatus === 'available' ? 'text-green-600' :
-                          slugStatus === 'taken' ? 'text-red-600' : 'text-muted-foreground'
+                          slugStatus === 'taken' ? 'text-destructive' : 'text-muted-foreground'
                         }`}>
                           {getSlugStatusMessage()}
                         </p>
@@ -326,7 +358,7 @@ function AgentesContent() {
                   name="status"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Status</FormLabel>
+                      <FormLabel className="text-sm font-medium">Status</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
@@ -347,15 +379,15 @@ function AgentesContent() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                 <FormField
                   control={form.control}
                   name="instagram"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Instagram</FormLabel>
+                      <FormLabel className="text-sm font-medium">Instagram *</FormLabel>
                       <FormControl>
-                        <Input placeholder="usuario (sem @)" {...field} />
+                        <Input placeholder="usuario (sem @)" {...field} className="h-10" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -367,9 +399,9 @@ function AgentesContent() {
                   name="whatsapp"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>WhatsApp</FormLabel>
+                      <FormLabel className="text-sm font-medium">WhatsApp *</FormLabel>
                       <FormControl>
-                        <Input placeholder="(11) 99999-9999" {...field} />
+                        <Input placeholder="(11) 99999-9999" {...field} className="h-10" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -381,9 +413,9 @@ function AgentesContent() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel className="text-sm font-medium">Email *</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="email@exemplo.com" {...field} />
+                        <Input type="email" placeholder="email@exemplo.com" {...field} className="h-10" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -391,15 +423,15 @@ function AgentesContent() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                 <FormField
                   control={form.control}
                   name="website"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Website (opcional)</FormLabel>
+                      <FormLabel className="text-sm font-medium">Website</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://exemplo.com" {...field} />
+                        <Input placeholder="https://exemplo.com" {...field} className="h-10" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -411,17 +443,19 @@ function AgentesContent() {
                   name="bio_short"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Bio Curta</FormLabel>
+                      <FormLabel className="text-sm font-medium">Bio Curta *</FormLabel>
                       <FormControl>
                         <Textarea 
                           placeholder="Descrição breve..."
                           className="resize-none"
                           maxLength={500}
+                          rows={3}
                           {...field} 
                         />
                       </FormControl>
-                      <div className="text-sm text-muted-foreground text-right">
-                        {field.value?.length || 0}/500
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Máximo 500 caracteres</span>
+                        <span>{field.value?.length || 0}/500</span>
                       </div>
                       <FormMessage />
                     </FormItem>
@@ -434,17 +468,17 @@ function AgentesContent() {
           {/* Campos Específicos por Tipo */}
           {agentType === 'artist' && (
             <Card>
-              <CardHeader>
-                <CardTitle>Informações do Artista</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="artist_subtype"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Subtipo</FormLabel>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg">Informações do Artista</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 p-4 md:p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                <FormField
+                  control={form.control}
+                  name="artist_subtype"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Subtipo *</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
@@ -468,10 +502,10 @@ function AgentesContent() {
                     control={form.control}
                     name="profile_image_url"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>URL da Foto</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://exemplo.com/foto.jpg" {...field} />
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">URL da Foto *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://exemplo.com/foto.jpg" {...field} className="h-10" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -479,15 +513,15 @@ function AgentesContent() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="spotify_url"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Spotify (opcional)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://open.spotify.com/artist/..." {...field} />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                <FormField
+                  control={form.control}
+                  name="spotify_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Spotify</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://open.spotify.com/artist/..." {...field} className="h-10" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -498,10 +532,10 @@ function AgentesContent() {
                     control={form.control}
                     name="soundcloud_url"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>SoundCloud (opcional)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://soundcloud.com/..." {...field} />
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">SoundCloud</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://soundcloud.com/..." {...field} className="h-10" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -509,15 +543,15 @@ function AgentesContent() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="youtube_url"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>YouTube (opcional)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://youtube.com/c/..." {...field} />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                <FormField
+                  control={form.control}
+                  name="youtube_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">YouTube</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://youtube.com/c/..." {...field} className="h-10" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -528,10 +562,10 @@ function AgentesContent() {
                     control={form.control}
                     name="presskit_url"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Press Kit (opcional)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://exemplo.com/presskit.pdf" {...field} />
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Press Kit</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://exemplo.com/presskit.pdf" {...field} className="h-10" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -599,8 +633,8 @@ function AgentesContent() {
                     control={form.control}
                     name="address"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Endereço</FormLabel>
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Endereço *</FormLabel>
                         <FormControl>
                           <Input placeholder="Rua, número - bairro" {...field} />
                         </FormControl>
@@ -634,6 +668,7 @@ function AgentesContent() {
                         <Textarea 
                           placeholder="Regras da casa, política de entrada, etc..."
                           className="resize-none"
+                          rows={3}
                           {...field} 
                         />
                       </FormControl>
@@ -683,8 +718,8 @@ function AgentesContent() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Email Comercial (opcional)</FormLabel>
-                        <FormControl>
-                          <Input type="email" placeholder="comercial@exemplo.com" {...field} />
+                      <FormControl>
+                        <Input type="email" placeholder="comercial@exemplo.com" {...field} className="h-10" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
