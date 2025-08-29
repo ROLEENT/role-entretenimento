@@ -175,14 +175,14 @@ export const useHighlightForm = (highlightId?: string) => {
         // Campos obrigatórios (NOT NULL na tabela)
         event_title: data.title.trim(),
         city: data.city,
-        venue: data.venue.trim(),
+        venue: data.venue?.trim() || 'A definir',
         role_text: data.role_text?.trim() || data.summary?.trim() || 'Destaque em desenvolvimento',
         selection_reasons: Array.isArray(data.selection_reasons) && data.selection_reasons.length > 0 
                           ? data.selection_reasons 
                           : (Array.isArray(data.tags) && data.tags.length > 0 
                              ? data.tags 
                              : ['evento-imperdivel']),
-        image_url: (data.cover_url || data.image_url).trim(),
+        image_url: (data.cover_url || data.image_url || '').trim(),
         is_published: false,
         
         // Campos opcionais
@@ -260,14 +260,14 @@ export const useHighlightForm = (highlightId?: string) => {
         // Campos obrigatórios (NOT NULL na tabela)
         event_title: data.title.trim(),
         city: data.city,
-        venue: data.venue.trim(),
+        venue: data.venue?.trim() || 'A definir',
         role_text: data.role_text?.trim() || data.summary?.trim() || 'Destaque em desenvolvimento',
         selection_reasons: Array.isArray(data.selection_reasons) && data.selection_reasons.length > 0 
                           ? data.selection_reasons 
                           : (Array.isArray(data.tags) && data.tags.length > 0 
                              ? data.tags 
                              : ['evento-imperdivel']),
-        image_url: (data.cover_url || data.image_url).trim(),
+        image_url: (data.cover_url || data.image_url || '').trim(),
         is_published: false,
         
         // Campos opcionais
@@ -367,14 +367,14 @@ export const useHighlightForm = (highlightId?: string) => {
         // Campos obrigatórios (NOT NULL na tabela)
         event_title: data.title.trim(),
         city: data.city,
-        venue: data.venue.trim(),
+        venue: data.venue?.trim() || 'A definir',
         role_text: data.role_text?.trim() || data.summary?.trim() || 'Destaque selecionado pela equipe ROLE',
         selection_reasons: Array.isArray(data.selection_reasons) && data.selection_reasons.length > 0 
                           ? data.selection_reasons 
                           : (Array.isArray(data.tags) && data.tags.length > 0 
                              ? data.tags 
                              : ['evento-imperdivel']),
-        image_url: (data.cover_url || data.image_url).trim(),
+        image_url: (data.cover_url || data.image_url || '').trim(),
         is_published: true,
         
         // Campos opcionais

@@ -35,7 +35,7 @@ export default function AdminSimpleForm() {
     resolver: zodResolver(highlightSchema),
     defaultValues: {
       city: 'porto_alegre',
-      event_title: '',
+      title: '',
       venue: '',
       ticket_url: '',
       role_text: '',
@@ -70,7 +70,7 @@ export default function AdminSimpleForm() {
       if (data) {
         form.reset({
           city: data.city,
-          event_title: data.event_title,
+          title: data.event_title,
           venue: data.venue,
           ticket_url: data.ticket_url || '',
           role_text: data.role_text,
@@ -190,14 +190,14 @@ export default function AdminSimpleForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="event_title">Título do Evento</Label>
+                  <Label htmlFor="title">Título do Evento</Label>
                   <Input
-                    {...form.register('event_title')}
+                    {...form.register('title')}
                     placeholder="Nome do evento"
                   />
-                  {form.formState.errors.event_title && (
+                  {form.formState.errors.title && (
                     <p className="text-sm text-destructive">
-                      {form.formState.errors.event_title.message}
+                      {form.formState.errors.title.message}
                     </p>
                   )}
                 </div>

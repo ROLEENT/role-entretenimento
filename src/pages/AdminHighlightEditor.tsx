@@ -44,7 +44,7 @@ const AdminHighlightEditor = () => {
     resolver: zodResolver(highlightSchema),
     defaultValues: {
       city: 'porto_alegre',
-      event_title: '',
+      title: '',
       venue: '',
       ticket_url: '',
       role_text: '',
@@ -123,7 +123,7 @@ const AdminHighlightEditor = () => {
       
       form.reset({
         city: highlight.city,
-        event_title: highlight.event_title,
+        title: highlight.event_title,
         venue: highlight.venue,
         ticket_url: highlight.ticket_url || '',
         role_text: highlight.role_text,
@@ -307,7 +307,7 @@ const AdminHighlightEditor = () => {
 
               <FormField
                 control={form.control}
-                name="event_title"
+                name="title"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Título do Evento</FormLabel>
