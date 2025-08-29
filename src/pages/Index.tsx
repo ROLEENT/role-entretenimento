@@ -1,9 +1,9 @@
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
-import { CityHighlightSlider } from "@/components/CityHighlightSlider";
-import StatsSection from "@/components/StatsSection";
+import AgendaPorCidade from "@/components/AgendaPorCidade";
+import BlocoRevista from "@/components/BlocoRevista";
 import FeaturedEventsToday from "@/components/FeaturedEventsToday";
-import FeaturedBlogPosts from "@/components/FeaturedBlogPosts";
+import RoleEmNumeros from "@/components/RoleEmNumeros";
 import Newsletter from "@/components/Newsletter";
 import Footer from "@/components/Footer";
 import BackToTop from "@/components/BackToTop";
@@ -12,67 +12,52 @@ import { NotificationPermissionPrompt } from "@/components/NotificationPermissio
 import { Toaster } from "@/components/ui/sonner";
 import SEOOptimizations from "@/components/SEOOptimizations";
 import AccessibilityEnhancements from "@/components/AccessibilityEnhancements";
-// Removed: Chatbot import
 
 const Index = () => {
   return (
     <AccessibilityEnhancements>
       <SEOOptimizations 
-        title="ROLÊ - Descubra os Melhores Eventos Culturais do Brasil"
-        description="Agenda cultural completa com shows, peças, exposições e eventos em São Paulo, Rio de Janeiro, Porto Alegre, Florianópolis e Curitiba."
-        tags={['eventos', 'cultura', 'agenda', 'shows', 'teatro', 'exposições', 'brasil']}
+        title="ROLÊ - Curadoria Independente de Cultura & Experiências"
+        description="Conectamos pessoas através de experiências culturais autênticas. Agenda completa com shows, peças, exposições e eventos em São Paulo, Rio de Janeiro, Porto Alegre, Florianópolis e Curitiba."
+        tags={['eventos', 'cultura', 'agenda', 'curadoria', 'shows', 'teatro', 'exposições', 'brasil', 'entretenimento']}
       />
       <div className="min-h-screen bg-background">
         <Header />
         <main id="main-content" className="mt-0">
+          {/* 1. HERO / TOPO */}
           <HeroSection />
           
-          <div className="container mx-auto px-4 space-y-8">
-            <ScrollAnimationWrapper>
-              <CityHighlightSlider 
-                city="porto_alegre" 
-                title="Porto Alegre" 
-                citySlug="porto-alegre"
-              />
-            </ScrollAnimationWrapper>
-            
-            <ScrollAnimationWrapper>
-              <CityHighlightSlider 
-                city="sao_paulo" 
-                title="São Paulo" 
-                citySlug="sao-paulo"
-              />
-            </ScrollAnimationWrapper>
-            
-            <ScrollAnimationWrapper>
-              <CityHighlightSlider 
-                city="florianopolis" 
-                title="Florianópolis" 
-                citySlug="florianopolis"
-              />
-            </ScrollAnimationWrapper>
-          </div>
+          {/* 3. AGENDA POR CIDADE */}
+          <ScrollAnimationWrapper>
+            <AgendaPorCidade />
+          </ScrollAnimationWrapper>
           
+          {/* 4. BLOCO REVISTA */}
+          <ScrollAnimationWrapper>
+            <BlocoRevista />
+          </ScrollAnimationWrapper>
+          
+          {/* 5. EVENTOS EM DESTAQUE */}
           <ScrollAnimationWrapper>
             <FeaturedEventsToday />
           </ScrollAnimationWrapper>
           
+          {/* 6. ROLÊ EM NÚMEROS */}
           <ScrollAnimationWrapper>
-            <FeaturedBlogPosts />
+            <RoleEmNumeros />
           </ScrollAnimationWrapper>
           
-          <ScrollAnimationWrapper>
-            <StatsSection />
-          </ScrollAnimationWrapper>
-          
+          {/* 7. NEWSLETTER */}
           <ScrollAnimationWrapper>
             <Newsletter />
           </ScrollAnimationWrapper>
         </main>
+        
+        {/* 8. FOOTER */}
         <Footer />
+        
         <NotificationPermissionPrompt />
         <BackToTop />
-        {/* Removed: Chatbot component */}
         <Toaster />
       </div>
     </AccessibilityEnhancements>
