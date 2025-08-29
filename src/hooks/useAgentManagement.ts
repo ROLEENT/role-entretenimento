@@ -58,7 +58,7 @@ export const useAgentManagement = () => {
               stage_name: data.name,
               slug: data.slug,
               city: data.city,
-              instagram: data.instagram,
+              instagram: data.instagram.replace(/^@+/, ''), // Normalizar instagram
               booking_whatsapp: data.whatsapp,
               booking_email: data.email,
               website_url: data.website || null,
@@ -83,7 +83,7 @@ export const useAgentManagement = () => {
               name: data.name,
               slug: data.slug,
               city: data.city,
-              instagram: data.instagram,
+              instagram: data.instagram.replace(/^@+/, ''), // Normalizar instagram
               booking_whatsapp: data.whatsapp,
               booking_email: data.email,
               website_url: data.website || null,
@@ -108,7 +108,7 @@ export const useAgentManagement = () => {
               name: data.name,
               slug: data.slug,
               city: data.city,
-              instagram: data.instagram,
+              instagram: data.instagram.replace(/^@+/, ''), // Normalizar instagram
               contact_whatsapp: data.whatsapp,
               contact_email: data.email,
               website_url: data.website || null,

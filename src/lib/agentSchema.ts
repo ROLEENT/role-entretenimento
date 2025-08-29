@@ -11,21 +11,43 @@ export const agentSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório').max(200, 'Nome muito longo'),
   slug: z.string().min(1, 'Slug é obrigatório'),
   city: z.string().min(1, 'Cidade é obrigatória'),
-  instagram: z.string().min(1, 'Instagram é obrigatório'),
+  instagram: z.string()
+    .min(1, 'Instagram é obrigatório')
+    .transform((val) => val.replace(/^@+/, '')), // Remove @ inicial
   whatsapp: z.string().min(1, 'WhatsApp é obrigatório'),
   email: z.string().email('Email inválido'),
-  website: z.string().url('URL inválida').optional().or(z.literal('')),
-  bio_short: z.string().min(1, 'Bio curta é obrigatória').max(300, 'Bio curta muito longa'),
+  website: z.string()
+    .refine((val) => !val || val.startsWith('https://'), 'URL deve começar com https://')
+    .optional()
+    .or(z.literal('')),
+  bio_short: z.string().min(1, 'Bio curta é obrigatória').max(500, 'Bio curta muito longa (máximo 500 caracteres)'),
   status: z.enum(['active', 'inactive']).default('active'),
 
   // Campos específicos para artista
   artist_subtype: z.enum(['banda', 'dj', 'solo', 'drag']).optional(),
-  spotify_url: z.string().url('URL inválida').optional().or(z.literal('')),
-  soundcloud_url: z.string().url('URL inválida').optional().or(z.literal('')),
-  youtube_url: z.string().url('URL inválida').optional().or(z.literal('')),
-  beatport_url: z.string().url('URL inválida').optional().or(z.literal('')),
-  profile_image_url: z.string().optional(),
-  presskit_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  spotify_url: z.string()
+    .refine((val) => !val || val.startsWith('https://'), 'URL deve começar com https://')
+    .optional()
+    .or(z.literal('')),
+  soundcloud_url: z.string()
+    .refine((val) => !val || val.startsWith('https://'), 'URL deve começar com https://')
+    .optional()
+    .or(z.literal('')),
+  youtube_url: z.string()
+    .refine((val) => !val || val.startsWith('https://'), 'URL deve começar com https://')
+    .optional()
+    .or(z.literal('')),
+  beatport_url: z.string()
+    .refine((val) => !val || val.startsWith('https://'), 'URL deve começar com https://')
+    .optional()
+    .or(z.literal('')),
+  profile_image_url: z.string()
+    .refine((val) => !val || val.startsWith('https://'), 'URL deve começar com https://')
+    .optional(),
+  presskit_url: z.string()
+    .refine((val) => !val || val.startsWith('https://'), 'URL deve começar com https://')
+    .optional()
+    .or(z.literal('')),
 
   // Campos específicos para local
   venue_type: z.enum(['bar', 'clube', 'casa_de_shows', 'teatro', 'galeria', 'espaco_cultural', 'restaurante']).optional(),

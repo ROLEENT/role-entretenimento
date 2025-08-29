@@ -308,7 +308,7 @@ function AgentesContent() {
                     <FormItem>
                       <FormLabel>Instagram</FormLabel>
                       <FormControl>
-                        <Input placeholder="@usuario" {...field} />
+                        <Input placeholder="usuario (sem @)" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -369,9 +369,13 @@ function AgentesContent() {
                         <Textarea 
                           placeholder="Descrição breve..."
                           className="resize-none"
+                          maxLength={500}
                           {...field} 
                         />
                       </FormControl>
+                      <div className="text-sm text-muted-foreground text-right">
+                        {field.value?.length || 0}/500
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
