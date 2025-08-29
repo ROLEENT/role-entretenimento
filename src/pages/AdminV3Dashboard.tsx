@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Calendar, FileText, Clock, TrendingUp, RefreshCw, AlertTriangle, Plus } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { supabase } from '@/integrations/supabase/client';
 
 interface DashboardStats {
@@ -185,7 +186,8 @@ function DashboardContent() {
     onCardClick,
     onReload,
     isLoading,
-    hasError 
+    hasError,
+    tooltipText
   }: {
     title: string;
     value: number;
@@ -195,6 +197,7 @@ function DashboardContent() {
     onReload: () => void;
     isLoading: boolean;
     hasError: boolean;
+    tooltipText: string;
   }) => (
     <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-background to-muted/30 hover:shadow-lg transition-shadow duration-200">
       <CardContent className="p-6">
@@ -241,15 +244,22 @@ function DashboardContent() {
           </div>
         ) : (
           <>
-            <button 
-              onClick={onCardClick}
-              className="text-left w-full group"
-            >
-              <div className="text-3xl font-bold mb-1 group-hover:text-primary transition-colors cursor-pointer">
-                {value.toLocaleString()}
-              </div>
-              <p className="text-sm text-muted-foreground">{description}</p>
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={onCardClick}
+                  className="text-left w-full group"
+                >
+                  <div className="text-3xl font-bold mb-1 group-hover:text-primary transition-colors cursor-pointer">
+                    {value.toLocaleString()}
+                  </div>
+                  <p className="text-sm text-muted-foreground">{description}</p>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{tooltipText}</p>
+              </TooltipContent>
+            </Tooltip>
             
             {/* Timestamp footer */}
             <div className="mt-4 pt-3 border-t border-border/50">
@@ -298,48 +308,54 @@ function DashboardContent() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Rascunhos"
-          value={stats.drafts}
-          icon={FileText}
-          description="Itens não publicados"
-          onCardClick={() => handleCardClick('drafts')}
-          onReload={loadStats}
-          isLoading={loading}
-          hasError={!!error}
-        />
-        <StatCard
-          title="Publicados"
-          value={stats.published}
-          icon={TrendingUp}
-          description="Itens ativos"
-          onCardClick={() => handleCardClick('published')}
-          onReload={loadStats}
-          isLoading={loading}
-          hasError={!!error}
-        />
-        <StatCard
-          title="Hoje"
-          value={stats.today}
-          icon={Calendar}
-          description="Eventos de hoje"
-          onCardClick={() => handleCardClick('today')}
-          onReload={loadStats}
-          isLoading={loading}
-          hasError={!!error}
-        />
-        <StatCard
-          title="Próximos 7 dias"
-          value={stats.thisWeek}
-          icon={Clock}
-          description="Esta semana"
-          onCardClick={() => handleCardClick('thisWeek')}
-          onReload={loadStats}
-          isLoading={loading}
-          hasError={!!error}
-        />
-      </div>
+      <TooltipProvider>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard
+            title="Rascunhos"
+            value={stats.drafts}
+            icon={FileText}
+            description="Itens não publicados"
+            onCardClick={() => handleCardClick('drafts')}
+            onReload={loadStats}
+            isLoading={loading}
+            hasError={!!error}
+            tooltipText="Clique para ver todos os rascunhos"
+          />
+          <StatCard
+            title="Publicados"
+            value={stats.published}
+            icon={TrendingUp}
+            description="Itens ativos"
+            onCardClick={() => handleCardClick('published')}
+            onReload={loadStats}
+            isLoading={loading}
+            hasError={!!error}
+            tooltipText="Clique para ver todos os itens publicados"
+          />
+          <StatCard
+            title="Hoje"
+            value={stats.today}
+            icon={Calendar}
+            description="Eventos de hoje"
+            onCardClick={() => handleCardClick('today')}
+            onReload={loadStats}
+            isLoading={loading}
+            hasError={!!error}
+            tooltipText="Clique para ver eventos de hoje"
+          />
+          <StatCard
+            title="Próximos 7 dias"
+            value={stats.thisWeek}
+            icon={Clock}
+            description="Esta semana"
+            onCardClick={() => handleCardClick('thisWeek')}
+            onReload={loadStats}
+            isLoading={loading}
+            hasError={!!error}
+            tooltipText="Clique para ver eventos dos próximos 7 dias"
+          />
+        </div>
+      </TooltipProvider>
 
       {/* Error State */}
       {error && (

@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
+import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -350,6 +351,13 @@ export default function AdminV3Agenda() {
         <AdminV3Header />
         <div className="p-6">
         <div className="max-w-7xl mx-auto space-y-6">
+          {/* Breadcrumb */}
+          <AdminV3Breadcrumb 
+            items={[
+              { label: 'Agenda' }
+            ]}
+          />
+          
           {/* Header */}
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold">Agenda</h1>
