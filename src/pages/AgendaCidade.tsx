@@ -32,7 +32,7 @@ const PERIOD_OPTIONS = [
 ];
 
 const EventCard = ({ item, cityName }: { item: any; cityName: string }) => {
-  const isCuradoria = item.visibility_type === 'curadoria';
+  const navigate = useNavigate();
   const itemTags = item.tags || [];
   const displayTags = itemTags.slice(0, 2);
   const extraTagsCount = Math.max(0, itemTags.length - 2);
@@ -53,12 +53,14 @@ const EventCard = ({ item, cityName }: { item: any; cityName: string }) => {
     return `${start.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}`.replace(/\./g, '');
   };
 
+  const handleClick = () => {
+    navigate(`/agenda/${item.slug || item.id}`);
+  };
+
   return (
     <Card 
-      className={cn(
-        "overflow-hidden cursor-pointer transition-all hover:shadow-lg group",
-        isCuradoria ? "bg-slate-900 text-white border-slate-800" : "bg-card"
-      )}
+      className="overflow-hidden cursor-pointer transition-all hover:shadow-lg group"
+      onClick={handleClick}
     >
       <div className="aspect-[3/2] relative overflow-hidden">
         {item.cover_url ? (
@@ -81,28 +83,14 @@ const EventCard = ({ item, cityName }: { item: any; cityName: string }) => {
             <Calendar className="w-12 h-12 text-muted-foreground" />
           </div>
         )}
-        <Badge 
-          className={cn(
-            "absolute top-3 left-3",
-            isCuradoria ? "bg-amber-600 hover:bg-amber-700" : "bg-blue-600 hover:bg-blue-700"
-          )}
-        >
-          {isCuradoria ? 'Curadoria' : 'Vitrine'}
-        </Badge>
       </div>
       
       <CardContent className="p-4">
-        <h3 className={cn(
-          "font-semibold text-lg line-clamp-2 mb-2 group-hover:text-primary transition-colors",
-          isCuradoria ? "text-white group-hover:text-amber-300" : "text-foreground"
-        )}>
+        <h3 className="font-semibold text-lg line-clamp-2 mb-2 group-hover:text-primary transition-colors">
           {item.title}
         </h3>
         
-        <p className={cn(
-          "text-sm mb-3",
-          isCuradoria ? "text-slate-300" : "text-muted-foreground"
-        )}>
+        <p className="text-sm text-muted-foreground mb-3">
           {cityName} · {item.start_at ? formatDateRange(item.start_at, item.end_at || undefined) : 'Data a definir'}
         </p>
         
@@ -111,22 +99,16 @@ const EventCard = ({ item, cityName }: { item: any; cityName: string }) => {
             {displayTags.map(tag => (
               <Badge 
                 key={tag} 
-                variant={isCuradoria ? "secondary" : "outline"}
-                className={cn(
-                  "text-xs",
-                  isCuradoria ? "bg-slate-800 text-slate-200 border-slate-700" : ""
-                )}
+                variant="secondary"
+                className="text-xs"
               >
                 {tag}
               </Badge>
             ))}
             {extraTagsCount > 0 && (
               <Badge 
-                variant={isCuradoria ? "secondary" : "outline"}
-                className={cn(
-                  "text-xs",
-                  isCuradoria ? "bg-slate-800 text-slate-200 border-slate-700" : ""
-                )}
+                variant="secondary"
+                className="text-xs"
               >
                 +{extraTagsCount}
               </Badge>
@@ -300,7 +282,7 @@ export default function AgendaCidade() {
       <head>
         <title>Agenda {cityName} - ROLÊ</title>
         <meta name="description" content={`Eventos culturais em ${cityName} selecionados com curadoria especializada. Descubra shows, festivais e experiências únicas.`} />
-        <link rel="canonical" href={`https://role.com.br/agenda/${cidade}${currentPeriod !== 'proximos-7-dias' ? `?periodo=${currentPeriod}` : ''}`} />
+        <link rel="canonical" href={`https://role.com.br/agenda/cidade/${cidade}${currentPeriod !== 'proximos-7-dias' ? `?periodo=${currentPeriod}` : ''}`} />
       </head>
       
       <main className="min-h-screen pt-20">

@@ -31,7 +31,7 @@ const EventCard = ({ item, onFocus }: { item: any; onFocus: () => void }) => {
   return (
     <Card className="overflow-hidden h-full group">
       <Link 
-        to={`/agenda/${item.city}/${item.slug || item.id}`}
+        to={`/agenda/${item.slug || item.id}`}
         className="block h-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
         onFocus={onFocus}
       >
@@ -270,7 +270,7 @@ export default function Agenda() {
                     className="h-20 flex flex-col justify-center hover:bg-primary/5 transition-colors"
                     asChild
                   >
-                    <Link to={`/agenda/${city.key}`}>
+                    <Link to={`/agenda/cidade/${city.key}`}>
                       <span className="font-semibold text-lg">{city.name}</span>
                       <span className="text-sm text-muted-foreground">
                         {count} eventos
@@ -285,7 +285,7 @@ export default function Agenda() {
                 className="h-20 flex flex-col justify-center hover:bg-primary/5 transition-colors"
                 asChild
               >
-                <Link to="/agenda/outras">
+                <Link to="/agenda/cidade/outras">
                   <span className="font-semibold text-lg">Outras cidades</span>
                   <span className="text-sm text-muted-foreground">Selecionar</span>
                 </Link>
