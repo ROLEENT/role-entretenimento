@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { advancedHighlightSchema, AdvancedHighlightFormData, getPublishChecklist } from '@/lib/advancedHighlightSchema';
+import { highlightSchema, HighlightFormData, getPublishChecklist } from '@/lib/highlightSchema';
 
 export const useHighlightForm = (highlightId?: string) => {
   const navigate = useNavigate();
@@ -15,8 +15,8 @@ export const useHighlightForm = (highlightId?: string) => {
   const [isDuplicating, setIsDuplicating] = useState(false);
   const autosaveTimeoutRef = useRef<NodeJS.Timeout>();
 
-  const form = useForm<AdvancedHighlightFormData>({
-    resolver: zodResolver(advancedHighlightSchema),
+  const form = useForm<HighlightFormData>({
+    resolver: zodResolver(highlightSchema),
     defaultValues: {
       title: '',
       slug: '',
@@ -87,7 +87,7 @@ export const useHighlightForm = (highlightId?: string) => {
       
       autosaveTimeoutRef.current = setTimeout(() => {
         if (value.title) { // Só autosave se tem título
-          handleAutosave(value as AdvancedHighlightFormData);
+          handleAutosave(value as HighlightFormData);
         }
       }, 20000); // 20 segundos
     });
@@ -158,7 +158,7 @@ export const useHighlightForm = (highlightId?: string) => {
   };
 
   // Autosave
-  const handleAutosave = async (data: AdvancedHighlightFormData) => {
+  const handleAutosave = async (data: HighlightFormData) => {
     if (!data.title) return;
     
     try {
@@ -221,7 +221,7 @@ export const useHighlightForm = (highlightId?: string) => {
   };
 
   // Salvar rascunho
-  const saveDraft = async (data: AdvancedHighlightFormData) => {
+  const saveDraft = async (data: HighlightFormData) => {
     try {
       setIsLoading(true);
       
@@ -320,7 +320,7 @@ export const useHighlightForm = (highlightId?: string) => {
   };
 
   // Publicar
-  const publish = async (data: AdvancedHighlightFormData) => {
+  const publish = async (data: HighlightFormData) => {
     // Validações obrigatórias para publicação
     if (!data.title?.trim()) {
       toast.error('Título é obrigatório para publicar');
@@ -338,9 +338,8 @@ export const useHighlightForm = (highlightId?: string) => {
     }
     
     const checklist = getPublishChecklist(data);
-    const isReady = checklist.every(item => item.completed);
     
-    if (!isReady) {
+    if (!checklist.canPublish) {
       toast.error('Complete todos os requisitos antes de publicar');
       return;
     }

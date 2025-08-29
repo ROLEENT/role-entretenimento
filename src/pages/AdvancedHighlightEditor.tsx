@@ -19,7 +19,8 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { FocalPointSelector } from '@/components/highlights/FocalPointSelector';
 import { supabase } from '@/integrations/supabase/client';
-import { highlightSchema } from '@/lib/highlightSchema';
+import { highlightSchema, HighlightFormData, getPublishChecklist } from '@/lib/highlightSchema';
+import { useHighlightForm } from '@/hooks/useHighlightForm';
 import { toast } from 'sonner';
 import { 
   ArrowLeft, 

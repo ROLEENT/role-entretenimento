@@ -1,19 +1,22 @@
 import { z } from "zod";
 
-// Schema atualizado para refletir a estrutura real da tabela highlights
+// Schema unificado para criar/editar highlights
 export const highlightSchema = z.object({
   // Campos básicos obrigatórios
   title: z.string().min(1, "Título é obrigatório"),
-  slug: z.string().min(1, "Slug é obrigatório"),
+  slug: z.string().optional().default(''),
   city: z.enum(['porto_alegre','florianopolis','curitiba','sao_paulo','rio_de_janeiro']),
-  start_at: z.string().min(1, "Data de início é obrigatória"),
-  end_at: z.string().min(1, "Data de fim é obrigatória"),
+  status: z.enum(['draft', 'published', 'scheduled']).default('draft'),
   
-  // Mídia obrigatória para publicação
-  cover_url: z.string().min(1, "Imagem de capa é obrigatória"),
-  alt_text: z.string().min(1, "Texto alternativo é obrigatório"),
+  // Mídia - obrigatória para publicação
+  cover_url: z.string().optional().default(''),
+  alt_text: z.string().optional().default(''),
   focal_point_x: z.number().min(0).max(1).default(0.5),
   focal_point_y: z.number().min(0).max(1).default(0.5),
+  
+  // Datas - obrigatórias para publicação
+  start_at: z.string().optional().default(''),
+  end_at: z.string().optional().default(''),
   
   // Campos opcionais
   subtitle: z.string().optional().default(''),
@@ -26,8 +29,7 @@ export const highlightSchema = z.object({
   cupom: z.string().optional().default(''),
   priority: z.number().default(100),
   
-  // Publicação
-  status: z.enum(['draft', 'published', 'scheduled']).default('draft'),
+  // Publicação agendada
   publish_at: z.string().optional().default(''),
   unpublish_at: z.string().optional().default(''),
   
@@ -41,7 +43,7 @@ export const highlightSchema = z.object({
   organizer_id: z.string().optional().default(''),
   venue_id: z.string().optional().default(''),
   
-  // Campos legados para compatibilidade com a tabela
+  // Campos legados (manter para compatibilidade)
   venue: z.string().optional().default(''),
   role_text: z.string().optional().default(''),
   selection_reasons: z.array(z.string()).default([]),
@@ -59,3 +61,24 @@ export const highlightSchema = z.object({
 });
 
 export type HighlightFormData = z.infer<typeof highlightSchema>;
+
+// Validações para publicação
+export const getPublishChecklist = (data: HighlightFormData) => {
+  const checks = {
+    title: !!data.title?.trim(),
+    slug: !!data.slug?.trim(),
+    city: !!data.city,
+    cover_url: !!data.cover_url?.trim(),
+    alt_text: !!data.alt_text?.trim(),
+    start_at: !!data.start_at?.trim(),
+    end_at: !!data.end_at?.trim(),
+    venue: !!data.venue?.trim(),
+    role_text: !!data.role_text?.trim() || !!data.summary?.trim(),
+  };
+  
+  const passed = Object.values(checks).filter(Boolean).length;
+  const total = Object.keys(checks).length;
+  const canPublish = passed === total;
+  
+  return { checks, passed, total, canPublish };
+};
