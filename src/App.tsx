@@ -58,6 +58,10 @@ const AdminV3ArtistsEdit = lazy(() => import("./pages/AdminV3ArtistsEdit"));
 const AdminV3Agentes = lazy(() => import("./pages/AdminV3Agentes"));
 const AdminV3Profile = lazy(() => import("./pages/AdminV3Profile"));
 
+// Admin Blog components
+const AdminBlogList = lazy(() => import("./components/admin/blog/AdminBlogList").then(module => ({ default: module.AdminBlogList })));
+const AdminBlogForm = lazy(() => import("./components/admin/blog/AdminBlogForm").then(module => ({ default: module.AdminBlogForm })));
+
 // Revista pages
 const RevistaPage = lazy(() => import("./pages/RevistaPage"));
 const RevistaArticlePage = lazy(() => import("./pages/RevistaArticlePage"));
@@ -176,6 +180,13 @@ function App() {
                 <Route path="/admin-v3/artists/:id/edit/" element={<Navigate to="/admin-v3/agentes" replace />} />
                 <Route path="/admin-v3/agentes" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Agentes /></Suspense>} />
                 <Route path="/admin-v3/agentes/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Agentes /></Suspense>} />
+                {/* Admin Revista Routes */}
+                <Route path="/admin-v3/revista" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogList /></Suspense>} />
+                <Route path="/admin-v3/revista/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogList /></Suspense>} />
+                <Route path="/admin-v3/revista/novo" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogForm /></Suspense>} />
+                <Route path="/admin-v3/revista/novo/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogForm /></Suspense>} />
+                <Route path="/admin-v3/revista/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogForm /></Suspense>} />
+                <Route path="/admin-v3/revista/:id/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogForm /></Suspense>} />
                 <Route path="/admin-v3/profile" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Profile /></Suspense>} />
                 
                 {/* Events Routes */}

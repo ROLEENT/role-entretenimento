@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, FileText, Clock, TrendingUp, RefreshCw, AlertTriangle, Plus, Info, ExternalLink, Users } from 'lucide-react';
+import { Calendar, FileText, Clock, TrendingUp, RefreshCw, AlertTriangle, Plus, Info, ExternalLink, Users, BookOpen } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
@@ -473,10 +473,10 @@ function DashboardContent() {
             <Button 
               variant="outline" 
               className="h-24 flex-col gap-2 bg-background hover:bg-muted"
-              onClick={() => navigate('/admin-v3/agentes')}
+              onClick={() => navigate('/admin-v3/revista')}
             >
-              <Users className="w-6 h-6" />
-              <span>Criar Agentes</span>
+              <BookOpen className="w-6 h-6" />
+              <span>Revista</span>
             </Button>
           </div>
         </CardContent>

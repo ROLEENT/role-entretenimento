@@ -169,6 +169,18 @@ export type Database = {
         }
         Relationships: []
       }
+      admins: {
+        Row: {
+          user_id: string
+        }
+        Insert: {
+          user_id: string
+        }
+        Update: {
+          user_id?: string
+        }
+        Relationships: []
+      }
       advertisements: {
         Row: {
           active: boolean | null
@@ -219,6 +231,58 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      agenda_item_artists: {
+        Row: {
+          agenda_id: string
+          artist_id: string
+          created_at: string | null
+          headliner: boolean | null
+          id: string
+          position: number | null
+          role: string | null
+        }
+        Insert: {
+          agenda_id: string
+          artist_id: string
+          created_at?: string | null
+          headliner?: boolean | null
+          id?: string
+          position?: number | null
+          role?: string | null
+        }
+        Update: {
+          agenda_id?: string
+          artist_id?: string
+          created_at?: string | null
+          headliner?: boolean | null
+          id?: string
+          position?: number | null
+          role?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agenda_item_artists_agenda_id_fkey"
+            columns: ["agenda_id"]
+            isOneToOne: false
+            referencedRelation: "agenda_itens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agenda_item_artists_agenda_id_fkey"
+            columns: ["agenda_id"]
+            isOneToOne: false
+            referencedRelation: "agenda_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agenda_item_artists_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       agenda_itens: {
         Row: {
@@ -1031,6 +1095,8 @@ export type Database = {
           category_ids: string[] | null
           city: string
           content_html: string
+          content_md: string | null
+          cover_alt: string | null
           cover_image: string
           created_at: string
           featured: boolean | null
@@ -1038,6 +1104,8 @@ export type Database = {
           published_at: string | null
           reading_time: number | null
           scheduled_at: string | null
+          seo_description: string | null
+          seo_title: string | null
           slug: string
           slug_data: string
           status: Database["public"]["Enums"]["article_status"]
@@ -1053,6 +1121,8 @@ export type Database = {
           category_ids?: string[] | null
           city: string
           content_html: string
+          content_md?: string | null
+          cover_alt?: string | null
           cover_image: string
           created_at?: string
           featured?: boolean | null
@@ -1060,6 +1130,8 @@ export type Database = {
           published_at?: string | null
           reading_time?: number | null
           scheduled_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           slug: string
           slug_data: string
           status?: Database["public"]["Enums"]["article_status"]
@@ -1075,6 +1147,8 @@ export type Database = {
           category_ids?: string[] | null
           city?: string
           content_html?: string
+          content_md?: string | null
+          cover_alt?: string | null
           cover_image?: string
           created_at?: string
           featured?: boolean | null
@@ -1082,6 +1156,8 @@ export type Database = {
           published_at?: string | null
           reading_time?: number | null
           scheduled_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           slug?: string
           slug_data?: string
           status?: Database["public"]["Enums"]["article_status"]
@@ -2161,6 +2237,36 @@ export type Database = {
           label?: string
           updated_at?: string
           value?: number
+        }
+        Relationships: []
+      }
+      migration_unresolved_artists: {
+        Row: {
+          agenda_id: string
+          artist_name: string
+          created_at: string | null
+          id: number
+          position: number
+          reason: string
+          slug: string
+        }
+        Insert: {
+          agenda_id: string
+          artist_name: string
+          created_at?: string | null
+          id?: number
+          position: number
+          reason?: string
+          slug: string
+        }
+        Update: {
+          agenda_id?: string
+          artist_name?: string
+          created_at?: string | null
+          id?: number
+          position?: number
+          reason?: string
+          slug?: string
         }
         Relationships: []
       }
@@ -3796,6 +3902,32 @@ export type Database = {
           youtube_url: string
         }[]
       }
+      admin_get_blog_posts: {
+        Args: {
+          p_city?: string
+          p_limit?: number
+          p_offset?: number
+          p_search?: string
+          p_status?: Database["public"]["Enums"]["article_status"]
+        }
+        Returns: {
+          author_name: string
+          city: string
+          cover_image: string
+          created_at: string
+          featured: boolean
+          id: string
+          published_at: string
+          slug: string
+          slug_data: string
+          status: Database["public"]["Enums"]["article_status"]
+          summary: string
+          tags: string[]
+          title: string
+          updated_at: string
+          views: number
+        }[]
+      }
       admin_get_highlight_by_id_v3: {
         Args: { p_admin_email: string; p_highlight_id: string }
         Returns: Json
@@ -4031,6 +4163,10 @@ export type Database = {
       check_and_award_badges: {
         Args: { p_user_id: string }
         Returns: undefined
+      }
+      check_blog_slug_available: {
+        Args: { p_post_id?: string; p_slug: string }
+        Returns: boolean
       }
       check_user_is_admin: {
         Args: Record<PropertyKey, never>
@@ -4488,6 +4624,10 @@ export type Database = {
       mark_notification_read: {
         Args: { p_notification_id: string }
         Returns: undefined
+      }
+      migrate_agenda_artists: {
+        Args: { create_missing?: boolean; default_artist_type?: string }
+        Returns: Json
       }
       provision_user_profile: {
         Args: { p_email: string; p_user_id: string }
