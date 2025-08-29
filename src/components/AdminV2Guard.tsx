@@ -23,7 +23,9 @@ interface AdminV2GuardProps {
 
 const AUTHORIZED_EMAILS = [
   'pablohenrique.dev@gmail.com',
-  'admin@role.app'
+  'admin@role.app',
+  'fiih@roleentretenimento.com',
+  'guilherme@roleentretenimento.com'
 ];
 
 export function AdminV2Guard({ children }: AdminV2GuardProps) {
