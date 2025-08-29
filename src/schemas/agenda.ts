@@ -1,5 +1,73 @@
 import { z } from 'zod';
 
+// City options
+export const CITY_OPTIONS = [
+  { value: 'porto-alegre', label: 'Porto Alegre' },
+  { value: 'sao-paulo', label: 'São Paulo' },
+  { value: 'rio-de-janeiro', label: 'Rio de Janeiro' },
+  { value: 'belo-horizonte', label: 'Belo Horizonte' },
+  { value: 'brasilia', label: 'Brasília' },
+  { value: 'curitiba', label: 'Curitiba' },
+  { value: 'florianopolis', label: 'Florianópolis' },
+  { value: 'salvador', label: 'Salvador' },
+  { value: 'recife', label: 'Recife' },
+  { value: 'fortaleza', label: 'Fortaleza' }
+] as const;
+
+// Visibility options
+export const VISIBILITY_OPTIONS = [
+  { value: 'curadoria', label: 'Curadoria' },
+  { value: 'vitrine', label: 'Vitrine' }
+] as const;
+
+// Status options
+export const STATUS_OPTIONS = [
+  { value: 'draft', label: 'Rascunho' },
+  { value: 'published', label: 'Publicado' }
+] as const;
+
+// Ticket status options
+export const TICKET_STATUS_OPTIONS = [
+  { value: 'free', label: 'Gratuito' },
+  { value: 'paid', label: 'Pago' },
+  { value: 'sold_out', label: 'Esgotado' },
+  { value: 'invite_only', label: 'Apenas por convite' }
+] as const;
+
+// Type options
+export const TYPE_OPTIONS = [
+  { value: 'show', label: 'Show' },
+  { value: 'festa', label: 'Festa' },
+  { value: 'teatro', label: 'Teatro' },
+  { value: 'exposicao', label: 'Exposição' },
+  { value: 'workshop', label: 'Workshop' },
+  { value: 'palestra', label: 'Palestra' },
+  { value: 'cinema', label: 'Cinema' },
+  { value: 'esporte', label: 'Esporte' },
+  { value: 'gastronomia', label: 'Gastronomia' },
+  { value: 'outros', label: 'Outros' }
+] as const;
+
+// Age rating options
+export const AGE_RATING_OPTIONS = [
+  { value: 'livre', label: 'Livre' },
+  { value: '10', label: '10 anos' },
+  { value: '12', label: '12 anos' },
+  { value: '14', label: '14 anos' },
+  { value: '16', label: '16 anos' },
+  { value: '18', label: '18 anos' }
+] as const;
+
+// Accessibility options
+export const ACCESSIBILITY_OPTIONS = [
+  { value: 'wheelchair', label: 'Acessível para cadeirantes' },
+  { value: 'interpreter', label: 'Intérprete de Libras' },
+  { value: 'subtitle', label: 'Legendas' },
+  { value: 'braille', label: 'Material em Braille' },
+  { value: 'low_vision', label: 'Apoio para baixa visão' },
+  { value: 'hearing_loop', label: 'Loop auditivo' }
+] as const;
+
 // Preprocessor para converter strings vazias e null em undefined
 const preprocessEmptyString = (val: any) => {
   if (val === '' || val === null) return undefined;
