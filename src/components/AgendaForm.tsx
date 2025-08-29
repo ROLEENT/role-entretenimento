@@ -74,8 +74,90 @@ import {
   ACCESSIBILITY_OPTIONS,
   AgendaDraftSchema,
   TicketStatusEnum,
-  type AgendaDraftData
+  type AgendaDraftData,
+  type TicketStatus
 } from '@/schemas/agenda';
+
+// Form values type with proper TicketStatus typing
+interface AgendaFormValues {
+  item: {
+    title: string;
+    slug: string;
+    city?: string;
+    start_at?: string;
+    end_at?: string;
+    type?: string;
+    priority: number;
+    status: 'draft' | 'published';
+    visibility_type: 'curadoria' | 'vitrine';
+    tags: string[];
+    currency: string;
+    accessibility: Record<string, boolean>;
+    noindex: boolean;
+    patrocinado: boolean;
+    subtitle?: string;
+    summary?: string;
+    cover_url?: string;
+    alt_text?: string;
+    ticket_url?: string;
+    source_url?: string;
+    venue_id?: string;
+    organizer_id?: string;
+    event_id?: string;
+    anunciante?: string;
+    cupom?: string;
+    meta_title?: string;
+    meta_description?: string;
+    canonical_url?: string;
+    meta_image_url?: string;
+    share_text?: string;
+    editorial_notes?: string;
+    location_name?: string;
+    address?: string;
+    neighborhood?: string;
+    latitude?: number;
+    longitude?: number;
+    price_min?: number;
+    price_max?: number;
+    ticket_status?: TicketStatus;
+    age_rating?: string;
+    focal_point_x?: number;
+    focal_point_y?: number;
+    publish_at?: string;
+    unpublish_at?: string;
+    preview_token?: string;
+    created_by?: string;
+    updated_by?: string;
+    created_at?: string;
+    updated_at?: string;
+    deleted_at?: string;
+  };
+  occurrences: Array<{
+    id?: string;
+    agenda_id?: string;
+    start_at: string;
+    end_at: string;
+    created_at?: string;
+  }>;
+  ticket_tiers: Array<{
+    id?: string;
+    agenda_id?: string;
+    name: string;
+    price: number;
+    currency: string;
+    link?: string;
+    available: boolean;
+    created_at?: string;
+  }>;
+  media: Array<{
+    id?: string;
+    agenda_id?: string;
+    url: string;
+    alt_text?: string;
+    kind: 'image' | 'video';
+    position: number;
+  }>;
+}
 
 interface AgendaFormProps {
   mode: 'create' | 'edit';
@@ -134,16 +216,16 @@ export function AgendaForm({ mode }: AgendaFormProps) {
   const { openSecurePreview, isGenerating: isGeneratingPreview } = usePreviewToken();
   const { uploadFile, deleteFile, uploading, uploadProgress } = useStorageUpload();
 
-  const form = useForm<AgendaDraftData>({
+  const form = useForm<AgendaFormValues>({
     resolver: zodResolver(AgendaDraftSchema),
     defaultValues: {
       item: {
         title: '',
         slug: '',
-        city: '',
-        start_at: '',
-        end_at: '',
-        type: '',
+        city: undefined,
+        start_at: undefined,
+        end_at: undefined,
+        type: undefined,
         priority: 0,
         status: 'draft',
         visibility_type: 'curadoria',
@@ -152,6 +234,7 @@ export function AgendaForm({ mode }: AgendaFormProps) {
         accessibility: {},
         noindex: false,
         patrocinado: false,
+        ticket_status: undefined,
       },
       occurrences: [],
       ticket_tiers: [],
@@ -666,7 +749,28 @@ export function AgendaForm({ mode }: AgendaFormProps) {
     // Mock reload - replace with actual API call
     try {
       const freshData = {}; // Load fresh data from server
-      form.reset(freshData);
+      form.reset({
+        item: {
+          title: '',
+          slug: '',
+          city: undefined,
+          start_at: undefined,
+          end_at: undefined,
+          type: undefined,
+          priority: 0,
+          status: 'draft',
+          visibility_type: 'curadoria',
+          tags: [],
+          currency: 'BRL',
+          accessibility: {},
+          noindex: false,
+          patrocinado: false,
+          ticket_status: undefined,
+        },
+        occurrences: [],
+        ticket_tiers: [],
+        media: [],
+      });
       setShowConflictDialog(false);
       setHasUnsavedChanges(false);
       toast({
