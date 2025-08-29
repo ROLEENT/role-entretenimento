@@ -25,15 +25,18 @@ import {
   CITIES
 } from '@/lib/agentSchema';
 import { useAgentManagement } from '@/hooks/useAgentManagement';
+import { useNavigationGuard } from '@/hooks/useNavigationGuard';
+import { useAutosave } from '@/hooks/useAutosave';
 import { Users, Check, AlertCircle } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
 
 function AgentesContent() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { loading, createAgent, checkSlugExists, generateSlug } = useAgentManagement();
+  const { loading, createAgent, checkSlugExists, generateSlug, saveDraft, loadDraft, clearDraft } = useAgentManagement();
   
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+  const [isDirty, setIsDirty] = useState(false);
   
   const form = useForm<AgentFormData>({
     resolver: zodResolver(agentSchema),
@@ -51,9 +54,47 @@ function AgentesContent() {
     }
   });
 
+  // Carregar rascunho ao montar o componente
+  React.useEffect(() => {
+    const draft = loadDraft();
+    if (draft) {
+      Object.keys(draft).forEach(key => {
+        form.setValue(key as keyof AgentFormData, draft[key as keyof AgentFormData]);
+      });
+      setIsDirty(true);
+      toast({
+        title: "Rascunho carregado",
+        description: "Seus dados anteriores foram restaurados.",
+      });
+    }
+  }, [form, loadDraft, toast]);
+
   const agentType = form.watch('agent_type');
   const nameValue = form.watch('name');
   const slugValue = form.watch('slug');
+  const formValues = form.watch();
+
+  // Monitorar mudanças no formulário
+  React.useEffect(() => {
+    const subscription = form.watch(() => {
+      setIsDirty(true);
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
+  // Navigation guard
+  const { confirmNavigation } = useNavigationGuard({
+    when: isDirty,
+    message: 'Você tem alterações não salvas. Deseja realmente sair?'
+  });
+
+  // Autosave
+  useAutosave({
+    data: formValues,
+    onSave: saveDraft,
+    delay: 800,
+    enabled: isDirty && !!formValues.name
+  });
 
   // Gerar slug automaticamente quando o nome muda
   React.useEffect(() => {
@@ -95,6 +136,8 @@ function AgentesContent() {
     if (agentId) {
       form.reset();
       setSlugStatus('idle');
+      setIsDirty(false);
+      clearDraft(); // Limpar rascunho após salvar com sucesso
       
       // Navegar para listagem (quando implementada)
       // navigate('/admin-v3/agentes');
@@ -107,7 +150,11 @@ function AgentesContent() {
   };
 
   const handleCancel = () => {
-    navigate('/admin-v3');
+    if (isDirty) {
+      confirmNavigation('/admin-v3');
+    } else {
+      navigate('/admin-v3');
+    }
   };
 
   const getSlugStatusIcon = () => {

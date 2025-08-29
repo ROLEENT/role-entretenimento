@@ -2,64 +2,45 @@ import { useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface UseNavigationGuardProps {
-  hasUnsavedChanges: boolean;
+  when: boolean;
   message?: string;
 }
 
 export const useNavigationGuard = ({ 
-  hasUnsavedChanges, 
-  message = 'Você tem alterações não salvas. Tem certeza que deseja sair?' 
+  when, 
+  message = 'Você tem alterações não salvas. Deseja realmente sair?' 
 }: UseNavigationGuardProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Block browser navigation (back/forward/refresh)
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
-        e.preventDefault();
-        e.returnValue = message;
-        return message;
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [hasUnsavedChanges, message]);
-
-  // Block React Router navigation
-  useEffect(() => {
-    if (!hasUnsavedChanges) return;
-
-    const handlePopState = (e: PopStateEvent) => {
-      if (hasUnsavedChanges) {
-        const shouldLeave = window.confirm(message);
-        if (!shouldLeave) {
-          e.preventDefault();
-          window.history.pushState(null, '', location.pathname + location.search);
-        }
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    window.history.pushState(null, '', location.pathname + location.search);
-
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-    };
-  }, [hasUnsavedChanges, message, location]);
-
-  const confirmNavigation = useCallback((path: string) => {
-    if (hasUnsavedChanges) {
-      const shouldLeave = window.confirm(message);
-      if (shouldLeave) {
-        navigate(path);
-      }
-      return shouldLeave;
+  const handleBeforeUnload = useCallback((event: BeforeUnloadEvent) => {
+    if (when) {
+      event.preventDefault();
+      event.returnValue = message;
+      return message;
     }
-    navigate(path);
+  }, [when, message]);
+
+  useEffect(() => {
+    if (when) {
+      window.addEventListener('beforeunload', handleBeforeUnload);
+      return () => {
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+      };
+    }
+  }, [when, handleBeforeUnload]);
+
+  const confirmNavigation = useCallback((targetPath: string) => {
+    if (when) {
+      const confirmed = window.confirm(message);
+      if (confirmed) {
+        navigate(targetPath);
+      }
+      return confirmed;
+    }
+    navigate(targetPath);
     return true;
-  }, [hasUnsavedChanges, message, navigate]);
+  }, [when, message, navigate]);
 
   return { confirmNavigation };
 };

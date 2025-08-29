@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AgentFormData } from '@/lib/agentSchema';
 
+const DRAFT_STORAGE_KEY = 'agent-form-draft';
+
 export const useAgentManagement = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -157,10 +159,40 @@ export const useAgentManagement = () => {
     }
   };
 
+  const saveDraft = async (data: AgentFormData): Promise<void> => {
+    try {
+      // Salvar no localStorage
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.error('Erro ao salvar rascunho:', error);
+    }
+  };
+
+  const loadDraft = (): AgentFormData | null => {
+    try {
+      const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch (error) {
+      console.error('Erro ao carregar rascunho:', error);
+      return null;
+    }
+  };
+
+  const clearDraft = (): void => {
+    try {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch (error) {
+      console.error('Erro ao limpar rascunho:', error);
+    }
+  };
+
   return {
     loading,
     createAgent,
     checkSlugExists,
     generateSlug,
+    saveDraft,
+    loadDraft,
+    clearDraft,
   };
 };
