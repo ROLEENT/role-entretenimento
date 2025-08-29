@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import { advancedHighlightSchema, AdvancedHighlightFormData, getPublishChecklist } from '@/lib/advancedHighlightSchema';
 
 export const useHighlightForm = (highlightId?: string) => {
@@ -99,12 +100,24 @@ export const useHighlightForm = (highlightId?: string) => {
     if (!eventId) return;
     
     try {
-      // TODO: Buscar dados do evento no backend
-      // const event = await getEventById(eventId);
-      // form.setValue('city', event.city);
-      // form.setValue('start_at', event.start_at);
-      // form.setValue('end_at', event.end_at);
-      // toast.success('Dados do evento preenchidos automaticamente');
+      const { data: event, error } = await supabase
+        .from('events')
+        .select('city, start_at, end_at, title')
+        .eq('id', eventId)
+        .single();
+
+      if (error) throw error;
+
+      if (event) {
+        form.setValue('city', event.city);
+        form.setValue('start_at', event.start_at);
+        form.setValue('end_at', event.end_at);
+        // Se não tem título ainda, sugerir baseado no evento
+        if (!form.getValues('title')) {
+          form.setValue('title', `Destaque: ${event.title}`);
+        }
+        toast.success('Dados do evento preenchidos automaticamente');
+      }
     } catch (error) {
       toast.error('Erro ao carregar dados do evento');
     }
@@ -115,10 +128,17 @@ export const useHighlightForm = (highlightId?: string) => {
     if (!slug) return false;
     
     try {
-      // TODO: Verificar se slug é único no backend
-      // const exists = await checkSlugExists(slug, highlightId);
-      // return !exists;
-      return true; // Temporário
+      const { data, error } = await supabase
+        .from('highlights')
+        .select('id')
+        .eq('slug', slug)
+        .neq('id', highlightId || '')
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      
+      // Se encontrou dados, significa que o slug já existe
+      return !data;
     } catch (error) {
       return false;
     }
@@ -142,8 +162,27 @@ export const useHighlightForm = (highlightId?: string) => {
     if (!data.title) return;
     
     try {
-      // TODO: Salvar como rascunho no backend
-      // await saveDraft(data);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const highlightData = {
+        ...data,
+        status: 'draft' as const,
+        created_by: user.id,
+        updated_by: user.id,
+      };
+
+      if (highlightId) {
+        await supabase
+          .from('highlights')
+          .update(highlightData)
+          .eq('id', highlightId);
+      } else {
+        await supabase
+          .from('highlights')
+          .insert(highlightData);
+      }
+
       setLastSaved(new Date());
       setHasUnsavedChanges(false);
     } catch (error) {
@@ -155,20 +194,43 @@ export const useHighlightForm = (highlightId?: string) => {
   const saveDraft = async (data: AdvancedHighlightFormData) => {
     try {
       setIsLoading(true);
-      data.status = 'draft';
       
-      // TODO: Integrar com backend
-      // if (highlightId) {
-      //   await updateHighlight(highlightId, data);
-      // } else {
-      //   await createHighlight(data);
-      // }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+
+      const highlightData = {
+        ...data,
+        status: 'draft' as const,
+        created_by: user.id,
+        updated_by: user.id,
+      };
+
+      let result;
+      if (highlightId) {
+        result = await supabase
+          .from('highlights')
+          .update(highlightData)
+          .eq('id', highlightId)
+          .select()
+          .single();
+      } else {
+        result = await supabase
+          .from('highlights')
+          .insert(highlightData)
+          .select()
+          .single();
+      }
+
+      if (result.error) throw result.error;
       
       setHasUnsavedChanges(false);
       setLastSaved(new Date());
       toast.success('Rascunho salvo com sucesso!');
+      
+      return result.data;
     } catch (error) {
       toast.error('Erro ao salvar rascunho');
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -186,14 +248,34 @@ export const useHighlightForm = (highlightId?: string) => {
 
     try {
       setIsLoading(true);
-      data.status = 'published';
       
-      // TODO: Integrar com backend
-      // if (highlightId) {
-      //   await updateHighlight(highlightId, data);
-      // } else {
-      //   await createHighlight(data);
-      // }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+
+      const highlightData = {
+        ...data,
+        status: 'published' as const,
+        created_by: user.id,
+        updated_by: user.id,
+      };
+
+      let result;
+      if (highlightId) {
+        result = await supabase
+          .from('highlights')
+          .update(highlightData)
+          .eq('id', highlightId)
+          .select()
+          .single();
+      } else {
+        result = await supabase
+          .from('highlights')
+          .insert(highlightData)
+          .select()
+          .single();
+      }
+
+      if (result.error) throw result.error;
       
       setHasUnsavedChanges(false);
       toast.success('Destaque publicado com sucesso!');
@@ -210,16 +292,34 @@ export const useHighlightForm = (highlightId?: string) => {
     try {
       setIsDuplicating(true);
       
-      // TODO: Buscar dados do destaque origem
-      // const sourceHighlight = await getHighlightById(sourceId);
-      // const newData = { ...sourceHighlight };
-      // delete newData.id;
-      // newData.title = `Cópia de ${newData.title}`;
-      // newData.slug = await suggestAlternativeSlug(generateSlug(newData.title));
-      // newData.status = 'draft';
-      // form.reset(newData);
-      
-      toast.success('Dados duplicados com sucesso!');
+      const { data: sourceHighlight, error } = await supabase
+        .from('highlights')
+        .select('*')
+        .eq('id', sourceId)
+        .single();
+
+      if (error) throw error;
+
+      if (sourceHighlight) {
+        const newTitle = `Cópia de ${sourceHighlight.title}`;
+        const newSlug = await suggestAlternativeSlug(generateSlug(newTitle));
+        
+        const newData = {
+          ...sourceHighlight,
+          title: newTitle,
+          slug: newSlug,
+          status: 'draft' as const,
+          // Limpar campos que não devem ser duplicados
+          id: undefined,
+          created_at: undefined,
+          updated_at: undefined,
+          created_by: undefined,
+          updated_by: undefined,
+        };
+
+        form.reset(newData);
+        toast.success('Dados duplicados com sucesso!');
+      }
     } catch (error) {
       toast.error('Erro ao duplicar destaque');
     } finally {

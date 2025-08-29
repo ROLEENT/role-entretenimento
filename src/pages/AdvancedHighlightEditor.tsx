@@ -205,6 +205,61 @@ export default function AdvancedHighlightEditor() {
     }
   };
 
+  const handleSaveAndCreateAnother = async () => {
+    try {
+      await saveDraft(form.getValues());
+      form.reset({
+        title: '',
+        slug: '',
+        subtitle: '',
+        summary: '',
+        city: form.getValues('city'), // Manter cidade
+        status: 'draft',
+        start_at: '',
+        end_at: '',
+        cover_url: '',
+        alt_text: '',
+        focal_point_x: 0.5,
+        focal_point_y: 0.5,
+        ticket_url: '',
+        tags: [],
+        type: form.getValues('type'), // Manter tipo
+        patrocinado: false,
+        anunciante: '',
+        cupom: '',
+        meta_title: '',
+        meta_description: '',
+        noindex: false,
+        event_id: '',
+        organizer_id: '',
+        venue_id: '',
+        priority: 100,
+        venue: '',
+        role_text: '',
+        selection_reasons: [],
+        image_url: '',
+        photo_credit: '',
+        event_date: '',
+        event_time: '',
+        ticket_price: '',
+        sort_order: 100,
+        is_published: false
+      });
+      toast.success('Destaque salvo! Criando novo...');
+    } catch (error) {
+      toast.error('Erro ao salvar destaque');
+    }
+  };
+
+  const handleSaveAndReturn = async () => {
+    try {
+      await saveDraft(form.getValues());
+      navigate('/admin-v2/highlights');
+    } catch (error) {
+      toast.error('Erro ao salvar destaque');
+    }
+  };
+
   // Toggle seção
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
