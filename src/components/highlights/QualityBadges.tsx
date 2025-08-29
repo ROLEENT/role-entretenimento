@@ -10,9 +10,10 @@ interface QualityBadgesProps {
     slug?: string;
     title?: string;
   };
+  slugError?: string | null;
 }
 
-export const QualityBadges = ({ data }: QualityBadgesProps) => {
+export const QualityBadges = ({ data, slugError }: QualityBadgesProps) => {
   const badges = [];
   
   if (!data.cover_url) {
@@ -31,9 +32,13 @@ export const QualityBadges = ({ data }: QualityBadgesProps) => {
     badges.push({ label: 'Sem título', variant: 'destructive' as const });
   }
   
+  if (slugError) {
+    badges.push({ label: 'Slug duplicado', variant: 'destructive' as const });
+  }
+  
   if (badges.length === 0) {
     return (
-      <Badge className="bg-[#28a745] text-white flex items-center gap-1">
+      <Badge className="bg-green-600 text-white flex items-center gap-1">
         <CheckCircle className="w-3 h-3" />
         Todas as validações OK
       </Badge>

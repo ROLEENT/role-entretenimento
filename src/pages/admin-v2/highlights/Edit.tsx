@@ -22,6 +22,11 @@ import { PublicationSection } from './sections/Publication';
 import { SEOSection } from './sections/SEO';
 import { RelationsSection } from './sections/Relations';
 import { AdvancedSection } from './sections/Advanced';
+import { QualityBadges } from '@/components/highlights/QualityBadges';
+import { PublishChecklist } from '@/components/highlights/PublishChecklist';
+import { AutosaveIndicator } from '@/components/highlights/AutosaveIndicator';
+import { NavigationGuard } from '@/components/highlights/NavigationGuard';
+import { EditConflictDialog } from '@/components/highlights/EditConflictDialog';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, Send, Trash2, Plus, X, AlertCircle } from 'lucide-react';
 
@@ -29,9 +34,16 @@ export default function EditHighlight() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [slugError, setSlugError] = useState<string | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [showNavigationGuard, setShowNavigationGuard] = useState(false);
+  const [showConflictDialog, setShowConflictDialog] = useState(false);
+  const [originalUpdatedAt, setOriginalUpdatedAt] = useState<string | null>(null);
+  const [conflictUpdatedAt, setConflictUpdatedAt] = useState<string | null>(null);
   
   const form = useForm<HighlightForm>({
     resolver: zodResolver(HighlightFormSchema),
@@ -105,6 +117,44 @@ export default function EditHighlight() {
     }
   }, [id]);
 
+  // Track form changes
+  useEffect(() => {
+    if (!dataLoaded) return;
+    
+    const subscription = form.watch(() => {
+      setHasUnsavedChanges(true);
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [form, dataLoaded]);
+
+  // Autosave functionality
+  useEffect(() => {
+    if (!hasUnsavedChanges || !dataLoaded) return;
+
+    const timeoutId = setTimeout(() => {
+      const formData = form.getValues();
+      if (formData.title && id) {
+        handleAutosave(formData);
+      }
+    }, 20000); // 20 seconds
+
+    return () => clearTimeout(timeoutId);
+  }, [hasUnsavedChanges, dataLoaded, id]);
+
+  // Navigation guard
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
   const loadHighlight = async (highlightId: string) => {
     try {
       setIsLoading(true);
@@ -119,8 +169,11 @@ export default function EditHighlight() {
 
       if (data) {
         const formData = fromDB(data);
+        // Store original updated_at for conflict detection
+        setOriginalUpdatedAt(data.updated_at);
         form.reset(formData);
         setDataLoaded(true);
+        setHasUnsavedChanges(false);
       }
     } catch (error) {
       console.error('Erro ao carregar destaque:', error);
@@ -128,6 +181,65 @@ export default function EditHighlight() {
       navigate('/admin-v2/highlights');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Auto-save implementation
+  const handleAutosave = async (data: HighlightForm) => {
+    if (!data.title?.trim() || isSaving || isLoading || !id) return;
+    
+    setIsSaving(true);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+
+      const payload = {
+        ...toDB({ ...data, status: 'draft' }),
+        updated_by: user.id,
+        updated_at: new Date().toISOString()
+      };
+      
+      const { error } = await supabase
+        .from('highlights')
+        .update(payload)
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      setHasUnsavedChanges(false);
+      setLastSaved(new Date());
+      
+    } catch (error) {
+      console.error('Autosave failed:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Check for edit conflicts
+  const checkForConflicts = async (): Promise<boolean> => {
+    if (!id || !originalUpdatedAt) return false;
+    
+    try {
+      const { data, error } = await supabase
+        .from('highlights')
+        .select('updated_at')
+        .eq('id', id)
+        .single();
+      
+      if (error) throw error;
+      
+      if (data && data.updated_at !== originalUpdatedAt) {
+        setConflictUpdatedAt(data.updated_at);
+        setShowConflictDialog(true);
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Error checking for conflicts:', error);
+      return false;
     }
   };
 
@@ -140,6 +252,9 @@ export default function EditHighlight() {
       return;
     }
 
+    // Check for conflicts before saving
+    if (await checkForConflicts()) return;
+
     try {
       setIsLoading(true);
       
@@ -149,14 +264,25 @@ export default function EditHighlight() {
       const payload = {
         ...toDB(data),
         updated_by: user.id,
+        updated_at: new Date().toISOString()
       };
 
-      const { error } = await supabase
+      const { data: result, error } = await supabase
         .from('highlights')
         .update(payload)
-        .eq('id', id);
+        .eq('id', id)
+        .select('updated_at')
+        .single();
 
       if (error) throw error;
+
+      // Update original timestamp
+      if (result) {
+        setOriginalUpdatedAt(result.updated_at);
+      }
+
+      setHasUnsavedChanges(false);
+      setLastSaved(new Date());
 
       toast.success('Destaque atualizado com sucesso!');
     } catch (error) {
@@ -179,7 +305,45 @@ export default function EditHighlight() {
       return;
     }
 
-    await handleSave({ ...data, status: 'published' });
+    // Check for conflicts before publishing
+    if (await checkForConflicts()) return;
+
+    try {
+      setIsLoading(true);
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+
+      const payload = {
+        ...toDB({ ...data, status: 'published' }),
+        updated_by: user.id,
+        updated_at: new Date().toISOString()
+      };
+
+      const { data: result, error } = await supabase
+        .from('highlights')
+        .update(payload)
+        .eq('id', id)
+        .select('updated_at')
+        .single();
+
+      if (error) throw error;
+
+      // Update original timestamp
+      if (result) {
+        setOriginalUpdatedAt(result.updated_at);
+      }
+
+      setHasUnsavedChanges(false);
+
+      toast.success('Destaque publicado com sucesso!');
+      navigate('/admin-v2/highlights');
+    } catch (error) {
+      console.error('Erro ao publicar:', error);
+      toast.error('Erro ao publicar destaque');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSaveAndReturn = async (data: HighlightForm) => {
@@ -231,11 +395,22 @@ export default function EditHighlight() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin-v2/highlights')}>
+              <Button variant="ghost" size="sm" onClick={() => {
+                if (hasUnsavedChanges) {
+                  setShowNavigationGuard(true);
+                } else {
+                  navigate('/admin-v2/highlights');
+                }
+              }}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Voltar
               </Button>
               <h1 className="text-xl font-semibold">Editar Destaque</h1>
+              <AutosaveIndicator 
+                lastSaved={lastSaved}
+                hasUnsavedChanges={hasUnsavedChanges}
+                isSaving={isSaving}
+              />
             </div>
             
             <div className="flex items-center gap-1">
@@ -266,7 +441,13 @@ export default function EditHighlight() {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => navigate('/admin-v2/highlights')}
+                onClick={() => {
+                  if (hasUnsavedChanges) {
+                    setShowNavigationGuard(true);
+                  } else {
+                    navigate('/admin-v2/highlights');
+                  }
+                }}
               >
                 <X className="mr-2 h-4 w-4" />
                 Cancelar
@@ -287,6 +468,9 @@ export default function EditHighlight() {
 
       {/* Conteúdo */}
       <div className="container mx-auto px-4 py-8 max-w-6xl">
+        {/* Quality Badges */}
+        <QualityBadges data={watchedData} slugError={slugError} />
+
         {/* Resumo de erros */}
         {errorSummary.length > 0 && (
           <Alert className="mb-6 border-destructive">
@@ -331,11 +515,38 @@ export default function EditHighlight() {
                 <PublicationSection form={form} />
                 <RelationsSection form={form} />
                 <AdvancedSection form={form} />
+                <PublishChecklist data={watchedData} slugError={slugError} />
               </div>
 
             </div>
           </form>
         </Form>
+
+        <NavigationGuard
+          hasUnsavedChanges={hasUnsavedChanges}
+          onSave={async () => {
+            const data = form.getValues();
+            await handleSave(data);
+          }}
+          isOpen={showNavigationGuard}
+          onOpenChange={setShowNavigationGuard}
+        />
+
+        <EditConflictDialog
+          isOpen={showConflictDialog}
+          onOpenChange={setShowConflictDialog}
+          onReload={() => {
+            if (id) {
+              loadHighlight(id);
+            }
+            setShowConflictDialog(false);
+          }}
+          onOverwrite={() => {
+            setOriginalUpdatedAt(conflictUpdatedAt);
+            setShowConflictDialog(false);
+          }}
+          lastModified={conflictUpdatedAt}
+        />
       </div>
     </div>
   );

@@ -23,6 +23,10 @@ import { PublicationSection } from './sections/Publication';
 import { SEOSection } from './sections/SEO';
 import { RelationsSection } from './sections/Relations';
 import { AdvancedSection } from './sections/Advanced';
+import { QualityBadges } from '@/components/highlights/QualityBadges';
+import { PublishChecklist } from '@/components/highlights/PublishChecklist';
+import { AutosaveIndicator } from '@/components/highlights/AutosaveIndicator';
+import { NavigationGuard } from '@/components/highlights/NavigationGuard';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, Send, Plus, X, AlertCircle } from 'lucide-react';
 
@@ -63,13 +67,17 @@ export default function CreateHighlight() {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [slugError, setSlugError] = useState<string | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [showNavigationGuard, setShowNavigationGuard] = useState(false);
   const watchedData = form.watch();
   const checklist = getPublishChecklist(watchedData);
   const formErrors = form.formState.errors;
   const errorSummary = getErrorSummary(formErrors);
 
-  // Auto-gerar slug quando título muda
+  // Auto-gerar slug quando título muda e track changes
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
       if (name === 'title' && value.title && !form.getValues('slug')) {
@@ -83,10 +91,71 @@ export default function CreateHighlight() {
           .replace(/^-|-$/g, '');
         form.setValue('slug', slug);
       }
+      // Mark as having unsaved changes
+      setHasUnsavedChanges(true);
     });
 
     return () => subscription.unsubscribe();
   }, [form]);
+
+  // Autosave functionality
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+
+    const timeoutId = setTimeout(() => {
+      const formData = form.getValues();
+      if (formData.title) {
+        handleAutosave(formData);
+      }
+    }, 20000); // 20 seconds
+
+    return () => clearTimeout(timeoutId);
+  }, [hasUnsavedChanges, form]);
+
+  // Navigation guard
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  // Auto-save implementation
+  const handleAutosave = async (data: HighlightForm) => {
+    if (!data.title?.trim() || isSaving || isLoading) return;
+    
+    setIsSaving(true);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+
+      const payload = {
+        ...toDB({ ...data, status: 'draft' }),
+        created_by: user.id,
+        updated_by: user.id,
+      };
+      
+      const { error } = await supabase
+        .from('highlights')
+        .insert(payload);
+      
+      if (error) throw error;
+      
+      setHasUnsavedChanges(false);
+      setLastSaved(new Date());
+      
+    } catch (error) {
+      console.error('Autosave failed:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // Validar slug único
   const validateSlug = async (slug: string) => {
@@ -185,6 +254,8 @@ export default function CreateHighlight() {
 
       if (error) throw error;
 
+      setHasUnsavedChanges(false);
+
       toast.success('Destaque publicado com sucesso!');
       navigate('/admin-v2/highlights');
     } catch (error) {
@@ -219,6 +290,8 @@ export default function CreateHighlight() {
         .insert(payload);
 
       if (error) throw error;
+
+      setHasUnsavedChanges(false);
 
       toast.success('Destaque salvo! Criando novo...');
       
@@ -286,6 +359,8 @@ export default function CreateHighlight() {
 
       if (error) throw error;
 
+      setHasUnsavedChanges(false);
+
       toast.success('Destaque salvo com sucesso!');
       navigate('/admin-v2/highlights');
     } catch (error) {
@@ -303,11 +378,22 @@ export default function CreateHighlight() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin-v2/highlights')}>
+              <Button variant="ghost" size="sm" onClick={() => {
+                if (hasUnsavedChanges) {
+                  setShowNavigationGuard(true);
+                } else {
+                  navigate('/admin-v2/highlights');
+                }
+              }}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Voltar
               </Button>
               <h1 className="text-xl font-semibold">Criar Destaque</h1>
+              <AutosaveIndicator 
+                lastSaved={lastSaved}
+                hasUnsavedChanges={hasUnsavedChanges}
+                isSaving={isSaving}
+              />
             </div>
             
             <div className="flex items-center gap-1">
@@ -347,7 +433,13 @@ export default function CreateHighlight() {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => navigate('/admin-v2/highlights')}
+                onClick={() => {
+                  if (hasUnsavedChanges) {
+                    setShowNavigationGuard(true);
+                  } else {
+                    navigate('/admin-v2/highlights');
+                  }
+                }}
               >
                 <X className="mr-2 h-4 w-4" />
                 Cancelar
@@ -359,6 +451,9 @@ export default function CreateHighlight() {
 
       {/* Conteúdo */}
       <div className="container mx-auto px-4 py-8 max-w-6xl">
+        {/* Quality Badges */}
+        <QualityBadges data={watchedData} slugError={slugError} />
+
         {/* Resumo de erros */}
         {errorSummary.length > 0 && (
           <Alert className="mb-6 border-destructive">
@@ -403,11 +498,22 @@ export default function CreateHighlight() {
                 <PublicationSection form={form} />
                 <RelationsSection form={form} />
                 <AdvancedSection form={form} />
+                <PublishChecklist data={watchedData} slugError={slugError} />
               </div>
 
             </div>
           </form>
         </Form>
+
+        <NavigationGuard
+          hasUnsavedChanges={hasUnsavedChanges}
+          onSave={async () => {
+            const data = form.getValues();
+            await handleSaveDraft();
+          }}
+          isOpen={showNavigationGuard}
+          onOpenChange={setShowNavigationGuard}
+        />
       </div>
     </div>
   );
