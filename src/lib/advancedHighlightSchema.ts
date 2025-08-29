@@ -51,11 +51,13 @@ export const advancedHighlightSchema = z.object({
   // Avançado
   priority: z.number().min(0).max(999).default(100),
   
-  // Campos para compatibilidade com schema antigo
-  venue: z.string().optional(),
-  role_text: z.string().optional(),
-  selection_reasons: z.array(z.string()).optional().default([]),
-  image_url: z.string().optional(),
+  // Campos obrigatórios da tabela highlights (para compatibilidade)
+  venue: z.string().min(1, "Local é obrigatório"),
+  role_text: z.string().min(1, "Texto ROLE é obrigatório"),
+  selection_reasons: z.array(z.string()).min(1, "Motivos de seleção são obrigatórios"),
+  image_url: z.string().url("URL da imagem inválida").optional(),
+  
+  // Campos opcionais da tabela
   photo_credit: z.string().optional(),
   event_date: z.string().optional(),
   event_time: z.string().optional(),

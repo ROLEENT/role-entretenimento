@@ -167,22 +167,35 @@ export const useHighlightForm = (highlightId?: string) => {
 
       // Mapear campos do formulário para a estrutura da tabela highlights
       const highlightData = {
-        event_title: data.title,
+        // Campos obrigatórios
+        event_title: data.title || '',
         city: data.city,
-        venue: data.venue || '',
-        event_date: data.start_at,
-        event_time: data.event_time || '',
-        ticket_price: data.ticket_price || '',
-        ticket_url: data.ticket_url,
-        role_text: data.role_text || data.summary || '',
-        selection_reasons: data.selection_reasons || [],
+        venue: data.venue || 'A definir',
+        role_text: data.role_text || data.summary || 'Destaque em desenvolvimento',
+        selection_reasons: Array.isArray(data.selection_reasons) ? data.selection_reasons : 
+                         (data.tags && Array.isArray(data.tags) ? data.tags : ['evento-imperdivel']),
         image_url: data.cover_url || data.image_url || '',
-        photo_credit: data.photo_credit || '',
-        sort_order: data.priority || 100,
         is_published: false,
+        
+        // Campos opcionais com defaults
+        ticket_url: data.ticket_url || null,
+        photo_credit: data.photo_credit || null,
+        event_date: data.start_at ? new Date(data.start_at).toISOString().split('T')[0] : null,
+        event_time: data.event_time || null,
+        ticket_price: data.ticket_price || null,
+        sort_order: data.priority || 100,
+        slug: data.slug || null,
+        summary: data.summary || null,
+        status: 'draft',
+        
+        // Novos campos da tabela
+        cover_url: data.cover_url || null,
+        start_at: data.start_at || null,
+        end_at: data.end_at || null,
+        
+        // Auditoria
         created_by: user.id,
-        updated_by: user.id,
-        slug: data.slug
+        updated_by: user.id
       };
 
       if (highlightId) {
@@ -208,27 +221,51 @@ export const useHighlightForm = (highlightId?: string) => {
     try {
       setIsLoading(true);
       
+      // Validações básicas
+      if (!data.title?.trim()) {
+        toast.error('Título é obrigatório');
+        return;
+      }
+      
+      if (!data.city) {
+        toast.error('Cidade é obrigatória');
+        return;
+      }
+      
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Usuário não autenticado');
 
       // Mapear campos do formulário para a estrutura da tabela highlights
       const highlightData = {
-        event_title: data.title,
+        // Campos obrigatórios
+        event_title: data.title || '',
         city: data.city,
-        venue: data.venue || '',
-        event_date: data.start_at,
-        event_time: data.event_time || '',
-        ticket_price: data.ticket_price || '',
-        ticket_url: data.ticket_url,
-        role_text: data.role_text || data.summary || '',
-        selection_reasons: data.selection_reasons || [],
+        venue: data.venue || 'A definir',
+        role_text: data.role_text || data.summary || 'Destaque em desenvolvimento',
+        selection_reasons: Array.isArray(data.selection_reasons) ? data.selection_reasons : 
+                         (data.tags && Array.isArray(data.tags) ? data.tags : ['evento-imperdivel']),
         image_url: data.cover_url || data.image_url || '',
-        photo_credit: data.photo_credit || '',
-        sort_order: data.priority || 100,
         is_published: false,
+        
+        // Campos opcionais com defaults
+        ticket_url: data.ticket_url || null,
+        photo_credit: data.photo_credit || null,
+        event_date: data.start_at ? new Date(data.start_at).toISOString().split('T')[0] : null,
+        event_time: data.event_time || null,
+        ticket_price: data.ticket_price || null,
+        sort_order: data.priority || 100,
+        slug: data.slug || null,
+        summary: data.summary || null,
+        status: 'draft',
+        
+        // Novos campos da tabela
+        cover_url: data.cover_url || null,
+        start_at: data.start_at || null,
+        end_at: data.end_at || null,
+        
+        // Auditoria
         created_by: user.id,
-        updated_by: user.id,
-        slug: data.slug
+        updated_by: user.id
       };
 
       let result;
@@ -265,6 +302,22 @@ export const useHighlightForm = (highlightId?: string) => {
 
   // Publicar
   const publish = async (data: AdvancedHighlightFormData) => {
+    // Validações obrigatórias para publicação
+    if (!data.title?.trim()) {
+      toast.error('Título é obrigatório para publicar');
+      return;
+    }
+    
+    if (!data.city) {
+      toast.error('Cidade é obrigatória para publicar');
+      return;
+    }
+    
+    if (!data.cover_url && !data.image_url) {
+      toast.error('Imagem de capa é obrigatória para publicar');
+      return;
+    }
+    
     const checklist = getPublishChecklist(data);
     const isReady = checklist.every(item => item.completed);
     
@@ -281,22 +334,35 @@ export const useHighlightForm = (highlightId?: string) => {
 
       // Mapear campos do formulário para a estrutura da tabela highlights
       const highlightData = {
-        event_title: data.title,
+        // Campos obrigatórios
+        event_title: data.title || '',
         city: data.city,
-        venue: data.venue || '',
-        event_date: data.start_at,
-        event_time: data.event_time || '',
-        ticket_price: data.ticket_price || '',
-        ticket_url: data.ticket_url,
-        role_text: data.role_text || data.summary || '',
-        selection_reasons: data.selection_reasons || [],
+        venue: data.venue || 'A definir',
+        role_text: data.role_text || data.summary || 'Destaque selecionado pela equipe ROLE',
+        selection_reasons: Array.isArray(data.selection_reasons) ? data.selection_reasons : 
+                         (data.tags && Array.isArray(data.tags) ? data.tags : ['evento-imperdivel']),
         image_url: data.cover_url || data.image_url || '',
-        photo_credit: data.photo_credit || '',
-        sort_order: data.priority || 100,
         is_published: true,
+        
+        // Campos opcionais com defaults
+        ticket_url: data.ticket_url || null,
+        photo_credit: data.photo_credit || null,
+        event_date: data.start_at ? new Date(data.start_at).toISOString().split('T')[0] : null,
+        event_time: data.event_time || null,
+        ticket_price: data.ticket_price || null,
+        sort_order: data.priority || 100,
+        slug: data.slug || null,
+        summary: data.summary || null,
+        status: 'published',
+        
+        // Novos campos da tabela
+        cover_url: data.cover_url || null,
+        start_at: data.start_at || null,
+        end_at: data.end_at || null,
+        
+        // Auditoria
         created_by: user.id,
-        updated_by: user.id,
-        slug: data.slug
+        updated_by: user.id
       };
 
       let result;
