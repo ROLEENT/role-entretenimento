@@ -4151,7 +4151,7 @@ export type Database = {
       event_status: "draft" | "published"
       highlight_status: "draft" | "published"
       user_level: "bronze" | "silver" | "gold" | "platinum" | "diamond"
-      user_role: "admin" | "editor" | "moderator"
+      user_role: "admin" | "editor" | "moderator" | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4301,7 +4301,7 @@ export const Constants = {
       event_status: ["draft", "published"],
       highlight_status: ["draft", "published"],
       user_level: ["bronze", "silver", "gold", "platinum", "diamond"],
-      user_role: ["admin", "editor", "moderator"],
+      user_role: ["admin", "editor", "moderator", "viewer"],
     },
   },
 } as const
