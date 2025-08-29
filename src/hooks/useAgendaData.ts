@@ -22,14 +22,26 @@ export interface CityStats {
   count: number;
 }
 
-export const useAgendaData = (visibilityType: 'vitrine' | 'curadoria') => {
-  const [agendaItems, setAgendaItems] = useState<AgendaItem[]>([]);
+export interface AgendaStats {
+  totalEvents: number;
+  totalCities: number;
+  isLoading: boolean;
+}
+
+export const useAgendaData = () => {
+  const [upcomingEvents, setUpcomingEvents] = useState<AgendaItem[]>([]);
   const [cityStats, setCityStats] = useState<CityStats[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState<AgendaStats>({
+    totalEvents: 0,
+    totalCities: 0,
+    isLoading: true
+  });
+  const [isLoadingEvents, setIsLoadingEvents] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAgendaItems = async () => {
+  const fetchUpcomingEvents = async () => {
     try {
+      setIsLoadingEvents(true);
       const today = new Date();
       const thirtyDaysFromNow = new Date();
       thirtyDaysFromNow.setDate(today.getDate() + 30);
@@ -38,7 +50,6 @@ export const useAgendaData = (visibilityType: 'vitrine' | 'curadoria') => {
         .from('agenda_public')
         .select('*')
         .eq('status', 'published')
-        .eq('visibility_type', visibilityType)
         .gte('start_at', today.toISOString())
         .lte('start_at', thirtyDaysFromNow.toISOString())
         .order('priority', { ascending: false })
@@ -47,29 +58,29 @@ export const useAgendaData = (visibilityType: 'vitrine' | 'curadoria') => {
 
       if (fetchError) throw fetchError;
 
-      setAgendaItems((data as AgendaItem[]) || []);
+      setUpcomingEvents((data as AgendaItem[]) || []);
     } catch (err) {
-      console.error('Error fetching agenda items:', err);
+      console.error('Error fetching upcoming events:', err);
       setError(err instanceof Error ? err.message : 'Erro ao carregar eventos');
+    } finally {
+      setIsLoadingEvents(false);
     }
   };
 
-  const fetchCityStats = async () => {
+  const fetchStats = async () => {
     try {
+      setStats(prev => ({ ...prev, isLoading: true }));
       const today = new Date();
-      const futureDate = new Date();
-      futureDate.setDate(today.getDate() + 90);
 
       const { data, error: fetchError } = await supabase
         .from('agenda_public')
         .select('city')
         .eq('status', 'published')
-        .gte('start_at', today.toISOString())
-        .lte('start_at', futureDate.toISOString());
+        .gte('start_at', today.toISOString());
 
       if (fetchError) throw fetchError;
 
-      // Group by city and count
+      // Calculate stats
       const cityCount: Record<string, number> = {};
       (data || []).forEach((item) => {
         if (item.city) {
@@ -77,37 +88,45 @@ export const useAgendaData = (visibilityType: 'vitrine' | 'curadoria') => {
         }
       });
 
-      const stats = Object.entries(cityCount).map(([city, count]) => ({
+      const statsArray = Object.entries(cityCount).map(([city, count]) => ({
         city,
         count,
       }));
 
-      setCityStats(stats);
+      setCityStats(statsArray);
+      
+      // Update animated stats
+      const totalEvents = Object.values(cityCount).reduce((sum, count) => sum + count, 0);
+      const totalCities = Object.keys(cityCount).length;
+      
+      setStats({
+        totalEvents,
+        totalCities,
+        isLoading: false
+      });
     } catch (err) {
-      console.error('Error fetching city stats:', err);
+      console.error('Error fetching stats:', err);
+      setStats(prev => ({ ...prev, isLoading: false }));
     }
   };
 
   const refetch = async () => {
-    setIsLoading(true);
     setError(null);
-    
     await Promise.all([
-      fetchAgendaItems(),
-      fetchCityStats(),
+      fetchUpcomingEvents(),
+      fetchStats(),
     ]);
-    
-    setIsLoading(false);
   };
 
   useEffect(() => {
     refetch();
-  }, [visibilityType]);
+  }, []);
 
   return {
-    agendaItems,
+    upcomingEvents,
     cityStats,
-    isLoading,
+    stats,
+    isLoadingEvents,
     error,
     refetch,
   };
