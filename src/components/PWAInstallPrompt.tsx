@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Download, X, Smartphone } from 'lucide-react';
@@ -6,9 +7,13 @@ import { usePWA } from '@/hooks/usePWA';
 
 export const PWAInstallPrompt = () => {
   const [isVisible, setIsVisible] = useState(true);
+  const location = useLocation();
   const { isInstallable, installApp, isInstalled } = usePWA();
 
-  if (!isInstallable || isInstalled || !isVisible) return null;
+  // Don't show PWA banner in admin routes
+  const isAdminRoute = location.pathname.startsWith('/admin-v3');
+  
+  if (!isInstallable || isInstalled || !isVisible || isAdminRoute) return null;
 
   return (
     <Card className="fixed bottom-4 left-4 right-4 z-50 bg-primary text-primary-foreground shadow-lg md:left-auto md:right-4 md:w-80">

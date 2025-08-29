@@ -50,6 +50,13 @@ export const usePWA = () => {
     // Listen for beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
       e.preventDefault();
+      
+      // Don't allow PWA installation in admin routes
+      const isAdminRoute = window.location.pathname.startsWith('/admin-v3');
+      if (isAdminRoute) {
+        return; // Simply return without setting the prompt
+      }
+      
       setDeferredPrompt(e);
       setIsInstallable(true);
     };
