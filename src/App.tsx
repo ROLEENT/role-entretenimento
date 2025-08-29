@@ -126,6 +126,7 @@ function App() {
                 <Route path="/admin-v3" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
                 <Route path="/admin-v3/debug" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Debug /></Suspense>} />
                 <Route path="/admin-v3/agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Agenda /></Suspense>} />
+                <Route path="/admin-v3/agenda/new" element={<Navigate to="/admin-v3/agenda/create" replace />} />
                 <Route path="/admin-v3/profile" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Profile /></Suspense>} />
                 
                 {/* Events Routes */}

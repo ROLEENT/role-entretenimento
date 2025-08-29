@@ -108,7 +108,7 @@ function DashboardContent() {
       // c - Create Agenda
       if (e.key === 'c' && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
-        navigate('/admin-v3/agenda/new');
+        navigate('/admin-v3/agenda/create');
         toast({
           title: "Criando agenda"
         });
@@ -257,7 +257,7 @@ function DashboardContent() {
         </div>
         <div className="flex items-center gap-2">
           <Button 
-            onClick={() => navigate('/admin-v3/agenda/new')} 
+            onClick={() => navigate('/admin-v3/agenda/create')} 
             className="gap-2"
           >
             <Plus className="w-4 h-4" />

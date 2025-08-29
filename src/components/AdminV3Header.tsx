@@ -86,7 +86,7 @@ export function AdminV3Header() {
   };
 
   const handleCreateAgenda = () => {
-    navigate('/admin-v3/agenda/new');
+    navigate('/admin-v3/agenda/create');
   };
 
   const handleProfile = () => {
