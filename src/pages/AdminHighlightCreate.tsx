@@ -18,7 +18,7 @@ import { FocalPointSelector } from '@/components/highlights/FocalPointSelector';
 import { QualityBadges } from '@/components/highlights/QualityBadges';
 import { PublishChecklist } from '@/components/highlights/PublishChecklist';
 import { supabase } from '@/integrations/supabase/client';
-import { highlightSchema, HighlightFormData, getPublishChecklist } from '@/lib/highlightSchema';
+import { HighlightFormSchema as highlightSchema, HighlightForm as HighlightFormData, getPublishChecklist } from '@/schemas/highlight';
 import { useHighlightForm } from '@/hooks/useHighlightForm';
 import { toast } from 'sonner';
 import { 

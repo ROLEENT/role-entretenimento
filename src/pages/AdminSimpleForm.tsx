@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { highlightSchema, type HighlightFormData } from '@/lib/highlightSchema';
+import { HighlightFormSchema as highlightSchema, type HighlightForm as HighlightFormData } from '@/schemas/highlight';
 
 const cities = [
   { value: 'porto_alegre', label: 'Porto Alegre' },

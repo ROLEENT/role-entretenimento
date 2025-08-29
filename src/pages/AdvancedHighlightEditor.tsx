@@ -1,3 +1,6 @@
+/**
+ * @deprecated Use CreateHighlight or EditHighlight from admin-v2/highlights/ instead
+ */
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -19,7 +22,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { FocalPointSelector } from '@/components/highlights/FocalPointSelector';
 import { supabase } from '@/integrations/supabase/client';
-import { highlightSchema, HighlightFormData, getPublishChecklist } from '@/lib/highlightSchema';
+import { HighlightFormSchema as highlightSchema, HighlightForm as HighlightFormData, getPublishChecklist } from '@/schemas/highlight';
 import { useHighlightForm } from '@/hooks/useHighlightForm';
 import { toast } from 'sonner';
 import { 

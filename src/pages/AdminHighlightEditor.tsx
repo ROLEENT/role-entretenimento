@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { uploadImage } from '@/lib/simpleUpload';
 import { useSupabaseAdminStandard } from '@/hooks/useSupabaseAdminStandard';
-import { highlightSchema, type HighlightFormData } from '@/lib/highlightSchema';
+import { HighlightFormSchema as highlightSchema, type HighlightForm as HighlightFormData } from '@/schemas/highlight';
 import { toast } from 'sonner';
 import { ArrowLeft, Upload, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';

@@ -1,10 +1,13 @@
+/**
+ * @deprecated Use the new admin-v2/highlights pages instead
+ */
 import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { highlightSchema, HighlightFormData, getPublishChecklist } from '@/lib/highlightSchema';
+import { HighlightFormSchema as highlightSchema, HighlightForm as HighlightFormData, getPublishChecklist } from '@/schemas/highlight';
 
 export const useHighlightForm = (highlightId?: string) => {
   const navigate = useNavigate();
