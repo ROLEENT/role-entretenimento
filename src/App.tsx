@@ -42,6 +42,7 @@ const AdminV3Login = lazy(() => import("./pages/AdminV3Login"));
 const AdminV3Dashboard = lazy(() => import("./pages/AdminV3Dashboard"));
 const AdminV3Debug = lazy(() => import("./pages/AdminV3Debug"));
 const AdminV3Agenda = lazy(() => import("./pages/AdminV3Agenda"));
+const AdminV3AgendaCreate = lazy(() => import("./pages/AdminV3AgendaCreate"));
 const AdminV3Profile = lazy(() => import("./pages/AdminV3Profile"));
 
 // User pages - lazy loaded
@@ -126,7 +127,11 @@ function App() {
                 <Route path="/admin-v3" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
                 <Route path="/admin-v3/debug" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Debug /></Suspense>} />
                 <Route path="/admin-v3/agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Agenda /></Suspense>} />
+                <Route path="/admin-v3/agenda/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Agenda /></Suspense>} />
+                <Route path="/admin-v3/agenda/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaCreate /></Suspense>} />
+                <Route path="/admin-v3/agenda/create/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaCreate /></Suspense>} />
                 <Route path="/admin-v3/agenda/new" element={<Navigate to="/admin-v3/agenda/create" replace />} />
+                <Route path="/admin-v3/agenda/new/" element={<Navigate to="/admin-v3/agenda/create" replace />} />
                 <Route path="/admin-v3/profile" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Profile /></Suspense>} />
                 
                 {/* Events Routes */}
