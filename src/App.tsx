@@ -40,6 +40,7 @@ const AdminV2Dashboard = lazy(() => import("./pages/AdminV2Dashboard"));
 // Admin V3 pages - simplified system
 const AdminV3Login = lazy(() => import("./pages/AdminV3Login"));
 const AdminV3Dashboard = lazy(() => import("./pages/AdminV3Dashboard"));
+const AdminV3Debug = lazy(() => import("./pages/AdminV3Debug"));
 
 // User pages - lazy loaded
 const EventsPage = lazy(() => import("./pages/EventsPage"));
@@ -121,6 +122,7 @@ function App() {
                 {/* Admin V3 System */}
                 <Route path="/admin-v3/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Login /></Suspense>} />
                 <Route path="/admin-v3" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
+                <Route path="/admin-v3/debug" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Debug /></Suspense>} />
                 
                 {/* Events Routes */}
                 <Route path="/eventos" element={<EventsPage />} />
