@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useSecureAuth } from '@/hooks/useSecureAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface AdminV2AuthGuardProps {
@@ -8,7 +8,7 @@ interface AdminV2AuthGuardProps {
 }
 
 export const AdminV2AuthGuard = ({ children }: AdminV2AuthGuardProps) => {
-  const { isAuthenticated, loading } = useSecureAuth();
+  const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
     return (

@@ -1,6 +1,6 @@
 import { ComponentType, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useSecureAuth } from '@/hooks/useSecureAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 /**
@@ -14,10 +14,12 @@ export const withAdminAuth = <P extends object>(
   return function ProtectedComponent(props: P) {
     const { 
       user, 
-      role, 
       loading, 
-      isAuthenticated 
-    } = useSecureAuth();
+      isAuthenticated,
+      isAdmin
+    } = useAuth();
+    
+    const role = isAdmin ? 'admin' : 'editor';
     
     const navigate = useNavigate();
     const location = useLocation();

@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useSecureAuth } from '@/hooks/useSecureAuth';
-import { handleAuthError, AuthErrorCodes } from '@/utils/authErrorHandler';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,7 +27,7 @@ export default function AdminV2Login() {
   const [blockTimeLeft, setBlockTimeLeft] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, loading: authLoading, role } = useSecureAuth();
+  const { isAuthenticated, loading: authLoading, isAdmin } = useAuth();
 
   // Password strength checker
   const getPasswordStrength = (password: string) => {
@@ -63,12 +62,12 @@ export default function AdminV2Login() {
 
   // Redirecionar se já estiver autenticado
   useEffect(() => {
-    if (!authLoading && isAuthenticated && role) {
+    if (!authLoading && isAuthenticated && isAdmin) {
       const from = location.state?.from || '/admin-v2';
       console.log('[ADMIN LOGIN] Usuário já autenticado, redirecionando para:', from);
       navigate(from, { replace: true });
     }
-  }, [isAuthenticated, authLoading, role, navigate, location]);
+  }, [isAuthenticated, authLoading, isAdmin, navigate, location]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,8 +87,6 @@ export default function AdminV2Login() {
       });
 
       if (authError) {
-        const mappedError = handleAuthError(authError);
-        
         // Increment login attempts on failure
         const newAttempts = loginAttempts + 1;
         setLoginAttempts(newAttempts);
@@ -100,11 +97,11 @@ export default function AdminV2Login() {
           setBlockTimeLeft(60);
           setError('Muitas tentativas falhadas. Bloqueado por 60 segundos.');
         } else {
-          setError(`${mappedError.message} Tentativa ${newAttempts}/5`);
+          setError(`${authError.message} Tentativa ${newAttempts}/5`);
         }
         
         // Log failed attempt
-        console.warn(`[AUTH] Failed login attempt ${newAttempts} for email: ${email}`, mappedError);
+        console.warn(`[AUTH] Failed login attempt ${newAttempts} for email: ${email}`, authError.message);
         throw authError;
       }
 
@@ -131,16 +128,7 @@ export default function AdminV2Login() {
     } catch (error: any) {
       console.error('[ADMIN LOGIN] Erro no login:', error);
       if (!isBlocked) {
-        const mappedError = handleAuthError(error);
-        setError(mappedError.message);
-        
-        if (mappedError.code === AuthErrorCodes.CONNECTION_ERROR) {
-          toast({
-            title: "Erro de Conexão",
-            description: "Verifique sua internet e tente novamente.",
-            variant: "destructive"
-          });
-        }
+        setError(error.message || 'Erro ao fazer login');
       }
     } finally {
       setLoading(false);

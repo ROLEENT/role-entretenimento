@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSecureAuth } from '@/hooks/useSecureAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,8 @@ import { User, Shield, CheckCircle, AlertTriangle, RefreshCw } from 'lucide-reac
 import { supabase } from '@/integrations/supabase/client';
 
 export const AuthStatusIndicator = () => {
-  const { user, role, isAuthenticated, isAdmin, loading } = useSecureAuth();
+  const { user, isAuthenticated, isAdmin, loading } = useAuth();
+  const role = isAdmin ? 'admin' : 'editor';
   const [systemStatus, setSystemStatus] = useState<any>(null);
   const [loadingStatus, setLoadingStatus] = useState(false);
 

@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { useSecureAuth } from '@/hooks/useSecureAuth';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Column {
   key: string;
@@ -76,7 +76,9 @@ export function AdminDataTable({
   const [filterValues, setFilterValues] = useState<Record<string, string>>({});
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
   
-  const { role, canDelete } = useSecureAuth();
+  const { isAdmin } = useAuth();
+  const role = isAdmin ? 'admin' : 'editor';
+  const canDelete = isAdmin;
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);

@@ -1,5 +1,5 @@
 import { Settings } from 'lucide-react';
-import { useSecureAuth } from '@/hooks/useSecureAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { withAdminAuth } from '@/components/withAdminAuth';
 
 // Dashboard components
@@ -13,7 +13,7 @@ import { SystemHealth } from '@/components/admin/dashboard/SystemHealth';
 import { SessionInfo } from '@/components/admin/dashboard/SessionInfo';
 
 function AdminV2Dashboard() {
-  const { user } = useSecureAuth();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
