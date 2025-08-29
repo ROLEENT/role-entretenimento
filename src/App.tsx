@@ -159,12 +159,13 @@ function App() {
                 <Route path="/admin-v3/agenda/:id/edit/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaEdit /></Suspense>} />
                 <Route path="/admin-v3/agenda/new" element={<Navigate to="/admin-v3/agenda/create" replace />} />
                 <Route path="/admin-v3/agenda/new/" element={<Navigate to="/admin-v3/agenda/create" replace />} />
-                <Route path="/admin-v3/artists" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Artists /></Suspense>} />
-                <Route path="/admin-v3/artists/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Artists /></Suspense>} />
-                <Route path="/admin-v3/artists/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsCreate /></Suspense>} />
-                <Route path="/admin-v3/artists/create/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsCreate /></Suspense>} />
-                <Route path="/admin-v3/artists/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsEdit /></Suspense>} />
-                <Route path="/admin-v3/artists/:id/edit/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsEdit /></Suspense>} />
+                {/* Redirect old artists routes to agentes */}
+                <Route path="/admin-v3/artists" element={<Navigate to="/admin-v3/agentes" replace />} />
+                <Route path="/admin-v3/artists/" element={<Navigate to="/admin-v3/agentes" replace />} />
+                <Route path="/admin-v3/artists/create" element={<Navigate to="/admin-v3/agentes" replace />} />
+                <Route path="/admin-v3/artists/create/" element={<Navigate to="/admin-v3/agentes" replace />} />
+                <Route path="/admin-v3/artists/:id/edit" element={<Navigate to="/admin-v3/agentes" replace />} />
+                <Route path="/admin-v3/artists/:id/edit/" element={<Navigate to="/admin-v3/agentes" replace />} />
                 <Route path="/admin-v3/agentes" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Agentes /></Suspense>} />
                 <Route path="/admin-v3/agentes/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Agentes /></Suspense>} />
                 <Route path="/admin-v3/profile" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Profile /></Suspense>} />

@@ -465,7 +465,7 @@ function DashboardContent() {
             <Button 
               variant="outline" 
               className="h-24 flex-col gap-2 bg-background hover:bg-muted"
-              onClick={() => navigate('/admin-v3/artists')}
+              onClick={() => navigate('/admin-v3/agentes')}
             >
               <Users className="w-6 h-6" />
               <span>Gerenciar Artistas</span>
