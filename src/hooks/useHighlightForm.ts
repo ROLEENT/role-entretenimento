@@ -165,35 +165,39 @@ export const useHighlightForm = (highlightId?: string) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Verificar campos obrigatórios antes do autosave
+      if (!data.cover_url && !data.image_url) return;
+      if (!data.venue?.trim()) return;
+      if (!data.role_text?.trim() && !data.summary?.trim()) return;
+
       // Mapear campos do formulário para a estrutura da tabela highlights
       const highlightData = {
-        // Campos obrigatórios
-        event_title: data.title || '',
+        // Campos obrigatórios (NOT NULL na tabela)
+        event_title: data.title.trim(),
         city: data.city,
-        venue: data.venue || 'A definir',
-        role_text: data.role_text || data.summary || 'Destaque em desenvolvimento',
-        selection_reasons: Array.isArray(data.selection_reasons) ? data.selection_reasons : 
-                         (data.tags && Array.isArray(data.tags) ? data.tags : ['evento-imperdivel']),
-        image_url: data.cover_url || data.image_url || '',
+        venue: data.venue.trim(),
+        role_text: data.role_text?.trim() || data.summary?.trim() || 'Destaque em desenvolvimento',
+        selection_reasons: Array.isArray(data.selection_reasons) && data.selection_reasons.length > 0 
+                          ? data.selection_reasons 
+                          : (Array.isArray(data.tags) && data.tags.length > 0 
+                             ? data.tags 
+                             : ['evento-imperdivel']),
+        image_url: (data.cover_url || data.image_url).trim(),
         is_published: false,
         
-        // Campos opcionais com defaults
-        ticket_url: data.ticket_url || null,
-        photo_credit: data.photo_credit || null,
+        // Campos opcionais
+        ticket_url: data.ticket_url?.trim() || null,
+        photo_credit: data.photo_credit?.trim() || null,
         event_date: data.start_at ? new Date(data.start_at).toISOString().split('T')[0] : null,
         event_time: data.event_time || null,
-        ticket_price: data.ticket_price || null,
+        ticket_price: data.ticket_price?.trim() || null,
         sort_order: data.priority || 100,
-        slug: data.slug || null,
-        summary: data.summary || null,
+        slug: data.slug?.trim() || null,
+        summary: data.summary?.trim() || null,
         status: 'draft',
-        
-        // Novos campos da tabela
-        cover_url: data.cover_url || null,
+        cover_url: data.cover_url?.trim() || null,
         start_at: data.start_at || null,
         end_at: data.end_at || null,
-        
-        // Auditoria
         created_by: user.id,
         updated_by: user.id
       };
@@ -235,35 +239,50 @@ export const useHighlightForm = (highlightId?: string) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Usuário não autenticado');
 
+      // Validações rigorosas dos campos obrigatórios
+      if (!data.cover_url && !data.image_url) {
+        toast.error('Imagem é obrigatória');
+        return;
+      }
+      
+      if (!data.venue?.trim()) {
+        toast.error('Local é obrigatório');
+        return;
+      }
+      
+      if (!data.role_text?.trim() && !data.summary?.trim()) {
+        toast.error('Texto do destaque é obrigatório');
+        return;
+      }
+
       // Mapear campos do formulário para a estrutura da tabela highlights
       const highlightData = {
-        // Campos obrigatórios
-        event_title: data.title || '',
+        // Campos obrigatórios (NOT NULL na tabela)
+        event_title: data.title.trim(),
         city: data.city,
-        venue: data.venue || 'A definir',
-        role_text: data.role_text || data.summary || 'Destaque em desenvolvimento',
-        selection_reasons: Array.isArray(data.selection_reasons) ? data.selection_reasons : 
-                         (data.tags && Array.isArray(data.tags) ? data.tags : ['evento-imperdivel']),
-        image_url: data.cover_url || data.image_url || '',
+        venue: data.venue.trim(),
+        role_text: data.role_text?.trim() || data.summary?.trim() || 'Destaque em desenvolvimento',
+        selection_reasons: Array.isArray(data.selection_reasons) && data.selection_reasons.length > 0 
+                          ? data.selection_reasons 
+                          : (Array.isArray(data.tags) && data.tags.length > 0 
+                             ? data.tags 
+                             : ['evento-imperdivel']),
+        image_url: (data.cover_url || data.image_url).trim(),
         is_published: false,
         
-        // Campos opcionais com defaults
-        ticket_url: data.ticket_url || null,
-        photo_credit: data.photo_credit || null,
+        // Campos opcionais
+        ticket_url: data.ticket_url?.trim() || null,
+        photo_credit: data.photo_credit?.trim() || null,
         event_date: data.start_at ? new Date(data.start_at).toISOString().split('T')[0] : null,
         event_time: data.event_time || null,
-        ticket_price: data.ticket_price || null,
+        ticket_price: data.ticket_price?.trim() || null,
         sort_order: data.priority || 100,
-        slug: data.slug || null,
-        summary: data.summary || null,
+        slug: data.slug?.trim() || null,
+        summary: data.summary?.trim() || null,
         status: 'draft',
-        
-        // Novos campos da tabela
-        cover_url: data.cover_url || null,
+        cover_url: data.cover_url?.trim() || null,
         start_at: data.start_at || null,
         end_at: data.end_at || null,
-        
-        // Auditoria
         created_by: user.id,
         updated_by: user.id
       };
@@ -332,35 +351,45 @@ export const useHighlightForm = (highlightId?: string) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Usuário não autenticado');
 
+      // Validações adicionais específicas para publicação
+      if (!data.venue?.trim()) {
+        toast.error('Local é obrigatório para publicar');
+        return;
+      }
+      
+      if (!data.role_text?.trim() && !data.summary?.trim()) {
+        toast.error('Texto do destaque é obrigatório para publicar');
+        return;
+      }
+
       // Mapear campos do formulário para a estrutura da tabela highlights
       const highlightData = {
-        // Campos obrigatórios
-        event_title: data.title || '',
+        // Campos obrigatórios (NOT NULL na tabela)
+        event_title: data.title.trim(),
         city: data.city,
-        venue: data.venue || 'A definir',
-        role_text: data.role_text || data.summary || 'Destaque selecionado pela equipe ROLE',
-        selection_reasons: Array.isArray(data.selection_reasons) ? data.selection_reasons : 
-                         (data.tags && Array.isArray(data.tags) ? data.tags : ['evento-imperdivel']),
-        image_url: data.cover_url || data.image_url || '',
+        venue: data.venue.trim(),
+        role_text: data.role_text?.trim() || data.summary?.trim() || 'Destaque selecionado pela equipe ROLE',
+        selection_reasons: Array.isArray(data.selection_reasons) && data.selection_reasons.length > 0 
+                          ? data.selection_reasons 
+                          : (Array.isArray(data.tags) && data.tags.length > 0 
+                             ? data.tags 
+                             : ['evento-imperdivel']),
+        image_url: (data.cover_url || data.image_url).trim(),
         is_published: true,
         
-        // Campos opcionais com defaults
-        ticket_url: data.ticket_url || null,
-        photo_credit: data.photo_credit || null,
+        // Campos opcionais
+        ticket_url: data.ticket_url?.trim() || null,
+        photo_credit: data.photo_credit?.trim() || null,
         event_date: data.start_at ? new Date(data.start_at).toISOString().split('T')[0] : null,
         event_time: data.event_time || null,
-        ticket_price: data.ticket_price || null,
+        ticket_price: data.ticket_price?.trim() || null,
         sort_order: data.priority || 100,
-        slug: data.slug || null,
-        summary: data.summary || null,
+        slug: data.slug?.trim() || null,
+        summary: data.summary?.trim() || null,
         status: 'published',
-        
-        // Novos campos da tabela
-        cover_url: data.cover_url || null,
+        cover_url: data.cover_url?.trim() || null,
         start_at: data.start_at || null,
         end_at: data.end_at || null,
-        
-        // Auditoria
         created_by: user.id,
         updated_by: user.id
       };
