@@ -207,7 +207,34 @@ export function useAgendaForm({ agendaId, mode }: UseAgendaFormProps) {
     }
   }, [agendaId, mode, form]);
 
-  // Save draft
+  // Helper to normalize empty strings to null
+  const toNull = (v?: string) => (v && v.trim() !== '' ? v : null);
+  
+  // Build normalized payload
+  const buildPayload = (f: AgendaFormData) => ({
+    // obrigatórios
+    title: f.title.trim(),
+    slug: f.slug.trim(),
+    // opcionais normalizados
+    subtitle: toNull(f.subtitle),
+    summary: toNull(f.summary),
+    ticket_url: toNull(f.ticket_url),
+    cover_url: toNull(f.cover_url),
+    alt_text: toNull(f.alt_text),
+    meta_title: toNull(f.meta_title),
+    meta_description: toNull(f.meta_description),
+    type: toNull(f.type),
+    anunciante: toNull(f.anunciante),
+    cupom: toNull(f.cupom),
+    city: toNull(f.city),
+    start_at: f.start_at || null,
+    end_at: f.end_at || null,
+    tags: f.tags?.length ? f.tags : [],
+    priority: typeof f.priority === 'number' ? f.priority : 0,
+    noindex: !!f.noindex,
+    focal_point_x: f.focal_point_x ?? null,
+    focal_point_y: f.focal_point_y ?? null,
+  });
   const handleSaveDraft = useCallback(async (silent = false) => {
     try {
       setSaving(true);
@@ -237,15 +264,14 @@ export function useAgendaForm({ agendaId, mode }: UseAgendaFormProps) {
         return;
       }
 
-      // Convert dates to UTC for API, handling undefined values
+      // Build normalized payload  
       const payload = {
-        ...formData,
+        ...buildPayload(formData),
         status: 'draft' as const,
         start_at: formData.start_at?.toISOString(),
         end_at: formData.end_at?.toISOString(),
         publish_at: formData.publish_at?.toISOString(),
         unpublish_at: formData.unpublish_at?.toISOString(),
-        // Empty strings will be handled by schema transform
       };
 
       let result;
@@ -342,9 +368,9 @@ export function useAgendaForm({ agendaId, mode }: UseAgendaFormProps) {
         return;
       }
 
-      // Convert dates to UTC
+      // Build normalized payload
       const payload = {
-        ...formData,
+        ...buildPayload(formData),
         status: 'published' as const,
         start_at: formData.start_at.toISOString(),
         end_at: formData.end_at.toISOString(),
