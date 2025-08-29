@@ -1,7 +1,18 @@
 import { z } from 'zod';
 
-// Transform para tratar strings vazias como undefined
-const emptyToUndef = z.string().trim().transform(v => v === '' ? undefined : v);
+// Helper for optional strings that treats '' and null as undefined
+const zStrOpt = (max?: number) =>
+  z.preprocess(v => (v === '' || v === null ? undefined : v),
+    max ? z.string().max(max) : z.string()
+  ).optional();
+
+// Helper for optional dates
+const zDateOpt = () =>
+  z.preprocess(v => (v === '' || v === null ? undefined : v), z.string().datetime().optional());
+
+// Helper for optional URLs
+const zUrlOpt = () =>
+  z.preprocess(v => (v === '' || v === null ? undefined : v), z.string().url().optional());
 
 // Schema para rascunho (validação mínima)
 export const agendaDraftSchema = z.object({
@@ -10,17 +21,17 @@ export const agendaDraftSchema = z.object({
   slug: z.string().min(1, 'Slug é obrigatório'),
   
   // Básico - opcionais para rascunho
-  city: emptyToUndef.optional(),
+  city: zStrOpt(),
   start_at: z.date().optional(),
   end_at: z.date().optional(),
-  type: emptyToUndef.optional(),
+  type: zStrOpt(),
   priority: z.number().int().min(0).default(0),
   
   // Conteúdo
-  subtitle: emptyToUndef.optional(),
-  summary: emptyToUndef.optional(),
-  ticket_url: emptyToUndef
-    .optional()
+  subtitle: zStrOpt(),
+  summary: zStrOpt(),
+  ticket_url: z.preprocess(v => (v === '' || v === null ? undefined : v), 
+    z.string().url('URL deve ser válida').optional())
     .refine((url) => !url || url.startsWith('http://') || url.startsWith('https://'), {
       message: 'URL deve começar com http:// ou https://'
     }),
@@ -29,8 +40,8 @@ export const agendaDraftSchema = z.object({
     .default([]),
   
   // Mídia
-  cover_url: emptyToUndef.optional(),
-  alt_text: emptyToUndef.optional(),
+  cover_url: zStrOpt(),
+  alt_text: zStrOpt(),
   focal_point_x: z.number()
     .min(0, 'Deve estar entre 0 e 1')
     .max(1, 'Deve estar entre 0 e 1')
@@ -41,17 +52,13 @@ export const agendaDraftSchema = z.object({
     .optional(),
   
   // SEO
-  meta_title: emptyToUndef
-    .optional()
-    .refine((val) => !val || val.length <= 60, {
-      message: 'Meta título deve ter no máximo 60 caracteres'
-    }),
-  meta_description: emptyToUndef
-    .optional()
-    .refine((val) => !val || val.length <= 160, {
-      message: 'Meta descrição deve ter no máximo 160 caracteres'
-    }),
+  meta_title: zStrOpt(60),
+  meta_description: zStrOpt(160),
   noindex: z.boolean().default(false),
+  
+  // Campos adicionais
+  anunciante: zStrOpt(),
+  cupom: zStrOpt(),
   
   // Publicação
   status: z.enum(['draft', 'published']).default('draft'),
@@ -75,14 +82,14 @@ const basePublishSchema = z.object({
   }),
   start_at: z.date({ required_error: 'Data de início é obrigatória' }),
   end_at: z.date({ required_error: 'Data de fim é obrigatória' }),
-  type: emptyToUndef.optional(),
+  type: zStrOpt(),
   priority: z.number().int().min(0).default(0),
   
   // Conteúdo
-  subtitle: emptyToUndef.optional(),
-  summary: emptyToUndef.optional(),
-  ticket_url: emptyToUndef
-    .optional()
+  subtitle: zStrOpt(),
+  summary: zStrOpt(),
+  ticket_url: z.preprocess(v => (v === '' || v === null ? undefined : v), 
+    z.string().url('URL deve ser válida').optional())
     .refine((url) => !url || url.startsWith('http://') || url.startsWith('https://'), {
       message: 'URL deve começar com http:// ou https://'
     }),
@@ -103,17 +110,13 @@ const basePublishSchema = z.object({
     .optional(),
   
   // SEO
-  meta_title: emptyToUndef
-    .optional()
-    .refine((val) => !val || val.length <= 60, {
-      message: 'Meta título deve ter no máximo 60 caracteres'
-    }),
-  meta_description: emptyToUndef
-    .optional()
-    .refine((val) => !val || val.length <= 160, {
-      message: 'Meta descrição deve ter no máximo 160 caracteres'
-    }),
+  meta_title: zStrOpt(60),
+  meta_description: zStrOpt(160),
   noindex: z.boolean().default(false),
+  
+  // Campos adicionais
+  anunciante: zStrOpt(),
+  cupom: zStrOpt(),
   
   // Publicação
   status: z.enum(['draft', 'published']).default('draft'),
