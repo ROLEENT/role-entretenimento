@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
+import { AgendaForm } from '@/components/AgendaForm';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function AdminV3AgendaCreate() {
@@ -227,41 +228,8 @@ export default function AdminV3AgendaCreate() {
             </Button>
           </div>
 
-          {/* Form Placeholder */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Formulário de Criação</CardTitle>
-            </CardHeader>
-            <CardContent className="p-8">
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-4" />
-                <p className="text-lg font-medium text-muted-foreground mb-2">
-                  Carregando formulário…
-                </p>
-                <p className="text-sm text-muted-foreground max-w-md">
-                  O componente AgendaForm será renderizado aqui quando estiver pronto.
-                </p>
-                
-                {/* Temporary actions */}
-                <div className="flex gap-3 mt-6">
-                  <Button variant="outline" onClick={handleCancel}>
-                    Voltar para Agenda
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Keyboard Shortcuts Help */}
-          <Card className="bg-muted/30">
-            <CardContent className="p-4">
-              <h3 className="font-semibold mb-2 text-sm">Atalhos de teclado</h3>
-              <div className="flex items-center gap-2 text-sm">
-                <kbd className="px-2 py-1 bg-background border rounded text-xs font-mono">ESC</kbd>
-                <span className="text-muted-foreground">Cancelar e voltar</span>
-              </div>
-            </CardContent>
-          </Card>
+          {/* AgendaForm */}
+          <AgendaForm mode="create" />
         </div>
       </div>
     </div>
