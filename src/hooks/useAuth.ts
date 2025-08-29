@@ -6,7 +6,7 @@ export const useAuth = () => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [role, setRole] = useState<'admin' | 'editor' | 'viewer' | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -36,12 +36,29 @@ export const useAuth = () => {
     // Get initial session synchronously
     const getInitialSession = async () => {
       try {
-        const currentUser = await authService.getCurrentUser();
+        const { data: { session } } = await authService.getSession();
         if (isMounted) {
-          setUser(currentUser);
-          // Get session from Supabase
-          const { data: { session } } = await authService.getSession();
           setSession(session);
+          
+          if (session?.user) {
+            const currentUser = await authService.getCurrentUser();
+            setUser(currentUser);
+            
+            // Extract and log role decision
+            const userRole = currentUser?.profile?.role || 'viewer';
+            setRole(userRole);
+            
+            const hasAccess = userRole === 'admin' || userRole === 'editor';
+            const state = hasAccess ? 'allowed' : 'denied';
+            const reason = hasAccess ? 'valid_role' : 'insufficient_permissions';
+            
+            console.log(`[AUTH DECISION] session:true role:${userRole} state:${state} reason:${reason}`);
+          } else {
+            setUser(null);
+            setRole(null);
+            console.log('[AUTH DECISION] session:false role:none state:denied reason:no_session');
+          }
+          
           setLoading(false);
         }
       } catch (error) {
@@ -52,24 +69,39 @@ export const useAuth = () => {
       }
     };
 
-    // Auth state listener - only update state, no delays
+    // Auth state listener - load profile and role after session change
     const { data: { subscription } } = authService.onAuthStateChange(
       (event, session) => {
         if (!isMounted) return;
         
-        console.log('Auth state changed:', event, !!session);
+        console.log('[AUTH] State changed:', event, !!session);
         setSession(session);
-        setUser(session?.user as AuthUser || null);
-        setIsAdmin(false);
-        setLoading(false);
         
-        // Clear admin cache on auth change
-        if (event === 'SIGNED_OUT') {
-          Object.keys(sessionStorage).forEach(key => {
-            if (key.startsWith('admin_check_')) {
-              sessionStorage.removeItem(key);
+        if (session?.user && event !== 'INITIAL_SESSION') {
+          // Load user profile and role after auth state change (not initial)
+          setTimeout(async () => {
+            try {
+              const currentUser = await authService.getCurrentUser();
+              setUser(currentUser);
+              
+              const userRole = currentUser?.profile?.role || 'viewer';
+              setRole(userRole);
+              
+              const hasAccess = userRole === 'admin' || userRole === 'editor';
+              const state = hasAccess ? 'allowed' : 'denied';
+              const reason = hasAccess ? 'valid_role' : 'insufficient_permissions';
+              
+              console.log(`[AUTH DECISION] session:true role:${userRole} state:${state} reason:${reason}`);
+            } catch (error) {
+              console.error('[AUTH] Erro ao carregar profile:', error);
             }
-          });
+            setLoading(false);
+          }, 0);
+        } else if (!session) {
+          setUser(null);
+          setRole(null);
+          setLoading(false);
+          console.log('[AUTH DECISION] session:false role:none state:denied reason:signed_out');
         }
       }
     );
@@ -101,7 +133,7 @@ export const useAuth = () => {
     const result = await authService.signOut();
     setUser(null);
     setSession(null);
-    setIsAdmin(false);
+    setRole(null);
     setLoading(false);
     return result;
   };
@@ -152,6 +184,9 @@ export const useAuth = () => {
     signOut,
     updateProfile,
     isAuthenticated: !!user,
-    isAdmin
+    role,
+    isAdmin: role === 'admin',
+    isEditor: role === 'editor',
+    hasAdminAccess: role === 'admin' || role === 'editor'
   };
 };

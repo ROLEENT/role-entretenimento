@@ -18,6 +18,8 @@ export interface AuthUser extends User {
     following_count?: number;
     birth_date?: string;
     phone?: string;
+    role?: 'admin' | 'editor' | 'viewer';
+    email?: string;
   };
 }
 
@@ -58,17 +60,38 @@ export const authService = {
     
     if (!user) return null;
 
-    // Get user profile including admin status
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', user.id)
-      .single();
+    try {
+      // Try to get existing profile
+      let { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
 
-    return {
-      ...user,
-      profile: profile || undefined
-    };
+      // If profile doesn't exist, provision it automatically
+      if (error?.code === 'PGRST116' || !profile) {
+        console.log('[AUTH] Profile não encontrado, provisionando automaticamente...');
+        
+        const { data: provisionedProfile } = await supabase
+          .rpc('provision_user_profile', {
+            p_user_id: user.id,
+            p_email: user.email || ''
+          });
+
+        profile = provisionedProfile;
+      }
+
+      return {
+        ...user,
+        profile: profile || undefined
+      };
+    } catch (error) {
+      console.error('[AUTH] Erro ao buscar/provisionar profile:', error);
+      return {
+        ...user,
+        profile: undefined
+      };
+    }
   },
 
   async isAdmin(): Promise<boolean> {

@@ -8,7 +8,7 @@ interface AdminV2AuthGuardProps {
 }
 
 export const AdminV2AuthGuard = ({ children }: AdminV2AuthGuardProps) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, hasAdminAccess } = useAuth();
 
   if (loading) {
     return (
@@ -21,7 +21,7 @@ export const AdminV2AuthGuard = ({ children }: AdminV2AuthGuardProps) => {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !hasAdminAccess) {
     return <Navigate to="/admin-v2/login" replace />;
   }
 

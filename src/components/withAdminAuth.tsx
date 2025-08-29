@@ -16,10 +16,9 @@ export const withAdminAuth = <P extends object>(
       user, 
       loading, 
       isAuthenticated,
-      isAdmin
+      role,
+      hasAdminAccess
     } = useAuth();
-    
-    const role = isAdmin ? 'admin' : 'editor';
     
     const navigate = useNavigate();
     const location = useLocation();
@@ -35,8 +34,9 @@ export const withAdminAuth = <P extends object>(
           return;
         }
 
-        if (!role) {
-          console.log('[WITH ADMIN AUTH] Role não encontrada, redirecionando para login');
+        // Verificar se tem acesso admin
+        if (!hasAdminAccess) {
+          console.log('[WITH ADMIN AUTH] Acesso negado - sem permissão admin/editor');
           navigate('/admin-v2/login', { 
             state: { from: location.pathname },
             replace: true 
@@ -67,8 +67,8 @@ export const withAdminAuth = <P extends object>(
       );
     }
 
-    // Se chegou até aqui e está autenticado, renderizar componente
-    if (isAuthenticated && role) {
+    // Se chegou até aqui e está autenticado com acesso, renderizar componente
+    if (isAuthenticated && hasAdminAccess) {
       return <WrappedComponent {...props} />;
     }
 

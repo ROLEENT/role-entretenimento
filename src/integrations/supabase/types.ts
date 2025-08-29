@@ -4000,6 +4000,10 @@ export type Database = {
         Args: { p_notification_id: string }
         Returns: undefined
       }
+      provision_user_profile: {
+        Args: { p_email: string; p_user_id: string }
+        Returns: Json
+      }
       reject_blog_comment: {
         Args: { p_comment_id: string }
         Returns: undefined
