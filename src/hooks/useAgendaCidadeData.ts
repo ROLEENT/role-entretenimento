@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface AgendaCidadeItem {
@@ -20,7 +20,6 @@ export interface AgendaCidadeItem {
 
 interface UseAgendaCidadeDataParams {
   city: string;
-  visibilityType: 'vitrine' | 'curadoria';
   search?: string;
   period?: string;
   tags?: string[];
@@ -37,33 +36,39 @@ export const useAgendaCidadeData = (params: UseAgendaCidadeDataParams) => {
 
   const itemsPerPage = 18;
 
-  const getDateRange = (period: string) => {
+  const getDateRange = useCallback((period: string) => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     
     switch (period) {
-      case 'today':
+      case 'hoje':
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
         return { start: today, end: tomorrow };
         
-      case 'weekend': {
+      case 'fim-de-semana': {
         const dayOfWeek = now.getDay();
-        const daysUntilFriday = dayOfWeek <= 5 ? 5 - dayOfWeek : 7 - dayOfWeek + 5;
-        const friday = new Date(today);
-        friday.setDate(today.getDate() + daysUntilFriday);
+        // Find next Friday or current Friday if it's Friday/Saturday/Sunday
+        let friday = new Date(today);
+        if (dayOfWeek === 0) { // Sunday
+          friday.setDate(today.getDate() + 5);
+        } else if (dayOfWeek === 6) { // Saturday
+          friday.setDate(today.getDate() - 1);
+        } else if (dayOfWeek < 5) { // Monday to Thursday
+          friday.setDate(today.getDate() + (5 - dayOfWeek));
+        }
         const monday = new Date(friday);
         monday.setDate(friday.getDate() + 3);
         return { start: friday, end: monday };
       }
         
-      case 'week': {
+      case 'proximos-7-dias': {
         const nextWeek = new Date(today);
         nextWeek.setDate(today.getDate() + 7);
         return { start: today, end: nextWeek };
       }
         
-      case 'month': {
+      case 'este-mes': {
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
         return { start: today, end: endOfMonth };
       }
@@ -74,14 +79,14 @@ export const useAgendaCidadeData = (params: UseAgendaCidadeDataParams) => {
         thirtyDays.setDate(today.getDate() + 30);
         return { start: today, end: thirtyDays };
     }
-  };
+  }, []);
 
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      const { start, end } = getDateRange(params.period || 'week');
+      const { start, end } = getDateRange(params.period || 'proximos-7-dias');
       const offset = ((params.page || 1) - 1) * itemsPerPage;
 
       // Build query
@@ -90,7 +95,6 @@ export const useAgendaCidadeData = (params: UseAgendaCidadeDataParams) => {
         .select('*', { count: 'exact' })
         .eq('city', params.city)
         .eq('status', 'published')
-        .eq('visibility_type', params.visibilityType)
         .is('deleted_at', null)
         .gte('start_at', start.toISOString())
         .lte('start_at', end.toISOString())
@@ -124,11 +128,11 @@ export const useAgendaCidadeData = (params: UseAgendaCidadeDataParams) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [params.city, params.search, params.period, params.tags, params.page, getDateRange]);
 
-  const fetchAvailableTags = async () => {
+  const fetchAvailableTags = useCallback(async () => {
     try {
-      const { start, end } = getDateRange(params.period || 'week');
+      const { start, end } = getDateRange(params.period || 'proximos-7-dias');
 
       const { data, error: fetchError } = await supabase
         .from('agenda_public')
@@ -154,27 +158,20 @@ export const useAgendaCidadeData = (params: UseAgendaCidadeDataParams) => {
       console.error('Error fetching available tags:', err);
       setAvailableTags([]);
     }
-  };
+  }, [params.city, params.period, getDateRange]);
 
-  const refetch = async () => {
+  const refetch = useCallback(async () => {
     await Promise.all([
       fetchItems(),
       fetchAvailableTags(),
     ]);
-  };
+  }, [fetchItems, fetchAvailableTags]);
 
   useEffect(() => {
     if (params.city) {
       refetch();
     }
-  }, [
-    params.city,
-    params.visibilityType,
-    params.search,
-    params.period,
-    JSON.stringify(params.tags), // Use JSON.stringify for array comparison
-    params.page,
-  ]);
+  }, [refetch, params.city]);
 
   return {
     items,

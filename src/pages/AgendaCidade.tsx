@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -7,12 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Calendar, MapPin, Filter, X } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Filter, X, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAgendaCidadeData } from '@/hooks/useAgendaCidadeData';
+import { useSearchDebounce } from '@/hooks/useSearchDebounce';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const CITY_NAMES: Record<string, string> = {
   'porto_alegre': 'Porto Alegre',
@@ -23,12 +25,133 @@ const CITY_NAMES: Record<string, string> = {
 };
 
 const PERIOD_OPTIONS = [
-  { value: 'today', label: 'Hoje' },
-  { value: 'weekend', label: 'Fim de semana' },
-  { value: 'week', label: 'Próximos 7 dias' },
-  { value: 'month', label: 'Este mês' },
-  { value: 'custom', label: 'Personalizado' },
+  { value: 'hoje', label: 'Hoje' },
+  { value: 'fim-de-semana', label: 'Fim de semana' },
+  { value: 'proximos-7-dias', label: 'Próximos 7 dias' },
+  { value: 'este-mes', label: 'Este mês' },
 ];
+
+const EventCard = ({ item, cityName }: { item: any; cityName: string }) => {
+  const isCuradoria = item.visibility_type === 'curadoria';
+  const itemTags = item.tags || [];
+  const displayTags = itemTags.slice(0, 2);
+  const extraTagsCount = Math.max(0, itemTags.length - 2);
+
+  const formatDateRange = (startDate: string, endDate?: string) => {
+    const start = new Date(startDate);
+    const end = endDate ? new Date(endDate) : null;
+    
+    if (!end || start.toDateString() === end.toDateString()) {
+      return start.toLocaleDateString('pt-BR', { 
+        day: 'numeric', 
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).replace('.', '');
+    }
+    
+    return `${start.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}`.replace(/\./g, '');
+  };
+
+  return (
+    <Card 
+      className={cn(
+        "overflow-hidden cursor-pointer transition-all hover:shadow-lg group",
+        isCuradoria ? "bg-slate-900 text-white border-slate-800" : "bg-card"
+      )}
+    >
+      <div className="aspect-[3/2] relative overflow-hidden">
+        {item.cover_url ? (
+          <picture>
+            <source 
+              media="(min-width: 1024px)"
+              srcSet={`${item.cover_url}?w=400&h=300&fit=crop 400w, ${item.cover_url}?w=600&h=400&fit=crop 600w`}
+              sizes="(min-width: 1200px) 400px, (min-width: 1024px) 350px, (min-width: 768px) 50vw, 100vw"
+            />
+            <img
+              src={`${item.cover_url}?w=300&h=200&fit=crop`}
+              alt={item.alt_text || item.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
+        ) : (
+          <div className="w-full h-full bg-muted flex items-center justify-center">
+            <Calendar className="w-12 h-12 text-muted-foreground" />
+          </div>
+        )}
+        <Badge 
+          className={cn(
+            "absolute top-3 left-3",
+            isCuradoria ? "bg-amber-600 hover:bg-amber-700" : "bg-blue-600 hover:bg-blue-700"
+          )}
+        >
+          {isCuradoria ? 'Curadoria' : 'Vitrine'}
+        </Badge>
+      </div>
+      
+      <CardContent className="p-4">
+        <h3 className={cn(
+          "font-semibold text-lg line-clamp-2 mb-2 group-hover:text-primary transition-colors",
+          isCuradoria ? "text-white group-hover:text-amber-300" : "text-foreground"
+        )}>
+          {item.title}
+        </h3>
+        
+        <p className={cn(
+          "text-sm mb-3",
+          isCuradoria ? "text-slate-300" : "text-muted-foreground"
+        )}>
+          {cityName} · {item.start_at ? formatDateRange(item.start_at, item.end_at || undefined) : 'Data a definir'}
+        </p>
+        
+        {itemTags.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {displayTags.map(tag => (
+              <Badge 
+                key={tag} 
+                variant={isCuradoria ? "secondary" : "outline"}
+                className={cn(
+                  "text-xs",
+                  isCuradoria ? "bg-slate-800 text-slate-200 border-slate-700" : ""
+                )}
+              >
+                {tag}
+              </Badge>
+            ))}
+            {extraTagsCount > 0 && (
+              <Badge 
+                variant={isCuradoria ? "secondary" : "outline"}
+                className={cn(
+                  "text-xs",
+                  isCuradoria ? "bg-slate-800 text-slate-200 border-slate-700" : ""
+                )}
+              >
+                +{extraTagsCount}
+              </Badge>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+const EventCardSkeleton = () => (
+  <Card className="overflow-hidden">
+    <Skeleton className="aspect-[3/2] w-full" />
+    <CardContent className="p-4 space-y-2">
+      <Skeleton className="h-6 w-full" />
+      <Skeleton className="h-6 w-3/4" />
+      <Skeleton className="h-4 w-1/2" />
+      <div className="flex gap-2">
+        <Skeleton className="h-6 w-16" />
+        <Skeleton className="h-6 w-20" />
+      </div>
+    </CardContent>
+  </Card>
+);
 
 export default function AgendaCidade() {
   const { cidade } = useParams<{ cidade: string }>();
@@ -36,37 +159,18 @@ export default function AgendaCidade() {
   const navigate = useNavigate();
 
   // URL state
-  const currentTab = (searchParams.get('tab') as 'vitrine' | 'curadoria') || 'vitrine';
-  const currentSearch = searchParams.get('search') || '';
-  const currentPeriod = searchParams.get('periodo') || 'week';
+  const currentSearch = searchParams.get('busca') || '';
+  const currentPeriod = searchParams.get('periodo') || 'proximos-7-dias';
   const currentTags = searchParams.get('tags')?.split(',').filter(Boolean) || [];
   const currentPage = parseInt(searchParams.get('page') || '1');
 
-  // Local state for inputs
-  const [searchInput, setSearchInput] = useState(currentSearch);
   const [selectedTags, setSelectedTags] = useState<string[]>(currentTags);
+  const [tagsOpen, setTagsOpen] = useState(false);
 
   const cityName = cidade ? CITY_NAMES[cidade] || cidade : 'Cidade';
 
-  const { 
-    items, 
-    totalCount, 
-    totalPages, 
-    availableTags, 
-    isLoading, 
-    error, 
-    refetch 
-  } = useAgendaCidadeData({
-    city: cidade!,
-    visibilityType: currentTab,
-    search: currentSearch,
-    period: currentPeriod,
-    tags: currentTags,
-    page: currentPage,
-  });
-
   // Update URL when filters change
-  const updateFilters = (updates: Record<string, string | string[] | number | null>) => {
+  const updateFilters = useCallback((updates: Record<string, string | string[] | number | null>) => {
     const newParams = new URLSearchParams(searchParams);
     
     Object.entries(updates).forEach(([key, value]) => {
@@ -80,21 +184,39 @@ export default function AgendaCidade() {
     });
 
     // Reset page when filters change (except for page updates)
-    if (!updates.page) {
+    if (!updates.page && updates.page !== 0) {
       newParams.delete('page');
     }
 
     setSearchParams(newParams);
-  };
+  }, [searchParams, setSearchParams]);
 
-  const handleTabChange = (value: string) => {
-    updateFilters({ tab: value });
-  };
+  // Search with debounce
+  const handleSearch = useCallback((value: string) => {
+    updateFilters({ busca: value.trim() || null });
+  }, [updateFilters]);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateFilters({ search: searchInput.trim() });
-  };
+  const { inputValue, handleInputChange, setValue } = useSearchDebounce({
+    initialValue: currentSearch,
+    delay: 300,
+    onSearch: handleSearch,
+  });
+
+  const { 
+    items, 
+    totalCount, 
+    totalPages, 
+    availableTags, 
+    isLoading, 
+    error, 
+    refetch 
+  } = useAgendaCidadeData({
+    city: cidade!,
+    search: currentSearch,
+    period: currentPeriod,
+    tags: currentTags,
+    page: currentPage,
+  });
 
   const handlePeriodChange = (value: string) => {
     updateFilters({ periodo: value });
@@ -110,47 +232,30 @@ export default function AgendaCidade() {
   };
 
   const handleClearFilters = () => {
-    setSearchInput('');
+    setValue('');
     setSelectedTags([]);
     updateFilters({ 
-      search: null, 
-      periodo: 'week', 
+      busca: null, 
+      periodo: 'proximos-7-dias', 
       tags: null,
       page: null
     });
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR', { 
-      day: 'numeric', 
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).replace('.', '');
-  };
-
-  const formatDateRange = (startDate: string, endDate?: string) => {
-    if (!endDate) return formatDate(startDate);
-    
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    
-    // Same day
-    if (start.toDateString() === end.toDateString()) {
-      return `${start.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })} ${start.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`.replace('.', '');
-    }
-    
-    return `${formatDate(startDate)} - ${formatDate(endDate)}`;
-  };
-
+  // 404 for unsupported cities
   if (!cidade || !CITY_NAMES[cidade]) {
     return (
-      <PageWrapper title="Cidade não encontrada">
+      <PageWrapper 
+        title="Cidade não encontrada - ROLÊ"
+        description="A cidade solicitada não foi encontrada em nossa agenda."
+      >
         <Header />
         <main className="min-h-screen pt-20 px-4">
           <div className="max-w-4xl mx-auto text-center py-20">
-            <h1 className="text-2xl font-bold mb-4">Cidade não encontrada</h1>
+            <h1 className="text-3xl font-bold mb-4">Cidade não encontrada</h1>
+            <p className="text-muted-foreground mb-6">
+              A cidade "{cidade}" não está disponível em nossa agenda.
+            </p>
             <Button onClick={() => navigate('/agenda')}>
               Ver todas as cidades
             </Button>
@@ -163,7 +268,7 @@ export default function AgendaCidade() {
 
   if (error) {
     return (
-      <PageWrapper title={`Agenda ${cityName}`}>
+      <PageWrapper title={`Agenda ${cityName} - ROLÊ`}>
         <Header />
         <main className="min-h-screen pt-20 px-4">
           <div className="max-w-4xl mx-auto text-center py-20">
@@ -177,67 +282,78 @@ export default function AgendaCidade() {
     );
   }
 
+  const getPeriodLabel = (period: string) => {
+    const option = PERIOD_OPTIONS.find(p => p.value === period);
+    return option?.label || 'Período personalizado';
+  };
+
+  const hasActiveFilters = currentSearch || currentTags.length > 0 || currentPeriod !== 'proximos-7-dias';
+
   return (
     <PageWrapper 
-      title={`Agenda ${cityName}`} 
-      description={`Eventos culturais em ${cityName} selecionados com curadoria especializada`}
+      title={`Agenda ${cityName} - ROLÊ`}
+      description={`Eventos culturais em ${cityName} selecionados com curadoria especializada. Descubra shows, festivais e experiências únicas.`}
     >
       <Header />
       
+      {/* SEO Meta Tags */}
+      <head>
+        <title>Agenda {cityName} - ROLÊ</title>
+        <meta name="description" content={`Eventos culturais em ${cityName} selecionados com curadoria especializada. Descubra shows, festivais e experiências únicas.`} />
+        <link rel="canonical" href={`https://role.com.br/agenda/${cidade}${currentPeriod !== 'proximos-7-dias' ? `?periodo=${currentPeriod}` : ''}`} />
+      </head>
+      
       <main className="min-h-screen pt-20">
         {/* Header */}
-        <section className="px-4 py-6 border-b">
+        <section className="px-4 py-6 border-b bg-gradient-subtle">
           <div className="max-w-6xl mx-auto">
             <Button 
               variant="ghost" 
               onClick={() => navigate('/agenda')}
-              className="mb-4 -ml-4"
+              className="mb-4 -ml-4 hover:bg-background/80"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Voltar
             </Button>
             
-            <h1 className="text-3xl font-bold mb-2">Agenda {cityName}</h1>
-            <p className="text-muted-foreground mb-4">
-              Eventos culturais selecionados com curadoria especializada
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">Agenda {cityName}</h1>
+            <p className="text-muted-foreground mb-4 max-w-2xl">
+              Eventos culturais selecionados com curadoria especializada em {cityName}
             </p>
             
             <div className="flex flex-wrap gap-3">
               <Badge variant="secondary" className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
-                {totalCount} eventos
+                {isLoading ? (
+                  <span className="animate-pulse bg-muted rounded w-8 h-4 inline-block" />
+                ) : (
+                  `${totalCount} eventos`
+                )}
               </Badge>
               <Badge variant="secondary" className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
-                {currentPeriod === 'today' ? 'Hoje' : 
-                 currentPeriod === 'weekend' ? 'Fim de semana' :
-                 currentPeriod === 'week' ? 'Próximos 7 dias' :
-                 currentPeriod === 'month' ? 'Este mês' : 'Período personalizado'}
+                {getPeriodLabel(currentPeriod)}
               </Badge>
             </div>
           </div>
         </section>
 
         {/* Filters */}
-        <section className="px-4 py-6 bg-muted/50">
+        <section className="px-4 py-6 bg-muted/30">
           <div className="max-w-6xl mx-auto space-y-4">
-            <Tabs value={currentTab} onValueChange={handleTabChange}>
-              <TabsList className="grid w-full grid-cols-2 max-w-md">
-                <TabsTrigger value="vitrine">Vitrine</TabsTrigger>
-                <TabsTrigger value="curadoria">Destaques</TabsTrigger>
-              </TabsList>
-            </Tabs>
-
             <div className="flex flex-wrap gap-4">
-              <form onSubmit={handleSearchSubmit} className="flex-1 min-w-64">
+              {/* Search */}
+              <div className="flex-1 min-w-64 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
-                  placeholder="Buscar por título..."
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  className="w-full"
+                  placeholder="Buscar eventos por título..."
+                  value={inputValue}
+                  onChange={handleInputChange}
+                  className="pl-10"
                 />
-              </form>
+              </div>
 
+              {/* Period */}
               <Select value={currentPeriod} onValueChange={handlePeriodChange}>
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="Período" />
@@ -251,50 +367,60 @@ export default function AgendaCidade() {
                 </SelectContent>
               </Select>
 
+              {/* Tags */}
               {availableTags.length > 0 && (
-                <Select>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Tags" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableTags.map(tag => (
-                      <SelectItem 
-                        key={tag} 
-                        value={tag}
-                        onSelect={() => handleTagToggle(tag)}
-                      >
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
+                <Popover open={tagsOpen} onOpenChange={setTagsOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-48 justify-between">
+                      <span>
+                        {selectedTags.length === 0 
+                          ? 'Filtrar por tags' 
+                          : `${selectedTags.length} tag${selectedTags.length > 1 ? 's' : ''}`
+                        }
+                      </span>
+                      <Filter className="w-4 h-4 ml-2" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-56 p-3">
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {availableTags.map(tag => (
+                        <div key={tag} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={tag}
                             checked={selectedTags.includes(tag)}
-                            readOnly
-                            className="pointer-events-none"
+                            onCheckedChange={() => handleTagToggle(tag)}
                           />
-                          {tag}
+                          <label htmlFor={tag} className="text-sm cursor-pointer flex-1">
+                            {tag}
+                          </label>
                         </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
               )}
 
-              <Button 
-                variant="outline" 
-                onClick={handleClearFilters}
-                className="flex items-center gap-2"
-              >
-                <X className="w-4 h-4" />
-                Limpar
-              </Button>
+              {/* Clear filters */}
+              {hasActiveFilters && (
+                <Button 
+                  variant="outline" 
+                  onClick={handleClearFilters}
+                  className="flex items-center gap-2"
+                >
+                  <X className="w-4 h-4" />
+                  Limpar
+                </Button>
+              )}
             </div>
 
+            {/* Selected tags */}
             {selectedTags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {selectedTags.map(tag => (
                   <Badge 
                     key={tag} 
                     variant="secondary" 
-                    className="cursor-pointer"
+                    className="cursor-pointer hover:bg-secondary/80"
                     onClick={() => handleTagToggle(tag)}
                   >
                     {tag}
@@ -311,19 +437,8 @@ export default function AgendaCidade() {
           <div className="max-w-6xl mx-auto">
             {isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(9)].map((_, i) => (
-                  <Card key={i} className="overflow-hidden">
-                    <Skeleton className="aspect-[3/2] w-full" />
-                    <CardContent className="p-4 space-y-2">
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-3/4" />
-                      <Skeleton className="h-3 w-1/2" />
-                      <div className="flex gap-2">
-                        <Skeleton className="h-6 w-16" />
-                        <Skeleton className="h-6 w-20" />
-                      </div>
-                    </CardContent>
-                  </Card>
+                {[...Array(12)].map((_, i) => (
+                  <EventCardSkeleton key={i} />
                 ))}
               </div>
             ) : items.length === 0 ? (
@@ -340,107 +455,34 @@ export default function AgendaCidade() {
             ) : (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                  {items.map((item) => {
-                    const isCuradoria = item.visibility_type === 'curadoria';
-                    const itemTags = item.tags || [];
-                    const displayTags = itemTags.slice(0, 2);
-                    const extraTagsCount = Math.max(0, itemTags.length - 2);
-
-                    return (
-                      <Card 
-                        key={item.id} 
-                        className={cn(
-                          "overflow-hidden cursor-pointer transition-all hover:shadow-lg",
-                          isCuradoria ? "bg-slate-900 text-white border-slate-800" : "bg-card"
-                        )}
-                        onClick={() => window.location.href = `/agenda/${item.slug || item.id}`}
-                      >
-                        <div className="aspect-[3/2] relative overflow-hidden">
-                          {item.cover_url ? (
-                            <img
-                              src={item.cover_url}
-                              alt={item.alt_text || item.title}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                              srcSet={`${item.cover_url}?w=400 400w, ${item.cover_url}?w=600 600w`}
-                              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-muted flex items-center justify-center">
-                              <Calendar className="w-12 h-12 text-muted-foreground" />
-                            </div>
-                          )}
-                          <Badge 
-                            className={cn(
-                              "absolute top-3 left-3",
-                              isCuradoria ? "bg-amber-600 hover:bg-amber-700" : "bg-blue-600 hover:bg-blue-700"
-                            )}
-                          >
-                            {isCuradoria ? 'Curadoria' : 'Vitrine'}
-                          </Badge>
-                        </div>
-                        
-                        <CardContent className="p-4">
-                          <h3 className={cn(
-                            "font-semibold text-lg line-clamp-2 mb-2",
-                            isCuradoria ? "text-white" : "text-foreground"
-                          )}>
-                            {item.title}
-                          </h3>
-                          
-                          <p className={cn(
-                            "text-sm mb-3",
-                            isCuradoria ? "text-slate-300" : "text-muted-foreground"
-                          )}>
-                            {cityName} · {item.start_at ? formatDateRange(item.start_at, item.end_at || undefined) : 'Data a definir'}
-                          </p>
-                          
-                          {itemTags.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {displayTags.map(tag => (
-                                <Badge 
-                                  key={tag} 
-                                  variant={isCuradoria ? "secondary" : "outline"}
-                                  className={cn(
-                                    "text-xs",
-                                    isCuradoria ? "bg-slate-800 text-slate-200 border-slate-700" : ""
-                                  )}
-                                >
-                                  {tag}
-                                </Badge>
-                              ))}
-                              {extraTagsCount > 0 && (
-                                <Badge 
-                                  variant={isCuradoria ? "secondary" : "outline"}
-                                  className={cn(
-                                    "text-xs",
-                                    isCuradoria ? "bg-slate-800 text-slate-200 border-slate-700" : ""
-                                  )}
-                                >
-                                  +{extraTagsCount}
-                                </Badge>
-                              )}
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+                  {items.map((item) => (
+                    <EventCard key={item.id} item={item} cityName={cityName} />
+                  ))}
                 </div>
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="flex justify-center items-center gap-2">
+                  <div className="flex justify-center items-center gap-2 flex-wrap">
                     <Button
                       variant="outline"
                       disabled={currentPage === 1}
                       onClick={() => updateFilters({ page: currentPage - 1 })}
                     >
-                      Anterior
+                      « Anterior
                     </Button>
                     
-                    {[...Array(totalPages)].map((_, i) => {
-                      const page = i + 1;
+                    {[...Array(Math.min(totalPages, 5))].map((_, i) => {
+                      let page: number;
+                      if (totalPages <= 5) {
+                        page = i + 1;
+                      } else if (currentPage <= 3) {
+                        page = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        page = totalPages - 4 + i;
+                      } else {
+                        page = currentPage - 2 + i;
+                      }
+                      
                       const isActive = page === currentPage;
                       
                       return (
@@ -460,7 +502,7 @@ export default function AgendaCidade() {
                       disabled={currentPage === totalPages}
                       onClick={() => updateFilters({ page: currentPage + 1 })}
                     >
-                      Próxima
+                      Próxima »
                     </Button>
                   </div>
                 )}
