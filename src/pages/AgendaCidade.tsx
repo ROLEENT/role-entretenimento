@@ -424,19 +424,19 @@ export default function AgendaCidade() {
                 ))}
               </div>
             ) : items.length === 0 ? (
-              <div className="text-center py-20">
-                <Calendar className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                <h2 className="text-xl font-semibold mb-2">Nada encontrado para estes filtros</h2>
-                <p className="text-muted-foreground mb-6">
+              <div className="error-state">
+                <Calendar className="w-16 h-16 mx-auto text-muted-foreground mb-4" aria-hidden="true" />
+                <h2 className="text-heading-3 mb-2">Nada encontrado para estes filtros</h2>
+                <p className="error-message">
                   Tente ajustar os filtros ou explore outras cidades.
                 </p>
-                <Button onClick={() => navigate('/agenda')}>
+                <Button onClick={() => navigate('/agenda')} className="focus-visible">
                   Ver todas as cidades
                 </Button>
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div className="accessible-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-8" role="list" aria-label="Lista de eventos">
                   {items.map((item) => (
                     <EventCard key={item.id} item={item} cityName={cityName} />
                   ))}

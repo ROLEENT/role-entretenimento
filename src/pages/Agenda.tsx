@@ -178,27 +178,27 @@ export default function Agenda() {
             <h2 className="text-2xl font-bold text-center mb-8">Próximos eventos</h2>
             
             {isLoadingEvents ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="accessible-grid grid-cols-1 md:grid-cols-3" role="status" aria-label="Carregando eventos">
                 {[...Array(6)].map((_, i) => (
                   <EventCardSkeleton key={i} />
                 ))}
               </div>
             ) : upcomingEvents.length === 0 ? (
-              <div className="text-center py-12">
-                <Calendar className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Nenhum evento encontrado</h3>
-                <p className="text-muted-foreground">Novos eventos serão adicionados em breve.</p>
+              <div className="error-state">
+                <Calendar className="w-16 h-16 text-muted-foreground mx-auto mb-4" aria-hidden="true" />
+                <h3 className="text-heading-3 mb-2">Nenhum evento encontrado</h3>
+                <p className="error-message">Novos eventos serão adicionados em breve.</p>
               </div>
             ) : (
               <div className="relative" ref={carouselRef} role="region" aria-label="Carrossel de próximos eventos">
                 {/* Carousel */}
                 <div className="overflow-hidden">
                   <div 
-                    className="flex transition-transform duration-300 ease-in-out gap-6"
+                    className="flex transition-transform duration-300 ease-in-out component-spacing"
                     style={{ transform: `translateX(-${currentSlide * (100 / itemsPerSlide)}%)` }}
                   >
                     {upcomingEvents.map((item) => (
-                      <div key={item.id} className="flex-none w-full md:w-1/3">
+                      <div key={item.id} className="flex-none w-full md:w-1/3" role="listitem">
                         <EventCard 
                           item={item} 
                           onFocus={() => handleEventCardFocus(item.id)}
@@ -214,7 +214,7 @@ export default function Agenda() {
                     <Button
                       variant="outline"
                       size="icon"
-                      className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-background/90 backdrop-blur-sm"
+                      className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-background/90 backdrop-blur-sm shadow-card focus-visible"
                       onClick={prevSlide}
                       aria-label="Evento anterior"
                     >
@@ -223,7 +223,7 @@ export default function Agenda() {
                     <Button
                       variant="outline"
                       size="icon"
-                      className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-background/90 backdrop-blur-sm"
+                      className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-background/90 backdrop-blur-sm shadow-card focus-visible"
                       onClick={nextSlide}
                       aria-label="Próximo evento"
                     >
@@ -254,11 +254,11 @@ export default function Agenda() {
         </section>
 
         {/* Cities Grid */}
-        <section className="px-4 py-12 bg-muted/50">
+        <section className="px-4 py-12 bg-muted/50 section-spacing">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold text-center mb-8">Agendas por cidade</h2>
+            <h2 className="text-heading-2 text-center element-spacing">Agendas por cidade</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="accessible-grid grid-cols-1 md:grid-cols-3" role="list" aria-label="Cidades disponíveis">
               {CITIES.map((city) => {
                 const stats = cityStats.find(s => s.city === city.key);
                 const count = stats?.count || 0;
@@ -267,12 +267,13 @@ export default function Agenda() {
                   <Button
                     key={city.key}
                     variant="outline"
-                    className="h-20 flex flex-col justify-center hover:bg-primary/5 transition-colors"
+                    className="h-20 flex flex-col justify-center hover:bg-primary/5 transition-colors shadow-card focus-visible"
                     asChild
+                    role="listitem"
                   >
-                    <Link to={`/agenda/cidade/${city.key}`}>
+                    <Link to={`/agenda/cidade/${city.key}`} aria-label={`Ver agenda de ${city.name}`}>
                       <span className="font-semibold text-lg">{city.name}</span>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-chip text-muted-foreground">
                         {count} eventos
                       </span>
                     </Link>
@@ -282,12 +283,13 @@ export default function Agenda() {
               
               <Button
                 variant="outline"
-                className="h-20 flex flex-col justify-center hover:bg-primary/5 transition-colors"
+                className="h-20 flex flex-col justify-center hover:bg-primary/5 transition-colors shadow-card focus-visible"
                 asChild
+                role="listitem"
               >
-                <Link to="/agenda/cidade/outras">
+                <Link to="/agenda/cidade/outras" aria-label="Ver outras cidades">
                   <span className="font-semibold text-lg">Outras cidades</span>
-                  <span className="text-sm text-muted-foreground">Selecionar</span>
+                  <span className="text-chip text-muted-foreground">Selecionar</span>
                 </Link>
               </Button>
             </div>

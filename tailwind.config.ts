@@ -98,6 +98,15 @@ export default {
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
 			},
+			spacing: {
+				'section': 'var(--spacing-section)',
+				'element': 'var(--spacing-element)',
+				'component': 'var(--spacing-component)'
+			},
+			boxShadow: {
+				'card': 'var(--shadow-card)',
+				'hover': 'var(--shadow-hover)'
+			},
 			keyframes: {
 				'accordion-down': {
 					from: { height: '0', opacity: '0' },
