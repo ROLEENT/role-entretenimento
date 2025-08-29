@@ -1,4 +1,4 @@
-import { Search, Menu, User, Heart, X } from "lucide-react";
+import { Search, Menu, User, Heart, X, ChevronDown } from "lucide-react";
 import { useResponsive } from "@/hooks/useResponsive";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -11,6 +11,7 @@ import roleLogo from "@/assets/role-logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "./ui/input";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -20,11 +21,20 @@ const Header = () => {
   const [events, setEvents] = useState([]);
   const [highlights, setHighlights] = useState([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedCity, setSelectedCity] = useState("POA");
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { isMobile } = useResponsive();
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const cities = [
+    { code: "POA", name: "Porto Alegre" },
+    { code: "SP", name: "São Paulo" },
+    { code: "RJ", name: "Rio de Janeiro" },
+    { code: "Floripa", name: "Florianópolis" },
+    { code: "Curitiba", name: "Curitiba" }
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -146,6 +156,23 @@ const Header = () => {
             })}
           </nav>
 
+          {/* Desktop City Pills */}
+          <div className="hidden md:flex items-center space-x-1">
+            {cities.map((city) => (
+              <button
+                key={city.code}
+                onClick={() => setSelectedCity(city.code)}
+                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all duration-200 ${
+                  selectedCity === city.code
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-accent/50 text-muted-foreground hover:bg-primary/20 hover:text-primary'
+                }`}
+              >
+                {city.code}
+              </button>
+            ))}
+          </div>
+
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-2">
             {/* Inline Search */}
@@ -205,6 +232,50 @@ const Header = () => {
               size="sm" 
               asChild
               className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-md"
+            >
+              <Link to={user ? "/perfil" : "/auth"} aria-label={user ? "Ir para perfil" : "Fazer login"}>
+                <User className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+
+          {/* Mobile Actions */}
+          <div className="flex md:hidden items-center space-x-2">
+            {/* Mobile City Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-9 px-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-md"
+                >
+                  {selectedCity}
+                  <ChevronDown className="h-3 w-3 ml-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40 bg-background/95 backdrop-blur-md border">
+                {cities.map((city) => (
+                  <DropdownMenuItem
+                    key={city.code}
+                    onClick={() => setSelectedCity(city.code)}
+                    className={`text-sm ${
+                      selectedCity === city.code
+                        ? 'bg-primary/10 text-primary font-medium'
+                        : 'text-foreground hover:bg-primary/5'
+                    }`}
+                  >
+                    {city.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Mobile Profile Button */}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              asChild
+              className="h-9 w-9 p-0 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-md"
             >
               <Link to={user ? "/perfil" : "/auth"} aria-label={user ? "Ir para perfil" : "Fazer login"}>
                 <User className="h-4 w-4" />
