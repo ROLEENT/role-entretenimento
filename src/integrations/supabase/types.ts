@@ -1607,19 +1607,32 @@ export type Database = {
       }
       highlights: {
         Row: {
+          alt_text: string | null
+          anunciante: string | null
           city: Database["public"]["Enums"]["city"]
           cover_url: string | null
           created_at: string
           created_by: string | null
+          cupom: string | null
           end_at: string | null
           event_date: string | null
+          event_id: string | null
           event_time: string | null
           event_title: string
+          focal_point_x: number | null
+          focal_point_y: number | null
           id: string
           image_url: string
           is_published: boolean
           like_count: number
+          meta_description: string | null
+          meta_title: string | null
+          noindex: boolean | null
+          organizer_id: string | null
+          patrocinado: boolean | null
           photo_credit: string | null
+          priority: number | null
+          publish_at: string | null
           role_text: string
           selection_reasons: string[]
           slug: string | null
@@ -1629,24 +1642,40 @@ export type Database = {
           summary: string | null
           ticket_price: string | null
           ticket_url: string | null
+          type: string | null
+          unpublish_at: string | null
           updated_at: string
           updated_by: string | null
           venue: string
+          venue_id: string | null
         }
         Insert: {
+          alt_text?: string | null
+          anunciante?: string | null
           city: Database["public"]["Enums"]["city"]
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
+          cupom?: string | null
           end_at?: string | null
           event_date?: string | null
+          event_id?: string | null
           event_time?: string | null
           event_title: string
+          focal_point_x?: number | null
+          focal_point_y?: number | null
           id?: string
           image_url: string
           is_published?: boolean
           like_count?: number
+          meta_description?: string | null
+          meta_title?: string | null
+          noindex?: boolean | null
+          organizer_id?: string | null
+          patrocinado?: boolean | null
           photo_credit?: string | null
+          priority?: number | null
+          publish_at?: string | null
           role_text: string
           selection_reasons?: string[]
           slug?: string | null
@@ -1656,24 +1685,40 @@ export type Database = {
           summary?: string | null
           ticket_price?: string | null
           ticket_url?: string | null
+          type?: string | null
+          unpublish_at?: string | null
           updated_at?: string
           updated_by?: string | null
           venue: string
+          venue_id?: string | null
         }
         Update: {
+          alt_text?: string | null
+          anunciante?: string | null
           city?: Database["public"]["Enums"]["city"]
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
+          cupom?: string | null
           end_at?: string | null
           event_date?: string | null
+          event_id?: string | null
           event_time?: string | null
           event_title?: string
+          focal_point_x?: number | null
+          focal_point_y?: number | null
           id?: string
           image_url?: string
           is_published?: boolean
           like_count?: number
+          meta_description?: string | null
+          meta_title?: string | null
+          noindex?: boolean | null
+          organizer_id?: string | null
+          patrocinado?: boolean | null
           photo_credit?: string | null
+          priority?: number | null
+          publish_at?: string | null
           role_text?: string
           selection_reasons?: string[]
           slug?: string | null
@@ -1683,11 +1728,36 @@ export type Database = {
           summary?: string | null
           ticket_price?: string | null
           ticket_url?: string | null
+          type?: string | null
+          unpublish_at?: string | null
           updated_at?: string
           updated_by?: string | null
           venue?: string
+          venue_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "highlights_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "highlights_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "organizers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "highlights_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       js_errors: {
         Row: {
