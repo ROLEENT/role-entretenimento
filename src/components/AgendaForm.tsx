@@ -61,8 +61,10 @@ import { useNavigationGuard } from '@/hooks/useNavigationGuard';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useSlugHistory } from '@/hooks/useSlugHistory';
 import { usePreviewToken } from '@/hooks/usePreviewToken';
+import { useStorageUpload } from '@/hooks/useStorageUpload';
 import { ValidationBadges, PublishErrorSummary } from '@/components/agenda/ValidationBadges';
 import { validateUrl, validatePriceRange, validateOccurrence, getPublishValidationErrors } from '@/utils/agendaValidation';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   CITY_OPTIONS, 
   VISIBILITY_OPTIONS,
@@ -115,8 +117,6 @@ export function AgendaForm({ mode }: AgendaFormProps) {
   const [ticketTiers, setTicketTiers] = useState<TicketTier[]>([]);
   const [occurrences, setOccurrences] = useState<Occurrence[]>([]);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -131,6 +131,7 @@ export function AgendaForm({ mode }: AgendaFormProps) {
   // Advanced features hooks
   const { saveSlugChange } = useSlugHistory();
   const { openSecurePreview, isGenerating: isGeneratingPreview } = usePreviewToken();
+  const { uploadFile, deleteFile, uploading, uploadProgress } = useStorageUpload();
 
   const form = useForm<AgendaDraftData>({
     resolver: zodResolver(AgendaDraftSchema),
@@ -157,6 +158,37 @@ export function AgendaForm({ mode }: AgendaFormProps) {
     },
   });
 
+  // Initialize with default occurrences and tiers for demonstration
+  useEffect(() => {
+    if (mode === 'create') {
+      setOccurrences([
+        { 
+          start_at: '', 
+          end_at: '' 
+        },
+        { 
+          start_at: '', 
+          end_at: '' 
+        }
+      ]);
+      
+      setTicketTiers([
+        {
+          name: 'Pista',
+          price: 50,
+          currency: 'BRL',
+          available: true
+        },
+        {
+          name: 'VIP',
+          price: 100,
+          currency: 'BRL',
+          available: true
+        }
+      ]);
+    }
+  }, [mode]);
+
   // Watch form data for advanced features
   const formData = form.watch();
   const isDraft = form.watch('item.status') === 'draft';
@@ -167,6 +199,16 @@ export function AgendaForm({ mode }: AgendaFormProps) {
       setSaving(true);
       
       const currentFormData = data || form.getValues();
+      
+      // For draft: only require title and slug
+      if (!currentFormData.item?.title?.trim() || !currentFormData.item?.slug?.trim()) {
+        toast({
+          title: "Campos obrigatórios",
+          description: "Título e slug são obrigatórios para salvar rascunho",
+          variant: "destructive"
+        });
+        return;
+      }
       
       // Check for slug change and save history
       const currentSlug = currentFormData.item?.slug;
@@ -214,14 +256,40 @@ export function AgendaForm({ mode }: AgendaFormProps) {
 
   const handleDuplicate = async () => {
     try {
+      const currentData = form.getValues();
+      
+      // Generate new slug with -2 suffix
+      const originalSlug = currentData.item?.slug || '';
+      const newSlug = originalSlug.includes('-2') ? 
+        originalSlug.replace('-2', '-3') : 
+        `${originalSlug}-2`;
+      
+      // Create duplicate without media
+      const duplicateData = {
+        ...currentData,
+        item: {
+          ...currentData.item,
+          title: `${currentData.item?.title || ''} (Cópia)`,
+          slug: newSlug,
+          cover_url: '', // Remove uploaded media
+          alt_text: '',
+          status: 'draft',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        media: [], // Clear media array
+      };
+      
       // Mock duplicate - replace with actual API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast({
-        title: "Item duplicado"
+        title: "Item duplicado",
+        description: `Novo item criado com slug: ${newSlug}`
       });
       
-      navigate('/admin-v3/agenda');
+      // Navigate to edit the new duplicate
+      navigate(`/admin-v3/agenda/${newSlug}/edit`);
     } catch (error) {
       toast({
         title: "Erro ao duplicar",
@@ -649,7 +717,101 @@ export function AgendaForm({ mode }: AgendaFormProps) {
     }
   };
 
-  return (
+  // Image upload handlers
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const uploadedUrl = await uploadFile(file);
+    if (uploadedUrl) {
+      form.setValue('item.cover_url', uploadedUrl);
+      setHasUnsavedChanges(true);
+    }
+  };
+
+  const handleRemoveImage = async () => {
+    const currentUrl = form.getValues('item.cover_url');
+    if (currentUrl) {
+      const deleted = await deleteFile(currentUrl);
+      if (deleted) {
+        form.setValue('item.cover_url', '');
+        form.setValue('item.alt_text', '');
+        setFocalPoint(null);
+        setHasUnsavedChanges(true);
+      }
+    }
+  };
+
+  const handleImageClick = (event: React.MouseEvent<HTMLImageElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width;
+    const y = (event.clientY - rect.top) / rect.height;
+    
+    setFocalPoint({ x, y });
+    form.setValue('item.focal_point_x', x);
+    form.setValue('item.focal_point_y', y);
+    setHasUnsavedChanges(true);
+  };
+
+  // Convert dates between local timezone and UTC
+  const toLocalDateTime = (isoString: string | undefined) => {
+    if (!isoString) return '';
+    try {
+      const date = new Date(isoString);
+      const offset = date.getTimezoneOffset();
+      const localDate = new Date(date.getTime() - offset * 60 * 1000);
+      return localDate.toISOString().slice(0, 16);
+    } catch {
+      return '';
+    }
+  };
+
+  const toUTCString = (localDateTimeString: string) => {
+    if (!localDateTimeString) return '';
+    try {
+      const localDate = new Date(localDateTimeString);
+      return localDate.toISOString();
+    } catch {
+      return '';
+    }
+  };
+
+  // Occurrence handlers
+  const addOccurrence = () => {
+    setOccurrences([...occurrences, { start_at: '', end_at: '' }]);
+  };
+
+  const removeOccurrence = (index: number) => {
+    setOccurrences(occurrences.filter((_, i) => i !== index));
+  };
+
+  const updateOccurrence = (index: number, field: keyof Occurrence, value: string) => {
+    const updated = [...occurrences];
+    updated[index] = { ...updated[index], [field]: value };
+    setOccurrences(updated);
+    setHasUnsavedChanges(true);
+  };
+
+  // Ticket tier handlers
+  const addTicketTier = () => {
+    setTicketTiers([...ticketTiers, {
+      name: '',
+      price: 0,
+      currency: 'BRL',
+      available: true
+    }]);
+  };
+
+  const removeTicketTier = (index: number) => {
+    setTicketTiers(ticketTiers.filter((_, i) => i !== index));
+  };
+
+  const updateTicketTier = (index: number, field: keyof TicketTier, value: any) => {
+    const updated = [...ticketTiers];
+    updated[index] = { ...updated[index], [field]: value };
+    setTicketTiers(updated);
+    setHasUnsavedChanges(true);
+  };
     <div className="space-y-6">
       {/* Edit Conflict Dialog */}
       <EditConflictDialog
@@ -928,26 +1090,31 @@ export function AgendaForm({ mode }: AgendaFormProps) {
                         )}
                       />
                       
-                      <FormField
-                        control={form.control}
-                        name="item.priority"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Prioridade</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="number" 
-                                min="0"
-                                max="10"
-                                {...field}
-                                value={field.value || 0}
-                                onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                       <FormField
+                         control={form.control}
+                         name="item.ticket_status"
+                         render={({ field }) => (
+                           <FormItem>
+                             <FormLabel>Status do Ingresso</FormLabel>
+                             <Select value={field.value || ""} onValueChange={field.onChange}>
+                               <FormControl>
+                                 <SelectTrigger>
+                                   <SelectValue placeholder="Selecione o status" />
+                                 </SelectTrigger>
+                               </FormControl>
+                               <SelectContent>
+                                 {TICKET_STATUS_OPTIONS.map((status) => (
+                                   <SelectItem key={status.value} value={status.value}>
+                                     {status.label}
+                                   </SelectItem>
+                                 ))}
+                               </SelectContent>
+                             </Select>
+                             <FormMessage />
+                             <p className="text-xs text-muted-foreground">Status atual dos ingressos</p>
+                           </FormItem>
+                         )}
+                       />
                       
                       <FormItem>
                         <FormLabel>Status do Ingresso</FormLabel>
@@ -1176,7 +1343,140 @@ export function AgendaForm({ mode }: AgendaFormProps) {
               </Card>
             </AccordionItem>
 
-            {/* Mídia */}
+            {/* Ocorrências extras */}
+            <AccordionItem value="occurrences">
+              <Card>
+                <AccordionTrigger className="px-6 pt-6 pb-2 hover:no-underline">
+                  <CardTitle>Ocorrências Extras</CardTitle>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <CardContent className="pt-0 space-y-4">
+                    <div className="space-y-3">
+                      {occurrences.map((occurrence, index) => (
+                        <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
+                          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <Label className="text-sm">Início</Label>
+                              <Input
+                                type="datetime-local"
+                                value={toLocalDateTime(occurrence.start_at)}
+                                onChange={(e) => {
+                                  const utcValue = toUTCString(e.target.value);
+                                  updateOccurrence(index, 'start_at', utcValue);
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-sm">Fim</Label>
+                              <Input
+                                type="datetime-local"
+                                value={toLocalDateTime(occurrence.end_at)}
+                                onChange={(e) => {
+                                  const utcValue = toUTCString(e.target.value);
+                                  updateOccurrence(index, 'end_at', utcValue);
+                                }}
+                              />
+                            </div>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removeOccurrence(index)}
+                          >
+                            <Minus className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addOccurrence}
+                      className="w-full"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Adicionar Ocorrência
+                    </Button>
+                  </CardContent>
+                </AccordionContent>
+              </Card>
+            </AccordionItem>
+
+            {/* Ticket Tiers */}
+            <AccordionItem value="ticket-tiers">
+              <Card>
+                <AccordionTrigger className="px-6 pt-6 pb-2 hover:no-underline">
+                  <CardTitle>Tiers de Ingressos</CardTitle>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <CardContent className="pt-0 space-y-4">
+                    <div className="space-y-3">
+                      {ticketTiers.map((tier, index) => (
+                        <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
+                          <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-3">
+                            <div>
+                              <Label className="text-sm">Nome</Label>
+                              <Input
+                                value={tier.name}
+                                onChange={(e) => updateTicketTier(index, 'name', e.target.value)}
+                                placeholder="Pista, VIP..."
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-sm">Preço</Label>
+                              <Input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={tier.price}
+                                onChange={(e) => updateTicketTier(index, 'price', parseFloat(e.target.value) || 0)}
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-sm">Moeda</Label>
+                              <Input
+                                value={tier.currency}
+                                onChange={(e) => updateTicketTier(index, 'currency', e.target.value)}
+                              />
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`available-${index}`}
+                                checked={tier.available}
+                                onCheckedChange={(checked) => updateTicketTier(index, 'available', checked)}
+                              />
+                              <Label htmlFor={`available-${index}`} className="text-sm">
+                                Disponível
+                              </Label>
+                            </div>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removeTicketTier(index)}
+                          >
+                            <Minus className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addTicketTier}
+                      className="w-full"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Adicionar Tier
+                    </Button>
+                  </CardContent>
+                </AccordionContent>
+              </Card>
+            </AccordionItem>
             <AccordionItem value="media">
               <Card>
                 <AccordionTrigger className="px-6 pt-6 pb-2 hover:no-underline">

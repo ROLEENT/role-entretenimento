@@ -222,33 +222,49 @@ export type Database = {
       }
       agenda_itens: {
         Row: {
+          accessibility: Json | null
+          address: string | null
+          age_rating: string | null
           alt_text: string | null
           anunciante: string | null
-          city: string
+          canonical_url: string | null
+          city: string | null
           cover_url: string | null
           created_at: string
           created_by: string | null
           cupom: string | null
+          currency: string | null
           deleted_at: string | null
-          end_at: string
+          editorial_notes: string | null
+          end_at: string | null
           event_id: string | null
           focal_point_x: number | null
           focal_point_y: number | null
           id: string
+          latitude: number | null
+          location_name: string | null
+          longitude: number | null
           meta_description: string | null
+          meta_image_url: string | null
           meta_title: string | null
+          neighborhood: string | null
           noindex: boolean | null
           organizer_id: string | null
           patrocinado: boolean | null
           preview_token: string | null
+          price_max: number | null
+          price_min: number | null
           priority: number | null
           publish_at: string | null
+          share_text: string | null
           slug: string
-          start_at: string
+          source_url: string | null
+          start_at: string | null
           status: Database["public"]["Enums"]["agenda_status"]
           subtitle: string | null
           summary: string | null
           tags: string[] | null
+          ticket_status: string | null
           ticket_url: string | null
           title: string
           type: string | null
@@ -259,33 +275,49 @@ export type Database = {
           visibility_type: Database["public"]["Enums"]["agenda_visibility"]
         }
         Insert: {
+          accessibility?: Json | null
+          address?: string | null
+          age_rating?: string | null
           alt_text?: string | null
           anunciante?: string | null
-          city: string
+          canonical_url?: string | null
+          city?: string | null
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
           cupom?: string | null
+          currency?: string | null
           deleted_at?: string | null
-          end_at: string
+          editorial_notes?: string | null
+          end_at?: string | null
           event_id?: string | null
           focal_point_x?: number | null
           focal_point_y?: number | null
           id?: string
+          latitude?: number | null
+          location_name?: string | null
+          longitude?: number | null
           meta_description?: string | null
+          meta_image_url?: string | null
           meta_title?: string | null
+          neighborhood?: string | null
           noindex?: boolean | null
           organizer_id?: string | null
           patrocinado?: boolean | null
           preview_token?: string | null
+          price_max?: number | null
+          price_min?: number | null
           priority?: number | null
           publish_at?: string | null
+          share_text?: string | null
           slug: string
-          start_at: string
+          source_url?: string | null
+          start_at?: string | null
           status?: Database["public"]["Enums"]["agenda_status"]
           subtitle?: string | null
           summary?: string | null
           tags?: string[] | null
+          ticket_status?: string | null
           ticket_url?: string | null
           title: string
           type?: string | null
@@ -296,33 +328,49 @@ export type Database = {
           visibility_type?: Database["public"]["Enums"]["agenda_visibility"]
         }
         Update: {
+          accessibility?: Json | null
+          address?: string | null
+          age_rating?: string | null
           alt_text?: string | null
           anunciante?: string | null
-          city?: string
+          canonical_url?: string | null
+          city?: string | null
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
           cupom?: string | null
+          currency?: string | null
           deleted_at?: string | null
-          end_at?: string
+          editorial_notes?: string | null
+          end_at?: string | null
           event_id?: string | null
           focal_point_x?: number | null
           focal_point_y?: number | null
           id?: string
+          latitude?: number | null
+          location_name?: string | null
+          longitude?: number | null
           meta_description?: string | null
+          meta_image_url?: string | null
           meta_title?: string | null
+          neighborhood?: string | null
           noindex?: boolean | null
           organizer_id?: string | null
           patrocinado?: boolean | null
           preview_token?: string | null
+          price_max?: number | null
+          price_min?: number | null
           priority?: number | null
           publish_at?: string | null
+          share_text?: string | null
           slug?: string
-          start_at?: string
+          source_url?: string | null
+          start_at?: string | null
           status?: Database["public"]["Enums"]["agenda_status"]
           subtitle?: string | null
           summary?: string | null
           tags?: string[] | null
+          ticket_status?: string | null
           ticket_url?: string | null
           title?: string
           type?: string | null
@@ -333,6 +381,171 @@ export type Database = {
           visibility_type?: Database["public"]["Enums"]["agenda_visibility"]
         }
         Relationships: []
+      }
+      agenda_media: {
+        Row: {
+          agenda_id: string
+          alt_text: string | null
+          id: string
+          kind: string | null
+          position: number | null
+          url: string
+        }
+        Insert: {
+          agenda_id: string
+          alt_text?: string | null
+          id?: string
+          kind?: string | null
+          position?: number | null
+          url: string
+        }
+        Update: {
+          agenda_id?: string
+          alt_text?: string | null
+          id?: string
+          kind?: string | null
+          position?: number | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agenda_media_agenda_id_fkey"
+            columns: ["agenda_id"]
+            isOneToOne: false
+            referencedRelation: "agenda_itens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agenda_media_agenda_id_fkey"
+            columns: ["agenda_id"]
+            isOneToOne: false
+            referencedRelation: "agenda_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agenda_occurrences: {
+        Row: {
+          agenda_id: string
+          created_at: string | null
+          end_at: string
+          id: string
+          start_at: string
+        }
+        Insert: {
+          agenda_id: string
+          created_at?: string | null
+          end_at: string
+          id?: string
+          start_at: string
+        }
+        Update: {
+          agenda_id?: string
+          created_at?: string | null
+          end_at?: string
+          id?: string
+          start_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agenda_occurrences_agenda_id_fkey"
+            columns: ["agenda_id"]
+            isOneToOne: false
+            referencedRelation: "agenda_itens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agenda_occurrences_agenda_id_fkey"
+            columns: ["agenda_id"]
+            isOneToOne: false
+            referencedRelation: "agenda_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agenda_slug_history: {
+        Row: {
+          agenda_id: string
+          changed_at: string | null
+          id: string
+          old_slug: string
+        }
+        Insert: {
+          agenda_id: string
+          changed_at?: string | null
+          id?: string
+          old_slug: string
+        }
+        Update: {
+          agenda_id?: string
+          changed_at?: string | null
+          id?: string
+          old_slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agenda_slug_history_agenda_id_fkey"
+            columns: ["agenda_id"]
+            isOneToOne: false
+            referencedRelation: "agenda_itens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agenda_slug_history_agenda_id_fkey"
+            columns: ["agenda_id"]
+            isOneToOne: false
+            referencedRelation: "agenda_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agenda_ticket_tiers: {
+        Row: {
+          agenda_id: string
+          available: boolean | null
+          created_at: string | null
+          currency: string | null
+          id: string
+          link: string | null
+          name: string
+          price: number
+        }
+        Insert: {
+          agenda_id: string
+          available?: boolean | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          link?: string | null
+          name: string
+          price: number
+        }
+        Update: {
+          agenda_id?: string
+          available?: boolean | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          link?: string | null
+          name?: string
+          price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agenda_ticket_tiers_agenda_id_fkey"
+            columns: ["agenda_id"]
+            isOneToOne: false
+            referencedRelation: "agenda_itens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agenda_ticket_tiers_agenda_id_fkey"
+            columns: ["agenda_id"]
+            isOneToOne: false
+            referencedRelation: "agenda_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       analytics_events: {
         Row: {
