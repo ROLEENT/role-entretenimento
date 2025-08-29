@@ -4,8 +4,9 @@ import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { Calendar, FileText, RotateCcw, Plus, RefreshCw, Clock, TrendingUp } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import { Calendar, FileText, Clock, TrendingUp, RefreshCw, AlertTriangle, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface DashboardStats {
@@ -16,6 +17,9 @@ interface DashboardStats {
 }
 
 function DashboardContent() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
   const [stats, setStats] = useState<DashboardStats>({
     drafts: 0,
     published: 0,
@@ -23,164 +27,333 @@ function DashboardContent() {
     thisWeek: 0
   });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
 
   const loadStats = async () => {
-    setLoading(true);
-    setError('');
-
     try {
+      setLoading(true);
+      setError(null);
+      
       const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const nextWeek = new Date(today);
-      nextWeek.setDate(nextWeek.getDate() + 7);
+      const today = now.toISOString().split('T')[0];
+      const todayEnd = today + 'T23:59:59.999Z';
+      const todayStart = today + 'T00:00:00.000Z';
+      const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] + 'T23:59:59.999Z';
 
-      // Get drafts count
-      const { count: draftsCount } = await supabase
-        .from('agenda_itens')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'draft')
-        .is('deleted_at', null);
+      // Buscar estatísticas com queries otimizadas
+      const [draftsResult, publishedResult, todayResult, weekResult] = await Promise.all([
+        supabase.from('agenda_itens')
+          .select('id', { count: 'exact', head: true })
+          .eq('status', 'draft')
+          .is('deleted_at', null),
+        
+        supabase.from('agenda_itens')
+          .select('id', { count: 'exact', head: true })
+          .eq('status', 'published')
+          .is('deleted_at', null),
+        
+        supabase.from('agenda_itens')
+          .select('id', { count: 'exact', head: true })
+          .eq('status', 'published')
+          .is('deleted_at', null)
+          .gte('start_at', todayStart)
+          .lte('start_at', todayEnd),
+        
+        supabase.from('agenda_itens')
+          .select('id', { count: 'exact', head: true })
+          .eq('status', 'published')
+          .is('deleted_at', null)
+          .gte('start_at', todayStart)
+          .lte('start_at', weekFromNow)
+      ]);
 
-      // Get published count
-      const { count: publishedCount } = await supabase
-        .from('agenda_itens')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'published')
-        .is('deleted_at', null);
-
-      // Get today's events
-      const { count: todayCount } = await supabase
-        .from('agenda_itens')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'published')
-        .is('deleted_at', null)
-        .gte('start_at', today.toISOString())
-        .lt('start_at', new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString());
-
-      // Get next 7 days events
-      const { count: nextWeekCount } = await supabase
-        .from('agenda_itens')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'published')
-        .is('deleted_at', null)
-        .gte('start_at', today.toISOString())
-        .lt('start_at', nextWeek.toISOString());
+      // Check for errors
+      if (draftsResult.error) throw draftsResult.error;
+      if (publishedResult.error) throw publishedResult.error;
+      if (todayResult.error) throw todayResult.error;
+      if (weekResult.error) throw weekResult.error;
 
       setStats({
-        drafts: draftsCount || 0,
-        published: publishedCount || 0,
-        today: todayCount || 0,
-        thisWeek: nextWeekCount || 0
+        drafts: draftsResult.count || 0,
+        published: publishedResult.count || 0,
+        today: todayResult.count || 0,
+        thisWeek: weekResult.count || 0
       });
 
+      toast({
+        title: "Dados atualizados"
+      });
+      
     } catch (err) {
-      console.error('Error loading stats:', err);
-      setError('Erro ao carregar estatísticas');
+      console.error('Erro ao carregar estatísticas:', err);
+      setError(err instanceof Error ? err.message : 'Erro desconhecido');
+      toast({
+        title: "Erro",
+        description: "Falha ao carregar estatísticas",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user is typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // c - Create Agenda
+      if (e.key === 'c' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        navigate('/admin-v3/agenda/new');
+        toast({
+          title: "Criando agenda"
+        });
+      }
+
+      // r - Reload cards
+      if (e.key === 'r' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        loadStats();
+      }
+
+      // g a - Go to agenda
+      if (e.key === 'g' && !e.ctrlKey && !e.metaKey) {
+        const handleSecondKey = (secondEvent: KeyboardEvent) => {
+          if (secondEvent.key === 'a') {
+            secondEvent.preventDefault();
+            navigate('/admin-v3/agenda');
+            toast({
+              title: "Indo para agenda"
+            });
+          }
+          document.removeEventListener('keydown', handleSecondKey);
+        };
+        document.addEventListener('keydown', handleSecondKey);
+        
+        // Remove listener after 2 seconds if second key not pressed
+        setTimeout(() => {
+          document.removeEventListener('keydown', handleSecondKey);
+        }, 2000);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [navigate, toast]);
+
   useEffect(() => {
     loadStats();
   }, []);
+
+  const handleCardClick = (cardType: string) => {
+    const today = new Date().toISOString().split('T')[0];
+    const weekFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    
+    const params = new URLSearchParams();
+    
+    switch (cardType) {
+      case 'drafts':
+        params.set('status', 'draft');
+        break;
+      case 'published':
+        params.set('status', 'published');
+        break;
+      case 'today':
+        params.set('status', 'published');
+        params.set('dateStart', today);
+        params.set('dateEnd', today);
+        break;
+      case 'thisWeek':
+        params.set('status', 'published');
+        params.set('dateStart', today);
+        params.set('dateEnd', weekFromNow);
+        break;
+    }
+    
+    navigate(`/admin-v3/agenda?${params.toString()}`);
+    toast({
+      title: "Filtros aplicados"
+    });
+  };
 
   const StatCard = ({ 
     title, 
     value, 
     icon: Icon, 
-    isLoading 
-  }: { 
-    title: string; 
-    value: number; 
-    icon: any; 
-    isLoading: boolean; 
+    description, 
+    onCardClick,
+    onReload,
+    isLoading,
+    hasError 
+  }: {
+    title: string;
+    value: number;
+    icon: React.ComponentType<{ className?: string }>;
+    description: string;
+    onCardClick: () => void;
+    onReload: () => void;
+    isLoading: boolean;
+    hasError: boolean;
   }) => (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent className="space-y-2">
+    <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-background to-muted/30 hover:shadow-lg transition-shadow duration-200">
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Icon className="h-5 w-5 text-muted-foreground" />
+            <span className="text-sm font-medium text-muted-foreground">{title}</span>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onReload();
+            }}
+            disabled={isLoading}
+            className="h-8 w-8 p-0 hover:bg-muted"
+          >
+            <RefreshCw className={`h-3 w-3 ${isLoading ? 'animate-spin' : ''}`} />
+          </Button>
+        </div>
+        
         {isLoading ? (
-          <LoadingSpinner size="sm" />
-        ) : error ? (
-          <div className="text-destructive text-sm">Erro</div>
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-16" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+        ) : hasError ? (
+          <div className="flex items-center gap-2 text-destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <span className="text-sm">Erro ao carregar</span>
+          </div>
         ) : (
-          <div className="text-2xl font-bold">{value}</div>
+          <button 
+            onClick={onCardClick}
+            className="text-left w-full group"
+          >
+            <div className="text-3xl font-bold mb-1 group-hover:text-primary transition-colors cursor-pointer">
+              {value.toLocaleString()}
+            </div>
+            <p className="text-sm text-muted-foreground">{description}</p>
+          </button>
         )}
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={loadStats}
-          disabled={isLoading}
-          className="w-full"
-        >
-          <RotateCcw className="h-3 w-3 mr-1" />
-          Recarregar
-        </Button>
       </CardContent>
     </Card>
   );
 
   return (
-    <div className="min-h-screen p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Admin v3 Dashboard</h1>
-          <Button onClick={() => navigate('/admin-highlights/create')}>
-            <Plus className="h-4 w-4 mr-2" />
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground mt-1">
+            Visão geral da sua agenda
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button 
+            onClick={() => navigate('/admin-v3/agenda/new')} 
+            className="gap-2"
+          >
+            <Plus className="w-4 h-4" />
             Criar Agenda
           </Button>
-        </div>
-
-        {error && (
-          <Card className="border-destructive">
-            <CardContent className="pt-6">
-              <p className="text-destructive text-center">{error}</p>
-              <Button 
-                variant="outline" 
-                onClick={loadStats} 
-                className="w-full mt-4"
-              >
-                Tentar Novamente
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard
-            title="Rascunhos"
-            value={stats.drafts}
-            icon={FileText}
-            isLoading={loading}
-          />
-          
-          <StatCard
-            title="Publicados"
-            value={stats.published}
-            icon={FileText}
-            isLoading={loading}
-          />
-          
-          <StatCard
-            title="Hoje"
-            value={stats.today}
-            icon={Calendar}
-            isLoading={loading}
-          />
-          
-          <StatCard
-            title="Próximos 7 dias"
-            value={stats.thisWeek}
-            icon={Calendar}
-            isLoading={loading}
-          />
+          <Button onClick={loadStats} variant="outline" size="sm" className="gap-2">
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            Recarregar
+          </Button>
         </div>
       </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard
+          title="Rascunhos"
+          value={stats.drafts}
+          icon={FileText}
+          description="Itens não publicados"
+          onCardClick={() => handleCardClick('drafts')}
+          onReload={loadStats}
+          isLoading={loading}
+          hasError={!!error}
+        />
+        <StatCard
+          title="Publicados"
+          value={stats.published}
+          icon={TrendingUp}
+          description="Itens ativos"
+          onCardClick={() => handleCardClick('published')}
+          onReload={loadStats}
+          isLoading={loading}
+          hasError={!!error}
+        />
+        <StatCard
+          title="Hoje"
+          value={stats.today}
+          icon={Calendar}
+          description="Eventos de hoje"
+          onCardClick={() => handleCardClick('today')}
+          onReload={loadStats}
+          isLoading={loading}
+          hasError={!!error}
+        />
+        <StatCard
+          title="Próximos 7 dias"
+          value={stats.thisWeek}
+          icon={Clock}
+          description="Esta semana"
+          onCardClick={() => handleCardClick('thisWeek')}
+          onReload={loadStats}
+          isLoading={loading}
+          hasError={!!error}
+        />
+      </div>
+
+      {/* Error State */}
+      {error && (
+        <Card className="border-destructive/50 bg-destructive/10">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              <div className="flex-1">
+                <h4 className="font-medium text-destructive">Erro ao carregar dados</h4>
+                <p className="text-sm text-destructive/80 mt-1">{error}</p>
+              </div>
+              <Button onClick={loadStats} variant="outline" size="sm" className="gap-2">
+                <RefreshCw className="w-4 h-4" />
+                Tentar de novo
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Keyboard Shortcuts Help */}
+      <Card className="bg-muted/30">
+        <CardContent className="p-6">
+          <h3 className="font-semibold mb-3">Atalhos de teclado</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <kbd className="px-2 py-1 bg-background border rounded text-xs font-mono">C</kbd>
+              <span className="text-muted-foreground">Criar Agenda</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <kbd className="px-2 py-1 bg-background border rounded text-xs font-mono">R</kbd>
+              <span className="text-muted-foreground">Recarregar cards</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <kbd className="px-2 py-1 bg-background border rounded text-xs font-mono">G</kbd>
+              <kbd className="px-2 py-1 bg-background border rounded text-xs font-mono">A</kbd>
+              <span className="text-muted-foreground">Ir para Agenda</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
