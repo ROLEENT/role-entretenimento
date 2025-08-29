@@ -186,6 +186,62 @@ interface MediaItem {
   position: number;
 }
 
+// Helper function to convert empty strings to null
+const toNull = <T extends string | undefined>(v: T): T extends string ? string | null : T => {
+  return (v == null || v === '') ? null as any : v as any;
+};
+
+// Build payload for API submission
+const buildPayload = (formData: AgendaFormValues) => ({
+  ...formData.item,
+  title: toNull(formData.item.title),
+  slug: toNull(formData.item.slug),
+  city: toNull(formData.item.city),
+  subtitle: toNull(formData.item.subtitle),
+  summary: toNull(formData.item.summary),
+  cover_url: toNull(formData.item.cover_url),
+  alt_text: toNull(formData.item.alt_text),
+  start_at: toNull(formData.item.start_at),
+  end_at: toNull(formData.item.end_at),
+  ticket_url: toNull(formData.item.ticket_url),
+  source_url: toNull(formData.item.source_url),
+  venue_id: toNull(formData.item.venue_id),
+  organizer_id: toNull(formData.item.organizer_id),
+  event_id: toNull(formData.item.event_id),
+  type: toNull(formData.item.type),
+  anunciante: toNull(formData.item.anunciante),
+  cupom: toNull(formData.item.cupom),
+  meta_title: toNull(formData.item.meta_title),
+  meta_description: toNull(formData.item.meta_description),
+  canonical_url: toNull(formData.item.canonical_url),
+  meta_image_url: toNull(formData.item.meta_image_url),
+  share_text: toNull(formData.item.share_text),
+  editorial_notes: toNull(formData.item.editorial_notes),
+  location_name: toNull(formData.item.location_name),
+  address: toNull(formData.item.address),
+  neighborhood: toNull(formData.item.neighborhood),
+  age_rating: toNull(formData.item.age_rating),
+  publish_at: toNull(formData.item.publish_at),
+  unpublish_at: toNull(formData.item.unpublish_at),
+  preview_token: toNull(formData.item.preview_token),
+  ticket_status: toNull(formData.item.ticket_status),
+  // Keep non-string fields as-is
+  priority: formData.item.priority,
+  status: formData.item.status,
+  visibility_type: formData.item.visibility_type,
+  tags: formData.item.tags,
+  currency: formData.item.currency,
+  accessibility: formData.item.accessibility,
+  noindex: formData.item.noindex,
+  patrocinado: formData.item.patrocinado,
+  latitude: formData.item.latitude,
+  longitude: formData.item.longitude,
+  price_min: formData.item.price_min,
+  price_max: formData.item.price_max,
+  focal_point_x: formData.item.focal_point_x,
+  focal_point_y: formData.item.focal_point_y,
+});
+
 export function AgendaForm({ mode }: AgendaFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -301,7 +357,16 @@ export function AgendaForm({ mode }: AgendaFormProps) {
         setOriginalSlug(currentSlug);
       }
       
-      // Mock save - replace with actual API call
+      // Build payload with proper null conversion
+      const payload = buildPayload(currentFormData);
+      
+      // TODO: Replace with actual API call
+      // const { error } = await supabase
+      //   .from('agenda_itens')
+      //   .upsert(payload);
+      // if (error) throw error;
+      
+      // Mock save for now
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       setHasUnsavedChanges(false);
@@ -707,7 +772,17 @@ export function AgendaForm({ mode }: AgendaFormProps) {
         return;
       }
       
-      // Mock publish - replace with actual API call
+      // Build payload and publish
+      const payload = buildPayload(formData);
+      payload.status = 'published';
+      
+      // TODO: Replace with actual API call  
+      // const { error } = await supabase
+      //   .from('agenda_itens')
+      //   .upsert(payload);
+      // if (error) throw error;
+      
+      // Mock publish for now
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       form.setValue('item.status', 'published');
