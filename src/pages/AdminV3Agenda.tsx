@@ -57,11 +57,26 @@ interface AgendaItem {
 }
 
 const ITEMS_PER_PAGE = 20;
-const CITIES = ['Curitiba', 'São Paulo', 'Rio de Janeiro', 'Florianópolis', 'Porto Alegre'];
-const STATUS_OPTIONS = ['draft', 'published', 'archived'];
-const VISIBILITY_OPTIONS = ['curadoria', 'evento', 'submissao'];
+const CITIES = ['porto_alegre', 'sao_paulo', 'rio_de_janeiro', 'florianopolis', 'curitiba'];
+const STATUS_OPTIONS = ['draft', 'published'];
+const VISIBILITY_OPTIONS = ['curadoria', 'vitrine'];
 
 export default function AdminV3Agenda() {
+  // Development-only error checking for empty SelectItem values
+  if (process.env.NODE_ENV === 'development') {
+    const checkSelectItems = () => {
+      const selectItems = document.querySelectorAll('[data-radix-select-item]');
+      selectItems.forEach((item) => {
+        const value = item.getAttribute('data-value');
+        if (value === '') {
+          console.error('SelectItem vazio encontrado em AdminV3Agenda');
+        }
+      });
+    };
+    
+    // Check after component renders
+    setTimeout(checkSelectItems, 100);
+  }
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   
@@ -74,11 +89,15 @@ export default function AdminV3Agenda() {
     isOpen: false
   });
   
-  // Filters from URL
+  // Helper function to convert empty URL params to sentinel values
+  const fromQuery = (p: URLSearchParams, key: string, fallback = 'all') =>
+    p.get(key) && p.get(key)!.trim() !== '' ? p.get(key)! : fallback;
+
+  // Filters from URL with sentinel values
   const search = searchParams.get('search') || '';
-  const statusFilter = searchParams.get('status') || '';
-  const visibilityFilter = searchParams.get('visibility') || '';
-  const cityFilter = searchParams.get('city') || '';
+  const statusFilter = fromQuery(searchParams, 'status');
+  const visibilityFilter = fromQuery(searchParams, 'visibility');
+  const cityFilter = fromQuery(searchParams, 'city');
   const dateStart = searchParams.get('dateStart') || '';
   const dateEnd = searchParams.get('dateEnd') || '';
   const page = parseInt(searchParams.get('page') || '1');
@@ -92,7 +111,7 @@ export default function AdminV3Agenda() {
     const newParams = new URLSearchParams(searchParams);
     
     Object.entries(updates).forEach(([key, value]) => {
-      if (value === null || value === '') {
+      if (value === null || value === '' || value === 'all') {
         newParams.delete(key);
       } else {
         newParams.set(key, value);
@@ -122,15 +141,15 @@ export default function AdminV3Agenda() {
         query = query.or(`title.ilike.%${search}%,slug.ilike.%${search}%`);
       }
       
-      if (statusFilter) {
+      if (statusFilter && statusFilter !== 'all') {
         query = query.eq('status', statusFilter);
       }
       
-      if (visibilityFilter) {
+      if (visibilityFilter && visibilityFilter !== 'all') {
         query = query.eq('visibility_type', visibilityFilter);
       }
       
-      if (cityFilter) {
+      if (cityFilter && cityFilter !== 'all') {
         query = query.eq('city', cityFilter);
       }
       
@@ -369,38 +388,38 @@ export default function AdminV3Agenda() {
                   </div>
                 </div>
                 
-                <Select value={statusFilter} onValueChange={(value) => updateParams({ status: value })}>
+                <Select value={statusFilter ?? 'all'} onValueChange={(value) => updateParams({ status: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos os status</SelectItem>
+                    <SelectItem value="all">Todos</SelectItem>
                     {STATUS_OPTIONS.map(status => (
-                      <SelectItem key={status} value={status}>{status}</SelectItem>
+                      <SelectItem key={status} value={String(status)}>{status}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 
-                <Select value={visibilityFilter} onValueChange={(value) => updateParams({ visibility: value })}>
+                <Select value={visibilityFilter ?? 'all'} onValueChange={(value) => updateParams({ visibility: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Visibilidade" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todas as visibilidades</SelectItem>
+                    <SelectItem value="all">Todos</SelectItem>
                     {VISIBILITY_OPTIONS.map(visibility => (
-                      <SelectItem key={visibility} value={visibility}>{visibility}</SelectItem>
+                      <SelectItem key={visibility} value={String(visibility)}>{visibility}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 
-                <Select value={cityFilter} onValueChange={(value) => updateParams({ city: value })}>
+                <Select value={cityFilter ?? 'all'} onValueChange={(value) => updateParams({ city: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Cidade" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todas as cidades</SelectItem>
+                    <SelectItem value="all">Todas</SelectItem>
                     {CITIES.map(city => (
-                      <SelectItem key={city} value={city}>{city}</SelectItem>
+                      <SelectItem key={city} value={String(city)}>{city}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -421,7 +440,7 @@ export default function AdminV3Agenda() {
                   onChange={(e) => updateParams({ dateEnd: e.target.value })}
                   className="max-w-xs"
                 />
-                {(search || statusFilter || visibilityFilter || cityFilter || dateStart || dateEnd) && (
+                {(search || (statusFilter && statusFilter !== 'all') || (visibilityFilter && visibilityFilter !== 'all') || (cityFilter && cityFilter !== 'all') || dateStart || dateEnd) && (
                   <Button 
                     variant="outline" 
                     onClick={() => updateParams({ 
