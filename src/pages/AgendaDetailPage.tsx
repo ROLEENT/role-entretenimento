@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, MapPin, Calendar, Clock, Share2, ExternalLink, User, Building } from 'lucide-react';
+import { ArrowLeft, ArrowRight, MapPin, Calendar, Clock, Share2, ExternalLink, User, Building, Music } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
@@ -27,6 +27,7 @@ interface AgendaItem {
   end_at?: string;
   ticket_url?: string;
   tags?: string[];
+  artists_names?: string[];
   meta_title?: string;
   meta_description?: string;
   noindex?: boolean;
@@ -350,6 +351,23 @@ const AgendaDetailPage = () => {
             </section>
           )}
 
+          {/* Line-up */}
+          {item.artists_names && item.artists_names.length > 0 && (
+            <section className="space-y-3">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                <Music className="h-5 w-5" />
+                Line-up
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {item.artists_names.map((artist, index) => (
+                  <Badge key={index} variant="outline" className="bg-primary/5 text-primary border-primary/20">
+                    {artist}
+                  </Badge>
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* Tags */}
           {item.tags && item.tags.length > 0 && (
             <section className="space-y-3">
@@ -363,6 +381,7 @@ const AgendaDetailPage = () => {
               </div>
             </section>
           )}
+
 
           {/* Organizer & Venue Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
