@@ -19,27 +19,37 @@ const HeroSection = () => {
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-7xl mx-auto">
         {/* Main Title - Editorial Typography */}
-        <div className={`${isMobile ? 'mb-16' : 'mb-20'}`}>
-          <h1 className={`font-serif font-bold text-foreground ${isMobile ? 'text-5xl' : 'text-6xl md:text-7xl lg:text-8xl xl:text-9xl'} tracking-tighter leading-[0.85] ${isMobile ? 'mb-8' : 'mb-12'} animate-fade-in`}>
+        <div className="mb-6">
+          <h1 
+            className="font-serif font-bold text-foreground tracking-tighter leading-[1.1] mb-3 animate-fade-in"
+            style={{ fontSize: 'clamp(28px, 6vw, 56px)' }}
+          >
             <span className="block font-black">CURADORIA</span>
             <span className="block font-black">INDEPENDENTE</span>
             <span className="block font-black">DE CULTURA &</span>
-            <span className="block gradient-text font-black">EXPERIÊNCIAS</span>
+            <span className="block font-black" style={{ color: '#c77dff' }}>EXPERIÊNCIAS</span>
           </h1>
           
           {/* Tagline - Centered with max width */}
-          <div className="max-w-3xl mx-auto">
-            <p className={`text-muted-foreground font-medium ${isMobile ? 'text-lg' : 'text-xl md:text-2xl'} leading-relaxed animate-fade-in`} style={{ animationDelay: '0.3s' }}>
+          <div className="max-w-[720px] mx-auto mb-6">
+            <p 
+              className="font-medium leading-relaxed animate-fade-in text-center" 
+              style={{ 
+                animationDelay: '0.3s',
+                color: '#bdbdd2',
+                fontSize: '18px'
+              }}
+            >
               Conectamos pessoas através de experiências culturais autênticas. 
-              <span className="block mt-2">
-                <span className="text-primary font-semibold">Diversidade, afeto e comunidade</span> em todo o Brasil.
+              <span className="block mt-1">
+                <span className="font-semibold" style={{ color: '#c77dff' }}>Diversidade, afeto e comunidade</span> em todo o Brasil.
               </span>
             </p>
           </div>
         </div>
 
         {/* Call-to-Action Buttons */}
-        <div className={`flex ${isMobile ? 'flex-col w-full max-w-sm mx-auto' : 'flex-row justify-center'} gap-6 items-center animate-fade-in`} style={{ animationDelay: '0.6s' }}>
+        <div className="flex flex-row justify-center gap-6 items-center animate-fade-in" style={{ animationDelay: '0.6s' }}>
           <Button
             variant="default"
             size="lg"
