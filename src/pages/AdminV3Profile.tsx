@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { RequireAuth } from '@/components/RequireAuth';
+import { AdminV3Guard } from '@/components/AdminV3Guard';
+import { AdminV3Header } from '@/components/AdminV3Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -314,7 +315,8 @@ export default function AdminV3Profile() {
 
   if (error) {
     return (
-      <RequireAuth>
+      <AdminV3Guard>
+        <AdminV3Header />
         <div className="min-h-screen bg-background p-6">
           <div className="max-w-2xl mx-auto">
             <Card>
@@ -331,12 +333,13 @@ export default function AdminV3Profile() {
             </Card>
           </div>
         </div>
-      </RequireAuth>
+      </AdminV3Guard>
     );
   }
 
   return (
-    <RequireAuth>
+    <AdminV3Guard>
+      <AdminV3Header />
       <div className="min-h-screen bg-background p-6">
         <div className="max-w-2xl mx-auto space-y-6">
           {/* Header */}
@@ -487,6 +490,6 @@ export default function AdminV3Profile() {
           </Card>
         </div>
       </div>
-    </RequireAuth>
+    </AdminV3Guard>
   );
 }

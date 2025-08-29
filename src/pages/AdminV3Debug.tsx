@@ -97,7 +97,7 @@ export default function AdminV3Debug() {
     <AdminV3Guard>
       <div className="min-h-screen bg-background">
         <AdminV3Header />
-        <div className="pt-16 p-6">
+        <div className="p-6">
           <div className="max-w-4xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
               <h1 className="text-3xl font-bold">Admin V3 Debug</h1>

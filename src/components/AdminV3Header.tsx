@@ -174,16 +174,23 @@ export function AdminV3Header() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border h-16 flex items-center justify-between px-6">
-        <div className="flex items-center">
-          <h1 className="text-xl font-bold">Admin v3</h1>
-        </div>
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 items-center justify-between">
+          {/* Left side */}
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/admin-v3')}
+            className="text-lg font-semibold"
+          >
+            Admin v3
+          </Button>
 
-        <div className="flex items-center gap-4">
-          {/* Environment indicator */}
-          <div className="text-xs text-muted-foreground">
-            {projectRef}
-          </div>
+          {/* Right side */}
+          <div className="flex items-center gap-3">
+            {/* Project ref chip */}
+            <div className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
+              {projectRef}
+            </div>
 
           {/* Create agenda button */}
           <Button onClick={handleCreateAgenda} size="sm" className="gap-2">
@@ -193,13 +200,7 @@ export function AdminV3Header() {
 
           {/* User menu */}
           {loading ? (
-            <div className="flex items-center gap-2">
-              <Skeleton className="w-8 h-8 rounded-full" />
-              <div className="space-y-1">
-                <Skeleton className="w-20 h-3" />
-                <Skeleton className="w-16 h-3" />
-              </div>
-            </div>
+            <Skeleton className="h-8 w-8 rounded-full" />
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -243,6 +244,7 @@ export function AdminV3Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+          </div>
         </div>
       </header>
 
