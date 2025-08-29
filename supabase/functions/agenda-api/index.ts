@@ -20,10 +20,23 @@ interface AgendaPayload {
     source_url?: string;
     venue_id?: string;
     organizer_id?: string;
+    event_id?: string;
     status?: 'draft' | 'published';
     visibility_type?: 'curadoria' | 'vitrine';
     priority?: number;
     tags?: string[];
+    type?: string;
+    patrocinado?: boolean;
+    anunciante?: string;
+    cupom?: string;
+    meta_title?: string;
+    meta_description?: string;
+    noindex?: boolean;
+    publish_at?: string;
+    unpublish_at?: string;
+    focal_point_x?: number;
+    focal_point_y?: number;
+    artists_names?: string[];
     [key: string]: any;
   };
   occurrences?: Array<{
@@ -67,6 +80,79 @@ function sanitizeData(obj: any): any {
 function validateUrl(url: string | null): boolean {
   if (!url) return true;
   return url.startsWith('http://') || url.startsWith('https://');
+}
+
+// Generate slug suggestion for conflicts
+function generateSlugSuggestion(baseSlug: string): string {
+  const match = baseSlug.match(/^(.+)-(\d+)$/);
+  if (match) {
+    const [, base, num] = match;
+    return `${base}-${parseInt(num) + 1}`;
+  }
+  return `${baseSlug}-2`;
+}
+
+// Validate duration between dates
+function validateDuration(startAt: string, endAt: string): boolean {
+  const start = new Date(startAt);
+  const end = new Date(endAt);
+  const diffMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+  return diffMinutes >= 15;
+}
+
+// Validate publish data
+function validatePublishData(data: any): string[] {
+  const errors: string[] = [];
+  
+  if (!data.title?.trim()) errors.push('Título é obrigatório');
+  if (!data.slug?.trim()) errors.push('Slug é obrigatório');
+  if (!data.city?.trim()) errors.push('Cidade é obrigatória para publicação');
+  if (!data.start_at) errors.push('Data de início é obrigatória para publicação');
+  if (!data.end_at) errors.push('Data de fim é obrigatória para publicação');
+  if (!data.cover_url?.trim()) errors.push('Capa é obrigatória para publicação');
+  if (!data.alt_text?.trim()) errors.push('Texto alternativo da capa é obrigatório para publicação');
+  
+  if (data.start_at && data.end_at && !validateDuration(data.start_at, data.end_at)) {
+    errors.push('A duração mínima deve ser de 15 minutos');
+  }
+  
+  if (data.ticket_url && !validateUrl(data.ticket_url)) {
+    errors.push('URL de ingressos deve começar com http:// ou https://');
+  }
+  
+  if (data.tags && data.tags.length > 6) {
+    errors.push('Máximo 6 tags permitidas');
+  }
+  
+  if (data.tags?.some((tag: string) => tag.length > 24)) {
+    errors.push('Tags devem ter no máximo 24 caracteres');
+  }
+  
+  if (data.meta_title && data.meta_title.length > 60) {
+    errors.push('Meta título deve ter no máximo 60 caracteres');
+  }
+  
+  if (data.meta_description && data.meta_description.length > 160) {
+    errors.push('Meta descrição deve ter no máximo 160 caracteres');
+  }
+  
+  if (data.artists_names && data.artists_names.length > 12) {
+    errors.push('Máximo 12 artistas permitidos');
+  }
+  
+  if (data.artists_names?.some((name: string) => name.length > 80)) {
+    errors.push('Nomes de artistas devem ter no máximo 80 caracteres');
+  }
+  
+  return errors;
+}
+
+// Clean artists_names array
+function cleanArtistsNames(names?: string[]): string[] {
+  if (!names) return [];
+  return names
+    .map(name => name.trim())
+    .filter(name => name.length > 0);
 }
 
 // Check admin permissions using profiles table
@@ -121,19 +207,26 @@ async function handleGet(supabase: any, url: URL) {
     return { data: data || [] };
   }
 
-  // GET /agenda/slug-exists
-  if (segments.length === 2 && segments[1] === 'slug-exists') {
+  // GET /slug-exists
+  if (segments.length === 1 && segments[0] === 'slug-exists') {
     const slug = url.searchParams.get('slug');
     if (!slug) throw new Error('Slug é obrigatório');
 
     const { data } = await supabase
       .from('agenda_itens')
       .select('id')
-      .eq('slug', slug)
+      .ilike('slug', slug)
       .is('deleted_at', null)
       .single();
 
-    return { exists: !!data };
+    const exists = !!data;
+    const response: any = { exists };
+    
+    if (exists) {
+      response.suggestion = generateSlugSuggestion(slug);
+    }
+
+    return response;
   }
 
   // GET /agenda/:id/preview
@@ -185,6 +278,24 @@ async function handlePost(supabase: any, url: URL, body: any) {
   // POST /agenda/:id/publish
   if (segments.length === 3 && segments[2] === 'publish') {
     const id = segments[1];
+    
+    // Get current item to validate
+    const { data: item, error: fetchError } = await supabase
+      .from('agenda_itens')
+      .select('*')
+      .eq('id', id)
+      .is('deleted_at', null)
+      .single();
+
+    if (fetchError || !item) throw new Error('Item não encontrado');
+
+    // Validate publish requirements
+    const validationErrors = validatePublishData(item);
+    if (validationErrors.length > 0) {
+      const error = new Error('Validation failed');
+      (error as any).fieldErrors = validationErrors;
+      throw error;
+    }
     
     const { data, error } = await supabase
       .from('agenda_itens')
@@ -265,6 +376,20 @@ async function handlePost(supabase: any, url: URL, body: any) {
       throw new Error('Título e slug são obrigatórios');
     }
 
+    // Check for duplicate slug (case-insensitive)
+    const { data: existingSlug } = await supabase
+      .from('agenda_itens')
+      .select('id')
+      .ilike('slug', payload.item.slug)
+      .is('deleted_at', null)
+      .single();
+
+    if (existingSlug) {
+      const error = new Error('Slug já existe');
+      (error as any).suggestion = generateSlugSuggestion(payload.item.slug);
+      throw error;
+    }
+
     if (payload.item.ticket_url && !validateUrl(payload.item.ticket_url)) {
       throw new Error('URL de ingressos inválida');
     }
@@ -273,9 +398,15 @@ async function handlePost(supabase: any, url: URL, body: any) {
       throw new Error('URL de origem inválida');
     }
 
+    // Clean artists_names
+    const cleanedItem = {
+      ...payload.item,
+      artists_names: cleanArtistsNames(payload.item.artists_names)
+    };
+
     // Insert main item
     const itemData = {
-      ...payload.item,
+      ...cleanedItem,
       created_by: user.id,
       updated_by: user.id,
       created_at: new Date().toISOString(),
@@ -351,8 +482,23 @@ async function handlePatch(supabase: any, url: URL, body: any) {
       throw new Error('URL de origem inválida');
     }
 
-    // Save old slug if changed
+    // Check for slug conflicts if slug is being changed
     if (payload.item?.slug && payload.item.slug !== currentItem.slug) {
+      const { data: slugConflict } = await supabase
+        .from('agenda_itens')
+        .select('id')
+        .ilike('slug', payload.item.slug)
+        .neq('id', id)
+        .is('deleted_at', null)
+        .single();
+
+      if (slugConflict) {
+        const error = new Error('Slug já existe');
+        (error as any).suggestion = generateSlugSuggestion(payload.item.slug);
+        throw error;
+      }
+
+      // Save old slug for history
       await supabase
         .from('agenda_slug_history')
         .insert({
@@ -362,9 +508,14 @@ async function handlePatch(supabase: any, url: URL, body: any) {
         });
     }
 
+    // Clean artists_names if provided
+    const cleanedItem = payload.item?.artists_names 
+      ? { ...payload.item, artists_names: cleanArtistsNames(payload.item.artists_names) }
+      : payload.item;
+
     // Update main item
     const itemData = {
-      ...payload.item,
+      ...cleanedItem,
       updated_by: user.id,
       updated_at: new Date().toISOString()
     };
@@ -505,16 +656,34 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('API Error:', error);
+    
+    const errorResponse: any = { 
+      error: error.message || 'Erro interno do servidor',
+      success: false 
+    };
+
+    // Add suggestion for slug conflicts
+    if ((error as any).suggestion) {
+      errorResponse.suggestion = (error as any).suggestion;
+    }
+
+    // Add field errors for validation failures
+    if ((error as any).fieldErrors) {
+      errorResponse.fieldErrors = (error as any).fieldErrors;
+    }
+    
+    let status = 500;
+    if (error.message === 'Não autorizado') status = 401;
+    else if (error.message === 'Permissões insuficientes') status = 403;
+    else if (error.message === 'Item não encontrado') status = 404;
+    else if (error.message === 'Slug já existe') status = 409;
+    else if (error.message === 'Validation failed') status = 400;
+
     return new Response(
-      JSON.stringify({ 
-        error: error.message || 'Erro interno do servidor',
-        success: false 
-      }),
+      JSON.stringify(errorResponse),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: error.message === 'Não autorizado' ? 401 : 
-               error.message === 'Permissões insuficientes' ? 403 :
-               error.message === 'Item não encontrado' ? 404 : 500,
+        status,
       }
     );
   }
