@@ -3543,6 +3543,18 @@ export type Database = {
           total_sent: number
         }[]
       }
+      can_delete_highlight: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      can_edit_highlight: {
+        Args: { highlight_id: string }
+        Returns: boolean
+      }
+      can_publish_highlight: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       can_receive_notification: {
         Args: { p_notification_type: string; p_user_id: string }
         Returns: boolean

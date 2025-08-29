@@ -27,12 +27,16 @@ import { PublishChecklist } from '@/components/highlights/PublishChecklist';
 import { AutosaveIndicator } from '@/components/highlights/AutosaveIndicator';
 import { NavigationGuard } from '@/components/highlights/NavigationGuard';
 import { EditConflictDialog } from '@/components/highlights/EditConflictDialog';
+import { SaveSuccessActions } from '@/components/highlights/SaveSuccessActions';
+import { usePermissions, UserPermissions } from '@/hooks/usePermissions';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, Send, Trash2, Plus, X, AlertCircle } from 'lucide-react';
 
 export default function EditHighlight() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { checkPermissions } = usePermissions();
+  
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -44,6 +48,14 @@ export default function EditHighlight() {
   const [showConflictDialog, setShowConflictDialog] = useState(false);
   const [originalUpdatedAt, setOriginalUpdatedAt] = useState<string | null>(null);
   const [conflictUpdatedAt, setConflictUpdatedAt] = useState<string | null>(null);
+  const [savedHighlightId, setSavedHighlightId] = useState<string | null>(null);
+  const [permissions, setPermissions] = useState<UserPermissions>({
+    canCreate: false,
+    canEdit: false,
+    canPublish: false,
+    canDelete: false,
+    role: 'viewer'
+  });
   
   const form = useForm<HighlightForm>({
     resolver: zodResolver(HighlightFormSchema),
@@ -82,6 +94,19 @@ export default function EditHighlight() {
   const checklist = getPublishChecklist(watchedData);
   const formErrors = form.formState.errors;
   const errorSummary = getErrorSummary(formErrors);
+
+  // Check permissions on mount
+  useEffect(() => {
+    checkPermissions().then(setPermissions);
+  }, [checkPermissions]);
+
+  // Redirect if user doesn't have edit permission
+  useEffect(() => {
+    if (permissions.role && !permissions.canEdit) {
+      toast.error('Você não tem permissão para editar destaques');
+      navigate('/admin-v2/highlights');
+    }
+  }, [permissions, navigate]);
 
   // Validar slug único (excluindo o ID atual)
   const validateSlug = async (slug: string) => {
@@ -175,9 +200,8 @@ export default function EditHighlight() {
         setDataLoaded(true);
         setHasUnsavedChanges(false);
       }
-    } catch (error) {
-      console.error('Erro ao carregar destaque:', error);
-      toast.error('Erro ao carregar destaque');
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao carregar destaque');
       navigate('/admin-v2/highlights');
     } finally {
       setIsLoading(false);
@@ -283,17 +307,22 @@ export default function EditHighlight() {
 
       setHasUnsavedChanges(false);
       setLastSaved(new Date());
+      setSavedHighlightId(id);
 
       toast.success('Destaque atualizado com sucesso!');
-    } catch (error) {
-      console.error('Erro ao salvar:', error);
-      toast.error('Erro ao salvar destaque');
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao salvar destaque');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handlePublish = async (data: HighlightForm) => {
+    if (!permissions.canPublish) {
+      toast.error('Você não tem permissão para publicar destaques');
+      return;
+    }
+
     // Validar slug único antes de publicar
     if (data.slug && !(await validateSlug(data.slug))) {
       toast.error('Slug deve ser único para publicar');
@@ -335,12 +364,12 @@ export default function EditHighlight() {
       }
 
       setHasUnsavedChanges(false);
+      setSavedHighlightId(id);
 
       toast.success('Destaque publicado com sucesso!');
       navigate('/admin-v2/highlights');
-    } catch (error) {
-      console.error('Erro ao publicar:', error);
-      toast.error('Erro ao publicar destaque');
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao publicar destaque');
     } finally {
       setIsLoading(false);
     }
@@ -354,6 +383,11 @@ export default function EditHighlight() {
   };
 
   const handleDelete = async () => {
+    if (!permissions.canDelete) {
+      toast.error('Você não tem permissão para excluir destaques');
+      return;
+    }
+
     if (!id) return;
     
     if (!confirm('Tem certeza que deseja excluir este destaque?')) {
@@ -372,9 +406,8 @@ export default function EditHighlight() {
 
       toast.success('Destaque excluído com sucesso!');
       navigate('/admin-v2/highlights');
-    } catch (error) {
-      console.error('Erro ao excluir:', error);
-      toast.error('Erro ao excluir destaque');
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao excluir destaque');
     } finally {
       setIsDeleting(false);
     }
@@ -418,14 +451,14 @@ export default function EditHighlight() {
                 variant="outline" 
                 size="sm" 
                 onClick={form.handleSubmit(handleSave)} 
-                disabled={isLoading}
+                disabled={isLoading || !permissions.canEdit}
               >
                 {isLoading ? <LoadingSpinner className="mr-2 h-4 w-4" /> : <Save className="mr-2 h-4 w-4" />}
                 Salvar
               </Button>
               <Button 
                 onClick={form.handleSubmit(handlePublish)} 
-                disabled={isLoading || !checklist.canPublish}
+                disabled={isLoading || !checklist.canPublish || !permissions.canPublish}
               >
                 <Send className="mr-2 h-4 w-4" />
                 Publicar
@@ -434,7 +467,7 @@ export default function EditHighlight() {
                 variant="outline" 
                 size="sm" 
                 onClick={form.handleSubmit(handleSaveAndReturn)} 
-                disabled={isLoading}
+                disabled={isLoading || !permissions.canEdit}
               >
                 Salvar + Voltar
               </Button>
@@ -456,7 +489,7 @@ export default function EditHighlight() {
                 variant="destructive" 
                 size="sm" 
                 onClick={handleDelete}
-                disabled={isDeleting}
+                disabled={isDeleting || !permissions.canDelete}
               >
                 {isDeleting ? <LoadingSpinner className="mr-2 h-4 w-4" /> : <Trash2 className="mr-2 h-4 w-4" />}
                 Excluir
@@ -470,6 +503,15 @@ export default function EditHighlight() {
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Quality Badges */}
         <QualityBadges data={watchedData} slugError={slugError} />
+
+        {/* Success Actions */}
+        {savedHighlightId && (
+          <SaveSuccessActions 
+            highlightId={savedHighlightId}
+            status={watchedData.status}
+            onClose={() => setSavedHighlightId(null)}
+          />
+        )}
 
         {/* Resumo de erros */}
         {errorSummary.length > 0 && (
