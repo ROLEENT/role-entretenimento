@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, FileText, Clock, TrendingUp, RefreshCw, AlertTriangle, Plus, Info, ExternalLink } from 'lucide-react';
+import { Calendar, FileText, Clock, TrendingUp, RefreshCw, AlertTriangle, Plus, Info, ExternalLink, Users } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
@@ -446,6 +446,41 @@ function DashboardContent() {
           </CardContent>
         </Card>
       )}
+
+      {/* Quick Actions */}
+      <Card className="bg-muted/30">
+        <CardHeader>
+          <CardTitle className="text-lg">Acesso Rápido</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 pt-0">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Button 
+              variant="outline" 
+              className="h-24 flex-col gap-2 bg-background hover:bg-muted"
+              onClick={() => navigate('/admin-v3/agenda')}
+            >
+              <Calendar className="w-6 h-6" />
+              <span>Ver Agenda</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-24 flex-col gap-2 bg-background hover:bg-muted"
+              onClick={() => navigate('/admin-v3/artists')}
+            >
+              <Users className="w-6 h-6" />
+              <span>Gerenciar Artistas</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-24 flex-col gap-2 bg-background hover:bg-muted"
+              onClick={() => navigate('/admin-v3/agentes')}
+            >
+              <Users className="w-6 h-6" />
+              <span>Criar Agentes</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Keyboard Shortcuts Help */}
       <Card className="bg-muted/30">
