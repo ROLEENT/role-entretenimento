@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, FileText, Clock, TrendingUp, RefreshCw, AlertTriangle, Plus } from 'lucide-react';
+import { Calendar, FileText, Clock, TrendingUp, RefreshCw, AlertTriangle, Plus, Info, ExternalLink } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 
 interface DashboardStats {
@@ -178,6 +179,31 @@ function DashboardContent() {
     });
   };
 
+  const getEmptyState = (title: string) => {
+    switch (title) {
+      case 'Publicados':
+        return {
+          text: 'Sem itens publicados',
+          buttonText: 'Criar Agenda',
+          action: () => navigate('/admin-v3/agenda/create')
+        };
+      case 'Hoje':
+        return {
+          text: 'Nenhum evento hoje',
+          buttonText: 'Ver todos',
+          action: () => handleCardClick('published')
+        };
+      case 'Próximos 7 dias':
+        return {
+          text: 'Nada nesta semana',
+          buttonText: 'Ver Agenda',
+          action: () => navigate('/admin-v3/agenda')
+        };
+      default:
+        return null;
+    }
+  };
+
   const StatCard = ({ 
     title, 
     value, 
@@ -198,86 +224,131 @@ function DashboardContent() {
     isLoading: boolean;
     hasError: boolean;
     tooltipText: string;
-  }) => (
-    <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-background to-muted/30 hover:shadow-lg transition-shadow duration-200">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Icon className="h-5 w-5 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">{title}</span>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onReload();
-            }}
-            disabled={isLoading}
-            className="h-8 w-8 p-0 hover:bg-muted"
-          >
-            <RefreshCw className={`h-3 w-3 ${isLoading ? 'animate-spin' : ''}`} />
-          </Button>
-        </div>
-        
-        {isLoading ? (
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-16" />
-            <Skeleton className="h-4 w-24" />
-          </div>
-        ) : hasError ? (
-          <div className="flex flex-col items-center gap-3 py-4">
-            <AlertTriangle className="h-8 w-8 text-destructive" />
-            <span className="text-sm text-destructive">Erro ao carregar</span>
+  }) => {
+    const emptyState = getEmptyState(title);
+    const showEmptyState = !isLoading && !hasError && value === 0 && emptyState;
+
+    return (
+      <Card className="shadow-md rounded-xl border-0 bg-gradient-to-br from-background to-muted/30 hover:shadow-lg transition-shadow duration-200">
+        <CardContent className="p-6">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Icon className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">{title}</span>
+            </div>
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
                 onReload();
               }}
-              className="gap-2"
+              disabled={isLoading}
+              className="h-8 w-8 p-0 hover:bg-muted"
             >
-              <RefreshCw className="h-3 w-3" />
-              Tentar de novo
+              <RefreshCw className={`h-3 w-3 ${isLoading ? 'animate-spin' : ''}`} />
             </Button>
           </div>
-        ) : (
-          <>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  onClick={onCardClick}
-                  className="text-left w-full group"
-                >
-                  <div className="text-3xl font-bold mb-1 group-hover:text-primary transition-colors cursor-pointer">
-                    {value.toLocaleString()}
-                  </div>
-                  <p className="text-sm text-muted-foreground">{description}</p>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{tooltipText}</p>
-              </TooltipContent>
-            </Tooltip>
-            
-            {/* Timestamp footer */}
-            <div className="mt-4 pt-3 border-t border-border/50">
-              <p className="text-xs text-muted-foreground">
-                Atualizado às {stats.lastUpdated ? stats.lastUpdated.toLocaleTimeString('pt-BR', { 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
-                }) : '--:--'}
-              </p>
+          
+          {isLoading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-16" />
+              <Skeleton className="h-4 w-24" />
             </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
-  );
+          ) : hasError ? (
+            <div className="flex flex-col items-center gap-3 py-4">
+              <AlertTriangle className="h-8 w-8 text-destructive" />
+              <span className="text-sm text-destructive">Erro ao carregar</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onReload();
+                }}
+                className="gap-2"
+              >
+                <RefreshCw className="h-3 w-3" />
+                Tentar de novo
+              </Button>
+            </div>
+          ) : showEmptyState ? (
+            <div className="flex flex-col items-center gap-3 py-4 text-center">
+              <Icon className="h-12 w-12 text-muted-foreground opacity-50" />
+              <div>
+                <p className="text-sm text-muted-foreground mb-3">{emptyState.text}</p>
+                <Button
+                  size="sm"
+                  onClick={emptyState.action}
+                  className="gap-2"
+                >
+                  {emptyState.buttonText}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button 
+                    onClick={onCardClick}
+                    className="text-left w-full group"
+                  >
+                    <div className="text-3xl font-bold mb-1 group-hover:text-primary transition-colors cursor-pointer">
+                      {value.toLocaleString()}
+                    </div>
+                    <p className="text-sm text-muted-foreground">{description}</p>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{tooltipText}</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              {/* Timestamp footer */}
+              <div className="mt-4 pt-3 border-t border-border/50">
+                <p className="text-xs text-muted-foreground">
+                  Atualizado às {stats.lastUpdated ? stats.lastUpdated.toLocaleTimeString('pt-BR', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                  }) : '--:--'}
+                </p>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="space-y-8">
+      {/* Scheduling Jobs Warning */}
+      <Alert className="border-amber-500/50 bg-amber-50 dark:bg-amber-950/20">
+        <Info className="h-4 w-4" />
+        <AlertDescription className="flex items-center justify-between">
+          <span className="text-sm">
+            Jobs de agendamento estão desativados. Alguns recursos podem não funcionar corretamente.
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            asChild
+            className="gap-1 text-amber-700 dark:text-amber-300 hover:text-amber-800 dark:hover:text-amber-200"
+          >
+            <a 
+              href="https://docs.lovable.dev/features/scheduling-jobs" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-1"
+            >
+              Ver docs
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          </Button>
+        </AlertDescription>
+      </Alert>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
