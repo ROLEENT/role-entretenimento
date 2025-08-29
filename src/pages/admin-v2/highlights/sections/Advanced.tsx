@@ -27,13 +27,13 @@ export function AdvancedSection({ form }: AdvancedSectionProps) {
       return;
     }
     
-    if (currentTags.length >= 10) {
-      toast.error('Máximo de 10 tags');
+    if (currentTags.length >= 6) {
+      toast.error('Máximo de 6 tags');
       return;
     }
     
-    if (trimmedTag.length > 30) {
-      toast.error('Tag deve ter no máximo 30 caracteres');
+    if (trimmedTag.length > 24) {
+      toast.error('Tag deve ter no máximo 24 caracteres');
       return;
     }
 
@@ -73,25 +73,27 @@ export function AdvancedSection({ form }: AdvancedSectionProps) {
           
           <div className="flex gap-2">
             <Input
-              placeholder="Adicionar tag..."
+              placeholder="Adicionar tag... (máx 24 chars)"
               value={newTag}
+              maxLength={24}
               onChange={(e) => setNewTag(e.target.value)}
               onKeyPress={handleKeyPress}
               className="flex-1"
+              disabled={tags.length >= 6}
             />
             <Button 
               type="button" 
               variant="outline" 
               size="sm"
               onClick={addTag}
-              disabled={!newTag.trim()}
+              disabled={!newTag.trim() || tags.length >= 6}
             >
               <Plus className="h-4 w-4" />
             </Button>
           </div>
           
           <FormDescription>
-            Tags ajudam na organização e busca. Máximo 10 tags.
+            Tags ajudam na organização e busca. Máximo 6 tags de até 24 caracteres cada.
           </FormDescription>
           
           {tags.length > 0 && (

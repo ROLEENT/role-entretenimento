@@ -9,6 +9,8 @@ import { Calendar } from 'lucide-react';
 
 interface BasicSectionProps {
   form: UseFormReturn<HighlightForm>;
+  slugError?: string | null;
+  onSlugChange?: (slug: string) => void;
 }
 
 const cities = [
@@ -19,7 +21,7 @@ const cities = [
   { value: 'rio_de_janeiro', label: 'Rio de Janeiro' },
 ];
 
-export function BasicSection({ form }: BasicSectionProps) {
+export function BasicSection({ form, slugError, onSlugChange }: BasicSectionProps) {
   return (
     <Card>
       <CardHeader>
@@ -51,11 +53,20 @@ export function BasicSection({ form }: BasicSectionProps) {
             <FormItem>
               <FormLabel>Slug (URL) *</FormLabel>
               <FormControl>
-                <Input placeholder="url-amigavel" {...field} />
+                <Input 
+                  placeholder="url-amigavel" 
+                  {...field}
+                  className={slugError ? "border-destructive" : ""}
+                  onBlur={(e) => {
+                    field.onBlur();
+                    if (onSlugChange) onSlugChange(e.target.value);
+                  }}
+                />
               </FormControl>
               <FormDescription>
                 Gerado automaticamente. Deve ser único.
               </FormDescription>
+              {slugError && <div className="text-sm text-destructive">{slugError}</div>}
               <FormMessage />
             </FormItem>
           )}
