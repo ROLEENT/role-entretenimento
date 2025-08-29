@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminV3Guard } from '@/components/AdminV3Guard';
+import { AdminV3Header } from '@/components/AdminV3Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { Calendar, FileText, RotateCcw, Plus } from 'lucide-react';
+import { Calendar, FileText, RotateCcw, Plus, RefreshCw, Clock, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface DashboardStats {
   drafts: number;
   published: number;
   today: number;
-  nextWeek: number;
+  thisWeek: number;
 }
 
 function DashboardContent() {
@@ -19,7 +20,7 @@ function DashboardContent() {
     drafts: 0,
     published: 0,
     today: 0,
-    nextWeek: 0
+    thisWeek: 0
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -71,7 +72,7 @@ function DashboardContent() {
         drafts: draftsCount || 0,
         published: publishedCount || 0,
         today: todayCount || 0,
-        nextWeek: nextWeekCount || 0
+        thisWeek: nextWeekCount || 0
       });
 
     } catch (err) {
@@ -174,7 +175,7 @@ function DashboardContent() {
           
           <StatCard
             title="Próximos 7 dias"
-            value={stats.nextWeek}
+            value={stats.thisWeek}
             icon={Calendar}
             isLoading={loading}
           />
@@ -187,7 +188,14 @@ function DashboardContent() {
 export default function AdminV3Dashboard() {
   return (
     <AdminV3Guard>
-      <DashboardContent />
+      <div className="min-h-screen bg-background">
+        <AdminV3Header />
+        <div className="pt-16 p-6">
+          <div className="max-w-7xl mx-auto">
+            <DashboardContent />
+          </div>
+        </div>
+      </div>
     </AdminV3Guard>
   );
 }

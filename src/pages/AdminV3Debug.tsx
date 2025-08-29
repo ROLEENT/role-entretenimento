@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { AdminV3Guard } from '@/components/AdminV3Guard';
+import { AdminV3Header } from '@/components/AdminV3Header';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +15,7 @@ export default function AdminV3Debug() {
   const [profileError, setProfileError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const projectRef = import.meta.env.VITE_SUPABASE_URL?.split('//')[1]?.split('.')[0] || 'unknown';
+  const projectRef = 'nutlcbnruabjsxecqpnd'; // Current project ref
 
   const fetchProfileRole = async () => {
     if (!session?.user?.id) return;
@@ -92,94 +94,99 @@ export default function AdminV3Debug() {
   }
 
   return (
-    <div className="min-h-screen p-6 bg-background">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Admin V3 Debug</h1>
-          <div className="space-x-2">
-            <Button onClick={reloadSession} variant="outline">
-              Recarregar Sessão
-            </Button>
-            <Button onClick={fetchProfileRole} variant="outline">
-              Reconsultar Profile
-            </Button>
-            <Button onClick={handleSignOut} variant="destructive">
-              Sair
-            </Button>
+    <AdminV3Guard>
+      <div className="min-h-screen bg-background">
+        <AdminV3Header />
+        <div className="pt-16 p-6">
+          <div className="max-w-4xl mx-auto space-y-6">
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl font-bold">Admin V3 Debug</h1>
+              <div className="space-x-2">
+                <Button onClick={reloadSession} variant="outline">
+                  Recarregar Sessão
+                </Button>
+                <Button onClick={fetchProfileRole} variant="outline">
+                  Reconsultar Profile
+                </Button>
+                <Button onClick={handleSignOut} variant="destructive">
+                  Sair
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Informações da Sessão */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Informações da Sessão</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <strong>User ID:</strong>
+                    <p className="font-mono text-sm bg-muted p-2 rounded mt-1">
+                      {session?.user?.id || 'null'}
+                    </p>
+                  </div>
+                  <div>
+                    <strong>Email:</strong>
+                    <p className="font-mono text-sm bg-muted p-2 rounded mt-1">
+                      {session?.user?.email || 'null'}
+                    </p>
+                  </div>
+                  <div>
+                    <strong>Project Ref:</strong>
+                    <p className="font-mono text-sm bg-muted p-2 rounded mt-1">
+                      {projectRef}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Informações do Profile */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Profile Role</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {profileLoading ? (
+                    <LoadingSpinner size="sm" text="Consultando profile..." />
+                  ) : profileError ? (
+                    <div className="text-destructive">
+                      <p className="font-semibold">Erro:</p>
+                      <p className="text-sm mt-1">{profileError}</p>
+                    </div>
+                  ) : (
+                    <div>
+                      <strong>Role:</strong>
+                      <p className="font-mono text-sm bg-muted p-2 rounded mt-1">
+                        {profileRole}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Informações de Debug Adicionais */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Detalhes Técnicos</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div>
+                  <strong>Sessão Válida:</strong> {session ? 'Sim' : 'Não'}
+                </div>
+                <div>
+                  <strong>Timestamp:</strong> {new Date().toISOString()}
+                </div>
+                <div>
+                  <strong>URL Atual:</strong> {window.location.href}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
-
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Informações da Sessão */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Informações da Sessão</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <strong>User ID:</strong>
-                <p className="font-mono text-sm bg-muted p-2 rounded mt-1">
-                  {session?.user?.id || 'null'}
-                </p>
-              </div>
-              <div>
-                <strong>Email:</strong>
-                <p className="font-mono text-sm bg-muted p-2 rounded mt-1">
-                  {session?.user?.email || 'null'}
-                </p>
-              </div>
-              <div>
-                <strong>Project Ref:</strong>
-                <p className="font-mono text-sm bg-muted p-2 rounded mt-1">
-                  {projectRef}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Informações do Profile */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Profile Role</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {profileLoading ? (
-                <LoadingSpinner size="sm" text="Consultando profile..." />
-              ) : profileError ? (
-                <div className="text-destructive">
-                  <p className="font-semibold">Erro:</p>
-                  <p className="text-sm mt-1">{profileError}</p>
-                </div>
-              ) : (
-                <div>
-                  <strong>Role:</strong>
-                  <p className="font-mono text-sm bg-muted p-2 rounded mt-1">
-                    {profileRole}
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Informações de Debug Adicionais */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Detalhes Técnicos</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div>
-              <strong>Sessão Válida:</strong> {session ? 'Sim' : 'Não'}
-            </div>
-            <div>
-              <strong>Timestamp:</strong> {new Date().toISOString()}
-            </div>
-            <div>
-              <strong>URL Atual:</strong> {window.location.href}
-            </div>
-          </CardContent>
-        </Card>
       </div>
-    </div>
+    </AdminV3Guard>
   );
 }

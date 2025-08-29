@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminV3Guard } from '@/components/AdminV3Guard';
+import { AdminV3Header } from '@/components/AdminV3Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -320,20 +321,23 @@ export default function AdminV3Agenda() {
   if (error) {
     return (
       <AdminV3Guard>
-        <div className="min-h-screen p-6 bg-background">
-          <div className="max-w-7xl mx-auto">
-            <Card>
-              <CardContent className="p-8 text-center">
-                <div className="text-destructive mb-4">
-                  <p className="font-semibold">Erro ao carregar dados</p>
-                  <p className="text-sm mt-1">{error}</p>
-                </div>
-                <Button onClick={fetchData} variant="outline" className="gap-2">
-                  <RefreshCw className="w-4 h-4" />
-                  Recarregar
-                </Button>
-              </CardContent>
-            </Card>
+        <div className="min-h-screen bg-background">
+          <AdminV3Header />
+          <div className="pt-16 p-6">
+            <div className="max-w-7xl mx-auto">
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <div className="text-destructive mb-4">
+                    <p className="font-semibold">Erro ao carregar dados</p>
+                    <p className="text-sm mt-1">{error}</p>
+                  </div>
+                  <Button onClick={fetchData} variant="outline" className="gap-2">
+                    <RefreshCw className="w-4 h-4" />
+                    Recarregar
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </AdminV3Guard>
@@ -342,7 +346,9 @@ export default function AdminV3Agenda() {
 
   return (
     <AdminV3Guard>
-      <div className="min-h-screen p-6 bg-background">
+      <div className="min-h-screen bg-background">
+        <AdminV3Header />
+        <div className="pt-16 p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -613,6 +619,7 @@ export default function AdminV3Agenda() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+        </div>
         </div>
       </div>
     </AdminV3Guard>
