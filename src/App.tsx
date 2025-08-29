@@ -15,6 +15,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 // Preview component
 const PreviewAgenda = lazy(() => import("./pages/PreviewAgenda"));
 const ChecklistTest = lazy(() => import("./pages/ChecklistTest"));
+const AgendaFormIntegrationTest = lazy(() => import("./components/AgendaFormIntegrationTest"));
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
 const About = lazy(() => import("./pages/About"));
@@ -123,6 +124,7 @@ function App() {
                 
                 {/* Test Routes */}
                 <Route path="/test/checklist" element={<ChecklistTest />} />
+                <Route path="/test/agenda-integration" element={<AgendaFormIntegrationTest />} />
                 
                 {/* Destaques Routes */}
                 <Route path="/destaques" element={<DestaquesHub />} />

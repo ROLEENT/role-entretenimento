@@ -51,6 +51,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { OrganizerCombobox } from '@/components/OrganizerCombobox';
+import { VenueCombobox } from '@/components/VenueCombobox';
 import { 
   CITY_OPTIONS, 
   VISIBILITY_OPTIONS,
@@ -1273,10 +1275,9 @@ export function AgendaForm({ mode, initialData }: AgendaFormProps) {
                         <FormItem>
                           <FormLabel>Organizador (opcional)</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="ID do organizador"
-                              readOnly
+                            <OrganizerCombobox
+                              value={field.value}
+                              onValueChange={field.onChange}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1291,10 +1292,9 @@ export function AgendaForm({ mode, initialData }: AgendaFormProps) {
                         <FormItem>
                           <FormLabel>Local (opcional)</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="ID do local"
-                              readOnly
+                            <VenueCombobox
+                              value={field.value}
+                              onValueChange={field.onChange}
                             />
                           </FormControl>
                           <FormMessage />
