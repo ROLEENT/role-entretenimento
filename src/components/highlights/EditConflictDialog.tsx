@@ -1,59 +1,91 @@
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { RefreshCw, AlertTriangle } from 'lucide-react';
+import { 
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogCancel, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle 
+} from '@/components/ui/alert-dialog';
 
 interface EditConflictDialogProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
+  open: boolean;
   onReload: () => void;
   onOverwrite: () => void;
-  lastModified?: string;
+  conflictData?: {
+    currentUpdatedAt: string;
+    serverUpdatedAt: string;
+    updatedBy?: string;
+  };
 }
 
 export const EditConflictDialog = ({ 
-  isOpen, 
-  onOpenChange, 
+  open, 
   onReload, 
-  onOverwrite,
-  lastModified 
+  onOverwrite, 
+  conflictData 
 }: EditConflictDialogProps) => {
+  const formatDateTime = (dateStr: string) => {
+    try {
+      return new Date(dateStr).toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
   return (
-    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
+    <AlertDialog open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-orange-500" />
-            Conflito de edição detectado
+          <AlertDialogTitle className="text-destructive">
+            Conflito de Edição Detectado
           </AlertDialogTitle>
-          <AlertDialogDescription className="space-y-2">
+          <AlertDialogDescription className="space-y-3">
             <p>
-              Este destaque foi modificado por outro usuário enquanto você estava editando.
+              Este item foi modificado por outra pessoa enquanto você o editava.
             </p>
-            {lastModified && (
-              <p className="text-sm text-muted-foreground">
-                Última modificação: {new Date(lastModified).toLocaleString('pt-BR')}
-              </p>
+            
+            {conflictData && (
+              <div className="bg-muted p-3 rounded-md text-sm space-y-2">
+                <div>
+                  <strong>Sua versão:</strong>{' '}
+                  {formatDateTime(conflictData.currentUpdatedAt)}
+                </div>
+                <div>
+                  <strong>Versão no servidor:</strong>{' '}
+                  {formatDateTime(conflictData.serverUpdatedAt)}
+                  {conflictData.updatedBy && (
+                    <span className="text-muted-foreground">
+                      {' '}(por {conflictData.updatedBy})
+                    </span>
+                  )}
+                </div>
+              </div>
             )}
-            <p className="font-medium">
-              Escolha uma das opções abaixo:
+            
+            <p className="text-sm text-muted-foreground">
+              <strong>Recarregar:</strong> Perde suas alterações e carrega a versão mais recente.<br/>
+              <strong>Sobrescrever:</strong> Mantém suas alterações e sobrescreve a versão no servidor.
             </p>
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-          <Button 
-            variant="outline" 
-            onClick={onReload}
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Recarregar dados atuais
-          </Button>
+        
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={onReload}>
+            🔄 Recarregar
+          </AlertDialogCancel>
           <AlertDialogAction 
             onClick={onOverwrite}
-            className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700"
+            className="bg-destructive hover:bg-destructive/90"
           >
-            <AlertTriangle className="w-4 h-4" />
-            Sobrescrever mesmo assim
+            ⚠️ Sobrescrever
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

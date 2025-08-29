@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/select';
 import { VenueAutocomplete } from '@/components/ui/venue-autocomplete';
 import { OrganizerAutocomplete } from '@/components/ui/organizer-autocomplete';
+import { EditConflictDialog } from '@/components/highlights/EditConflictDialog';
 import { 
   Save, 
   Send, 
@@ -48,11 +49,18 @@ import {
   MapPin,
   Minus,
   Image as ImageIcon,
-  GripVertical
+  GripVertical,
+  Eye,
+  AlertTriangle
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useAutosave } from '@/hooks/useAutosave';
+import { useNavigationGuard } from '@/hooks/useNavigationGuard';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useSlugHistory } from '@/hooks/useSlugHistory';
+import { usePreviewToken } from '@/hooks/usePreviewToken';
 import { 
   CITY_OPTIONS, 
   VISIBILITY_OPTIONS,
@@ -107,6 +115,14 @@ export function AgendaForm({ mode }: AgendaFormProps) {
   const [publishing, setPublishing] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [originalSlug, setOriginalSlug] = useState<string>('');
+  const [currentUpdatedAt, setCurrentUpdatedAt] = useState<string>('');
+  const [showConflictDialog, setShowConflictDialog] = useState(false);
+  const [conflictData, setConflictData] = useState<any>(null);
+
+  // Advanced features hooks
+  const { saveSlugChange } = useSlugHistory();
+  const { openSecurePreview, isGenerating: isGeneratingPreview } = usePreviewToken();
 
   const form = useForm<AgendaDraftData>({
     resolver: zodResolver(AgendaDraftSchema),
@@ -133,6 +149,121 @@ export function AgendaForm({ mode }: AgendaFormProps) {
     },
   });
 
+  // Watch form data for advanced features
+  const formData = form.watch();
+  const isDraft = form.watch('item.status') === 'draft';
+
+  // Form actions (need to be defined before hooks)
+  const handleSaveDraft = async (data?: any): Promise<void> => {
+    try {
+      setSaving(true);
+      
+      const currentFormData = data || form.getValues();
+      
+      // Check for slug change and save history
+      const currentSlug = currentFormData.item?.slug;
+      if (mode === 'edit' && originalSlug && currentSlug !== originalSlug) {
+        await saveSlugChange(id!, originalSlug);
+        setOriginalSlug(currentSlug);
+      }
+      
+      // Mock save - replace with actual API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setHasUnsavedChanges(false);
+      setLastSaved(new Date());
+    } catch (error) {
+      // Check for conflict
+      if (error instanceof Error && error.message.includes('conflict')) {
+        setConflictData({
+          currentUpdatedAt: currentUpdatedAt,
+          serverUpdatedAt: new Date().toISOString(),
+          updatedBy: 'Outro usuário'
+        });
+        setShowConflictDialog(true);
+        throw error;
+      }
+      
+      toast({
+        title: "Erro ao salvar",
+        variant: "destructive"
+      });
+      throw error;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (hasUnsavedChanges) {
+      if (confirm('Há alterações não salvas. Deseja realmente sair?')) {
+        navigate('/admin-v3/agenda');
+      }
+    } else {
+      navigate('/admin-v3/agenda');
+    }
+  };
+
+  const handleDuplicate = async () => {
+    try {
+      // Mock duplicate - replace with actual API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: "Item duplicado"
+      });
+      
+      navigate('/admin-v3/agenda');
+    } catch (error) {
+      toast({
+        title: "Erro ao duplicar",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      // Mock delete - replace with actual API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: "Item excluído"
+      });
+      
+      navigate('/admin-v3/agenda');
+    } catch (error) {
+      toast({
+        title: "Erro ao excluir",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Advanced features hooks (after functions are defined)
+  const { hasChanges: hasAutosaveChanges } = useAutosave({
+    data: formData,
+    onSave: handleSaveDraft,
+    enabled: true,
+    isDraft,
+  });
+
+  useNavigationGuard({
+    hasUnsavedChanges: hasUnsavedChanges || hasAutosaveChanges,
+  });
+
+  useKeyboardShortcuts({
+    onSave: () => handleSaveDraft(),
+    onCancel: handleCancel,
+    onDuplicate: mode === 'edit' ? handleDuplicate : () => {},
+    onDelete: mode === 'edit' ? () => {
+      if (confirm('Deseja realmente excluir este item?')) {
+        handleDelete();
+      }
+    } : () => {},
+    enabled: true,
+  });
+
   // Watch form changes
   useEffect(() => {
     const subscription = form.watch(() => {
@@ -153,16 +284,6 @@ export function AgendaForm({ mode }: AgendaFormProps) {
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasUnsavedChanges]);
-
-  const handleCancel = () => {
-    if (hasUnsavedChanges) {
-      if (confirm('Há alterações não salvas. Deseja realmente sair?')) {
-        navigate('/admin-v3/agenda');
-      }
-    } else {
-      navigate('/admin-v3/agenda');
-    }
-  };
 
   const generateSlug = (title: string) => {
     return title
@@ -220,7 +341,6 @@ export function AgendaForm({ mode }: AgendaFormProps) {
       }
     }
   };
-
   // Convert dates between local and UTC
   const toLocalDateTime = (utcString?: string) => {
     if (!utcString) return '';
@@ -410,30 +530,7 @@ export function AgendaForm({ mode }: AgendaFormProps) {
     return diffMinutes >= 15;
   };
 
-  // Form actions
-  const handleSaveDraft = async () => {
-    try {
-      setSaving(true);
-      
-      // Mock save - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setHasUnsavedChanges(false);
-      setLastSaved(new Date());
-      setSaving(false);
-      
-      toast({
-        title: "Rascunho salvo"
-      });
-    } catch (error) {
-      setSaving(false);
-      toast({
-        title: "Erro ao salvar",
-        variant: "destructive"
-      });
-    }
-  };
-
+  // Additional form actions
   const handlePublish = async () => {
     try {
       setPublishing(true);
@@ -444,17 +541,17 @@ export function AgendaForm({ mode }: AgendaFormProps) {
       form.setValue('item.status', 'published');
       setHasUnsavedChanges(false);
       setLastSaved(new Date());
-      setPublishing(false);
       
       toast({
         title: "Item publicado"
       });
     } catch (error) {
-      setPublishing(false);
       toast({
         title: "Erro ao publicar",
         variant: "destructive"
       });
+    } finally {
+      setPublishing(false);
     }
   };
 
@@ -474,37 +571,59 @@ export function AgendaForm({ mode }: AgendaFormProps) {
     }
   };
 
-  const handleDuplicate = async () => {
+
+  // Conflict resolution handlers
+  const handleReloadData = async () => {
+    // Mock reload - replace with actual API call
     try {
-      // Mock duplicate - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const freshData = {}; // Load fresh data from server
+      form.reset(freshData);
+      setShowConflictDialog(false);
+      setHasUnsavedChanges(false);
       toast({
-        title: "Item duplicado"
+        title: "Dados recarregados",
+        description: "Os dados mais recentes foram carregados do servidor."
       });
-      
-      navigate('/admin-v3/agenda');
     } catch (error) {
       toast({
-        title: "Erro ao duplicar",
+        title: "Erro ao recarregar",
         variant: "destructive"
       });
     }
   };
 
-  const handleDelete = async () => {
+  const handleOverwriteData = async () => {
+    setShowConflictDialog(false);
     try {
-      // Mock delete - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await handleSaveDraft();
       toast({
-        title: "Item excluído"
+        title: "Dados sobrescritos",
+        description: "Suas alterações foram salvas com sucesso."
       });
-      
-      navigate('/admin-v3/agenda');
     } catch (error) {
+      // Error already handled in handleSaveDraft
+    }
+  };
+
+  const handlePreview = async () => {
+    const currentData = form.getValues();
+    const slug = currentData.item?.slug;
+    
+    if (!slug) {
       toast({
-        title: "Erro ao excluir",
+        title: "Slug necessário",
+        description: "Defina um slug antes de visualizar.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (mode === 'edit' && id) {
+      await openSecurePreview(id, slug);
+    } else {
+      toast({
+        title: "Salve primeiro",
+        description: "Salve o item antes de visualizar.",
         variant: "destructive"
       });
     }
@@ -512,6 +631,13 @@ export function AgendaForm({ mode }: AgendaFormProps) {
 
   return (
     <div className="space-y-6">
+      {/* Edit Conflict Dialog */}
+      <EditConflictDialog
+        open={showConflictDialog}
+        onReload={handleReloadData}
+        onOverwrite={handleOverwriteData}
+        conflictData={conflictData}
+      />
       {/* Fixed Header */}
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b p-4 -mx-6 mb-6">
         <div className="max-w-7xl mx-auto">
@@ -574,6 +700,16 @@ export function AgendaForm({ mode }: AgendaFormProps) {
               
               {mode === 'edit' && (
                 <>
+                  <Button
+                    variant="outline"
+                    onClick={handlePreview}
+                    disabled={isGeneratingPreview}
+                    className="gap-2"
+                  >
+                    <Eye className="w-4 h-4" />
+                    {isGeneratingPreview ? 'Gerando...' : 'Prévia'}
+                  </Button>
+                  
                   <Button
                     variant="outline"
                     onClick={handleDuplicate}
