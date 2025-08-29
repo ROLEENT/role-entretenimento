@@ -165,11 +165,24 @@ export const useHighlightForm = (highlightId?: string) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Mapear campos do formulário para a estrutura da tabela highlights
       const highlightData = {
-        ...data,
-        status: 'draft' as const,
+        event_title: data.title,
+        city: data.city,
+        venue: data.venue || '',
+        event_date: data.start_at,
+        event_time: data.event_time || '',
+        ticket_price: data.ticket_price || '',
+        ticket_url: data.ticket_url,
+        role_text: data.role_text || data.summary || '',
+        selection_reasons: data.selection_reasons || [],
+        image_url: data.cover_url || data.image_url || '',
+        photo_credit: data.photo_credit || '',
+        sort_order: data.priority || 100,
+        is_published: false,
         created_by: user.id,
         updated_by: user.id,
+        slug: data.slug
       };
 
       if (highlightId) {
@@ -198,11 +211,24 @@ export const useHighlightForm = (highlightId?: string) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Usuário não autenticado');
 
+      // Mapear campos do formulário para a estrutura da tabela highlights
       const highlightData = {
-        ...data,
-        status: 'draft' as const,
+        event_title: data.title,
+        city: data.city,
+        venue: data.venue || '',
+        event_date: data.start_at,
+        event_time: data.event_time || '',
+        ticket_price: data.ticket_price || '',
+        ticket_url: data.ticket_url,
+        role_text: data.role_text || data.summary || '',
+        selection_reasons: data.selection_reasons || [],
+        image_url: data.cover_url || data.image_url || '',
+        photo_credit: data.photo_credit || '',
+        sort_order: data.priority || 100,
+        is_published: false,
         created_by: user.id,
         updated_by: user.id,
+        slug: data.slug
       };
 
       let result;
@@ -229,6 +255,7 @@ export const useHighlightForm = (highlightId?: string) => {
       
       return result.data;
     } catch (error) {
+      console.error('Erro ao salvar rascunho:', error);
       toast.error('Erro ao salvar rascunho');
       throw error;
     } finally {
@@ -252,11 +279,24 @@ export const useHighlightForm = (highlightId?: string) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Usuário não autenticado');
 
+      // Mapear campos do formulário para a estrutura da tabela highlights
       const highlightData = {
-        ...data,
-        status: 'published' as const,
+        event_title: data.title,
+        city: data.city,
+        venue: data.venue || '',
+        event_date: data.start_at,
+        event_time: data.event_time || '',
+        ticket_price: data.ticket_price || '',
+        ticket_url: data.ticket_url,
+        role_text: data.role_text || data.summary || '',
+        selection_reasons: data.selection_reasons || [],
+        image_url: data.cover_url || data.image_url || '',
+        photo_credit: data.photo_credit || '',
+        sort_order: data.priority || 100,
+        is_published: true,
         created_by: user.id,
         updated_by: user.id,
+        slug: data.slug
       };
 
       let result;
@@ -281,6 +321,7 @@ export const useHighlightForm = (highlightId?: string) => {
       toast.success('Destaque publicado com sucesso!');
       navigate('/admin-v2/highlights');
     } catch (error) {
+      console.error('Erro ao publicar destaque:', error);
       toast.error('Erro ao publicar destaque');
     } finally {
       setIsLoading(false);
