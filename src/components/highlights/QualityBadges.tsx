@@ -1,73 +1,53 @@
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, ImageOff, MapPin, Calendar, Hash } from 'lucide-react';
-import { AdvancedHighlightFormData } from '@/lib/advancedHighlightSchema';
+import { AlertTriangle, CheckCircle } from 'lucide-react';
 
 interface QualityBadgesProps {
-  data: Partial<AdvancedHighlightFormData>;
+  data: {
+    cover_url?: string;
+    city?: string;
+    start_at?: string;
+    end_at?: string;
+    slug?: string;
+    title?: string;
+  };
 }
 
 export const QualityBadges = ({ data }: QualityBadgesProps) => {
   const badges = [];
-
+  
   if (!data.cover_url) {
-    badges.push({
-      type: 'warning',
-      text: 'Sem capa',
-      icon: ImageOff,
-      tooltip: 'Imagem de capa é obrigatória para publicação'
-    });
+    badges.push({ label: 'Sem capa', variant: 'destructive' as const });
   }
-
+  
   if (!data.city) {
-    badges.push({
-      type: 'warning', 
-      text: 'Sem cidade',
-      icon: MapPin,
-      tooltip: 'Cidade é obrigatória para publicação'
-    });
+    badges.push({ label: 'Sem cidade', variant: 'destructive' as const });
   }
-
+  
   if (data.start_at && data.end_at && new Date(data.start_at) >= new Date(data.end_at)) {
-    badges.push({
-      type: 'error',
-      text: 'Datas invertidas',
-      icon: Calendar,
-      tooltip: 'Data de fim deve ser posterior à data de início'
-    });
+    badges.push({ label: 'Datas invertidas', variant: 'destructive' as const });
   }
-
-  // TODO: verificar slug duplicado quando conectado ao backend
-  // if (data.slug && isDuplicateSlug) {
-  //   badges.push({
-  //     type: 'error',
-  //     text: 'Slug duplicado',
-  //     icon: Hash,
-  //     tooltip: 'Este slug já está sendo usado por outro destaque'
-  //   });
-  // }
-
-  if (badges.length === 0) return null;
-
+  
+  if (!data.title?.trim()) {
+    badges.push({ label: 'Sem título', variant: 'destructive' as const });
+  }
+  
+  if (badges.length === 0) {
+    return (
+      <Badge className="bg-[#28a745] text-white flex items-center gap-1">
+        <CheckCircle className="w-3 h-3" />
+        Todas as validações OK
+      </Badge>
+    );
+  }
+  
   return (
-    <div className="flex flex-wrap gap-2 p-4 bg-muted/50 rounded-lg border">
-      <div className="flex items-center gap-1 text-sm font-medium text-muted-foreground">
-        <AlertTriangle className="w-4 h-4" />
-        Problemas de qualidade:
-      </div>
-      {badges.map((badge, index) => {
-        const Icon = badge.icon;
-        return (
-          <Badge
-            key={index}
-            variant={badge.type === 'error' ? 'destructive' : 'secondary'}
-            className="gap-1"
-            title={badge.tooltip}
-          >
-            <Icon className="w-3 h-3" />
-            {badge.text}
-          </Badge>
-        );
-      })}
+    <div className="flex flex-wrap gap-2">
+      {badges.map((badge, index) => (
+        <Badge key={index} variant={badge.variant} className="flex items-center gap-1">
+          <AlertTriangle className="w-3 h-3" />
+          {badge.label}
+        </Badge>
+      ))}
     </div>
   );
 };
