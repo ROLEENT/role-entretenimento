@@ -56,6 +56,10 @@ interface AgendaItem {
   visibility_type: string;
   status: string;
   updated_at: string;
+  cover_url?: string;
+  alt_text?: string;
+  type?: string;
+  artists_names?: string[];
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -136,7 +140,10 @@ export default function AdminV3Agenda() {
       
       let query = supabase
         .from('agenda_itens')
-        .select('id, title, slug, city, start_at, end_at, visibility_type, status, updated_at', { count: 'exact' });
+        .select('id, title, slug, city, start_at, end_at, visibility_type, status, updated_at, cover_url, alt_text, type, artists_names', { count: 'exact' });
+      
+      // Filter out deleted items
+      query = query.is('deleted_at', null);
       
       // Apply filters
       if (search) {
@@ -226,9 +233,15 @@ export default function AdminV3Agenda() {
         case 'delete':
           await supabase
             .from('agenda_itens')
-            .delete()
+            .update({ deleted_at: new Date().toISOString() })
             .eq('id', itemId);
           break;
+        case 'edit':
+          window.location.href = `/admin-v3/agenda/${itemId}/edit`;
+          return;
+        case 'view':
+          window.open(`/agenda/${items.find(i => i.id === itemId)?.slug}`, '_blank');
+          return;
       }
       
       toast({
@@ -319,6 +332,38 @@ export default function AdminV3Agenda() {
     return <Badge variant={variants[status as keyof typeof variants] || 'outline'}>{status}</Badge>;
   };
 
+  // Get situation badge
+  const getSituationBadge = (item: AgendaItem) => {
+    const now = new Date();
+    const startDate = new Date(item.start_at);
+    const endDate = new Date(item.end_at);
+    
+    if (item.status === 'published') {
+      if (endDate < now) {
+        return <Badge variant="outline">Expirado</Badge>;
+      } else if (startDate <= now && endDate >= now) {
+        return <Badge variant="default">Ativo</Badge>;
+      } else if (startDate > now) {
+        return <Badge variant="secondary">Agendado</Badge>;
+      }
+    }
+    
+    // Check for incomplete data
+    const isIncomplete = !item.city || !item.cover_url || !item.alt_text;
+    if (isIncomplete) {
+      return <Badge variant="destructive">Incompleto</Badge>;
+    }
+    
+    return <Badge variant="outline">Rascunho</Badge>;
+  };
+
+  // Format artists
+  const formatArtists = (artists: string[] = []) => {
+    if (artists.length === 0) return '-';
+    if (artists.length <= 2) return artists.join(', ');
+    return `${artists.slice(0, 2).join(', ')} +${artists.length - 2}`;
+  };
+
   if (error) {
     return (
       <AdminV3Guard>
@@ -358,27 +403,30 @@ export default function AdminV3Agenda() {
             ]}
           />
           
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold">Agenda</h1>
-            <div className="space-x-2">
-              {selectedItems.size > 0 && (
-                <>
-                  <Button onClick={() => handleBulkAction('publish')} variant="default" size="sm">
-                    <PlayCircle className="w-4 h-4 mr-2" />
-                    Publicar ({selectedItems.size})
-                  </Button>
-                  <Button onClick={() => handleBulkAction('unpublish')} variant="outline" size="sm">
-                    <PauseCircle className="w-4 h-4 mr-2" />
-                    Despublicar ({selectedItems.size})
-                  </Button>
-                </>
-              )}
-              <Button onClick={fetchData} variant="outline" size="sm">
-                <RefreshCw className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+           {/* Header */}
+           <div className="flex items-center justify-between">
+             <h1 className="text-3xl font-bold">Agenda</h1>
+             <div className="space-x-2">
+               {selectedItems.size > 0 && (
+                 <>
+                   <Button onClick={() => handleBulkAction('publish')} variant="default" size="sm">
+                     <PlayCircle className="w-4 h-4 mr-2" />
+                     Publicar ({selectedItems.size})
+                   </Button>
+                   <Button onClick={() => handleBulkAction('unpublish')} variant="outline" size="sm">
+                     <PauseCircle className="w-4 h-4 mr-2" />
+                     Despublicar ({selectedItems.size})
+                   </Button>
+                 </>
+               )}
+               <Button onClick={fetchData} variant="outline" size="sm">
+                 <RefreshCw className="w-4 h-4" />
+               </Button>
+               <Button onClick={() => window.location.href = '/admin-v3/agenda/create'} variant="default">
+                 Criar Novo
+               </Button>
+             </div>
+           </div>
 
           {/* Filters */}
           <Card>
@@ -484,84 +532,90 @@ export default function AdminV3Agenda() {
               ) : (
                 <>
                   <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-12">
-                          <Checkbox
-                            checked={items.length > 0 && selectedItems.size === items.length}
-                            onCheckedChange={toggleSelectAll}
-                          />
-                        </TableHead>
-                        <TableHead>Título</TableHead>
-                        <TableHead>Slug</TableHead>
-                        <TableHead>Cidade</TableHead>
-                        <TableHead>Período</TableHead>
-                        <TableHead>Visibilidade</TableHead>
-                        <TableHead>Status</TableHead>
+                     <TableHeader>
+                       <TableRow>
+                         <TableHead className="w-12">
+                           <Checkbox
+                             checked={items.length > 0 && selectedItems.size === items.length}
+                             onCheckedChange={toggleSelectAll}
+                           />
+                         </TableHead>
+                         <TableHead className="w-20">Thumb</TableHead>
+                         <TableHead>Título</TableHead>
+                         <TableHead>Tipo</TableHead>
+                         <TableHead>Cidade</TableHead>
+                         <TableHead>Período</TableHead>
+                         <TableHead>Artistas</TableHead>
+                         <TableHead>Situação</TableHead>
+                         <TableHead>Status</TableHead>
                         <TableHead>Atualizado em</TableHead>
                         <TableHead className="w-32">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
-                    <TableBody>
-                      {items.map((item) => (
-                        <TableRow key={item.id}>
-                          <TableCell>
-                            <Checkbox
-                              checked={selectedItems.has(item.id)}
-                              onCheckedChange={() => toggleSelection(item.id)}
-                            />
-                          </TableCell>
-                          <TableCell className="font-medium max-w-xs truncate">
-                            {item.title}
-                          </TableCell>
-                          <TableCell className="font-mono text-sm max-w-xs truncate">
-                            {item.slug}
-                          </TableCell>
-                          <TableCell>{item.city}</TableCell>
-                          <TableCell className="text-sm">
-                            {formatPeriod(item.start_at, item.end_at)}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline">{item.visibility_type}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            {getStatusBadge(item.status)}
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {format(new Date(item.updated_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-1">
-                              <Button size="sm" variant="ghost" onClick={() => handleAction('edit', item.id)}>
-                                <Edit className="w-3 h-3" />
-                              </Button>
-                              {item.status === 'draft' ? (
-                                <Button size="sm" variant="ghost" onClick={() => handleAction('publish', item.id)}>
-                                  <PlayCircle className="w-3 h-3" />
-                                </Button>
-                              ) : (
-                                <Button size="sm" variant="ghost" onClick={() => handleAction('unpublish', item.id)}>
-                                  <PauseCircle className="w-3 h-3" />
-                                </Button>
-                              )}
-                              <Button size="sm" variant="ghost" onClick={() => handleAction('duplicate', item.id)}>
-                                <Copy className="w-3 h-3" />
-                              </Button>
-                              <Button size="sm" variant="ghost" onClick={() => handleAction('view', item.id)}>
-                                <Eye className="w-3 h-3" />
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant="ghost" 
-                                onClick={() => setDeleteDialog({ isOpen: true, itemId: item.id })}
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
+                     <TableBody>
+                       {items.map((item) => (
+                         <TableRow key={item.id}>
+                           <TableCell>
+                             <Checkbox
+                               checked={selectedItems.has(item.id)}
+                               onCheckedChange={() => toggleSelection(item.id)}
+                             />
+                           </TableCell>
+                           <TableCell>
+                             {item.cover_url ? (
+                               <img 
+                                 src={item.cover_url} 
+                                 alt={item.alt_text || item.title}
+                                 className="w-12 h-12 object-cover rounded"
+                               />
+                             ) : (
+                               <div className="w-12 h-12 bg-muted rounded flex items-center justify-center text-xs text-muted-foreground">
+                                 Sem imagem
+                               </div>
+                             )}
+                           </TableCell>
+                           <TableCell className="font-medium max-w-xs truncate">
+                             {item.title}
+                           </TableCell>
+                           <TableCell className="text-sm">
+                             {item.type || '-'}
+                           </TableCell>
+                           <TableCell>{item.city || '-'}</TableCell>
+                           <TableCell className="text-sm">
+                             {item.start_at && item.end_at ? formatPeriod(item.start_at, item.end_at) : '-'}
+                           </TableCell>
+                           <TableCell className="text-sm">
+                             {formatArtists(item.artists_names)}
+                           </TableCell>
+                           <TableCell>
+                             {getSituationBadge(item)}
+                           </TableCell>
+                           <TableCell>
+                             {getStatusBadge(item.status)}
+                           </TableCell>
+                           <TableCell className="text-sm text-muted-foreground">
+                             {format(new Date(item.updated_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+                           </TableCell>
+                           <TableCell>
+                             <div className="flex gap-1">
+                               <Button size="sm" variant="ghost" onClick={() => handleAction('edit', item.id)}>
+                                 <Edit className="w-3 h-3" />
+                               </Button>
+                               <Button size="sm" variant="ghost" onClick={() => handleAction('view', item.id)}>
+                                 <Eye className="w-3 h-3" />
+                               </Button>
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 onClick={() => setDeleteDialog({ isOpen: true, itemId: item.id })}
+                               >
+                                 <Trash2 className="w-3 h-3" />
+                               </Button>
+                             </div>
+                           </TableCell>
+                         </TableRow>
+                       ))}
+                     </TableBody>
                   </Table>
 
                   {items.length === 0 && (
