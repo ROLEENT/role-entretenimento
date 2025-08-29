@@ -107,13 +107,30 @@ export const formatEventTime = (timeString?: string | null): string => {
 /**
  * Formata data e horário juntos
  */
-export const formatEventDateTime = (dateString?: string | null, timeString?: string | null): string => {
-  const date = formatHighlightDateVeryShort(dateString);
-  const time = formatEventTime(timeString);
+export const formatEventDateTime = (dateString?: string | null, endDateOrTime?: string | null): string => {
+  if (!dateString) return '';
   
-  if (!date && !time) return '';
-  if (!date) return time;
-  if (!time) return date;
-  
-  return `${date} • ${time}`;
+  try {
+    // Se é uma data ISO completa
+    if (dateString.includes('T') || dateString.includes(' ')) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: 'short'
+      });
+    }
+    
+    // Se é apenas uma data (YYYY-MM-DD)
+    const date = formatHighlightDateVeryShort(dateString);
+    
+    // Se endDateOrTime parece ser um horário (HH:mm)
+    if (endDateOrTime && endDateOrTime.includes(':') && endDateOrTime.length <= 5) {
+      const time = formatEventTime(endDateOrTime);
+      return time ? `${date} • ${time}` : date;
+    }
+    
+    return date;
+  } catch {
+    return '';
+  }
 };
