@@ -107,6 +107,7 @@ const HighlightsPage = () => {
         title="Todos os Destaques Culturais | ROLÊ - Curadoria de Eventos"
         description="Explore todos os destaques culturais selecionados pela equipe ROLÊ. Eventos, shows e experiências culturais nas principais cidades do Brasil."
         url="https://roleentretenimento.com/highlights"
+        noindex={true}
       />
       
       <Header />

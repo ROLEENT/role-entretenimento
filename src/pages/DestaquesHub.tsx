@@ -78,7 +78,8 @@ const DestaquesHub = () => {
       <SEOHead
         title="Destaques Culturais | ROLÊ - Agenda Cultural Completa"
         description="Explore os destaques culturais das principais cidades do Brasil. Eventos, shows, festivais e experiências culturais selecionadas pela equipe ROLÊ."
-        url="https://roleentretenimento.com/destaques"
+        canonical="https://roleentretenimento.com/destaques"
+        noindex={true}
       />
       
       <Header />

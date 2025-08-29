@@ -149,8 +149,10 @@ const EventsPage = () => {
   return (
     <>
       <SEOHead 
-        title="Eventos - ROLÊ"
-        description="Descubra os melhores eventos de música na sua cidade"
+        title="Vitrine Cultural - ROLÊ"
+        description="Descubra os melhores eventos culturais da sua cidade. Música, arte, gastronomia e muito mais."
+        canonical="https://role.com.br/eventos"
+        noindex={true}
       />
       
       <div className="min-h-screen bg-background">

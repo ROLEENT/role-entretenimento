@@ -5,11 +5,13 @@ interface SEOHeadProps {
   description?: string;
   image?: string;
   url?: string;
+  canonical?: string;
   type?: "website" | "article";
   publishedTime?: string;
   modifiedTime?: string;
   author?: string;
   tags?: string[];
+  noindex?: boolean;
 }
 
 const SEOHead = ({
@@ -17,11 +19,13 @@ const SEOHead = ({
   description = "Descubra os melhores eventos de cultura, shows, festas e arte na sua cidade. Curadoria independente para quem vive a cena cultural.",
   image = "/banner-home.png",
   url = "https://role.ent",
+  canonical,
   type = "website",
   publishedTime,
   modifiedTime,
   author = "ROLÊ Entretenimento",
-  tags = []
+  tags = [],
+  noindex = false
 }: SEOHeadProps) => {
   const fullImageUrl = image.startsWith('http') ? image : `${url}${image}`;
   
@@ -61,8 +65,9 @@ const SEOHead = ({
       <title>{title}</title>
       <meta name="title" content={title} />
       <meta name="description" content={description} />
-      <link rel="canonical" href={url} />
+      <link rel="canonical" href={canonical || url} />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      {noindex && <meta name="robots" content="noindex, nofollow" />}
       
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />

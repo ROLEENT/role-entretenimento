@@ -12,6 +12,7 @@ interface SEOOptimizationsProps {
   author?: string;
   tags?: string[];
   structuredData?: object;
+  noindex?: boolean;
 }
 
 const SEOOptimizations = ({
@@ -24,7 +25,8 @@ const SEOOptimizations = ({
   modifiedTime,
   author,
   tags = ['eventos', 'cultura', 'agenda', 'brasil'],
-  structuredData
+  structuredData,
+  noindex = false
 }: SEOOptimizationsProps) => {
   
   const fullImageUrl = image.startsWith('http') ? image : `${window.location.origin}${image}`;
@@ -89,6 +91,7 @@ const SEOOptimizations = ({
       <meta name="keywords" content={tags.join(', ')} />
       <meta name="author" content={author || "ROLÊ"} />
       <link rel="canonical" href={url} />
+      {noindex && <meta name="robots" content="noindex, nofollow" />}
 
       {/* Open Graph Tags */}
       <meta property="og:type" content={type} />

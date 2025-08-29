@@ -1,4 +1,26 @@
 {
+  "redirects": [
+    {
+      "source": "/vitrine-cultural",
+      "destination": "/agenda",
+      "permanent": true
+    },
+    {
+      "source": "/destaques",
+      "destination": "/agenda", 
+      "permanent": true
+    },
+    {
+      "source": "/eventos",
+      "destination": "/agenda",
+      "permanent": true
+    },
+    {
+      "source": "/highlights",
+      "destination": "/agenda",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",

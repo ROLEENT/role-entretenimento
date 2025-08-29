@@ -13,14 +13,12 @@ export class SitemapGenerator {
   async generateSitemap(): Promise<string> {
     const urls: SitemapUrl[] = [];
     
-    // Static pages
+    // Static pages (removed old routes)
     const staticPages = [
       { loc: '/', changefreq: 'daily' as const, priority: 1.0 },
-      { loc: '/events', changefreq: 'daily' as const, priority: 0.9 },
-      { loc: '/highlights', changefreq: 'weekly' as const, priority: 0.8 },
-      { loc: '/blog', changefreq: 'weekly' as const, priority: 0.7 },
-      { loc: '/about', changefreq: 'monthly' as const, priority: 0.5 },
-      { loc: '/contact', changefreq: 'monthly' as const, priority: 0.5 },
+      { loc: '/agenda', changefreq: 'daily' as const, priority: 0.9 },
+      { loc: '/sobre', changefreq: 'monthly' as const, priority: 0.6 },
+      { loc: '/contato', changefreq: 'monthly' as const, priority: 0.5 },
       { loc: '/privacy-policy', changefreq: 'yearly' as const, priority: 0.3 },
       { loc: '/user-terms', changefreq: 'yearly' as const, priority: 0.3 }
     ];
