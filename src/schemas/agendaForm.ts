@@ -1,22 +1,25 @@
 import { z } from 'zod';
 
-// Schema base para reutilização
-const baseAgendaSchema = z.object({
-  // Básico
+// Transform para tratar strings vazias como undefined
+const emptyToUndef = z.string().trim().transform(v => v === '' ? undefined : v);
+
+// Schema para rascunho (validação mínima)
+export const agendaDraftSchema = z.object({
+  // Básico - obrigatórios apenas para rascunho
   title: z.string().min(1, 'Título é obrigatório'),
   slug: z.string().min(1, 'Slug é obrigatório'),
-  city: z.enum(['porto_alegre', 'sao_paulo', 'rio_de_janeiro', 'florianopolis', 'curitiba'], {
-    required_error: 'Cidade é obrigatória'
-  }),
-  start_at: z.date({ required_error: 'Data de início é obrigatória' }),
-  end_at: z.date({ required_error: 'Data de fim é obrigatória' }),
-  type: z.string().optional(),
+  
+  // Básico - opcionais para rascunho
+  city: emptyToUndef.optional(),
+  start_at: z.date().optional(),
+  end_at: z.date().optional(),
+  type: emptyToUndef.optional(),
   priority: z.number().int().min(0).default(0),
   
   // Conteúdo
-  subtitle: z.string().optional(),
-  summary: z.string().optional(),
-  ticket_url: z.string()
+  subtitle: emptyToUndef.optional(),
+  summary: emptyToUndef.optional(),
+  ticket_url: emptyToUndef
     .optional()
     .refine((url) => !url || url.startsWith('http://') || url.startsWith('https://'), {
       message: 'URL deve começar com http:// ou https://'
@@ -26,8 +29,8 @@ const baseAgendaSchema = z.object({
     .default([]),
   
   // Mídia
-  cover_url: z.string().optional(),
-  alt_text: z.string().optional(),
+  cover_url: emptyToUndef.optional(),
+  alt_text: emptyToUndef.optional(),
   focal_point_x: z.number()
     .min(0, 'Deve estar entre 0 e 1')
     .max(1, 'Deve estar entre 0 e 1')
@@ -38,12 +41,16 @@ const baseAgendaSchema = z.object({
     .optional(),
   
   // SEO
-  meta_title: z.string()
-    .max(60, 'Meta título deve ter no máximo 60 caracteres')
-    .optional(),
-  meta_description: z.string()
-    .max(160, 'Meta descrição deve ter no máximo 160 caracteres')
-    .optional(),
+  meta_title: emptyToUndef
+    .optional()
+    .refine((val) => !val || val.length <= 60, {
+      message: 'Meta título deve ter no máximo 60 caracteres'
+    }),
+  meta_description: emptyToUndef
+    .optional()
+    .refine((val) => !val || val.length <= 160, {
+      message: 'Meta descrição deve ter no máximo 160 caracteres'
+    }),
   noindex: z.boolean().default(false),
   
   // Publicação
@@ -58,25 +65,70 @@ const baseAgendaSchema = z.object({
   venue_id: z.string().uuid().optional(),
 });
 
-// Schema principal com validação de datas
-export const agendaFormSchema = baseAgendaSchema.refine((data) => {
-  // Validação de data: fim deve ser pelo menos 15 min após início
-  if (data.start_at && data.end_at) {
-    const diffMs = data.end_at.getTime() - data.start_at.getTime();
-    const diffMinutes = diffMs / (1000 * 60);
-    return diffMinutes >= 15;
-  }
-  return true;
-}, {
-  message: 'Data de fim deve ser pelo menos 15 minutos após o início',
-  path: ['end_at']
-});
-
-// Schema para publicação (campos obrigatórios extras)
-export const publishSchema = baseAgendaSchema.extend({
+// Schema base para publicação (todos os campos obrigatórios)
+const basePublishSchema = z.object({
+  // Básico - obrigatórios
+  title: z.string().min(1, 'Título é obrigatório'),
+  slug: z.string().min(1, 'Slug é obrigatório'),
+  city: z.enum(['porto_alegre', 'sao_paulo', 'rio_de_janeiro', 'florianopolis', 'curitiba'], {
+    required_error: 'Cidade é obrigatória'
+  }),
+  start_at: z.date({ required_error: 'Data de início é obrigatória' }),
+  end_at: z.date({ required_error: 'Data de fim é obrigatória' }),
+  type: emptyToUndef.optional(),
+  priority: z.number().int().min(0).default(0),
+  
+  // Conteúdo
+  subtitle: emptyToUndef.optional(),
+  summary: emptyToUndef.optional(),
+  ticket_url: emptyToUndef
+    .optional()
+    .refine((url) => !url || url.startsWith('http://') || url.startsWith('https://'), {
+      message: 'URL deve começar com http:// ou https://'
+    }),
+  tags: z.array(z.string().max(24, 'Tag deve ter no máximo 24 caracteres'))
+    .max(6, 'Máximo 6 tags permitidas')
+    .default([]),
+  
+  // Mídia - obrigatórios para publicar
   cover_url: z.string().min(1, 'Capa é obrigatória para publicar'),
   alt_text: z.string().min(1, 'Texto alternativo é obrigatório para publicar'),
-}).refine((data) => {
+  focal_point_x: z.number()
+    .min(0, 'Deve estar entre 0 e 1')
+    .max(1, 'Deve estar entre 0 e 1')
+    .optional(),
+  focal_point_y: z.number()
+    .min(0, 'Deve estar entre 0 e 1')
+    .max(1, 'Deve estar entre 0 e 1')
+    .optional(),
+  
+  // SEO
+  meta_title: emptyToUndef
+    .optional()
+    .refine((val) => !val || val.length <= 60, {
+      message: 'Meta título deve ter no máximo 60 caracteres'
+    }),
+  meta_description: emptyToUndef
+    .optional()
+    .refine((val) => !val || val.length <= 160, {
+      message: 'Meta descrição deve ter no máximo 160 caracteres'
+    }),
+  noindex: z.boolean().default(false),
+  
+  // Publicação
+  status: z.enum(['draft', 'published']).default('draft'),
+  visibility_type: z.enum(['curadoria', 'vitrine']).default('curadoria'),
+  publish_at: z.date().optional(),
+  unpublish_at: z.date().optional(),
+  
+  // Relacionamentos
+  event_id: z.string().uuid().optional(),
+  organizer_id: z.string().uuid().optional(),
+  venue_id: z.string().uuid().optional(),
+});
+
+// Schema para publicação com validação de datas
+export const publishSchema = basePublishSchema.refine((data) => {
   if (data.start_at && data.end_at) {
     const diffMs = data.end_at.getTime() - data.start_at.getTime();
     const diffMinutes = diffMs / (1000 * 60);
@@ -88,8 +140,12 @@ export const publishSchema = baseAgendaSchema.extend({
   path: ['end_at']
 });
 
-export type AgendaFormData = z.infer<typeof agendaFormSchema>;
+// Schema principal (compatibilidade)
+export const agendaFormSchema = agendaDraftSchema;
+
+export type AgendaFormData = z.infer<typeof agendaDraftSchema>;
 export type PublishFormData = z.infer<typeof publishSchema>;
+export type DraftFormData = z.infer<typeof agendaDraftSchema>;
 
 export const CITY_OPTIONS = [
   { value: 'porto_alegre', label: 'Porto Alegre' },

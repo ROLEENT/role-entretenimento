@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   agendaFormSchema, 
+  agendaDraftSchema,
   publishSchema, 
   AgendaFormData, 
   PublishFormData 
@@ -199,21 +200,38 @@ export function useAgendaForm({ agendaId, mode }: UseAgendaFormProps) {
       
       const formData = form.getValues();
       
-      // Convert dates to UTC for API
+      // Validate with draft schema (only title and slug required)
+      const validationResult = agendaDraftSchema.safeParse({
+        ...formData,
+        status: 'draft'
+      });
+      
+      if (!validationResult.success) {
+        validationResult.error.errors.forEach((error) => {
+          if (error.path.length > 0) {
+            form.setError(error.path[0] as keyof AgendaFormData, {
+              message: error.message
+            });
+          }
+        });
+        
+        toast({
+          title: "Campos obrigatórios",
+          description: "Verifique os campos destacados",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Convert dates to UTC for API, handling undefined values
       const payload = {
         ...formData,
-        start_at: formData.start_at.toISOString(),
-        end_at: formData.end_at.toISOString(),
+        status: 'draft' as const,
+        start_at: formData.start_at?.toISOString(),
+        end_at: formData.end_at?.toISOString(),
         publish_at: formData.publish_at?.toISOString(),
         unpublish_at: formData.unpublish_at?.toISOString(),
-        // Map empty strings to undefined
-        subtitle: formData.subtitle?.trim() || undefined,
-        summary: formData.summary?.trim() || undefined,
-        ticket_url: formData.ticket_url?.trim() || undefined,
-        type: formData.type?.trim() || undefined,
-        meta_title: formData.meta_title?.trim() || undefined,
-        meta_description: formData.meta_description?.trim() || undefined,
-        alt_text: formData.alt_text?.trim() || undefined,
+        // Empty strings will be handled by schema transform
       };
 
       let result;
@@ -252,11 +270,29 @@ export function useAgendaForm({ agendaId, mode }: UseAgendaFormProps) {
         });
       }
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving draft:', error);
+      console.log('Error code:', error.code);
+      
+      let errorMessage = "Erro ao salvar";
+      
+      // Handle Supabase constraint errors
+      if (error.code === '23502') {
+        // NOT NULL constraint violation
+        const column = error.details?.includes('title') ? 'título' :
+                      error.details?.includes('slug') ? 'slug' :
+                      'campo obrigatório';
+        errorMessage = `${column} é obrigatório`;
+      } else if (error.code === '23505') {
+        // UNIQUE constraint violation
+        errorMessage = "Slug já existe";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       if (!silent) {
         toast({
-          title: "Erro ao salvar",
+          title: errorMessage,
           variant: "destructive"
         });
       }
