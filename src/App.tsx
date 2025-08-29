@@ -58,6 +58,10 @@ const AdminV3ArtistsEdit = lazy(() => import("./pages/AdminV3ArtistsEdit"));
 const AdminV3Agentes = lazy(() => import("./pages/AdminV3Agentes"));
 const AdminV3Profile = lazy(() => import("./pages/AdminV3Profile"));
 
+// Revista pages
+const RevistaPage = lazy(() => import("./pages/RevistaPage"));
+const RevistaArticlePage = lazy(() => import("./pages/RevistaArticlePage"));
+
 // User pages - lazy loaded
 const EventsPage = lazy(() => import("./pages/EventsPage"));
 const EventDetailPage = lazy(() => import("./pages/EventDetailPage"));
@@ -125,6 +129,10 @@ function App() {
                 {/* Test Routes */}
                 <Route path="/test/checklist" element={<ChecklistTest />} />
                 <Route path="/test/agenda-integration" element={<AgendaFormIntegrationTest />} />
+                
+                {/* Revista Routes */}
+                <Route path="/revista" element={<Suspense fallback={<PageLoadingFallback />}><RevistaPage /></Suspense>} />
+                <Route path="/revista/:slug" element={<Suspense fallback={<PageLoadingFallback />}><RevistaArticlePage /></Suspense>} />
                 
                 {/* Destaques Routes */}
                 <Route path="/destaques" element={<DestaquesHub />} />
