@@ -51,6 +51,9 @@ const AdminV3Debug = lazy(() => import("./pages/AdminV3Debug"));
 const AdminV3Agenda = lazy(() => import("./pages/AdminV3Agenda"));
 const AdminV3AgendaCreate = lazy(() => import("./pages/AdminV3AgendaCreate"));
 const AdminV3AgendaEdit = lazy(() => import("./pages/AdminV3AgendaEdit"));
+const AdminV3Artists = lazy(() => import("./pages/AdminV3Artists"));
+const AdminV3ArtistsCreate = lazy(() => import("./pages/AdminV3ArtistsCreate"));
+const AdminV3ArtistsEdit = lazy(() => import("./pages/AdminV3ArtistsEdit"));
 const AdminV3Profile = lazy(() => import("./pages/AdminV3Profile"));
 
 // User pages - lazy loaded
@@ -153,6 +156,12 @@ function App() {
                 <Route path="/admin-v3/agenda/:id/edit/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaEdit /></Suspense>} />
                 <Route path="/admin-v3/agenda/new" element={<Navigate to="/admin-v3/agenda/create" replace />} />
                 <Route path="/admin-v3/agenda/new/" element={<Navigate to="/admin-v3/agenda/create" replace />} />
+                <Route path="/admin-v3/artists" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Artists /></Suspense>} />
+                <Route path="/admin-v3/artists/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Artists /></Suspense>} />
+                <Route path="/admin-v3/artists/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsCreate /></Suspense>} />
+                <Route path="/admin-v3/artists/create/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsCreate /></Suspense>} />
+                <Route path="/admin-v3/artists/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsEdit /></Suspense>} />
+                <Route path="/admin-v3/artists/:id/edit/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsEdit /></Suspense>} />
                 <Route path="/admin-v3/profile" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Profile /></Suspense>} />
                 
                 {/* Events Routes */}
