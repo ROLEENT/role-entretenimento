@@ -1642,6 +1642,7 @@ export type Database = {
           summary: string | null
           ticket_price: string | null
           ticket_url: string | null
+          title: string | null
           type: string | null
           unpublish_at: string | null
           updated_at: string
@@ -1685,6 +1686,7 @@ export type Database = {
           summary?: string | null
           ticket_price?: string | null
           ticket_url?: string | null
+          title?: string | null
           type?: string | null
           unpublish_at?: string | null
           updated_at?: string
@@ -1728,6 +1730,7 @@ export type Database = {
           summary?: string | null
           ticket_price?: string | null
           ticket_url?: string | null
+          title?: string | null
           type?: string | null
           unpublish_at?: string | null
           updated_at?: string
