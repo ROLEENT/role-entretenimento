@@ -20,6 +20,7 @@ const SpamPolicy = lazy(() => import("./pages/SpamPolicy"));
 const UserTerms = lazy(() => import("./pages/UserTerms"));
 const OrganizerTerms = lazy(() => import("./pages/OrganizerTerms"));
 const Help = lazy(() => import("./pages/Help"));
+const Agenda = lazy(() => import("./pages/Agenda"));
 const DestaquesHub = lazy(() => import("./pages/DestaquesHub"));
 const CitiesPage = lazy(() => import("./pages/CitiesPage"));
 const BlogArticle = lazy(() => import("./pages/BlogArticle"));
@@ -101,6 +102,10 @@ function App() {
                 <Route path="/termos-usuario" element={<UserTerms />} />
                 <Route path="/termos-organizador" element={<OrganizerTerms />} />
                 <Route path="/ajuda" element={<Help />} />
+                
+                {/* Agenda Routes */}
+                <Route path="/agenda" element={<Agenda />} />
+                <Route path="/agenda/:cidade" element={<Agenda />} />
                 
                 {/* Destaques Routes */}
                 <Route path="/destaques" element={<DestaquesHub />} />
