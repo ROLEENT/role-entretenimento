@@ -569,4 +569,35 @@ body {
   .accessible-grid[role="list"] > * {
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
   }
+
+  /* Hide scrollbar but keep functionality */
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+
+  /* Carousel specific styles */
+  .carousel-container {
+    position: relative;
+  }
+
+  .carousel-track {
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carousel-track {
+      scroll-behavior: auto;
+    }
+  }
+
+  .carousel-card {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+  }
 }
