@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Users, Eye, MapPin, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useResponsive } from "@/hooks/useResponsive";
 
@@ -77,28 +76,28 @@ const RoleEmNumeros = () => {
 
   const stats = [
     {
-      icon: Users,
+      emoji: "👥",
       number: `${counters[0]}+`,
-      label: "pessoas alcançadas",
+      label: "Pessoas alcançadas",
       gradient: "from-blue-500 to-purple-600"
     },
     {
-      icon: Eye,
+      emoji: "👁",
       number: `${(counters[1] / 10).toFixed(1)}M`,
-      label: "visualizações",
+      label: "Visualizações",
       gradient: "from-green-500 to-teal-600"
     },
     {
-      icon: MapPin,
+      emoji: "🌆",
       number: counters[2],
-      label: "cidades ativas",
+      label: "Cidades",
       gradient: "from-purple-500 to-pink-600"
     },
     {
-      icon: Heart,
+      emoji: "⭐",
       number: `${counters[3]}k`,
-      label: "seguidores",
-      gradient: "from-red-500 to-rose-600"
+      label: "Seguidores",
+      gradient: "from-amber-500 to-orange-600"
     }
   ];
 
@@ -116,27 +115,29 @@ const RoleEmNumeros = () => {
             ROLÊ EM NÚMEROS
           </h2>
           <p className={`text-muted-foreground ${isMobile ? 'text-lg' : 'text-xl'} max-w-2xl mx-auto`}>
-            4 métricas com ícones grandes e tipografia de impacto
+            Métricas que mostram o alcance e impacto da nossa curadoria
           </p>
         </div>
         
         <div className={`grid ${isMobile ? 'grid-cols-2 gap-8' : 'grid-cols-4 gap-12'} max-w-6xl mx-auto`}>
-          {stats.map((stat, index) => {
-            const IconComponent = stat.icon;
-            return (
-              <div key={index} className="text-center group">
-                <div className={`w-20 h-20 bg-gradient-to-br ${stat.gradient} rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-500 shadow-lg hover:shadow-xl`}>
-                  <IconComponent className="w-10 h-10 text-white" />
-                </div>
-                <div className={`font-heading font-black text-foreground ${isMobile ? 'text-3xl' : 'text-4xl md:text-5xl'} mb-2 group-hover:text-primary transition-colors`}>
-                  {stat.number}
-                </div>
-                <p className={`text-muted-foreground font-medium ${isMobile ? 'text-sm' : 'text-base'} uppercase tracking-wide`}>
-                  {stat.label}
-                </p>
+          {stats.map((stat, index) => (
+            <div key={index} className="text-center group animate-fade-in" style={{ animationDelay: `${index * 0.2}s` }}>
+              {/* Large Emoji Icon */}
+              <div className={`w-24 h-24 bg-gradient-to-br ${stat.gradient} rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-500 shadow-xl hover:shadow-2xl`}>
+                <span className="text-4xl">{stat.emoji}</span>
               </div>
-            );
-          })}
+              
+              {/* Large Number */}
+              <div className={`font-heading font-black text-foreground ${isMobile ? 'text-4xl' : 'text-5xl md:text-6xl lg:text-7xl'} mb-3 group-hover:text-primary transition-all duration-300 leading-none`}>
+                {stat.number}
+              </div>
+              
+              {/* Clear Label */}
+              <p className={`text-muted-foreground font-semibold ${isMobile ? 'text-sm' : 'text-base lg:text-lg'} tracking-wide leading-tight`}>
+                {stat.label}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
