@@ -26,7 +26,10 @@ export const STATUS_OPTIONS = [
   { value: 'published', label: 'Publicado' }
 ] as const;
 
-// Ticket status options
+// Ticket status enum and options
+export const TicketStatusEnum = z.enum(['free', 'paid', 'sold_out', 'invite_only']);
+export type TicketStatus = z.infer<typeof TicketStatusEnum>;
+
 export const TICKET_STATUS_OPTIONS = [
   { value: 'free', label: 'Gratuito' },
   { value: 'paid', label: 'Pago' },
@@ -114,7 +117,7 @@ const AgendaBaseSchema = z.object({
   price_min: z.number().min(0, 'Preço mínimo deve ser positivo').optional(),
   price_max: z.number().min(0, 'Preço máximo deve ser positivo').optional(),
   currency: z.string().default('BRL'),
-  ticket_status: z.preprocess(preprocessEmptyString, z.enum(['free', 'paid', 'sold_out', 'invite_only']).optional()),
+  ticket_status: z.preprocess(preprocessEmptyString, TicketStatusEnum.optional()),
   age_rating: z.preprocess(preprocessEmptyString, z.enum(['livre', '10', '12', '14', '16', '18']).optional()),
   accessibility: z.record(z.boolean()).default({}),
   focal_point_x: z.number().min(0).max(1).optional(),
@@ -174,6 +177,7 @@ export const AgendaDraftSchema = z.object({
   item: AgendaBaseSchema.partial().extend({
     title: z.string().min(1, 'Título é obrigatório'),
     slug: z.string().min(1, 'Slug é obrigatório'),
+    ticket_status: z.preprocess(preprocessEmptyString, TicketStatusEnum.optional()),
   }),
   occurrences: z.array(OccurrenceSchema).optional(),
   ticket_tiers: z.array(TicketTierSchema).optional(),
@@ -181,38 +185,48 @@ export const AgendaDraftSchema = z.object({
 });
 
 // Schema para publicação (campos obrigatórios + validações extras)
-export const AgendaPublishSchema = z.object({
-  item: AgendaBaseSchema.extend({
-    title: z.string().min(1, 'Título é obrigatório para publicação'),
-    slug: z.string().min(1, 'Slug é obrigatório para publicação'),
-    city: z.string().min(1, 'Cidade é obrigatória para publicação'),
-    start_at: z.string().datetime('Data de início é obrigatória para publicação'),
-    end_at: z.string().datetime('Data de fim é obrigatória para publicação'),
-    cover_url: z.string().url('Capa é obrigatória para publicação'),
-    alt_text: z.string().min(1, 'Texto alternativo da capa é obrigatório para publicação'),
-    summary: z.string().min(10, 'Resumo de pelo menos 10 caracteres é obrigatório para publicação'),
-  }).refine((data) => {
-    if (!data.start_at || !data.end_at) return true;
-    const start = new Date(data.start_at);
-    const end = new Date(data.end_at);
+export const AgendaPublishSchema = AgendaDraftSchema.superRefine((data, ctx) => {
+  const item = data.item;
+  
+  // Campos obrigatórios para publicação
+  if (!item.city) {
+    ctx.addIssue({ path: ['item', 'city'], code: 'custom', message: 'Cidade é obrigatória para publicação' });
+  }
+  if (!item.start_at) {
+    ctx.addIssue({ path: ['item', 'start_at'], code: 'custom', message: 'Data de início é obrigatória para publicação' });
+  }
+  if (!item.end_at) {
+    ctx.addIssue({ path: ['item', 'end_at'], code: 'custom', message: 'Data de fim é obrigatória para publicação' });
+  }
+  if (!item.cover_url) {
+    ctx.addIssue({ path: ['item', 'cover_url'], code: 'custom', message: 'Capa é obrigatória para publicação' });
+  }
+  if (!item.alt_text) {
+    ctx.addIssue({ path: ['item', 'alt_text'], code: 'custom', message: 'Texto alternativo da capa é obrigatório para publicação' });
+  }
+  if (!item.summary || item.summary.length < 10) {
+    ctx.addIssue({ path: ['item', 'summary'], code: 'custom', message: 'Resumo de pelo menos 10 caracteres é obrigatório para publicação' });
+  }
+
+  // Validação de duração mínima
+  if (item.start_at && item.end_at) {
+    const start = new Date(item.start_at);
+    const end = new Date(item.end_at);
     const diffMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
-    return diffMinutes >= 15;
-  }, {
-    message: 'A duração mínima deve ser de 15 minutos',
-    path: ['end_at'],
-  }).refine((data) => {
-    // Validar preços se ambos estão definidos
-    if (data.price_min !== undefined && data.price_max !== undefined) {
-      return data.price_max >= data.price_min;
+    if (diffMinutes < 15) {
+      ctx.addIssue({ path: ['item', 'end_at'], code: 'custom', message: 'A duração mínima deve ser de 15 minutos' });
     }
-    return true;
-  }, {
-    message: 'Preço máximo deve ser maior ou igual ao preço mínimo',
-    path: ['price_max'],
-  }),
-  occurrences: z.array(OccurrenceSchema).optional(),
-  ticket_tiers: z.array(TicketTierSchema).optional(),
-  media: z.array(MediaSchema).optional(),
+  }
+
+  // Validação de preços
+  if (item.price_min !== undefined && item.price_max !== undefined && item.price_max < item.price_min) {
+    ctx.addIssue({ path: ['item', 'price_max'], code: 'custom', message: 'Preço máximo deve ser maior ou igual ao preço mínimo' });
+  }
+
+  // Validação de coerência entre preço e status do ingresso
+  if (item.ticket_status === 'paid' && item.price_min == null && item.price_max == null) {
+    ctx.addIssue({ path: ['item', 'ticket_status'], code: 'custom', message: 'Preencha um preço ou marque como gratuito' });
+  }
 });
 
 // Schema completo para qualquer operação

@@ -73,6 +73,7 @@ import {
   AGE_RATING_OPTIONS,
   ACCESSIBILITY_OPTIONS,
   AgendaDraftSchema,
+  TicketStatusEnum,
   type AgendaDraftData
 } from '@/schemas/agenda';
 
@@ -1088,33 +1089,33 @@ export function AgendaForm({ mode }: AgendaFormProps) {
                             <FormMessage />
                           </FormItem>
                         )}
-                      />
-                      
-                        <FormField
-                          control={form.control}
-                          name="item.ticket_status"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Status do Ingresso</FormLabel>
-                              <Select value={field.value || ""} onValueChange={field.onChange}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Selecione o status" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {TICKET_STATUS_OPTIONS.map((status) => (
-                                    <SelectItem key={status.value} value={status.value}>
-                                      {status.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                              <p className="text-xs text-muted-foreground">Status atual dos ingressos</p>
-                            </FormItem>
-                          )}
-                        />
+                       />
+                       
+                       <FormField
+                         control={form.control}
+                         name="item.ticket_status"
+                         render={({ field }) => (
+                           <FormItem>
+                             <FormLabel>Status do Ingresso</FormLabel>
+                             <Select value={field.value || ""} onValueChange={field.onChange}>
+                               <FormControl>
+                                 <SelectTrigger>
+                                   <SelectValue placeholder="Selecione o status" />
+                                 </SelectTrigger>
+                               </FormControl>
+                               <SelectContent>
+                                 {TICKET_STATUS_OPTIONS.map((status) => (
+                                   <SelectItem key={status.value} value={status.value}>
+                                     {status.label}
+                                   </SelectItem>
+                                 ))}
+                               </SelectContent>
+                             </Select>
+                             <FormMessage />
+                             <p className="text-xs text-muted-foreground">Status atual dos ingressos</p>
+                           </FormItem>
+                         )}
+                       />
                     </div>
                   </CardContent>
                 </AccordionContent>
@@ -1665,3 +1666,5 @@ export function AgendaForm({ mode }: AgendaFormProps) {
     </div>
   );
 }
+
+export default AgendaForm;
