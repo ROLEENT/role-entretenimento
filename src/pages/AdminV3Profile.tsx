@@ -93,7 +93,7 @@ export default function AdminV3Profile() {
     try {
       const { data, error } = await supabase.storage
         .from('avatars')
-        .createSignedUrl(avatarPath, 60 * 60 * 24); // 24 hours
+        .createSignedUrl(avatarPath, 86400); // 24 hours (86400 seconds)
 
       if (error) {
         console.error('Erro ao carregar signed URL:', error);
@@ -116,8 +116,7 @@ export default function AdminV3Profile() {
     const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
       toast({
-        title: "Tipo de arquivo inválido",
-        description: "Aceitos apenas: PNG, JPG, JPEG, WebP",
+        title: "Tipo inválido",
         variant: "destructive"
       });
       return;
@@ -127,7 +126,6 @@ export default function AdminV3Profile() {
     if (file.size > 2 * 1024 * 1024) {
       toast({
         title: "Arquivo muito grande",
-        description: "A imagem deve ter menos de 2MB",
         variant: "destructive"
       });
       return;
@@ -235,15 +233,13 @@ export default function AdminV3Profile() {
       }
 
       toast({
-        title: "Sucesso",
-        description: "Perfil salvo com sucesso"
+        title: "Perfil salvo"
       });
       
     } catch (error) {
       console.error('Erro ao salvar perfil:', error);
       toast({
-        title: "Erro de upload",
-        description: "Não foi possível salvar o perfil",
+        title: "Erro ao salvar",
         variant: "destructive"
       });
     } finally {
@@ -278,15 +274,13 @@ export default function AdminV3Profile() {
       setAvatarPreview(null);
 
       toast({
-        title: "Sucesso",
-        description: "Avatar removido com sucesso"
+        title: "Avatar removido"
       });
 
     } catch (error) {
       console.error('Erro ao remover avatar:', error);
       toast({
-        title: "Erro",
-        description: "Não foi possível remover o avatar",
+        title: "Erro ao remover",
         variant: "destructive"
       });
     } finally {
