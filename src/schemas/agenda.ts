@@ -34,7 +34,7 @@ export const TICKET_STATUS_OPTIONS = [
   { value: 'free', label: 'Gratuito' },
   { value: 'paid', label: 'Pago' },
   { value: 'sold_out', label: 'Esgotado' },
-  { value: 'invite_only', label: 'Apenas por convite' }
+  { value: 'invite_only', label: 'Só convidados' }
 ] as const;
 
 // Type options

@@ -1201,20 +1201,23 @@ export function AgendaForm({ mode }: AgendaFormProps) {
                          render={({ field }) => (
                            <FormItem>
                              <FormLabel>Status do Ingresso</FormLabel>
-                             <Select value={field.value || ""} onValueChange={field.onChange}>
-                               <FormControl>
-                                 <SelectTrigger>
-                                   <SelectValue placeholder="Selecione o status" />
+                             <FormControl>
+                               <Select
+                                 value={field.value ?? undefined}
+                                 onValueChange={field.onChange}
+                               >
+                                 <SelectTrigger aria-label="Status do ingresso">
+                                   <SelectValue placeholder="Selecionar status" />
                                  </SelectTrigger>
-                               </FormControl>
-                               <SelectContent>
-                                 {TICKET_STATUS_OPTIONS.map((status) => (
-                                   <SelectItem key={status.value} value={status.value}>
-                                     {status.label}
-                                   </SelectItem>
-                                 ))}
-                               </SelectContent>
-                             </Select>
+                                 <SelectContent className="bg-background z-50">
+                                   {TICKET_STATUS_OPTIONS.map((option) => (
+                                     <SelectItem key={option.value} value={option.value}>
+                                       {option.label}
+                                     </SelectItem>
+                                   ))}
+                                 </SelectContent>
+                               </Select>
+                             </FormControl>
                              <FormMessage />
                              <p className="text-xs text-muted-foreground">Status atual dos ingressos</p>
                            </FormItem>
