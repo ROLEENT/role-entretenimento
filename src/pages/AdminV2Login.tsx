@@ -14,7 +14,9 @@ interface LoginAttempt {
 
 const AUTHORIZED_EMAILS = [
   'pablohenrique.dev@gmail.com',
-  'admin@role.app'
+  'admin@role.app',
+  'fiih@roleentretenimento.com',
+  'guilherme@roleentretenimento.com'
 ];
 
 const RATE_LIMIT_ATTEMPTS = 5;
