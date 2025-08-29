@@ -87,16 +87,16 @@ const Newsletter = () => {
             </p>
           </div>
           
-          <form onSubmit={handleSubmit} className="mb-8">
-            <div className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-4 max-w-2xl mx-auto'}`}>
+          <form onSubmit={handleSubmit} className="mb-6">
+            <div className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-4 max-w-3xl mx-auto'}`}>
               <div className="relative flex-1">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Mail className="absolute left-5 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="email"
-                  placeholder="Seu melhor email"
+                  placeholder="Digite seu melhor email aqui"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={`${isMobile ? 'h-14 text-lg' : 'h-16 text-lg'} pl-12 rounded-full border-2 focus:border-primary font-medium`}
+                  className={`${isMobile ? 'h-14 text-base' : 'h-16 text-lg'} pl-14 pr-6 rounded-full border-2 focus:border-primary font-medium bg-background/80 backdrop-blur-sm`}
                   required
                 />
               </div>
@@ -104,7 +104,7 @@ const Newsletter = () => {
                 type="submit" 
                 disabled={isLoading}
                 size="lg"
-                className={`${isMobile ? 'h-14 px-8 text-lg' : 'h-16 px-10 text-lg'} rounded-full font-bold group transition-all duration-300 hover:scale-105 hover:shadow-glow`}
+                className={`${isMobile ? 'h-14 px-8 text-base' : 'h-16 px-12 text-lg'} rounded-full font-bold bg-primary hover:bg-primary/90 text-primary-foreground border-0 group transition-all duration-300 hover:scale-105 hover:shadow-xl`}
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
@@ -112,8 +112,8 @@ const Newsletter = () => {
                     Enviando...
                   </span>
                 ) : (
-                  <span className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 group-hover:animate-bounce-subtle" />
+                  <span className="flex items-center gap-3">
+                    <Mail className="h-5 w-5 group-hover:animate-bounce-subtle" />
                     Quero receber
                     <Send className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </span>
@@ -122,8 +122,12 @@ const Newsletter = () => {
             </div>
           </form>
 
-          <p className="text-muted-foreground text-sm max-w-lg mx-auto">
-            📧 Curadoria semanal • 🚫 Sem spam • 🔒 Dados protegidos • ✨ Cancele quando quiser
+          <p className="text-muted-foreground text-sm max-w-lg mx-auto leading-relaxed">
+            Prometemos não enviar spam. Consulte nossa{" "}
+            <a href="/politica-privacidade" className="text-primary hover:underline font-medium">
+              Política de Privacidade
+            </a>
+            .
           </p>
         </div>
       </div>
