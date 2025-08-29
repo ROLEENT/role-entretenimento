@@ -195,13 +195,14 @@ export function AdminBlogList() {
                               variant="ghost" 
                               size="icon"
                               onClick={() => handleDuplicate(post)}
+                              title="Duplicar"
                             >
                               <Copy className="w-4 h-4" />
                             </Button>
 
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon">
+                                <Button variant="ghost" size="icon" title="Excluir">
                                   <Trash2 className="w-4 h-4" />
                                 </Button>
                               </AlertDialogTrigger>

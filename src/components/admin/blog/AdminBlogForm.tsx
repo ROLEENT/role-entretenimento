@@ -51,6 +51,33 @@ export function AdminBlogForm() {
   const [currentTag, setCurrentTag] = useState('');
   const [isDirty, setIsDirty] = useState(false);
 
+  // Check if all required fields are filled for publishing
+  const canPublish = () => {
+    const values = form.getValues();
+    return (
+      values.title &&
+      values.city &&
+      values.summary &&
+      values.content_md &&
+      values.cover_image &&
+      values.cover_alt &&
+      slugAvailable
+    );
+  };
+
+  // Get error message for publish button tooltip
+  const getPublishErrorMessage = () => {
+    const values = form.getValues();
+    if (!values.title) return 'Título é obrigatório';
+    if (!values.city) return 'Escolha uma seção';
+    if (!values.summary) return 'Resumo é obrigatório';
+    if (!values.content_md) return 'Conteúdo é obrigatório';
+    if (!values.cover_image) return 'Imagem de capa é obrigatória';
+    if (!values.cover_alt) return 'ALT da capa é obrigatório para publicar';
+    if (!slugAvailable) return 'Slug indisponível';
+    return '';
+  };
+
   const form = useForm<BlogFormData>({
     resolver: zodResolver(blogFormSchema),
     defaultValues: {
@@ -374,7 +401,7 @@ export function AdminBlogForm() {
                       <FormItem>
                         <FormLabel>Título *</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Título do artigo" />
+                          <Input {...field} placeholder="Escreva um título direto" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -421,7 +448,7 @@ export function AdminBlogForm() {
                           </div>
                         </FormControl>
                         {!slugAvailable && (
-                          <p className="text-sm text-destructive">Este slug já está em uso</p>
+                          <p className="text-sm text-destructive">Slug indisponível</p>
                         )}
                         <FormMessage />
                       </FormItem>
@@ -438,7 +465,7 @@ export function AdminBlogForm() {
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Selecione a cidade" />
+                                <SelectValue placeholder="Escolha uma seção" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -512,7 +539,7 @@ export function AdminBlogForm() {
                       <FormItem>
                         <FormLabel>Resumo *</FormLabel>
                         <FormControl>
-                          <Textarea {...field} placeholder="Resumo do artigo" rows={3} />
+                          <Textarea {...field} placeholder="Resumo até 240 caracteres" rows={3} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -556,6 +583,11 @@ export function AdminBlogForm() {
                         <FormControl>
                           <Input {...field} placeholder="Descrição da imagem para acessibilidade" />
                         </FormControl>
+                        {!field.value && form.formState.touchedFields.cover_alt && (
+                          <p className="text-sm text-destructive">
+                            ALT da capa é obrigatório para publicar
+                          </p>
+                        )}
                         <FormMessage />
                       </FormItem>
                     )}
@@ -581,7 +613,7 @@ export function AdminBlogForm() {
                             <div>
                               <Textarea 
                                 {...field} 
-                                placeholder="# Título do artigo&#10;&#10;Escreva seu conteúdo em Markdown aqui..."
+                                placeholder="Cole seu markdown aqui"
                                 rows={20}
                                 className="font-mono text-sm"
                               />
@@ -683,7 +715,7 @@ export function AdminBlogForm() {
                       disabled={isLoading}
                     >
                       <Save className="w-4 h-4 mr-2" />
-                      Salvar Rascunho
+                      Salvar rascunho
                     </Button>
 
                     <Button
@@ -691,6 +723,7 @@ export function AdminBlogForm() {
                       variant="outline"
                       onClick={() => onSubmit(form.getValues(), 'schedule')}
                       disabled={isLoading || !form.watch('published_at')}
+                      title={!form.watch('published_at') ? 'Selecione uma data para agendar' : ''}
                     >
                       <Calendar className="w-4 h-4 mr-2" />
                       Agendar
@@ -699,10 +732,11 @@ export function AdminBlogForm() {
                     <Button
                       type="button"
                       onClick={() => onSubmit(form.getValues(), 'publish')}
-                      disabled={isLoading}
+                      disabled={isLoading || !canPublish()}
+                      title={getPublishErrorMessage()}
                     >
                       <Globe className="w-4 h-4 mr-2" />
-                      Publicar Agora
+                      Publicar agora
                     </Button>
                   </div>
                 </CardContent>
