@@ -130,17 +130,24 @@ const basePublishSchema = z.object({
   venue_id: z.string().uuid().optional(),
 });
 
-// Schema para publicação com validação de datas
-export const publishSchema = basePublishSchema.refine((data) => {
-  if (data.start_at && data.end_at) {
-    const diffMs = data.end_at.getTime() - data.start_at.getTime();
-    const diffMinutes = diffMs / (1000 * 60);
-    return diffMinutes >= 15;
+// Schema para publicação com validação rigorosa
+export const publishSchema = agendaDraftSchema.superRefine((d, ctx) => {
+  const falta = (k: string, cond: boolean) => { 
+    if (cond) ctx.addIssue({ path: [k], code: 'custom', message: 'Obrigatório para publicar' }); 
+  };
+  
+  falta('city', !d.city);
+  falta('start_at', !d.start_at);
+  falta('end_at', !d.end_at);
+  falta('cover_url', !d.cover_url);
+  falta('alt_text', !d.alt_text);
+  
+  if (d.start_at && d.end_at) {
+    const dt = d.end_at.getTime() - d.start_at.getTime();
+    if (dt < 15 * 60 * 1000) {
+      ctx.addIssue({ path: ['end_at'], code: 'custom', message: 'Mínimo 15 min' });
+    }
   }
-  return true;
-}, {
-  message: 'Data de fim deve ser pelo menos 15 minutos após o início',
-  path: ['end_at']
 });
 
 // Schema principal (compatibilidade)
