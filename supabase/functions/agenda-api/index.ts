@@ -69,24 +69,29 @@ function validateUrl(url: string | null): boolean {
   return url.startsWith('http://') || url.startsWith('https://');
 }
 
-// Check admin permissions using auth_role function
+// Check admin permissions using profiles table
 async function checkAdminPermissions(supabase: any, requiredRole: string[] = ['admin', 'editor']) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Não autorizado');
 
-  const { data, error } = await supabase.rpc('auth_role');
-  if (error || !data || !requiredRole.includes(data)) {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('user_id', user.id)
+    .single();
+
+  if (!profile || !requiredRole.includes(profile.role)) {
     throw new Error('Permissões insuficientes');
   }
   return user;
 }
 
 async function handleGet(supabase: any, url: URL) {
-  const pathname = url.pathname;
+  const pathname = url.pathname.replace('/agenda-api', '');
   const segments = pathname.split('/').filter(Boolean);
 
   // GET /api/agenda
-  if (segments.length === 2) {
+  if (segments.length === 0 || (segments.length === 1 && segments[0] === 'agenda')) {
     const city = url.searchParams.get('city');
     const from = url.searchParams.get('from');
     const to = url.searchParams.get('to');
@@ -116,8 +121,8 @@ async function handleGet(supabase: any, url: URL) {
     return { data: data || [] };
   }
 
-  // GET /api/agenda/slug-exists
-  if (segments[2] === 'slug-exists') {
+  // GET /agenda/slug-exists
+  if (segments.length === 2 && segments[1] === 'slug-exists') {
     const slug = url.searchParams.get('slug');
     if (!slug) throw new Error('Slug é obrigatório');
 
@@ -131,9 +136,9 @@ async function handleGet(supabase: any, url: URL) {
     return { exists: !!data };
   }
 
-  // GET /api/agenda/:id/preview
-  if (segments.length === 4 && segments[3] === 'preview') {
-    const id = segments[2];
+  // GET /agenda/:id/preview
+  if (segments.length === 3 && segments[2] === 'preview') {
+    const id = segments[1];
     const token = url.searchParams.get('token');
 
     const { data, error } = await supabase
@@ -148,9 +153,9 @@ async function handleGet(supabase: any, url: URL) {
     return { data };
   }
 
-  // GET /api/agenda/:id
-  if (segments.length === 3) {
-    const id = segments[2];
+  // GET /agenda/:id
+  if (segments.length === 2 && segments[0] === 'agenda') {
+    const id = segments[1];
     await checkAdminPermissions(supabase);
 
     const { data, error } = await supabase
@@ -173,13 +178,13 @@ async function handleGet(supabase: any, url: URL) {
 }
 
 async function handlePost(supabase: any, url: URL, body: any) {
-  const pathname = url.pathname;
+  const pathname = url.pathname.replace('/agenda-api', '');
   const segments = pathname.split('/').filter(Boolean);
   const user = await checkAdminPermissions(supabase);
 
-  // POST /api/agenda/:id/publish
-  if (segments.length === 4 && segments[3] === 'publish') {
-    const id = segments[2];
+  // POST /agenda/:id/publish
+  if (segments.length === 3 && segments[2] === 'publish') {
+    const id = segments[1];
     
     const { data, error } = await supabase
       .from('agenda_itens')
@@ -197,9 +202,9 @@ async function handlePost(supabase: any, url: URL, body: any) {
     return { data, message: 'Item publicado com sucesso' };
   }
 
-  // POST /api/agenda/:id/unpublish
-  if (segments.length === 4 && segments[3] === 'unpublish') {
-    const id = segments[2];
+  // POST /agenda/:id/unpublish
+  if (segments.length === 3 && segments[2] === 'unpublish') {
+    const id = segments[1];
     
     const { data, error } = await supabase
       .from('agenda_itens')
@@ -217,9 +222,9 @@ async function handlePost(supabase: any, url: URL, body: any) {
     return { data, message: 'Item despublicado com sucesso' };
   }
 
-  // POST /api/agenda/:id/duplicate
-  if (segments.length === 4 && segments[3] === 'duplicate') {
-    const id = segments[2];
+  // POST /agenda/:id/duplicate
+  if (segments.length === 3 && segments[2] === 'duplicate') {
+    const id = segments[1];
     
     const { data: original } = await supabase
       .from('agenda_itens')
@@ -252,8 +257,8 @@ async function handlePost(supabase: any, url: URL, body: any) {
     return { data, message: 'Item duplicado com sucesso' };
   }
 
-  // POST /api/agenda
-  if (segments.length === 2) {
+  // POST /agenda
+  if (segments.length === 1 && segments[0] === 'agenda') {
     const payload: AgendaPayload = sanitizeData(body);
     
     if (!payload.item?.title || !payload.item?.slug) {
@@ -320,12 +325,12 @@ async function handlePost(supabase: any, url: URL, body: any) {
 }
 
 async function handlePatch(supabase: any, url: URL, body: any) {
-  const pathname = url.pathname;
+  const pathname = url.pathname.replace('/agenda-api', '');
   const segments = pathname.split('/').filter(Boolean);
   const user = await checkAdminPermissions(supabase);
 
-  if (segments.length === 3) {
-    const id = segments[2];
+  if (segments.length === 2 && segments[0] === 'agenda') {
+    const id = segments[1];
     const payload: AgendaPayload = sanitizeData(body);
 
     // Get current item for slug history
@@ -417,12 +422,12 @@ async function handlePatch(supabase: any, url: URL, body: any) {
 }
 
 async function handleDelete(supabase: any, url: URL) {
-  const pathname = url.pathname;
+  const pathname = url.pathname.replace('/agenda-api', '');
   const segments = pathname.split('/').filter(Boolean);
   const user = await checkAdminPermissions(supabase, ['admin']);
 
-  if (segments.length === 3) {
-    const id = segments[2];
+  if (segments.length === 2 && segments[0] === 'agenda') {
+    const id = segments[1];
 
     const { data, error } = await supabase
       .from('agenda_itens')
