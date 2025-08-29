@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useSecureAuth } from '@/hooks/useSecureAuth';
+import { handleAuthError, AuthErrorCodes } from '@/utils/authErrorHandler';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Eye, EyeOff, AlertCircle, Mail, Lock, Shield } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { Loader2, Eye, EyeOff, AlertCircle, Mail, Lock, Shield, RefreshCw } from 'lucide-react';
 
 /**
  * Página de login atualizada para usar cookies seguros e RBAC
@@ -86,6 +88,8 @@ export default function AdminV2Login() {
       });
 
       if (authError) {
+        const mappedError = handleAuthError(authError);
+        
         // Increment login attempts on failure
         const newAttempts = loginAttempts + 1;
         setLoginAttempts(newAttempts);
@@ -96,11 +100,11 @@ export default function AdminV2Login() {
           setBlockTimeLeft(60);
           setError('Muitas tentativas falhadas. Bloqueado por 60 segundos.');
         } else {
-          setError(`Login inválido. Tentativa ${newAttempts}/5`);
+          setError(`${mappedError.message} Tentativa ${newAttempts}/5`);
         }
         
         // Log failed attempt
-        console.warn(`[AUTH] Failed login attempt ${newAttempts} for email: ${email}`);
+        console.warn(`[AUTH] Failed login attempt ${newAttempts} for email: ${email}`, mappedError);
         throw authError;
       }
 
@@ -110,6 +114,12 @@ export default function AdminV2Login() {
 
       if (data.user) {
         console.log('[ADMIN LOGIN] Login bem-sucedido para:', data.user.email);
+        
+        toast({
+          title: "Login realizado!",
+          description: "Bem-vindo ao painel administrativo",
+          variant: "default"
+        });
         
         // Aguardar um momento para o auth state atualizar
         setTimeout(() => {
@@ -121,7 +131,16 @@ export default function AdminV2Login() {
     } catch (error: any) {
       console.error('[ADMIN LOGIN] Erro no login:', error);
       if (!isBlocked) {
-        setError(error.message || 'Email ou senha incorretos. Verifique suas credenciais.');
+        const mappedError = handleAuthError(error);
+        setError(mappedError.message);
+        
+        if (mappedError.code === AuthErrorCodes.CONNECTION_ERROR) {
+          toast({
+            title: "Erro de Conexão",
+            description: "Verifique sua internet e tente novamente.",
+            variant: "destructive"
+          });
+        }
       }
     } finally {
       setLoading(false);
@@ -347,6 +366,18 @@ export default function AdminV2Login() {
                     Entrar com Magic Link
                   </>
                 )}
+              </Button>
+              
+              <Button 
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="w-full text-xs" 
+                disabled={loading || magicLinkLoading}
+                onClick={() => window.location.reload()}
+              >
+                <RefreshCw className="mr-2 h-3 w-3" />
+                Atualizar Página
               </Button>
             </div>
           </form>

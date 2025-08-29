@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useSecureAuth } from '@/hooks/useSecureAuth';
+import { useAuthSessionMonitor } from '@/hooks/useAuthSessionMonitor';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface ProtectedAdminRouteProps {
@@ -9,6 +10,9 @@ interface ProtectedAdminRouteProps {
 
 export const ProtectedAdminRoute = ({ children }: ProtectedAdminRouteProps) => {
   const { user, loading, isAuthenticated, isAdmin } = useSecureAuth();
+  
+  // Monitor session health
+  useAuthSessionMonitor();
   
   // Log de debugging
   console.log('[PROTECTED ADMIN ROUTE]', {
