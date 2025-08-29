@@ -8,7 +8,7 @@ const HeroSection = () => {
   const { isMobile } = useResponsive();
 
   return (
-    <section className={`relative ${isMobile ? 'py-20' : 'py-32 lg:py-40'} bg-gradient-to-br from-background via-background/95 to-primary/5 overflow-hidden`}>
+    <section className={`relative ${isMobile ? 'py-24' : 'py-40 lg:py-48'} bg-gradient-to-br from-background via-background/95 to-primary/5 overflow-hidden`}>
       {/* Background Pattern */}
       <div className="absolute inset-0 hero-pattern opacity-30" />
       
@@ -17,35 +17,36 @@ const HeroSection = () => {
       <div className="absolute bottom-20 right-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }} />
       
       {/* Content */}
-      <div className="relative z-10 text-center px-4 max-w-6xl mx-auto">
-        {/* Main Title */}
-        <div className="mb-12">
-          <h1 className={`font-heading font-black text-foreground ${isMobile ? 'text-4xl' : 'text-5xl md:text-6xl lg:text-7xl'} tracking-tight leading-[0.9] mb-6`}>
-            <span className="block">CURADORIA INDEPENDENTE</span>
-            <span className="block">DE CULTURA &</span>
-            <span className="block gradient-text">EXPERIÊNCIAS</span>
-            <img 
-              src={roleIcon} 
-              alt="ROLÊ" 
-              className={`inline-block ml-4 ${isMobile ? 'w-12 h-12' : 'w-16 h-16 md:w-20 md:h-20'} hover:animate-bounce-subtle`}
-            />
+      <div className="relative z-10 text-center px-4 max-w-7xl mx-auto">
+        {/* Main Title - Editorial Typography */}
+        <div className={`${isMobile ? 'mb-16' : 'mb-20'}`}>
+          <h1 className={`font-serif font-bold text-foreground ${isMobile ? 'text-5xl' : 'text-6xl md:text-7xl lg:text-8xl xl:text-9xl'} tracking-tighter leading-[0.85] ${isMobile ? 'mb-8' : 'mb-12'} animate-fade-in`}>
+            <span className="block font-black">CURADORIA</span>
+            <span className="block font-black">INDEPENDENTE</span>
+            <span className="block font-black">DE CULTURA &</span>
+            <span className="block gradient-text font-black">EXPERIÊNCIAS</span>
           </h1>
-          <p className={`text-muted-foreground font-medium ${isMobile ? 'text-lg mt-6' : 'text-xl md:text-2xl mt-8'} max-w-4xl mx-auto leading-relaxed`}>
-            Conectamos pessoas através de experiências culturais autênticas.
-            <br className="hidden md:block" />
-            <span className="text-primary font-semibold">Diversidade, afeto e comunidade</span> em todo o Brasil.
-          </p>
+          
+          {/* Tagline - Centered with max width */}
+          <div className="max-w-3xl mx-auto">
+            <p className={`text-muted-foreground font-medium ${isMobile ? 'text-lg' : 'text-xl md:text-2xl'} leading-relaxed animate-fade-in`} style={{ animationDelay: '0.3s' }}>
+              Conectamos pessoas através de experiências culturais autênticas. 
+              <span className="block mt-2">
+                <span className="text-primary font-semibold">Diversidade, afeto e comunidade</span> em todo o Brasil.
+              </span>
+            </p>
+          </div>
         </div>
 
         {/* Call-to-Action Buttons */}
-        <div className={`flex ${isMobile ? 'flex-col w-full max-w-sm mx-auto' : 'flex-row justify-center'} gap-6 items-center`}>
+        <div className={`flex ${isMobile ? 'flex-col w-full max-w-sm mx-auto' : 'flex-row justify-center'} gap-6 items-center animate-fade-in`} style={{ animationDelay: '0.6s' }}>
           <Button
             variant="default"
             size="lg"
-            className={`font-semibold ${isMobile ? 'w-full px-8 py-6 text-lg' : 'px-10 py-6 text-lg'} rounded-full transition-all duration-300 hover:scale-105 hover:shadow-glow group`}
+            className={`font-semibold ${isMobile ? 'w-full px-8 py-7 text-lg' : 'px-12 py-7 text-lg'} rounded-full transition-all duration-300 hover:scale-105 hover:shadow-glow group bg-primary hover:bg-primary/90 border-0`}
             asChild
           >
-            <Link to="/eventos">
+            <Link to="/agenda">
               <MapPin className="mr-3 h-6 w-6 group-hover:animate-bounce-subtle" />
               {isMobile ? 'Descubra o ROLÊ' : 'Descubra o ROLÊ na sua cidade'}
               <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
@@ -55,7 +56,7 @@ const HeroSection = () => {
           <Button
             variant="outline"
             size="lg"
-            className={`font-semibold ${isMobile ? 'w-full px-8 py-6 text-lg' : 'px-10 py-6 text-lg'} rounded-full transition-all duration-300 hover:scale-105 hover:shadow-lg border-2 group`}
+            className={`font-semibold ${isMobile ? 'w-full px-8 py-7 text-lg' : 'px-12 py-7 text-lg'} rounded-full transition-all duration-300 hover:scale-105 hover:shadow-lg border-2 border-primary text-primary hover:bg-primary/10 group`}
             asChild
           >
             <Link to="/destaques">
