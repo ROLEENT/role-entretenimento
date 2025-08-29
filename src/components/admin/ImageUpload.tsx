@@ -51,10 +51,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = path ? `${path}/${fileName}` : fileName;
 
-      // Simulate progress for better UX
-      const progressInterval = setInterval(() => {
-        setProgress(prev => Math.min(prev + 10, 90));
-      }, 100);
+      // Real progress tracking
+      setProgress(10);
 
       const { data, error } = await supabase.storage
         .from(bucket)
@@ -63,12 +61,11 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           upsert: false
         });
 
-      clearInterval(progressInterval);
-      setProgress(100);
-
       if (error) {
         throw error;
       }
+
+      setProgress(100);
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage

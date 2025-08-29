@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Separator } from '@/components/ui/separator';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { AdminFileUpload } from '@/components/ui/admin-file-upload';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 import { FocalPointSelector } from '@/components/highlights/FocalPointSelector';
 import { QualityBadges } from '@/components/highlights/QualityBadges';
 import { PublishChecklist } from '@/components/highlights/PublishChecklist';
@@ -679,14 +679,16 @@ export default function AdvancedHighlightEditor() {
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <CardContent className="space-y-6">
-                        <AdminFileUpload
-                          bucket="highlights"
-                          onUploadComplete={handleImageUpload}
-                          currentUrl={coverUrl}
-                          label="Imagem de capa *"
-                          maxSize={5 * 1024 * 1024} // 5MB
-                          allowedTypes={['image/png', 'image/jpg', 'image/jpeg', 'image/webp']}
-                        />
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Imagem de capa *</label>
+                          <ImageUpload
+                            value={coverUrl}
+                            onChange={(url) => url ? handleImageUpload(url) : handleImageRemove()}
+                            bucket="highlights"
+                            maxSize={5}
+                            placeholder="Clique para fazer upload da imagem de capa"
+                          />
+                        </div>
 
                         {coverUrl && (
                           <div className="space-y-4">
