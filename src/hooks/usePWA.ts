@@ -20,46 +20,46 @@ export const usePWA = () => {
     // Only register service worker in browser
     if (typeof window === 'undefined') return;
     
-    // Register service worker with proper cache management
-    if ('serviceWorker' in navigator) {
-      // Unregister any existing service workers first
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        registrations.forEach((registration) => {
-          registration.unregister();
-        });
-      }).then(() => {
-        // Register new service worker
-        return navigator.serviceWorker.register('/sw.js', { 
-          scope: '/',
-          updateViaCache: 'none'
-        });
-      }).then((registration) => {
-        // Service worker registered successfully
-        // Force update to clear old caches
-        registration.update();
-      }).catch((registrationError) => {
-        console.log('SW registration failed: ', registrationError);
-      });
-    }
+    // Service Worker temporarily disabled for debugging
+    // if ('serviceWorker' in navigator) {
+    //   // Unregister any existing service workers first
+    //   navigator.serviceWorker.getRegistrations().then((registrations) => {
+    //     registrations.forEach((registration) => {
+    //       registration.unregister();
+    //     });
+    //   }).then(() => {
+    //     // Register new service worker
+    //     return navigator.serviceWorker.register('/sw.js', { 
+    //       scope: '/',
+    //       updateViaCache: 'none'
+    //     });
+    //   }).then((registration) => {
+    //     // Service worker registered successfully
+    //     // Force update to clear old caches
+    //     registration.update();
+    //   }).catch((registrationError) => {
+    //     console.log('SW registration failed: ', registrationError);
+    //   });
+    // }
 
     // Check if app is already installed - only in browser
     if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
       setIsInstalled(true);
     }
 
-    // Listen for beforeinstallprompt event
-    const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
-      e.preventDefault();
-      
-      // Don't allow PWA installation in admin routes
-      const isAdminRoute = window.location.pathname.startsWith('/admin-v3');
-      if (isAdminRoute) {
-        return; // Simply return without setting the prompt
-      }
-      
-      setDeferredPrompt(e);
-      setIsInstallable(true);
-    };
+    // PWA install prompt temporarily disabled
+    // const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
+    //   e.preventDefault();
+    //   
+    //   // Don't allow PWA installation in admin routes
+    //   const isAdminRoute = window.location.pathname.startsWith('/admin-v3');
+    //   if (isAdminRoute) {
+    //     return; // Simply return without setting the prompt
+    //   }
+    //   
+    //   setDeferredPrompt(e);
+    //   setIsInstallable(true);
+    // };
 
     // Listen for appinstalled event
     const handleAppInstalled = () => {
@@ -83,14 +83,15 @@ export const usePWA = () => {
       });
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener);
-    window.addEventListener('appinstalled', handleAppInstalled);
+    // PWA event listeners temporarily disabled
+    // window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener);
+    // window.addEventListener('appinstalled', handleAppInstalled);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener);
-      window.removeEventListener('appinstalled', handleAppInstalled);
+      // window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener);
+      // window.removeEventListener('appinstalled', handleAppInstalled);
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };

@@ -1,6 +1,9 @@
 // Service Worker utilities for caching and offline support
 
 export const registerServiceWorker = async () => {
+  // Service Worker temporariamente desabilitado
+  console.log('SW registration disabled for debugging');
+  return;
 
   // Skip service worker registration for admin routes
   if (window.location.pathname.startsWith('/admin')) {
