@@ -2,7 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import PersonalCalendar from '@/components/PersonalCalendar';
+import UserPersonalCalendar from '@/components/UserPersonalCalendar';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Calendar, LogIn } from 'lucide-react';
@@ -98,7 +98,7 @@ const CalendarPage: React.FC = () => {
               </p>
             </div>
 
-            <PersonalCalendar />
+            <UserPersonalCalendar />
           </div>
         </div>
       </main>
