@@ -6,19 +6,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Users, Heart, Zap, Target, Send } from "lucide-react";
 import { toast } from "sonner";
+import { ApplicationSchema } from "@/schemas/forms";
+import { supabase } from "@/integrations/supabase/client";
 
 const TrabalheConosco = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
+    full_name: '',
     email: '',
-    portfolio: '',
-    area: '',
-    message: ''
+    phone: '',
+    portfolio_url: '',
+    role: '',
+    message: '',
+    lgpd_consent: false
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -32,28 +37,55 @@ const TrabalheConosco = () => {
   const handleSelectChange = (value: string) => {
     setFormData(prev => ({
       ...prev,
-      area: value
+      role: value
+    }));
+  };
+
+  const handleCheckboxChange = (checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      lgpd_consent: checked
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.email || !formData.area || !formData.message) {
-      toast.error('Por favor, preencha todos os campos obrigatórios');
+    // Validate with Zod schema
+    try {
+      ApplicationSchema.parse(formData);
+    } catch (error: any) {
+      const firstError = error.errors?.[0]?.message || 'Por favor, preencha todos os campos obrigatórios';
+      toast.error(firstError);
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // Simulate form submission - replace with actual service call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      toast.success("Candidatura enviada com sucesso! Entraremos em contato em breve.");
-      setFormData({ name: '', email: '', portfolio: '', area: '', message: '' });
-    } catch (error) {
+      const { data, error } = await supabase.functions.invoke('forms-apply', {
+        body: formData,
+      });
+
+      if (error) throw error;
+
+      if (data?.ok) {
+        toast.success("Candidatura enviada com sucesso! Entraremos em contato em breve.");
+        setFormData({ 
+          full_name: '', 
+          email: '', 
+          phone: '', 
+          portfolio_url: '', 
+          role: '', 
+          message: '', 
+          lgpd_consent: false 
+        });
+      } else {
+        throw new Error(data?.error || 'Erro ao enviar candidatura');
+      }
+    } catch (error: any) {
       console.error('Erro ao enviar candidatura:', error);
-      toast.error('Erro ao enviar candidatura. Tente novamente.');
+      toast.error(error.message || 'Erro ao enviar candidatura. Tente novamente.');
     } finally {
       setIsSubmitting(false);
     }
@@ -238,11 +270,11 @@ const TrabalheConosco = () => {
                   <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="name">Nome Completo *</Label>
+                        <Label htmlFor="full_name">Nome Completo *</Label>
                         <Input
-                          id="name"
-                          name="name"
-                          value={formData.name}
+                          id="full_name"
+                          name="full_name"
+                          value={formData.full_name}
                           onChange={handleInputChange}
                           required
                           placeholder="Seu nome completo"
@@ -262,22 +294,36 @@ const TrabalheConosco = () => {
                         />
                       </div>
                     </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Telefone</Label>
+                        <Input
+                          id="phone"
+                          name="phone"
+                          type="tel"
+                          value={formData.phone}
+                          onChange={handleInputChange}
+                          placeholder="(11) 99999-9999"
+                        />
+                      </div>
                     
-                    <div className="space-y-2">
-                      <Label htmlFor="portfolio">Link do Portfólio / LinkedIn</Label>
-                      <Input
-                        id="portfolio"
-                        name="portfolio"
-                        type="url"
-                        value={formData.portfolio}
-                        onChange={handleInputChange}
-                        placeholder="https://..."
-                      />
+                      <div className="space-y-2">
+                        <Label htmlFor="portfolio_url">Link do Portfólio / LinkedIn</Label>
+                        <Input
+                          id="portfolio_url"
+                          name="portfolio_url"
+                          type="url"
+                          value={formData.portfolio_url}
+                          onChange={handleInputChange}
+                          placeholder="https://..."
+                        />
+                      </div>
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="area">Área de Interesse *</Label>
-                      <Select onValueChange={handleSelectChange} value={formData.area}>
+                      <Label htmlFor="role">Área de Interesse *</Label>
+                      <Select onValueChange={handleSelectChange} value={formData.role}>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione uma área" />
                         </SelectTrigger>
@@ -302,6 +348,22 @@ const TrabalheConosco = () => {
                         placeholder="Por que você gostaria de trabalhar conosco? Qual é sua experiência relevante? O que você pode agregar ao nosso time?"
                         rows={6}
                       />
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        id="lgpd_consent"
+                        checked={formData.lgpd_consent}
+                        onCheckedChange={handleCheckboxChange}
+                        required
+                      />
+                      <Label htmlFor="lgpd_consent" className="text-sm text-muted-foreground leading-relaxed">
+                        Aceito que meus dados pessoais sejam coletados e processados de acordo com a{" "}
+                        <a href="/politica-privacidade" className="text-primary hover:underline">
+                          Política de Privacidade
+                        </a>{" "}
+                        do ROLÊ ENTRETENIMENTO para fins de recrutamento e seleção. *
+                      </Label>
                     </div>
                     
                     <Button type="submit" disabled={isSubmitting} className="w-full" size="lg">

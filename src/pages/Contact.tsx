@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Mail, MessageSquare, Phone } from "lucide-react";
 import { toast } from "sonner";
-import { contactService } from "@/services/contactService";
+import { ContactSchema } from "@/schemas/forms";
+import { supabase } from "@/integrations/supabase/client";
 
 const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,20 +32,33 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.email || !formData.message) {
-      toast.error('Por favor, preencha todos os campos obrigatórios');
+    // Validate with Zod schema
+    try {
+      ContactSchema.parse(formData);
+    } catch (error: any) {
+      const firstError = error.errors?.[0]?.message || 'Por favor, preencha todos os campos obrigatórios';
+      toast.error(firstError);
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      await contactService.sendMessage(formData);
-      toast.success("Mensagem enviada com sucesso! Responderemos em breve.");
-      setFormData({ name: '', email: '', subject: '', message: '' });
-    } catch (error) {
+      const { data, error } = await supabase.functions.invoke('forms-contact', {
+        body: formData,
+      });
+
+      if (error) throw error;
+
+      if (data?.ok) {
+        toast.success("Mensagem enviada com sucesso! Responderemos em breve.");
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        throw new Error(data?.error || 'Erro ao enviar mensagem');
+      }
+    } catch (error: any) {
       console.error('Erro ao enviar mensagem:', error);
-      toast.error('Erro ao enviar mensagem. Tente novamente.');
+      toast.error(error.message || 'Erro ao enviar mensagem. Tente novamente.');
     } finally {
       setIsSubmitting(false);
     }

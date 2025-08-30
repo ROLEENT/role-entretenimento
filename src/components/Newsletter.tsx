@@ -42,26 +42,28 @@ const Newsletter = () => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('newsletter-signup', {
+      const { data, error } = await supabase.functions.invoke('forms-newsletter', {
         body: {
           email,
-          name: null,
         },
       });
 
       if (error) throw error;
 
-      toast({
-        title: "Inscrição realizada com sucesso! 🎉",
-        description: "Você receberá nossa curadoria semanal em breve.",
-      });
-
-      setEmail("");
-    } catch (error) {
+      if (data?.ok) {
+        toast({
+          title: "Inscrição realizada com sucesso! 🎉",
+          description: "Você receberá nossa curadoria semanal em breve.",
+        });
+        setEmail("");
+      } else {
+        throw new Error(data?.error || 'Erro na inscrição');
+      }
+    } catch (error: any) {
       console.error('Erro na inscrição:', error);
       toast({
         title: "Erro na inscrição",
-        description: "Tente novamente em alguns minutos.",
+        description: error.message || "Tente novamente em alguns minutos.",
         variant: "destructive",
       });
     } finally {
