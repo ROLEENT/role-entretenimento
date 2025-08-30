@@ -35,6 +35,7 @@ const Header = () => {
   const [highlights, setHighlights] = useState([]);
 
   const navLinks = [
+    { href: '/', label: 'Home' },
     { href: '/agenda', label: 'Agenda' },
     { href: '/revista', label: 'Revista' },
     { href: '/cidades', label: 'Cidades' }
@@ -90,6 +91,7 @@ const Header = () => {
   }, []);
 
   const isActive = (href: string) => {
+    if (href === '/' && location.pathname === '/') return true;
     if (href === '/agenda' && location.pathname.startsWith('/agenda')) return true;
     return location.pathname === href;
   };
@@ -197,6 +199,7 @@ const Header = () => {
                         : 'text-foreground hover:bg-accent hover:text-accent-foreground'
                     }`}
                     onClick={() => setMobileMenuOpen(false)}
+                    aria-current={isActive(link.href) ? 'page' : undefined}
                   >
                     {link.label}
                   </Link>
@@ -247,6 +250,7 @@ const Header = () => {
                         ? "text-primary" 
                         : "text-muted-foreground"
                     )}
+                    aria-current={isActive(link.href) ? 'page' : undefined}
                   >
                     {link.label}
                     {isActive(link.href) && (
