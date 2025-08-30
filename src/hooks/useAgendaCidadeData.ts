@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { slugToCityCode } from '@/lib/cityToSlug';
 
 export interface AgendaCidadeItem {
   id: string;
@@ -82,18 +83,26 @@ export const useAgendaCidadeData = (params: UseAgendaCidadeDataParams) => {
   }, []);
 
   const fetchItems = useCallback(async () => {
+    if (!params.city) {
+      setError('Cidade não especificada');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
 
+      // Converter slug para código da cidade
+      const cityCode = slugToCityCode(params.city);
       const { start, end } = getDateRange(params.period || 'proximos-7-dias');
       const offset = ((params.page || 1) - 1) * itemsPerPage;
 
-      // Build query
+      // Build query para agenda_itens (corrigindo o nome da tabela)
       let query = supabase
-        .from('agenda_public')
-        .select('*', { count: 'exact' })
-        .eq('city', params.city)
+        .from('agenda_itens')
+        .select('id, title, city, cover_url, start_at, end_at, tags, slug, alt_text, priority', { count: 'exact' })
+        .eq('city', cityCode)
         .eq('status', 'published')
         .is('deleted_at', null)
         .gte('start_at', start.toISOString())
@@ -122,6 +131,7 @@ export const useAgendaCidadeData = (params: UseAgendaCidadeDataParams) => {
     } catch (err) {
       console.error('Error fetching agenda items:', err);
       setError(err instanceof Error ? err.message : 'Erro ao carregar eventos');
+      // Não re-fazer fetch em caso de erro - empty state
       setItems([]);
       setTotalCount(0);
       setTotalPages(0);
@@ -131,13 +141,17 @@ export const useAgendaCidadeData = (params: UseAgendaCidadeDataParams) => {
   }, [params.city, params.search, params.period, params.tags, params.page, getDateRange]);
 
   const fetchAvailableTags = useCallback(async () => {
+    if (!params.city) return;
+
     try {
+      // Converter slug para código da cidade
+      const cityCode = slugToCityCode(params.city);
       const { start, end } = getDateRange(params.period || 'proximos-7-dias');
 
       const { data, error: fetchError } = await supabase
-        .from('agenda_public')
+        .from('agenda_itens')
         .select('tags')
-        .eq('city', params.city)
+        .eq('city', cityCode)
         .eq('status', 'published')
         .is('deleted_at', null)
         .gte('start_at', start.toISOString())
@@ -156,7 +170,7 @@ export const useAgendaCidadeData = (params: UseAgendaCidadeDataParams) => {
       setAvailableTags(Array.from(tagSet).sort());
     } catch (err) {
       console.error('Error fetching available tags:', err);
-      setAvailableTags([]);
+      // Não limpar tags em caso de erro - manter estado anterior
     }
   }, [params.city, params.period, getDateRange]);
 

@@ -1,153 +1,212 @@
-import { useState, useEffect, useMemo } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
+export interface RevistaArticle {
+  id: string;
+  title: string;
+  excerpt: string;
+  cover_url: string;
+  publish_at: string;
+  reading_time_min: number;
+  city: string;
+  slug: string;
+}
+
+// Compatibilidade com RevistaPost - interface completa
 export interface RevistaPost {
   id: string;
   title: string;
-  slug: string;
-  slug_data: string;
+  excerpt: string;
+  summary: string; // Alias para excerpt
+  cover_url: string;
+  cover_image: string; // Alias para cover_url
+  publish_at: string;
+  published_at: string; // Alias para publish_at
+  reading_time_min: number;
+  reading_time: number; // Alias para reading_time_min
   city: string;
-  author_id: string;
-  author_name: string;
-  published_at: string | null;
-  summary: string;
-  content_html: string;
-  cover_image: string;
-  tags: string[];
-  reading_time: number;
-  featured: boolean;
-  status: 'draft' | 'published' | 'scheduled';
-  views: number;
-  created_at: string;
-  updated_at: string;
-  category_ids?: string[];
-  categories?: { name: string; slug: string }[];
+  slug: string;
+  slug_data?: string;
   seo_title?: string;
   seo_description?: string;
+  updated_at?: string;
+  author_name?: string;
+  tags?: string[];
+  categories?: any[];
+  featured?: boolean;
+  content_html?: string;
 }
 
 interface UseRevistaDataParams {
-  searchTerm?: string;
+  city?: string;
   cityFilter?: string;
+  searchTerm?: string;
   sectionFilter?: string;
   page?: number;
   limit?: number;
 }
 
-export const useRevistaData = ({
-  searchTerm = '',
-  cityFilter = '',
-  sectionFilter = '',
-  page = 1,
-  limit = 12
-}: UseRevistaDataParams = {}) => {
+export const useRevistaData = (params: UseRevistaDataParams = {}) => {
+  const [articles, setArticles] = useState<RevistaArticle[]>([]);
   const [posts, setPosts] = useState<RevistaPost[]>([]);
   const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchPosts = async () => {
+  const fetchArticles = useCallback(async () => {
     try {
       setIsLoading(true);
-      
+      setError(null);
+
       let query = supabase
-        .from("blog_posts")
-        .select("*, categories(name, slug)", { count: 'exact' })
-        .eq("status", "published");
+        .from('blog_posts')
+        .select('*', { count: 'exact' })
+        .eq('status', 'published')
+        .order('published_at', { ascending: false });
 
-      // Apply filters
-      if (cityFilter) {
-        query = query.eq("city", cityFilter);
+      // Filtros de compatibilidade
+      const cityToFilter = params.city || params.cityFilter;
+      if (cityToFilter) {
+        query = query.eq('city', cityToFilter);
       }
 
-      if (searchTerm) {
-        query = query.or(`title.ilike.%${searchTerm}%, summary.ilike.%${searchTerm}%`);
+      if (params.searchTerm) {
+        query = query.ilike('title', `%${params.searchTerm}%`);
       }
 
-      // Apply pagination
-      const from = (page - 1) * limit;
-      const to = from + limit - 1;
-      
-      query = query
-        .order("published_at", { ascending: false })
-        .range(from, to);
+      if (params.limit) {
+        query = query.limit(params.limit);
+      }
 
-      const { data, error, count } = await query;
+      if (params.page && params.page > 1) {
+        const offset = (params.page - 1) * (params.limit || 12);
+        query = query.range(offset, offset + (params.limit || 12) - 1);
+      }
 
-      if (error) throw error;
-      
-      setPosts((data as any) || []);
+      const { data, error: fetchError, count } = await query;
+
+      if (fetchError) throw fetchError;
+
+      // Transform data to match both interfaces
+      const transformedArticles: RevistaArticle[] = (data || []).map(item => ({
+        id: item.id,
+        title: item.title,
+        excerpt: item.summary,
+        cover_url: item.cover_image,
+        publish_at: item.published_at,
+        reading_time_min: item.reading_time,
+        city: item.city,
+        slug: item.slug
+      }));
+
+      const transformedPosts: RevistaPost[] = (data || []).map(item => ({
+        id: item.id,
+        title: item.title,
+        excerpt: item.summary,
+        summary: item.summary,
+        cover_url: item.cover_image,
+        cover_image: item.cover_image,
+        publish_at: item.published_at,
+        published_at: item.published_at,
+        reading_time_min: item.reading_time || 5,
+        reading_time: item.reading_time || 5,
+        city: item.city,
+        slug: item.slug,
+        slug_data: item.slug_data,
+        seo_title: item.seo_title,
+        seo_description: item.seo_description,
+        updated_at: item.updated_at,
+        author_name: item.author_name,
+        tags: item.tags || [],
+        categories: item.category_ids ? [] : [],
+        featured: item.featured || false,
+        content_html: item.content_html
+      }));
+
+      setArticles(transformedArticles);
+      setPosts(transformedPosts);
       setTotalCount(count || 0);
-    } catch (err: any) {
-      console.error("Error fetching revista posts:", err);
-      setError(err.message);
+      setTotalPages(Math.ceil((count || 0) / (params.limit || 12)));
+    } catch (err) {
+      console.error('Error fetching articles:', err);
+      setError(err instanceof Error ? err.message : 'Erro ao carregar artigos');
+      // Não re-fazer fetch em caso de erro - empty state
+      setArticles([]);
+      setPosts([]);
+      setTotalCount(0);
+      setTotalPages(0);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [params.city, params.cityFilter, params.searchTerm, params.sectionFilter, params.page, params.limit]);
 
   useEffect(() => {
-    fetchPosts();
-  }, [searchTerm, cityFilter, sectionFilter, page, limit]);
+    fetchArticles();
+  }, [fetchArticles]);
 
-  const totalPages = Math.ceil(totalCount / limit);
+  const refetch = useCallback(() => {
+    fetchArticles();
+  }, [fetchArticles]);
 
   return {
-    posts,
+    articles,
+    posts, // Compatibilidade com interface correta
     totalCount,
     totalPages,
     isLoading,
     error,
-    refetch: fetchPosts
+    refetch,
   };
 };
 
+// Funções auxiliares para compatibilidade
+export const getRevistaCities = async () => {
+  const { data } = await supabase
+    .from('blog_posts')
+    .select('city')
+    .eq('status', 'published');
+    
+  const cities = Array.from(new Set((data || []).map(item => item.city).filter(Boolean)));
+  return cities;
+};
+
+export const getRevistaSections = async () => {
+  // Retorna seções padrão se não existir campo específico
+  return ['editorial', 'cultura', 'música', 'arte'];
+};
+
 export const getRevistaPostBySlug = async (slug: string): Promise<RevistaPost | null> => {
-  try {
-    const { data, error } = await supabase
-      .from("blog_posts")
-      .select("*, categories(name, slug)")
-      .eq("slug_data", slug)
-      .eq("status", "published")
-      .maybeSingle();
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .eq('slug', slug)
+    .eq('status', 'published')
+    .single();
 
-    if (error) throw error;
-    return (data as any) || null;
-  } catch (error) {
-    console.error("Error fetching revista post by slug:", error);
-    return null;
-  }
-};
+  if (error || !data) return null;
 
-export const getRevistaCities = async (): Promise<string[]> => {
-  try {
-    const { data, error } = await supabase
-      .from("blog_posts")
-      .select("city")
-      .eq("status", "published");
-
-    if (error) throw error;
-    
-    const uniqueCities = [...new Set((data as any)?.map((post: any) => post.city) || [])];
-    return uniqueCities.filter(Boolean) as string[];
-  } catch (error) {
-    console.error("Error fetching revista cities:", error);
-    return [];
-  }
-};
-
-export const getRevistaSections = async (): Promise<string[]> => {
-  try {
-    const { data, error } = await supabase
-      .from("categories")
-      .select("name")
-      .eq("type", "blog");
-
-    if (error) throw error;
-    
-    return (data as any)?.map((cat: any) => cat.name) || [];
-  } catch (error) {
-    console.error("Error fetching revista sections:", error);
-    return [];
-  }
+  return {
+    id: data.id,
+    title: data.title,
+    excerpt: data.summary,
+    summary: data.summary,
+    cover_url: data.cover_image,
+    cover_image: data.cover_image,
+    publish_at: data.published_at,
+    published_at: data.published_at,
+    reading_time_min: data.reading_time,
+    reading_time: data.reading_time,
+    city: data.city,
+    slug: data.slug,
+    slug_data: data.slug_data,
+    seo_title: data.seo_title,
+    seo_description: data.seo_description,
+    updated_at: data.updated_at,
+    author_name: data.author_name,
+    tags: data.tags,
+    categories: data.category_ids ? [] : [], // Mapear se necessário
+    featured: data.featured,
+    content_html: data.content_html
+  };
 };

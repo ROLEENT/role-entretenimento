@@ -70,17 +70,33 @@ const AgendaPorCidade = () => {
     const fetchEventsByCity = async () => {
       try {
         setLoading(true);
+        
+        // Mapeamento de slug para código da cidade
+        const citySlugToCode: Record<string, string> = {
+          'porto_alegre': 'POA',
+          'sao_paulo': 'SP', 
+          'rio_de_janeiro': 'RJ',
+          'florianopolis': 'FLN',
+          'curitiba': 'CWB'
+        };
+
         const eventsPromises = cities.map(async (city) => {
+          const cityCode = citySlugToCode[city.slug] || city.name;
+          
           const { data, error } = await supabase
-            .from('agenda')
-            .select('id, title, city, cover_url, start_at, venue_name, tags')
-            .eq('city', city.name)
-            .eq('is_published', true)
+            .from('agenda_itens')
+            .select('id, title, city, cover_url, start_at, tags')
+            .eq('city', cityCode)
+            .eq('status', 'published')
             .gte('start_at', new Date().toISOString())
             .order('start_at', { ascending: true })
             .limit(3);
 
-          if (error) throw error;
+          if (error) {
+            console.error(`Erro ao carregar eventos para ${city.name}:`, error);
+            return { city: city.name, events: [] };
+          }
+          
           return { city: city.name, events: data || [] };
         });
 
@@ -93,13 +109,17 @@ const AgendaPorCidade = () => {
         setEventsByCity(eventsByCityObj);
       } catch (error) {
         console.error('Erro ao carregar eventos por cidade:', error);
+        // Em caso de erro, não refazer o fetch - mostrar empty state
       } finally {
         setLoading(false);
       }
     };
 
-    fetchEventsByCity();
-  }, []);
+    // Só executa uma vez
+    if (!loading && Object.keys(eventsByCity).length === 0) {
+      fetchEventsByCity();
+    }
+  }, []); // Dependência vazia para evitar loops
 
   if (loading) {
     return (

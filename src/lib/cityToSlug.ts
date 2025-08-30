@@ -20,6 +20,18 @@ export function cityToSlug(name: string): string {
     .toLowerCase().replace(/\s+/g, '_');
 }
 
+// Converter slug da URL para código da cidade no banco
+export function slugToCityCode(slug: string): string {
+  const MAP: Record<string, string> = {
+    'porto_alegre': 'POA',
+    'sao_paulo': 'SP', 
+    'rio_de_janeiro': 'RJ',
+    'florianopolis': 'FLN',
+    'curitiba': 'CWB'
+  };
+  return MAP[slug] || slug;
+}
+
 export function labelFromName(name: string) {
   // use se quiser exibir POA, SP, RJ nos chips
   const map: Record<string,string> = {
