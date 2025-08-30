@@ -100,7 +100,7 @@ export function AdminBlogList() {
                   />
                 </div>
                 
-                <Select value={cityFilter ?? undefined} onValueChange={(value) => setCityFilter(value || undefined)}>
+                <Select value={cityFilter ?? ""} onValueChange={(value) => setCityFilter(value || undefined)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Filtrar por cidade" />
                   </SelectTrigger>
@@ -113,7 +113,7 @@ export function AdminBlogList() {
                   </SelectContent>
                 </Select>
 
-                <Select value={statusFilter ?? undefined} onValueChange={(value) => setStatusFilter(value || undefined)}>
+                <Select value={statusFilter ?? ""} onValueChange={(value) => setStatusFilter(value || undefined)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Filtrar por status" />
                   </SelectTrigger>

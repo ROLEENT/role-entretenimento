@@ -650,13 +650,13 @@ export function AgendaForm({ mode, agendaId }: AgendaFormProps) {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Tipo de Visibilidade</FormLabel>
-                             <Select value={field.value ?? undefined} onValueChange={field.onChange}>
-                               <FormControl>
-                                 <SelectTrigger>
-                                   <SelectValue placeholder="Selecione o tipo" />
-                                 </SelectTrigger>
-                               </FormControl>
-                              <SelectContent>
+                            <Select value={field.value ?? ""} onValueChange={field.onChange}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Selecione o tipo" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent position="popper" className="z-50">
                                 {VISIBILITY_OPTIONS.map((option) => (
                                   <SelectItem key={option.value} value={option.value}>
                                     {option.label}
@@ -837,19 +837,19 @@ export function AgendaForm({ mode, agendaId }: AgendaFormProps) {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Tipo</FormLabel>
-                             <Select value={field.value ?? undefined} onValueChange={field.onChange}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Selecione o tipo" />
-                                  </SelectTrigger>
-                                </FormControl>
-                               <SelectContent>
-                                 <SelectItem value="show">Show</SelectItem>
-                                 <SelectItem value="festa">Festa</SelectItem>
-                                 <SelectItem value="workshop">Workshop</SelectItem>
-                                 <SelectItem value="festival">Festival</SelectItem>
-                                 <SelectItem value="outro">Outro</SelectItem>
-                               </SelectContent>
+                            <Select value={field.value ?? ""} onValueChange={field.onChange}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Selecione o tipo" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent position="popper" className="z-50">
+                                <SelectItem value="show">Show</SelectItem>
+                                <SelectItem value="festa">Festa</SelectItem>
+                                <SelectItem value="workshop">Workshop</SelectItem>
+                                <SelectItem value="festival">Festival</SelectItem>
+                                <SelectItem value="outro">Outro</SelectItem>
+                              </SelectContent>
                             </Select>
                             <FormMessage />
                           </FormItem>

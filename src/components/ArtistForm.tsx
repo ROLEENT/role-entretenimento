@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import RHFSelect from '@/components/form/RHFSelect';
+import RHFSelectAsync from '@/components/form/RHFSelectAsync';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, AlertTriangle, Loader2, Wand2, AlertCircle } from 'lucide-react';
@@ -340,9 +341,10 @@ export function ArtistForm({ initialData, mode }: ArtistFormProps) {
         </Alert>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Basic Information */}
-        <Card className="mb-6">
+      <FormProvider {...form}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          {/* Basic Information */}
+          <Card className="mb-6">
           <CardHeader>
             <CardTitle>Informações Básicas</CardTitle>
           </CardHeader>
@@ -374,63 +376,32 @@ export function ArtistForm({ initialData, mode }: ArtistFormProps) {
 
               <div className="space-y-2">
                 <Label htmlFor="artist_type">Tipo *</Label>
-                 <Select 
-                   value={watch('artist_type') ?? undefined} 
-                   onValueChange={(value) => setValue('artist_type', value as any)}
-                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ARTIST_TYPES.map(type => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {formErrors.artist_type && (
-                  <p className="text-sm text-red-600">{formErrors.artist_type.message}</p>
-                )}
+                <RHFSelect
+                  name="artist_type"
+                  options={ARTIST_TYPES}
+                  placeholder="Selecione o tipo"
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>
-                 <Select 
-                   value={watch('status') ?? undefined} 
-                   onValueChange={(value) => setValue('status', value as any)}
-                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {STATUS_OPTIONS.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <RHFSelect
+                  name="status"
+                  options={STATUS_OPTIONS}
+                  placeholder="Selecione o status"
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="city">Cidade</Label>
-                <Select 
-                  value={watch('city') ?? undefined} 
-                  onValueChange={(value) => setValue('city', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a cidade" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    
-                    {CITIES.map(city => (
-                      <SelectItem key={city} value={city}>
-                        {city}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <RHFSelectAsync
+                  name="city"
+                  query={{ table: "cities", fields: "id,name,uf", orderBy: "name" }}
+                  mapRow={(r) => ({ value: String(r.id), label: `${r.name} - ${r.uf}` })}
+                  parseValue={(v) => Number(v)}
+                  serializeValue={(v) => String(v ?? "")}
+                  placeholder="Selecione a cidade"
+                />
               </div>
 
               <div className="space-y-2">
@@ -513,7 +484,8 @@ export function ArtistForm({ initialData, mode }: ArtistFormProps) {
             </div>
           </CardContent>
         </Card>
-      </form>
+        </form>
+      </FormProvider>
     </div>
   );
 }

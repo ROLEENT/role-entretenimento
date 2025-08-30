@@ -1,6 +1,5 @@
 "use client";
-import { Controller, useFormContext } from "react-hook-form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import RHFSelect from '@/components/form/RHFSelect';
 
 const VENUE_TYPES = [
   { value: "house", label: "Casa de Show" },
@@ -28,29 +27,11 @@ export default function VenueTypeSelect({
   name = "venue_type",
   placeholder = "Tipo de local"
 }: VenueTypeSelectProps) {
-  const { control } = useFormContext();
-  
   return (
-    <Controller
+    <RHFSelect
       name={name}
-      control={control}
-      render={({ field }) => (
-        <Select 
-          value={field.value ?? ""} 
-          onValueChange={field.onChange}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder={placeholder} />
-          </SelectTrigger>
-          <SelectContent>
-            {VENUE_TYPES.map(type => (
-              <SelectItem key={type.value} value={type.value}>
-                {type.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
+      options={VENUE_TYPES}
+      placeholder={placeholder}
     />
   );
 }

@@ -468,7 +468,7 @@ export function AdminBlogForm() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Seção *</FormLabel>
-                          <Select value={field.value ?? undefined} onValueChange={field.onChange}>
+                          <Select value={field.value ?? ""} onValueChange={field.onChange}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Escolha uma seção" />
@@ -493,7 +493,7 @@ export function AdminBlogForm() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Cidade</FormLabel>
-                          <Select value={field.value ?? undefined} onValueChange={field.onChange}>
+                          <Select value={field.value ?? ""} onValueChange={field.onChange}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Cidade (opcional)" />
