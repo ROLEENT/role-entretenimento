@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -22,11 +22,34 @@ import { ImageUpload } from '@/components/ui/image-upload';
 import { ArrowLeft, Save, Calendar, Globe, X } from 'lucide-react';
 import { addMinutes, format } from 'date-fns';
 
+// Constants for select options
+const SECTION_OPTIONS = [
+  { value: 'editorial', label: 'Editorial' },
+  { value: 'posfacio', label: 'Posfácio' },
+  { value: 'dicas', label: 'Dicas' },
+  { value: 'fala_role', label: 'Fala ROLÊ' },
+  { value: 'bpm', label: 'BPM' },
+  { value: 'achadinhos', label: 'Achadinhos' },
+  { value: 'revista', label: 'Revista' },
+];
+
+const CITY_OPTIONS = [
+  { value: 'sao-paulo', label: 'São Paulo' },
+  { value: 'rio-de-janeiro', label: 'Rio de Janeiro' },
+  { value: 'porto-alegre', label: 'Porto Alegre' },
+  { value: 'curitiba', label: 'Curitiba' },
+  { value: 'florianopolis', label: 'Florianópolis' },
+];
+
+// Utility to clean arrays
+const clean = <T,>(arr: T[]) => arr.filter(v => v !== null && v !== undefined && String(v).trim() !== '');
+
 const blogFormSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
   subtitle: z.string().optional(),
   slug: z.string().min(1, 'Slug é obrigatório'),
-  city: z.string().min(1, 'Cidade é obrigatória'),
+  section: z.string().min(1, 'Seção é obrigatória'),
+  city: z.string().optional(),
   summary: z.string().min(1, 'Resumo é obrigatório'),
   content_md: z.string().min(1, 'Conteúdo é obrigatório'),
   cover_image: z.string().min(1, 'Imagem de capa é obrigatória'),
@@ -56,7 +79,7 @@ export function AdminBlogForm() {
     const values = form.getValues();
     return (
       values.title &&
-      values.city &&
+      values.section &&
       values.summary &&
       values.content_md &&
       values.cover_image &&
@@ -69,7 +92,7 @@ export function AdminBlogForm() {
   const getPublishErrorMessage = () => {
     const values = form.getValues();
     if (!values.title) return 'Título é obrigatório';
-    if (!values.city) return 'Escolha uma seção';
+    if (!values.section) return 'Escolha uma seção';
     if (!values.summary) return 'Resumo é obrigatório';
     if (!values.content_md) return 'Conteúdo é obrigatório';
     if (!values.cover_image) return 'Imagem de capa é obrigatória';
@@ -81,19 +104,20 @@ export function AdminBlogForm() {
   const form = useForm<BlogFormData>({
     resolver: zodResolver(blogFormSchema),
     defaultValues: {
-      title: '',
-      subtitle: '',
-      slug: '',
-      city: '',
-      summary: '',
-      content_md: '',
-      cover_image: '',
-      cover_alt: '',
+      title: undefined,
+      subtitle: undefined,
+      slug: undefined,
+      section: undefined,
+      city: undefined,
+      summary: undefined,
+      content_md: undefined,
+      cover_image: undefined,
+      cover_alt: undefined,
       tags: [],
-      seo_title: '',
-      seo_description: '',
+      seo_title: undefined,
+      seo_description: undefined,
       featured: false,
-      published_at: ''
+      published_at: undefined
     }
   });
 
@@ -148,18 +172,19 @@ export function AdminBlogForm() {
 
       form.reset({
         title: data.title,
-        subtitle: data.subtitle || '',
+        subtitle: data.subtitle || undefined,
         slug: data.slug_data,
-        city: data.city,
+        section: data.section || undefined,
+        city: data.city || undefined,
         summary: data.summary,
-        content_md: data.content_md || '',
+        content_md: data.content_md || undefined,
         cover_image: data.cover_image,
-        cover_alt: data.cover_alt || '',
+        cover_alt: data.cover_alt || undefined,
         tags: data.tags || [],
-        seo_title: data.seo_title || '',
-        seo_description: data.seo_description || '',
+        seo_title: data.seo_title || undefined,
+        seo_description: data.seo_description || undefined,
         featured: data.featured,
-        published_at: data.published_at ? format(new Date(data.published_at), "yyyy-MM-dd'T'HH:mm") : ''
+        published_at: data.published_at ? format(new Date(data.published_at), "yyyy-MM-dd'T'HH:mm") : undefined
       });
     } catch (error: any) {
       toast({
@@ -278,6 +303,7 @@ export function AdminBlogForm() {
         subtitle: data.subtitle,
         slug: data.slug,
         slug_data: data.slug,
+        section: data.section,
         city: data.city,
         summary: data.summary,
         content_md: data.content_md,
@@ -456,24 +482,24 @@ export function AdminBlogForm() {
                   />
 
                   <div className="grid grid-cols-2 gap-4">
-                    <FormField
+                    <Controller
+                      name="section"
                       control={form.control}
-                      name="city"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Cidade *</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <FormLabel>Seção *</FormLabel>
+                          <Select value={field.value ?? undefined} onValueChange={field.onChange}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Escolha uma seção" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="sao-paulo">São Paulo</SelectItem>
-                              <SelectItem value="rio-de-janeiro">Rio de Janeiro</SelectItem>
-                              <SelectItem value="porto-alegre">Porto Alegre</SelectItem>
-                              <SelectItem value="curitiba">Curitiba</SelectItem>
-                              <SelectItem value="florianopolis">Florianópolis</SelectItem>
+                              {SECTION_OPTIONS.map(option => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -481,27 +507,52 @@ export function AdminBlogForm() {
                       )}
                     />
 
-                    <FormField
+                    <Controller
+                      name="city"
                       control={form.control}
-                      name="featured"
                       render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-base">Artigo em Destaque</FormLabel>
-                            <p className="text-sm text-muted-foreground">
-                              Destacar este artigo na lista
-                            </p>
-                          </div>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
+                        <FormItem>
+                          <FormLabel>Cidade</FormLabel>
+                          <Select value={field.value ?? undefined} onValueChange={field.onChange}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Cidade (opcional)" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {CITY_OPTIONS.map(option => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
                   </div>
+
+                  <FormField
+                    control={form.control}
+                    name="featured"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Artigo em Destaque</FormLabel>
+                          <p className="text-sm text-muted-foreground">
+                            Destacar este artigo na lista
+                          </p>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Tags (máximo 10)</label>

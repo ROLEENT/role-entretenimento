@@ -15,6 +15,21 @@ import { Search, Plus, Edit, Copy, Trash2, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
+// Constants for select options
+const CITY_OPTIONS = [
+  { value: 'sao-paulo', label: 'São Paulo' },
+  { value: 'rio-de-janeiro', label: 'Rio de Janeiro' },
+  { value: 'porto-alegre', label: 'Porto Alegre' },
+  { value: 'curitiba', label: 'Curitiba' },
+  { value: 'florianopolis', label: 'Florianópolis' },
+];
+
+const STATUS_OPTIONS = [
+  { value: 'draft', label: 'Rascunho' },
+  { value: 'scheduled', label: 'Agendado' },
+  { value: 'published', label: 'Publicado' },
+];
+
 const STATUS_LABELS = {
   draft: 'Rascunho',
   scheduled: 'Agendado',
@@ -29,8 +44,8 @@ const STATUS_COLORS = {
 
 export function AdminBlogList() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [cityFilter, setCityFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [cityFilter, setCityFilter] = useState<string | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
 
   const { posts, isLoading, deletePost, duplicatePost } = useAdminBlogPosts({
     searchTerm,
@@ -104,29 +119,29 @@ export function AdminBlogList() {
                   />
                 </div>
                 
-                <Select value={cityFilter} onValueChange={setCityFilter}>
+                <Select value={cityFilter ?? undefined} onValueChange={(value) => setCityFilter(value || undefined)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Filtrar por cidade" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todas as cidades</SelectItem>
-                    <SelectItem value="sao-paulo">São Paulo</SelectItem>
-                    <SelectItem value="rio-de-janeiro">Rio de Janeiro</SelectItem>
-                    <SelectItem value="porto-alegre">Porto Alegre</SelectItem>
-                    <SelectItem value="curitiba">Curitiba</SelectItem>
-                    <SelectItem value="florianopolis">Florianópolis</SelectItem>
+                    {CITY_OPTIONS.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
 
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <Select value={statusFilter ?? undefined} onValueChange={(value) => setStatusFilter(value || undefined)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Filtrar por status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos os status</SelectItem>
-                    <SelectItem value="draft">Rascunho</SelectItem>
-                    <SelectItem value="scheduled">Agendado</SelectItem>
-                    <SelectItem value="published">Publicado</SelectItem>
+                    {STATUS_OPTIONS.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
