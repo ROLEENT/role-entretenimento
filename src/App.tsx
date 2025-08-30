@@ -29,7 +29,7 @@ const Agenda = lazy(() => import("./pages/Agenda"));
 const AgendaCidade = lazy(() => import("./pages/AgendaCidade"));
 const OutrasCidades = lazy(() => import("./pages/OutrasCidades"));
 const AgendaDetailPage = lazy(() => import("./pages/AgendaDetailPage"));
-const DestaquesHub = lazy(() => import("./pages/DestaquesHub"));
+// const DestaquesHub = lazy(() => import("./pages/DestaquesHub")); // Removido
 const CitiesPage = lazy(() => import("./pages/CitiesPage"));
 const BlogArticle = lazy(() => import("./pages/BlogArticle"));
 const HighlightsPage = lazy(() => import("./pages/HighlightsPage"));
@@ -140,11 +140,7 @@ function App() {
                 <Route path="/revista" element={<Suspense fallback={<PageLoadingFallback />}><RevistaPage /></Suspense>} />
                 <Route path="/revista/:slug" element={<Suspense fallback={<PageLoadingFallback />}><RevistaArticlePage /></Suspense>} />
                 
-                {/* Destaques Routes */}
-                <Route path="/destaques" element={<DestaquesHub />} />
-                <Route path="/destaques/:cidade" element={<CityHighlightsPage />} />
-                <Route path="/destaque/:id" element={<HighlightDetailPage />} />
-                <Route path="/destaques/:cidade/:data" element={<BlogArticle />} />
+                {/* Rotas antigas de destaques removidas */}
                 <Route path="/cidades" element={<CitiesPage />} />
                 
                 {/* Highlights Routes */}
