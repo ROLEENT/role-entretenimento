@@ -72,7 +72,7 @@ const FeaturedBlogPosts = () => {
                 <div className="relative h-48">
                   <img
                     src={post.cover_image || "/banner-home.png"}
-                    alt={post.title}
+                    alt={`Imagem de capa do artigo: ${post.title}`}
                     className="w-full h-full object-cover transition-transform group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />

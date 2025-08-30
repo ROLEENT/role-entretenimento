@@ -202,7 +202,7 @@ const AgendaPorCidade = () => {
                             <div className="relative">
                               <LazyImage
                                 src={event.cover_url || '/city-placeholder.jpg'}
-                                alt={event.title}
+                                alt={`Foto do evento ${event.title} em ${event.venue_name || 'local não informado'}`}
                                 className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
                               />
                               

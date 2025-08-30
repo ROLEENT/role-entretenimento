@@ -67,7 +67,7 @@ const EventCard = ({ event, className }: EventCardProps) => {
         <div className="aspect-[3/2]">
           <MobileSafeImage
             src={event.cover_url || event.image || '/placeholder.svg'}
-            alt={event.alt_text || event.title}
+            alt={event.alt_text || `Foto do evento ${event.title} em ${event.venue || 'local não informado'}`}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"

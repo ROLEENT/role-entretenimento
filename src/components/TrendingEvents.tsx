@@ -53,7 +53,7 @@ const TrendingEvents = ({ events, onEventSelect }: TrendingEventsProps) => {
                 <div className="relative">
                   <img
                     src={sortedEvents[0].image}
-                    alt={sortedEvents[0].title}
+                    alt={`Evento em destaque: ${sortedEvents[0].title}`}
                     className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -149,7 +149,7 @@ const TrendingEvents = ({ events, onEventSelect }: TrendingEventsProps) => {
                       
                       <img
                         src={event.image}
-                        alt={event.title}
+                        alt={`Evento em destaque: ${event.title}`}
                         className="w-12 h-12 rounded object-cover"
                       />
                       

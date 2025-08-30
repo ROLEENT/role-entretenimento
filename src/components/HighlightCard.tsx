@@ -97,7 +97,7 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
       <div className={`relative ${isMobile ? 'h-48' : isTablet ? 'h-56' : 'h-72'}`}>
         <MobileSafeImage
           src={getImageUrl(highlight.image_url) || ''}
-          alt={highlight.event_title}
+          alt={`Foto de destaque do evento ${highlight.event_title} em ${highlight.venue || 'local não informado'}`}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 rounded-t-lg"
           loading="lazy"
           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"

@@ -202,7 +202,7 @@ const FeaturedEventsToday = () => {
                       <div className="relative">
                         <LazyImage
                           src={event.cover_url || '/city-placeholder.jpg'}
-                          alt={event.title}
+                          alt={`Evento de hoje: ${event.title}`}
                           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                         

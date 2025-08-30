@@ -96,7 +96,7 @@ const WeeklyTimeline = ({ weekStartDate, weekEndDate, dailyEvents, onEventSelect
                           <div className="flex items-start gap-3">
                             <img
                               src={event.image}
-                              alt={event.title}
+                              alt={`Evento da semana: ${event.title}`}
                               className="w-12 h-12 rounded object-cover"
                             />
                             <div className="flex-1 min-w-0">
@@ -179,7 +179,7 @@ const WeeklyTimeline = ({ weekStartDate, weekEndDate, dailyEvents, onEventSelect
                         >
                           <img
                             src={event.image}
-                            alt={event.title}
+                            alt={`Evento da semana: ${event.title}`}
                             className="w-12 h-12 rounded object-cover"
                           />
                           <div className="flex-1">
