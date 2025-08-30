@@ -1252,6 +1252,8 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          is_active: boolean
+          kind: string
           name: string
           slug: string
           type: Database["public"]["Enums"]["category_type"] | null
@@ -1262,6 +1264,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_active?: boolean
+          kind?: string
           name: string
           slug: string
           type?: Database["public"]["Enums"]["category_type"] | null
@@ -1272,6 +1276,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_active?: boolean
+          kind?: string
           name?: string
           slug?: string
           type?: Database["public"]["Enums"]["category_type"] | null
