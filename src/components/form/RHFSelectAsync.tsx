@@ -28,18 +28,42 @@ export default function RHFSelectAsync({
 }: AsyncProps) {
   const [opts, setOpts] = useState<{ value: string; label: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
     (async () => {
-      const q = supabase.from(query.table).select(query.fields);
-      if (query.orderBy) q.order(query.orderBy);
-      const { data, error } = await q;
-      if (!alive) return;
-      if (!error && data) {
-        setOpts(data.map(mapRow));
+      try {
+        console.log(`[RHFSelectAsync] Carregando dados da tabela: ${query.table}`);
+        setError(null);
+        
+        const q = supabase.from(query.table).select(query.fields);
+        if (query.orderBy) q.order(query.orderBy);
+        
+        const { data, error } = await q;
+        
+        if (!alive) return;
+        
+        if (error) {
+          console.error(`[RHFSelectAsync] Erro ao carregar ${query.table}:`, error);
+          setError(`Erro ao carregar dados: ${error.message}`);
+          setOpts([]);
+        } else if (data) {
+          console.log(`[RHFSelectAsync] Dados carregados de ${query.table}:`, data);
+          const mappedOptions = data.map(mapRow);
+          console.log(`[RHFSelectAsync] Opções mapeadas:`, mappedOptions);
+          setOpts(mappedOptions);
+        } else {
+          console.warn(`[RHFSelectAsync] Nenhum dado encontrado na tabela ${query.table}`);
+          setOpts([]);
+        }
+      } catch (err) {
+        console.error(`[RHFSelectAsync] Erro inesperado:`, err);
+        setError(`Erro inesperado: ${err instanceof Error ? err.message : 'Erro desconhecido'}`);
+        setOpts([]);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     })();
     return () => { alive = false; };
   }, [query.table, query.fields, query.orderBy, mapRow]);
@@ -48,8 +72,14 @@ export default function RHFSelectAsync({
     <RHFSelect
       name={name}
       options={opts}
-      placeholder={loading ? "Carregando..." : (placeholder ?? "Selecione...")}
-      disabled={disabled || loading}
+      placeholder={
+        loading 
+          ? "Carregando..." 
+          : error 
+            ? `Erro: ${error}` 
+            : (placeholder ?? "Selecione...")
+      }
+      disabled={disabled || loading || !!error}
       parseValue={parseValue}
       serializeValue={serializeValue}
     />
