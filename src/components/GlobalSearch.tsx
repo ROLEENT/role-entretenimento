@@ -64,7 +64,7 @@ const GlobalSearch = ({ events = [], highlights = [], isOpen, onClose }: GlobalS
           <div className="flex items-center gap-3 mb-6">
             <Search className="h-5 w-5 text-muted-foreground" />
             <Input
-              placeholder="Buscar eventos, destaques, locais..."
+              placeholder="Buscar eventos, agenda, locais..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1 border-0 bg-transparent text-lg"
@@ -129,7 +129,7 @@ const GlobalSearch = ({ events = [], highlights = [], isOpen, onClose }: GlobalS
               {/* Highlights Results */}
               {filteredHighlights.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-3">Destaques</h3>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-3">Agenda</h3>
                   <div className="space-y-3">
                     {filteredHighlights.map((highlight) => (
                       <Link
@@ -186,11 +186,11 @@ const GlobalSearch = ({ events = [], highlights = [], isOpen, onClose }: GlobalS
                       <div className="text-sm font-medium">Todos os Eventos</div>
                     </Link>
                     <Link
-                      to="/destaques"
+                      to="/agenda"
                       onClick={onClose}
                       className="p-3 rounded-lg hover:bg-muted/50 transition-colors text-center"
                     >
-                      <div className="text-sm font-medium">Destaques</div>
+                      <div className="text-sm font-medium">Agenda</div>
                     </Link>
                   </div>
                 </div>

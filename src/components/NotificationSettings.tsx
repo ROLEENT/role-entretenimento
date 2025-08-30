@@ -179,7 +179,7 @@ export function NotificationSettings() {
           </Badge>
         </div>
         <CardDescription>
-          Receba atualizações sobre eventos, destaques e atividades
+          Receba atualizações sobre eventos, agenda e atividades
         </CardDescription>
       </CardHeader>
       
@@ -263,7 +263,7 @@ export function NotificationSettings() {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <label className="text-sm font-medium">Destaques semanais</label>
+                  <label className="text-sm font-medium">Agenda semanal</label>
                   <p className="text-xs text-muted-foreground">
                     Receba um resumo dos melhores eventos toda segunda-feira
                   </p>

@@ -44,7 +44,7 @@ const HeroSection = () => {
             className="hero-btn-secondary"
             asChild
           >
-            <Link to="/destaques">
+            <Link to="/agenda">
               <BookOpen className="mr-3 h-5 w-5" />
               Editoriais
             </Link>

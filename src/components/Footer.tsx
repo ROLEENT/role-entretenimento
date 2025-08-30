@@ -29,7 +29,7 @@ const Footer = () => {
   const categoriesLinks = [
     { name: "Agenda", href: "/agenda" },
     { name: "Vitrine Cultural", href: "/eventos" },
-    { name: "Editorial", href: "/destaques" },
+    { name: "Revista", href: "/revista" },
     { name: "Shows & Música", href: "/eventos?category=shows" },
     { name: "Teatro & Arte", href: "/eventos?category=teatro" }
   ];

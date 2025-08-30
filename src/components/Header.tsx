@@ -36,7 +36,6 @@ const Header = () => {
 
   const navLinks = [
     { href: '/agenda', label: 'Agenda' },
-    { href: '/destaques', label: 'Destaques' },
     { href: '/revista', label: 'Revista' },
     { href: '/cidades', label: 'Cidades' }
   ];

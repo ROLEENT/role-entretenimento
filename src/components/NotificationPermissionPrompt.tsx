@@ -74,7 +74,7 @@ export const NotificationPermissionPrompt = ({
     try {
       await sendNotification({
         title: "🎉 Notificações ativadas!",
-        body: "Você receberá atualizações sobre eventos e destaques culturais",
+        body: "Você receberá atualizações sobre eventos e agenda cultural",
         url: "/"
       });
       handleDismiss();
@@ -105,7 +105,7 @@ export const NotificationPermissionPrompt = ({
             <div>
               <h3 className="font-semibold">Ative as notificações</h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Seja o primeiro a saber sobre novos eventos e destaques culturais na sua cidade
+                Seja o primeiro a saber sobre novos eventos e agenda cultural na sua cidade
               </p>
             </div>
           </div>
@@ -121,7 +121,7 @@ export const NotificationPermissionPrompt = ({
             </div>
             <div className="flex items-center gap-2 text-sm">
               <CheckCircle className="w-4 h-4 text-green-500" />
-              <span>Destaques semanais personalizados</span>
+              <span>Agenda semanal personalizada</span>
             </div>
           </div>
           
