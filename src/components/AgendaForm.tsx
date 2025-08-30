@@ -54,12 +54,101 @@ import { useToast } from '@/hooks/use-toast';
 import { OrganizerCombobox } from '@/components/OrganizerCombobox';
 import { VenueCombobox } from '@/components/VenueCombobox';
 import { 
-  CITY_OPTIONS, 
   VISIBILITY_OPTIONS,
   TYPE_OPTIONS,
   AgendaFormSchema,
   AgendaForm as AgendaFormType
 } from '@/schemas/agenda';
+
+// Constants for capitals
+const CAPITALS = ['POA', 'SP', 'RJ', 'FLN', 'CWB'] as const;
+
+// City selector component
+interface CitySelectorProps {
+  value?: string;
+  onChange: (value: string) => void;
+}
+
+const CitySelector = ({ value, onChange }: CitySelectorProps) => {
+  const [mode, setMode] = useState<'capitals' | 'other'>(() => {
+    return CAPITALS.includes(value as any) ? 'capitals' : 'other';
+  });
+  const [otherCity, setOtherCity] = useState(() => {
+    return CAPITALS.includes(value as any) ? '' : value || '';
+  });
+
+  const handleModeChange = (newMode: 'capitals' | 'other') => {
+    setMode(newMode);
+    if (newMode === 'capitals') {
+      setOtherCity('');
+      onChange('POA'); // Default to POA
+    } else {
+      onChange(otherCity || '');
+    }
+  };
+
+  const handleCapitalChange = (capital: string) => {
+    onChange(capital);
+  };
+
+  const handleOtherCityChange = (city: string) => {
+    const normalized = city.trim().replace(/\s+/g, ' ');
+    setOtherCity(normalized);
+    onChange(normalized);
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Mode selector */}
+      <div className="flex gap-2">
+        <Button
+          type="button"
+          variant={mode === 'capitals' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => handleModeChange('capitals')}
+        >
+          Capitais
+        </Button>
+        <Button
+          type="button"
+          variant={mode === 'other' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => handleModeChange('other')}
+        >
+          Outra cidade
+        </Button>
+      </div>
+
+      {/* Capital selector */}
+      {mode === 'capitals' && (
+        <div className="grid grid-cols-5 gap-2">
+          {CAPITALS.map((capital) => (
+            <Button
+              key={capital}
+              type="button"
+              variant={value === capital ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleCapitalChange(capital)}
+              className="w-full"
+            >
+              {capital}
+            </Button>
+          ))}
+        </div>
+      )}
+
+      {/* Other city input */}
+      {mode === 'other' && (
+        <Input
+          placeholder="Ex: Belo Horizonte"
+          value={otherCity}
+          onChange={(e) => handleOtherCityChange(e.target.value)}
+          className="w-full"
+        />
+      )}
+    </div>
+  );
+};
 
 // Status view-only component
 const StatusBadge = ({ status }: { status?: string }) => {
@@ -883,21 +972,11 @@ export function AgendaForm({ mode, initialData }: AgendaFormProps) {
                       name="city"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Cidade</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Selecione a cidade" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {CITY_OPTIONS.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <FormLabel>Cidade *</FormLabel>
+                          <CitySelector 
+                            value={field.value} 
+                            onChange={field.onChange} 
+                          />
                           <FormMessage />
                         </FormItem>
                       )}

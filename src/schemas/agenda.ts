@@ -90,7 +90,7 @@ const AgendaBaseFormSchema = z.object({
   slug: z.string().min(1, 'Slug é obrigatório'),
   subtitle: z.preprocess(preprocessEmptyString, z.string().optional()),
   summary: z.preprocess(preprocessEmptyString, z.string().optional()),
-  city: z.preprocess(preprocessEmptyString, z.string().optional()),
+  city: z.string().min(2, 'Informe a cidade').transform(val => val?.trim().replace(/\s+/g, ' ')),
   start_at: z.preprocess(preprocessEmptyString, z.string().datetime('Data de início inválida').optional()),
   end_at: z.preprocess(preprocessEmptyString, z.string().datetime('Data de fim inválida').optional()),
   cover_url: z.preprocess(preprocessEmptyString, z.string().url('URL da capa inválida').optional()),
