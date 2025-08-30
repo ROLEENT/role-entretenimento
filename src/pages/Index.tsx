@@ -1,6 +1,6 @@
 import Header, { HeaderGlobalSearch } from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
-import AgendaPorCidade from "@/components/AgendaPorCidade";
+import AgendaPorCidadeHome from "@/components/AgendaPorCidadeHome";
 import BlocoRevista from "@/components/BlocoRevista";
 import FeaturedEventsToday from "@/components/FeaturedEventsToday";
 import RoleEmNumeros from "@/components/RoleEmNumeros";
@@ -29,7 +29,7 @@ const Index = () => {
           
           {/* 3. AGENDA POR CIDADE */}
           <ScrollAnimationWrapper>
-            <AgendaPorCidade />
+            <AgendaPorCidadeHome />
           </ScrollAnimationWrapper>
           
           {/* 4. BLOCO REVISTA */}
