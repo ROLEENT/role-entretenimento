@@ -191,10 +191,6 @@ function AgentesContent() {
     }
   };
 
-  const isFormValid = () => {
-    const { name, slug } = formValues;
-    return !!(name?.trim() && slug?.trim() && slugStatus === 'available');
-  };
 
   const getSlugStatusIcon = () => {
     switch (slugStatus) {
@@ -221,6 +217,11 @@ function AgentesContent() {
         return '';
     }
   };
+
+   
+  // Form state for save button
+  const saving = form.formState.isSubmitting;
+  const canSave = form.formState.isValid && form.formState.isDirty && !saving;
 
    return (
     <div className="container mx-auto max-w-4xl space-y-6 p-4">
@@ -251,11 +252,11 @@ function AgentesContent() {
             Limpar
           </Button>
           <Button 
-            onClick={form.handleSubmit(onSubmit)} 
-            disabled={loading || !isFormValid()}
+            type="submit"
+            disabled={!canSave}
             className="w-full sm:w-auto"
           >
-            {loading ? 'Salvando...' : 'Salvar Agente'}
+            {saving ? 'Salvando...' : 'Salvar Agente'}
           </Button>
         </div>
       </div>
