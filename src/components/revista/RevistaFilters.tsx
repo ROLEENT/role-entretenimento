@@ -44,79 +44,89 @@ export function RevistaFilters({
   const hasActiveFilters = searchTerm || cityFilter || sectionFilter;
 
   return (
-    <div className="bg-background/80 backdrop-blur-sm border rounded-lg p-4 space-y-4">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
+    <div className="bg-background/80 backdrop-blur-sm border rounded-lg p-6 space-y-4">
+      {/* Search - full width on all screens */}
+      <div className="w-full">
+        <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input
-            placeholder="Buscar artigos..."
+            placeholder="Buscar artigos"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10"
+            className="pl-10 h-11 text-base"
+            aria-label="Buscar artigos na revista"
           />
         </div>
+      </div>
 
-        <div className="flex gap-2">
+      {/* Filters - responsive layout */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex-1">
           <Select value={cityFilter} onValueChange={onCityChange}>
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-full h-11" aria-label="Filtrar por cidade">
               <SelectValue placeholder="Cidade" />
             </SelectTrigger>
-            <SelectContent>
-              
+            <SelectContent className="bg-background border shadow-lg">
               {cities.map((city) => (
-                <SelectItem key={city} value={city} className="capitalize">
+                <SelectItem key={city} value={city} className="capitalize cursor-pointer">
                   {city}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+        </div>
 
+        <div className="flex-1">
           <Select value={sectionFilter} onValueChange={onSectionChange}>
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-full h-11" aria-label="Filtrar por seção">
               <SelectValue placeholder="Seção" />
             </SelectTrigger>
-            <SelectContent>
-              
+            <SelectContent className="bg-background border shadow-lg">
               {sections.map((section) => (
-                <SelectItem key={section} value={section}>
+                <SelectItem key={section} value={section} className="capitalize cursor-pointer">
                   {section}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+        </div>
 
-          {hasActiveFilters && (
+        {hasActiveFilters && (
+          <div className="flex justify-center sm:justify-start">
             <Button 
               variant="outline" 
               size="icon"
               onClick={onClearFilters}
+              className="h-11 w-11 shrink-0"
               title="Limpar filtros"
+              aria-label="Limpar todos os filtros"
             >
               <X className="w-4 h-4" />
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
+      {/* Active filters display */}
       {hasActiveFilters && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground pt-2 border-t border-border/50">
           <Filter className="w-4 h-4" />
           <span>Filtros ativos:</span>
           
           {searchTerm && (
-            <span className="bg-muted px-2 py-1 rounded text-xs">
+            <span className="bg-primary/10 text-primary px-2 py-1 rounded-md text-xs font-medium">
               "{searchTerm}"
             </span>
           )}
           
           {cityFilter && (
-            <span className="bg-muted px-2 py-1 rounded text-xs capitalize">
+            <span className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-xs font-medium capitalize">
               {cityFilter}
             </span>
           )}
           
           {sectionFilter && (
-            <span className="bg-muted px-2 py-1 rounded text-xs">
+            <span className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-xs font-medium capitalize">
               {sectionFilter}
             </span>
           )}

@@ -181,14 +181,13 @@ export default function RevistaPage() {
       <PageWrapper>
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-10">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <BookOpen className="w-8 h-8 text-primary" />
+              <BookOpen className="w-6 h-6 text-primary" />
               <h1 className="text-4xl font-bold">Revista ROLÊ</h1>
             </div>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Mergulhe no universo da cultura, música e entretenimento. 
-              Descubra artigos exclusivos sobre a cena que move o Brasil.
+              Mergulhos em cultura, música e noite no Brasil.
             </p>
           </div>
 
