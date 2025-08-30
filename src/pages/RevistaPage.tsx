@@ -38,12 +38,27 @@ export default function RevistaPage() {
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
+  const [totalArticlesExist, setTotalArticlesExist] = useState(false);
   
   const searchTerm = searchParams.get('q') || '';
   const cityFilter = searchParams.get('cidade') || '';
   const sectionFilter = searchParams.get('secao') || '';
   
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+  // Check if there are any articles in the CMS
+  useEffect(() => {
+    const checkTotalArticles = async () => {
+      const { count } = await supabase
+        .from('blog_posts')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'published');
+      
+      setTotalArticlesExist((count || 0) > 0);
+    };
+    
+    checkTotalArticles();
+  }, []);
 
   const fetchPosts = useCallback(async (offset = 0, reset = false) => {
     try {
@@ -136,6 +151,10 @@ export default function RevistaPage() {
   const handleSectionChange = (value: string) => updateSearchParams('secao', value);
 
   const handleClearFilters = () => {
+    setSearchParams({});
+  };
+
+  const handleViewAll = () => {
     setSearchParams({});
   };
 
@@ -232,22 +251,39 @@ export default function RevistaPage() {
           {!error && !isLoading && posts.length === 0 && (
             <div className="text-center py-12">
               <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">
-                {hasFilters ? 'Nenhum artigo encontrado' : 'Nenhum artigo publicado'}
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                {hasFilters 
-                  ? 'Tente ajustar seus filtros de busca.' 
-                  : 'Volte em breve para conferir novos conteúdos.'
-                }
-              </p>
-              {hasFilters && (
-                <button 
-                  onClick={handleClearFilters}
-                  className="text-primary hover:underline"
-                >
-                  Limpar filtros
-                </button>
+              
+              {hasFilters && totalArticlesExist ? (
+                <>
+                  <h3 className="text-lg font-semibold mb-2">Nenhum artigo encontrado</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Tente mudar cidade ou seção, ou limpe os filtros.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Button onClick={handleClearFilters} variant="outline">
+                      Limpar filtros
+                    </Button>
+                    <Button onClick={handleViewAll} variant="default">
+                      Ver todos
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-lg font-semibold mb-2">
+                    {hasFilters ? 'Nenhum artigo encontrado' : 'Nenhum artigo publicado'}
+                  </h3>
+                  <p className="text-muted-foreground mb-4">
+                    {hasFilters 
+                      ? 'Tente ajustar seus filtros de busca.' 
+                      : 'Volte em breve para conferir novos conteúdos.'
+                    }
+                  </p>
+                  {hasFilters && (
+                    <Button onClick={handleClearFilters} variant="outline">
+                      Limpar filtros
+                    </Button>
+                  )}
+                </>
               )}
             </div>
           )}
