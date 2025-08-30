@@ -6,6 +6,9 @@ type ThemeProviderProps = {
   children: React.ReactNode;
   defaultTheme?: Theme;
   storageKey?: string;
+  attribute?: string;
+  enableSystem?: boolean;
+  disableTransitionOnChange?: boolean;
 };
 
 type ThemeProviderState = {
@@ -24,34 +27,60 @@ export function ThemeProvider({
   children,
   defaultTheme = "system",
   storageKey = "vite-ui-theme",
+  attribute = "class",
+  enableSystem = true,
+  disableTransitionOnChange = false,
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-  );
+  const [theme, setTheme] = useState<Theme>(() => {
+    // Avoid hydration mismatch by defaulting to system on SSR
+    if (typeof window === "undefined") return defaultTheme;
+    
+    try {
+      return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
+    } catch {
+      return defaultTheme;
+    }
+  });
 
   useEffect(() => {
     const root = window.document.documentElement;
 
+    if (disableTransitionOnChange) {
+      root.classList.add('[&_*]:!transition-none');
+    }
+
     root.classList.remove("light", "dark");
 
-    if (theme === "system") {
+    if (theme === "system" && enableSystem) {
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
         .matches
         ? "dark"
         : "light";
 
       root.classList.add(systemTheme);
-      return;
+    } else {
+      root.classList.add(theme);
     }
 
-    root.classList.add(theme);
-  }, [theme]);
+    if (disableTransitionOnChange) {
+      // Force reflow
+      window.getComputedStyle(root).getPropertyValue('color');
+      
+      setTimeout(() => {
+        root.classList.remove('[&_*]:!transition-none');
+      }, 1);
+    }
+  }, [theme, enableSystem, disableTransitionOnChange]);
 
   const value = {
     theme,
     setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
+      try {
+        localStorage.setItem(storageKey, theme);
+      } catch {
+        // Handle cases where localStorage is not available
+      }
       setTheme(theme);
     },
   };

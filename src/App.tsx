@@ -108,7 +108,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <ThemeProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <ErrorBoundary>
             <BrowserRouter>
               <FocusManagementProvider />
