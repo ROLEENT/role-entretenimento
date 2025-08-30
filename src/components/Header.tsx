@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "./ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { cityToSlug, labelFromName } from "@/lib/cityToSlug";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -21,7 +22,6 @@ const Header = () => {
   const [events, setEvents] = useState([]);
   const [highlights, setHighlights] = useState([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedCity, setSelectedCity] = useState("POA");
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -113,6 +113,10 @@ const Header = () => {
     return false;
   };
 
+  const isCityActive = (citySlug: string) => {
+    return location.pathname === `/agenda/cidade/${citySlug}`;
+  };
+
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
@@ -159,19 +163,23 @@ const Header = () => {
 
           {/* Desktop City Pills */}
           <div className="hidden md:flex items-center space-x-1">
-            {cities.map((city) => (
-              <button
-                key={city.code}
-                onClick={() => setSelectedCity(city.code)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all duration-200 ${
-                  selectedCity === city.code
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-accent/50 text-muted-foreground hover:bg-primary/20 hover:text-primary'
-                }`}
-              >
-                {city.code}
-              </button>
-            ))}
+            {cities.map((city) => {
+              const slug = cityToSlug(city.name);
+              const active = isCityActive(slug);
+              return (
+                <Link
+                  key={city.code}
+                  to={`/agenda/cidade/${slug}`}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                    active
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-accent/50 text-muted-foreground hover:bg-primary/20 hover:text-primary'
+                  }`}
+                >
+                  {labelFromName(city.name)}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Desktop Actions */}
@@ -250,24 +258,29 @@ const Header = () => {
                   size="sm" 
                   className="h-9 px-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-md"
                 >
-                  {selectedCity}
+                  Cidades
                   <ChevronDown className="h-3 w-3 ml-1" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-40 bg-background/95 backdrop-blur-md border">
-                {cities.map((city) => (
-                  <DropdownMenuItem
-                    key={city.code}
-                    onClick={() => setSelectedCity(city.code)}
-                    className={`text-sm ${
-                      selectedCity === city.code
-                        ? 'bg-primary/10 text-primary font-medium'
-                        : 'text-foreground hover:bg-primary/5'
-                    }`}
-                  >
-                    {city.name}
-                  </DropdownMenuItem>
-                ))}
+                {cities.map((city) => {
+                  const slug = cityToSlug(city.name);
+                  const active = isCityActive(slug);
+                  return (
+                    <DropdownMenuItem key={city.code} asChild>
+                      <Link
+                        to={`/agenda/cidade/${slug}`}
+                        className={`text-sm w-full ${
+                          active
+                            ? 'bg-primary/10 text-primary font-medium'
+                            : 'text-foreground hover:bg-primary/5'
+                        }`}
+                      >
+                        {city.name}
+                      </Link>
+                    </DropdownMenuItem>
+                  );
+                })}
               </DropdownMenuContent>
             </DropdownMenu>
 
