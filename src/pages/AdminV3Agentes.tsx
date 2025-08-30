@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
@@ -271,28 +271,42 @@ function AgentesContent() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 md:p-6">
-              <FormField
-                control={form.control}
+              <Controller
                 name="agent_type"
+                control={form.control}
                 render={({ field }) => (
                   <FormItem className="space-y-4">
                     <FormLabel className="text-base font-medium">Selecione o tipo</FormLabel>
                     <FormControl>
                       <RadioGroup
-                        onValueChange={field.onChange}
                         value={field.value}
+                        onValueChange={field.onChange}
                         className="grid grid-cols-1 sm:grid-cols-3 gap-4"
                       >
-                        {AGENT_TYPES.map((type) => (
-                          <FormItem key={type.value} className="flex items-center space-x-3 space-y-0 rounded-lg border p-4 hover:bg-muted/50 transition-colors">
-                            <FormControl>
-                              <RadioGroupItem value={type.value} />
-                            </FormControl>
-                            <FormLabel className="font-normal cursor-pointer flex-1">
-                              {type.label}
-                            </FormLabel>
-                          </FormItem>
-                        ))}
+                        <FormItem className="flex items-center space-x-3 space-y-0 rounded-lg border p-4 hover:bg-muted/50 transition-colors">
+                          <FormControl>
+                            <RadioGroupItem id="type-artist" value="artist" />
+                          </FormControl>
+                          <FormLabel htmlFor="type-artist" className="font-normal cursor-pointer flex-1">
+                            Artista
+                          </FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0 rounded-lg border p-4 hover:bg-muted/50 transition-colors">
+                          <FormControl>
+                            <RadioGroupItem id="type-venue" value="venue" />
+                          </FormControl>
+                          <FormLabel htmlFor="type-venue" className="font-normal cursor-pointer flex-1">
+                            Local
+                          </FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0 rounded-lg border p-4 hover:bg-muted/50 transition-colors">
+                          <FormControl>
+                            <RadioGroupItem id="type-org" value="organizer" />
+                          </FormControl>
+                          <FormLabel htmlFor="type-org" className="font-normal cursor-pointer flex-1">
+                            Organizador
+                          </FormLabel>
+                        </FormItem>
                       </RadioGroup>
                     </FormControl>
                     <FormMessage />
@@ -309,29 +323,29 @@ function AgentesContent() {
             </CardHeader>
             <CardContent className="space-y-6 p-4 md:p-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                <FormField
-                  control={form.control}
+                <Controller
                   name="name"
+                  control={form.control}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">Nome *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Nome do agente" {...field} className="h-10" />
+                        <Input id="agent-name" placeholder="Nome do agente" {...field} className="h-10" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                <FormField
-                  control={form.control}
+                <Controller
                   name="slug"
+                  control={form.control}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">Slug *</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Input placeholder="slug-do-agente" {...field} className="h-10 pr-10" />
+                          <Input id="agent-slug" placeholder="slug-do-agente" {...field} className="h-10 pr-10" />
                           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
                             {getSlugStatusIcon()}
                           </div>
@@ -350,15 +364,15 @@ function AgentesContent() {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
+                <Controller
                   name="city"
+                  control={form.control}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
                         {agentType === 'venue' ? 'Cidade (opcional)' : 'Cidade'}
                       </FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value ?? undefined}>
+                      <Select value={field.value ?? undefined} onValueChange={field.onChange}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecione a cidade" />
@@ -377,13 +391,13 @@ function AgentesContent() {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
+                <Controller
                   name="status"
+                  control={form.control}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">Status</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value ?? undefined}>
+                      <Select value={field.value ?? undefined} onValueChange={field.onChange}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecione o status" />
@@ -505,30 +519,30 @@ function AgentesContent() {
             </CardHeader>
             <CardContent className="space-y-6 p-4 md:p-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                <FormField
-                  control={form.control}
+                <Controller
                   name="artist_subtype"
+                  control={form.control}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">Subtipo *</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecione o subtipo" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {ARTIST_SUBTYPES.map((subtype) => (
-                              <SelectItem key={subtype.value} value={subtype.value}>
-                                {subtype.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      <Select value={field.value ?? undefined} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o subtipo" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {ARTIST_SUBTYPES.map((subtype) => (
+                            <SelectItem key={subtype.value} value={subtype.value}>
+                              {subtype.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                   <FormField
                     control={form.control}
@@ -615,13 +629,13 @@ function AgentesContent() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
+                  <Controller
                     name="venue_type"
+                    control={form.control}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Tipo do Local (opcional)</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
+                        <Select value={field.value ?? undefined} onValueChange={field.onChange}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Selecione o tipo" />
