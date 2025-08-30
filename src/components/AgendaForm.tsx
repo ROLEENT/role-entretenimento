@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -467,6 +467,17 @@ export function AgendaForm({ mode, agendaId }: AgendaFormProps) {
   
   const formData = form.watch();
   
+  // Lock rules based on form data
+  const city = useWatch({ control: form.control, name: "city" });
+  const coverUrl = useWatch({ control: form.control, name: "cover_url" });
+  const status = useWatch({ control: form.control, name: "status" });
+  
+  // Locking conditions
+  const lockMedia = !city || !coverUrl;
+  const lockContent = !city;
+  const lockSeo = status !== 'published' && !formData.title;
+  const lockPublish = !formData.title || !formData.start_at;
+  
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -890,8 +901,8 @@ export function AgendaForm({ mode, agendaId }: AgendaFormProps) {
                            </FormControl>
                           <FormMessage />
                         </FormItem>
-                      )}
-                    />
+                       )}
+                     />
                   </CardContent>
                 </Card>
               </AccordionContent>
@@ -899,10 +910,13 @@ export function AgendaForm({ mode, agendaId }: AgendaFormProps) {
             
             {/* Conteúdo e Links */}
             <AccordionItem value="content">
-              <AccordionTrigger>Conteúdo e Links</AccordionTrigger>
+              <AccordionTrigger className={cn(lockContent && "opacity-60")}>
+                Conteúdo e Links
+              </AccordionTrigger>
               <AccordionContent>
                 <Card>
                   <CardContent className="p-6 space-y-4">
+                    <fieldset disabled={lockContent} className="contents">
                     <FormField
                       control={form.control}
                       name="subtitle"
@@ -963,20 +977,24 @@ export function AgendaForm({ mode, agendaId }: AgendaFormProps) {
                             <Input {...field} placeholder="DESCONTO10" />
                           </FormControl>
                           <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </CardContent>
-                </Card>
-              </AccordionContent>
-            </AccordionItem>
+                         </FormItem>
+                       )}
+                     />
+                    </fieldset>
+                   </CardContent>
+                 </Card>
+               </AccordionContent>
+             </AccordionItem>
             
             {/* Mídia */}
             <AccordionItem value="media">
-              <AccordionTrigger>Mídia</AccordionTrigger>
+              <AccordionTrigger className={cn(lockMedia && "opacity-60")}>
+                Mídia
+              </AccordionTrigger>
               <AccordionContent>
                 <Card>
                   <CardContent className="p-6 space-y-4">
+                    <fieldset disabled={lockMedia} className="contents">
                     <FormField
                       control={form.control}
                       name="cover_url"
@@ -1019,17 +1037,21 @@ export function AgendaForm({ mode, agendaId }: AgendaFormProps) {
                         )}
                       />
                     )}
+                    </fieldset>
                   </CardContent>
                 </Card>
               </AccordionContent>
             </AccordionItem>
             
-            {/* SEO */}
+             {/* SEO */}
             <AccordionItem value="seo">
-              <AccordionTrigger>SEO</AccordionTrigger>
+              <AccordionTrigger className={cn(lockSeo && "opacity-60")}>
+                SEO
+              </AccordionTrigger>
               <AccordionContent>
                 <Card>
                   <CardContent className="p-6 space-y-4">
+                    <fieldset disabled={lockSeo} className="contents">
                     <FormField
                       control={form.control}
                       name="meta_title"
@@ -1086,28 +1108,33 @@ export function AgendaForm({ mode, agendaId }: AgendaFormProps) {
                               onCheckedChange={field.onChange}
                             />
                           </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </CardContent>
-                </Card>
-              </AccordionContent>
-            </AccordionItem>
+                          </FormItem>
+                       )}
+                     />
+                    </fieldset>
+                   </CardContent>
+                 </Card>
+               </AccordionContent>
+             </AccordionItem>
             
-            {/* Publicação */}
+             {/* Publicação */}
             <AccordionItem value="publish-checklist">
-              <AccordionTrigger>Checklist de Publicação</AccordionTrigger>
+              <AccordionTrigger className={cn(lockPublish && "opacity-60")}>
+                Checklist de Publicação
+              </AccordionTrigger>
               <AccordionContent>
                 <Card>
                   <CardContent className="p-6">
-                     <div className="flex items-center gap-2 text-green-600">
-                       <CheckCircle className="w-4 h-4" />
-                       <span>Pronto para publicação!</span>
-                     </div>
-                  </CardContent>
-                </Card>
-              </AccordionContent>
-            </AccordionItem>
+                    <fieldset disabled={lockPublish} className="contents">
+                      <div className="flex items-center gap-2 text-green-600">
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Pronto para publicação!</span>
+                      </div>
+                    </fieldset>
+                   </CardContent>
+                 </Card>
+               </AccordionContent>
+             </AccordionItem>
             
             {/* Relacionamentos */}
             <AccordionItem value="relationships">
