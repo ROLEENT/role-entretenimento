@@ -1,27 +1,35 @@
 import { z } from 'zod';
 
-// Esquema base com campos comuns
-const baseAgentSchema = z.object({
-  agent_type: z.enum(['artist', 'venue', 'organizer'], {
-    errorMap: () => ({ message: 'Tipo de agente é obrigatório' })
-  }),
+// Base schema for common fields
+const baseSchema = {
   name: z.string().min(2, 'Nome obrigatório').max(200, 'Nome muito longo'),
   slug: z.string().min(2, 'Slug obrigatório'),
-  status: z.enum(['active', 'inactive']).default('active'),
-});
-
-// Esquema específico para venue (validações leves)
-const venueSchema = baseAgentSchema.extend({
-  agent_type: z.literal('venue'),
   city: z.string().optional(),
-  instagram: z.string().optional().transform((val) => val ? val.replace(/^@+/, '') : val),
+  instagram: z.string().optional(),
   whatsapp: z.string().optional(),
   email: z.string().email('Email inválido').optional().or(z.literal('')),
-  website: z.string()
-    .refine((val) => !val || val.startsWith('https://'), 'URL deve começar com https://')
-    .optional()
-    .or(z.literal('')),
-  bio_short: z.string().optional(),
+  website: z.string().url('URL inválida').optional().or(z.literal('')),
+  bio_short: z.string().max(280, 'Bio muito longa').optional(),
+  status: z.enum(['active', 'inactive']).default('active'),
+};
+
+// Artist specific schema
+export const artistSchema = z.object({
+  type: z.literal('artist'),
+  ...baseSchema,
+  artist_subtype: z.enum(['banda', 'dj', 'solo', 'drag']).optional(),
+  spotify_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  soundcloud_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  youtube_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  beatport_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  profile_image_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  presskit_url: z.string().url('URL inválida').optional().or(z.literal('')),
+});
+
+// Venue specific schema
+export const venueSchema = z.object({
+  type: z.literal('venue'),
+  ...baseSchema,
   venue_type: z.enum(['bar', 'clube', 'casa_de_shows', 'teatro', 'galeria', 'espaco_cultural', 'restaurante']).optional(),
   address: z.string().optional(),
   neighborhood: z.string().optional(),
@@ -31,93 +39,29 @@ const venueSchema = baseAgentSchema.extend({
   lng: z.number().optional(),
 });
 
-// Esquema completo para artista e organizador (validações completas)
-const fullAgentSchema = z.object({
-  agent_type: z.enum(['artist', 'venue', 'organizer'], {
-    errorMap: () => ({ message: 'Tipo de agente é obrigatório' })
-  }),
-  name: z.string().min(1, 'Nome é obrigatório').max(200, 'Nome muito longo'),
-  slug: z.string().min(1, 'Slug é obrigatório'),
-  city: z.string().min(1, 'Cidade é obrigatória'),
-  instagram: z.string()
-    .min(1, 'Instagram é obrigatório')
-    .transform((val) => val.replace(/^@+/, '')),
-  whatsapp: z.string().min(1, 'WhatsApp é obrigatório'),
-  email: z.string().email('Email inválido'),
-  website: z.string()
-    .refine((val) => !val || val.startsWith('https://'), 'URL deve começar com https://')
-    .optional()
-    .or(z.literal('')),
-  bio_short: z.string().min(1, 'Bio curta é obrigatória').max(500, 'Bio curta muito longa'),
-  status: z.enum(['active', 'inactive']).default('active'),
-
-  // Campos específicos para artista
-  artist_subtype: z.enum(['banda', 'dj', 'solo', 'drag']).optional(),
-  spotify_url: z.string()
-    .refine((val) => !val || val.startsWith('https://'), 'URL deve começar com https://')
-    .optional()
-    .or(z.literal('')),
-  soundcloud_url: z.string()
-    .refine((val) => !val || val.startsWith('https://'), 'URL deve começar com https://')
-    .optional()
-    .or(z.literal('')),
-  youtube_url: z.string()
-    .refine((val) => !val || val.startsWith('https://'), 'URL deve começar com https://')
-    .optional()
-    .or(z.literal('')),
-  beatport_url: z.string()
-    .refine((val) => !val || val.startsWith('https://'), 'URL deve começar com https://')
-    .optional()
-    .or(z.literal('')),
-  profile_image_url: z.string()
-    .refine((val) => !val || val.startsWith('https://'), 'URL deve começar com https://')
-    .optional(),
-  presskit_url: z.string()
-    .refine((val) => !val || val.startsWith('https://'), 'URL deve começar com https://')
-    .optional()
-    .or(z.literal('')),
-
-  // Campos específicos para local
-  venue_type: z.enum(['bar', 'clube', 'casa_de_shows', 'teatro', 'galeria', 'espaco_cultural', 'restaurante']).optional(),
-  address: z.string().optional(),
-  neighborhood: z.string().optional(),
-  capacity: z.number().min(1, 'Capacidade deve ser maior que 0').optional(),
-  rules: z.string().optional(),
-  lat: z.number().optional(),
-  lng: z.number().optional(),
-
-  // Campos específicos para organizador
+// Organizer specific schema
+export const organizerSchema = z.object({
+  type: z.literal('organizer'),
+  ...baseSchema,
   organizer_subtype: z.enum(['organizador', 'produtora', 'coletivo', 'selo']).optional(),
   booking_email: z.string().email('Email inválido').optional().or(z.literal('')),
   booking_whatsapp: z.string().optional(),
-}).refine((data) => {
-  // Validações condicionais baseadas no tipo (apenas para artist e organizer)
-  if (data.agent_type === 'artist') {
-    return !!(data.artist_subtype && data.profile_image_url);
-  }
-  if (data.agent_type === 'organizer') {
-    return !!data.organizer_subtype;
-  }
-  // Venue não tem validações condicionais obrigatórias
-  return true;
-}, {
-  message: "Campos obrigatórios para o tipo selecionado estão faltando",
-  path: ["agent_type"]
 });
 
-// Schema dinâmico baseado no tipo
-export const getAgentSchema = (agentType?: string) => {
-  if (agentType === 'venue') {
-    return venueSchema;
-  }
-  return fullAgentSchema;
-};
+// Discriminated union schema
+export const AgentSchema = z.discriminatedUnion('type', [
+  artistSchema,
+  venueSchema, 
+  organizerSchema,
+]);
 
-// Schema padrão (mantém compatibilidade)
-export const agentSchema = fullAgentSchema;
+export type AgentFormValues = z.infer<typeof AgentSchema>;
 
-export type AgentFormData = z.infer<typeof agentSchema>;
+// Legacy exports for compatibility
+export const agentSchema = AgentSchema;
+export type AgentFormData = AgentFormValues;
 
+// Options for form selects
 export const AGENT_TYPES = [
   { value: 'artist', label: 'Artista' },
   { value: 'venue', label: 'Local' },

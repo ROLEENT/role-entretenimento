@@ -14,12 +14,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  getAgentSchema,
-  agentSchema, 
-  AgentFormData, 
+  AgentSchema,
+  AgentFormValues,
   AGENT_TYPES, 
   ARTIST_SUBTYPES, 
   VENUE_TYPES, 
@@ -28,8 +26,6 @@ import {
   CITIES
 } from '@/lib/agentSchema';
 import { useAgentManagement } from '@/hooks/useAgentManagement';
-import { useNavigationGuard } from '@/hooks/useNavigationGuard';
-import { useAutosave } from '@/hooks/useAutosave';
 import { Users, Check, AlertCircle } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
 import { cn } from '@/lib/utils';
@@ -37,98 +33,48 @@ import { cn } from '@/lib/utils';
 function AgentesContent() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { loading, createAgent, checkSlugExists, generateSlug, saveDraft, loadDraft, clearDraft } = useAgentManagement();
+  const { loading, createAgent, checkSlugExists } = useAgentManagement();
   
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
-  const [isDirty, setIsDirty] = useState(false);
   
-  const form = useForm<AgentFormData>({
+  const form = useForm<AgentFormValues>({
+    resolver: zodResolver(AgentSchema),
     mode: 'onChange',
     shouldUnregister: true,
-    resolver: zodResolver(getAgentSchema('artist')),
-    defaultValues: {
-      agent_type: 'artist',
-      name: '',
-      slug: '',
-      city: undefined,
-      instagram: '',
-      whatsapp: '',
-      email: '',
-      website: '',
-      bio_short: '',
-      status: 'active',
-    }
+    defaultValues: { 
+      type: 'artist', 
+      name: '', 
+      slug: '' 
+    },
   });
 
-  const agentType = form.watch('agent_type');
-  const nameValue = form.watch('name');
+  const watchedType = form.watch('type');
+  const nameWatch = form.watch('name');
   const slugValue = form.watch('slug');
-  const formValues = form.watch();
-
-  // Update form resolver when agent type changes
-  React.useEffect(() => {
-    form.clearErrors(); // Clear existing errors when switching types
-  }, [agentType, form]);
-
-  // Carregar rascunho ao montar o componente
-  React.useEffect(() => {
-    const draft = loadDraft();
-    if (draft) {
-      Object.keys(draft).forEach(key => {
-        form.setValue(key as keyof AgentFormData, draft[key as keyof AgentFormData]);
-      });
-      setIsDirty(true);
-      toast({
-        title: "Rascunho carregado",
-        description: "Seus dados anteriores foram restaurados.",
-      });
-    }
-  }, [form, loadDraft, toast]);
 
   // Handle URL params once
   const [searchParams] = useSearchParams();
   useEffect(() => {
     const t = searchParams.get('type');
-    if (t) form.setValue('agent_type', t as 'artist'|'venue'|'organizer', { shouldDirty: false });
+    if (t && ['artist', 'venue', 'organizer'].includes(t)) {
+      form.setValue('type', t as 'artist'|'venue'|'organizer', { shouldDirty: false });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-
-  // Monitorar mudanças no formulário
-  React.useEffect(() => {
-    const subscription = form.watch(() => {
-      setIsDirty(true);
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
-
-  // Navigation guard
-  const { confirmNavigation } = useNavigationGuard({
-    when: isDirty,
-    message: 'Você tem alterações não salvas. Deseja realmente sair?'
-  });
-
-  // Autosave
-  useAutosave({
-    data: formValues,
-    onSave: saveDraft,
-    delay: 800,
-    enabled: isDirty && !!formValues.name
-  });
-
-  // Gerar slug automaticamente quando o nome muda
+  // Auto-generate slug when name changes
   useEffect(() => {
-    const n = form.watch('name')?.trim();
+    const n = nameWatch?.trim();
     if (n && !form.getValues('slug')) {
-      form.setValue(
-        'slug',
+      form.setValue('slug',
         n.normalize('NFD').replace(/\p{Diacritic}/gu,'')
-         .toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'')
+         .toLowerCase().replace(/\s+/g,'-')
+         .replace(/[^a-z0-9-]/g,'')
       );
     }
-  }, [form.watch('name')]);
+  }, [nameWatch, form]);
 
-  // Verificar disponibilidade do slug com debounce
+  // Debounced slug availability check
   const debouncedSlugCheck = useDebouncedCallback(async (slug: string) => {
     if (!slug || slug.length < 3) {
       setSlugStatus('idle');
@@ -136,17 +82,17 @@ function AgentesContent() {
     }
 
     setSlugStatus('checking');
-    const exists = await checkSlugExists(slug, agentType);
+    const exists = await checkSlugExists(slug, watchedType);
     setSlugStatus(exists ? 'taken' : 'available');
   }, 500);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (slugValue) {
       debouncedSlugCheck(slugValue);
     }
-  }, [slugValue, agentType, debouncedSlugCheck]); // Include agentType to re-check when type changes
+  }, [slugValue, watchedType, debouncedSlugCheck]);
 
-  const onSubmit = async (data: AgentFormData) => {
+  const onSubmit = async (values: AgentFormValues) => {
     if (slugStatus === 'taken') {
       toast({
         title: "Erro",
@@ -156,43 +102,20 @@ function AgentesContent() {
       return;
     }
 
-    const agentId = await createAgent(data);
+    const agentId = await createAgent(values);
     if (agentId) {
-      form.reset();
+      form.reset({ type: watchedType, name: '', slug: '' });
       setSlugStatus('idle');
-      setIsDirty(false);
-      clearDraft(); // Limpar rascunho após salvar com sucesso
-      
-      // Navegar para listagem (quando implementada)
-      // navigate('/admin-v3/agentes');
       
       toast({
         title: "Sucesso",
-        description: "Agente salvo com sucesso! Você pode criar outro.",
+        description: "Agente criado com sucesso!",
       });
     }
   };
 
-  const handleClear = () => {
-    if (isDirty) {
-      const confirmed = window.confirm('Deseja realmente limpar todos os campos?');
-      if (confirmed) {
-        form.reset();
-        setIsDirty(false);
-        clearDraft();
-        setSlugStatus('idle');
-      }
-    }
-  };
-
-  const handleCancel = () => {
-    if (isDirty) {
-      confirmNavigation('/admin-v3');
-    } else {
-      navigate('/admin-v3');
-    }
-  };
-
+  const saving = form.formState.isSubmitting;
+  const canSave = form.formState.isValid && form.formState.isDirty && !saving;
 
   const getSlugStatusIcon = () => {
     switch (slugStatus) {
@@ -207,578 +130,406 @@ function AgentesContent() {
     }
   };
 
-  const getSlugStatusMessage = () => {
-    switch (slugStatus) {
-      case 'checking':
-        return 'Verificando disponibilidade...';
-      case 'available':
-        return 'Slug disponível';
-      case 'taken':
-        return 'Slug já está em uso';
-      default:
-        return '';
-    }
-  };
-
-   
-  // Form state for save button
-  const saving = form.formState.isSubmitting;
-  const canSave = form.formState.isValid && form.formState.isDirty && !saving;
-
-   return (
+  return (
     <div className="container mx-auto max-w-4xl space-y-6 p-4">
-      {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Criar Agente</h1>
           <p className="text-sm md:text-base text-muted-foreground">
-            Cadastre artistas, locais ou organizadores em um só lugar
+            Cadastre artistas, locais ou organizadores
           </p>
-        </div>
-        
-        {/* Action Buttons */}
-        <div className="flex flex-col-reverse gap-2 sm:flex-row">
-          <Button 
-            variant="outline" 
-            onClick={handleCancel}
-            className="w-full sm:w-auto"
-          >
-            Cancelar
-          </Button>
-          <Button 
-            type="button"
-            variant="secondary" 
-            onClick={() => form.reset()}
-            className="w-full sm:w-auto"
-          >
-            Limpar
-          </Button>
-          <Button 
-            type="submit"
-            disabled={!canSave}
-            className="w-full sm:w-auto"
-          >
-            {saving ? 'Salvando...' : 'Salvar Agente'}
-          </Button>
         </div>
       </div>
 
-      <Form {...form}>
-        <form id="admin-agents-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Tipo de Agente */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                Tipo de Agente
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 md:p-6">
-              <Controller
-                name="agent_type"
-                control={form.control}
-                rules={{ required: true }}
-                render={({ field }) => (
-                   <RadioGroup
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    className="grid gap-4 md:grid-cols-3"
-                  >
-                    <div className={cn("rounded-xl border p-4", field.value==='artist' && "ring-2 ring-primary")}>
-                      <RadioGroupItem id="type-artist" value="artist" className="sr-only" />
-                      <Label htmlFor="type-artist" className="cursor-pointer block">Artista</Label>
-                    </div>
+      <form id="admin-agents-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Agent Type Selection */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              Tipo de Agente
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 md:p-6">
+            <Controller
+              name="type"
+              control={form.control}
+              render={({ field }) => (
+                <RadioGroup
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  className="grid gap-4 md:grid-cols-3"
+                >
+                  <label className={cn("rounded-xl border p-4 cursor-pointer", field.value==='artist' && "ring-2 ring-primary")}>
+                    <RadioGroupItem className="sr-only" id="type-artist" value="artist" />
+                    <span>Artista</span>
+                  </label>
+                  <label className={cn("rounded-xl border p-4 cursor-pointer", field.value==='venue' && "ring-2 ring-primary")}>
+                    <RadioGroupItem className="sr-only" id="type-venue" value="venue" />
+                    <span>Local</span>
+                  </label>
+                  <label className={cn("rounded-xl border p-4 cursor-pointer", field.value==='organizer' && "ring-2 ring-primary")}>
+                    <RadioGroupItem className="sr-only" id="type-organizer" value="organizer" />
+                    <span>Organizador</span>
+                  </label>
+                </RadioGroup>
+              )}
+            />
+          </CardContent>
+        </Card>
 
-                    <div className={cn("rounded-xl border p-4", field.value==='venue' && "ring-2 ring-primary")}>
-                      <RadioGroupItem id="type-venue" value="venue" className="sr-only" />
-                      <Label htmlFor="type-venue" className="cursor-pointer block">Local</Label>
-                    </div>
-
-                    <div className={cn("rounded-xl border p-4", field.value==='organizer' && "ring-2 ring-primary")}>
-                      <RadioGroupItem id="type-organizer" value="organizer" className="sr-only" />
-                      <Label htmlFor="type-organizer" className="cursor-pointer block">Organizador</Label>
-                    </div>
-                  </RadioGroup>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Informações Básicas */}
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg">Informações Básicas</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6 p-4 md:p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        {/* Basic Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Informações Básicas</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6 p-4 md:p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="agent-name">Nome *</Label>
                 <Controller
                   name="name"
                   control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Nome *</FormLabel>
-                      <FormControl>
-                        <Input id="agent-name" placeholder="Nome" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => <Input id="agent-name" placeholder="Nome" {...field} />}
                 />
+                {form.formState.errors.name && (
+                  <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
+                )}
+              </div>
 
-                <Controller
-                  name="slug"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Slug *</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input id="agent-slug" placeholder="slug-exemplo" {...field} className="pr-10" />
-                          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
-                            {getSlugStatusIcon()}
-                          </div>
-                        </div>
-                      </FormControl>
-                      {slugStatus !== 'idle' && (
-                        <p className={`text-xs ${
-                          slugStatus === 'available' ? 'text-green-600' :
-                          slugStatus === 'taken' ? 'text-destructive' : 'text-muted-foreground'
-                        }`}>
-                          {getSlugStatusMessage()}
-                        </p>
-                      )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <div className="space-y-2">
+                <Label htmlFor="agent-slug">Slug *</Label>
+                <div className="relative">
+                  <Controller
+                    name="slug"
+                    control={form.control}
+                    render={({ field }) => <Input id="agent-slug" placeholder="slug-exemplo" {...field} className="pr-10" />}
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {getSlugStatusIcon()}
+                  </div>
+                </div>
+                {slugStatus !== 'idle' && (
+                  <p className={`text-xs ${
+                    slugStatus === 'available' ? 'text-green-600' :
+                    slugStatus === 'taken' ? 'text-destructive' : 'text-muted-foreground'
+                  }`}>
+                    {slugStatus === 'checking' ? 'Verificando...' :
+                     slugStatus === 'available' ? 'Slug disponível' : 'Slug já está em uso'}
+                  </p>
+                )}
+                {form.formState.errors.slug && (
+                  <p className="text-sm text-destructive">{form.formState.errors.slug.message}</p>
+                )}
+              </div>
+            </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <div className="space-y-2">
+                <Label>Cidade</Label>
                 <Controller
                   name="city"
                   control={form.control}
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        {agentType === 'venue' ? 'Cidade (opcional)' : 'Cidade'}
-                      </FormLabel>
-                      <Select value={field.value ?? undefined} onValueChange={field.onChange}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione a cidade" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {CITIES.map((city) => (
-                            <SelectItem key={city} value={city}>
-                              {city}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
+                    <Select value={field.value ?? undefined} onValueChange={field.onChange}>
+                      <SelectTrigger><SelectValue placeholder="Selecione a cidade" /></SelectTrigger>
+                      <SelectContent>
+                        {CITIES.map((city) => (
+                          <SelectItem key={city} value={city}>{city}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   )}
                 />
+              </div>
 
+              <div className="space-y-2">
+                <Label>Status</Label>
                 <Controller
                   name="status"
                   control={form.control}
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Status</FormLabel>
-                      <Select value={field.value ?? undefined} onValueChange={field.onChange}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione o status" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {STATUS_OPTIONS.map((status) => (
-                            <SelectItem key={status.value} value={status.value}>
-                              {status.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
+                    <Select value={field.value ?? undefined} onValueChange={field.onChange}>
+                      <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
+                      <SelectContent>
+                        {STATUS_OPTIONS.map((status) => (
+                          <SelectItem key={status.value} value={status.value}>{status.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   )}
                 />
               </div>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+              <div className="space-y-2">
+                <Label>Instagram</Label>
                 <Controller
                   name="instagram"
                   control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">
-                        {agentType === 'venue' ? 'Instagram (opcional)' : 'Instagram *'}
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="usuario (sem @)" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Controller
-                  name="whatsapp"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">
-                        {agentType === 'venue' ? 'WhatsApp (opcional)' : 'WhatsApp *'}
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="(11) 99999-9999" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Controller
-                  name="email"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">
-                        {agentType === 'venue' ? 'Email (opcional)' : 'Email *'}
-                      </FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="email@exemplo.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => <Input placeholder="@instagram" {...field} />}
                 />
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                <FormField
+              <div className="space-y-2">
+                <Label>WhatsApp</Label>
+                <Controller
+                  name="whatsapp"
                   control={form.control}
-                  name="website"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Website</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://exemplo.com" {...field} className="h-10" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => <Input placeholder="(11) 99999-9999" {...field} />}
                 />
+              </div>
 
-                <FormField
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Controller
+                  name="email"
                   control={form.control}
+                  render={({ field }) => <Input type="email" placeholder="email@exemplo.com" {...field} />}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              <div className="space-y-2">
+                <Label>Website</Label>
+                <Controller
+                  name="website"
+                  control={form.control}
+                  render={({ field }) => <Input placeholder="https://exemplo.com" {...field} />}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Bio Curta</Label>
+                <Controller
                   name="bio_short"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">
-                        {agentType === 'venue' ? 'Bio Curta (opcional)' : 'Bio Curta *'}
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Descrição breve..."
-                          className="resize-none"
-                          maxLength={500}
-                          rows={3}
-                          {...field} 
-                        />
-                      </FormControl>
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>Máximo 500 caracteres</span>
-                        <span>{field.value?.length || 0}/500</span>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  control={form.control}
+                  render={({ field }) => <Textarea placeholder="Descrição breve..." maxLength={280} rows={3} {...field} />}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Type-specific fields */}
+        {watchedType === 'artist' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Informações do Artista</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 p-4 md:p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                <div className="space-y-2">
+                  <Label>Tipo de Artista</Label>
+                  <Controller
+                    name="artist_subtype"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Select value={field.value ?? undefined} onValueChange={field.onChange}>
+                        <SelectTrigger><SelectValue placeholder="Tipo de artista" /></SelectTrigger>
+                        <SelectContent>
+                          {ARTIST_SUBTYPES.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Spotify URL</Label>
+                  <Controller
+                    name="spotify_url"
+                    control={form.control}
+                    render={({ field }) => <Input placeholder="https://spotify.com/..." {...field} />}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                <div className="space-y-2">
+                  <Label>SoundCloud URL</Label>
+                  <Controller
+                    name="soundcloud_url"
+                    control={form.control}
+                    render={({ field }) => <Input placeholder="https://soundcloud.com/..." {...field} />}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>YouTube URL</Label>
+                  <Controller
+                    name="youtube_url"
+                    control={form.control}
+                    render={({ field }) => <Input placeholder="https://youtube.com/..." {...field} />}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                <div className="space-y-2">
+                  <Label>Beatport URL</Label>
+                  <Controller
+                    name="beatport_url"
+                    control={form.control}
+                    render={({ field }) => <Input placeholder="https://beatport.com/..." {...field} />}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Presskit URL</Label>
+                  <Controller
+                    name="presskit_url"
+                    control={form.control}
+                    render={({ field }) => <Input placeholder="https://..." {...field} />}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Profile Image URL</Label>
+                <Controller
+                  name="profile_image_url"
+                  control={form.control}
+                  render={({ field }) => <Input placeholder="https://..." {...field} />}
                 />
               </div>
             </CardContent>
           </Card>
+        )}
 
-          {/* Campos Específicos por Tipo */}
-          {agentType === 'artist' && (
-            <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg">Informações do Artista</CardTitle>
+        {watchedType === 'venue' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Informações do Local</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 p-4 md:p-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                <Controller
-                  name="artist_subtype"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Subtipo *</FormLabel>
-                      <Select value={field.value ?? undefined} onValueChange={field.onChange}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione o subtipo" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {ARTIST_SUBTYPES.map((subtype) => (
-                            <SelectItem key={subtype.value} value={subtype.value}>
-                              {subtype.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                  <FormField
-                    control={form.control}
-                    name="profile_image_url"
-                    render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">URL da Foto *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://exemplo.com/foto.jpg" {...field} className="h-10" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                <FormField
-                  control={form.control}
-                  name="spotify_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Spotify</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://open.spotify.com/artist/..." {...field} className="h-10" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="soundcloud_url"
-                    render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">SoundCloud</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://soundcloud.com/..." {...field} className="h-10" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                <FormField
-                  control={form.control}
-                  name="youtube_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">YouTube</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://youtube.com/c/..." {...field} className="h-10" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="presskit_url"
-                    render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Press Kit</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://exemplo.com/presskit.pdf" {...field} className="h-10" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {agentType === 'venue' && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Informações do Local</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Tipo de Local</Label>
                   <Controller
                     name="venue_type"
                     control={form.control}
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tipo do Local (opcional)</FormLabel>
-                        <Select value={field.value ?? undefined} onValueChange={field.onChange}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecione o tipo" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {VENUE_TYPES.map((type) => (
-                              <SelectItem key={type.value} value={type.value}>
-                                {type.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="capacity"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Capacidade (opcional)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="200" 
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">Endereço (opcional)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Rua, número - bairro" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="neighborhood"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Bairro (opcional)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Nome do bairro" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="rules"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Regras (opcional)</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Regras da casa, política de entrada, etc..."
-                          className="resize-none"
-                          rows={3}
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-          )}
-
-          {agentType === 'organizer' && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Informações do Organizador</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="organizer_subtype"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Subtipo</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione o subtipo" />
-                          </SelectTrigger>
-                        </FormControl>
+                      <Select value={field.value ?? undefined} onValueChange={field.onChange}>
+                        <SelectTrigger><SelectValue placeholder="Tipo de local" /></SelectTrigger>
                         <SelectContent>
-                          {ORGANIZER_SUBTYPES.map((subtype) => (
-                            <SelectItem key={subtype.value} value={subtype.value}>
-                              {subtype.label}
-                            </SelectItem>
+                          {VENUE_TYPES.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="booking_email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email Comercial (opcional)</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="comercial@exemplo.com" {...field} className="h-10" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="booking_whatsapp"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>WhatsApp Comercial (opcional)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="(11) 99999-9999" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
                     )}
                   />
                 </div>
-              </CardContent>
-            </Card>
-          )}
-        </form>
-      </Form>
+
+                <div className="space-y-2">
+                  <Label>Capacidade</Label>
+                  <Controller
+                    name="capacity"
+                    control={form.control}
+                    render={({ field }) => <Input type="number" placeholder="Capacidade" {...field} />}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Endereço</Label>
+                <Controller
+                  name="address"
+                  control={form.control}
+                  render={({ field }) => <Input placeholder="Endereço completo" {...field} />}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Bairro</Label>
+                <Controller
+                  name="neighborhood"
+                  control={form.control}
+                  render={({ field }) => <Input placeholder="Bairro" {...field} />}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Regras</Label>
+                <Controller
+                  name="rules"
+                  control={form.control}
+                  render={({ field }) => <Textarea placeholder="Regras do local..." rows={3} {...field} />}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {watchedType === 'organizer' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Informações do Organizador</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 p-4 md:p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                <div className="space-y-2">
+                  <Label>Tipo de Organizador</Label>
+                  <Controller
+                    name="organizer_subtype"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Select value={field.value ?? undefined} onValueChange={field.onChange}>
+                        <SelectTrigger><SelectValue placeholder="Tipo de organizador" /></SelectTrigger>
+                        <SelectContent>
+                          {ORGANIZER_SUBTYPES.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Booking Email</Label>
+                  <Controller
+                    name="booking_email"
+                    control={form.control}
+                    render={({ field }) => <Input type="email" placeholder="booking@exemplo.com" {...field} />}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Booking WhatsApp</Label>
+                <Controller
+                  name="booking_whatsapp"
+                  control={form.control}
+                  render={({ field }) => <Input placeholder="(11) 99999-9999" {...field} />}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Form Actions */}
+        <div className="flex gap-3">
+          <Button 
+            type="button" 
+            variant="secondary" 
+            onClick={() => form.reset({ type: watchedType, name: '', slug: '' })}
+          >
+            Limpar
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={!canSave}
+          >
+            {saving ? 'Salvando...' : 'Salvar Agente'}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }
@@ -786,20 +537,14 @@ function AgentesContent() {
 export default function AdminV3Agentes() {
   return (
     <AdminV3Guard>
-      <div className="min-h-screen bg-background">
-        <AdminV3Header />
-        <div className="pt-16 p-6">
-          <div className="max-w-4xl mx-auto">
-            <AdminV3Breadcrumb 
-              items={[
-                { label: 'Dashboard', path: '/admin-v3' },
-                { label: 'Agentes' }
-              ]} 
-            />
-            <AgentesContent />
-          </div>
-        </div>
-      </div>
+      <AdminV3Header />
+      <AdminV3Breadcrumb 
+        items={[
+          { label: 'Admin' },
+          { label: 'Agentes' }
+        ]} 
+      />
+      <AgentesContent />
     </AdminV3Guard>
   );
 }

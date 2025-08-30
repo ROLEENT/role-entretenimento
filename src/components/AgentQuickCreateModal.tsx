@@ -41,14 +41,14 @@ export function AgentQuickCreateModal({
   onCreated,
 }: AgentQuickCreateModalProps) {
   const { toast } = useToast();
-  const { loading, createAgent, checkSlugExists, generateSlug } = useAgentManagement();
+  const { loading, createAgent, checkSlugExists } = useAgentManagement();
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   
   const form = useForm<AgentFormData>({
     resolver: zodResolver(agentSchema),
     mode: 'onChange',
     defaultValues: {
-      agent_type: agentType,
+      type: agentType,
       name: '',
       slug: '',
       city: undefined,
@@ -67,10 +67,15 @@ export function AgentQuickCreateModal({
   // Gerar slug automaticamente quando o nome muda
   React.useEffect(() => {
     if (nameValue && !slugValue) {
-      const autoSlug = generateSlug(nameValue);
+      const autoSlug = nameValue
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
       form.setValue('slug', autoSlug);
     }
-  }, [nameValue, slugValue, form, generateSlug]);
+  }, [nameValue, slugValue, form]);
 
   // Verificar disponibilidade do slug com debounce
   const debouncedSlugCheck = useDebouncedCallback(async (slug: string) => {
@@ -108,7 +113,7 @@ export function AgentQuickCreateModal({
         name: data.name,
         city: data.city,
         value: agentId,
-        subtitle: agentType === 'venue' ? data.address : 
+        subtitle: agentType === 'venue' ? (data as any).address : 
                   agentType === 'organizer' ? data.email : undefined,
       };
 

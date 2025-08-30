@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { AgentFormData } from '@/lib/agentSchema';
+import { AgentFormValues } from '@/lib/agentSchema';
 
-const DRAFT_STORAGE_KEY = 'agent-form-draft';
-
-// Mapeamento de tipos para tabelas
+// Map agent types to database tables
 const TABLE_BY_TYPE = {
   artist: 'artists',
   venue: 'venues', 
@@ -19,7 +17,7 @@ export const useAgentManagement = () => {
   const checkSlugExists = async (slug: string, agentType?: string): Promise<boolean> => {
     try {
       if (agentType) {
-        // Verificar apenas na tabela específica
+        // Check only in specific table
         const tableName = TABLE_BY_TYPE[agentType as keyof typeof TABLE_BY_TYPE];
         const { data } = await supabase
           .from(tableName)
@@ -29,7 +27,7 @@ export const useAgentManagement = () => {
         return !!data;
       }
 
-      // Verificar em todas as tabelas se tipo não especificado
+      // Check in all tables if type not specified
       const [artistResult, venueResult, organizerResult] = await Promise.all([
         supabase.from('artists').select('id').eq('slug', slug).maybeSingle(),
         supabase.from('venues').select('id').eq('slug', slug).maybeSingle(),
@@ -38,26 +36,16 @@ export const useAgentManagement = () => {
 
       return !!(artistResult.data || venueResult.data || organizerResult.data);
     } catch (error) {
-      console.error('Erro ao verificar slug:', error);
+      console.error('Error checking slug:', error);
       return false;
     }
   };
 
-  const generateSlug = (name: string): string => {
-    return name
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9\s]/g, '')
-      .replace(/\s+/g, '-')
-      .trim();
-  };
-
-  const createAgent = async (data: AgentFormData): Promise<string | null> => {
+  const createAgent = async (data: AgentFormValues): Promise<string | null> => {
     setLoading(true);
     try {
-      // Verificar se slug já existe para esse tipo específico
-      const slugExists = await checkSlugExists(data.slug, data.agent_type);
+      // Check if slug already exists for this specific type
+      const slugExists = await checkSlugExists(data.slug, data.type);
       if (slugExists) {
         toast({
           title: "Slug duplicado",
@@ -67,11 +55,10 @@ export const useAgentManagement = () => {
         return null;
       }
 
-      const tableName = TABLE_BY_TYPE[data.agent_type];
       let insertData: any = {};
       
-      // Preparar dados baseado no tipo
-      switch (data.agent_type) {
+      // Prepare data based on agent type and align with actual database columns
+      switch (data.type) {
         case 'artist':
           insertData = {
             stage_name: data.name,
@@ -82,7 +69,7 @@ export const useAgentManagement = () => {
             booking_email: data.email || '',
             website_url: data.website || null,
             bio_short: data.bio_short || '',
-            status: data.status,
+            status: data.status || 'active',
             artist_type: data.artist_subtype || 'banda',
             spotify_url: data.spotify_url || null,
             soundcloud_url: data.soundcloud_url || null,
@@ -96,10 +83,10 @@ export const useAgentManagement = () => {
         case 'venue':
           insertData = {
             name: data.name,
+            slug: data.slug,
             address: data.address || '',
             city: data.city || '',
-            state: 'SP', // Valor padrão
-            slug: data.slug,
+            state: 'SP', // Default value
             capacity: data.capacity || null,
             lat: data.lat || null,
             lng: data.lng || null,
@@ -120,9 +107,9 @@ export const useAgentManagement = () => {
             instagram: data.instagram?.replace(/^@+/, '') || '',
             contact_whatsapp: data.whatsapp || '',
             contact_email: data.email || '',
-            website_url: data.website || null,
+            site: data.website || null,
             bio_short: data.bio_short || '',
-            status: data.status,
+            status: data.status || 'active',
             type: data.organizer_subtype || 'organizador',
             booking_email: data.booking_email || null,
             booking_whatsapp: data.booking_whatsapp || null,
@@ -130,10 +117,11 @@ export const useAgentManagement = () => {
           break;
 
         default:
-          throw new Error('Tipo de agente inválido');
+          throw new Error('Invalid agent type');
       }
 
-      // Inserir na tabela correta
+      // Insert into the correct table
+      const tableName = TABLE_BY_TYPE[data.type];
       const result = await supabase
         .from(tableName)
         .insert(insertData)
@@ -150,12 +138,12 @@ export const useAgentManagement = () => {
 
       toast({
         title: "Sucesso",
-        description: `${typeLabels[data.agent_type]} criado com sucesso!`
+        description: `${typeLabels[data.type]} criado com sucesso!`
       });
 
       return result.data.id;
     } catch (error: any) {
-      console.error('Erro ao criar agente:', error);
+      console.error('Error creating agent:', error);
       
       if (error.code === '23505') {
         toast({
@@ -176,40 +164,9 @@ export const useAgentManagement = () => {
     }
   };
 
-  const saveDraft = async (data: AgentFormData): Promise<void> => {
-    try {
-      // Salvar no localStorage
-      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(data));
-    } catch (error) {
-      console.error('Erro ao salvar rascunho:', error);
-    }
-  };
-
-  const loadDraft = (): AgentFormData | null => {
-    try {
-      const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : null;
-    } catch (error) {
-      console.error('Erro ao carregar rascunho:', error);
-      return null;
-    }
-  };
-
-  const clearDraft = (): void => {
-    try {
-      localStorage.removeItem(DRAFT_STORAGE_KEY);
-    } catch (error) {
-      console.error('Erro ao limpar rascunho:', error);
-    }
-  };
-
   return {
     loading,
     createAgent,
     checkSlugExists,
-    generateSlug,
-    saveDraft,
-    loadDraft,
-    clearDraft,
   };
 };
