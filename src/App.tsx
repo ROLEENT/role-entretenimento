@@ -68,6 +68,9 @@ const AdminV3ArtistsCreate = lazy(() => import("./pages/AdminV3ArtistsCreate"));
 const AdminV3ArtistsEdit = lazy(() => import("./pages/AdminV3ArtistsEdit"));
 const AdminV3Agentes = lazy(() => import("./pages/AdminV3Agentes"));
 const AdminV3Profile = lazy(() => import("./pages/AdminV3Profile"));
+const AdminV3Contact = lazy(() => import("./pages/AdminV3Contact"));
+const AdminV3Newsletter = lazy(() => import("./pages/AdminV3Newsletter"));
+const AdminV3Applications = lazy(() => import("./pages/AdminV3Applications"));
 
 // Admin Blog components
 const AdminBlogList = lazy(() => import("./components/admin/blog/AdminBlogList").then(module => ({ default: module.AdminBlogList })));
@@ -211,6 +214,10 @@ function App() {
                 <Route path="/admin-v3/revista/novo/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogForm /></Suspense>} />
                 <Route path="/admin-v3/revista/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogForm /></Suspense>} />
                 <Route path="/admin-v3/revista/:id/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogForm /></Suspense>} />
+                {/* Admin Gestão Routes */}
+                <Route path="/admin-v3/contatos" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Contact /></Suspense>} />
+                <Route path="/admin-v3/newsletter" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Newsletter /></Suspense>} />
+                <Route path="/admin-v3/candidaturas" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Applications /></Suspense>} />
                 <Route path="/admin-v3/profile" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Profile /></Suspense>} />
                 
                 {/* Events Routes */}

@@ -6,10 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, FileText, Clock, TrendingUp, RefreshCw, AlertTriangle, Plus, Info, ExternalLink, Users, BookOpen } from 'lucide-react';
+import { Calendar, FileText, Clock, TrendingUp, RefreshCw, AlertTriangle, Plus, Info, ExternalLink, Users, BookOpen, Mail, Send } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
+import { useAdminDashboardCounts } from '@/hooks/useAdminDashboardCounts';
 
 interface DashboardStats {
   drafts: number;
@@ -31,6 +32,8 @@ function DashboardContent() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { counts, loading: countsLoading } = useAdminDashboardCounts();
 
   const loadStats = async () => {
     try {
@@ -481,6 +484,61 @@ function DashboardContent() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Management Cards */}
+      {!countsLoading && counts && (
+        <Card className="bg-muted/30">
+          <CardHeader>
+            <CardTitle className="text-lg">Gestão</CardTitle>
+          </CardHeader>
+          <CardContent className="p-6 pt-0">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Button 
+                variant="outline" 
+                className="h-24 flex-col gap-2 bg-background hover:bg-muted"
+                onClick={() => navigate('/admin-v3/contatos')}
+              >
+                <div className="flex items-center gap-2">
+                  <Mail className="w-6 h-6" />
+                  <div className="text-center">
+                    <div className="font-semibold">{counts.contacts.total}</div>
+                    <div className="text-xs text-muted-foreground">+{counts.contacts.last_7d} esta semana</div>
+                  </div>
+                </div>
+                <span className="text-sm">Contatos</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="h-24 flex-col gap-2 bg-background hover:bg-muted"
+                onClick={() => navigate('/admin-v3/newsletter')}
+              >
+                <div className="flex items-center gap-2">
+                  <Send className="w-6 h-6" />
+                  <div className="text-center">
+                    <div className="font-semibold">{counts.newsletter.total}</div>
+                    <div className="text-xs text-muted-foreground">+{counts.newsletter.last_7d} esta semana</div>
+                  </div>
+                </div>
+                <span className="text-sm">Newsletter</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="h-24 flex-col gap-2 bg-background hover:bg-muted"
+                onClick={() => navigate('/admin-v3/candidaturas')}
+              >
+                <div className="flex items-center gap-2">
+                  <FileText className="w-6 h-6" />
+                  <div className="text-center">
+                    <div className="font-semibold">{counts.job_applications.total}</div>
+                    <div className="text-xs text-muted-foreground">+{counts.job_applications.last_7d} esta semana</div>
+                  </div>
+                </div>
+                <span className="text-sm">Candidaturas</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Keyboard Shortcuts Help */}
       <Card className="bg-muted/30">

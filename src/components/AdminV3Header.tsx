@@ -210,6 +210,43 @@ export function AdminV3Header() {
               >
                 Revista
               </Button>
+              
+              {/* Gestão dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant={
+                      location.pathname.startsWith('/admin-v3/contatos') || 
+                      location.pathname.startsWith('/admin-v3/newsletter') || 
+                      location.pathname.startsWith('/admin-v3/candidaturas') 
+                        ? 'default' : 'ghost'
+                    }
+                    size="sm"
+                  >
+                    Gestão
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center">
+                  <DropdownMenuItem 
+                    onClick={() => navigate('/admin-v3/contatos')}
+                    className="cursor-pointer"
+                  >
+                    Contatos
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => navigate('/admin-v3/newsletter')}
+                    className="cursor-pointer"
+                  >
+                    Newsletter
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => navigate('/admin-v3/candidaturas')}
+                    className="cursor-pointer"
+                  >
+                    Candidaturas
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </nav>
           </div>
 
