@@ -233,7 +233,7 @@ export default function RevistaPage() {
           {/* Loading skeletons */}
           {isLoading && (
             <ResponsiveGrid 
-              cols={{ default: 1, md: 2, lg: 3, xl: 4 }}
+              cols={{ default: 1, md: 2, lg: 3 }}
               gap="lg"
               className="mb-8"
             >
@@ -312,7 +312,7 @@ export default function RevistaPage() {
           {!error && !isLoading && posts.length > 0 && (
             <>
               <ResponsiveGrid 
-                cols={{ default: 1, md: 2, lg: 3, xl: 4 }}
+                cols={{ default: 1, md: 2, lg: 3 }}
                 gap="lg"
                 className="mb-8"
               >
