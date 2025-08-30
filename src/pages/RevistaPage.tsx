@@ -1,30 +1,122 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { SEOHelmet } from "@/components/SEOHelmet";
 import { PageWrapper } from "@/components/PageWrapper";
 import { RevistaCard } from "@/components/revista/RevistaCard";
 import { RevistaFilters } from "@/components/revista/RevistaFilters";
 import { ResponsiveGrid } from "@/components/ui/responsive-grid";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { useRevistaData } from "@/hooks/useRevistaData";
-import { BookOpen, FileText } from "lucide-react";
+import { useDebounce } from "@/hooks/useDebounce";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { BookOpen, FileText, AlertCircle } from "lucide-react";
+
+interface RevistaPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  summary: string;
+  cover_url: string;
+  cover_image: string;
+  publish_at: string;
+  published_at: string;
+  reading_time_min: number;
+  reading_time: number;
+  city: string;
+  slug: string;
+  slug_data?: string;
+  author_name?: string;
+  featured?: boolean;
+}
 
 export default function RevistaPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [posts, setPosts] = useState<RevistaPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
   
   const searchTerm = searchParams.get('q') || '';
   const cityFilter = searchParams.get('cidade') || '';
   const sectionFilter = searchParams.get('secao') || '';
-  const page = parseInt(searchParams.get('pagina') || '1', 10);
+  
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  const { posts, totalCount, totalPages, isLoading, error } = useRevistaData({
-    searchTerm,
-    cityFilter,
-    sectionFilter,
-    page,
-    limit: 12
-  });
+  const fetchPosts = useCallback(async (offset = 0, reset = false) => {
+    try {
+      if (reset) {
+        setIsLoading(true);
+      } else {
+        setIsLoadingMore(true);
+      }
+      setError(null);
+
+      let query = supabase
+        .from('blog_posts')
+        .select('*', { count: 'exact' })
+        .eq('status', 'published')
+        .order('published_at', { ascending: false })
+        .range(offset, offset + 11); // 12 items (0-11)
+
+      if (cityFilter) {
+        query = query.eq('city', cityFilter);
+      }
+
+      if (debouncedSearchTerm) {
+        query = query.ilike('title', `%${debouncedSearchTerm}%`);
+      }
+
+      const { data, error: fetchError, count } = await query;
+
+      if (fetchError) throw fetchError;
+
+      const transformedPosts: RevistaPost[] = (data || []).map(item => ({
+        id: item.id,
+        title: item.title,
+        excerpt: item.summary,
+        summary: item.summary,
+        cover_url: item.cover_image,
+        cover_image: item.cover_image,
+        publish_at: item.published_at,
+        published_at: item.published_at,
+        reading_time_min: item.reading_time || 5,
+        reading_time: item.reading_time || 5,
+        city: item.city,
+        slug: item.slug,
+        slug_data: item.slug_data,
+        author_name: item.author_name,
+        featured: item.featured || false,
+      }));
+
+      if (reset) {
+        setPosts(transformedPosts);
+      } else {
+        setPosts(prev => [...prev, ...transformedPosts]);
+      }
+      
+      setTotalCount(count || 0);
+      setHasMore(transformedPosts.length === 12 && (offset + 12) < (count || 0));
+    } catch (err) {
+      console.error('Error fetching posts:', err);
+      setError(err instanceof Error ? err.message : 'Erro ao carregar artigos');
+    } finally {
+      setIsLoading(false);
+      setIsLoadingMore(false);
+    }
+  }, [cityFilter, debouncedSearchTerm]);
+
+  // Load initial posts
+  useEffect(() => {
+    fetchPosts(0, true);
+  }, [fetchPosts]);
+
+  const handleLoadMore = () => {
+    if (!isLoadingMore && hasMore) {
+      fetchPosts(posts.length);
+    }
+  };
 
   const updateSearchParams = (key: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -35,40 +127,23 @@ export default function RevistaPage() {
       newParams.delete(key);
     }
     
-    // Reset to page 1 when filters change
-    if (key !== 'pagina') {
-      newParams.delete('pagina');
-    }
-    
     setSearchParams(newParams);
   };
 
   const handleSearchChange = (value: string) => updateSearchParams('q', value);
   const handleCityChange = (value: string) => updateSearchParams('cidade', value);
   const handleSectionChange = (value: string) => updateSearchParams('secao', value);
-  
-  const handlePageChange = (newPage: number) => {
-    updateSearchParams('pagina', newPage.toString());
-  };
 
   const handleClearFilters = () => {
     setSearchParams({});
   };
 
-  if (error) {
-    return (
-      <PageWrapper>
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-destructive mb-4">Erro ao carregar artigos</h1>
-            <p className="text-muted-foreground">{error}</p>
-          </div>
-        </div>
-      </PageWrapper>
-    );
-  }
+  const handleRetry = () => {
+    fetchPosts(0, true);
+  };
 
   const hasFilters = searchTerm || cityFilter || sectionFilter;
+
   const metaDescription = hasFilters 
     ? `Resultados de busca na Revista ROLÊ${searchTerm ? ` para "${searchTerm}"` : ''}${cityFilter ? ` em ${cityFilter}` : ''}` 
     : "Revista ROLÊ - Artigos sobre cultura, música e entretenimento. Descubra as melhores matérias sobre a cena cultural do Brasil.";
@@ -109,14 +184,28 @@ export default function RevistaPage() {
             />
           </div>
 
+          {/* Error state */}
+          {error && (
+            <div className="text-center py-12">
+              <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Erro ao carregar artigos</h3>
+              <p className="text-muted-foreground mb-4">{error}</p>
+              <Button onClick={handleRetry} variant="outline">
+                Tentar novamente
+              </Button>
+            </div>
+          )}
+
           {/* Results summary */}
-          <div className="flex items-center gap-2 mb-6 text-sm text-muted-foreground">
-            <FileText className="w-4 h-4" />
-            <span>
-              {isLoading ? 'Carregando...' : `${totalCount} artigo${totalCount !== 1 ? 's' : ''} encontrado${totalCount !== 1 ? 's' : ''}`}
-              {hasFilters && ' para sua busca'}
-            </span>
-          </div>
+          {!error && (
+            <div className="flex items-center gap-2 mb-6 text-sm text-muted-foreground">
+              <FileText className="w-4 h-4" />
+              <span>
+                {isLoading ? 'Carregando...' : `${totalCount} artigo${totalCount !== 1 ? 's' : ''} encontrado${totalCount !== 1 ? 's' : ''}`}
+                {hasFilters && ' para sua busca'}
+              </span>
+            </div>
+          )}
 
           {/* Loading state */}
           {isLoading && (
@@ -126,7 +215,7 @@ export default function RevistaPage() {
           )}
 
           {/* Empty state */}
-          {!isLoading && posts.length === 0 && (
+          {!error && !isLoading && posts.length === 0 && (
             <div className="text-center py-12">
               <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">
@@ -150,7 +239,7 @@ export default function RevistaPage() {
           )}
 
           {/* Articles grid */}
-          {!isLoading && posts.length > 0 && (
+          {!error && !isLoading && posts.length > 0 && (
             <>
               <ResponsiveGrid 
                 cols={{ default: 1, md: 2, lg: 3, xl: 4 }}
@@ -162,47 +251,24 @@ export default function RevistaPage() {
                 ))}
               </ResponsiveGrid>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
+              {/* Load more button */}
+              {hasMore && (
                 <div className="flex justify-center">
-                  <Pagination>
-                    <PaginationContent>
-                      {page > 1 && (
-                        <PaginationItem>
-                          <PaginationPrevious 
-                            onClick={() => handlePageChange(page - 1)}
-                            href="#"
-                          />
-                        </PaginationItem>
-                      )}
-                      
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        const pageNumber = Math.max(1, Math.min(page - 2 + i, totalPages - 4 + i));
-                        if (pageNumber > totalPages) return null;
-                        
-                        return (
-                          <PaginationItem key={pageNumber}>
-                            <PaginationLink
-                              onClick={() => handlePageChange(pageNumber)}
-                              isActive={pageNumber === page}
-                              href="#"
-                            >
-                              {pageNumber}
-                            </PaginationLink>
-                          </PaginationItem>
-                        );
-                      })}
-                      
-                      {page < totalPages && (
-                        <PaginationItem>
-                          <PaginationNext 
-                            onClick={() => handlePageChange(page + 1)}
-                            href="#"
-                          />
-                        </PaginationItem>
-                      )}
-                    </PaginationContent>
-                  </Pagination>
+                  <Button 
+                    onClick={handleLoadMore}
+                    disabled={isLoadingMore}
+                    variant="outline"
+                    size="lg"
+                  >
+                    {isLoadingMore ? (
+                      <>
+                        <LoadingSpinner className="w-4 h-4 mr-2" />
+                        Carregando...
+                      </>
+                    ) : (
+                      'Carregar mais artigos'
+                    )}
+                  </Button>
                 </div>
               )}
             </>

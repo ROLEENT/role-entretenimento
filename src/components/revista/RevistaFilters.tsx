@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Search, Filter, X } from "lucide-react";
-import { getRevistaCities, getRevistaSections } from "@/hooks/useRevistaData";
+import { supabase } from "@/integrations/supabase/client";
 
 interface RevistaFiltersProps {
   searchTerm: string;
@@ -25,20 +25,20 @@ export function RevistaFilters({
   onClearFilters
 }: RevistaFiltersProps) {
   const [cities, setCities] = useState<string[]>([]);
-  const [sections, setSections] = useState<string[]>([]);
+  const [sections] = useState<string[]>(['editorial', 'cultura', 'música', 'arte']);
 
   useEffect(() => {
-    const loadFilterOptions = async () => {
-      const [citiesData, sectionsData] = await Promise.all([
-        getRevistaCities(),
-        getRevistaSections()
-      ]);
-      
+    const loadCities = async () => {
+      const { data } = await supabase
+        .from('blog_posts')
+        .select('city')
+        .eq('status', 'published');
+        
+      const citiesData = Array.from(new Set((data || []).map(item => item.city).filter(Boolean)));
       setCities(citiesData);
-      setSections(sectionsData);
     };
 
-    loadFilterOptions();
+    loadCities();
   }, []);
 
   const hasActiveFilters = searchTerm || cityFilter || sectionFilter;
