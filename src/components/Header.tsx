@@ -38,7 +38,8 @@ const Header = () => {
     { href: '/', label: 'Home' },
     { href: '/agenda', label: 'Agenda' },
     { href: '/revista', label: 'Revista' },
-    { href: '/cidades', label: 'Cidades' }
+    { href: '/cidades', label: 'Cidades' },
+    { href: '/ajuda', label: 'Ajuda' }
   ];
 
   const cities = [
