@@ -830,6 +830,7 @@ export type Database = {
           booking_whatsapp: string
           cities_active: string[] | null
           city: string | null
+          city_id: number | null
           cover_image_url: string | null
           created_at: string | null
           fee_range: string | null
@@ -875,6 +876,7 @@ export type Database = {
           booking_whatsapp: string
           cities_active?: string[] | null
           city?: string | null
+          city_id?: number | null
           cover_image_url?: string | null
           created_at?: string | null
           fee_range?: string | null
@@ -920,6 +922,7 @@ export type Database = {
           booking_whatsapp?: string
           cities_active?: string[] | null
           city?: string | null
+          city_id?: number | null
           cover_image_url?: string | null
           created_at?: string | null
           fee_range?: string | null
@@ -953,7 +956,15 @@ export type Database = {
           website_url?: string | null
           youtube_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "artists_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       badges: {
         Row: {
@@ -2815,6 +2826,7 @@ export type Database = {
       }
       organizers: {
         Row: {
+          city_id: number | null
           contact_email: string
           created_at: string
           email: string | null
@@ -2828,6 +2840,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          city_id?: number | null
           contact_email: string
           created_at?: string
           email?: string | null
@@ -2841,6 +2854,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          city_id?: number | null
           contact_email?: string
           created_at?: string
           email?: string | null
@@ -2853,7 +2867,15 @@ export type Database = {
           slug?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "organizers_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       partners: {
         Row: {
@@ -3623,6 +3645,7 @@ export type Database = {
           address: string
           capacity: number | null
           city: string
+          city_id: number | null
           contacts_json: Json | null
           cover_url: string | null
           created_at: string
@@ -3639,6 +3662,7 @@ export type Database = {
           address: string
           capacity?: number | null
           city: string
+          city_id?: number | null
           contacts_json?: Json | null
           cover_url?: string | null
           created_at?: string
@@ -3655,6 +3679,7 @@ export type Database = {
           address?: string
           capacity?: number | null
           city?: string
+          city_id?: number | null
           contacts_json?: Json | null
           cover_url?: string | null
           created_at?: string
@@ -3667,7 +3692,15 @@ export type Database = {
           state?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "venues_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
