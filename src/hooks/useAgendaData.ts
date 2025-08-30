@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface AgendaItem {
@@ -28,106 +28,100 @@ export interface AgendaStats {
   isLoading: boolean;
 }
 
-export const useAgendaData = () => {
-  const [upcomingEvents, setUpcomingEvents] = useState<AgendaItem[]>([]);
-  const [cityStats, setCityStats] = useState<CityStats[]>([]);
-  const [stats, setStats] = useState<AgendaStats>({
-    totalEvents: 0,
-    totalCities: 0,
-    isLoading: true
+const fetchUpcomingEvents = async (): Promise<AgendaItem[]> => {
+  const today = new Date();
+  const thirtyDaysFromNow = new Date();
+  thirtyDaysFromNow.setDate(today.getDate() + 30);
+
+  const { data, error } = await supabase
+    .from('agenda_public')
+    .select('*')
+    .eq('status', 'published')
+    .gte('start_at', today.toISOString())
+    .lte('start_at', thirtyDaysFromNow.toISOString())
+    .order('priority', { ascending: false })
+    .order('start_at', { ascending: true })
+    .limit(12);
+
+  if (error) throw error;
+  return (data as AgendaItem[]) || [];
+};
+
+const fetchCityStats = async (): Promise<{ cityStats: CityStats[]; totalEvents: number; totalCities: number }> => {
+  const today = new Date();
+
+  const { data, error } = await supabase
+    .from('agenda_public')
+    .select('city')
+    .eq('status', 'published')
+    .gte('start_at', today.toISOString());
+
+  if (error) throw error;
+
+  // Calculate stats
+  const cityCount: Record<string, number> = {};
+  (data || []).forEach((item) => {
+    if (item.city) {
+      cityCount[item.city] = (cityCount[item.city] || 0) + 1;
+    }
   });
-  const [isLoadingEvents, setIsLoadingEvents] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const fetchUpcomingEvents = async () => {
-    try {
-      setIsLoadingEvents(true);
-      const today = new Date();
-      const thirtyDaysFromNow = new Date();
-      thirtyDaysFromNow.setDate(today.getDate() + 30);
+  const cityStats = Object.entries(cityCount).map(([city, count]) => ({
+    city,
+    count,
+  }));
 
-      const { data, error: fetchError } = await supabase
-        .from('agenda_public')
-        .select('*')
-        .eq('status', 'published')
-        .gte('start_at', today.toISOString())
-        .lte('start_at', thirtyDaysFromNow.toISOString())
-        .order('priority', { ascending: false })
-        .order('start_at', { ascending: true })
-        .limit(12);
+  const totalEvents = Object.values(cityCount).reduce((sum, count) => sum + count, 0);
+  const totalCities = Object.keys(cityCount).length;
 
-      if (fetchError) throw fetchError;
+  return { cityStats, totalEvents, totalCities };
+};
 
-      setUpcomingEvents((data as AgendaItem[]) || []);
-    } catch (err) {
-      console.error('Error fetching upcoming events:', err);
-      setError(err instanceof Error ? err.message : 'Erro ao carregar eventos');
-    } finally {
-      setIsLoadingEvents(false);
-    }
+export const useAgendaData = () => {
+  // Fetch upcoming events
+  const {
+    data: upcomingEvents = [],
+    isLoading: isLoadingEvents,
+    error: eventsError,
+    refetch: refetchEvents,
+  } = useQuery({
+    queryKey: ['agenda-upcoming-events'],
+    queryFn: fetchUpcomingEvents,
+    staleTime: 10 * 60 * 1000, // 10 minutes for stable data
+    gcTime: 30 * 60 * 1000, // 30 minutes
+  });
+
+  // Fetch city stats
+  const {
+    data: statsData,
+    isLoading: isLoadingStats,
+    error: statsError,
+    refetch: refetchStats,
+  } = useQuery({
+    queryKey: ['agenda-city-stats'],
+    queryFn: fetchCityStats,
+    staleTime: 15 * 60 * 1000, // 15 minutes for stats
+    gcTime: 60 * 60 * 1000, // 1 hour
+  });
+
+  const cityStats = statsData?.cityStats || [];
+  const stats = {
+    totalEvents: statsData?.totalEvents || 0,
+    totalCities: statsData?.totalCities || 0,
+    isLoading: isLoadingStats,
   };
 
-  const fetchStats = async () => {
-    try {
-      setStats(prev => ({ ...prev, isLoading: true }));
-      const today = new Date();
-
-      const { data, error: fetchError } = await supabase
-        .from('agenda_public')
-        .select('city')
-        .eq('status', 'published')
-        .gte('start_at', today.toISOString());
-
-      if (fetchError) throw fetchError;
-
-      // Calculate stats
-      const cityCount: Record<string, number> = {};
-      (data || []).forEach((item) => {
-        if (item.city) {
-          cityCount[item.city] = (cityCount[item.city] || 0) + 1;
-        }
-      });
-
-      const statsArray = Object.entries(cityCount).map(([city, count]) => ({
-        city,
-        count,
-      }));
-
-      setCityStats(statsArray);
-      
-      // Update animated stats
-      const totalEvents = Object.values(cityCount).reduce((sum, count) => sum + count, 0);
-      const totalCities = Object.keys(cityCount).length;
-      
-      setStats({
-        totalEvents,
-        totalCities,
-        isLoading: false
-      });
-    } catch (err) {
-      console.error('Error fetching stats:', err);
-      setStats(prev => ({ ...prev, isLoading: false }));
-    }
-  };
-
+  const error = eventsError || statsError;
   const refetch = async () => {
-    setError(null);
-    await Promise.all([
-      fetchUpcomingEvents(),
-      fetchStats(),
-    ]);
+    await Promise.all([refetchEvents(), refetchStats()]);
   };
-
-  useEffect(() => {
-    refetch();
-  }, []);
 
   return {
     upcomingEvents,
     cityStats,
     stats,
     isLoadingEvents,
-    error,
+    error: error?.message || null,
     refetch,
   };
 };

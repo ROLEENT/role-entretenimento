@@ -5,9 +5,9 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // Cache for 5 minutes, consider stale after 30 seconds
-      staleTime: 30 * 1000, // 30 seconds
-      gcTime: 5 * 60 * 1000, // 5 minutes (formerly cacheTime)
+      // Increase cache times to reduce skeleton flashing
+      staleTime: 5 * 60 * 1000, // 5 minutes (data considered fresh)
+      gcTime: 30 * 60 * 1000, // 30 minutes (keep in cache)
       
       // Retry configuration
       retry: (failureCount, error: any) => {
@@ -20,10 +20,11 @@ export const queryClient = new QueryClient({
       },
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       
-      // Performance settings
-      refetchOnWindowFocus: false, // Disable for admin panel
+      // Performance settings to reduce flashing
+      refetchOnWindowFocus: false, // Prevent unnecessary refetches
       refetchOnReconnect: true,
       refetchIntervalInBackground: false,
+      refetchOnMount: true, // Only refetch if data is stale
     },
     mutations: {
       // Retry mutations once on failure
