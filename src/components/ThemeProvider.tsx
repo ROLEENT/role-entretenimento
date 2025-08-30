@@ -75,13 +75,13 @@ export function ThemeProvider({
 
   const value = {
     theme,
-    setTheme: (theme: Theme) => {
+    setTheme: (newTheme: Theme) => {
       try {
-        localStorage.setItem(storageKey, theme);
+        localStorage.setItem(storageKey, newTheme);
       } catch {
         // Handle cases where localStorage is not available
       }
-      setTheme(theme);
+      setTheme(newTheme);
     },
   };
 
