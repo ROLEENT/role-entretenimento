@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { 
+  getAgentSchema,
   agentSchema, 
   AgentFormData, 
   AGENT_TYPES, 
@@ -43,7 +44,7 @@ function AgentesContent() {
   const [isDirty, setIsDirty] = useState(false);
   
   const form = useForm<AgentFormData>({
-    resolver: zodResolver(agentSchema),
+    resolver: zodResolver(getAgentSchema(initialType)),
     defaultValues: {
       agent_type: initialType,
       name: '',
@@ -57,6 +58,16 @@ function AgentesContent() {
       status: 'active',
     }
   });
+
+  const agentType = form.watch('agent_type');
+  const nameValue = form.watch('name');
+  const slugValue = form.watch('slug');
+  const formValues = form.watch();
+
+  // Update form resolver when agent type changes
+  React.useEffect(() => {
+    form.clearErrors(); // Clear existing errors when switching types
+  }, [agentType, form]);
 
   // Carregar rascunho ao montar o componente
   React.useEffect(() => {
@@ -84,10 +95,6 @@ function AgentesContent() {
     }
   }, [initialType]);
 
-  const agentType = form.watch('agent_type');
-  const nameValue = form.watch('name');
-  const slugValue = form.watch('slug');
-  const formValues = form.watch();
 
   // Monitorar mudanças no formulário
   React.useEffect(() => {
@@ -348,7 +355,9 @@ function AgentesContent() {
                   name="city"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Cidade</FormLabel>
+                      <FormLabel>
+                        {agentType === 'venue' ? 'Cidade (opcional)' : 'Cidade'}
+                      </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
@@ -400,7 +409,9 @@ function AgentesContent() {
                   name="instagram"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium">Instagram *</FormLabel>
+                      <FormLabel className="text-sm font-medium">
+                        {agentType === 'venue' ? 'Instagram (opcional)' : 'Instagram *'}
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="usuario (sem @)" {...field} className="h-10" />
                       </FormControl>
@@ -414,7 +425,9 @@ function AgentesContent() {
                   name="whatsapp"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium">WhatsApp *</FormLabel>
+                      <FormLabel className="text-sm font-medium">
+                        {agentType === 'venue' ? 'WhatsApp (opcional)' : 'WhatsApp *'}
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="(11) 99999-9999" {...field} className="h-10" />
                       </FormControl>
@@ -428,7 +441,9 @@ function AgentesContent() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium">Email *</FormLabel>
+                      <FormLabel className="text-sm font-medium">
+                        {agentType === 'venue' ? 'Email (opcional)' : 'Email *'}
+                      </FormLabel>
                       <FormControl>
                         <Input type="email" placeholder="email@exemplo.com" {...field} className="h-10" />
                       </FormControl>
@@ -458,7 +473,9 @@ function AgentesContent() {
                   name="bio_short"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium">Bio Curta *</FormLabel>
+                      <FormLabel className="text-sm font-medium">
+                        {agentType === 'venue' ? 'Bio Curta (opcional)' : 'Bio Curta *'}
+                      </FormLabel>
                       <FormControl>
                         <Textarea 
                           placeholder="Descrição breve..."
@@ -603,7 +620,7 @@ function AgentesContent() {
                     name="venue_type"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Tipo do Local</FormLabel>
+                        <FormLabel>Tipo do Local (opcional)</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
@@ -649,7 +666,7 @@ function AgentesContent() {
                     name="address"
                     render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium">Endereço *</FormLabel>
+                      <FormLabel className="text-sm font-medium">Endereço (opcional)</FormLabel>
                         <FormControl>
                           <Input placeholder="Rua, número - bairro" {...field} />
                         </FormControl>
