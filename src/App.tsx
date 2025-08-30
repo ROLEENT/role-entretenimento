@@ -71,6 +71,11 @@ const AdminBlogForm = lazy(() => import("./components/admin/blog/AdminBlogForm")
 const RevistaPage = lazy(() => import("./pages/RevistaPage"));
 const RevistaArticlePage = lazy(() => import("./pages/RevistaArticlePage"));
 
+// Institutional pages
+const Parcerias = lazy(() => import("./pages/institucional/Parcerias"));
+const TrabalheConosco = lazy(() => import("./pages/institucional/TrabalheConosco"));
+const Imprensa = lazy(() => import("./pages/institucional/Imprensa"));
+
 // User pages - lazy loaded
 const EventsPage = lazy(() => import("./pages/EventsPage"));
 const EventDetailPage = lazy(() => import("./pages/EventDetailPage"));
@@ -127,6 +132,11 @@ function App() {
                 <Route path="/termos-usuario" element={<UserTerms />} />
                 <Route path="/termos-organizador" element={<OrganizerTerms />} />
                 <Route path="/ajuda" element={<Help />} />
+                
+                {/* Institutional Pages */}
+                <Route path="/institucional/parcerias" element={<Parcerias />} />
+                <Route path="/institucional/trabalhe-conosco" element={<TrabalheConosco />} />
+                <Route path="/institucional/imprensa" element={<Imprensa />} />
                 
                 {/* Agenda Routes - Order matters for routing */}
                 <Route path="/agenda" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><Agenda /></AgendaLayout></Suspense>} />

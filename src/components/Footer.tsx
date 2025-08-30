@@ -20,9 +20,9 @@ const Footer = () => {
   const institucionalLinks = [
     { name: "Sobre", href: "/sobre" },
     { name: "Contato", href: "/contato" },
-    { name: "Parcerias", href: "/parcerias" },
-    { name: "Trabalhe Conosco", href: "/carreiras" },
-    { name: "Imprensa", href: "/imprensa" }
+    { name: "Parcerias", href: "/institucional/parcerias" },
+    { name: "Trabalhe Conosco", href: "/institucional/trabalhe-conosco" },
+    { name: "Imprensa", href: "/institucional/imprensa" }
   ];
 
   // Categorias column
