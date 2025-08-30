@@ -62,7 +62,8 @@ const PushNotificationManager: React.FC<PushNotificationManagerProps> = ({
   };
 
   const registerServiceWorker = async () => {
-    if (!('serviceWorker' in navigator)) return;
+    // Service Worker temporarily disabled for debugging
+    if (false && 'serviceWorker' in navigator) return;
 
     try {
       const reg = await navigator.serviceWorker.register('/sw.js');

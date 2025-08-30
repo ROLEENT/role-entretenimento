@@ -77,37 +77,48 @@ export const usePushNotifications = () => {
     }
 
     try {
-      // Registrar service worker se necessário
-      const registration = await navigator.serviceWorker.register('/sw.js');
-      await navigator.serviceWorker.ready;
+      // Service Worker temporarily disabled for debugging
+      if (false) {
+        // Registrar service worker se necessário
+        const registration = await navigator.serviceWorker.register('/sw.js');
+        await navigator.serviceWorker.ready;
 
-      // Criar subscrição
-      const vapidPublicKey = 'BP8rBl7ExPJjIyVXE4v8YNY5aYKr3HQVcF8vR-RjF_-XOGwNEJ_iq4nLQHmFyL-5bVzjgM_zGwCmD1pQHfGhGms'; // VAPID key
-      
-      const pushSubscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
-      });
-
-      // Salvar no Supabase
-      const { error } = await supabase
-        .from('push_subscriptions')
-        .upsert({
-          user_id: user.id,
-          subscription: pushSubscription.toJSON(),
-          event_id: eventId || null
+        // Criar subscrição
+        const vapidPublicKey = 'BP8rBl7ExPJjIyVXE4v8YNY5aYKr3HQVcF8vR-RjF_-XOGwNEJ_iq4nLQHmFyL-5bVzjgM_zGwCmD1pQHfGhGms'; // VAPID key
+        
+        const pushSubscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
         });
 
-      if (error) throw error;
+        // Salvar no Supabase
+        const { error } = await supabase
+          .from('push_subscriptions')
+          .upsert({
+            user_id: user.id,
+            subscription: pushSubscription.toJSON(),
+            event_id: eventId || null
+          });
 
-      setSubscription(pushSubscription);
+        if (error) throw error;
+
+        setSubscription(pushSubscription);
+        
+        toast({
+          title: "Notificações ativadas",
+          description: eventId ? "Você receberá lembretes deste evento" : "Você receberá notificações importantes"
+        });
+
+        return true;
+      }
       
+      // Service Worker disabled - show message
       toast({
-        title: "Notificações ativadas",
-        description: eventId ? "Você receberá lembretes deste evento" : "Você receberá notificações importantes"
+        title: "Notificações indisponíveis",
+        description: "Service Worker está temporariamente desabilitado",
+        variant: "destructive"
       });
-
-      return true;
+      return false;
     } catch (error) {
       console.error('Erro ao criar subscrição:', error);
       toast({

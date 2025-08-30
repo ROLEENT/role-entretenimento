@@ -11,7 +11,8 @@ export const registerServiceWorker = async () => {
     return;
   }
 
-  if ('serviceWorker' in navigator) {
+  // Service Worker temporarily disabled for debugging
+  if (false && 'serviceWorker' in navigator) {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
       console.log('SW registered: ', registration);

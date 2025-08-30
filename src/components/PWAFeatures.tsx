@@ -82,7 +82,8 @@ const PWAFeatures = () => {
 
   const subscribeToPushNotifications = async () => {
     try {
-      if ('serviceWorker' in navigator && 'PushManager' in window) {
+      // Service Worker temporarily disabled for debugging  
+      if (false && 'serviceWorker' in navigator && 'PushManager' in window) {
         const registration = await navigator.serviceWorker.ready;
         
         // Check if already subscribed

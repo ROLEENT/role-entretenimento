@@ -29,7 +29,8 @@ const PushNotifications = ({ eventId }: PushNotificationsProps) => {
   };
 
   const checkSubscriptionStatus = async () => {
-    if (!('serviceWorker' in navigator) || !user) return;
+    // Service Worker temporarily disabled for debugging
+    if (!user || (false && 'serviceWorker' in navigator)) return;
     
     try {
       const registration = await navigator.serviceWorker.ready;
