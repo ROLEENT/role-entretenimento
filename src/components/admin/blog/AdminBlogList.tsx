@@ -15,31 +15,12 @@ import { Search, Plus, Edit, Copy, Trash2, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-// Constants for select options
-const CITY_OPTIONS = [
-  { value: 'sao-paulo', label: 'São Paulo' },
-  { value: 'rio-de-janeiro', label: 'Rio de Janeiro' },
-  { value: 'porto-alegre', label: 'Porto Alegre' },
-  { value: 'curitiba', label: 'Curitiba' },
-  { value: 'florianopolis', label: 'Florianópolis' },
-];
-
-const STATUS_OPTIONS = [
-  { value: 'draft', label: 'Rascunho' },
-  { value: 'scheduled', label: 'Agendado' },
-  { value: 'published', label: 'Publicado' },
-];
-
-const STATUS_LABELS = {
-  draft: 'Rascunho',
-  scheduled: 'Agendado',
-  published: 'Publicado'
-};
+import { CITY_OPTIONS, STATUS_OPTIONS, clean, getCityLabel, getStatusLabel } from '@/lib/constants';
 
 const STATUS_COLORS = {
-  draft: 'secondary',
-  scheduled: 'default',
-  published: 'default'
+  rascunho: 'secondary',
+  agendado: 'default',
+  publicado: 'default'
 } as const;
 
 export function AdminBlogList() {
@@ -63,8 +44,8 @@ export function AdminBlogList() {
 
   const getStatusBadge = (status: string) => {
     return (
-      <Badge variant={STATUS_COLORS[status as keyof typeof STATUS_COLORS]}>
-        {STATUS_LABELS[status as keyof typeof STATUS_LABELS]}
+      <Badge variant={STATUS_COLORS[status as keyof typeof STATUS_COLORS] || 'secondary'}>
+        {getStatusLabel(status)}
       </Badge>
     );
   };
@@ -124,9 +105,9 @@ export function AdminBlogList() {
                     <SelectValue placeholder="Filtrar por cidade" />
                   </SelectTrigger>
                   <SelectContent>
-                    {CITY_OPTIONS.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
+                    {clean([...CITY_OPTIONS]).map(option => (
+                      <SelectItem key={option} value={option}>
+                        {getCityLabel(option)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -137,9 +118,9 @@ export function AdminBlogList() {
                     <SelectValue placeholder="Filtrar por status" />
                   </SelectTrigger>
                   <SelectContent>
-                    {STATUS_OPTIONS.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
+                    {clean([...STATUS_OPTIONS]).map(option => (
+                      <SelectItem key={option} value={option}>
+                        {getStatusLabel(option)}
                       </SelectItem>
                     ))}
                   </SelectContent>

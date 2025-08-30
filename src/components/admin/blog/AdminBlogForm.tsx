@@ -22,27 +22,7 @@ import { ImageUpload } from '@/components/ui/image-upload';
 import { ArrowLeft, Save, Calendar, Globe, X } from 'lucide-react';
 import { addMinutes, format } from 'date-fns';
 
-// Constants for select options
-const SECTION_OPTIONS = [
-  { value: 'editorial', label: 'Editorial' },
-  { value: 'posfacio', label: 'Posfácio' },
-  { value: 'dicas', label: 'Dicas' },
-  { value: 'fala_role', label: 'Fala ROLÊ' },
-  { value: 'bpm', label: 'BPM' },
-  { value: 'achadinhos', label: 'Achadinhos' },
-  { value: 'revista', label: 'Revista' },
-];
-
-const CITY_OPTIONS = [
-  { value: 'sao-paulo', label: 'São Paulo' },
-  { value: 'rio-de-janeiro', label: 'Rio de Janeiro' },
-  { value: 'porto-alegre', label: 'Porto Alegre' },
-  { value: 'curitiba', label: 'Curitiba' },
-  { value: 'florianopolis', label: 'Florianópolis' },
-];
-
-// Utility to clean arrays
-const clean = <T,>(arr: T[]) => arr.filter(v => v !== null && v !== undefined && String(v).trim() !== '');
+import { SECTION_OPTIONS, CITY_OPTIONS, clean, getSectionLabel, getCityLabel } from '@/lib/constants';
 
 const blogFormSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
@@ -495,9 +475,9 @@ export function AdminBlogForm() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {SECTION_OPTIONS.map(option => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
+                              {clean([...SECTION_OPTIONS]).map(option => (
+                                <SelectItem key={option} value={option}>
+                                  {getSectionLabel(option)}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -520,9 +500,9 @@ export function AdminBlogForm() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {CITY_OPTIONS.map(option => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
+                              {clean([...CITY_OPTIONS]).map(option => (
+                                <SelectItem key={option} value={option}>
+                                  {getCityLabel(option)}
                                 </SelectItem>
                               ))}
                             </SelectContent>
