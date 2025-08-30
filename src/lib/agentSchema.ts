@@ -10,7 +10,7 @@ const baseSchema = {
   email: z.string().email('Email inválido').optional().or(z.literal('')),
   website: z.string().url('URL inválida').optional().or(z.literal('')),
   bio_short: z.string().max(280, 'Bio muito longa').optional(),
-  status: z.enum(['active', 'inactive']).default('active'),
+  status: z.enum(['draft', 'published', 'archived']).default('draft'),
 };
 
 // Artist specific schema
@@ -85,8 +85,9 @@ export const ORGANIZER_SUBTYPES = [
 ];
 
 export const STATUS_OPTIONS = [
-  { value: 'active', label: 'Ativo' },
-  { value: 'inactive', label: 'Inativo' },
+  { value: 'draft', label: 'Rascunho' },
+  { value: 'published', label: 'Publicado' },
+  { value: 'archived', label: 'Arquivado' },
 ];
 
 // Remove CITIES array since we now use the cities table from database

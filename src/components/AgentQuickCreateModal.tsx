@@ -59,7 +59,7 @@ export function AgentQuickCreateModal({
       email: '',
       website: '',
       bio_short: '',
-      status: 'active',
+      status: 'draft',
     }
   });
 

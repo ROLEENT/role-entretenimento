@@ -46,7 +46,8 @@ function AgentesContent() {
     defaultValues: { 
       type: 'artist', 
       name: '', 
-      slug: '' 
+      slug: '',
+      status: 'draft'
     },
   });
 
