@@ -600,4 +600,23 @@ body {
     scroll-snap-align: start;
     scroll-snap-stop: normal;
   }
+
+  /* Mobile header improvements */
+  .mobile-header-carousel {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+
+  .mobile-header-carousel::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  .mobile-header-pill {
+    scroll-snap-align: start;
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
 }

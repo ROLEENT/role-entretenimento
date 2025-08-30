@@ -1,4 +1,4 @@
-import Header from "@/components/Header";
+import Header, { HeaderGlobalSearch } from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import AgendaPorCidade from "@/components/AgendaPorCidade";
 import BlocoRevista from "@/components/BlocoRevista";
@@ -58,6 +58,7 @@ const Index = () => {
         
         <NotificationPermissionPrompt />
         <BackToTop />
+        <HeaderGlobalSearch />
         <Toaster />
       </div>
     </AccessibilityEnhancements>
