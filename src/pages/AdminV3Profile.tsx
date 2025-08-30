@@ -117,6 +117,7 @@ export default function AdminV3Profile() {
     if (!allowedTypes.includes(file.type)) {
       toast({
         title: "Tipo inválido",
+        description: "Use apenas PNG, JPG, JPEG ou WebP",
         variant: "destructive"
       });
       return;
@@ -126,6 +127,7 @@ export default function AdminV3Profile() {
     if (file.size > 2 * 1024 * 1024) {
       toast({
         title: "Arquivo muito grande",
+        description: "Máximo 2MB permitido",
         variant: "destructive"
       });
       return;
@@ -240,6 +242,7 @@ export default function AdminV3Profile() {
       console.error('Erro ao salvar perfil:', error);
       toast({
         title: "Erro ao salvar",
+        description: error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive"
       });
     } finally {

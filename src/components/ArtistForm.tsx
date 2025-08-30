@@ -245,7 +245,7 @@ export function ArtistForm({ initialData, mode }: ArtistFormProps) {
           description: "Artista criado com sucesso"
         });
         
-        navigate('/admin-v3/artists');
+        navigate('/admin-v3/agentes');
       } else {
         const { error } = await supabase
           .from('artists')
@@ -265,7 +265,7 @@ export function ArtistForm({ initialData, mode }: ArtistFormProps) {
           description: "Artista atualizado com sucesso"
         });
         
-        navigate('/admin-v3/artists');
+        navigate('/admin-v3/agentes');
       }
     } catch (error: any) {
       console.error('Erro ao salvar artista:', error);
@@ -296,7 +296,7 @@ export function ArtistForm({ initialData, mode }: ArtistFormProps) {
   };
 
   const handleCancel = () => {
-    navigate('/admin-v3/artists');
+    navigate('/admin-v3/agentes');
   };
 
   return (

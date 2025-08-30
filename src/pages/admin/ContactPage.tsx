@@ -98,7 +98,8 @@ export const ContactPage = () => {
       const { data, error } = await supabase
         .from('contacts')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(100); // Add pagination limit
 
       if (error) throw error;
 

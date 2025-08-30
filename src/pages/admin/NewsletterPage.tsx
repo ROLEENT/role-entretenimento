@@ -74,10 +74,11 @@ export const NewsletterPage = () => {
 
   const fetchSubscriptions = async () => {
     try {
-      const { data, error } = await supabase
-        .from('newsletter_subscribers')
-        .select('*')
-        .order('created_at', { ascending: false });
+        const { data, error } = await supabase
+          .from('newsletter_subscribers')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(100); // Add pagination limit
 
       if (error) throw error;
 
