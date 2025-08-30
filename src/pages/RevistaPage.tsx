@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { SEOHelmet } from "@/components/SEOHelmet";
 import { PageWrapper } from "@/components/PageWrapper";
 import { RevistaCard } from "@/components/revista/RevistaCard";
+import { RevistaCardSkeleton } from "@/components/revista/RevistaCardSkeleton";
 import { RevistaFilters } from "@/components/revista/RevistaFilters";
 import { ResponsiveGrid } from "@/components/ui/responsive-grid";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -207,11 +208,24 @@ export default function RevistaPage() {
             </div>
           )}
 
-          {/* Loading state */}
+          {/* Loading skeletons */}
           {isLoading && (
-            <div className="flex justify-center py-12">
-              <LoadingSpinner />
-            </div>
+            <ResponsiveGrid 
+              cols={{ default: 1, md: 2, lg: 3, xl: 4 }}
+              gap="lg"
+              className="mb-8"
+            >
+              {Array.from({ length: 6 }, (_, i) => (
+                <div 
+                  key={i} 
+                  className={`
+                    ${i < 3 ? 'block' : 'hidden md:block'}
+                  `}
+                >
+                  <RevistaCardSkeleton />
+                </div>
+              ))}
+            </ResponsiveGrid>
           )}
 
           {/* Empty state */}
