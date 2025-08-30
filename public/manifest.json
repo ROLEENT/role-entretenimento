@@ -1,52 +1,26 @@
 {
-  "name": "ROLÊ - Curadoria de Eventos e Cultura",
+  "name": "ROLÊ",
   "short_name": "ROLÊ",
-  "description": "Descubra os melhores eventos de cultura, shows, festas e arte na sua cidade",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#c026d3",
-  "orientation": "portrait-primary",
-  "scope": "/",
-  "lang": "pt-BR",
+  "theme_color": "#6b46c1",
   "icons": [
-    {
-      "src": "/role-logo.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable any"
+    { 
+      "src": "/icons/icon-192.png", 
+      "sizes": "192x192", 
+      "type": "image/png" 
     },
-    {
-      "src": "/role-logo.png", 
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable any"
-    }
-  ],
-  "categories": ["entertainment", "lifestyle", "social"],
-  "screenshots": [
-    {
-      "src": "/banner-home.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "platform": "wide",
-      "label": "ROLÊ - Eventos culturais na sua cidade"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Eventos",
-      "short_name": "Eventos",
-      "description": "Veja todos os eventos",
-      "url": "/eventos",
-      "icons": [{ "src": "/role-logo.png", "sizes": "96x96" }]
+    { 
+      "src": "/icons/icon-512.png", 
+      "sizes": "512x512", 
+      "type": "image/png" 
     },
-    {
-      "name": "Destaques",
-      "short_name": "Destaques", 
-      "description": "Eventos em destaque",
-      "url": "/destaques",
-      "icons": [{ "src": "/role-logo.png", "sizes": "96x96" }]
+    { 
+      "src": "/icons/apple-touch-icon.png", 
+      "sizes": "180x180", 
+      "type": "image/png", 
+      "purpose": "any" 
     }
   ]
 }
