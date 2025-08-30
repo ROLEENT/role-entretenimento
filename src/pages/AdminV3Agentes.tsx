@@ -105,14 +105,22 @@ function AgentesContent() {
       return;
     }
 
-    const agentId = await createAgent(values);
-    if (agentId) {
-      form.reset({ type: watchedType, name: '', slug: '' });
-      setSlugStatus('idle');
-      
+    try {
+      const agentId = await createAgent(values);
+      if (agentId) {
+        form.reset({ type: watchedType, name: '', slug: '', status: 'draft' });
+        setSlugStatus('idle');
+        
+        toast({
+          title: "Sucesso",
+          description: "Agente criado com sucesso!",
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Sucesso",
-        description: "Agente criado com sucesso!",
+        title: "Erro",
+        description: "Falha ao criar agente. Verifique os dados e tente novamente.",
+        variant: "destructive"
       });
     }
   };
@@ -276,8 +284,18 @@ function AgentesContent() {
                 <Controller
                   name="instagram"
                   control={form.control}
-                  render={({ field }) => <Input placeholder="@instagram" {...field} />}
+                  render={({ field }) => (
+                    <Input 
+                      placeholder="@usuario ou usuario" 
+                      {...field}
+                      value={field.value ? `@${field.value.replace(/^@+/, '')}` : ''}
+                      onChange={(e) => field.onChange(e.target.value.replace(/^@+/, ''))}
+                    />
+                  )}
                 />
+                {form.formState.errors.instagram && (
+                  <p className="text-sm text-destructive">{form.formState.errors.instagram.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -285,8 +303,21 @@ function AgentesContent() {
                 <Controller
                   name="whatsapp"
                   control={form.control}
-                  render={({ field }) => <Input placeholder="(11) 99999-9999" {...field} />}
+                  render={({ field }) => (
+                    <Input 
+                      placeholder="(11) 99999-9999" 
+                      {...field}
+                      value={field.value ? field.value.replace(/(\d{2})(\d{4,5})(\d{4})/, '($1) $2-$3') : ''}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, '');
+                        field.onChange(digits);
+                      }}
+                    />
+                  )}
                 />
+                {form.formState.errors.whatsapp && (
+                  <p className="text-sm text-destructive">{form.formState.errors.whatsapp.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -296,6 +327,9 @@ function AgentesContent() {
                   control={form.control}
                   render={({ field }) => <Input type="email" placeholder="email@exemplo.com" {...field} />}
                 />
+                {form.formState.errors.email && (
+                  <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>
+                )}
               </div>
             </div>
 
@@ -504,24 +538,34 @@ function AgentesContent() {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Booking Email</Label>
-                  <Controller
-                    name="booking_email"
-                    control={form.control}
-                    render={({ field }) => <Input type="email" placeholder="booking@exemplo.com" {...field} />}
-                  />
-                </div>
+                 <div className="space-y-2">
+                   <Label>Booking Email</Label>
+                   <Controller
+                     name="booking_email"
+                     control={form.control}
+                     render={({ field }) => <Input type="email" placeholder="booking@exemplo.com" {...field} />}
+                    />
+                  </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>Booking WhatsApp</Label>
-                <Controller
-                  name="booking_whatsapp"
-                  control={form.control}
-                  render={({ field }) => <Input placeholder="(11) 99999-9999" {...field} />}
-                />
-              </div>
+               <div className="space-y-2">
+                 <Label>Booking WhatsApp</Label>
+                 <Controller
+                   name="booking_whatsapp"
+                   control={form.control}
+                   render={({ field }) => (
+                     <Input 
+                       placeholder="(11) 99999-9999" 
+                       {...field}
+                       value={field.value ? field.value.replace(/(\d{2})(\d{4,5})(\d{4})/, '($1) $2-$3') : ''}
+                       onChange={(e) => {
+                         const digits = e.target.value.replace(/\D/g, '');
+                         field.onChange(digits);
+                       }}
+                      />
+                    )}
+                  />
+                </div>
             </CardContent>
           </Card>
         )}
@@ -537,9 +581,9 @@ function AgentesContent() {
           </Button>
           <Button 
             type="submit" 
-            disabled={!canSave}
+            disabled={!canSave || form.formState.isSubmitting}
           >
-            {saving ? 'Salvando...' : 'Salvar Agente'}
+            {form.formState.isSubmitting ? 'Salvando...' : 'Salvar Agente'}
           </Button>
         </div>
       </form>

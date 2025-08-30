@@ -107,29 +107,37 @@ export function AgentQuickCreateModal({
       return;
     }
 
-    const agentId = await createAgent(data);
-    if (agentId) {
-      // Encontrar cidade selecionada para o retorno
-      const selectedCity = cities.find(c => c.id === data.city_id);
-      
-      // Criar objeto para retorno
-      const newAgent: ComboboxAsyncOption = {
-        id: agentId,
-        name: data.name,
-        city: selectedCity?.name,
-        value: agentId,
-        subtitle: agentType === 'venue' ? (data as any).address : 
-                  agentType === 'organizer' ? data.email : undefined,
-      };
+    try {
+      const agentId = await createAgent(data);
+      if (agentId) {
+        // Encontrar cidade selecionada para o retorno
+        const selectedCity = cities.find(c => c.id === data.city_id);
+        
+        // Criar objeto para retorno
+        const newAgent: ComboboxAsyncOption = {
+          id: agentId,
+          name: data.name,
+          city: selectedCity?.name,
+          value: agentId,
+          subtitle: agentType === 'venue' ? (data as any).address : 
+                    agentType === 'organizer' ? data.email : undefined,
+        };
 
-      onCreated?.(newAgent);
-      form.reset();
-      setSlugStatus('idle');
-      onOpenChange(false);
-      
+        onCreated?.(newAgent);
+        form.reset();
+        setSlugStatus('idle');
+        onOpenChange(false);
+        
+        toast({
+          title: "Sucesso",
+          description: `${getAgentTypeLabel()} criado e selecionado com sucesso!`,
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Sucesso",
-        description: `${getAgentTypeLabel()} criado e selecionado!`,
+        title: "Erro",
+        description: "Falha ao criar agente. Verifique os dados e tente novamente.",
+        variant: "destructive"
       });
     }
   };
@@ -263,9 +271,14 @@ export function AgentQuickCreateModal({
                 name="instagram"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Instagram *</FormLabel>
+                    <FormLabel>Instagram</FormLabel>
                     <FormControl>
-                      <Input placeholder="@usuario" {...field} />
+                      <Input 
+                        placeholder="@usuario ou usuario" 
+                        {...field}
+                        value={field.value ? `@${field.value.replace(/^@+/, '')}` : ''}
+                        onChange={(e) => field.onChange(e.target.value.replace(/^@+/, ''))}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -277,9 +290,17 @@ export function AgentQuickCreateModal({
                 name="whatsapp"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>WhatsApp *</FormLabel>
+                    <FormLabel>WhatsApp</FormLabel>
                     <FormControl>
-                      <Input placeholder="(11) 99999-9999" {...field} />
+                      <Input 
+                        placeholder="(11) 99999-9999" 
+                        {...field}
+                        value={field.value ? field.value.replace(/(\d{2})(\d{4,5})(\d{4})/, '($1) $2-$3') : ''}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/\D/g, '');
+                          field.onChange(digits);
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -291,7 +312,7 @@ export function AgentQuickCreateModal({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email *</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input type="email" placeholder="email@exemplo.com" {...field} />
                     </FormControl>
@@ -464,15 +485,15 @@ export function AgentQuickCreateModal({
                 type="button" 
                 variant="outline" 
                 onClick={handleCancel}
-                disabled={loading}
+                disabled={form.formState.isSubmitting}
               >
                 Cancelar
               </Button>
               <Button 
                 type="submit" 
-                disabled={!form.formState.isValid || !form.formState.isDirty || loading || slugStatus === 'taken'}
+                disabled={!form.formState.isValid || !form.formState.isDirty || form.formState.isSubmitting || slugStatus === 'taken'}
               >
-                {loading ? 'Criando...' : 'Criar e Selecionar'}
+                {form.formState.isSubmitting ? 'Criando...' : 'Criar e Selecionar'}
               </Button>
             </div>
           </form>
