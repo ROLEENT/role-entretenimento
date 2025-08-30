@@ -1,128 +1,161 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
-export interface CategoryFormData {
+export interface Category {
+  id: string;
   name: string;
-  description: string;
   slug: string;
+  kind: 'revista' | 'agenda' | 'ambos';
   color: string;
-  type: 'general' | 'event' | 'blog';
+  description?: string;
+  is_active: boolean;
+  created_at: string;
 }
 
 export const useCategoryManagement = () => {
-  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
-  const createCategory = useCallback(async (data: CategoryFormData) => {
+  // Fetch categories with admin privileges
+  const fetchCategories = async () => {
     try {
       setLoading(true);
-      
-      const { data: category, error } = await supabase
-        .from('categories')
-        .insert({
-          name: data.name,
-          description: data.description || null,
-          slug: data.slug,
-          color: data.color,
-          type: data.type
-        })
-        .select()
-        .single();
+      setError(null);
 
-      if (error) throw error;
-      
-      toast.success('Categoria criada com sucesso!');
-      return category;
-    } catch (error: any) {
-      console.error('Error creating category:', error);
-      toast.error(error.message || 'Erro ao criar categoria');
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const updateCategory = useCallback(async (categoryId: string, data: CategoryFormData) => {
-    try {
-      setLoading(true);
-      
-      const { error } = await supabase
-        .from('categories')
-        .update({
-          name: data.name,
-          description: data.description || null,
-          slug: data.slug,
-          color: data.color,
-          type: data.type
-        })
-        .eq('id', categoryId);
-
-      if (error) throw error;
-      
-      toast.success('Categoria atualizada com sucesso!');
-      return true;
-    } catch (error: any) {
-      console.error('Error updating category:', error);
-      toast.error(error.message || 'Erro ao atualizar categoria');
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const getCategories = useCallback(async (type?: string) => {
-    try {
-      setLoading(true);
-      
-      let query = supabase
+      const { data, error: fetchError } = await supabase
         .from('categories')
         .select('*')
         .order('name');
 
-      if (type && type !== 'all') {
-        query = query.eq('type', type);
+      if (fetchError) {
+        throw fetchError;
       }
 
-      const { data, error } = await query;
-
-      if (error) throw error;
-      return data || [];
-    } catch (error: any) {
-      console.error('Error fetching categories:', error);
-      toast.error(error.message || 'Erro ao carregar categorias');
-      return [];
+      setCategories(data || []);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+      setError(err instanceof Error ? err.message : 'Erro ao carregar categorias');
+      toast.error('Erro ao carregar categorias');
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
-  const deleteCategory = useCallback(async (categoryId: string) => {
+  // Create category
+  const createCategory = async (categoryData: Omit<Category, 'id' | 'created_at'>) => {
     try {
-      setLoading(true);
-      
-      const { error } = await supabase
-        .from('categories')
-        .delete()
-        .eq('id', categoryId);
+      if (!user?.email) {
+        throw new Error('Usuário não autenticado');
+      }
 
-      if (error) throw error;
-      
-      toast.success('Categoria removida com sucesso!');
-      return true;
-    } catch (error: any) {
-      console.error('Error deleting category:', error);
-      toast.error(error.message || 'Erro ao remover categoria');
-      throw error;
-    } finally {
-      setLoading(false);
+      const { data, error } = await supabase.rpc('admin_manage_category', {
+        p_admin_email: user.email,
+        p_action: 'create',
+        p_name: categoryData.name,
+        p_slug: categoryData.slug,
+        p_kind: categoryData.kind,
+        p_description: categoryData.description,
+        p_color: categoryData.color,
+        p_is_active: categoryData.is_active
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success('Categoria criada com sucesso');
+      await fetchCategories(); // Refresh list
+      return data[0];
+    } catch (err) {
+      console.error('Error creating category:', err);
+      toast.error('Erro ao criar categoria');
+      throw err;
     }
+  };
+
+  // Update category
+  const updateCategory = async (id: string, categoryData: Partial<Omit<Category, 'id' | 'created_at'>>) => {
+    try {
+      if (!user?.email) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      const { data, error } = await supabase.rpc('admin_manage_category', {
+        p_admin_email: user.email,
+        p_action: 'update',
+        p_category_id: id,
+        p_name: categoryData.name,
+        p_slug: categoryData.slug,
+        p_kind: categoryData.kind,
+        p_description: categoryData.description,
+        p_color: categoryData.color,
+        p_is_active: categoryData.is_active
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success('Categoria atualizada com sucesso');
+      await fetchCategories(); // Refresh list
+      return data[0];
+    } catch (err) {
+      console.error('Error updating category:', err);
+      toast.error('Erro ao atualizar categoria');
+      throw err;
+    }
+  };
+
+  // Delete category (soft delete)
+  const deleteCategory = async (id: string) => {
+    try {
+      if (!user?.email) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      const { data, error } = await supabase.rpc('admin_manage_category', {
+        p_admin_email: user.email,
+        p_action: 'delete',
+        p_category_id: id
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success('Categoria inativada com sucesso');
+      await fetchCategories(); // Refresh list
+      return data[0];
+    } catch (err) {
+      console.error('Error deleting category:', err);
+      toast.error('Erro ao inativar categoria');
+      throw err;
+    }
+  };
+
+  // Get categories by kind
+  const getCategoriesByKind = (kind: 'revista' | 'agenda' | 'ambos') => {
+    return categories.filter(category => 
+      category.is_active && (category.kind === kind || category.kind === 'ambos')
+    );
+  };
+
+  useEffect(() => {
+    fetchCategories();
   }, []);
 
   return {
+    categories,
     loading,
+    error,
+    fetchCategories,
     createCategory,
     updateCategory,
-    getCategories,
-    deleteCategory
+    deleteCategory,
+    getCategoriesByKind
   };
 };

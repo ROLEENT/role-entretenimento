@@ -4212,6 +4212,29 @@ export type Database = {
         Args: { p_admin_email: string; p_highlight_id: string }
         Returns: Json
       }
+      admin_manage_category: {
+        Args: {
+          p_action: string
+          p_admin_email: string
+          p_category_id?: string
+          p_color?: string
+          p_description?: string
+          p_is_active?: boolean
+          p_kind?: string
+          p_name?: string
+          p_slug?: string
+        }
+        Returns: {
+          color: string
+          created_at: string
+          description: string
+          id: string
+          is_active: boolean
+          kind: string
+          name: string
+          slug: string
+        }[]
+      }
       admin_toggle_event_published: {
         Args: { p_event_id: string }
         Returns: {
@@ -4674,6 +4697,19 @@ export type Database = {
           id: string
           parent_id: string
           post_id: string
+        }[]
+      }
+      get_categories_by_kind: {
+        Args: { p_kind?: string }
+        Returns: {
+          color: string
+          created_at: string
+          description: string
+          id: string
+          is_active: boolean
+          kind: string
+          name: string
+          slug: string
         }[]
       }
       get_contact_messages: {

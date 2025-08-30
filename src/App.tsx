@@ -70,6 +70,7 @@ const AdminV3Agentes = lazy(() => import("./pages/AdminV3Agentes"));
 const AdminV3Profile = lazy(() => import("./pages/AdminV3Profile"));
 const AdminV3Contact = lazy(() => import("./pages/AdminV3Contact"));
 const AdminV3Newsletter = lazy(() => import("./pages/AdminV3Newsletter"));
+const AdminV3Categories = lazy(() => import("./pages/AdminV3Categories"));
 const AdminV3Applications = lazy(() => import("./pages/AdminV3Applications"));
 
 // Admin Blog components
@@ -219,6 +220,7 @@ function App() {
                 <Route path="/admin-v3/newsletter" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Newsletter /></Suspense>} />
                 <Route path="/admin-v3/candidaturas" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Applications /></Suspense>} />
                 <Route path="/admin-v3/profile" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Profile /></Suspense>} />
+                <Route path="/admin-v3/categorias" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Categories /></Suspense>} />
                 
                 {/* Events Routes */}
                 <Route path="/eventos" element={<EventsPage />} />
