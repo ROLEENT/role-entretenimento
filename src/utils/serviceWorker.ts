@@ -13,6 +13,11 @@ export const registerServiceWorker = async () => {
       const registration = await navigator.serviceWorker.register('/sw.js');
       console.log('SW registered: ', registration);
       
+      // Force update if there's an existing SW
+      if (registration && navigator.serviceWorker.controller) {
+        registration.update();
+      }
+      
       // Update SW when page gains focus
       window.addEventListener('focus', () => {
         registration.update();

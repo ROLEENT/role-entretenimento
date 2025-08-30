@@ -1,5 +1,5 @@
 // sw.js
-const VERSION = '2025-08-30-01';
+const VERSION = '2025-08-30-02';
 const STATIC_CACHE = `static-${VERSION}`;
 
 self.addEventListener('install', (e) => {
