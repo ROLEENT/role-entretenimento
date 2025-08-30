@@ -27,6 +27,7 @@ const OrganizerTerms = lazy(() => import("./pages/OrganizerTerms"));
 const Help = lazy(() => import("./pages/Help"));
 const Agenda = lazy(() => import("./pages/Agenda"));
 const AgendaCidade = lazy(() => import("./pages/AgendaCidade"));
+const OutrasCidades = lazy(() => import("./pages/OutrasCidades"));
 const AgendaDetailPage = lazy(() => import("./pages/AgendaDetailPage"));
 const DestaquesHub = lazy(() => import("./pages/DestaquesHub"));
 const CitiesPage = lazy(() => import("./pages/CitiesPage"));
@@ -124,6 +125,7 @@ function App() {
                 
                 {/* Agenda Routes - Order matters for routing */}
                 <Route path="/agenda" element={<Agenda />} />
+                <Route path="/agenda/outras-cidades" element={<OutrasCidades />} />
                 <Route path="/agenda/cidade/:cidade" element={<AgendaCidade />} />
                 <Route path="/agenda/:slug" element={<AgendaDetailPage />} />
                 
