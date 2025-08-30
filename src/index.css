@@ -609,21 +609,22 @@ body {
     background: rgba(11, 11, 19, 0.95);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid hsl(var(--border));
-    overflow: visible;
+    /* Removido overflow: hidden para permitir scroll horizontal */
   }
 
   .mobile-header-top {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
     padding: 8px max(16px, env(safe-area-inset-left)) 8px max(16px, env(safe-area-inset-right));
     padding-top: max(8px, env(safe-area-inset-top));
     min-width: 0;
-    overflow: visible;
+    height: 56px;
   }
 
   .mobile-logo {
     flex: 0 0 auto;
+    min-width: 0;
   }
 
   .mobile-logo img {
@@ -636,7 +637,7 @@ body {
     align-items: center;
     gap: 8px;
     flex: 0 0 auto;
-    margin-left: auto;
+    min-width: 0;
   }
 
   .mobile-action-button {
@@ -665,7 +666,7 @@ body {
   .mobile-citybar-wrap {
     border-top: 1px solid #2a2a3a;
     background: rgba(11, 11, 19, 0.98);
-    overflow: visible;
+    /* Removido overflow: hidden para permitir scroll horizontal */
   }
 
   .mobile-citybar {
@@ -674,8 +675,9 @@ body {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x proximity;
-    padding: 8px max(16px, env(safe-area-inset-left)) 8px max(16px, env(safe-area-inset-right));
+    padding: 12px max(16px, env(safe-area-inset-left)) 12px max(16px, env(safe-area-inset-right));
     scrollbar-width: none;
+    min-width: 0;
   }
 
   .mobile-citybar::-webkit-scrollbar {
@@ -695,6 +697,7 @@ body {
     font-size: 14px;
     font-weight: 500;
     transition: all 0.2s;
+    min-width: max-content;
   }
 
   .mobile-city-pill:hover,
