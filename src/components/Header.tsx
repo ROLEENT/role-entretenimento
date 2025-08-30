@@ -164,7 +164,11 @@ const Header = () => {
                         ? 'bg-primary text-primary-foreground'
                         : 'text-foreground hover:bg-accent hover:text-accent-foreground'
                     )}
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      // Ensure scroll to top on mobile navigation
+                      setTimeout(() => window.scrollTo(0, 0), 100);
+                    }}
                     aria-current={isActive(link.href) ? 'page' : undefined}
                   >
                     {link.label}

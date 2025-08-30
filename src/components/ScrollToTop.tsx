@@ -1,23 +1,9 @@
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useScrollToTop } from '@/hooks/useScrollToTop';
 
 const ScrollToTop = () => {
-  const { pathname } = useLocation();
-
-  useEffect(() => {
-    // Use requestAnimationFrame to ensure DOM is ready
-    requestAnimationFrame(() => {
-      // Double requestAnimationFrame for better timing
-      requestAnimationFrame(() => {
-        window.scrollTo({
-          top: 0,
-          left: 0,
-          behavior: 'instant'
-        });
-      });
-    });
-  }, [pathname]);
-
+  // Use the custom hook for scroll restoration
+  useScrollToTop();
+  
   return null;
 };
 
