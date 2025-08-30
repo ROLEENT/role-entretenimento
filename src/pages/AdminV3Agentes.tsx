@@ -42,40 +42,64 @@ function AgentesContent() {
   const form = useForm<AgentFormValues>({
     resolver: zodResolver(AgentSchema),
     mode: 'onChange',
-    shouldUnregister: true,
+    shouldUnregister: false, // Don't unregister fields when switching tabs
     defaultValues: { 
       type: 'artist', 
       name: '', 
       slug: '',
-      status: 'draft'
+      status: 'draft',
+      city_id: undefined
     },
   });
 
   const watchedType = form.watch('type');
-  const nameWatch = form.watch('name');
-  const slugValue = form.watch('slug');
+  
+  // Auto-fill city from URL context or admin preference
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const cityFromUrl = urlParams.get('city_id');
+    
+    if (cityFromUrl && !form.getValues('city_id')) {
+      const cityId = parseInt(cityFromUrl);
+      if (!isNaN(cityId)) {
+        form.setValue('city_id', cityId, { shouldDirty: false });
+      }
+    }
+  }, [form]);
 
-  // Handle URL params once
+  // Handle URL params once and preserve form state between type changes
   const [searchParams] = useSearchParams();
   useEffect(() => {
     const t = searchParams.get('type');
     if (t && ['artist', 'venue', 'organizer'].includes(t)) {
-      form.setValue('type', t as 'artist'|'venue'|'organizer', { shouldDirty: false });
+      // Only set type if it's different to avoid unnecessary re-renders
+      if (form.getValues('type') !== t) {
+        form.setValue('type', t as 'artist'|'venue'|'organizer', { shouldDirty: false });
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto-generate slug when name changes
+  // Auto-generate slug when name changes - improved implementation
   useEffect(() => {
-    const n = nameWatch?.trim();
-    if (n && !form.getValues('slug')) {
-      form.setValue('slug',
-        n.normalize('NFD').replace(/\p{Diacritic}/gu,'')
-         .toLowerCase().replace(/\s+/g,'-')
-         .replace(/[^a-z0-9-]/g,'')
-      );
-    }
-  }, [nameWatch, form]);
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'name' && value.name && !form.getValues('slug')) {
+        const slug = value.name
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+          .replace(/[^\w\s-]/g, '') // Remove special chars except spaces and hyphens
+          .trim()
+          .replace(/\s+/g, '-'); // Replace spaces with hyphens
+        
+        if (slug) {
+          form.setValue('slug', slug, { shouldDirty: true });
+        }
+      }
+    });
+    
+    return () => subscription.unsubscribe?.();
+  }, [form]);
 
   // Debounced slug availability check
   const debouncedSlugCheck = useDebouncedCallback(async (slug: string) => {
@@ -89,6 +113,8 @@ function AgentesContent() {
     setSlugStatus(exists ? 'taken' : 'available');
   }, 500);
 
+  // Watch slug changes for availability check
+  const slugValue = form.watch('slug');
   useEffect(() => {
     if (slugValue) {
       debouncedSlugCheck(slugValue);
@@ -108,7 +134,15 @@ function AgentesContent() {
     try {
       const agentId = await createAgent(values);
       if (agentId) {
-        form.reset({ type: watchedType, name: '', slug: '', status: 'draft' });
+        // Reset form but preserve type and city context
+        const currentCityId = form.getValues('city_id');
+        form.reset({ 
+          type: watchedType, 
+          name: '', 
+          slug: '', 
+          status: 'draft',
+          city_id: currentCityId // Preserve city context
+        });
         setSlugStatus('idle');
         
         toast({
@@ -171,17 +205,26 @@ function AgentesContent() {
                   onValueChange={field.onChange}
                   className="grid gap-4 md:grid-cols-3"
                 >
-                  <label className={cn("rounded-xl border p-4 cursor-pointer", field.value==='artist' && "ring-2 ring-primary")}>
+                  <label className={cn(
+                    "rounded-xl border p-4 cursor-pointer transition-all hover:bg-muted/50",
+                    field.value === 'artist' && "ring-2 ring-primary bg-primary/5"
+                  )}>
                     <RadioGroupItem className="sr-only" id="type-artist" value="artist" />
-                    <span>Artista</span>
+                    <span className="font-medium">Artista</span>
                   </label>
-                  <label className={cn("rounded-xl border p-4 cursor-pointer", field.value==='venue' && "ring-2 ring-primary")}>
+                  <label className={cn(
+                    "rounded-xl border p-4 cursor-pointer transition-all hover:bg-muted/50",
+                    field.value === 'venue' && "ring-2 ring-primary bg-primary/5"
+                  )}>
                     <RadioGroupItem className="sr-only" id="type-venue" value="venue" />
-                    <span>Local</span>
+                    <span className="font-medium">Local</span>
                   </label>
-                  <label className={cn("rounded-xl border p-4 cursor-pointer", field.value==='organizer' && "ring-2 ring-primary")}>
+                  <label className={cn(
+                    "rounded-xl border p-4 cursor-pointer transition-all hover:bg-muted/50",
+                    field.value === 'organizer' && "ring-2 ring-primary bg-primary/5"
+                  )}>
                     <RadioGroupItem className="sr-only" id="type-organizer" value="organizer" />
-                    <span>Organizador</span>
+                    <span className="font-medium">Organizador</span>
                   </label>
                 </RadioGroup>
               )}
@@ -201,7 +244,21 @@ function AgentesContent() {
                 <Controller
                   name="name"
                   control={form.control}
-                  render={({ field }) => <Input id="agent-name" placeholder="Nome" {...field} />}
+                  render={({ field }) => (
+                    <Input 
+                      id="agent-name" 
+                      placeholder="Nome do agente" 
+                      {...field} 
+                      onChange={(e) => {
+                        field.onChange(e);
+                        // Clear slug when name changes significantly
+                        const currentSlug = form.getValues('slug');
+                        if (currentSlug && e.target.value.length < 3) {
+                          form.setValue('slug', '', { shouldDirty: true });
+                        }
+                      }}
+                    />
+                  )}
                 />
                 {form.formState.errors.name && (
                   <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
@@ -214,7 +271,21 @@ function AgentesContent() {
                   <Controller
                     name="slug"
                     control={form.control}
-                    render={({ field }) => <Input id="agent-slug" placeholder="slug-exemplo" {...field} className="pr-10" />}
+                    render={({ field }) => (
+                      <Input 
+                        id="agent-slug" 
+                        placeholder="slug-automatico" 
+                        {...field} 
+                        className="pr-10"
+                        onChange={(e) => {
+                          field.onChange(e);
+                          // Reset slug status when manually editing
+                          if (slugStatus !== 'idle') {
+                            setSlugStatus('idle');
+                          }
+                        }}
+                      />
+                    )}
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
                     {getSlugStatusIcon()}
@@ -225,7 +296,7 @@ function AgentesContent() {
                     slugStatus === 'available' ? 'text-green-600' :
                     slugStatus === 'taken' ? 'text-destructive' : 'text-muted-foreground'
                   }`}>
-                    {slugStatus === 'checking' ? 'Verificando...' :
+                    {slugStatus === 'checking' ? 'Verificando disponibilidade...' :
                      slugStatus === 'available' ? 'Slug disponível' : 'Slug já está em uso'}
                   </p>
                 )}

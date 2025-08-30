@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -66,18 +66,26 @@ export function AgentQuickCreateModal({
   const nameValue = form.watch('name');
   const slugValue = form.watch('slug');
 
-  // Gerar slug automaticamente quando o nome muda
-  React.useEffect(() => {
-    if (nameValue && !slugValue) {
-      const autoSlug = nameValue
-        .normalize('NFD')
-        .replace(/\p{Diacritic}/gu, '')
-        .toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^a-z0-9-]/g, '');
-      form.setValue('slug', autoSlug);
-    }
-  }, [nameValue, slugValue, form]);
+  // Auto-generate slug when name changes - improved implementation
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'name' && value.name && !form.getValues('slug')) {
+        const slug = value.name
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+          .replace(/[^\w\s-]/g, '') // Remove special chars except spaces and hyphens
+          .trim()
+          .replace(/\s+/g, '-'); // Replace spaces with hyphens
+        
+        if (slug) {
+          form.setValue('slug', slug, { shouldDirty: true });
+        }
+      }
+    });
+    
+    return () => subscription.unsubscribe?.();
+  }, [form]);
 
   // Verificar disponibilidade do slug com debounce
   const debouncedSlugCheck = useDebouncedCallback(async (slug: string) => {
