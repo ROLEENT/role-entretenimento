@@ -134,7 +134,7 @@ function AgentesContent() {
     }
 
     setSlugStatus('checking');
-    const exists = await checkSlugExists(slug);
+    const exists = await checkSlugExists(slug, agentType);
     setSlugStatus(exists ? 'taken' : 'available');
   }, 500);
 
@@ -142,7 +142,7 @@ function AgentesContent() {
     if (slugValue) {
       debouncedSlugCheck(slugValue);
     }
-  }, [slugValue, debouncedSlugCheck]);
+  }, [slugValue, agentType, debouncedSlugCheck]); // Include agentType to re-check when type changes
 
   const onSubmit = async (data: AgentFormData) => {
     if (slugStatus === 'taken') {

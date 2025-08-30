@@ -5,13 +5,31 @@ import { AgentFormData } from '@/lib/agentSchema';
 
 const DRAFT_STORAGE_KEY = 'agent-form-draft';
 
+// Mapeamento de tipos para tabelas
+const TABLE_BY_TYPE = {
+  artist: 'artists',
+  venue: 'venues', 
+  organizer: 'organizers'
+} as const;
+
 export const useAgentManagement = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const checkSlugExists = async (slug: string): Promise<boolean> => {
+  const checkSlugExists = async (slug: string, agentType?: string): Promise<boolean> => {
     try {
-      // Verificar em todas as tabelas de agentes
+      if (agentType) {
+        // Verificar apenas na tabela específica
+        const tableName = TABLE_BY_TYPE[agentType as keyof typeof TABLE_BY_TYPE];
+        const { data } = await supabase
+          .from(tableName)
+          .select('id')
+          .eq('slug', slug)
+          .maybeSingle();
+        return !!data;
+      }
+
+      // Verificar em todas as tabelas se tipo não especificado
       const [artistResult, venueResult, organizerResult] = await Promise.all([
         supabase.from('artists').select('id').eq('slug', slug).maybeSingle(),
         supabase.from('venues').select('id').eq('slug', slug).maybeSingle(),
@@ -38,102 +56,101 @@ export const useAgentManagement = () => {
   const createAgent = async (data: AgentFormData): Promise<string | null> => {
     setLoading(true);
     try {
-      // Verificar se slug já existe
-      const slugExists = await checkSlugExists(data.slug);
+      // Verificar se slug já existe para esse tipo específico
+      const slugExists = await checkSlugExists(data.slug, data.agent_type);
       if (slugExists) {
         toast({
-          title: "Erro",
+          title: "Slug duplicado",
           description: "Este slug já está em uso. Escolha outro.",
           variant: "destructive"
         });
         return null;
       }
 
-      let result;
+      const tableName = TABLE_BY_TYPE[data.agent_type];
+      let insertData: any = {};
       
-      // Inserir na tabela apropriada baseado no tipo
+      // Preparar dados baseado no tipo
       switch (data.agent_type) {
         case 'artist':
-          result = await supabase
-            .from('artists')
-            .insert({
-              stage_name: data.name,
-              slug: data.slug,
-              city: data.city,
-              instagram: data.instagram.replace(/^@+/, ''), // Normalizar instagram
-              booking_whatsapp: data.whatsapp,
-              booking_email: data.email,
-              website_url: data.website || null,
-              bio_short: data.bio_short,
-              status: data.status,
-              artist_type: data.artist_subtype || 'banda',
-              spotify_url: data.spotify_url || null,
-              soundcloud_url: data.soundcloud_url || null,
-              youtube_url: data.youtube_url || null,
-              beatport_url: data.beatport_url || null,
-              profile_image_url: data.profile_image_url || '',
-              presskit_url: data.presskit_url || null,
-            })
-            .select('id')
-            .single();
+          insertData = {
+            stage_name: data.name,
+            slug: data.slug,
+            city: data.city || '',
+            instagram: data.instagram?.replace(/^@+/, '') || '',
+            booking_whatsapp: data.whatsapp || '',
+            booking_email: data.email || '',
+            website_url: data.website || null,
+            bio_short: data.bio_short || '',
+            status: data.status,
+            artist_type: data.artist_subtype || 'banda',
+            spotify_url: data.spotify_url || null,
+            soundcloud_url: data.soundcloud_url || null,
+            youtube_url: data.youtube_url || null,
+            beatport_url: data.beatport_url || null,
+            profile_image_url: data.profile_image_url || '',
+            presskit_url: data.presskit_url || null,
+          };
           break;
 
         case 'venue':
-          result = await supabase
-            .from('venues')
-            .insert({
-              name: data.name,
-              slug: data.slug,
-              city: data.city,
-              instagram: data.instagram.replace(/^@+/, ''), // Normalizar instagram
-              booking_whatsapp: data.whatsapp,
-              booking_email: data.email,
-              website_url: data.website || null,
-              status: data.status,
-              type: data.venue_type || 'bar',
-              address: data.address || '',
-              state: 'SP', // Valor padrão - pode ser ajustado
-              zip_code: '00000-000', // Valor padrão - pode ser ajustado
-              maps_url: 'https://maps.google.com', // Valor padrão - pode ser ajustado
-              capacity: data.capacity || null,
-              lat: data.lat || null,
-              lng: data.lng || null,
-            })
-            .select('id')
-            .single();
+          insertData = {
+            name: data.name,
+            address: data.address || '',
+            city: data.city || '',
+            state: 'SP', // Valor padrão
+            slug: data.slug,
+            capacity: data.capacity || null,
+            lat: data.lat || null,
+            lng: data.lng || null,
+            contacts_json: {
+              instagram: data.instagram?.replace(/^@+/, '') || '',
+              whatsapp: data.whatsapp || '',
+              email: data.email || '',
+              website: data.website || null,
+            }
+          };
           break;
 
         case 'organizer':
-          result = await supabase
-            .from('organizers')
-            .insert({
-              name: data.name,
-              slug: data.slug,
-              city: data.city,
-              instagram: data.instagram.replace(/^@+/, ''), // Normalizar instagram
-              contact_whatsapp: data.whatsapp,
-              contact_email: data.email,
-              website_url: data.website || null,
-              bio_short: data.bio_short,
-              status: data.status,
-              type: data.organizer_subtype || 'organizador',
-              booking_email: data.booking_email || null,
-              booking_whatsapp: data.booking_whatsapp || null,
-            })
-            .select('id')
-            .single();
+          insertData = {
+            name: data.name,
+            slug: data.slug,
+            city: data.city || '',
+            instagram: data.instagram?.replace(/^@+/, '') || '',
+            contact_whatsapp: data.whatsapp || '',
+            contact_email: data.email || '',
+            website_url: data.website || null,
+            bio_short: data.bio_short || '',
+            status: data.status,
+            type: data.organizer_subtype || 'organizador',
+            booking_email: data.booking_email || null,
+            booking_whatsapp: data.booking_whatsapp || null,
+          };
           break;
 
         default:
           throw new Error('Tipo de agente inválido');
       }
 
+      // Inserir na tabela correta
+      const result = await supabase
+        .from(tableName)
+        .insert(insertData)
+        .select('id')
+        .single();
+
       if (result.error) throw result.error;
+
+      const typeLabels = {
+        artist: 'Artista',
+        venue: 'Local', 
+        organizer: 'Organizador'
+      };
 
       toast({
         title: "Sucesso",
-        description: `${data.agent_type === 'artist' ? 'Artista' : 
-                       data.agent_type === 'venue' ? 'Local' : 'Organizador'} criado com sucesso!`
+        description: `${typeLabels[data.agent_type]} criado com sucesso!`
       });
 
       return result.data.id;
@@ -142,8 +159,8 @@ export const useAgentManagement = () => {
       
       if (error.code === '23505') {
         toast({
-          title: "Erro",
-          description: "Este slug já está em uso. Escolha outro.",
+          title: "Slug duplicado",
+          description: "Este slug já está em uso.",
           variant: "destructive"
         });
       } else {
