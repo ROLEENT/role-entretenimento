@@ -1,23 +1,33 @@
-export const cityToSlug = (cityName: string): string => {
-  const slugMap: Record<string, string> = {
+// lib/city-to-slug.ts
+export function cityToSlug(name: string): string {
+  const MAP: Record<string, string> = {
+    'POA': 'porto_alegre',
     'Porto Alegre': 'porto_alegre',
-    'São Paulo': 'sao_paulo', 
+    'SP': 'sao_paulo',
+    'São Paulo': 'sao_paulo',
+    'RJ': 'rio_de_janeiro',
     'Rio de Janeiro': 'rio_de_janeiro',
+    'FLN': 'florianopolis',
     'Florianópolis': 'florianopolis',
-    'Curitiba': 'curitiba'
+    'CWB': 'curitiba',
+    'Curitiba': 'curitiba',
   };
-  
-  return slugMap[cityName] || cityName.toLowerCase().replace(/\s+/g, '_');
-};
+  const direct = MAP[name];
+  if (direct) return direct;
+  // fallback genérico
+  return name
+    .normalize('NFD').replace(/\p{Diacritic}/gu, '')
+    .toLowerCase().replace(/\s+/g, '_');
+}
 
-export const labelFromName = (cityName: string): string => {
-  const labelMap: Record<string, string> = {
+export function labelFromName(name: string) {
+  // use se quiser exibir POA, SP, RJ nos chips
+  const map: Record<string,string> = {
     'Porto Alegre': 'POA',
     'São Paulo': 'SP',
-    'Rio de Janeiro': 'RJ', 
+    'Rio de Janeiro': 'RJ',
     'Florianópolis': 'Floripa',
-    'Curitiba': 'Curitiba'
+    'Curitiba': 'Curitiba',
   };
-  
-  return labelMap[cityName] || cityName;
-};
+  return map[name] ?? name;
+}
