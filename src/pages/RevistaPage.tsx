@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { SEOHelmet } from "@/components/SEOHelmet";
-import { PageWrapper } from "@/components/PageWrapper";
+import { PublicLayout } from "@/components/PublicLayout";
 import { RevistaCard } from "@/components/revista/RevistaCard";
 import { RevistaCardSkeleton } from "@/components/revista/RevistaCardSkeleton";
 import { RevistaFilters } from "@/components/revista/RevistaFilters";
@@ -240,7 +240,7 @@ export default function RevistaPage() {
   } : undefined;
 
   return (
-    <>
+    <PublicLayout>
       <SEOHelmet
         title="Revista ROLÊ"
         description={metaDescription}
@@ -254,8 +254,7 @@ export default function RevistaPage() {
         <meta name="robots" content="noindex, follow" />
       )}
       
-      <PageWrapper>
-        <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8">
           {/* Header */}
           <div className="text-center mb-10">
             <div className="flex items-center justify-center gap-3 mb-4">
@@ -448,7 +447,6 @@ export default function RevistaPage() {
             </>
           )}
         </div>
-      </PageWrapper>
-    </>
+    </PublicLayout>
   );
 }

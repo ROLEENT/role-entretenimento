@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { SEOHelmet } from "@/components/SEOHelmet";
-import { PageWrapper } from "@/components/PageWrapper";
+import { PublicLayout } from "@/components/PublicLayout";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -57,19 +57,19 @@ export default function RevistaArticlePage() {
 
   if (isLoading) {
     return (
-      <PageWrapper>
+      <PublicLayout>
         <div className="container mx-auto px-4 py-8">
           <div className="flex justify-center py-12">
             <LoadingSpinner />
           </div>
         </div>
-      </PageWrapper>
+      </PublicLayout>
     );
   }
 
   if (error || !post) {
     return (
-      <PageWrapper>
+      <PublicLayout>
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
             <h1 className="text-2xl font-bold text-destructive mb-4">
@@ -81,7 +81,7 @@ export default function RevistaArticlePage() {
             </Button>
           </div>
         </div>
-      </PageWrapper>
+      </PublicLayout>
     );
   }
 
@@ -90,7 +90,7 @@ export default function RevistaArticlePage() {
   const currentUrl = `https://roleentretenimento.com/revista/${post.slug_data}`;
 
   return (
-    <>
+    <PublicLayout>
       <SEOHelmet
         title={post.seo_title || `${post.title} | Revista ROLÊ`}
         description={post.seo_description || post.summary}
@@ -103,8 +103,7 @@ export default function RevistaArticlePage() {
         tags={post.tags}
       />
 
-      <PageWrapper>
-        <article className="container mx-auto px-4 py-8 max-w-4xl">
+      <article className="container mx-auto px-4 py-8 max-w-4xl">
           {/* Navigation */}
           <div className="mb-6">
             <Button
@@ -245,7 +244,6 @@ export default function RevistaArticlePage() {
           url={currentUrl}
           description={post.summary}
         />
-      </PageWrapper>
-    </>
+    </PublicLayout>
   );
 }
