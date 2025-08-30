@@ -30,6 +30,9 @@ const Agenda = lazy(() => import("./pages/Agenda"));
 const AgendaCidade = lazy(() => import("./pages/AgendaCidade"));
 const OutrasCidades = lazy(() => import("./pages/OutrasCidades"));
 const AgendaDetailPage = lazy(() => import("./pages/AgendaDetailPage"));
+
+// Layout components
+const AgendaLayout = lazy(() => import("./components/layouts/AgendaLayout"));
 // const DestaquesHub = lazy(() => import("./pages/DestaquesHub")); // Removido
 const CitiesPage = lazy(() => import("./pages/CitiesPage"));
 const BlogArticle = lazy(() => import("./pages/BlogArticle"));
@@ -126,10 +129,10 @@ function App() {
                 <Route path="/ajuda" element={<Help />} />
                 
                 {/* Agenda Routes - Order matters for routing */}
-                <Route path="/agenda" element={<Agenda />} />
-                <Route path="/agenda/outras-cidades" element={<OutrasCidades />} />
-                <Route path="/agenda/cidade/:cidade" element={<AgendaCidade />} />
-                <Route path="/agenda/:slug" element={<AgendaDetailPage />} />
+                <Route path="/agenda" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><Agenda /></AgendaLayout></Suspense>} />
+                <Route path="/agenda/outras-cidades" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><OutrasCidades /></AgendaLayout></Suspense>} />
+                <Route path="/agenda/cidade/:cidade" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><AgendaCidade /></AgendaLayout></Suspense>} />
+                <Route path="/agenda/:slug" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><AgendaDetailPage /></AgendaLayout></Suspense>} />
                 
                 {/* Preview Routes */}
                 <Route path="/preview/agenda/:slug" element={<PreviewAgenda />} />

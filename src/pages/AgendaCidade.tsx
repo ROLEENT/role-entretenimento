@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -225,8 +223,7 @@ export default function AgendaCidade() {
         title="Cidade não encontrada - ROLÊ"
         description="A cidade solicitada não foi encontrada em nossa agenda."
       >
-        <Header />
-        <main className="min-h-screen pt-20 px-4">
+        <div className="pt-20 px-4">
           <div className="max-w-4xl mx-auto text-center py-20">
             <h1 className="text-3xl font-bold mb-4">Cidade não encontrada</h1>
             <p className="text-muted-foreground mb-6">
@@ -236,8 +233,7 @@ export default function AgendaCidade() {
               Ver todas as cidades
             </Button>
           </div>
-        </main>
-        <Footer />
+        </div>
       </PageWrapper>
     );
   }
@@ -245,15 +241,13 @@ export default function AgendaCidade() {
   if (error) {
     return (
       <PageWrapper title={`Agenda ${cityName} - ROLÊ`}>
-        <Header />
-        <main className="min-h-screen pt-20 px-4">
+        <div className="pt-20 px-4">
           <div className="max-w-4xl mx-auto text-center py-20">
             <h1 className="text-2xl font-bold mb-4">Erro ao carregar agenda</h1>
             <p className="text-muted-foreground mb-6">Não foi possível carregar os eventos.</p>
             <Button onClick={() => refetch()}>Tentar de novo</Button>
           </div>
-        </main>
-        <Footer />
+        </div>
       </PageWrapper>
     );
   }
@@ -270,8 +264,6 @@ export default function AgendaCidade() {
       title={`Agenda ${cityName} - ROLÊ`}
       description={`Eventos culturais em ${cityName} selecionados com curadoria especializada. Descubra shows, festivais e experiências únicas.`}
     >
-      <Header />
-      
       {/* SEO Meta Tags */}
       <head>
         <title>Agenda {cityName} - ROLÊ</title>
@@ -279,7 +271,7 @@ export default function AgendaCidade() {
         <link rel="canonical" href={`https://role.com.br/agenda/cidade/${cidade}${currentPeriod !== 'proximos-7-dias' ? `?periodo=${currentPeriod}` : ''}`} />
       </head>
       
-      <main className="min-h-screen pt-20">
+      <div className="pt-20">
         {/* Header */}
         <section className="px-4 py-6 border-b bg-gradient-subtle">
           <div className="max-w-6xl mx-auto">
@@ -486,9 +478,7 @@ export default function AgendaCidade() {
             )}
           </div>
         </section>
-      </main>
-
-      <Footer />
+      </div>
     </PageWrapper>
   );
 }

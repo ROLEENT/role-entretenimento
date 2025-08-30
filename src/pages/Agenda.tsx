@@ -1,6 +1,4 @@
 import { Link } from 'react-router-dom';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,24 +22,20 @@ export default function Agenda() {
   if (error) {
     return (
       <PageWrapper title="Agenda ROLÊ" description="Agenda cultural atualizada semanalmente">
-        <Header />
-        <main className="min-h-screen pt-20 px-4">
+        <div className="pt-20 px-4">
           <div className="max-w-4xl mx-auto text-center py-20">
             <h1 className="text-2xl font-bold mb-4">Erro ao carregar agenda</h1>
             <p className="text-muted-foreground mb-6">Não foi possível carregar os eventos.</p>
             <Button onClick={() => refetch()}>Tentar de novo</Button>
           </div>
-        </main>
-        <Footer />
+        </div>
       </PageWrapper>
     );
   }
 
   return (
     <PageWrapper title="Agenda ROLÊ" description="Agenda cultural atualizada semanalmente">
-      <Header />
-      
-      <main className="min-h-screen pt-20">
+      <div className="pt-20">
         {/* Hero Section */}
         <section className="px-4 py-12 bg-gradient-subtle">
           <div className="max-w-6xl mx-auto text-center">
@@ -117,9 +111,7 @@ export default function Agenda() {
             </div>
           </div>
         </section>
-      </main>
-
-      <Footer />
+      </div>
     </PageWrapper>
   );
 }

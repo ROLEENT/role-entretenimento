@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, MapPin, Calendar, Clock, Share2, ExternalLink, User, Building, Music } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
 import SEOHead from '@/components/SEOHead';
 import { MobileSafeImage } from '@/components/ui/mobile-safe-image';
@@ -214,8 +212,7 @@ const AgendaDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
+      <div className="pt-20">
         <main className="container mx-auto px-4 py-8">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-muted rounded w-3/4"></div>
@@ -226,15 +223,13 @@ const AgendaDetailPage = () => {
             </div>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
 
   if (error || !item) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
+      <div className="pt-20">
         <main className="container mx-auto px-4 py-8 text-center">
           <h1 className="text-2xl font-bold mb-4">Evento não encontrado</h1>
           <p className="text-muted-foreground mb-6">
@@ -244,7 +239,6 @@ const AgendaDetailPage = () => {
             <Link to="/agenda">Ver Agenda</Link>
           </Button>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -254,7 +248,7 @@ const AgendaDetailPage = () => {
     `${item.title}${item.city ? ` em ${item.city}` : ''}${item.start_at ? ` - ${formatEventDateTime(item.start_at)}` : ''}`;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="pt-20">
       <SEOHead 
         title={pageTitle}
         description={pageDescription}
@@ -263,8 +257,6 @@ const AgendaDetailPage = () => {
         type="article"
       />
       {renderJsonLd()}
-      
-      <Header />
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
@@ -504,8 +496,6 @@ const AgendaDetailPage = () => {
           </nav>
         </div>
       </main>
-
-      <Footer />
       <BackToTop />
     </div>
   );
