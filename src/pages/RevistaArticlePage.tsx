@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { SEOHelmet } from "@/components/SEOHelmet";
 import { PublicLayout } from "@/components/PublicLayout";
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { getRevistaPostBySlug, RevistaPost } from "@/hooks/useRevistaData";
 import { incrementPostViews } from "@/hooks/useBlogData";
@@ -58,7 +58,7 @@ export default function RevistaArticlePage() {
   if (isLoading) {
     return (
       <PublicLayout>
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto max-w-5xl px-4 md:px-6 py-8">
           <div className="flex justify-center py-12">
             <LoadingSpinner />
           </div>
@@ -70,7 +70,7 @@ export default function RevistaArticlePage() {
   if (error || !post) {
     return (
       <PublicLayout>
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto max-w-5xl px-4 md:px-6 py-8">
           <div className="text-center py-12">
             <h1 className="text-2xl font-bold text-destructive mb-4">
               {error || "Artigo não encontrado"}
@@ -103,7 +103,29 @@ export default function RevistaArticlePage() {
         tags={post.tags}
       />
 
-      <article className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto max-w-5xl px-4 md:px-6 py-8">
+        {/* Breadcrumb */}
+        <Breadcrumb className="mb-6">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/">Início</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/revista">Revista</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{post.title}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
+        <article>
           {/* Navigation */}
           <div className="mb-6">
             <Button
@@ -244,6 +266,7 @@ export default function RevistaArticlePage() {
           url={currentUrl}
           description={post.summary}
         />
+      </div>
     </PublicLayout>
   );
 }

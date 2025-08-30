@@ -254,7 +254,7 @@ export default function RevistaPage() {
         <meta name="robots" content="noindex, follow" />
       )}
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto max-w-5xl px-4 md:px-6 py-8">
           {/* Header */}
           <div className="text-center mb-10">
             <div className="flex items-center justify-center gap-3 mb-4">
