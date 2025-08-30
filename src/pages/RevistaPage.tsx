@@ -8,6 +8,8 @@ import { RevistaFilters } from "@/components/revista/RevistaFilters";
 import { ResponsiveGrid } from "@/components/ui/responsive-grid";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+import { useRevistaCache } from "@/hooks/useRevistaCache";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { BookOpen, FileText, AlertCircle, Calendar, Mail } from "lucide-react";
@@ -40,12 +42,23 @@ export default function RevistaPage() {
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [totalArticlesExist, setTotalArticlesExist] = useState(false);
+  const [lastFetchRef, setLastFetchRef] = useState<string>('');
   
   const searchTerm = searchParams.get('q') || '';
   const cityFilter = searchParams.get('cidade') || '';
   const sectionFilter = searchParams.get('secao') || '';
   
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const { getCachedData, setCachedData, restoreScrollPosition, clearCache } = useRevistaCache();
+
+  // Infinite scroll setup
+  const { targetRef, isEnabled: isInfiniteScrollEnabled, enableInfiniteScroll, disableInfiniteScroll } = useInfiniteScroll({
+    hasMore,
+    isLoading: isLoadingMore,
+    onLoadMore: () => handleLoadMore(),
+    threshold: 0.1,
+    rootMargin: '100px'
+  });
 
   // Check if there are any articles in the CMS
   useEffect(() => {
@@ -62,13 +75,21 @@ export default function RevistaPage() {
   }, []);
 
   const fetchPosts = useCallback(async (offset = 0, reset = false) => {
+    // Generate unique fetch reference to prevent duplicates
+    const fetchRef = `${offset}-${reset}-${cityFilter}-${debouncedSearchTerm}`;
+    if (fetchRef === lastFetchRef && !reset) {
+      return; // Prevent duplicate requests
+    }
+
     try {
       if (reset) {
         setIsLoading(true);
+        clearCache(); // Clear cache when filters change
       } else {
         setIsLoadingMore(true);
       }
       setError(null);
+      setLastFetchRef(fetchRef);
 
       let query = supabase
         .from('blog_posts')
@@ -107,14 +128,15 @@ export default function RevistaPage() {
         featured: item.featured || false,
       }));
 
-      if (reset) {
-        setPosts(transformedPosts);
-      } else {
-        setPosts(prev => [...prev, ...transformedPosts]);
-      }
-      
+      const newPosts = reset ? transformedPosts : [...posts, ...transformedPosts];
+      const newHasMore = transformedPosts.length === 12 && (offset + 12) < (count || 0);
+
+      setPosts(newPosts);
       setTotalCount(count || 0);
-      setHasMore(transformedPosts.length === 12 && (offset + 12) < (count || 0));
+      setHasMore(newHasMore);
+
+      // Cache the data for future visits
+      setCachedData(newPosts, count || 0, newHasMore);
     } catch (err) {
       console.error('Error fetching posts:', err);
       setError(err instanceof Error ? err.message : 'Erro ao carregar artigos');
@@ -122,12 +144,29 @@ export default function RevistaPage() {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }, [cityFilter, debouncedSearchTerm]);
+  }, [cityFilter, debouncedSearchTerm, lastFetchRef, posts, clearCache, setCachedData]);
 
-  // Load initial posts
+  // Try to restore from cache on initial load
   useEffect(() => {
-    fetchPosts(0, true);
-  }, [fetchPosts]);
+    const cachedData = getCachedData();
+    if (cachedData) {
+      setPosts(cachedData.posts);
+      setTotalCount(cachedData.totalCount);
+      setHasMore(cachedData.hasMore);
+      setIsLoading(false);
+      restoreScrollPosition(cachedData.scrollPosition);
+    } else {
+      fetchPosts(0, true);
+    }
+  }, [fetchPosts, getCachedData, restoreScrollPosition]);
+
+  // Re-fetch when filters change (but not on initial load if cache exists)
+  useEffect(() => {
+    const cachedData = getCachedData();
+    if (!cachedData) {
+      fetchPosts(0, true);
+    }
+  }, [cityFilter, debouncedSearchTerm]);
 
   const handleLoadMore = () => {
     if (!isLoadingMore && hasMore) {
@@ -365,9 +404,10 @@ export default function RevistaPage() {
                 </ResponsiveGrid>
               </div>
 
-              {/* Load more button */}
+              {/* Load more section with infinite scroll trigger */}
               {hasMore && (
-                <div className="flex justify-center">
+                <div className="flex flex-col items-center gap-4">
+                  {/* Manual load more button */}
                   <Button 
                     onClick={handleLoadMore}
                     disabled={isLoadingMore}
@@ -384,6 +424,25 @@ export default function RevistaPage() {
                       'Carregar mais artigos'
                     )}
                   </Button>
+
+                  {/* Infinite scroll controls */}
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={isInfiniteScrollEnabled ? disableInfiniteScroll : enableInfiniteScroll}
+                      className="text-xs"
+                    >
+                      {isInfiniteScrollEnabled ? 'Desabilitar scroll infinito' : 'Habilitar scroll infinito'}
+                    </Button>
+                  </div>
+
+                  {/* Invisible trigger for infinite scroll */}
+                  <div 
+                    ref={targetRef} 
+                    className="h-4 w-full opacity-0"
+                    aria-hidden="true"
+                  />
                 </div>
               )}
             </>
