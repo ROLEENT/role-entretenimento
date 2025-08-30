@@ -36,18 +36,14 @@ function AgentesContent() {
   const { toast } = useToast();
   const { loading, createAgent, checkSlugExists, generateSlug, saveDraft, loadDraft, clearDraft } = useAgentManagement();
   
-  // Get URL params to determine initial agent type
-  const [searchParams] = useSearchParams();
-  const initialType = (searchParams.get('type') as 'artist' | 'venue' | 'organizer') ?? 'artist';
-  
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   const [isDirty, setIsDirty] = useState(false);
   
   const form = useForm<AgentFormData>({
     mode: 'onChange',
-    resolver: zodResolver(getAgentSchema(initialType)),
+    resolver: zodResolver(getAgentSchema('artist')),
     defaultValues: {
-      agent_type: initialType,
+      agent_type: 'artist',
       name: '',
       slug: '',
       city: '',
@@ -85,16 +81,15 @@ function AgentesContent() {
     }
   }, [form, loadDraft, toast]);
 
-  // Focus management for venue type from URL
+  // Handle URL params once
+  const [searchParams] = useSearchParams();
   React.useEffect(() => {
-    if (initialType === 'venue') {
-      // Small delay to ensure DOM is ready
-      setTimeout(() => {
-        const venueNameInput = document.querySelector('input[name="name"]') as HTMLInputElement;
-        venueNameInput?.focus();
-      }, 100);
+    const initial = searchParams.get('type');
+    if (initial) {
+      form.setValue('agent_type', initial as 'artist'|'venue'|'organizer', { shouldDirty: false });
     }
-  }, [initialType]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
 
   // Monitorar mudanças no formulário
@@ -282,43 +277,28 @@ function AgentesContent() {
               <Controller
                 name="agent_type"
                 control={form.control}
+                rules={{ required: true }}
                 render={({ field }) => (
-                  <FormItem className="space-y-4">
-                    <FormLabel className="text-base font-medium">Selecione o tipo</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        className="grid grid-cols-1 sm:grid-cols-3 gap-4"
-                      >
-                        <FormItem className="flex items-center space-x-3 space-y-0 rounded-lg border p-4 hover:bg-muted/50 transition-colors">
-                          <FormControl>
-                            <RadioGroupItem id="type-artist" value="artist" />
-                          </FormControl>
-                          <FormLabel htmlFor="type-artist" className="font-normal cursor-pointer flex-1">
-                            Artista
-                          </FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0 rounded-lg border p-4 hover:bg-muted/50 transition-colors">
-                          <FormControl>
-                            <RadioGroupItem id="type-venue" value="venue" />
-                          </FormControl>
-                          <FormLabel htmlFor="type-venue" className="font-normal cursor-pointer flex-1">
-                            Local
-                          </FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0 rounded-lg border p-4 hover:bg-muted/50 transition-colors">
-                          <FormControl>
-                            <RadioGroupItem id="type-org" value="organizer" />
-                          </FormControl>
-                          <FormLabel htmlFor="type-org" className="font-normal cursor-pointer flex-1">
-                            Organizador
-                          </FormLabel>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  <RadioGroup
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    className="grid gap-4 md:grid-cols-3"
+                  >
+                    <div className={`rounded-xl border p-4 ${field.value === 'artist' ? 'ring-2 ring-primary' : ''}`}>
+                      <RadioGroupItem id="type-artist" value="artist" className="sr-only" />
+                      <Label htmlFor="type-artist" className="cursor-pointer block">Artista</Label>
+                    </div>
+
+                    <div className={`rounded-xl border p-4 ${field.value === 'venue' ? 'ring-2 ring-primary' : ''}`}>
+                      <RadioGroupItem id="type-venue" value="venue" className="sr-only" />
+                      <Label htmlFor="type-venue" className="cursor-pointer block">Local</Label>
+                    </div>
+
+                    <div className={`rounded-xl border p-4 ${field.value === 'organizer' ? 'ring-2 ring-primary' : ''}`}>
+                      <RadioGroupItem id="type-organizer" value="organizer" className="sr-only" />
+                      <Label htmlFor="type-organizer" className="cursor-pointer block">Organizador</Label>
+                    </div>
+                  </RadioGroup>
                 )}
               />
             </CardContent>
