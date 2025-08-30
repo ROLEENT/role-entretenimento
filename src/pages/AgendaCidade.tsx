@@ -214,7 +214,7 @@ export default function AgendaCidade() {
   };
 
   const handleClearFilters = () => {
-    setValue('');
+    setValue(undefined);
     setSelectedTags([]);
     updateFilters({ 
       busca: null, 

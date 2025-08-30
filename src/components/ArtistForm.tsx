@@ -415,14 +415,14 @@ export function ArtistForm({ initialData, mode }: ArtistFormProps) {
               <div className="space-y-2">
                 <Label htmlFor="city">Cidade</Label>
                 <Select 
-                  value={watch('city') || ''} 
+                  value={watch('city') || undefined} 
                   onValueChange={(value) => setValue('city', value || undefined)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione a cidade" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Nenhuma cidade</SelectItem>
+                    
                     {CITIES.map(city => (
                       <SelectItem key={city} value={city}>
                         {city}

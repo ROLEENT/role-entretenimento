@@ -227,7 +227,7 @@ export const AdvancedEventsFilters: React.FC<AdvancedEventsFiltersProps> = ({
               Cidade
             </Label>
             <Select
-              value={filters.city || ''}
+              value={filters.city || undefined}
               onValueChange={(value) => updateFilter('city', value)}
               disabled={isLoading}
             >

@@ -62,7 +62,7 @@ export function RevistaFilters({
               <SelectValue placeholder="Cidade" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todas as cidades</SelectItem>
+              
               {cities.map((city) => (
                 <SelectItem key={city} value={city} className="capitalize">
                   {city}
@@ -76,7 +76,7 @@ export function RevistaFilters({
               <SelectValue placeholder="Seção" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todas as seções</SelectItem>
+              
               {sections.map((section) => (
                 <SelectItem key={section} value={section}>
                   {section}

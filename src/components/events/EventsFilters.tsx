@@ -146,7 +146,7 @@ const EventsFilters: React.FC<EventsFiltersProps> = ({
               Cidade
             </Label>
             <Select
-              value={filters.city || ''}
+              value={filters.city || undefined}
               onValueChange={(value) => handleFilterChange('city', value)}
               disabled={isLoading}
             >
@@ -168,7 +168,7 @@ const EventsFilters: React.FC<EventsFiltersProps> = ({
           <div className="space-y-2">
             <Label>Categoria</Label>
             <Select
-              value={filters.category || ''}
+              value={filters.category || undefined}
               onValueChange={(value) => handleFilterChange('category', value)}
               disabled={isLoading}
             >

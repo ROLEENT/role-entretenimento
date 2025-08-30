@@ -230,7 +230,7 @@ function ArtistsContent() {
                 <SelectValue placeholder="Tipo" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os tipos</SelectItem>
+                
                 {ARTIST_TYPES.map(type => (
                   <SelectItem key={type.value} value={type.value}>
                     {type.label}
@@ -244,7 +244,7 @@ function ArtistsContent() {
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os status</SelectItem>
+                
                 {STATUS_OPTIONS.map(option => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
@@ -258,7 +258,7 @@ function ArtistsContent() {
                 <SelectValue placeholder="Cidade" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas as cidades</SelectItem>
+                
                 {CITIES.map(cityOption => (
                   <SelectItem key={cityOption} value={cityOption}>
                     {cityOption}
