@@ -965,3 +965,10 @@ body {
 [style*="display: none"] {
   pointer-events: none !important;
 }
+
+/* Admin v3 – garantir inputs clicáveis */
+#admin-agents-form input,
+#admin-agents-form textarea,
+#admin-agents-form select {
+  pointer-events: auto !important;
+}

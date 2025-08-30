@@ -261,7 +261,7 @@ function AgentesContent() {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form id="admin-agents-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Tipo de Agente */}
           <Card>
             <CardHeader>
