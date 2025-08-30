@@ -10,7 +10,8 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useDebounce } from "@/hooks/useDebounce";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { BookOpen, FileText, AlertCircle } from "lucide-react";
+import { BookOpen, FileText, AlertCircle, Calendar, Mail } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface RevistaPost {
   id: string;
@@ -191,18 +192,20 @@ export default function RevistaPage() {
             </p>
           </div>
 
-          {/* Filters */}
-          <div className="mb-8">
-            <RevistaFilters
-              searchTerm={searchTerm}
-              cityFilter={cityFilter}
-              sectionFilter={sectionFilter}
-              onSearchChange={handleSearchChange}
-              onCityChange={handleCityChange}
-              onSectionChange={handleSectionChange}
-              onClearFilters={handleClearFilters}
-            />
-          </div>
+          {/* Filters - only show if there are articles */}
+          {totalArticlesExist && (
+            <div className="mb-8">
+              <RevistaFilters
+                searchTerm={searchTerm}
+                cityFilter={cityFilter}
+                sectionFilter={sectionFilter}
+                onSearchChange={handleSearchChange}
+                onCityChange={handleCityChange}
+                onSectionChange={handleSectionChange}
+                onClearFilters={handleClearFilters}
+              />
+            </div>
+          )}
 
           {/* Error state */}
           {error && (
@@ -216,8 +219,8 @@ export default function RevistaPage() {
             </div>
           )}
 
-          {/* Results summary */}
-          {!error && (
+          {/* Results summary - only show if there are articles */}
+          {totalArticlesExist && !error && (
             <div className="flex items-center gap-2 mb-6 text-sm text-muted-foreground">
               <FileText className="w-4 h-4" />
               <span>
@@ -252,7 +255,34 @@ export default function RevistaPage() {
             <div className="text-center py-12">
               <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               
-              {hasFilters && totalArticlesExist ? (
+              {!totalArticlesExist ? (
+                <>
+                  <h3 className="text-lg font-semibold mb-2">Nenhum artigo publicado</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Estamos preparando conteúdos novos.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Button asChild size="lg">
+                      <Link to="/agenda" className="gap-2">
+                        <Calendar className="w-4 h-4" />
+                        Voltar para a Agenda
+                      </Link>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="lg"
+                      className="gap-2"
+                      onClick={() => {
+                        // TODO: Implementar modal de newsletter
+                        console.log('Abrir modal de newsletter');
+                      }}
+                    >
+                      <Mail className="w-4 h-4" />
+                      Assinar newsletter
+                    </Button>
+                  </div>
+                </>
+              ) : hasFilters ? (
                 <>
                   <h3 className="text-lg font-semibold mb-2">Nenhum artigo encontrado</h3>
                   <p className="text-muted-foreground mb-6">
@@ -269,20 +299,10 @@ export default function RevistaPage() {
                 </>
               ) : (
                 <>
-                  <h3 className="text-lg font-semibold mb-2">
-                    {hasFilters ? 'Nenhum artigo encontrado' : 'Nenhum artigo publicado'}
-                  </h3>
+                  <h3 className="text-lg font-semibold mb-2">Nenhum artigo publicado</h3>
                   <p className="text-muted-foreground mb-4">
-                    {hasFilters 
-                      ? 'Tente ajustar seus filtros de busca.' 
-                      : 'Volte em breve para conferir novos conteúdos.'
-                    }
+                    Volte em breve para conferir novos conteúdos.
                   </p>
-                  {hasFilters && (
-                    <Button onClick={handleClearFilters} variant="outline">
-                      Limpar filtros
-                    </Button>
-                  )}
                 </>
               )}
             </div>
