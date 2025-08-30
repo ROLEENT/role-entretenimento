@@ -1,16 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  agendaFormSchema, 
-  agendaDraftSchema,
-  publishSchema, 
-  AgendaFormData, 
-  PublishFormData 
-} from '@/schemas/agendaForm';
+import { agendaFormSchema, publishSchema, AgendaFormData } from '@/schemas/agendaForm';
 
 interface UseAgendaFormProps {
   agendaId?: string;
@@ -18,9 +11,7 @@ interface UseAgendaFormProps {
 }
 
 export function useAgendaForm({ agendaId, mode }: UseAgendaFormProps) {
-  const navigate = useNavigate();
   const { toast } = useToast();
-  
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
@@ -34,412 +25,281 @@ export function useAgendaForm({ agendaId, mode }: UseAgendaFormProps) {
   const form = useForm<AgendaFormData>({
     resolver: zodResolver(agendaFormSchema),
     defaultValues: {
+      title: '',
+      slug: '',
+      city: '',
       status: 'draft',
       visibility_type: 'curadoria',
       priority: 0,
       tags: [],
       noindex: false,
+      focal_point_x: 0.5,
+      focal_point_y: 0.5,
     },
   });
 
-  const { watch, reset, formState: { isDirty } } = form;
-
-  // Watch for changes to set unsaved flag
+  // Watch form changes to set unsaved flag
   useEffect(() => {
-    setHasUnsavedChanges(isDirty);
-  }, [isDirty]);
+    const subscription = form.watch(() => {
+      setHasUnsavedChanges(true);
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
-  // Load agenda data for editing
-  const loadAgenda = useCallback(async () => {
-    if (mode === 'create' || !agendaId) return;
+  // Auto-save for drafts
+  useEffect(() => {
+    if (form.watch('status') === 'draft' && hasUnsavedChanges && agendaId) {
+      const timeoutId = setTimeout(() => {
+        handleSaveDraft();
+      }, 30000); // Auto-save every 30 seconds
+      return () => clearTimeout(timeoutId);
+    }
+  }, [hasUnsavedChanges, agendaId]);
 
+  // Load agenda data
+  const loadAgenda = async () => {
+    if (!agendaId || mode === 'create') return;
+
+    setLoading(true);
     try {
-      setLoading(true);
-      
       const { data, error } = await supabase
         .from('agenda_itens')
         .select('*')
         .eq('id', agendaId)
-        .maybeSingle();
+        .single();
 
-      if (error) throw error;
-      
-      if (!data) {
-        toast({
-          title: "Item não encontrado",
-          variant: "destructive"
-        });
-        navigate('/admin-v3/agenda');
-        return;
+      if (error) {
+        if (error.code === 'PGRST116') {
+          toast({
+            title: "Agenda não encontrada",
+            variant: "destructive"
+          });
+          return;
+        }
+        throw error;
       }
 
-      // Helper to convert null to empty string for text fields
-      const asStr = (v: unknown) => (v == null ? '' : String(v));
-      
-      // Convert UTC dates to local for form
-      const formData: AgendaFormData = {
-        ...data,
-        start_at: new Date(data.start_at),
-        end_at: new Date(data.end_at),
-        publish_at: data.publish_at ? new Date(data.publish_at) : undefined,
-        unpublish_at: data.unpublish_at ? new Date(data.unpublish_at) : undefined,
-        tags: data.tags || [],
-        // Convert null to empty strings for optional text fields
-        subtitle: asStr(data.subtitle),
-        summary: asStr(data.summary),
-        ticket_url: asStr(data.ticket_url),
-        cover_url: asStr(data.cover_url),
-        alt_text: asStr(data.alt_text),
-        meta_title: asStr(data.meta_title),
-        meta_description: asStr(data.meta_description),
-        type: asStr(data.type),
-        anunciante: asStr(data.anunciante),
-        cupom: asStr(data.cupom),
-      };
+      if (data) {
+        // Convert dates to proper format
+        const formattedData = {
+          ...data,
+          start_at: data.start_at ? new Date(data.start_at) : undefined,
+          end_at: data.end_at ? new Date(data.end_at) : undefined,
+          publish_at: data.publish_at ? new Date(data.publish_at) : undefined,
+          unpublish_at: data.unpublish_at ? new Date(data.unpublish_at) : undefined,
+          tags: data.tags || [],
+        };
 
-      setOriginalUpdatedAt(data.updated_at);
-      reset(formData);
-      setHasUnsavedChanges(false);
-      
+        form.reset(formattedData);
+        setOriginalUpdatedAt(data.updated_at);
+        setHasUnsavedChanges(false);
+      }
     } catch (error) {
       console.error('Error loading agenda:', error);
       toast({
         title: "Erro ao carregar",
+        description: "Não foi possível carregar a agenda.",
         variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
-  }, [agendaId, mode, reset, toast, navigate]);
-
-  // Check if slug exists
-  const checkSlugExists = useCallback(async (slug: string, currentId?: string) => {
-    try {
-      let query = supabase
-        .from('agenda_itens')
-        .select('id')
-        .ilike('slug', slug)
-        .is('deleted_at', null);
-      
-      if (currentId) {
-        query = query.neq('id', currentId);
-      }
-      
-      const { data, error } = await query.maybeSingle();
-      
-      if (error) throw error;
-      
-      return { 
-        exists: !!data,
-        suggestion: data ? `${slug}-2` : undefined
-      };
-    } catch (error) {
-      console.error('Error checking slug:', error);
-      return { exists: false };
-    }
-  }, []);
-
-  // Generate slug from title
-  const generateSlug = useCallback((title: string) => {
-    return title
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove accents
-      .replace(/[^a-z0-9\s-]/g, '') // Keep only letters, numbers, spaces, hyphens
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .replace(/-+/g, '-') // Replace multiple hyphens with single
-      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
-  }, []);
-
-  // Auto-save functionality
-  useEffect(() => {
-    if (mode === 'edit' && hasUnsavedChanges && form.getValues('status') === 'draft') {
-      const timer = setTimeout(() => {
-        handleSaveDraft(true); // Auto-save silently
-      }, 20000); // 20 seconds
-
-      return () => clearTimeout(timer);
-    }
-  }, [hasUnsavedChanges, mode, form]);
+  };
 
   // Upload cover image
-  const uploadCoverImage = useCallback(async (file: File) => {
-    if (!agendaId && mode === 'edit') {
-      throw new Error('Agenda ID é necessário para upload');
-    }
+  const uploadCoverImage = async (file: File): Promise<string> => {
+    setUploading(true);
+    setUploadProgress(0);
 
     try {
-      setUploading(true);
-      setUploadProgress(0);
-
-      const fileExt = file.name.split('.').pop();
-      const fileName = `agenda/${agendaId || 'temp'}/cover_${Date.now()}.${fileExt}`;
-
-      // Remove old cover if exists
-      const currentCover = form.getValues('cover_url');
-      if (currentCover) {
-        try {
-          await supabase.storage.from('admin').remove([currentCover]);
-        } catch (error) {
-          console.log('Error removing old cover:', error);
-        }
+      // Validate file
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error('Tipo de arquivo não permitido. Use JPEG, PNG ou WebP.');
       }
 
-      // Upload new file
-      const { error: uploadError } = await supabase.storage
-        .from('admin')
-        .upload(fileName, file, {
-          upsert: true,
-          contentType: file.type
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('Arquivo muito grande. Máximo 5MB.');
+      }
+
+      // Create unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `covers/${fileName}`;
+
+      // Simulate progress for UX
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => Math.min(prev + 10, 90));
+      }, 100);
+
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('agenda-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
         });
 
-      if (uploadError) throw uploadError;
-
+      clearInterval(progressInterval);
       setUploadProgress(100);
-      return fileName;
-      
+
+      if (uploadError) {
+        throw new Error(`Erro no upload: ${uploadError.message}`);
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('agenda-images')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
     } catch (error) {
-      console.error('Upload error:', error);
       throw error;
     } finally {
       setUploading(false);
       setUploadProgress(0);
     }
-  }, [agendaId, mode, form]);
+  };
 
-  // Helper to normalize empty strings to null
-  const toNull = (v?: string) => (v && v.trim() !== '' ? v : null);
-  
-  // Build normalized payload
-  const buildPayload = (f: AgendaFormData) => ({
-    // obrigatórios
-    title: f.title.trim(),
-    slug: f.slug.trim(),
-    // opcionais normalizados
-    subtitle: toNull(f.subtitle),
-    summary: toNull(f.summary),
-    ticket_url: toNull(f.ticket_url),
-    cover_url: toNull(f.cover_url),
-    alt_text: toNull(f.alt_text),
-    meta_title: toNull(f.meta_title),
-    meta_description: toNull(f.meta_description),
-    type: toNull(f.type),
-    anunciante: toNull(f.anunciante),
-    cupom: toNull(f.cupom),
-    city: toNull(f.city),
-    start_at: f.start_at || null,
-    end_at: f.end_at || null,
-    tags: f.tags?.length ? f.tags : [],
-    priority: typeof f.priority === 'number' ? f.priority : 0,
-    noindex: !!f.noindex,
-    focal_point_x: f.focal_point_x ?? null,
-    focal_point_y: f.focal_point_y ?? null,
-  });
-  const handleSaveDraft = useCallback(async (silent = false) => {
+  // Save as draft
+  const handleSaveDraft = async () => {
+    setSaving(true);
     try {
-      setSaving(true);
-      
       const formData = form.getValues();
       
-      // Validate with draft schema (only title and slug required)
-      const validationResult = agendaDraftSchema.safeParse({
+      // Prepare data for save
+      const saveData = {
         ...formData,
-        status: 'draft'
-      });
-      
-      if (!validationResult.success) {
-        validationResult.error.errors.forEach((error) => {
-          if (error.path.length > 0) {
-            form.setError(error.path[0] as keyof AgendaFormData, {
-              message: error.message
-            });
-          }
-        });
-        
-        toast({
-          title: "Campos obrigatórios",
-          description: "Verifique os campos destacados",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Build normalized payload  
-      const payload = {
-        ...buildPayload(formData),
         status: 'draft' as const,
-        start_at: formData.start_at?.toISOString(),
-        end_at: formData.end_at?.toISOString(),
-        publish_at: formData.publish_at?.toISOString(),
-        unpublish_at: formData.unpublish_at?.toISOString(),
+        updated_at: new Date().toISOString(),
       };
 
-      let result;
-      
       if (mode === 'create') {
         const { data, error } = await supabase
           .from('agenda_itens')
-          .insert([payload])
-          .select('id, updated_at')
+          .insert([saveData])
+          .select()
           .single();
-          
+
         if (error) throw error;
-        result = data;
-        
-        // Redirect to edit mode
-        navigate(`/admin-v3/agenda/${data.id}/edit`, { replace: true });
+
+        // Store the created item's ID (form doesn't need to track this)
       } else {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('agenda_itens')
-          .update(payload)
-          .eq('id', agendaId)
-          .select('updated_at')
-          .single();
-          
+          .update(saveData)
+          .eq('id', agendaId);
+
         if (error) throw error;
-        result = data;
       }
 
-      setOriginalUpdatedAt(result.updated_at);
       setHasUnsavedChanges(false);
       setLastSaved(new Date());
-      
-      if (!silent) {
-        toast({
-          title: "Rascunho salvo"
-        });
-      }
-      
-    } catch (error: any) {
+
+      toast({
+        title: "Rascunho salvo",
+        description: "Suas alterações foram salvas."
+      });
+    } catch (error) {
       console.error('Error saving draft:', error);
-      console.log('Error code:', error.code);
-      
-      let errorMessage = "Erro ao salvar";
-      
-      // Handle Supabase constraint errors
-      if (error.code === '23502') {
-        // NOT NULL constraint violation
-        const column = error.details?.includes('title') ? 'título' :
-                      error.details?.includes('slug') ? 'slug' :
-                      'campo obrigatório';
-        errorMessage = `${column} é obrigatório`;
-      } else if (error.code === '23505') {
-        // UNIQUE constraint violation
-        errorMessage = "Slug já existe";
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-      
-      if (!silent) {
-        toast({
-          title: errorMessage,
-          variant: "destructive"
-        });
-      }
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar o rascunho.",
+        variant: "destructive"
+      });
+      throw error;
     } finally {
       setSaving(false);
     }
-  }, [form, mode, agendaId, navigate, toast]);
+  };
 
-  // Publish agenda
-  const handlePublish = useCallback(async () => {
+  // Publish
+  const handlePublish = async () => {
+    setPublishing(true);
     try {
-      setPublishing(true);
-      
       const formData = form.getValues();
       
-      // Validate with publish schema
-      const validationResult = publishSchema.safeParse(formData);
-      if (!validationResult.success) {
-        // Set form errors
-        validationResult.error.errors.forEach((error) => {
-          if (error.path.length > 0) {
-            form.setError(error.path[0] as keyof AgendaFormData, {
-              message: error.message
-            });
-          }
-        });
-        
+      // Validate for publishing
+      const result = publishSchema.safeParse(formData);
+      if (!result.success) {
+        const errors = result.error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
         toast({
-          title: "Campos obrigatórios",
-          description: "Verifique os campos destacados",
+          title: "Dados incompletos",
+          description: `Corrija os seguintes campos: ${errors.join(', ')}`,
           variant: "destructive"
         });
         return;
       }
 
-      // Build normalized payload
-      const payload = {
-        ...buildPayload(formData),
+      const publishData = {
+        ...formData,
         status: 'published' as const,
-        start_at: formData.start_at.toISOString(),
-        end_at: formData.end_at.toISOString(),
-        publish_at: formData.publish_at?.toISOString(),
-        unpublish_at: formData.unpublish_at?.toISOString(),
+        publish_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
 
-      let result;
-      
       if (mode === 'create') {
         const { data, error } = await supabase
           .from('agenda_itens')
-          .insert([payload])
-          .select('id, updated_at')
+          .insert([publishData])
+          .select()
           .single();
-          
+
         if (error) throw error;
-        result = data;
-        
-        navigate(`/admin-v3/agenda/${data.id}/edit`, { replace: true });
+        // Store the created item's ID (form doesn't need to track this)
       } else {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('agenda_itens')
-          .update(payload)
-          .eq('id', agendaId)
-          .select('updated_at')
-          .single();
-          
+          .update(publishData)
+          .eq('id', agendaId);
+
         if (error) throw error;
-        result = data;
       }
 
-      setOriginalUpdatedAt(result.updated_at);
+      form.setValue('status', 'published');
       setHasUnsavedChanges(false);
-      
+      setLastSaved(new Date());
+
       toast({
-        title: "Item publicado"
+        title: "Item publicado",
+        description: "O item foi publicado com sucesso."
       });
-      
     } catch (error) {
       console.error('Error publishing:', error);
       toast({
         title: "Erro ao publicar",
+        description: "Não foi possível publicar o item.",
         variant: "destructive"
       });
+      throw error;
     } finally {
       setPublishing(false);
     }
-  }, [form, mode, agendaId, navigate, toast]);
+  };
 
-  // Unpublish agenda
-  const handleUnpublish = useCallback(async () => {
+  // Unpublish
+  const handleUnpublish = async () => {
     if (!agendaId) return;
-    
+
     try {
       const { error } = await supabase
         .from('agenda_itens')
-        .update({ status: 'draft' })
+        .update({ 
+          status: 'draft',
+          unpublish_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
         .eq('id', agendaId);
-        
+
       if (error) throw error;
-      
+
       form.setValue('status', 'draft');
       setHasUnsavedChanges(false);
-      
+
       toast({
-        title: "Item despublicado"
+        title: "Item despublicado",
+        description: "O item foi despublicado."
       });
-      
     } catch (error) {
       console.error('Error unpublishing:', error);
       toast({
@@ -447,43 +307,36 @@ export function useAgendaForm({ agendaId, mode }: UseAgendaFormProps) {
         variant: "destructive"
       });
     }
-  }, [agendaId, form, toast]);
+  };
 
-  // Duplicate agenda
-  const handleDuplicate = useCallback(async () => {
+  // Duplicate
+  const handleDuplicate = async () => {
     if (!agendaId) return;
-    
+
     try {
       const formData = form.getValues();
-      
-      // Generate new slug
-      const baseSlug = formData.slug;
-      const { suggestion } = await checkSlugExists(baseSlug);
-      
-      const payload = {
+      const duplicateData = {
         ...formData,
-        slug: suggestion || `${baseSlug}-2`,
+        title: `${formData.title} (Cópia)`,
+        slug: `${formData.slug}-copia-${Date.now()}`,
         status: 'draft' as const,
-        start_at: formData.start_at.toISOString(),
-        end_at: formData.end_at.toISOString(),
-        publish_at: formData.publish_at?.toISOString(),
-        unpublish_at: formData.unpublish_at?.toISOString(),
+        id: undefined, // Remove ID to create new
       };
 
       const { data, error } = await supabase
         .from('agenda_itens')
-        .insert([payload])
-        .select('id')
+        .insert([duplicateData])
+        .select()
         .single();
-        
+
       if (error) throw error;
-      
-      navigate(`/admin-v3/agenda/${data.id}/edit`);
-      
+
       toast({
-        title: "Item duplicado"
+        title: "Item duplicado",
+        description: "Uma cópia foi criada como rascunho."
       });
-      
+
+      return data.id;
     } catch (error) {
       console.error('Error duplicating:', error);
       toast({
@@ -491,26 +344,27 @@ export function useAgendaForm({ agendaId, mode }: UseAgendaFormProps) {
         variant: "destructive"
       });
     }
-  }, [agendaId, form, checkSlugExists, navigate, toast]);
+  };
 
-  // Delete agenda
-  const handleDelete = useCallback(async () => {
+  // Delete
+  const handleDelete = async () => {
     if (!agendaId) return;
-    
+
     try {
       const { error } = await supabase
         .from('agenda_itens')
-        .update({ deleted_at: new Date().toISOString() })
+        .update({ 
+          deleted_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
         .eq('id', agendaId);
-        
+
       if (error) throw error;
-      
-      navigate('/admin-v3/agenda');
-      
+
       toast({
-        title: "Item excluído"
+        title: "Item excluído",
+        description: "O item foi marcado como excluído."
       });
-      
     } catch (error) {
       console.error('Error deleting:', error);
       toast({
@@ -518,12 +372,12 @@ export function useAgendaForm({ agendaId, mode }: UseAgendaFormProps) {
         variant: "destructive"
       });
     }
-  }, [agendaId, navigate, toast]);
+  };
 
   // Load data on mount
   useEffect(() => {
     loadAgenda();
-  }, [loadAgenda]);
+  }, [agendaId, mode]);
 
   return {
     form,
@@ -535,13 +389,11 @@ export function useAgendaForm({ agendaId, mode }: UseAgendaFormProps) {
     lastSaved,
     hasUnsavedChanges,
     conflictDetected,
-    checkSlugExists,
-    generateSlug,
-    uploadCoverImage,
     handleSaveDraft,
     handlePublish,
     handleUnpublish,
     handleDuplicate,
     handleDelete,
+    uploadCoverImage
   };
 }

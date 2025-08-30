@@ -157,7 +157,7 @@ export default function AdminV3AgendaEdit() {
             />
             
             {/* AgendaForm with loaded data */}
-            <AgendaForm mode="edit" initialData={agendaData} />
+            <AgendaForm mode="edit" agendaId={id} />
           </div>
         </div>
       </div>

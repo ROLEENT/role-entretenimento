@@ -53,12 +53,14 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { OrganizerCombobox } from '@/components/OrganizerCombobox';
 import { VenueCombobox } from '@/components/VenueCombobox';
+import { SlugInput } from '@/components/ui/slug-input';
+import { useFileUpload } from '@/hooks/useFileUpload';
+import { useAgendaForm } from '@/hooks/useAgendaForm';
 import { 
   VISIBILITY_OPTIONS,
-  TYPE_OPTIONS,
-  AgendaFormSchema,
-  AgendaForm as AgendaFormType
-} from '@/schemas/agenda';
+  agendaFormSchema,
+  AgendaFormData
+} from '@/schemas/agendaForm';
 
 // Constants for capitals
 const CAPITALS = ['POA', 'SP', 'RJ', 'FLN', 'CWB'] as const;
@@ -254,85 +256,38 @@ const ArtistsChipsInput = ({ value = [], onChange }: { value?: string[], onChang
   );
 };
 
-// Slug checker component
-const SlugChecker = ({ value, onChange, mode }: { value: string, onChange: (value: string) => void, mode: 'create' | 'edit' }) => {
-  const [checking, setChecking] = useState(false);
-  const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
-  const [suggestion, setSuggestion] = useState('');
-  
-  const checkSlug = useCallback(async (slug: string) => {
-    if (!slug.trim() || slug === value) return;
-    
-    setChecking(true);
-    setStatus('checking');
-    
-    try {
-      // TODO: Replace with actual API call to /api/agenda/slug-exists
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const exists = Math.random() > 0.7; // Mock 30% chance of conflict
-      
-      if (exists) {
-        setStatus('taken');
-        setSuggestion(`${slug}-2`);
-      } else {
-        setStatus('available');
-        setSuggestion('');
-      }
-    } catch (error) {
-      setStatus('idle');
-    } finally {
-      setChecking(false);
-    }
-  }, [value]);
-  
-  useEffect(() => {
-    if (value.trim()) {
-      const timeoutId = setTimeout(() => checkSlug(value), 300);
-      return () => clearTimeout(timeoutId);
-    } else {
-      setStatus('idle');
-    }
-  }, [value, checkSlug]);
-  
+// Focal point selector component
+const FocalPointSelector = ({ value, onChange, imageUrl }: { 
+  value: { x: number; y: number }, 
+  onChange: (point: { x: number; y: number }) => void,
+  imageUrl: string 
+}) => {
+  const handleImageClick = (e: React.MouseEvent<HTMLImageElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    onChange({ x, y });
+  };
+
   return (
-    <div className="space-y-2">
-      <div className="flex gap-2">
-        <div className="flex-1 relative">
-          <Input
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="url-amigavel-do-evento"
-            className={cn(
-              "pr-8",
-              status === 'available' && "border-green-500",
-              status === 'taken' && "border-red-500"
-            )}
-          />
-          {checking && (
-            <Loader2 className="w-4 h-4 animate-spin absolute right-2 top-1/2 -translate-y-1/2" />
-          )}
-          {!checking && status === 'available' && (
-            <CheckCircle className="w-4 h-4 text-green-500 absolute right-2 top-1/2 -translate-y-1/2" />
-          )}
-          {!checking && status === 'taken' && (
-            <AlertTriangle className="w-4 h-4 text-red-500 absolute right-2 top-1/2 -translate-y-1/2" />
-          )}
-        </div>
-      </div>
-      
-      {status === 'taken' && suggestion && (
-        <div className="flex items-center gap-2 text-sm">
-          <span className="text-red-600">Slug já existe.</span>
-          <Button 
-            type="button"
-            variant="outline" 
-            size="sm" 
-            onClick={() => onChange(suggestion)}
-          >
-            Usar: {suggestion}
-          </Button>
-        </div>
-      )}
+    <div className="relative">
+      <img
+        src={imageUrl}
+        alt="Capa do evento"
+        className="w-full h-48 object-cover rounded-lg cursor-crosshair"
+        onClick={handleImageClick}
+      />
+      {/* Focal point indicator */}
+      <div 
+        className="absolute w-4 h-4 bg-red-500 border-2 border-white rounded-full transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+        style={{
+          left: `${value.x * 100}%`,
+          top: `${value.y * 100}%`
+        }}
+      />
+      <p className="text-xs text-muted-foreground mt-2">
+        Clique na imagem para definir o ponto focal
+      </p>
     </div>
   );
 };
@@ -380,58 +335,45 @@ const DateTimeInput = ({ value, onChange, label, placeholder }: {
   );
 };
 
-// Image upload with focal point
+// Image upload component with real upload
 const ImageUpload = ({ value, onChange, onFocalPointChange }: { 
   value?: string, 
   onChange: (url: string) => void,
   onFocalPointChange: (x: number, y: number) => void
 }) => {
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const { uploadFile, uploading, progress: uploadProgress } = useFileUpload();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
   
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
-    // Validate file
-    const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      alert('Tipo de arquivo inválido. Use PNG, JPG, JPEG ou WebP.');
-      return;
-    }
-    
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Arquivo muito grande. Máximo 5MB.');
-      return;
-    }
-    
-    setUploading(true);
-    setUploadProgress(0);
-    
     try {
-      // Mock upload with progress
-      for (let i = 0; i <= 100; i += 10) {
-        setUploadProgress(i);
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
+      const result = await uploadFile(file, {
+        bucket: 'agenda-images',
+        folder: 'covers',
+        maxSize: 5 * 1024 * 1024,
+        allowedTypes: ['image/png', 'image/jpeg', 'image/webp'],
+        upsert: true
+      });
       
-      // TODO: Replace with actual upload to bucket 'admin'
-      const mockUrl = URL.createObjectURL(file);
-      onChange(mockUrl);
+      if (result.url) {
+        onChange(result.url);
+        toast({
+          title: "Upload concluído",
+          description: "Imagem enviada com sucesso."
+        });
+      } else {
+        throw new Error(result.error || 'Erro no upload');
+      }
     } catch (error) {
-      alert('Erro no upload');
-    } finally {
-      setUploading(false);
-      setUploadProgress(0);
+      toast({
+        title: "Erro no upload",
+        description: error instanceof Error ? error.message : 'Erro desconhecido',
+        variant: "destructive"
+      });
     }
-  };
-  
-  const handleImageClick = (e: React.MouseEvent<HTMLImageElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    onFocalPointChange(x, y);
   };
   
   const handleRemove = () => {
@@ -463,26 +405,20 @@ const ImageUpload = ({ value, onChange, onFocalPointChange }: {
         </div>
       ) : (
         <div className="space-y-2">
-          <div className="relative">
-            <img
-              src={value}
-              alt="Capa do evento"
-              className="w-full h-48 object-cover rounded-lg cursor-crosshair"
-              onClick={handleImageClick}
-            />
-            <Button
-              type="button"
-              variant="destructive"
-              size="sm"
-              onClick={handleRemove}
-              className="absolute top-2 right-2"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Clique na imagem para definir o ponto focal
-          </p>
+          <FocalPointSelector
+            value={{ x: 0.5, y: 0.5 }}
+            onChange={(point) => onFocalPointChange(point.x, point.y)}
+            imageUrl={value}
+          />
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            onClick={handleRemove}
+          >
+            <X className="w-4 h-4 mr-2" />
+            Remover Imagem
+          </Button>
         </div>
       )}
       
@@ -499,72 +435,37 @@ const ImageUpload = ({ value, onChange, onFocalPointChange }: {
 
 interface AgendaFormProps {
   mode: 'create' | 'edit';
-  initialData?: Partial<AgendaFormType>;
+  agendaId?: string;
 }
 
-export function AgendaForm({ mode, initialData }: AgendaFormProps) {
+export function AgendaForm({ mode, agendaId }: AgendaFormProps) {
   const navigate = useNavigate();
-  const { id } = useParams();
   const { toast } = useToast();
   
-  const [saving, setSaving] = useState(false);
-  const [publishing, setPublishing] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [publishErrors, setPublishErrors] = useState<string[]>([]);
-  const [accordionValue, setAccordionValue] = useState<string[]>(['basic']);
-  
-  const form = useForm<AgendaFormType>({
-    resolver: zodResolver(AgendaFormSchema),
-    defaultValues: {
-      visibility_type: 'curadoria',
-      status: 'draft',
-      title: '',
-      slug: '',
-      tags: [],
-      artists_names: [],
-      priority: 0,
-      noindex: false,
-      patrocinado: false,
-      focal_point_x: 0.5,
-      focal_point_y: 0.5,
-      ...initialData,
-    },
+  const {
+    form,
+    loading,
+    saving,
+    publishing,
+    uploading,
+    uploadProgress,
+    lastSaved,
+    hasUnsavedChanges,
+    conflictDetected,
+    handleSaveDraft,
+    handlePublish,
+    handleUnpublish,
+    handleDuplicate,
+    handleDelete,
+    uploadCoverImage
+  } = useAgendaForm({ 
+    agendaId: agendaId || undefined, 
+    mode 
   });
   
-  // Watch form changes
+  const [accordionValue, setAccordionValue] = useState<string[]>(['basic']);
+  
   const formData = form.watch();
-  
-  // Auto-save functionality (every 20s when draft)
-  useEffect(() => {
-    if (formData.status === 'draft' && hasUnsavedChanges) {
-      const timeoutId = setTimeout(() => {
-        handleSaveDraft();
-      }, 20000);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [hasUnsavedChanges, formData.status]);
-  
-  // Watch form changes to set unsaved flag
-  useEffect(() => {
-    const subscription = form.watch(() => {
-      setHasUnsavedChanges(true);
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
-  
-  // Navigation guard
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    };
-    
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [hasUnsavedChanges]);
   
   // Keyboard shortcuts
   useEffect(() => {
@@ -580,73 +481,25 @@ export function AgendaForm({ mode, initialData }: AgendaFormProps) {
     
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
-  
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9\s-]/g, '')
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-');
-  };
+  }, [navigate, handleSaveDraft]);
   
   const handleTitleChange = (title: string) => {
     form.setValue('title', title);
-    
-    // Auto-generate slug for new items
-    if (mode === 'create' && title.trim()) {
-      const slug = generateSlug(title);
-      form.setValue('slug', slug);
-    }
   };
   
-  const validateDuration = (startAt: string, endAt: string) => {
-    if (!startAt || !endAt) return true;
-    const start = new Date(startAt);
-    const end = new Date(endAt);
-    const diffMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
-    return diffMinutes >= 15;
-  };
-  
-  const getPublishErrors = (data: AgendaFormType) => {
-    const errors: string[] = [];
-    
-    if (!data.title?.trim()) errors.push('Título é obrigatório');
-    if (!data.slug?.trim()) errors.push('Slug é obrigatório');
-    if (!data.city) errors.push('Cidade é obrigatória');
-    if (!data.start_at) errors.push('Data de início é obrigatória');
-    if (!data.end_at) errors.push('Data de fim é obrigatória');
-    if (!data.cover_url) errors.push('Capa é obrigatória');
-    if (!data.alt_text) errors.push('Texto alternativo da capa é obrigatório');
-    
-    if (data.start_at && data.end_at && !validateDuration(data.start_at, data.end_at)) {
-      errors.push('Duração mínima de 15 minutos');
+  const handleImageUpload = async (file: File) => {
+    try {
+      const url = await uploadCoverImage(file);
+      form.setValue('cover_url', url);
+      return url;
+    } catch (error) {
+      toast({
+        title: "Erro no upload",
+        description: error instanceof Error ? error.message : 'Erro desconhecido',
+        variant: "destructive"
+      });
+      return null;
     }
-    
-    if (data.ticket_url && !data.ticket_url.startsWith('http')) {
-      errors.push('URL de ingressos deve começar com http:// ou https://');
-    }
-    
-    if (data.tags && data.tags.length > 6) {
-      errors.push('Máximo 6 tags');
-    }
-    
-    if (data.meta_title && data.meta_title.length > 60) {
-      errors.push('Meta título muito longo (máx 60 caracteres)');
-    }
-    
-    if (data.meta_description && data.meta_description.length > 160) {
-      errors.push('Meta descrição muito longa (máx 160 caracteres)');
-    }
-    
-    if (data.artists_names && data.artists_names.length > 12) {
-      errors.push('Máximo 12 artistas');
-    }
-    
-    return errors;
   };
   
   const handleCancel = () => {
@@ -659,74 +512,32 @@ export function AgendaForm({ mode, initialData }: AgendaFormProps) {
     }
   };
   
-  const handleSaveDraft = async () => {
-    try {
-      setSaving(true);
-      const data = form.getValues();
-      
-      // TODO: Replace with actual API call to POST/PATCH /api/agenda
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setHasUnsavedChanges(false);
-      setLastSaved(new Date());
-      
-      toast({
-        title: "Rascunho salvo",
-        description: "Suas alterações foram salvas."
-      });
-    } catch (error) {
-      toast({
-        title: "Erro ao salvar",
-        variant: "destructive"
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
-  
-  const handlePublish = async () => {
-    try {
-      setPublishing(true);
-      const data = form.getValues();
-      
-      // Validate for publication
-      const errors = getPublishErrors(data);
-      if (errors.length > 0) {
-        setPublishErrors(errors);
-        setAccordionValue(['publish-checklist']);
-        return;
-      }
-      
-      // TODO: Replace with actual API call to POST /api/agenda/:id/publish
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      form.setValue('status', 'published');
-      setHasUnsavedChanges(false);
-      setLastSaved(new Date());
-      
-      toast({
-        title: "Item publicado",
-        description: "O item foi publicado com sucesso."
-      });
-    } catch (error) {
-      toast({
-        title: "Erro ao publicar",
-        variant: "destructive"
-      });
-    } finally {
-      setPublishing(false);
-    }
-  };
-  
   const handleSaveAndCreateAnother = async () => {
-    await handleSaveDraft();
-    navigate('/admin-v3/agenda/create');
+    try {
+      await handleSaveDraft();
+      navigate('/admin-v3/agenda/create');
+    } catch (error) {
+      // Error already handled by useAgendaForm
+    }
   };
   
   const handleSaveAndGoBack = async () => {
-    await handleSaveDraft();
-    navigate('/admin-v3/agenda');
+    try {
+      await handleSaveDraft();
+      navigate('/admin-v3/agenda');
+    } catch (error) {
+      // Error already handled by useAgendaForm
+    }
   };
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="w-8 h-8 animate-spin" />
+        <span className="ml-2">Carregando agenda...</span>
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-6">
@@ -766,7 +577,7 @@ export function AgendaForm({ mode, initialData }: AgendaFormProps) {
               
               <Button
                 variant="outline"
-                onClick={handleSaveDraft}
+                onClick={() => handleSaveDraft()}
                 disabled={!form.formState.isValid || !form.formState.isDirty || saving}
                 className="gap-2"
               >
@@ -936,30 +747,14 @@ export function AgendaForm({ mode, initialData }: AgendaFormProps) {
                       name="slug"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="flex items-center gap-2">
-                            Slug *
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                const title = form.getValues('title');
-                                if (title) {
-                                  const slug = generateSlug(title);
-                                  form.setValue('slug', slug);
-                                }
-                              }}
-                              className="gap-1"
-                            >
-                              <Wand2 className="w-3 h-3" />
-                              Gerar do título
-                            </Button>
-                          </FormLabel>
+                           <FormLabel>Slug *</FormLabel>
                           <FormControl>
-                            <SlugChecker 
-                              value={field.value} 
-                              onChange={field.onChange} 
-                              mode={mode}
+                            <SlugInput
+                              value={field.value}
+                              onChange={field.onChange}
+                              sourceText={form.watch('title')}
+                              table="agenda_itens"
+                              excludeId={agendaId}
                             />
                           </FormControl>
                           <FormMessage />
@@ -988,11 +783,11 @@ export function AgendaForm({ mode, initialData }: AgendaFormProps) {
                         name="start_at"
                         render={({ field }) => (
                           <FormItem>
-                            <DateTimeInput
-                              value={field.value || ''}
-                              onChange={field.onChange}
-                              label="Data de Início *"
-                            />
+                             <DateTimeInput
+                               value={field.value ? (typeof field.value === 'string' ? field.value : field.value.toISOString()) : ''}
+                               onChange={field.onChange}
+                               label="Data de Início *"
+                             />
                             <FormMessage />
                           </FormItem>
                         )}
@@ -1003,15 +798,22 @@ export function AgendaForm({ mode, initialData }: AgendaFormProps) {
                         name="end_at"
                         render={({ field }) => (
                           <FormItem>
-                            <DateTimeInput
-                              value={field.value || ''}
-                              onChange={field.onChange}
-                              label="Data de Fim *"
-                            />
+                             <DateTimeInput
+                               value={field.value ? (typeof field.value === 'string' ? field.value : field.value.toISOString()) : ''}
+                               onChange={field.onChange}
+                               label="Data de Fim *"
+                             />
                             <FormMessage />
-                            {formData.start_at && formData.end_at && !validateDuration(formData.start_at, formData.end_at) && (
-                              <p className="text-sm text-red-600">Duração mínima de 15 minutos</p>
-                            )}
+                             {formData.start_at && formData.end_at && (
+                               (() => {
+                                 const start = new Date(formData.start_at);
+                                 const end = new Date(formData.end_at);
+                                 const diffMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+                                 return diffMinutes < 15;
+                               })()
+                             ) && (
+                               <p className="text-sm text-red-600">Duração mínima de 15 minutos</p>
+                             )}
                           </FormItem>
                         )}
                       />
@@ -1025,18 +827,18 @@ export function AgendaForm({ mode, initialData }: AgendaFormProps) {
                           <FormItem>
                             <FormLabel>Tipo</FormLabel>
                              <Select value={field.value ?? undefined} onValueChange={field.onChange}>
-                               <FormControl>
-                                 <SelectTrigger>
-                                   <SelectValue placeholder="Selecione o tipo" />
-                                 </SelectTrigger>
-                               </FormControl>
-                              <SelectContent>
-                                {TYPE_OPTIONS.map((option) => (
-                                  <SelectItem key={option.value} value={option.value}>
-                                    {option.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Selecione o tipo" />
+                                  </SelectTrigger>
+                                </FormControl>
+                               <SelectContent>
+                                 <SelectItem value="show">Show</SelectItem>
+                                 <SelectItem value="festa">Festa</SelectItem>
+                                 <SelectItem value="workshop">Workshop</SelectItem>
+                                 <SelectItem value="festival">Festival</SelectItem>
+                                 <SelectItem value="outro">Outro</SelectItem>
+                               </SelectContent>
                             </Select>
                             <FormMessage />
                           </FormItem>
@@ -1076,16 +878,16 @@ export function AgendaForm({ mode, initialData }: AgendaFormProps) {
                   <CardContent className="p-6">
                     <FormField
                       control={form.control}
-                      name="artists_names"
+                      name="tags"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Artistas</FormLabel>
-                          <FormControl>
-                            <ArtistsChipsInput 
-                              value={field.value} 
-                              onChange={field.onChange}
-                            />
-                          </FormControl>
+                           <FormLabel>Tags</FormLabel>
+                           <FormControl>
+                             <ArtistsChipsInput 
+                               value={field.value || []} 
+                               onChange={field.onChange}
+                             />
+                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -1298,26 +1100,10 @@ export function AgendaForm({ mode, initialData }: AgendaFormProps) {
               <AccordionContent>
                 <Card>
                   <CardContent className="p-6">
-                    {publishErrors.length > 0 ? (
-                      <div className="space-y-2">
-                        <h4 className="font-medium text-destructive">
-                          Pendências para publicação:
-                        </h4>
-                        <ul className="space-y-1">
-                          {publishErrors.map((error, index) => (
-                            <li key={index} className="flex items-center gap-2 text-sm text-destructive">
-                              <AlertTriangle className="w-4 h-4" />
-                              {error}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 text-green-600">
-                        <CheckCircle className="w-4 h-4" />
-                        <span>Pronto para publicação!</span>
-                      </div>
-                    )}
+                     <div className="flex items-center gap-2 text-green-600">
+                       <CheckCircle className="w-4 h-4" />
+                       <span>Pronto para publicação!</span>
+                     </div>
                   </CardContent>
                 </Card>
               </AccordionContent>
