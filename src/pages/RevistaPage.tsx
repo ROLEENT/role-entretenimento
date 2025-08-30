@@ -167,16 +167,53 @@ export default function RevistaPage() {
 
   const metaDescription = hasFilters 
     ? `Resultados de busca na Revista ROLÊ${searchTerm ? ` para "${searchTerm}"` : ''}${cityFilter ? ` em ${cityFilter}` : ''}` 
-    : "Revista ROLÊ - Artigos sobre cultura, música e entretenimento. Descubra as melhores matérias sobre a cena cultural do Brasil.";
+    : "Mergulhos em cultura, música e noite no Brasil. Descubra as melhores matérias sobre a cena cultural.";
+
+  // Generate JSON-LD ItemList for SEO when articles exist
+  const itemListSchema = posts.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "numberOfItems": Math.min(posts.length, 10),
+    "itemListElement": posts.slice(0, 10).map((post, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "Article",
+        "headline": post.title,
+        "description": post.summary,
+        "image": post.cover_image,
+        "author": {
+          "@type": "Person",
+          "name": post.author_name || "ROLÊ"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "ROLÊ",
+          "logo": {
+            "@type": "ImageObject",
+            "url": `${window.location.origin}/role-logo.png`
+          }
+        },
+        "datePublished": post.published_at,
+        "url": `${window.location.origin}/revista/${post.slug}`
+      }
+    }))
+  } : undefined;
 
   return (
     <>
       <SEOHelmet
-        title="Revista ROLÊ - Cultura, Música e Entretenimento"
+        title="Revista ROLÊ"
         description={metaDescription}
         url="https://roleentretenimento.com/revista"
         type="website"
+        structuredData={itemListSchema}
       />
+      
+      {/* Add noindex when no articles exist */}
+      {!totalArticlesExist && (
+        <meta name="robots" content="noindex, follow" />
+      )}
       
       <PageWrapper>
         <div className="container mx-auto px-4 py-8">
