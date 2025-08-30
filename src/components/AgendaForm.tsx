@@ -767,7 +767,7 @@ export function AgendaForm({ mode, initialData }: AgendaFormProps) {
               <Button
                 variant="outline"
                 onClick={handleSaveDraft}
-                disabled={saving}
+                disabled={!form.formState.isValid || !form.formState.isDirty || saving}
                 className="gap-2"
               >
                 <Save className="w-4 h-4" />
@@ -776,7 +776,7 @@ export function AgendaForm({ mode, initialData }: AgendaFormProps) {
               
               <Button
                 onClick={handlePublish}
-                disabled={publishing}
+                disabled={!form.formState.isValid || !form.formState.isDirty || publishing}
                 className="gap-2"
               >
                 <Send className="w-4 h-4" />

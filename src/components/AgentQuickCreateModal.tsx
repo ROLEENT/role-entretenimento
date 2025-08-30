@@ -453,7 +453,7 @@ export function AgentQuickCreateModal({
               </Button>
               <Button 
                 type="submit" 
-                disabled={loading || slugStatus === 'taken'}
+                disabled={!form.formState.isValid || !form.formState.isDirty || loading || slugStatus === 'taken'}
               >
                 {loading ? 'Criando...' : 'Criar e Selecionar'}
               </Button>

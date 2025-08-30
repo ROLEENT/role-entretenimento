@@ -316,7 +316,7 @@ export function ArtistForm({ initialData, mode }: ArtistFormProps) {
           </Button>
           <Button 
             onClick={handleSubmit(onSubmit)} 
-            disabled={submitting}
+            disabled={!form.formState.isValid || !form.formState.isDirty || submitting}
             className="gap-2"
           >
             {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
