@@ -1,87 +1,56 @@
-// Service Worker simples e compatível
-const CACHE_NAME = 'role-admin-v3';
+// sw.js
+const VERSION = '2025-08-30-01';
+const STATIC_CACHE = `static-${VERSION}`;
 
-// Install event
-self.addEventListener('install', (event) => {
-  console.log('[SW] Service Worker instalado');
+self.addEventListener('install', (e) => {
   self.skipWaiting();
 });
 
-// Activate event
-self.addEventListener('activate', (event) => {
-  console.log('[SW] Service Worker ativado');
-  event.waitUntil(self.clients.claim());
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== STATIC_CACHE).map(k => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
 });
 
-// Fetch event - estratégia básica de rede primeiro
 self.addEventListener('fetch', (event) => {
-  // Apenas para requisições GET
-  if (event.request.method !== 'GET') {
+  const req = event.request;
+  const url = new URL(req.url);
+
+  // 1) só GET
+  if (req.method !== 'GET') return;
+
+  // 2) não intercepta fora do próprio domínio (ex.: supabase.co)
+  if (url.origin !== self.location.origin) return;
+
+  // 3) não intercepta admin nem API
+  if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/api')) return;
+
+  // 4) cache-first só para estáticos versionados
+  const isStatic =
+    url.pathname.startsWith('/_next/static') ||
+    url.pathname.startsWith('/images') ||
+    url.pathname.startsWith('/fonts') ||
+    url.pathname === '/manifest.json';
+
+  if (isStatic) {
+    event.respondWith(
+      caches.open(STATIC_CACHE).then(async (cache) => {
+        const cached = await cache.match(req);
+        if (cached) return cached;
+        const res = await fetch(req);
+        cache.put(req, res.clone());
+        return res;
+      })
+    );
     return;
   }
 
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        return response;
-      })
-      .catch(error => {
-        console.log('[SW] Fetch failed:', error);
-        return new Response('Offline', { status: 503 });
-      })
-  );
-});
-
-// Push notification event
-self.addEventListener('push', function(event) {
-  console.log('[SW] Push received:', event);
-  
-  if (!event.data) {
+  // 5) navegações: rede primeiro, sem mexer em credenciais
+  if (req.mode === 'navigate') {
+    event.respondWith(fetch(req).catch(() => caches.match('/offline.html')));
     return;
   }
-
-  const data = event.data.json();
-  
-  const options = {
-    body: data.message || 'Nova notificação',
-    icon: '/role-logo.png',
-    badge: '/role-logo.png',
-    data: data.data || {},
-    requireInteraction: false,
-    tag: data.tag || 'default'
-  };
-
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'ROLÊ', options)
-  );
-});
-
-// Notification click event
-self.addEventListener('notificationclick', function(event) {
-  console.log('[SW] Notification clicked:', event);
-  
-  event.notification.close();
-  
-  const urlToOpen = event.notification.data?.url || '/';
-  
-  event.waitUntil(
-    self.clients.matchAll({
-      type: 'window',
-      includeUncontrolled: true
-    })
-    .then(function(clientList) {
-      // Try to focus existing window
-      for (let i = 0; i < clientList.length; i++) {
-        const client = clientList[i];
-        if (client.url === urlToOpen && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      
-      // Open new window
-      if (self.clients.openWindow) {
-        return self.clients.openWindow(urlToOpen);
-      }
-    })
-  );
 });
