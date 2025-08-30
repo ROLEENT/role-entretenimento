@@ -1,45 +1,57 @@
 // lib/city-to-slug.ts
-export function cityToSlug(name: string): string {
-  const MAP: Record<string, string> = {
-    'POA': 'porto_alegre',
-    'Porto Alegre': 'porto_alegre',
-    'SP': 'sao_paulo',
-    'São Paulo': 'sao_paulo',
-    'RJ': 'rio_de_janeiro',
-    'Rio de Janeiro': 'rio_de_janeiro',
-    'FLN': 'florianopolis',
-    'Florianópolis': 'florianopolis',
-    'CWB': 'curitiba',
-    'Curitiba': 'curitiba',
-  };
-  const direct = MAP[name];
-  if (direct) return direct;
-  // fallback genérico
+
+// Mapping from capital slugs to city codes used in database
+export const capitalSlugToCode: Record<string, string> = {
+  porto_alegre: 'POA',
+  sao_paulo: 'SP', 
+  rio_de_janeiro: 'RJ',
+  florianopolis: 'FLN',
+  curitiba: 'CWB'
+};
+
+// Convert city name to slug for URL usage
+export function cityNameToSlug(name: string): string {
   return name
-    .normalize('NFD').replace(/\p{Diacritic}/gu, '')
-    .toLowerCase().replace(/\s+/g, '_');
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '') // Remove accents
+    .toLowerCase()
+    .replace(/\s+/g, '_'); // Replace spaces with underscores
 }
 
-// Converter slug da URL para código da cidade no banco
-export function slugToCityCode(slug: string): string {
-  const MAP: Record<string, string> = {
-    'porto_alegre': 'POA',
-    'sao_paulo': 'SP', 
-    'rio_de_janeiro': 'RJ',
-    'florianopolis': 'FLN',
-    'curitiba': 'CWB'
+// Convert slug back to display name for UI
+export function slugToCityName(slug: string): string {
+  // First check if it's a capital
+  const capitalNames: Record<string, string> = {
+    porto_alegre: 'Porto Alegre',
+    sao_paulo: 'São Paulo',
+    rio_de_janeiro: 'Rio de Janeiro', 
+    florianopolis: 'Florianópolis',
+    curitiba: 'Curitiba'
   };
-  return MAP[slug] || slug;
+  
+  if (capitalNames[slug]) {
+    return capitalNames[slug];
+  }
+  
+  // For other cities, convert underscore to space and capitalize
+  return slug
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 }
 
-export function labelFromName(name: string) {
-  // use se quiser exibir POA, SP, RJ nos chips
-  const map: Record<string,string> = {
-    'Porto Alegre': 'POA',
-    'São Paulo': 'SP',
-    'Rio de Janeiro': 'RJ',
-    'Florianópolis': 'Floripa',
-    'Curitiba': 'Curitiba',
-  };
-  return map[name] ?? name;
+// Get the city code/name to use in database queries
+export function getCityQueryValue(slug: string): string {
+  // If it's a capital, return the code
+  if (capitalSlugToCode[slug]) {
+    return capitalSlugToCode[slug];
+  }
+  
+  // For other cities, convert slug back to name
+  return slugToCityName(slug);
+}
+
+// Check if slug represents a capital city
+export function isCapitalSlug(slug: string): boolean {
+  return slug in capitalSlugToCode;
 }

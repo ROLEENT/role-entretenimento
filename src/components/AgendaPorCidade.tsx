@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { useResponsive } from "@/hooks/useResponsive";
 import { supabase } from "@/integrations/supabase/client";
 import LazyImage from "@/components/LazyImage";
-import { cityToSlug } from "@/lib/cityToSlug";
+import { cityNameToSlug } from "@/lib/cityToSlug";
 
 interface EventData {
   id: string;
@@ -185,7 +185,7 @@ const AgendaPorCidade = () => {
                     asChild
                     className="hover:bg-primary hover:text-primary-foreground transition-all duration-200 border-primary/20 hover:border-primary"
                   >
-                    <Link to={`/agenda/cidade/${cityToSlug(city.name)}`}>
+                    <Link to={`/agenda/cidade/${cityNameToSlug(city.name)}`}>
                       Ver todos da cidade
                     </Link>
                   </Button>

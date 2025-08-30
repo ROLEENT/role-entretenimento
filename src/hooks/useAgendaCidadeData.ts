@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { slugToCityCode } from '@/lib/cityToSlug';
+import { getCityQueryValue, isCapitalSlug } from '@/lib/cityToSlug';
 
 export interface AgendaCidadeItem {
   id: string;
@@ -93,16 +93,16 @@ export const useAgendaCidadeData = (params: UseAgendaCidadeDataParams) => {
       setIsLoading(true);
       setError(null);
 
-      // Converter slug para código da cidade
-      const cityCode = slugToCityCode(params.city);
+      // Convert slug to city query value
+      const cityQueryValue = getCityQueryValue(params.city);
+      const isCapital = isCapitalSlug(params.city);
       const { start, end } = getDateRange(params.period || 'proximos-7-dias');
       const offset = ((params.page || 1) - 1) * itemsPerPage;
 
-      // Build query para agenda_itens (corrigindo o nome da tabela)
+      // Build query for agenda_itens
       let query = supabase
         .from('agenda_itens')
         .select('id, title, city, cover_url, start_at, end_at, tags, slug, alt_text, priority', { count: 'exact' })
-        .eq('city', cityCode)
         .eq('status', 'published')
         .is('deleted_at', null)
         .gte('start_at', start.toISOString())
@@ -110,6 +110,13 @@ export const useAgendaCidadeData = (params: UseAgendaCidadeDataParams) => {
         .order('priority', { ascending: false })
         .order('start_at', { ascending: true })
         .range(offset, offset + itemsPerPage - 1);
+
+      // Filter by city - exact match for capitals, ilike for other cities
+      if (isCapital) {
+        query = query.eq('city', cityQueryValue);
+      } else {
+        query = query.ilike('city', cityQueryValue);
+      }
 
       // Add search filter
       if (params.search && params.search.trim()) {
@@ -144,18 +151,27 @@ export const useAgendaCidadeData = (params: UseAgendaCidadeDataParams) => {
     if (!params.city) return;
 
     try {
-      // Converter slug para código da cidade
-      const cityCode = slugToCityCode(params.city);
+      // Convert slug to city query value  
+      const cityQueryValue = getCityQueryValue(params.city);
+      const isCapital = isCapitalSlug(params.city);
       const { start, end } = getDateRange(params.period || 'proximos-7-dias');
 
-      const { data, error: fetchError } = await supabase
+      let tagsQuery = supabase
         .from('agenda_itens')
         .select('tags')
-        .eq('city', cityCode)
         .eq('status', 'published')
         .is('deleted_at', null)
         .gte('start_at', start.toISOString())
         .lte('start_at', end.toISOString());
+
+      // Filter by city - exact match for capitals, ilike for other cities
+      if (isCapital) {
+        tagsQuery = tagsQuery.eq('city', cityQueryValue);
+      } else {
+        tagsQuery = tagsQuery.ilike('city', cityQueryValue);
+      }
+
+      const { data, error: fetchError } = await tagsQuery;
 
       if (fetchError) throw fetchError;
 

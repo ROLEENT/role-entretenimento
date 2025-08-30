@@ -15,14 +15,8 @@ import { useAgendaCidadeData } from '@/hooks/useAgendaCidadeData';
 import { useSearchDebounce } from '@/hooks/useSearchDebounce';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { slugToCityName, isCapitalSlug, capitalSlugToCode } from '@/lib/cityToSlug';
 
-const CITY_NAMES: Record<string, string> = {
-  'porto_alegre': 'Porto Alegre',
-  'curitiba': 'Curitiba',
-  'florianopolis': 'Florianópolis',
-  'sao_paulo': 'São Paulo',
-  'rio_de_janeiro': 'Rio de Janeiro',
-};
 
 const PERIOD_OPTIONS = [
   { value: 'hoje', label: 'Hoje' },
@@ -149,7 +143,7 @@ export default function AgendaCidade() {
   const [selectedTags, setSelectedTags] = useState<string[]>(currentTags);
   const [tagsOpen, setTagsOpen] = useState(false);
 
-  const cityName = cidade ? CITY_NAMES[cidade] || cidade : 'Cidade';
+  const cityName = cidade ? slugToCityName(cidade) : 'Cidade';
 
   // Update URL when filters change
   const updateFilters = useCallback((updates: Record<string, string | string[] | number | null>) => {
@@ -224,8 +218,8 @@ export default function AgendaCidade() {
     });
   };
 
-  // 404 for unsupported cities
-  if (!cidade || !CITY_NAMES[cidade]) {
+  // Validate city slug exists (either capital or valid slug format)
+  if (!cidade) {
     return (
       <PageWrapper 
         title="Cidade não encontrada - ROLÊ"
@@ -236,7 +230,7 @@ export default function AgendaCidade() {
           <div className="max-w-4xl mx-auto text-center py-20">
             <h1 className="text-3xl font-bold mb-4">Cidade não encontrada</h1>
             <p className="text-muted-foreground mb-6">
-              A cidade "{cidade}" não está disponível em nossa agenda.
+              Nenhuma cidade foi especificada.
             </p>
             <Button onClick={() => navigate('/agenda')}>
               Ver todas as cidades
