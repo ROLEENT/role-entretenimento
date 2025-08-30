@@ -8,44 +8,48 @@ const HeroSection = () => {
   const { isMobile } = useResponsive();
 
   return (
-    <section className={`hero-section ${isMobile ? 'py-10' : 'py-14'}`}>
-      <div className="hero-container">
+    <section className="relative py-16 sm:py-20">
+      <div className="container mx-auto px-4 text-center">
         {/* Título Principal */}
-        <h1 className="hero-title">
-          <span className="hero-title-line">CURADORIA</span>
-          <span className="hero-title-line">INDEPENDENTE</span>
-          <span className="hero-title-line">DE CULTURA &</span>
-          <span className="hero-title-line hero-highlight">experiências</span>
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-foreground mb-6">
+          <span className="block">CURADORIA</span>
+          <span className="block">INDEPENDENTE</span>
+          <span className="block">DE CULTURA &</span>
+          <span className="block bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+            experiências
+          </span>
         </h1>
         
         {/* Tagline */}
-        <p className="hero-tagline">
+        <p className="text-[15px] sm:text-base text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
           Conectamos pessoas através de experiências culturais autênticas.
-          <span className="hero-tagline-emphasis">
+          <span className="block mt-1 font-medium text-foreground">
             Diversidade, afeto e comunidade em todo o Brasil.
           </span>
         </p>
 
-        {/* Botões CTA */}
-        <div className="hero-cta">
+        {/* CTAs - Mobile: empilhados (full width), Desktop: lado a lado */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-md sm:max-w-none mx-auto">
           <Button
-            className="hero-btn-primary"
+            size="lg"
+            className="w-full sm:w-auto h-12 px-8 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
             asChild
           >
             <Link to="/agenda">
-              <MapPin className="mr-3 h-5 w-5" />
-              {isMobile ? 'Descubra o ROLÊ' : 'Descubra o ROLÊ na sua cidade'}
-              <ArrowRight className="ml-3 h-5 w-5" />
+              <MapPin className="mr-2 h-5 w-5" />
+              Descubra o ROLÊ
+              <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </Button>
           
           <Button
             variant="outline"
-            className="hero-btn-secondary"
+            size="lg"
+            className="w-full sm:w-auto h-12 px-8 text-base font-semibold border-2 hover:bg-accent transition-all duration-200"
             asChild
           >
-            <Link to="/agenda">
-              <BookOpen className="mr-3 h-5 w-5" />
+            <Link to="/revista">
+              <BookOpen className="mr-2 h-5 w-5" />
               Editoriais
             </Link>
           </Button>

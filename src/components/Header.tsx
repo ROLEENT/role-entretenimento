@@ -103,101 +103,66 @@ const Header = () => {
   if (isMobile) {
     return (
       <>
-        <header className="mobile-header">
-          {/* Linha 1: Logo + Ícones */}
-          <div className="mobile-header-top">
-            <Link to="/" className="mobile-logo">
-              <img 
-                src={roleIcon} 
-                alt="ROLÊ" 
-                className="h-8 w-auto"
-              />
-            </Link>
-            
-            <div className="mobile-header-actions">
+        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between h-14">
+              {/* Logo */}
+              <Link to="/" className="flex items-center">
+                <img 
+                  src={roleIcon} 
+                  alt="ROLÊ" 
+                  className="h-8 w-auto"
+                />
+              </Link>
+              
+              {/* Menu button */}
               <Button
                 variant="ghost"
                 size="icon"
-                className="mobile-action-button"
-                onClick={() => setSearchOpen(true)}
-                aria-label="Buscar"
-              >
-                <Search className="h-5 w-5" />
-              </Button>
-              
-              <NotificationTrigger />
-              <ThemeToggle />
-              
-              {user ? (
-                <Link to="/profile" className="mobile-action-button">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                      {user.email?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </Link>
-              ) : (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                  className="mobile-action-button"
-                >
-                  <Link to="/auth">Entrar</Link>
-                </Button>
-              )}
-              
-              <Button
-                variant="ghost"
-                size="icon"
-                className="mobile-action-button"
                 onClick={() => setMobileMenuOpen(true)}
-                aria-label="Menu"
+                aria-label="Abrir menu"
+                className="h-10 w-10"
               >
                 <Menu className="h-5 w-5" />
               </Button>
             </div>
           </div>
-
-          {/* Linha 2: Barra de Cidades */}
-          <div className="mobile-citybar-wrap">
-            <nav className="mobile-citybar" aria-label="Filtrar por cidade">
-              {cities.map((city) => (
-                <Link
-                  key={city.code}
-                  to={`/agenda/cidade/${city.slug}`}
-                  className={`mobile-city-pill ${isCityActive(city.slug) ? 'active' : ''}`}
-                >
-                  {city.code}
-                </Link>
-              ))}
-              <Link 
-                to="/agenda/outras-cidades" 
-                className="mobile-city-pill"
-              >
-                Outras cidades
-              </Link>
-            </nav>
-          </div>
         </header>
 
-        {/* Menu Mobile */}
+        {/* Mobile Menu Drawer */}
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-          <SheetContent side="right" className="w-[300px] sm:w-[350px]">
+          <SheetContent side="right" className="w-[300px] sm:w-[350px] bg-background">
             <SheetHeader>
               <SheetTitle className="text-left">Menu</SheetTitle>
             </SheetHeader>
             <div className="py-6 space-y-6">
-              <nav className="space-y-4">
+              {/* Search */}
+              <div className="space-y-2">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-12"
+                  onClick={() => {
+                    setSearchOpen(true);
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <Search className="h-4 w-4" />
+                  Buscar eventos e artigos
+                </Button>
+              </div>
+
+              {/* Navigation */}
+              <nav className="space-y-2">
                 {navLinks.map((link) => (
                   <Link
                     key={link.href}
                     to={link.href}
-                    className={`block py-3 px-2 text-lg font-medium transition-colors rounded-md ${
+                    className={cn(
+                      "flex items-center py-3 px-4 text-base font-medium transition-colors rounded-lg",
                       isActive(link.href)
                         ? 'bg-primary text-primary-foreground'
                         : 'text-foreground hover:bg-accent hover:text-accent-foreground'
-                    }`}
+                    )}
                     onClick={() => setMobileMenuOpen(false)}
                     aria-current={isActive(link.href) ? 'page' : undefined}
                   >
@@ -205,6 +170,63 @@ const Header = () => {
                   </Link>
                 ))}
               </nav>
+
+              {/* User Section */}
+              <div className="border-t pt-4 space-y-3">
+                {user ? (
+                  <>
+                    <div className="flex items-center gap-3 px-4 py-2">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                          {user.email?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {user.email}
+                        </p>
+                      </div>
+                    </div>
+                    <Link
+                      to="/profile"
+                      className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <User className="h-4 w-4" />
+                      Perfil
+                    </Link>
+                    <Link
+                      to="/calendar"
+                      className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Calendar className="h-4 w-4" />
+                      Meu Calendário
+                    </Link>
+                    <button className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors w-full text-left">
+                      <LogOut className="h-4 w-4" />
+                      Sair
+                    </button>
+                  </>
+                ) : (
+                  <Button 
+                    asChild 
+                    className="w-full h-12"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Link to="/auth">
+                      <User className="mr-2 h-4 w-4" />
+                      Entrar
+                    </Link>
+                  </Button>
+                )}
+
+                {/* Theme Toggle */}
+                <div className="flex items-center justify-between px-4 py-2">
+                  <span className="text-sm font-medium text-foreground">Tema</span>
+                  <ThemeToggle />
+                </div>
+              </div>
             </div>
           </SheetContent>
         </Sheet>
