@@ -5,10 +5,12 @@ import { Input } from "./ui/input";
 import roleLogo from "@/assets/role-logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useResponsive } from "@/hooks/useResponsive";
+import { useActiveCategories } from "@/hooks/useActiveCategories";
 
 const Footer = () => {
   const { isAdmin } = useAuth();
   const { isMobile } = useResponsive();
+  const { categories } = useActiveCategories();
 
   const socialLinks = [
     { icon: Instagram, href: "https://instagram.com/role.ent", label: "Instagram" },
@@ -27,12 +29,14 @@ const Footer = () => {
     { name: "Imprensa", href: "/institucional/imprensa" }
   ];
 
-  // Categorias column
+  // Generate dynamic categories from database
   const categoriesLinks = [
     { name: "Agenda", href: "/agenda" },
     { name: "Revista", href: "/revista" },
-    { name: "Shows & Música", href: "/revista" },
-    { name: "Teatro & Arte", href: "/revista" }
+    ...categories.slice(0, 4).map(cat => ({
+      name: cat.name,
+      href: cat.kind === 'agenda' ? `/agenda?categoria=${cat.slug}` : `/revista?categoria=${cat.slug}`
+    }))
   ];
 
   // Legal links for bottom section
@@ -68,13 +72,12 @@ const Footer = () => {
             <h3 className="font-bold text-background text-lg mb-6">
               Institucional
             </h3>
-            <ul className="space-y-4">
+            <ul className="space-y-3">
               {institucionalLinks.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.href}
-                    className="text-background/80 hover:text-primary transition-colors leading-relaxed font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground rounded-sm"
-                    style={{ fontSize: '16px', minHeight: '16px' }}
+                    className="text-background/80 hover:text-primary transition-colors leading-tight font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground rounded-sm py-2 block"
                   >
                     {link.name}
                   </Link>
@@ -88,13 +91,12 @@ const Footer = () => {
             <h3 className="font-bold text-background text-lg mb-6">
               Categorias
             </h3>
-            <ul className="space-y-4">
+            <ul className="space-y-3">
               {categoriesLinks.map((category) => (
                 <li key={category.name}>
                   <Link
                     to={category.href}
-                    className="text-background/80 hover:text-primary transition-colors leading-relaxed font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground rounded-sm"
-                    style={{ fontSize: '16px', minHeight: '16px' }}
+                    className="text-background/80 hover:text-primary transition-colors leading-tight font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground rounded-sm py-2 block"
                   >
                     {category.name}
                   </Link>
@@ -108,7 +110,7 @@ const Footer = () => {
             <h3 className="font-bold text-background text-lg mb-6">
               Fique por dentro
             </h3>
-            <p className="text-background/80 text-sm mb-6 leading-relaxed">
+            <p className="text-background/80 text-sm mb-6 leading-tight py-2">
               Receba as melhores dicas de eventos e cultura na sua cidade.
             </p>
             <div className="space-y-4">
@@ -152,13 +154,12 @@ const Footer = () => {
 
             {/* Legal Links */}
             <div className={`${isMobile ? 'text-center' : 'text-right'}`}>
-              <div className="flex flex-wrap justify-center gap-6">
+              <div className="flex flex-wrap justify-center gap-6 py-2">
                 {legalLinks.map((link, index) => (
                   <span key={link.name} className="flex items-center">
                     <Link 
                       to={link.href} 
-                      className="text-background/70 hover:text-primary transition-colors font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground rounded-sm"
-                      style={{ fontSize: '15px' }}
+                      className="text-background/70 hover:text-primary transition-colors font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground rounded-sm leading-tight"
                     >
                       {link.name}
                     </Link>
