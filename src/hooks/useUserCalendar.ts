@@ -59,12 +59,12 @@ export const useUserCalendar = () => {
       setLoading(true);
       const now = new Date();
       
-      // Buscar favoritos
+      // Buscar favoritos através da agenda_itens  
       const { data: favoriteEvents, error: favError } = await supabase
         .from('event_favorites')
         .select(`
           event_id,
-          events!inner (
+          agenda_itens!inner (
             id,
             title,
             summary,
@@ -83,7 +83,7 @@ export const useUserCalendar = () => {
         .from('event_checkins')
         .select(`
           event_id,
-          events!inner (
+          agenda_itens!inner (
             id,
             title,
             summary,
@@ -118,7 +118,7 @@ export const useUserCalendar = () => {
 
       // Adicionar favoritos
       favoriteEvents?.forEach((fav: any) => {
-        const event = fav.events;
+        const event = fav.agenda_itens;
         if (event && event.start_at) {
           allEvents.push({
             id: `fav-${event.id}`,
@@ -138,7 +138,7 @@ export const useUserCalendar = () => {
 
       // Adicionar check-ins (apenas se não for favorito)
       checkinEvents?.forEach((checkin: any) => {
-        const event = checkin.events;
+        const event = checkin.agenda_itens;
         if (event && event.start_at) {
           const existingFav = allEvents.find(e => e.event_id === event.id);
           if (!existingFav) {

@@ -14,7 +14,7 @@ interface NewsletterSubscription {
   status: string;
   confirmed_at?: string;
   unsubscribed_at?: string;
-  created_at: string;
+  subscribed_at: string;
 }
 
 const statusOptions = [
@@ -61,7 +61,7 @@ export const NewsletterPage = () => {
       render: (value: string) => getStatusBadge(value),
     },
     {
-      key: 'created_at' as keyof NewsletterSubscription,
+      key: 'subscribed_at' as keyof NewsletterSubscription,
       label: 'Data de Inscrição',
       sortable: true,
       render: (value: string) => format(new Date(value), 'dd/MM/yyyy', { locale: ptBR }),
@@ -77,8 +77,8 @@ export const NewsletterPage = () => {
         const { data, error } = await supabase
           .from('newsletter_subscribers')
           .select('*')
-          .order('created_at', { ascending: false })
-          .limit(100); // Add pagination limit
+          .order('subscribed_at', { ascending: false })
+          .limit(100);
 
       if (error) throw error;
 
@@ -165,7 +165,7 @@ export const NewsletterPage = () => {
       sub.name || '',
       sub.city || '',
       sub.status,
-      format(new Date(sub.created_at), 'dd/MM/yyyy')
+        format(new Date(sub.subscribed_at), 'dd/MM/yyyy')
     ]);
 
     const csvContent = [csvHeaders, ...csvData]
@@ -186,9 +186,9 @@ export const NewsletterPage = () => {
       const { data, error } = await supabase
         .from('newsletter_subscribers')
         .select('*')
-        .gte('created_at', startDate)
-        .lte('created_at', endDate + 'T23:59:59')
-        .order('created_at', { ascending: false });
+        .gte('subscribed_at', startDate)
+        .lte('subscribed_at', endDate + 'T23:59:59')
+        .order('subscribed_at', { ascending: false });
 
       if (error) throw error;
 
@@ -203,7 +203,7 @@ export const NewsletterPage = () => {
         sub.name || '',
         sub.city || '',
         sub.status,
-        format(new Date(sub.created_at), 'dd/MM/yyyy')
+        format(new Date(sub.subscribed_at), 'dd/MM/yyyy')
       ]);
 
       const csvContent = [csvHeaders, ...csvData]
