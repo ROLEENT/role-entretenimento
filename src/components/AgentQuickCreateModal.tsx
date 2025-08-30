@@ -46,11 +46,12 @@ export function AgentQuickCreateModal({
   
   const form = useForm<AgentFormData>({
     resolver: zodResolver(agentSchema),
+    mode: 'onChange',
     defaultValues: {
       agent_type: agentType,
       name: '',
       slug: '',
-      city: '',
+      city: undefined,
       instagram: '',
       whatsapp: '',
       email: '',
@@ -224,11 +225,11 @@ export function AgentQuickCreateModal({
                 name="city"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Cidade *</FormLabel>
+                     <FormLabel>Cidade *</FormLabel>
                      <Select onValueChange={field.onChange} value={field.value ?? undefined}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione a cidade" />
+                       <FormControl>
+                         <SelectTrigger>
+                           <SelectValue placeholder="Selecione a cidade" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -314,11 +315,11 @@ export function AgentQuickCreateModal({
                   name="artist_subtype"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Subtipo *</FormLabel>
-                       <Select onValueChange={field.onChange} value={field.value ?? undefined}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione o subtipo" />
+                     <FormLabel>Subtipo *</FormLabel>
+                     <Select onValueChange={field.onChange} value={field.value ?? undefined}>
+                       <FormControl>
+                         <SelectTrigger>
+                           <SelectValue placeholder="Selecione o subtipo" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -358,11 +359,11 @@ export function AgentQuickCreateModal({
                     name="venue_type"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Tipo do Local *</FormLabel>
+                         <FormLabel>Tipo do Local *</FormLabel>
                          <Select onValueChange={field.onChange} value={field.value ?? undefined}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecione o tipo" />
+                           <FormControl>
+                             <SelectTrigger>
+                               <SelectValue placeholder="Selecione o tipo" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>

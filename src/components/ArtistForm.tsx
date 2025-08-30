@@ -203,12 +203,13 @@ export function ArtistForm({ initialData, mode }: ArtistFormProps) {
 
   const form = useForm<ArtistFormData>({
     resolver: zodResolver(artistSchema),
+    mode: 'onChange',
     defaultValues: {
       stage_name: initialData?.stage_name || '',
       slug: initialData?.slug || '',
-      artist_type: (initialData?.artist_type as any) || 'artist',
+      artist_type: (initialData?.artist_type as any) || undefined,
       status: (initialData?.status as any) || 'active',
-      city: initialData?.city || '',
+      city: initialData?.city || undefined,
       instagram: initialData?.instagram || '',
       booking_email: initialData?.booking_email || '',
       booking_whatsapp: initialData?.booking_whatsapp || '',
@@ -415,8 +416,8 @@ export function ArtistForm({ initialData, mode }: ArtistFormProps) {
               <div className="space-y-2">
                 <Label htmlFor="city">Cidade</Label>
                 <Select 
-                  value={watch('city') || undefined} 
-                  onValueChange={(value) => setValue('city', value || undefined)}
+                  value={watch('city') ?? undefined} 
+                  onValueChange={(value) => setValue('city', value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione a cidade" />
