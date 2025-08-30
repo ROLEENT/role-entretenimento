@@ -158,15 +158,13 @@ export const NewsletterPage = () => {
   };
 
   const handleExportCsv = (selectedItems: NewsletterSubscription[]) => {
-    const csvHeaders = ['Email', 'Nome', 'Cidade', 'Status', 'Data de Inscrição', 'Data de Confirmação', 'Data de Descadastro'];
+    const csvHeaders = ['Email', 'Nome', 'Cidade', 'Status', 'Data'];
     const csvData = selectedItems.map(sub => [
       sub.email,
       sub.name || '',
       sub.city || '',
       sub.status,
-      format(new Date(sub.created_at), 'dd/MM/yyyy'),
-      sub.confirmed_at ? format(new Date(sub.confirmed_at), 'dd/MM/yyyy') : '',
-      sub.unsubscribed_at ? format(new Date(sub.unsubscribed_at), 'dd/MM/yyyy') : ''
+      format(new Date(sub.created_at), 'dd/MM/yyyy')
     ]);
 
     const csvContent = [csvHeaders, ...csvData]
@@ -180,6 +178,48 @@ export const NewsletterPage = () => {
     link.click();
 
     toast.success('CSV exportado com sucesso');
+  };
+
+  const handleExportCsvByDate = async (startDate: string, endDate: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('newsletter_subscriptions')
+        .select('*')
+        .gte('created_at', startDate)
+        .lte('created_at', endDate + 'T23:59:59')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        toast.error('Nenhuma inscrição encontrada no período selecionado');
+        return;
+      }
+
+      const csvHeaders = ['Email', 'Nome', 'Cidade', 'Status', 'Data'];
+      const csvData = data.map(sub => [
+        sub.email,
+        sub.name || '',
+        sub.city || '',
+        sub.status,
+        format(new Date(sub.created_at), 'dd/MM/yyyy')
+      ]);
+
+      const csvContent = [csvHeaders, ...csvData]
+        .map(row => row.map(field => `"${field}"`).join(','))
+        .join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `newsletter-${startDate}-${endDate}.csv`;
+      link.click();
+
+      toast.success(`${data.length} inscrições exportadas com sucesso`);
+    } catch (error) {
+      console.error('Error exporting CSV by date:', error);
+      toast.error('Erro ao exportar inscrições por período');
+    }
   };
 
   const handleDelete = async (selectedItems: NewsletterSubscription[]) => {
@@ -254,6 +294,7 @@ export const NewsletterPage = () => {
         onStatusFilter={handleStatusFilter}
         onSort={handleSort}
         onExportCsv={handleExportCsv}
+        onExportCsvByDate={handleExportCsvByDate}
         onBatchStatusChange={handleBatchStatusChange}
         onDelete={handleDelete}
         getRowId={(item) => item.id}

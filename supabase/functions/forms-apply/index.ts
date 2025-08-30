@@ -1,132 +1,176 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.55.0";
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Schema de validação
-const ApplicationSchema = z.object({
-  full_name: z.string().min(2, 'Nome completo é obrigatório').max(100),
-  email: z.string().email('Email inválido').max(255),
-  phone: z.string().max(20).optional(),
-  portfolio_url: z.string().url('URL inválida').optional().or(z.literal('')),
-  role: z.string().max(50).optional(),
-  message: z.string().max(2000).optional(),
-  lgpd_consent: z.boolean().refine(val => val === true, {
-    message: 'Você deve aceitar os termos de privacidade'
-  })
-});
+// Simple rate limiter
+const rateLimiter = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT = 5; // 5 requests
+const RATE_WINDOW = 60000; // per minute
 
-// Rate limiting simples em memória
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT = 5; // máximo 5 tentativas
-const RATE_WINDOW = 15 * 60 * 1000; // 15 minutos
-
-const checkRateLimit = (ip: string): boolean => {
+function checkRateLimit(ip: string): boolean {
   const now = Date.now();
-  const clientData = rateLimitMap.get(ip);
+  const current = rateLimiter.get(ip);
   
-  if (!clientData || now > clientData.resetTime) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_WINDOW });
+  if (!current || now > current.resetTime) {
+    rateLimiter.set(ip, { count: 1, resetTime: now + RATE_WINDOW });
     return true;
   }
   
-  if (clientData.count >= RATE_LIMIT) {
+  if (current.count >= RATE_LIMIT) {
     return false;
   }
   
-  clientData.count++;
+  current.count++;
   return true;
-};
+}
 
-const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
+function logError(message: string, error: any, context?: any) {
+  console.error(`[forms-apply] ${message}:`, {
+    error: error?.message || error,
+    stack: error?.stack,
+    context
+  });
+}
+
+serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   if (req.method !== 'POST') {
     return new Response(
-      JSON.stringify({ ok: false, error: 'Método não permitido' }),
+      JSON.stringify({ ok: false, error: 'Method not allowed' }),
       { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 
   try {
     // Rate limiting
-    const clientIP = req.headers.get('x-forwarded-for') || 'unknown';
-    if (!checkRateLimit(clientIP)) {
+    const ip = req.headers.get('x-forwarded-for') || 'unknown';
+    if (!checkRateLimit(ip)) {
+      logError('Rate limit exceeded', null, { ip });
       return new Response(
-        JSON.stringify({ ok: false, error: 'Muitas tentativas. Tente novamente em 15 minutos.' }),
+        JSON.stringify({ ok: false, error: 'Too many requests' }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    const body = await req.json();
+    
+    // Validate required fields
+    const requiredFields = ['full_name', 'email', 'message', 'lgpd_consent'];
+    for (const field of requiredFields) {
+      if (!body[field]) {
+        logError('Missing required field', null, { field, body: { ...body, message: '[REDACTED]' } });
+        return new Response(
+          JSON.stringify({ ok: false, error: `Campo obrigatório: ${field}` }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(body.email)) {
+      logError('Invalid email format', null, { email: body.email });
+      return new Response(
+        JSON.stringify({ ok: false, error: 'Email inválido' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // LGPD consent validation
+    if (body.lgpd_consent !== true) {
+      logError('LGPD consent not given', null, { lgpd_consent: body.lgpd_consent });
+      return new Response(
+        JSON.stringify({ ok: false, error: 'Consentimento LGPD é obrigatório' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Initialize Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     );
 
-    const body = await req.json();
-    
-    // Validação com Zod
-    const validationResult = ApplicationSchema.safeParse(body);
-    if (!validationResult.success) {
-      return new Response(
-        JSON.stringify({ 
-          ok: false, 
-          error: 'Dados inválidos',
-          details: validationResult.error.issues.map(issue => issue.message)
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const applicationData = validationResult.data;
-
-    // Inserir na tabela applications
-    const { error } = await supabase
+    // Insert into database
+    const { data, error } = await supabase
       .from('applications')
-      .insert({
-        full_name: applicationData.full_name,
-        email: applicationData.email,
-        phone: applicationData.phone || null,
-        portfolio_url: applicationData.portfolio_url || null,
-        role: applicationData.role || null,
-        message: applicationData.message || null,
-        lgpd_consent: applicationData.lgpd_consent,
-        source: 'website',
+      .insert([{
+        full_name: body.full_name,
+        email: body.email,
+        phone: body.phone || null,
+        portfolio_url: body.portfolio_url || null,
+        role: body.role || null,
+        message: body.message,
+        lgpd_consent: body.lgpd_consent,
         status: 'new'
-      });
+      }])
+      .select();
 
     if (error) {
-      console.error('Erro ao inserir candidatura:', error);
+      logError('Database error', error, { body: { ...body, message: '[REDACTED]' } });
       return new Response(
-        JSON.stringify({ ok: false, error: 'Erro interno. Tente novamente.' }),
+        JSON.stringify({ ok: false, error: 'Erro interno do servidor' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('Candidatura recebida:', { email: applicationData.email, role: applicationData.role });
+    // Send notification email (optional, only if RESEND_API_KEY is available)
+    try {
+      const resendKey = Deno.env.get('RESEND_API_KEY');
+      if (resendKey) {
+        const emailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'ROLÊ <noreply@roleentretenimento.com>',
+            to: ['contato@roleentretenimento.com'],
+            subject: `Nova candidatura: ${body.full_name}`,
+            html: `
+              <h2>Nova candidatura recebida</h2>
+              <p><strong>Nome:</strong> ${body.full_name}</p>
+              <p><strong>Email:</strong> ${body.email}</p>
+              <p><strong>Telefone:</strong> ${body.phone || 'Não informado'}</p>
+              <p><strong>Área:</strong> ${body.role || 'Não informada'}</p>
+              <p><strong>Portfólio:</strong> ${body.portfolio_url || 'Não informado'}</p>
+              <p><strong>Mensagem:</strong></p>
+              <p>${body.message}</p>
+              <hr>
+              <p><small>Acesse o painel admin para mais detalhes.</small></p>
+            `,
+          }),
+        });
+
+        if (!emailResponse.ok) {
+          logError('Email notification failed', await emailResponse.text());
+        }
+      }
+    } catch (emailError) {
+      logError('Email notification error', emailError);
+      // Don't fail the request if email fails
+    }
+
+    console.log(`[forms-apply] Success: New application from ${body.email}`);
 
     return new Response(
       JSON.stringify({ ok: true }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Erro no endpoint de candidatura:', error);
+    logError('Unexpected error', error);
     return new Response(
-      JSON.stringify({ ok: false, error: 'Erro interno. Tente novamente.' }),
+      JSON.stringify({ ok: false, error: 'Erro interno do servidor' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
-};
-
-serve(handler);
+});

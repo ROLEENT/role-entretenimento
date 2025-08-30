@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   Select,
   SelectContent,
@@ -54,6 +55,7 @@ interface DataTableProps<T> {
   onSort?: (key: keyof T, direction: 'asc' | 'desc') => void;
   onView?: (item: T) => void;
   onExportCsv?: (selectedItems: T[]) => void;
+  onExportCsvByDate?: (startDate: string, endDate: string) => void;
   onBatchStatusChange?: (selectedItems: T[], newStatus: string) => void;
   onDelete?: (selectedItems: T[]) => void;
   getRowId: (item: T) => string;
@@ -71,6 +73,7 @@ export function DataTable<T>({
   onSort,
   onView,
   onExportCsv,
+  onExportCsvByDate,
   onBatchStatusChange,
   onDelete,
   getRowId,
@@ -81,6 +84,9 @@ export function DataTable<T>({
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [sortColumn, setSortColumn] = useState<keyof T | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [showDateFilter, setShowDateFilter] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -128,6 +134,17 @@ export function DataTable<T>({
       return;
     }
     onExportCsv?.(selectedData);
+  };
+
+  const handleExportCsvByDate = () => {
+    if (!startDate || !endDate) {
+      toast.error("Selecione um período para exportar");
+      return;
+    }
+    onExportCsvByDate?.(startDate, endDate);
+    setShowDateFilter(false);
+    setStartDate("");
+    setEndDate("");
   };
 
   const handleBatchStatusChange = (newStatus: string) => {
@@ -189,6 +206,16 @@ export function DataTable<T>({
 
         {showActions && (
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowDateFilter(!showDateFilter)}
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Exportar por Período
+            </Button>
+
             {selectedItems.size > 0 && (
               <>
                 <Button
@@ -236,6 +263,43 @@ export function DataTable<T>({
           </div>
         )}
       </div>
+
+      {/* Date Filter */}
+      {showDateFilter && onExportCsvByDate && (
+        <div className="bg-muted/50 p-4 rounded-lg space-y-4">
+          <h3 className="font-medium">Exportar por Período</h3>
+          <div className="flex gap-4 items-end">
+            <div className="space-y-2">
+              <Label htmlFor="start-date">Data Inicial</Label>
+              <Input
+                id="start-date"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="end-date">Data Final</Label>
+              <Input
+                id="end-date"
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </div>
+            <Button onClick={handleExportCsvByDate} className="gap-2">
+              <Download className="h-4 w-4" />
+              Exportar
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowDateFilter(false)}
+            >
+              Cancelar
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Data Table */}
       <div className="rounded-md border">

@@ -198,6 +198,50 @@ export const ApplicationsPage = () => {
     toast.success('CSV exportado com sucesso');
   };
 
+  const handleExportCsvByDate = async (startDate: string, endDate: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('applications')
+        .select('*')
+        .gte('created_at', startDate)
+        .lte('created_at', endDate + 'T23:59:59')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        toast.error('Nenhuma candidatura encontrada no período selecionado');
+        return;
+      }
+
+      const csvHeaders = ['Nome', 'Email', 'Telefone', 'Área', 'Status', 'Data', 'Mensagem'];
+      const csvData = data.map(app => [
+        app.full_name,
+        app.email,
+        app.phone || '',
+        app.role || '',
+        app.status,
+        format(new Date(app.created_at), 'dd/MM/yyyy'),
+        app.message || ''
+      ]);
+
+      const csvContent = [csvHeaders, ...csvData]
+        .map(row => row.map(field => `"${field}"`).join(','))
+        .join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `candidaturas-${startDate}-${endDate}.csv`;
+      link.click();
+
+      toast.success(`${data.length} candidaturas exportadas com sucesso`);
+    } catch (error) {
+      console.error('Error exporting CSV by date:', error);
+      toast.error('Erro ao exportar candidaturas por período');
+    }
+  };
+
   const handleDelete = async (selectedItems: Application[]) => {
     if (!confirm(`Tem certeza que deseja excluir ${selectedItems.length} candidatura(s)?`)) {
       return;
@@ -262,6 +306,7 @@ export const ApplicationsPage = () => {
         onSort={handleSort}
         onView={handleView}
         onExportCsv={handleExportCsv}
+        onExportCsvByDate={handleExportCsvByDate}
         onBatchStatusChange={handleBatchStatusChange}
         onDelete={handleDelete}
         getRowId={(item) => item.id}

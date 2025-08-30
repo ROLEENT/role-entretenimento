@@ -220,6 +220,49 @@ export const ContactPage = () => {
     toast.success('CSV exportado com sucesso');
   };
 
+  const handleExportCsvByDate = async (startDate: string, endDate: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('contact_messages')
+        .select('*')
+        .gte('created_at', startDate)
+        .lte('created_at', endDate + 'T23:59:59')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        toast.error('Nenhuma mensagem encontrada no período selecionado');
+        return;
+      }
+
+      const csvHeaders = ['Nome', 'Assunto', 'Mensagem', 'Status', 'Tratado', 'Data'];
+      const csvData = data.map(msg => [
+        msg.name,
+        msg.subject || 'Sem assunto',
+        msg.message,
+        msg.status,
+        msg.handled ? 'Sim' : 'Não',
+        format(new Date(msg.created_at), 'dd/MM/yyyy')
+      ]);
+
+      const csvContent = [csvHeaders, ...csvData]
+        .map(row => row.map(field => `"${field}"`).join(','))
+        .join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `contato-${startDate}-${endDate}.csv`;
+      link.click();
+
+      toast.success(`${data.length} mensagens exportadas com sucesso`);
+    } catch (error) {
+      console.error('Error exporting CSV by date:', error);
+      toast.error('Erro ao exportar mensagens por período');
+    }
+  };
+
   const handleDelete = async (selectedItems: ContactMessage[]) => {
     if (!confirm(`Tem certeza que deseja excluir ${selectedItems.length} mensagem(s)?`)) {
       return;
@@ -261,6 +304,7 @@ export const ContactPage = () => {
         onSort={handleSort}
         onView={handleView}
         onExportCsv={handleExportCsv}
+        onExportCsvByDate={handleExportCsvByDate}
         onBatchStatusChange={handleBatchStatusChange}
         onDelete={handleDelete}
         getRowId={(item) => item.id}

@@ -1,159 +1,159 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.55.0";
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Schema de validação
-const NewsletterSchema = z.object({
-  email: z.string().email('Email inválido').max(255),
-  name: z.string().max(100).optional(),
-  city: z.string().max(100).optional(),
-  preferences: z.array(z.string()).optional()
-});
+// Simple rate limiter
+const rateLimiter = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT = 3; // 3 requests
+const RATE_WINDOW = 60000; // per minute
 
-// Rate limiting simples em memória
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT = 5; // máximo 5 tentativas
-const RATE_WINDOW = 60 * 60 * 1000; // 1 hora
-
-const checkRateLimit = (ip: string): boolean => {
+function checkRateLimit(ip: string): boolean {
   const now = Date.now();
-  const clientData = rateLimitMap.get(ip);
+  const current = rateLimiter.get(ip);
   
-  if (!clientData || now > clientData.resetTime) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_WINDOW });
+  if (!current || now > current.resetTime) {
+    rateLimiter.set(ip, { count: 1, resetTime: now + RATE_WINDOW });
     return true;
   }
   
-  if (clientData.count >= RATE_LIMIT) {
+  if (current.count >= RATE_LIMIT) {
     return false;
   }
   
-  clientData.count++;
+  current.count++;
   return true;
-};
+}
 
-const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
+function logError(message: string, error: any, context?: any) {
+  console.error(`[forms-newsletter] ${message}:`, {
+    error: error?.message || error,
+    stack: error?.stack,
+    context
+  });
+}
+
+serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   if (req.method !== 'POST') {
     return new Response(
-      JSON.stringify({ ok: false, error: 'Método não permitido' }),
+      JSON.stringify({ ok: false, error: 'Method not allowed' }),
       { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 
   try {
     // Rate limiting
-    const clientIP = req.headers.get('x-forwarded-for') || 'unknown';
-    if (!checkRateLimit(clientIP)) {
+    const ip = req.headers.get('x-forwarded-for') || 'unknown';
+    if (!checkRateLimit(ip)) {
+      logError('Rate limit exceeded', null, { ip });
       return new Response(
-        JSON.stringify({ ok: false, error: 'Muitas tentativas. Tente novamente em 1 hora.' }),
+        JSON.stringify({ ok: false, error: 'Too many requests' }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    const body = await req.json();
+    
+    // Validate required fields
+    if (!body.email) {
+      logError('Missing email', null, { body });
+      return new Response(
+        JSON.stringify({ ok: false, error: 'Email é obrigatório' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(body.email)) {
+      logError('Invalid email format', null, { email: body.email });
+      return new Response(
+        JSON.stringify({ ok: false, error: 'Email inválido' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Initialize Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     );
 
-    const body = await req.json();
-    
-    // Validação com Zod
-    const validationResult = NewsletterSchema.safeParse(body);
-    if (!validationResult.success) {
-      return new Response(
-        JSON.stringify({ 
-          ok: false, 
-          error: 'Dados inválidos',
-          details: validationResult.error.issues.map(issue => issue.message)
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const newsletterData = validationResult.data;
-
-    // Verificar se email já existe
+    // Check if email already exists
     const { data: existing } = await supabase
-      .from('newsletter_subscribers')
+      .from('newsletter_subscriptions')
       .select('id, status')
-      .eq('email', newsletterData.email.toLowerCase())
+      .eq('email', body.email)
       .single();
 
     if (existing) {
       if (existing.status === 'confirmed') {
         return new Response(
-          JSON.stringify({ ok: false, error: 'Este email já está inscrito na newsletter.' }),
+          JSON.stringify({ ok: false, error: 'Este email já está inscrito' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
-      }
-      
-      // Se existe mas não confirmado, atualizar
-      const { error: updateError } = await supabase
-        .from('newsletter_subscribers')
-        .update({
-          name: newsletterData.name || null,
-          city: newsletterData.city || null,
-          preferences: newsletterData.preferences || null,
-          subscribed_at: new Date().toISOString()
-        })
-        .eq('id', existing.id);
+      } else {
+        // Reactivate subscription
+        const { error: updateError } = await supabase
+          .from('newsletter_subscriptions')
+          .update({ status: 'confirmed', updated_at: new Date().toISOString() })
+          .eq('id', existing.id);
 
-      if (updateError) {
-        console.error('Erro ao atualizar subscriber:', updateError);
-        return new Response(
-          JSON.stringify({ ok: false, error: 'Erro interno. Tente novamente.' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-    } else {
-      // Criar novo subscriber
-      const { error: insertError } = await supabase
-        .from('newsletter_subscribers')
-        .insert({
-          email: newsletterData.email.toLowerCase(),
-          name: newsletterData.name || null,
-          city: newsletterData.city || null,
-          preferences: newsletterData.preferences || null,
-          status: 'pending',
-          source: 'website'
-        });
+        if (updateError) {
+          logError('Database update error', updateError, { email: body.email });
+          return new Response(
+            JSON.stringify({ ok: false, error: 'Erro interno do servidor' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
 
-      if (insertError) {
-        console.error('Erro ao inserir subscriber:', insertError);
+        console.log(`[forms-newsletter] Reactivated: ${body.email}`);
         return new Response(
-          JSON.stringify({ ok: false, error: 'Erro interno. Tente novamente.' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          JSON.stringify({ ok: true }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
     }
 
-    console.log('Newsletter signup:', { email: newsletterData.email, city: newsletterData.city });
+    // Insert new subscription
+    const { data, error } = await supabase
+      .from('newsletter_subscriptions')
+      .insert([{
+        email: body.email,
+        name: body.name || null,
+        city: body.city || null,
+        preferences: body.preferences || [],
+        status: 'confirmed' // Direct confirmation for now
+      }])
+      .select();
+
+    if (error) {
+      logError('Database error', error, { email: body.email });
+      return new Response(
+        JSON.stringify({ ok: false, error: 'Erro interno do servidor' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`[forms-newsletter] Success: New subscription ${body.email}`);
 
     return new Response(
       JSON.stringify({ ok: true }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Erro no endpoint de newsletter:', error);
+    logError('Unexpected error', error);
     return new Response(
-      JSON.stringify({ ok: false, error: 'Erro interno. Tente novamente.' }),
+      JSON.stringify({ ok: false, error: 'Erro interno do servidor' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
-};
-
-serve(handler);
+});

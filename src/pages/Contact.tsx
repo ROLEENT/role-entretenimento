@@ -185,6 +185,13 @@ const Contact = () => {
                         rows={6}
                       />
                     </div>
+
+                    <p className="text-xs text-muted-foreground">
+                      Ao enviar esta mensagem, você concorda com nossa{" "}
+                      <a href="/politica-privacidade" className="text-primary hover:underline">
+                        Política de Privacidade
+                      </a>.
+                    </p>
                     
                     <Button type="submit" disabled={isSubmitting} className="w-full">
                       {isSubmitting ? "Enviando..." : "Enviar Mensagem"}
