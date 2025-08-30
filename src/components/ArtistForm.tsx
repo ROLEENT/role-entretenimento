@@ -373,10 +373,10 @@ export function ArtistForm({ initialData, mode }: ArtistFormProps) {
 
               <div className="space-y-2">
                 <Label htmlFor="artist_type">Tipo *</Label>
-                <Select 
-                  value={watch('artist_type')} 
-                  onValueChange={(value) => setValue('artist_type', value as any)}
-                >
+                 <Select 
+                   value={watch('artist_type') ?? undefined} 
+                   onValueChange={(value) => setValue('artist_type', value as any)}
+                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o tipo" />
                   </SelectTrigger>
@@ -395,10 +395,10 @@ export function ArtistForm({ initialData, mode }: ArtistFormProps) {
 
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>
-                <Select 
-                  value={watch('status')} 
-                  onValueChange={(value) => setValue('status', value as any)}
-                >
+                 <Select 
+                   value={watch('status') ?? undefined} 
+                   onValueChange={(value) => setValue('status', value as any)}
+                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o status" />
                   </SelectTrigger>

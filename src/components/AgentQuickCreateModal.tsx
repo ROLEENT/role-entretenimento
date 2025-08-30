@@ -225,7 +225,7 @@ export function AgentQuickCreateModal({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Cidade *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                     <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione a cidade" />
@@ -315,7 +315,7 @@ export function AgentQuickCreateModal({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Subtipo *</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                       <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecione o subtipo" />
@@ -359,7 +359,7 @@ export function AgentQuickCreateModal({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Tipo do Local *</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
+                         <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Selecione o tipo" />
@@ -421,7 +421,7 @@ export function AgentQuickCreateModal({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Subtipo *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione o subtipo" />

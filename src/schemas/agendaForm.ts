@@ -62,7 +62,7 @@ export const agendaDraftSchema = z.object({
   
   // Publicação
   status: z.enum(['draft', 'published']).default('draft'),
-  visibility_type: z.enum(['curadoria', 'vitrine']).default('curadoria'),
+  visibility_type: z.enum(['curadoria', 'vitrine']).optional(),
   publish_at: z.date().optional(),
   unpublish_at: z.date().optional(),
   

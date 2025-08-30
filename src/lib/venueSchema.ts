@@ -2,9 +2,7 @@ import { z } from 'zod';
 
 export const venueSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório').max(200, 'Nome muito longo'),
-  type: z.enum(['bar', 'clube', 'casa_de_shows', 'teatro', 'galeria', 'espaco_cultural', 'restaurante'], {
-    errorMap: () => ({ message: 'Tipo é obrigatório' })
-  }),
+  type: z.enum(['bar', 'clube', 'casa_de_shows', 'teatro', 'galeria', 'espaco_cultural', 'restaurante']).optional(),
   address: z.string().min(1, 'Endereço é obrigatório'),
   city: z.string().min(1, 'Cidade é obrigatória'),
   state: z.string().min(1, 'Estado é obrigatório'),
@@ -24,7 +22,7 @@ export const venueSchema = z.object({
   website_url: z.string().url('URL inválida').optional().or(z.literal('')),
   responsible_name: z.string().optional(),
   internal_notes: z.string().optional(),
-  status: z.enum(['active', 'inactive']).default('active'),
+  status: z.enum(['active', 'inactive']).optional(),
   priority: z.number().default(0),
   lat: z.number().optional(),
   lng: z.number().optional(),

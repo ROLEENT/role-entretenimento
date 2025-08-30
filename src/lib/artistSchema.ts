@@ -2,9 +2,7 @@ import { z } from 'zod';
 
 export const artistSchema = z.object({
   stage_name: z.string().min(1, 'Nome artístico é obrigatório').max(200, 'Nome muito longo'),
-  artist_type: z.enum(['banda', 'dj', 'solo', 'drag'], {
-    errorMap: () => ({ message: 'Tipo de artista é obrigatório' })
-  }),
+  artist_type: z.enum(['banda', 'dj', 'solo', 'drag']).optional(),
   city: z.string().min(1, 'Cidade é obrigatória'),
   instagram: z.string().min(1, 'Instagram é obrigatório'),
   booking_email: z.string().email('Email inválido'),
@@ -39,7 +37,7 @@ export const artistSchema = z.object({
   responsible_name: z.string().optional(),
   responsible_role: z.string().optional(),
   internal_notes: z.string().optional(),
-  status: z.enum(['active', 'inactive']).default('active'),
+  status: z.enum(['active', 'inactive']).optional(),
   priority: z.number().default(0),
 });
 

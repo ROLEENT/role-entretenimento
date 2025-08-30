@@ -2,9 +2,7 @@ import { z } from 'zod';
 
 export const organizerSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório').max(200, 'Nome muito longo'),
-  type: z.enum(['organizador', 'produtora', 'coletivo', 'selo'], {
-    errorMap: () => ({ message: 'Tipo é obrigatório' })
-  }),
+  type: z.enum(['organizador', 'produtora', 'coletivo', 'selo']).optional(),
   city: z.string().min(1, 'Cidade é obrigatória'),
   contact_email: z.string().email('Email inválido'),
   contact_whatsapp: z.string().min(1, 'WhatsApp é obrigatório'),
@@ -22,7 +20,7 @@ export const organizerSchema = z.object({
   booking_whatsapp: z.string().optional(),
   booking_email: z.string().email('Email inválido').optional().or(z.literal('')),
   internal_notes: z.string().optional(),
-  status: z.enum(['active', 'inactive']).default('active'),
+  status: z.enum(['active', 'inactive']).optional(),
   priority: z.number().default(0),
 });
 

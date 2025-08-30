@@ -828,12 +828,12 @@ export function AgendaForm({ mode, initialData }: AgendaFormProps) {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Tipo de Visibilidade</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Selecione o tipo" />
-                                </SelectTrigger>
-                              </FormControl>
+                             <Select value={field.value ?? undefined} onValueChange={field.onChange}>
+                               <FormControl>
+                                 <SelectTrigger>
+                                   <SelectValue placeholder="Selecione o tipo" />
+                                 </SelectTrigger>
+                               </FormControl>
                               <SelectContent>
                                 {VISIBILITY_OPTIONS.map((option) => (
                                   <SelectItem key={option.value} value={option.value}>
@@ -1024,12 +1024,12 @@ export function AgendaForm({ mode, initialData }: AgendaFormProps) {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Tipo</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Selecione o tipo" />
-                                </SelectTrigger>
-                              </FormControl>
+                             <Select value={field.value ?? undefined} onValueChange={field.onChange}>
+                               <FormControl>
+                                 <SelectTrigger>
+                                   <SelectValue placeholder="Selecione o tipo" />
+                                 </SelectTrigger>
+                               </FormControl>
                               <SelectContent>
                                 {TYPE_OPTIONS.map((option) => (
                                   <SelectItem key={option.value} value={option.value}>

@@ -21,7 +21,7 @@ export const eventSchema = z.object({
   age_range: z.string().optional(),
   observations: z.string().optional(),
   tags: z.array(z.string()).default([]),
-  status: z.enum(['draft', 'active', 'cancelled', 'completed']).default('draft'),
+  status: z.enum(['draft', 'active', 'cancelled', 'completed']).optional(),
 });
 
 export type EventFormData = z.infer<typeof eventSchema>;
