@@ -31,7 +31,7 @@ const BlocoRevista = () => {
         setLoading(true);
         const { data, error } = await supabase
           .from('blog_posts')
-          .select('id, title, excerpt, cover_image, published_at, read_time, city, slug')
+          .select('id, title, cover_image, published_at, read_time, city, slug')
           .eq('published', true)
           .order('published_at', { ascending: false })
           .limit(3);
@@ -40,6 +40,8 @@ const BlocoRevista = () => {
         setPosts(data || []);
       } catch (error) {
         console.error('Erro ao carregar posts do blog:', error);
+        // Fallback to empty array on error
+        setPosts([]);
       } finally {
         setLoading(false);
       }
@@ -132,7 +134,7 @@ const BlocoRevista = () => {
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                   {posts.map((post, index) => (
-                    <Link key={post.id} to={`/blog/${post.slug}`} className="flex-shrink-0 w-80 snap-start">
+                    <Link key={post.id} to={`/revista/${post.slug}`} className="flex-shrink-0 w-80 snap-start">
                       <Card className="h-full group hover:shadow-xl transition-all duration-500 overflow-hidden border hover:border-primary/30 bg-card/80 backdrop-blur-sm">
                         <div className="relative">
                           <LazyImage
@@ -156,11 +158,9 @@ const BlocoRevista = () => {
                             {post.title}
                           </h3>
                           
-                          {post.excerpt && (
-                            <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                              {post.excerpt}
-                            </p>
-                          )}
+                          <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                            {post.excerpt || 'Descubra mais sobre este artigo na nossa revista.'}
+                          </p>
                           
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2 text-muted-foreground text-sm">
@@ -217,7 +217,7 @@ const BlocoRevista = () => {
               /* Desktop Grid */
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 {posts.map((post, index) => (
-                  <Link key={post.id} to={`/blog/${post.slug}`} className="block group">
+                  <Link key={post.id} to={`/revista/${post.slug}`} className="block group">
                     <Card className="h-full hover:shadow-xl transition-all duration-500 overflow-hidden border hover:border-primary/30 bg-card/80 backdrop-blur-sm">
                       <div className="relative">
                         <LazyImage
@@ -241,11 +241,9 @@ const BlocoRevista = () => {
                           {post.title}
                         </h3>
                         
-                        {post.excerpt && (
-                          <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                            {post.excerpt}
-                          </p>
-                        )}
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          {post.excerpt || 'Descubra mais sobre este artigo na nossa revista.'}
+                        </p>
                         
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2 text-muted-foreground text-sm">
@@ -282,7 +280,7 @@ const BlocoRevista = () => {
             className="group px-8 py-6 text-lg rounded-full border-2 hover:shadow-lg hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300"
             asChild
           >
-            <Link to="/destaques">
+            <Link to="/revista">
               <BookOpen className="mr-3 h-6 w-6" />
               Ler mais
               <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
