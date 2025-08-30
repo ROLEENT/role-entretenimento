@@ -116,19 +116,20 @@ export const cache = new PerformanceCache();
 
 // Preload critical resources
 export const preloadCriticalResources = () => {
-  const criticalImages = [
-    '/banner-home.png',
-    '/role-logo.png'
-  ];
+  // Temporarily disabled to prevent preload warnings
+  // const criticalImages = [
+  //   '/banner-home.png',
+  //   '/role-logo.png'
+  // ];
 
-  // Preload images
-  criticalImages.forEach(src => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'image';
-    link.href = src;
-    document.head.appendChild(link);
-  });
+  // // Preload images
+  // criticalImages.forEach(src => {
+  //   const link = document.createElement('link');
+  //   link.rel = 'preload';
+  //   link.as = 'image';
+  //   link.href = src;
+  //   document.head.appendChild(link);
+  // });
 
   // Preconnect to external domains
   const externalDomains = [

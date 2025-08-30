@@ -32,20 +32,20 @@ const SEOOptimizations = ({
   const fullImageUrl = image.startsWith('http') ? image : `${window.location.origin}${image}`;
   
   useEffect(() => {
-    // Performance optimizations
-    const preloadCriticalResources = () => {
-      // Preload critical images
-      const criticalImages = ['/banner-home.png', '/role-logo.png'];
-      criticalImages.forEach(src => {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'image';
-        link.href = src;
-        document.head.appendChild(link);
-      });
-    };
+    // Performance optimizations - preloads temporarily disabled
+    // const preloadCriticalResources = () => {
+    //   // Preload critical images
+    //   const criticalImages = ['/banner-home.png', '/role-logo.png'];
+    //   criticalImages.forEach(src => {
+    //     const link = document.createElement('link');
+    //     link.rel = 'preload';
+    //     link.as = 'image';
+    //     link.href = src;
+    //     document.head.appendChild(link);
+    //   });
+    // };
 
-    preloadCriticalResources();
+    // preloadCriticalResources();
   }, []);
 
   const defaultStructuredData = {

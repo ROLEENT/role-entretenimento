@@ -90,21 +90,22 @@ export const clearCache = async () => {
   }
 };
 
-// Preload critical resources
+// Preload critical resources - DISABLED to prevent console warnings
 export const preloadCriticalResources = () => {
-  const criticalResources = [
-    '/role-logo.png',
-    '/banner-home.png',
-    '/manifest.json'
-  ];
+  // Temporarily disabled to prevent preload warnings
+  // const criticalResources = [
+  //   '/role-logo.png',
+  //   '/banner-home.png',
+  //   '/manifest.json'
+  // ];
 
-  criticalResources.forEach(resource => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.href = resource;
-    link.as = resource.endsWith('.png') ? 'image' : 'fetch';
-    document.head.appendChild(link);
-  });
+  // criticalResources.forEach(resource => {
+  //   const link = document.createElement('link');
+  //   link.rel = 'preload';
+  //   link.href = resource;
+  //   link.as = resource.endsWith('.png') ? 'image' : 'fetch';
+  //   document.head.appendChild(link);
+  // });
 };
 
 // Network status detection
