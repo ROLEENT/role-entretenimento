@@ -1,22 +1,5 @@
 "use client";
-import RHFSelect from '@/components/form/RHFSelect';
-
-const VENUE_TYPES = [
-  { value: "house", label: "Casa de Show" },
-  { value: "theater", label: "Teatro" },
-  { value: "club", label: "Clube" },
-  { value: "arena", label: "Arena" },
-  { value: "bar", label: "Bar" },
-  { value: "restaurant", label: "Restaurante" },
-  { value: "pub", label: "Pub" },
-  { value: "lounge", label: "Lounge" },
-  { value: "outdoor", label: "Espaço Aberto" },
-  { value: "cultural_center", label: "Centro Cultural" },
-  { value: "gallery", label: "Galeria" },
-  { value: "studio", label: "Estúdio" },
-  { value: "warehouse", label: "Galpão" },
-  { value: "other", label: "Outro" }
-];
+import RHFSelectAsync from '@/components/form/RHFSelectAsync';
 
 interface VenueTypeSelectProps {
   name?: string;
@@ -24,13 +7,16 @@ interface VenueTypeSelectProps {
 }
 
 export default function VenueTypeSelect({ 
-  name = "venue_type",
+  name = "venue_type_id",
   placeholder = "Tipo de local"
 }: VenueTypeSelectProps) {
   return (
-    <RHFSelect
+    <RHFSelectAsync
       name={name}
-      options={VENUE_TYPES}
+      query={{ table: "venue_types", fields: "id,name,slug", orderBy: "name" }}
+      mapRow={(r) => ({ value: String(r.id), label: r.name })}
+      parseValue={(v) => Number(v)}
+      serializeValue={(v) => String(v ?? "")}
       placeholder={placeholder}
     />
   );
