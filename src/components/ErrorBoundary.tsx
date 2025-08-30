@@ -1,6 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
+import { Component, ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;
@@ -8,71 +6,56 @@ interface Props {
 
 interface State {
   hasError: boolean;
-  error: Error | null;
 }
 
-class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false,
-    error: null
-  };
+export default class ErrorBoundary extends Component<Props, State> {
+  state = { hasError: false };
 
-  public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+  static getDerivedStateFromError() {
+    return { hasError: true };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
-    
-    // Clear potentially corrupted localStorage on error
-    try {
-      const authKeys = ['sb-nutlcbnruabjsxecqpnd-auth-token', 'admin_session'];
-      authKeys.forEach(key => localStorage.removeItem(key));
-    } catch (e) {
-      console.error('Error clearing localStorage:', e);
-    }
+  componentDidCatch(err: any) {
+    console.error('[APP ERROR]', err);
   }
 
-  private handleReset = () => {
-    this.setState({ hasError: false, error: null });
-    window.location.reload();
-  };
-
-  public render() {
+  render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-background flex items-center justify-center p-4">
-          <div className="max-w-md w-full space-y-4">
-            <Alert variant="destructive">
-              <AlertDescription>
-                Ocorreu um erro inesperado. Limpe o cache do navegador ou tente recarregar a página.
-              </AlertDescription>
-            </Alert>
-            <div className="space-y-2">
-              <Button onClick={this.handleReset} className="w-full">
-                Recarregar Página
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  localStorage.clear();
-                  sessionStorage.clear();
-                  window.location.reload();
-                }}
-                className="w-full"
-              >
-                Limpar Cache e Recarregar
-              </Button>
-            </div>
-            {this.state.error && (
-              <details className="text-sm text-muted-foreground">
-                <summary>Detalhes do erro</summary>
-                <pre className="mt-2 text-xs overflow-x-auto">
-                  {this.state.error.message}
-                </pre>
-              </details>
-            )}
-          </div>
+        <div style={{ padding: 24, textAlign: 'center', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+          <h2 style={{ marginBottom: 16, color: '#ef4444' }}>Algo deu errado.</h2>
+          <p style={{ marginBottom: 16, color: '#6b7280' }}>Ocorreu um erro inesperado na aplicação.</p>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{ 
+              padding: '8px 16px', 
+              backgroundColor: '#3b82f6', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '6px', 
+              cursor: 'pointer',
+              marginRight: '8px'
+            }}
+          >
+            Recarregar página
+          </button>
+          <button 
+            onClick={() => {
+              localStorage.clear();
+              sessionStorage.clear();
+              window.location.reload();
+            }}
+            style={{ 
+              padding: '8px 16px', 
+              backgroundColor: '#6b7280', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '6px', 
+              cursor: 'pointer'
+            }}
+          >
+            Limpar cache
+          </button>
         </div>
       );
     }
@@ -80,5 +63,3 @@ class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-
-export default ErrorBoundary;
