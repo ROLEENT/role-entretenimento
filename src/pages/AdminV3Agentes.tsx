@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AdminV3Guard } from '@/components/AdminV3Guard';
@@ -35,13 +35,17 @@ function AgentesContent() {
   const { toast } = useToast();
   const { loading, createAgent, checkSlugExists, generateSlug, saveDraft, loadDraft, clearDraft } = useAgentManagement();
   
+  // Get URL params to determine initial agent type
+  const [searchParams] = useSearchParams();
+  const initialType = (searchParams.get('type') as 'artist' | 'venue' | 'organizer') ?? 'artist';
+  
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   const [isDirty, setIsDirty] = useState(false);
   
   const form = useForm<AgentFormData>({
     resolver: zodResolver(agentSchema),
     defaultValues: {
-      agent_type: 'artist',
+      agent_type: initialType,
       name: '',
       slug: '',
       city: '',
@@ -68,6 +72,17 @@ function AgentesContent() {
       });
     }
   }, [form, loadDraft, toast]);
+
+  // Focus management for venue type from URL
+  React.useEffect(() => {
+    if (initialType === 'venue') {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        const venueNameInput = document.querySelector('input[name="name"]') as HTMLInputElement;
+        venueNameInput?.focus();
+      }, 100);
+    }
+  }, [initialType]);
 
   const agentType = form.watch('agent_type');
   const nameValue = form.watch('name');
