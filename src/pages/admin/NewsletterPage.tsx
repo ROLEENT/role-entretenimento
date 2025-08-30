@@ -75,7 +75,7 @@ export const NewsletterPage = () => {
   const fetchSubscriptions = async () => {
     try {
       const { data, error } = await supabase
-        .from('newsletter_subscriptions')
+        .from('newsletter_subscribers')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -143,7 +143,7 @@ export const NewsletterPage = () => {
       }
 
       const { error } = await supabase
-        .from('newsletter_subscriptions')
+        .from('newsletter_subscribers')
         .update(updateData)
         .in('id', ids);
 
@@ -183,7 +183,7 @@ export const NewsletterPage = () => {
   const handleExportCsvByDate = async (startDate: string, endDate: string) => {
     try {
       const { data, error } = await supabase
-        .from('newsletter_subscriptions')
+        .from('newsletter_subscribers')
         .select('*')
         .gte('created_at', startDate)
         .lte('created_at', endDate + 'T23:59:59')
@@ -231,7 +231,7 @@ export const NewsletterPage = () => {
       const ids = selectedItems.map(item => item.id);
       
       const { error } = await supabase
-        .from('newsletter_subscriptions')
+        .from('newsletter_subscribers')
         .delete()
         .in('id', ids);
 

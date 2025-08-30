@@ -19,24 +19,27 @@ import { ptBR } from "date-fns/locale";
 interface ContactMessage {
   id: string;
   name: string;
-  subject: string;
+  email: string;
+  subject?: string;
   message: string;
+  city?: string;
   status: string;
-  handled: boolean;
   handled_by?: string;
+  handled_at?: string;
+  tags?: string[];
   created_at: string;
 }
 
 const statusOptions = [
-  { value: 'pending', label: 'Pendente' },
-  { value: 'in_progress', label: 'Em Andamento' },
+  { value: 'new', label: 'Novo' },
+  { value: 'in_progress', label: 'Em Andamento' },  
   { value: 'resolved', label: 'Resolvido' },
   { value: 'closed', label: 'Fechado' },
 ];
 
 const getStatusBadge = (status: string) => {
   const statusMap = {
-    pending: { label: 'Pendente', variant: 'destructive' as const },
+    new: { label: 'Novo', variant: 'destructive' as const },
     in_progress: { label: 'Em Andamento', variant: 'secondary' as const },
     resolved: { label: 'Resolvido', variant: 'default' as const },
     closed: { label: 'Fechado', variant: 'outline' as const },
@@ -70,9 +73,9 @@ export const ContactPage = () => {
       render: (value: string) => getStatusBadge(value),
     },
     {
-      key: 'handled' as keyof ContactMessage,
+      key: 'handled_at' as keyof ContactMessage,
       label: 'Tratado',
-      render: (value: boolean) => (
+      render: (value: string) => (
         <Badge variant={value ? 'default' : 'secondary'}>
           {value ? 'Sim' : 'Não'}
         </Badge>
@@ -93,7 +96,7 @@ export const ContactPage = () => {
   const fetchMessages = async () => {
     try {
       const { data, error } = await supabase
-        .from('contact_messages')
+        .from('contacts')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -151,7 +154,7 @@ export const ContactPage = () => {
     setSelectedMessage(message);
     
     // Mark as handled when opened
-    if (!message.handled) {
+    if (!message.handled_at) {
       markAsHandled(message.id);
     }
   };
@@ -159,18 +162,22 @@ export const ContactPage = () => {
   const markAsHandled = async (messageId: string) => {
     try {
       const { error } = await supabase
-        .from('contact_messages')
-        .update({ handled: true })
+        .from('contacts')
+        .update({ 
+          status: 'in_progress',
+          handled_at: new Date().toISOString(),
+          handled_by: 'current-admin' // TODO: get actual admin ID
+        })
         .eq('id', messageId);
 
       if (error) throw error;
 
-      // Update local state
+      // Update local state  
       setMessages(prev => prev.map(msg => 
-        msg.id === messageId ? { ...msg, handled: true } : msg
+        msg.id === messageId ? { ...msg, status: 'in_progress', handled_at: new Date().toISOString() } : msg
       ));
       setFilteredMessages(prev => prev.map(msg => 
-        msg.id === messageId ? { ...msg, handled: true } : msg
+        msg.id === messageId ? { ...msg, status: 'in_progress', handled_at: new Date().toISOString() } : msg
       ));
     } catch (error) {
       console.error('Error marking as handled:', error);
@@ -182,7 +189,7 @@ export const ContactPage = () => {
       const ids = selectedItems.map(item => item.id);
       
       const { error } = await supabase
-        .from('contact_messages')
+        .from('contacts')
         .update({ status: newStatus })
         .in('id', ids);
 
@@ -203,7 +210,7 @@ export const ContactPage = () => {
       msg.subject || 'Sem assunto',
       msg.message,
       msg.status,
-      msg.handled ? 'Sim' : 'Não',
+      msg.handled_at ? 'Sim' : 'Não',
       format(new Date(msg.created_at), 'dd/MM/yyyy')
     ]);
 
@@ -223,7 +230,7 @@ export const ContactPage = () => {
   const handleExportCsvByDate = async (startDate: string, endDate: string) => {
     try {
       const { data, error } = await supabase
-        .from('contact_messages')
+        .from('contacts')
         .select('*')
         .gte('created_at', startDate)
         .lte('created_at', endDate + 'T23:59:59')
@@ -242,7 +249,7 @@ export const ContactPage = () => {
         msg.subject || 'Sem assunto',
         msg.message,
         msg.status,
-        msg.handled ? 'Sim' : 'Não',
+        msg.handled_at ? 'Sim' : 'Não',
         format(new Date(msg.created_at), 'dd/MM/yyyy')
       ]);
 
@@ -272,7 +279,7 @@ export const ContactPage = () => {
       const ids = selectedItems.map(item => item.id);
       
       const { error } = await supabase
-        .from('contact_messages')
+        .from('contacts')
         .delete()
         .in('id', ids);
 
@@ -329,8 +336,8 @@ export const ContactPage = () => {
                   </div>
                   <div>
                     <Label className="text-sm font-medium">Tratado</Label>
-                    <Badge variant={selectedMessage.handled ? 'default' : 'secondary'} className="mt-1">
-                      {selectedMessage.handled ? 'Sim' : 'Não'}
+                    <Badge variant={selectedMessage.handled_at ? 'default' : 'secondary'} className="mt-1">
+                      {selectedMessage.handled_at ? 'Sim' : 'Não'}
                     </Badge>
                   </div>
                 </div>
@@ -354,14 +361,14 @@ export const ContactPage = () => {
                     variant="outline"
                     onClick={() => {
                       const emailBody = `Olá ${selectedMessage.name},\n\nObrigado por entrar em contato conosco.\n\nEm resposta à sua mensagem sobre "${selectedMessage.subject || 'seu contato'}":\n\n[SUA RESPOSTA AQUI]\n\nAtenciosamente,\nEquipe ROLÊ ENTRETENIMENTO`;
-                      const mailtoLink = `mailto:${selectedMessage.name}?subject=Re: ${selectedMessage.subject || 'Contato'}&body=${encodeURIComponent(emailBody)}`;
+                      const mailtoLink = `mailto:${selectedMessage.email}?subject=Re: ${selectedMessage.subject || 'Contato'}&body=${encodeURIComponent(emailBody)}`;
                       window.open(mailtoLink);
                     }}
                   >
                     Responder por Email
                   </Button>
                   
-                  {!selectedMessage.handled && (
+                  {!selectedMessage.handled_at && (
                     <Button
                       onClick={() => markAsHandled(selectedMessage.id)}
                     >
