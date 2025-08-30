@@ -10,6 +10,13 @@ html, body, #root {
   height: 100%;
 }
 
+/* Hotfix CSS - Ensure admin form inputs are fully interactive */
+#admin-agents-form input,
+#admin-agents-form select,
+#admin-agents-form textarea {
+  pointer-events: auto !important;
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */

@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,6 +32,7 @@ import { useNavigationGuard } from '@/hooks/useNavigationGuard';
 import { useAutosave } from '@/hooks/useAutosave';
 import { Users, Check, AlertCircle } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
+import { cn } from '@/lib/utils';
 
 function AgentesContent() {
   const navigate = useNavigate();
@@ -41,12 +44,13 @@ function AgentesContent() {
   
   const form = useForm<AgentFormData>({
     mode: 'onChange',
+    shouldUnregister: true,
     resolver: zodResolver(getAgentSchema('artist')),
     defaultValues: {
       agent_type: 'artist',
       name: '',
       slug: '',
-      city: '',
+      city: undefined,
       instagram: '',
       whatsapp: '',
       email: '',
@@ -83,11 +87,9 @@ function AgentesContent() {
 
   // Handle URL params once
   const [searchParams] = useSearchParams();
-  React.useEffect(() => {
-    const initial = searchParams.get('type');
-    if (initial) {
-      form.setValue('agent_type', initial as 'artist'|'venue'|'organizer', { shouldDirty: false });
-    }
+  useEffect(() => {
+    const t = searchParams.get('type');
+    if (t) form.setValue('agent_type', t as 'artist'|'venue'|'organizer', { shouldDirty: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -115,16 +117,14 @@ function AgentesContent() {
   });
 
   // Gerar slug automaticamente quando o nome muda
-  React.useEffect(() => {
+  useEffect(() => {
     const n = form.watch('name')?.trim();
     if (n && !form.getValues('slug')) {
-      const autoSlug = n
-        .normalize('NFD')
-        .replace(/\p{Diacritic}/gu, '')
-        .toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^a-z0-9-]/g, '');
-      form.setValue('slug', autoSlug);
+      form.setValue(
+        'slug',
+        n.normalize('NFD').replace(/\p{Diacritic}/gu,'')
+         .toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'')
+      );
     }
   }, [form.watch('name')]);
 
@@ -279,22 +279,22 @@ function AgentesContent() {
                 control={form.control}
                 rules={{ required: true }}
                 render={({ field }) => (
-                  <RadioGroup
+                   <RadioGroup
                     value={field.value}
                     onValueChange={field.onChange}
                     className="grid gap-4 md:grid-cols-3"
                   >
-                    <div className={`rounded-xl border p-4 ${field.value === 'artist' ? 'ring-2 ring-primary' : ''}`}>
+                    <div className={cn("rounded-xl border p-4", field.value==='artist' && "ring-2 ring-primary")}>
                       <RadioGroupItem id="type-artist" value="artist" className="sr-only" />
                       <Label htmlFor="type-artist" className="cursor-pointer block">Artista</Label>
                     </div>
 
-                    <div className={`rounded-xl border p-4 ${field.value === 'venue' ? 'ring-2 ring-primary' : ''}`}>
+                    <div className={cn("rounded-xl border p-4", field.value==='venue' && "ring-2 ring-primary")}>
                       <RadioGroupItem id="type-venue" value="venue" className="sr-only" />
                       <Label htmlFor="type-venue" className="cursor-pointer block">Local</Label>
                     </div>
 
-                    <div className={`rounded-xl border p-4 ${field.value === 'organizer' ? 'ring-2 ring-primary' : ''}`}>
+                    <div className={cn("rounded-xl border p-4", field.value==='organizer' && "ring-2 ring-primary")}>
                       <RadioGroupItem id="type-organizer" value="organizer" className="sr-only" />
                       <Label htmlFor="type-organizer" className="cursor-pointer block">Organizador</Label>
                     </div>
