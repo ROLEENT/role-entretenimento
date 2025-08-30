@@ -75,7 +75,7 @@ export function RevistaFilters({
             >
               <SelectValue placeholder="Cidade" />
             </SelectTrigger>
-            <SelectContent className="bg-background border shadow-lg z-50">
+            <SelectContent className="bg-background border shadow-lg z-[100]">
               {cities.map((city) => (
                 <SelectItem key={city} value={city} className="capitalize cursor-pointer">
                   {city}
@@ -97,7 +97,7 @@ export function RevistaFilters({
             >
               <SelectValue placeholder="Seção" />
             </SelectTrigger>
-            <SelectContent className="bg-background border shadow-lg z-50">
+            <SelectContent className="bg-background border shadow-lg z-[100]">
               {sections.map((section) => (
                 <SelectItem key={section} value={section} className="capitalize cursor-pointer">
                   {section}

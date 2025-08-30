@@ -47,7 +47,7 @@ export default function RHFSelect({
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
               {/* evita problemas de portal/z-index dentro de dialogs/accordions */}
-              <SelectContent position="popper" className="z-50">
+              <SelectContent position="popper" className="z-[100]">
                 {options.map((o) => (
                   <SelectItem key={o.value} value={o.value}>
                     {o.label}

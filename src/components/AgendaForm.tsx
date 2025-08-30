@@ -656,7 +656,7 @@ export function AgendaForm({ mode, agendaId }: AgendaFormProps) {
                                   <SelectValue placeholder="Selecione o tipo" />
                                 </SelectTrigger>
                               </FormControl>
-                              <SelectContent position="popper" className="z-50">
+                              <SelectContent position="popper" className="z-[100]">
                                 {VISIBILITY_OPTIONS.map((option) => (
                                   <SelectItem key={option.value} value={option.value}>
                                     {option.label}
@@ -843,7 +843,7 @@ export function AgendaForm({ mode, agendaId }: AgendaFormProps) {
                                   <SelectValue placeholder="Selecione o tipo" />
                                 </SelectTrigger>
                               </FormControl>
-                              <SelectContent position="popper" className="z-50">
+                              <SelectContent position="popper" className="z-[100]">
                                 <SelectItem value="show">Show</SelectItem>
                                 <SelectItem value="festa">Festa</SelectItem>
                                 <SelectItem value="workshop">Workshop</SelectItem>
