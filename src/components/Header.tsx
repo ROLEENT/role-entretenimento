@@ -3,7 +3,7 @@ import { useResponsive } from "@/hooks/useResponsive";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { NotificationSettings } from "@/components/NotificationSettings";
+import { NotificationTrigger } from "@/components/NotificationTrigger";
 import GlobalSearch from "@/components/GlobalSearch";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -123,7 +123,7 @@ const Header = () => {
                 <Search className="h-5 w-5" />
               </Button>
               
-              <NotificationSettings />
+              <NotificationTrigger />
               <ThemeToggle />
               
               {user ? (
@@ -292,7 +292,7 @@ const Header = () => {
                   <Search className="h-4 w-4" />
                 </Button>
 
-                <NotificationSettings />
+                <NotificationTrigger />
                 <ThemeToggle />
 
                 {user ? (
