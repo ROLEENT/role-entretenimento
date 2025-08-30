@@ -659,6 +659,63 @@ export type Database = {
         }
         Relationships: []
       }
+      app_admins: {
+        Row: {
+          email: string
+        }
+        Insert: {
+          email: string
+        }
+        Update: {
+          email?: string
+        }
+        Relationships: []
+      }
+      applications: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          lgpd_consent: boolean | null
+          message: string | null
+          notes: string | null
+          phone: string | null
+          portfolio_url: string | null
+          role: string | null
+          source: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          lgpd_consent?: boolean | null
+          message?: string | null
+          notes?: string | null
+          phone?: string | null
+          portfolio_url?: string | null
+          role?: string | null
+          source?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          lgpd_consent?: boolean | null
+          message?: string | null
+          notes?: string | null
+          phone?: string | null
+          portfolio_url?: string | null
+          role?: string | null
+          source?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       approved_admins: {
         Row: {
           approved_by: string
@@ -1210,6 +1267,33 @@ export type Database = {
         }
         Relationships: []
       }
+      cities: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          slug: string
+          uf: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+          slug: string
+          uf: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          slug?: string
+          uf?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       companion_responses: {
         Row: {
           companion_request_id: string
@@ -1281,6 +1365,57 @@ export type Database = {
           name?: string
           status?: string
           subject?: string
+        }
+        Relationships: []
+      }
+      contacts: {
+        Row: {
+          city: string | null
+          created_at: string
+          email: string
+          handled_at: string | null
+          handled_by: string | null
+          id: string
+          ip: unknown | null
+          message: string
+          name: string
+          source: string | null
+          status: string
+          subject: string | null
+          tags: string[] | null
+          user_agent: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          email: string
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          ip?: unknown | null
+          message: string
+          name: string
+          source?: string | null
+          status?: string
+          subject?: string | null
+          tags?: string[] | null
+          user_agent?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          email?: string
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          ip?: unknown | null
+          message?: string
+          name?: string
+          source?: string | null
+          status?: string
+          subject?: string | null
+          tags?: string[] | null
+          user_agent?: string | null
         }
         Relationships: []
       }
@@ -2170,6 +2305,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      job_applications: {
+        Row: {
+          city: string | null
+          cover_letter: string | null
+          created_at: string
+          cv_url: string | null
+          email: string
+          id: string
+          ip: unknown | null
+          name: string
+          phone: string | null
+          portfolio_url: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          role: string | null
+          source: string | null
+          status: string
+          user_agent: string | null
+        }
+        Insert: {
+          city?: string | null
+          cover_letter?: string | null
+          created_at?: string
+          cv_url?: string | null
+          email: string
+          id?: string
+          ip?: unknown | null
+          name: string
+          phone?: string | null
+          portfolio_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          role?: string | null
+          source?: string | null
+          status?: string
+          user_agent?: string | null
+        }
+        Update: {
+          city?: string | null
+          cover_letter?: string | null
+          created_at?: string
+          cv_url?: string | null
+          email?: string
+          id?: string
+          ip?: unknown | null
+          name?: string
+          phone?: string | null
+          portfolio_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          role?: string | null
+          source?: string | null
+          status?: string
+          user_agent?: string | null
+        }
+        Relationships: []
       }
       js_errors: {
         Row: {
@@ -3611,6 +3803,21 @@ export type Database = {
         }
         Relationships: []
       }
+      cities_other_counts: {
+        Row: {
+          city_name: string | null
+          events_count: number | null
+        }
+        Relationships: []
+      }
+      v_admin_dashboard_counts: {
+        Row: {
+          kind: string | null
+          last_7d: number | null
+          total: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       add_blog_comment_secure: {
@@ -4089,6 +4296,10 @@ export type Database = {
       agenda_scheduler: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      app_is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       approve_blog_comment: {
         Args: { p_comment_id: string }

@@ -4,7 +4,7 @@ import { z } from 'zod';
 const baseSchema = {
   name: z.string().min(2, 'Nome obrigatório').max(200, 'Nome muito longo'),
   slug: z.string().min(2, 'Slug obrigatório'),
-  city: z.string().optional(),
+  city_id: z.coerce.number().int().positive('Cidade é obrigatória').optional(),
   instagram: z.string().optional(),
   whatsapp: z.string().optional(),
   email: z.string().email('Email inválido').optional().or(z.literal('')),
@@ -97,8 +97,4 @@ export const STATUS_OPTIONS = [
   { value: 'inactive', label: 'Inativo' },
 ];
 
-export const CITIES = [
-  'São Paulo', 'Rio de Janeiro', 'Belo Horizonte', 'Brasília', 
-  'Porto Alegre', 'Curitiba', 'Florianópolis', 'Salvador',
-  'Recife', 'Fortaleza', 'Goiânia', 'Manaus'
-];
+// Remove CITIES array since we now use the cities table from database

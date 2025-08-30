@@ -22,9 +22,9 @@ import {
   ARTIST_SUBTYPES, 
   VENUE_TYPES, 
   ORGANIZER_SUBTYPES,
-  STATUS_OPTIONS,
-  CITIES
+  STATUS_OPTIONS
 } from '@/lib/agentSchema';
+import { useCities } from '@/hooks/useCities';
 import { useAgentManagement } from '@/hooks/useAgentManagement';
 import { Users, Check, AlertCircle } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
@@ -34,6 +34,7 @@ function AgentesContent() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { loading, createAgent, checkSlugExists } = useAgentManagement();
+  const { cities } = useCities();
   
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   
@@ -228,14 +229,19 @@ function AgentesContent() {
               <div className="space-y-2">
                 <Label>Cidade</Label>
                 <Controller
-                  name="city"
+                  name="city_id"
                   control={form.control}
                   render={({ field }) => (
-                    <Select value={field.value ?? undefined} onValueChange={field.onChange}>
+                    <Select 
+                      value={field.value ? String(field.value) : undefined} 
+                      onValueChange={(value) => field.onChange(Number(value))}
+                    >
                       <SelectTrigger><SelectValue placeholder="Selecione a cidade" /></SelectTrigger>
                       <SelectContent>
-                        {CITIES.map((city) => (
-                          <SelectItem key={city} value={city}>{city}</SelectItem>
+                        {cities.map((city) => (
+                          <SelectItem key={city.id} value={String(city.id)}>
+                            {city.name} – {city.uf}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

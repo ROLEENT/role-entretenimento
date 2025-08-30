@@ -19,9 +19,9 @@ import {
   AgentFormData, 
   ARTIST_SUBTYPES, 
   VENUE_TYPES, 
-  ORGANIZER_SUBTYPES,
-  CITIES
+  ORGANIZER_SUBTYPES
 } from '@/lib/agentSchema';
+import { useCities } from '@/hooks/useCities';
 import { useAgentManagement } from '@/hooks/useAgentManagement';
 import { Check, AlertCircle } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
@@ -42,6 +42,7 @@ export function AgentQuickCreateModal({
 }: AgentQuickCreateModalProps) {
   const { toast } = useToast();
   const { loading, createAgent, checkSlugExists } = useAgentManagement();
+  const { cities } = useCities();
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   
   const form = useForm<AgentFormData>({
@@ -51,7 +52,7 @@ export function AgentQuickCreateModal({
       type: agentType,
       name: '',
       slug: '',
-      city: undefined,
+      city_id: undefined,
       instagram: '',
       whatsapp: '',
       email: '',
@@ -107,11 +108,14 @@ export function AgentQuickCreateModal({
 
     const agentId = await createAgent(data);
     if (agentId) {
+      // Encontrar cidade selecionada para o retorno
+      const selectedCity = cities.find(c => c.id === data.city_id);
+      
       // Criar objeto para retorno
       const newAgent: ComboboxAsyncOption = {
         id: agentId,
         name: data.name,
-        city: data.city,
+        city: selectedCity?.name,
         value: agentId,
         subtitle: agentType === 'venue' ? (data as any).address : 
                   agentType === 'organizer' ? data.email : undefined,
@@ -227,20 +231,23 @@ export function AgentQuickCreateModal({
 
               <FormField
                 control={form.control}
-                name="city"
+                name="city_id"
                 render={({ field }) => (
                   <FormItem>
                      <FormLabel>Cidade *</FormLabel>
-                     <Select onValueChange={field.onChange} value={field.value ?? undefined}>
+                     <Select 
+                       onValueChange={(value) => field.onChange(Number(value))} 
+                       value={field.value ? String(field.value) : undefined}
+                     >
                        <FormControl>
                          <SelectTrigger>
                            <SelectValue placeholder="Selecione a cidade" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {CITIES.map((city) => (
-                          <SelectItem key={city} value={city}>
-                            {city}
+                        {cities.map((city) => (
+                          <SelectItem key={city.id} value={String(city.id)}>
+                            {city.name} – {city.uf}
                           </SelectItem>
                         ))}
                       </SelectContent>

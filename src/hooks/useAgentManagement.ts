@@ -63,7 +63,7 @@ export const useAgentManagement = () => {
           insertData = {
             stage_name: data.name,
             slug: data.slug,
-            city: data.city || '',
+            city_id: data.city_id || null,
             instagram: data.instagram?.replace(/^@+/, '') || '',
             booking_whatsapp: data.whatsapp || '',
             booking_email: data.email || '',
@@ -85,7 +85,7 @@ export const useAgentManagement = () => {
             name: data.name,
             slug: data.slug,
             address: data.address || '',
-            city: data.city || '',
+            city_id: data.city_id || null,
             state: 'SP', // Default value
             capacity: data.capacity || null,
             lat: data.lat || null,
@@ -103,7 +103,7 @@ export const useAgentManagement = () => {
           insertData = {
             name: data.name,
             slug: data.slug,
-            city: data.city || '',
+            city_id: data.city_id || null,
             instagram: data.instagram?.replace(/^@+/, '') || '',
             contact_whatsapp: data.whatsapp || '',
             contact_email: data.email || '',
