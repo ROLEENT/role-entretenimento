@@ -55,7 +55,12 @@ export function RevistaFilters({
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10 h-11 text-base"
             aria-label="Buscar artigos na revista"
+            aria-controls="revista-articles-list"
+            aria-describedby="search-help"
           />
+          <div id="search-help" className="sr-only">
+            Use esta busca para filtrar artigos por título. Os resultados aparecerão automaticamente conforme você digita.
+          </div>
         </div>
       </div>
 
@@ -63,10 +68,14 @@ export function RevistaFilters({
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
           <Select value={cityFilter} onValueChange={onCityChange}>
-            <SelectTrigger className="w-full h-11" aria-label="Filtrar por cidade">
+            <SelectTrigger 
+              className="w-full h-11" 
+              aria-label="Filtrar artigos por cidade"
+              aria-describedby="city-filter-help"
+            >
               <SelectValue placeholder="Cidade" />
             </SelectTrigger>
-            <SelectContent className="bg-background border shadow-lg">
+            <SelectContent className="bg-background border shadow-lg z-50">
               {cities.map((city) => (
                 <SelectItem key={city} value={city} className="capitalize cursor-pointer">
                   {city}
@@ -74,14 +83,21 @@ export function RevistaFilters({
               ))}
             </SelectContent>
           </Select>
+          <div id="city-filter-help" className="sr-only">
+            Filtrar artigos por cidade específica
+          </div>
         </div>
 
         <div className="flex-1">
           <Select value={sectionFilter} onValueChange={onSectionChange}>
-            <SelectTrigger className="w-full h-11" aria-label="Filtrar por seção">
+            <SelectTrigger 
+              className="w-full h-11" 
+              aria-label="Filtrar artigos por seção"
+              aria-describedby="section-filter-help"
+            >
               <SelectValue placeholder="Seção" />
             </SelectTrigger>
-            <SelectContent className="bg-background border shadow-lg">
+            <SelectContent className="bg-background border shadow-lg z-50">
               {sections.map((section) => (
                 <SelectItem key={section} value={section} className="capitalize cursor-pointer">
                   {section}
@@ -89,6 +105,9 @@ export function RevistaFilters({
               ))}
             </SelectContent>
           </Select>
+          <div id="section-filter-help" className="sr-only">
+            Filtrar artigos por categoria ou seção
+          </div>
         </div>
 
         {hasActiveFilters && (

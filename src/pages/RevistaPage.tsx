@@ -307,18 +307,26 @@ export default function RevistaPage() {
             </div>
           )}
 
-          {/* Articles grid */}
+          {/* Articles grid with accessibility */}
           {!error && !isLoading && posts.length > 0 && (
             <>
-              <ResponsiveGrid 
-                cols={{ default: 1, md: 2, lg: 3 }}
-                gap="lg"
-                className="mb-8"
+              <div 
+                role="list" 
+                aria-label={`Lista de ${totalCount} artigo${totalCount !== 1 ? 's' : ''} da revista`}
+                id="revista-articles-list"
               >
-                {posts.map((post) => (
-                  <RevistaCard key={post.id} post={post} />
-                ))}
-              </ResponsiveGrid>
+                <ResponsiveGrid 
+                  cols={{ default: 1, md: 2, lg: 3 }}
+                  gap="lg"
+                  className="mb-8"
+                >
+                  {posts.map((post) => (
+                    <div key={post.id} role="listitem">
+                      <RevistaCard post={post} />
+                    </div>
+                  ))}
+                </ResponsiveGrid>
+              </div>
 
               {/* Load more button */}
               {hasMore && (
@@ -328,6 +336,7 @@ export default function RevistaPage() {
                     disabled={isLoadingMore}
                     variant="outline"
                     size="lg"
+                    aria-label={`Carregar mais artigos. ${posts.length} de ${totalCount} artigos carregados`}
                   >
                     {isLoadingMore ? (
                       <>

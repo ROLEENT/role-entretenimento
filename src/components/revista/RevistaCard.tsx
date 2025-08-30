@@ -33,12 +33,12 @@ export function RevistaCard({ post }: RevistaCardProps) {
           {post.cover_image ? (
             <ImageWithFallback
               src={post.cover_image}
-              alt={`Imagem do artigo: ${post.title}`}
+              alt={`Imagem ilustrativa do artigo "${post.title}"`}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/60">
-              <FileText className="w-12 h-12 text-muted-foreground/40" />
+              <FileText className="w-12 h-12 text-muted-foreground/40" aria-hidden="true" />
             </div>
           )}
           
@@ -46,6 +46,7 @@ export function RevistaCard({ post }: RevistaCardProps) {
           <div className="absolute top-3 left-3 flex gap-2">
             {post.featured && (
               <Badge className="bg-primary/90 backdrop-blur-sm text-primary-foreground border-0">
+                <span className="sr-only">Artigo em</span>
                 Destaque
               </Badge>
             )}
