@@ -1,5 +1,5 @@
 import { Search, Menu, User, Heart, LogOut, Calendar } from "lucide-react";
-import { useResponsive } from "@/hooks/useResponsive";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -8,7 +8,7 @@ import GlobalSearch from "@/components/GlobalSearch";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import roleIcon from "@/assets/role-logo.png";
-import { useAuth } from "@/hooks/useAuth";
+import { useResponsive } from "@/hooks/useResponsive";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { 

@@ -24,6 +24,12 @@ const Contact = lazy(() => import("./pages/Contact"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const SpamPolicy = lazy(() => import("./pages/SpamPolicy"));
 const UserTerms = lazy(() => import("./pages/UserTerms"));
+import { AdminLayout } from "@/components/AdminLayout";
+import { AdminDashboard as NewAdminDashboard } from "@/pages/admin/AdminDashboard";
+import { ApplicationsPage } from "@/pages/admin/ApplicationsPage";
+import { ContactPage } from "@/pages/admin/ContactPage";
+import { NewsletterPage } from "@/pages/admin/NewsletterPage";
+
 const OrganizerTerms = lazy(() => import("./pages/OrganizerTerms"));
 const Help = lazy(() => import("./pages/Help"));
 const Agenda = lazy(() => import("./pages/Agenda"));
@@ -162,11 +168,16 @@ function App() {
                 <Route path="/highlights" element={<HighlightsPage />} />
                 <Route path="/cidade/:cidade" element={<CityHighlights />} />
                 
-                {/* Simple Admin System */}
-                <Route path="/admin/login" element={<AdminLogin />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/admin/highlights/create" element={<AdminHighlightForm />} />
-                <Route path="/admin/highlights/:id/edit" element={<AdminHighlightForm />} />
+            {/* Admin Panel Routes */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<NewAdminDashboard />} />
+              <Route path="applications" element={<ApplicationsPage />} />
+              <Route path="contact" element={<ContactPage />} />
+              <Route path="newsletter" element={<NewsletterPage />} />
+            </Route>
+
+            {/* Legacy Simple Admin System */}
+            <Route path="/admin/login" element={<AdminLogin />} />
                 
                 {/* Admin V2 System */}
                 <Route path="/admin-v2/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Login /></Suspense>} />
