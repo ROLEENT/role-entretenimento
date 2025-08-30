@@ -58,8 +58,13 @@ const GlobalSearch = ({ events = [], highlights = [], isOpen, onClose }: GlobalS
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
-      <div className="container mx-auto px-4 pt-20">
+    <div 
+      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" 
+      onClick={onClose}
+      data-overlay
+      aria-hidden={!isOpen}
+    >
+      <div className="container mx-auto px-4 pt-20" onClick={(e) => e.stopPropagation()}>
         <Card className="max-w-2xl mx-auto p-6">
           <div className="flex items-center gap-3 mb-6">
             <Search className="h-5 w-5 text-muted-foreground" />

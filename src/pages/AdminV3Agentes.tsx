@@ -358,7 +358,7 @@ function AgentesContent() {
                       <FormLabel>
                         {agentType === 'venue' ? 'Cidade (opcional)' : 'Cidade'}
                       </FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecione a cidade" />
@@ -383,7 +383,7 @@ function AgentesContent() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">Status</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecione o status" />

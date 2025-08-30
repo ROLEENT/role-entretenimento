@@ -950,3 +950,18 @@ body {
     }
   }
 }
+
+/* Hotfix para overlays invisíveis que capturam cliques */
+[data-overlay][aria-hidden="true"] { 
+  pointer-events: none !important; 
+}
+
+/* Garantir que toasts, banners e drawers não bloqueiem quando escondidos */
+[data-state="closed"] { 
+  pointer-events: none !important; 
+}
+
+/* Garantir que elementos com display none não capturem eventos */
+[style*="display: none"] {
+  pointer-events: none !important;
+}
