@@ -186,16 +186,13 @@ const AgendaPorCidade = () => {
                                 className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
                               />
                               
-                              {/* Visual Badge */}
+                              {/* Selo de Curadoria */}
                               {badgeConfig && (
-                                <div className="absolute top-3 left-3">
-                                  <Badge 
-                                    className={`flex items-center gap-2 ${badgeConfig.className}`}
-                                    aria-label={badgeConfig.ariaLabel}
-                                  >
-                                    <badgeConfig.icon className="h-4 w-4" />
+                                <div className="absolute top-2 left-2">
+                                  <div className="agenda-badge">
+                                    <badgeConfig.icon className="h-3 w-3" />
                                     {badgeConfig.label}
-                                  </Badge>
+                                  </div>
                                 </div>
                               )}
                               
