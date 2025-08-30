@@ -2832,8 +2832,12 @@ export type Database = {
       }
       organizers: {
         Row: {
+          bio_short: string | null
+          booking_email: string | null
+          booking_whatsapp: string | null
           city_id: number | null
           contact_email: string
+          contact_whatsapp: string | null
           created_at: string
           email: string | null
           id: string
@@ -2843,11 +2847,17 @@ export type Database = {
           site: string | null
           site_url: string | null
           slug: string | null
+          status: string | null
+          type: string | null
           updated_at: string
         }
         Insert: {
+          bio_short?: string | null
+          booking_email?: string | null
+          booking_whatsapp?: string | null
           city_id?: number | null
           contact_email: string
+          contact_whatsapp?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -2857,11 +2867,17 @@ export type Database = {
           site?: string | null
           site_url?: string | null
           slug?: string | null
+          status?: string | null
+          type?: string | null
           updated_at?: string
         }
         Update: {
+          bio_short?: string | null
+          booking_email?: string | null
+          booking_whatsapp?: string | null
           city_id?: number | null
           contact_email?: string
+          contact_whatsapp?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -2871,6 +2887,8 @@ export type Database = {
           site?: string | null
           site_url?: string | null
           slug?: string | null
+          status?: string | null
+          type?: string | null
           updated_at?: string
         }
         Relationships: [

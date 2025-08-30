@@ -44,6 +44,8 @@ export const useAgentManagement = () => {
   const createAgent = async (data: AgentFormValues): Promise<string | null> => {
     setLoading(true);
     try {
+      console.log('Creating agent with data:', data);
+      
       // Check if slug already exists for this specific type
       const slugExists = await checkSlugExists(data.slug, data.type);
       if (slugExists) {
@@ -112,14 +114,16 @@ export const useAgentManagement = () => {
             bio_short: data.bio_short || '',
             status: data.status || 'draft',
             type: data.organizer_subtype || 'organizador',
-            booking_email: data.booking_email || null,
-            booking_whatsapp: data.booking_whatsapp || null,
+            booking_email: data.email || null,
+            booking_whatsapp: data.whatsapp || null,
           };
           break;
 
         default:
           throw new Error('Invalid agent type');
       }
+
+      console.log('Insert data prepared:', insertData);
 
       // Insert into the correct table
       const tableName = TABLE_BY_TYPE[data.type];
@@ -129,7 +133,10 @@ export const useAgentManagement = () => {
         .select('id')
         .single();
 
-      if (result.error) throw result.error;
+      if (result.error) {
+        console.error('Database error:', result.error);
+        throw result.error;
+      }
 
       const typeLabels = {
         artist: 'Artista',
@@ -155,7 +162,7 @@ export const useAgentManagement = () => {
       } else {
         toast({
           title: "Erro",
-          description: "Falha ao criar agente. Tente novamente.",
+          description: `Falha ao criar agente: ${error.message || 'Tente novamente.'}`,
           variant: "destructive"
         });
       }
