@@ -44,6 +44,7 @@ function AgentesContent() {
   const [isDirty, setIsDirty] = useState(false);
   
   const form = useForm<AgentFormData>({
+    mode: 'onChange',
     resolver: zodResolver(getAgentSchema(initialType)),
     defaultValues: {
       agent_type: initialType,
@@ -120,11 +121,17 @@ function AgentesContent() {
 
   // Gerar slug automaticamente quando o nome muda
   React.useEffect(() => {
-    if (nameValue && !slugValue) {
-      const autoSlug = generateSlug(nameValue);
+    const n = form.watch('name')?.trim();
+    if (n && !form.getValues('slug')) {
+      const autoSlug = n
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
       form.setValue('slug', autoSlug);
     }
-  }, [nameValue, slugValue, form, generateSlug]);
+  }, [form.watch('name')]);
 
   // Verificar disponibilidade do slug com debounce
   const debouncedSlugCheck = useDebouncedCallback(async (slug: string) => {
@@ -244,9 +251,9 @@ function AgentesContent() {
             Cancelar
           </Button>
           <Button 
+            type="button"
             variant="secondary" 
-            onClick={handleClear}
-            disabled={!isDirty}
+            onClick={() => form.reset()}
             className="w-full sm:w-auto"
           >
             Limpar
@@ -331,7 +338,7 @@ function AgentesContent() {
                     <FormItem>
                       <FormLabel className="text-sm font-medium">Nome *</FormLabel>
                       <FormControl>
-                        <Input id="agent-name" placeholder="Nome do agente" {...field} className="h-10" />
+                        <Input id="agent-name" placeholder="Nome" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -346,7 +353,7 @@ function AgentesContent() {
                       <FormLabel className="text-sm font-medium">Slug *</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Input id="agent-slug" placeholder="slug-do-agente" {...field} className="h-10 pr-10" />
+                          <Input id="agent-slug" placeholder="slug-exemplo" {...field} className="pr-10" />
                           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
                             {getSlugStatusIcon()}
                           </div>
@@ -419,48 +426,48 @@ function AgentesContent() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-                <FormField
-                  control={form.control}
+                <Controller
                   name="instagram"
+                  control={form.control}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">
                         {agentType === 'venue' ? 'Instagram (opcional)' : 'Instagram *'}
                       </FormLabel>
                       <FormControl>
-                        <Input placeholder="usuario (sem @)" {...field} className="h-10" />
+                        <Input placeholder="usuario (sem @)" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                <FormField
-                  control={form.control}
+                <Controller
                   name="whatsapp"
+                  control={form.control}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">
                         {agentType === 'venue' ? 'WhatsApp (opcional)' : 'WhatsApp *'}
                       </FormLabel>
                       <FormControl>
-                        <Input placeholder="(11) 99999-9999" {...field} className="h-10" />
+                        <Input placeholder="(11) 99999-9999" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                <FormField
-                  control={form.control}
+                <Controller
                   name="email"
+                  control={form.control}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">
                         {agentType === 'venue' ? 'Email (opcional)' : 'Email *'}
                       </FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="email@exemplo.com" {...field} className="h-10" />
+                        <Input type="email" placeholder="email@exemplo.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
