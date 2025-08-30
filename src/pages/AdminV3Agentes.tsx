@@ -13,7 +13,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormProvider } from 'react-hook-form';
+import CitySelect from '@/components/fields/CitySelect';
+import VenueTypeSelect from '@/components/fields/VenueTypeSelect';
+import RHFSelect from '@/components/form/RHFSelect';
 import { useToast } from '@/hooks/use-toast';
 import { 
   AgentSchema,
@@ -186,7 +189,8 @@ function AgentesContent() {
         </div>
       </div>
 
-      <form id="admin-agents-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <FormProvider {...form}>
+        <form id="admin-agents-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Agent Type Selection */}
         <Card>
           <CardHeader>
@@ -309,42 +313,15 @@ function AgentesContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
                 <Label>Cidade</Label>
-                <Controller
-                  name="city_id"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Select 
-                      value={field.value ? String(field.value) : undefined} 
-                      onValueChange={(value) => field.onChange(Number(value))}
-                    >
-                      <SelectTrigger><SelectValue placeholder="Selecione a cidade" /></SelectTrigger>
-                      <SelectContent>
-                        {cities.map((city) => (
-                          <SelectItem key={city.id} value={String(city.id)}>
-                            {city.name} – {city.uf}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
+                <CitySelect name="city_id" placeholder="Selecione a cidade" />
               </div>
 
               <div className="space-y-2">
                 <Label>Status</Label>
-                <Controller
-                  name="status"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Select value={field.value ?? undefined} onValueChange={field.onChange}>
-                      <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
-                      <SelectContent>
-                        {STATUS_OPTIONS.map((status) => (
-                          <SelectItem key={status.value} value={status.value}>{status.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
+                <RHFSelect 
+                  name="status" 
+                  options={STATUS_OPTIONS}
+                  placeholder="Status"
                 />
               </div>
             </div>
@@ -434,23 +411,14 @@ function AgentesContent() {
             </CardHeader>
             <CardContent className="space-y-6 p-4 md:p-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                <div className="space-y-2">
-                  <Label>Tipo de Artista</Label>
-                  <Controller
-                    name="artist_subtype"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Select value={field.value ?? undefined} onValueChange={field.onChange}>
-                        <SelectTrigger><SelectValue placeholder="Tipo de artista" /></SelectTrigger>
-                        <SelectContent>
-                          {ARTIST_SUBTYPES.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label>Tipo de Artista</Label>
+                    <RHFSelect 
+                      name="artist_subtype" 
+                      options={ARTIST_SUBTYPES}
+                      placeholder="Tipo de artista"
+                    />
+                  </div>
 
                 <div className="space-y-2">
                   <Label>Spotify URL</Label>
@@ -521,28 +489,10 @@ function AgentesContent() {
             </CardHeader>
             <CardContent className="space-y-6 p-4 md:p-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                <div className="space-y-2">
-                  <Label>Tipo de Local</Label>
-                  <Controller
-                    name="venue_type_id"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Select 
-                        value={field.value ? String(field.value) : undefined} 
-                        onValueChange={(value) => field.onChange(Number(value))}
-                      >
-                        <SelectTrigger><SelectValue placeholder="Tipo de local" /></SelectTrigger>
-                        <SelectContent>
-                          {venueTypes.map((type) => (
-                            <SelectItem key={type.id} value={String(type.id)}>
-                              {type.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label>Tipo de Local</Label>
+                    <VenueTypeSelect name="venue_type_id" placeholder="Tipo de local" />
+                  </div>
 
                 <div className="space-y-2">
                   <Label>Capacidade</Label>
@@ -591,23 +541,14 @@ function AgentesContent() {
             </CardHeader>
             <CardContent className="space-y-6 p-4 md:p-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                <div className="space-y-2">
-                  <Label>Tipo de Organizador</Label>
-                  <Controller
-                    name="organizer_subtype"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Select value={field.value ?? undefined} onValueChange={field.onChange}>
-                        <SelectTrigger><SelectValue placeholder="Tipo de organizador" /></SelectTrigger>
-                        <SelectContent>
-                          {ORGANIZER_SUBTYPES.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label>Tipo de Organizador</Label>
+                    <RHFSelect 
+                      name="organizer_subtype" 
+                      options={ORGANIZER_SUBTYPES}
+                      placeholder="Tipo de organizador"
+                    />
+                  </div>
 
                  <div className="space-y-2">
                    <Label>Booking Email</Label>
@@ -657,7 +598,8 @@ function AgentesContent() {
             {form.formState.isSubmitting ? 'Salvando...' : 'Salvar Agente'}
           </Button>
         </div>
-      </form>
+        </form>
+      </FormProvider>
     </div>
   );
 }
