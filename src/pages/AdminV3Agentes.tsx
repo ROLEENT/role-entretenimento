@@ -16,15 +16,14 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { FormProvider } from 'react-hook-form';
 import CitySelect from '@/components/fields/CitySelect';
 import VenueTypeSelect from '@/components/fields/VenueTypeSelect';
-import RHFSelect from '@/components/form/RHFSelect';
+import ArtistSubtypeSelect from '@/components/fields/ArtistSubtypeSelect';
+import OrganizerSubtypeSelect from '@/components/fields/OrganizerSubtypeSelect';
+import StatusSelect from '@/components/fields/StatusSelect';
 import { useToast } from '@/hooks/use-toast';
 import { 
   AgentSchema,
   AgentFormValues,
-  AGENT_TYPES, 
-  ARTIST_SUBTYPES, 
-  ORGANIZER_SUBTYPES,
-  STATUS_OPTIONS
+  AGENT_TYPES
 } from '@/lib/agentSchema';
 import { useCities } from '@/hooks/useCities';
 import { useVenueTypes } from '@/hooks/useVenueTypes';
@@ -318,11 +317,7 @@ function AgentesContent() {
 
               <div className="space-y-2">
                 <Label>Status</Label>
-                <RHFSelect 
-                  name="status" 
-                  options={STATUS_OPTIONS}
-                  placeholder="Status"
-                />
+                <StatusSelect name="status" placeholder="Status" />
               </div>
             </div>
 
@@ -413,11 +408,7 @@ function AgentesContent() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                   <div className="space-y-2">
                     <Label>Tipo de Artista</Label>
-                    <RHFSelect 
-                      name="artist_subtype" 
-                      options={ARTIST_SUBTYPES}
-                      placeholder="Tipo de artista"
-                    />
+                    <ArtistSubtypeSelect name="artist_subtype" placeholder="Tipo de artista" />
                   </div>
 
                 <div className="space-y-2">
@@ -543,11 +534,7 @@ function AgentesContent() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                   <div className="space-y-2">
                     <Label>Tipo de Organizador</Label>
-                    <RHFSelect 
-                      name="organizer_subtype" 
-                      options={ORGANIZER_SUBTYPES}
-                      placeholder="Tipo de organizador"
-                    />
+                    <OrganizerSubtypeSelect name="organizer_subtype" placeholder="Tipo de organizador" />
                   </div>
 
                  <div className="space-y-2">
