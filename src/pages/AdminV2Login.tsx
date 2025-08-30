@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -405,12 +405,12 @@ const AdminV2Login = () => {
                 Ao continuar, você concorda com nossos
               </p>
               <div className="flex justify-center space-x-4 text-xs">
-                <a href="/termos-usuario" className="text-primary hover:underline">
+                <Link to="/termos-usuario" className="text-primary hover:underline">
                   Termos de Uso
-                </a>
-                <a href="/politica-privacidade" className="text-primary hover:underline">
+                </Link>
+                <Link to="/politica-privacidade" className="text-primary hover:underline">
                   Política de Privacidade
-                </a>
+                </Link>
               </div>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -124,9 +125,9 @@ const Newsletter = () => {
 
           <p className="text-muted-foreground text-sm max-w-lg mx-auto leading-relaxed">
             Prometemos não enviar spam. Consulte nossa{" "}
-            <a href="/politica-privacidade" className="text-primary hover:underline font-medium">
+            <Link to="/politica-privacidade" className="text-primary hover:underline font-medium">
               Política de Privacidade
-            </a>
+            </Link>
             .
           </p>
         </div>
