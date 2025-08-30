@@ -3640,6 +3640,30 @@ export type Database = {
         }
         Relationships: []
       }
+      venue_types: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       venues: {
         Row: {
           address: string
@@ -3657,6 +3681,7 @@ export type Database = {
           slug: string | null
           state: string
           updated_at: string
+          venue_type_id: number | null
         }
         Insert: {
           address: string
@@ -3674,6 +3699,7 @@ export type Database = {
           slug?: string | null
           state: string
           updated_at?: string
+          venue_type_id?: number | null
         }
         Update: {
           address?: string
@@ -3691,6 +3717,7 @@ export type Database = {
           slug?: string | null
           state?: string
           updated_at?: string
+          venue_type_id?: number | null
         }
         Relationships: [
           {
@@ -3698,6 +3725,13 @@ export type Database = {
             columns: ["city_id"]
             isOneToOne: false
             referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "venues_venue_type_id_fkey"
+            columns: ["venue_type_id"]
+            isOneToOne: false
+            referencedRelation: "venue_types"
             referencedColumns: ["id"]
           },
         ]

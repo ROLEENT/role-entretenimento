@@ -30,7 +30,7 @@ export const artistSchema = z.object({
 export const venueSchema = z.object({
   type: z.literal('venue'),
   ...baseSchema,
-  venue_type: z.enum(['bar', 'clube', 'casa_de_shows', 'teatro', 'galeria', 'espaco_cultural', 'restaurante']).optional(),
+  venue_type_id: z.coerce.number().int().positive('Tipo de local é obrigatório').optional(),
   address: z.string().optional(),
   neighborhood: z.string().optional(),
   capacity: z.coerce.number().int().positive('Capacidade deve ser positiva').optional(),
@@ -75,15 +75,7 @@ export const ARTIST_SUBTYPES = [
   { value: 'drag', label: 'Drag' },
 ];
 
-export const VENUE_TYPES = [
-  { value: 'bar', label: 'Bar' },
-  { value: 'clube', label: 'Clube' },
-  { value: 'casa_de_shows', label: 'Casa de Shows' },
-  { value: 'teatro', label: 'Teatro' },
-  { value: 'galeria', label: 'Galeria' },
-  { value: 'espaco_cultural', label: 'Espaço Cultural' },
-  { value: 'restaurante', label: 'Restaurante' },
-];
+// Remove VENUE_TYPES static array since we now use the venue_types table from database
 
 export const ORGANIZER_SUBTYPES = [
   { value: 'organizador', label: 'Organizador' },

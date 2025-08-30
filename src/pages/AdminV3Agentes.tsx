@@ -20,11 +20,11 @@ import {
   AgentFormValues,
   AGENT_TYPES, 
   ARTIST_SUBTYPES, 
-  VENUE_TYPES, 
   ORGANIZER_SUBTYPES,
   STATUS_OPTIONS
 } from '@/lib/agentSchema';
 import { useCities } from '@/hooks/useCities';
+import { useVenueTypes } from '@/hooks/useVenueTypes';
 import { useAgentManagement } from '@/hooks/useAgentManagement';
 import { Users, Check, AlertCircle } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
@@ -35,6 +35,7 @@ function AgentesContent() {
   const { toast } = useToast();
   const { loading, createAgent, checkSlugExists } = useAgentManagement();
   const { cities } = useCities();
+  const { venueTypes } = useVenueTypes();
   
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   
@@ -417,14 +418,19 @@ function AgentesContent() {
                 <div className="space-y-2">
                   <Label>Tipo de Local</Label>
                   <Controller
-                    name="venue_type"
+                    name="venue_type_id"
                     control={form.control}
                     render={({ field }) => (
-                      <Select value={field.value ?? undefined} onValueChange={field.onChange}>
+                      <Select 
+                        value={field.value ? String(field.value) : undefined} 
+                        onValueChange={(value) => field.onChange(Number(value))}
+                      >
                         <SelectTrigger><SelectValue placeholder="Tipo de local" /></SelectTrigger>
                         <SelectContent>
-                          {VENUE_TYPES.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                          {venueTypes.map((type) => (
+                            <SelectItem key={type.id} value={String(type.id)}>
+                              {type.name}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>

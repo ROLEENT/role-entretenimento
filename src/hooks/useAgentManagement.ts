@@ -88,6 +88,7 @@ export const useAgentManagement = () => {
             city_id: data.city_id || null,
             state: 'SP', // Default value
             capacity: data.capacity || null,
+            venue_type_id: data.venue_type_id || null,
             lat: data.lat || null,
             lng: data.lng || null,
             contacts_json: {

@@ -18,10 +18,10 @@ import {
   agentSchema, 
   AgentFormData, 
   ARTIST_SUBTYPES, 
-  VENUE_TYPES, 
   ORGANIZER_SUBTYPES
 } from '@/lib/agentSchema';
 import { useCities } from '@/hooks/useCities';
+import { useVenueTypes } from '@/hooks/useVenueTypes';
 import { useAgentManagement } from '@/hooks/useAgentManagement';
 import { Check, AlertCircle } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
@@ -43,6 +43,7 @@ export function AgentQuickCreateModal({
   const { toast } = useToast();
   const { loading, createAgent, checkSlugExists } = useAgentManagement();
   const { cities } = useCities();
+  const { venueTypes } = useVenueTypes();
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   
   const form = useForm<AgentFormData>({
@@ -368,20 +369,23 @@ export function AgentQuickCreateModal({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="venue_type"
+                    name="venue_type_id"
                     render={({ field }) => (
                       <FormItem>
                          <FormLabel>Tipo do Local *</FormLabel>
-                         <Select onValueChange={field.onChange} value={field.value ?? undefined}>
+                         <Select 
+                           onValueChange={(value) => field.onChange(Number(value))} 
+                           value={field.value ? String(field.value) : undefined}
+                         >
                            <FormControl>
                              <SelectTrigger>
                                <SelectValue placeholder="Selecione o tipo" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {VENUE_TYPES.map((type) => (
-                              <SelectItem key={type.value} value={type.value}>
-                                {type.label}
+                            {venueTypes.map((type) => (
+                              <SelectItem key={type.id} value={String(type.id)}>
+                                {type.name}
                               </SelectItem>
                             ))}
                           </SelectContent>
