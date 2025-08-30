@@ -261,13 +261,13 @@ export function AgentQuickCreateModal({
                            <SelectValue placeholder="Selecione a cidade" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
-                        {cities.map((city) => (
-                          <SelectItem key={city.id} value={String(city.id)}>
-                            {city.name} – {city.uf}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
+                       <SelectContent position="popper" className="z-[100]">
+                         {cities.map((city) => (
+                           <SelectItem key={city.id} value={String(city.id)}>
+                             {city.name} – {city.uf}
+                           </SelectItem>
+                         ))}
+                       </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
@@ -364,13 +364,13 @@ export function AgentQuickCreateModal({
                            <SelectValue placeholder="Selecione o subtipo" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          {ARTIST_SUBTYPES.map((subtype) => (
-                            <SelectItem key={subtype.value} value={subtype.value}>
-                              {subtype.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
+                         <SelectContent position="popper" className="z-[100]">
+                           {ARTIST_SUBTYPES.map((subtype) => (
+                             <SelectItem key={subtype.value} value={subtype.value}>
+                               {subtype.label}
+                             </SelectItem>
+                           ))}
+                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
@@ -411,13 +411,13 @@ export function AgentQuickCreateModal({
                                <SelectValue placeholder="Selecione o tipo" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
-                            {venueTypes.map((type) => (
-                              <SelectItem key={type.id} value={String(type.id)}>
-                                {type.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
+                           <SelectContent position="popper" className="z-[100]">
+                             {venueTypes.map((type) => (
+                               <SelectItem key={type.id} value={String(type.id)}>
+                                 {type.name}
+                               </SelectItem>
+                             ))}
+                           </SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
@@ -473,13 +473,13 @@ export function AgentQuickCreateModal({
                           <SelectValue placeholder="Selecione o subtipo" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
-                        {ORGANIZER_SUBTYPES.map((subtype) => (
-                          <SelectItem key={subtype.value} value={subtype.value}>
-                            {subtype.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
+                       <SelectContent position="popper" className="z-[100]">
+                         {ORGANIZER_SUBTYPES.map((subtype) => (
+                           <SelectItem key={subtype.value} value={subtype.value}>
+                             {subtype.label}
+                           </SelectItem>
+                         ))}
+                       </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>

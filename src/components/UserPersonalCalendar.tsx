@@ -118,12 +118,12 @@ const UserPersonalCalendar: React.FC = () => {
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os tipos</SelectItem>
-                  <SelectItem value="favorite">Favoritos ({eventStats.favorites})</SelectItem>
-                  <SelectItem value="attending">Confirmados ({eventStats.attending})</SelectItem>
-                  <SelectItem value="manual">Manuais ({eventStats.manual})</SelectItem>
-                </SelectContent>
+                 <SelectContent position="popper" className="z-[100]">
+                   <SelectItem value="all">Todos os tipos</SelectItem>
+                   <SelectItem value="favorite">Favoritos ({eventStats.favorites})</SelectItem>
+                   <SelectItem value="attending">Confirmados ({eventStats.attending})</SelectItem>
+                   <SelectItem value="manual">Manuais ({eventStats.manual})</SelectItem>
+                 </SelectContent>
               </Select>
               
               <Button variant="outline" onClick={downloadICS}>

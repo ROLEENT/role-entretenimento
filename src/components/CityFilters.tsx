@@ -114,13 +114,13 @@ const CityFilters = ({ onFilterChange }: CityFiltersProps) => {
                     <SelectTrigger>
                       <SelectValue placeholder="Todos os gêneros" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {genres.map((genre) => (
-                        <SelectItem key={genre} value={genre}>
-                          {genre}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
+                     <SelectContent position="popper" className="z-[100]">
+                       {genres.map((genre) => (
+                         <SelectItem key={genre} value={genre}>
+                           {genre}
+                         </SelectItem>
+                       ))}
+                     </SelectContent>
                   </Select>
                 </div>
 
@@ -133,13 +133,13 @@ const CityFilters = ({ onFilterChange }: CityFiltersProps) => {
                     <SelectTrigger>
                       <SelectValue placeholder="Qualquer preço" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {priceRanges.map((range) => (
-                        <SelectItem key={range.value} value={range.value}>
-                          {range.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
+                     <SelectContent position="popper" className="z-[100]">
+                       {priceRanges.map((range) => (
+                         <SelectItem key={range.value} value={range.value}>
+                           {range.label}
+                         </SelectItem>
+                       ))}
+                     </SelectContent>
                   </Select>
                 </div>
 
@@ -152,13 +152,13 @@ const CityFilters = ({ onFilterChange }: CityFiltersProps) => {
                     <SelectTrigger>
                       <SelectValue placeholder="Qualquer data" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="today">Hoje</SelectItem>
-                      <SelectItem value="tomorrow">Amanhã</SelectItem>
-                      <SelectItem value="weekend">Fim de semana</SelectItem>
-                      <SelectItem value="week">Esta semana</SelectItem>
-                      <SelectItem value="month">Este mês</SelectItem>
-                    </SelectContent>
+                     <SelectContent position="popper" className="z-[100]">
+                       <SelectItem value="today">Hoje</SelectItem>
+                       <SelectItem value="tomorrow">Amanhã</SelectItem>
+                       <SelectItem value="weekend">Fim de semana</SelectItem>
+                       <SelectItem value="week">Esta semana</SelectItem>
+                       <SelectItem value="month">Este mês</SelectItem>
+                     </SelectContent>
                   </Select>
                 </div>
 
@@ -171,13 +171,13 @@ const CityFilters = ({ onFilterChange }: CityFiltersProps) => {
                     <SelectTrigger>
                       <SelectValue placeholder="Todos os tipos" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {venueTypes.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
+                     <SelectContent position="popper" className="z-[100]">
+                       {venueTypes.map((type) => (
+                         <SelectItem key={type} value={type}>
+                           {type}
+                         </SelectItem>
+                       ))}
+                     </SelectContent>
                   </Select>
                 </div>
               </div>
@@ -219,13 +219,13 @@ const CityFilters = ({ onFilterChange }: CityFiltersProps) => {
                         <SelectTrigger>
                           <SelectValue placeholder="Qualquer capacidade" />
                         </SelectTrigger>
-                        <SelectContent>
-                          {capacityRanges.map((range) => (
-                            <SelectItem key={range.value} value={range.value}>
-                              {range.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
+                         <SelectContent position="popper" className="z-[100]">
+                           {capacityRanges.map((range) => (
+                             <SelectItem key={range.value} value={range.value}>
+                               {range.label}
+                             </SelectItem>
+                           ))}
+                         </SelectContent>
                       </Select>
                     </div>
 

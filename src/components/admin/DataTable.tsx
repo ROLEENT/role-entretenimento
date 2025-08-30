@@ -192,14 +192,14 @@ export function DataTable<T>({
               <SelectTrigger className="w-full md:w-[180px]">
                 <SelectValue placeholder="Filtrar por status" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os status</SelectItem>
-                {statusOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
+               <SelectContent position="popper" className="z-[100]">
+                 <SelectItem value="all">Todos os status</SelectItem>
+                 {statusOptions.map((option) => (
+                   <SelectItem key={option.value} value={option.value}>
+                     {option.label}
+                   </SelectItem>
+                 ))}
+               </SelectContent>
             </Select>
           )}
         </div>

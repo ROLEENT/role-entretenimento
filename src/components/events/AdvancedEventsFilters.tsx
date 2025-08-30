@@ -234,7 +234,7 @@ export const AdvancedEventsFilters: React.FC<AdvancedEventsFiltersProps> = ({
               <SelectTrigger>
                 <SelectValue placeholder="Todas as cidades" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper" className="z-[100]">
                 <SelectItem value="all">Todas as cidades</SelectItem>
                 {cities.map((city) => (
                   <SelectItem key={city.id} value={city.id}>
@@ -414,7 +414,7 @@ export const AdvancedEventsFilters: React.FC<AdvancedEventsFiltersProps> = ({
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" className="z-[100]">
                     {sortOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
@@ -434,7 +434,7 @@ export const AdvancedEventsFilters: React.FC<AdvancedEventsFiltersProps> = ({
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" className="z-[100]">
                     <SelectItem value="asc">Crescente</SelectItem>
                     <SelectItem value="desc">Decrescente</SelectItem>
                   </SelectContent>

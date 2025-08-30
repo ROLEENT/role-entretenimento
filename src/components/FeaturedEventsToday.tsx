@@ -179,13 +179,13 @@ const FeaturedEventsToday = () => {
               <SelectTrigger className={`${isMobile ? 'w-full max-w-xs' : 'w-64'} h-12 text-base font-medium border-2 border-primary/20 hover:border-primary transition-colors`}>
                 <SelectValue placeholder="Selecione uma cidade" />
               </SelectTrigger>
-              <SelectContent className="bg-background/95 backdrop-blur-md border">
-                {cities.map((city) => (
-                  <SelectItem key={city.value} value={city.value} className="text-base">
-                    {city.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
+               <SelectContent position="popper" className="z-[100] bg-background/95 backdrop-blur-md border">
+                 {cities.map((city) => (
+                   <SelectItem key={city.value} value={city.value} className="text-base">
+                     {city.name}
+                   </SelectItem>
+                 ))}
+               </SelectContent>
             </Select>
           </div>
         </div>

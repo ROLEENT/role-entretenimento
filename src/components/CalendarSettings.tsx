@@ -75,7 +75,7 @@ const CalendarSettings: React.FC<CalendarSettingsProps> = ({
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" className="z-[100]">
                     <SelectItem value="0">Domingo</SelectItem>
                     <SelectItem value="1">Segunda-feira</SelectItem>
                   </SelectContent>
@@ -91,7 +91,7 @@ const CalendarSettings: React.FC<CalendarSettingsProps> = ({
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" className="z-[100]">
                     <SelectItem value="America/Sao_Paulo">Brasília (GMT-3)</SelectItem>
                     <SelectItem value="America/Manaus">Manaus (GMT-4)</SelectItem>
                     <SelectItem value="America/Rio_Branco">Rio Branco (GMT-5)</SelectItem>
@@ -122,7 +122,7 @@ const CalendarSettings: React.FC<CalendarSettingsProps> = ({
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" className="z-[100]">
                     <SelectItem value="5">5 minutos antes</SelectItem>
                     <SelectItem value="15">15 minutos antes</SelectItem>
                     <SelectItem value="30">30 minutos antes</SelectItem>

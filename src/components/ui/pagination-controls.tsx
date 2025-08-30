@@ -73,13 +73,13 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
               <SelectTrigger className="w-20">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                {pageSizeOptions.map(size => (
-                  <SelectItem key={size} value={size.toString()}>
-                    {size}
-                  </SelectItem>
-                ))}
-              </SelectContent>
+               <SelectContent position="popper" className="z-[100]">
+                 {pageSizeOptions.map(size => (
+                   <SelectItem key={size} value={size.toString()}>
+                     {size}
+                   </SelectItem>
+                 ))}
+               </SelectContent>
             </Select>
           </div>
         )}

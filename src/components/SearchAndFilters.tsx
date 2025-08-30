@@ -118,7 +118,7 @@ const SearchAndFilters = ({ onSearch, onFilterChange }: SearchAndFiltersProps) =
                   <SelectTrigger>
                     <SelectValue placeholder="Todas" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" className="z-[100]">
                     {categories.map((category) => (
                       <SelectItem key={category} value={category}>
                         {category}
@@ -138,7 +138,7 @@ const SearchAndFilters = ({ onSearch, onFilterChange }: SearchAndFiltersProps) =
                   <SelectTrigger>
                     <SelectValue placeholder="Todas" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" className="z-[100]">
                     {cities.map((city) => (
                       <SelectItem key={city} value={city}>
                         {city}
@@ -158,7 +158,7 @@ const SearchAndFilters = ({ onSearch, onFilterChange }: SearchAndFiltersProps) =
                   <SelectTrigger>
                     <SelectValue placeholder="Qualquer" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" className="z-[100]">
                     {priceRanges.map((range) => (
                       <SelectItem key={range.value} value={range.value}>
                         {range.label}
@@ -178,7 +178,7 @@ const SearchAndFilters = ({ onSearch, onFilterChange }: SearchAndFiltersProps) =
                   <SelectTrigger>
                     <SelectValue placeholder="Qualquer" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" className="z-[100]">
                     {dateOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}

@@ -135,7 +135,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper" className="z-[100]">
                 <SelectItem value="ambos">Ambos (Revista + Agenda)</SelectItem>
                 <SelectItem value="revista">Apenas Revista</SelectItem>
                 <SelectItem value="agenda">Apenas Agenda</SelectItem>
