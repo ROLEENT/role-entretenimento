@@ -46,7 +46,7 @@ const FeaturedEventsToday = () => {
       };
     } else {
       return {
-        label: "Vitrine Cultural",
+        label: "Revista",
         icon: Eye,
         className: "bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 shadow-lg"
       };
@@ -170,7 +170,7 @@ const FeaturedEventsToday = () => {
             EVENTOS EM DESTAQUE
           </h2>
           <p className={`text-muted-foreground ${isMobile ? 'text-lg' : 'text-xl'} max-w-3xl mx-auto mb-8`}>
-            Seleção de rolês em alta e da Vitrine Cultural
+            Seleção de rolês em alta e da Revista ROLÊ
           </p>
           
           {/* City Filter Dropdown */}
@@ -295,9 +295,9 @@ const FeaturedEventsToday = () => {
                 className="group px-8 py-6 text-lg rounded-full border-2 hover:shadow-lg hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300"
                 asChild
               >
-                <Link to="/eventos">
+                <Link to="/revista">
                   <Eye className="mr-3 h-6 w-6" />
-                  Ver toda a Vitrine
+                  Ver toda a Revista
                 </Link>
               </Button>
             </div>

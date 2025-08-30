@@ -237,7 +237,7 @@ const FeaturedHighlights = () => {
               Nenhum destaque encontrado no momento
             </p>
             <Button variant="outline" asChild>
-              <Link to="/eventos">Ver Vitrine Cultural</Link>
+              <Link to="/revista">Ver Revista</Link>
             </Button>
           </div>
         )}
