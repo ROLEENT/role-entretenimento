@@ -21,6 +21,11 @@ const Toaster = ({ ...props }: ToasterProps) => {
             "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
         },
       }}
+      // Enhanced accessibility props
+      position="bottom-right"
+      expand={true}
+      richColors
+      closeButton
       {...props}
     />
   )

@@ -34,56 +34,66 @@ const AgendaPorCidadeHome = () => {
   const chips = cities.filter(c => CHIPS.includes(c.slug));
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-12">
+    <section className="mx-auto max-w-7xl px-4 py-12" aria-labelledby="agenda-por-cidade-title">
       <header className="mb-8 text-center">
-        <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
-          Agenda por cidade
+        <h2 id="agenda-por-cidade-title" className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
+          AGENDA POR CIDADE
         </h2>
         <p className="mt-2 text-muted-foreground text-lg">
           Acompanhe os principais eventos por região.
         </p>
       </header>
 
-      {/* City Chips */}
-      <div className="mx-auto mb-8 flex w-full max-w-4xl flex-wrap items-center justify-center gap-3">
+      {/* City Chips Navigation */}
+      <nav 
+        className="mx-auto mb-8 flex w-full max-w-4xl flex-wrap items-center justify-center gap-3"
+        aria-label="Navegação rápida por cidades"
+        role="navigation"
+      >
         {chips.map((city) => (
           <Link
             key={city.slug}
             to={`/agenda/cidade/${city.slug}`}
-            className="rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-sm transition-all duration-200"
-            aria-label={`Ver agenda de ${city.name}`}
+            className="rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            aria-label={`Ir para agenda de ${city.name}`}
           >
             {city.name}
           </Link>
         ))}
-      </div>
+      </nav>
 
       {/* City Cards Grid */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div 
+        className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        role="region"
+        aria-label="Cards das cidades com resumo de eventos"
+      >
         {cities.map((city) => (
-          <Link
-            key={city.slug}
-            to={`/agenda/cidade/${city.slug}`}
-            className="group relative block rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:shadow-md hover:border-primary/30"
-          >
-            {/* Fixed height container to prevent layout shift */}
-            <div className="h-28 flex flex-col justify-between">
-              <div>
-                <h3 className="text-xl font-semibold text-card-foreground group-hover:text-primary transition-colors">
-                  {city.name}
-                </h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {typeof city.count === "number"
-                    ? (city.count > 0 ? `${city.count} eventos nesta semana` : "Em breve")
-                    : "Carregando…"}
-                </p>
+          <article key={city.slug} className="group">
+            <Link
+              to={`/agenda/cidade/${city.slug}`}
+              className="group relative block rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:shadow-md hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              aria-label={`Ver agenda completa de ${city.name}${typeof city.count === "number" && city.count > 0 ? ` - ${city.count} eventos nesta semana` : city.count === 0 ? " - sem eventos" : ""}`}
+            >
+              {/* Fixed height container to prevent layout shift */}
+              <div className="h-28 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold text-card-foreground group-hover:text-primary transition-colors">
+                    {city.name}
+                  </h3>
+                  <p className="mt-2 text-sm text-muted-foreground" aria-live="polite">
+                    {typeof city.count === "number"
+                      ? (city.count > 0 ? `${city.count} eventos nesta semana` : "Em breve")
+                      : "Carregando…"}
+                  </p>
+                </div>
+                
+                <div className="text-sm font-medium text-muted-foreground opacity-70 group-hover:opacity-100 group-hover:text-primary transition-all" aria-hidden="true">
+                  Ver agenda →
+                </div>
               </div>
-              
-              <div className="text-sm font-medium text-muted-foreground opacity-70 group-hover:opacity-100 group-hover:text-primary transition-all">
-                Ver agenda →
-              </div>
-            </div>
-          </Link>
+            </Link>
+          </article>
         ))}
       </div>
 
@@ -91,7 +101,8 @@ const AgendaPorCidadeHome = () => {
       <div className="mt-10 text-center">
         <Link
           to="/cidades"
-          className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-6 py-3 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-sm transition-all duration-200"
+          className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-6 py-3 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          aria-label="Ver lista completa de todas as cidades disponíveis"
         >
           Ver todas as cidades
         </Link>

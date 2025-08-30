@@ -112,8 +112,8 @@ const OutrasCidades = () => {
   return (
     <>
       <SEOHead 
-        title="Outras Cidades - ROLÊ"
-        description="Explore eventos em outras cidades além das capitais principais. Descubra a agenda cultural em diversas cidades do Brasil."
+        title="Outras Cidades - Agenda Cultural | ROLÊ"
+        description="Explore eventos culturais em diversas cidades do Brasil além das capitais. Descubra shows, exposições, peças teatrais e experiências únicas em sua região."
         canonical="/agenda/outras-cidades"
       />
       
@@ -128,62 +128,79 @@ const OutrasCidades = () => {
 
           {/* Search */}
           <div className="relative mb-6 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <label htmlFor="city-search" className="sr-only">
+              Buscar cidade por nome
+            </label>
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" aria-hidden="true" />
             <Input
+              id="city-search"
               placeholder="Buscar cidade..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              aria-describedby="search-help"
             />
+            <div id="search-help" className="sr-only">
+              Digite o nome da cidade para filtrar os resultados
+            </div>
           </div>
 
           {/* Cities List */}
-          {filteredCities.length === 0 ? (
-            <Card>
-              <CardContent className="text-center py-12">
-                {searchTerm ? (
-                  <>
-                    <h3 className="text-lg font-semibold mb-2">Nenhuma cidade encontrada</h3>
-                    <p className="text-muted-foreground">
-                      Não encontramos cidades que correspondam à sua busca por "{searchTerm}".
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <h3 className="text-lg font-semibold mb-2">Nenhuma cidade disponível</h3>
-                    <p className="text-muted-foreground">
-                      No momento não há eventos publicados em outras cidades.
-                    </p>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-3">
-              {filteredCities.map((city) => (
-                <Link
-                  key={city.city}
-                  to={`/agenda/cidade/${city.slug}`}
-                  className="block group"
-                >
-                  <Card className="transition-all duration-200 group-hover:shadow-md group-hover:-translate-y-0.5">
-                    <CardContent className="flex items-center justify-between py-4">
-                      <span className="font-medium group-hover:text-primary transition-colors">
-                        {city.city}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        {city.count} {city.count === 1 ? 'evento' : 'eventos'}
-                      </span>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          )}
+          <div 
+            role="region" 
+            aria-label="Lista de cidades com eventos"
+            aria-live="polite"
+            aria-busy={isLoading}
+          >
+            {filteredCities.length === 0 ? (
+              <Card role="status" aria-live="polite">
+                <CardContent className="text-center py-12">
+                  {searchTerm ? (
+                    <>
+                      <h3 className="text-lg font-semibold mb-2">Nenhuma cidade encontrada</h3>
+                      <p className="text-muted-foreground">
+                        Não encontramos cidades que correspondam à sua busca por "{searchTerm}".
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="text-lg font-semibold mb-2">Nenhuma cidade disponível</h3>
+                      <p className="text-muted-foreground">
+                        No momento não há eventos publicados em outras cidades.
+                      </p>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-3" role="list">
+                {filteredCities.map((city) => (
+                  <article key={city.city} role="listitem">
+                    <Link
+                      to={`/agenda/cidade/${city.slug}`}
+                      className="block group focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
+                      aria-label={`Ver agenda de ${city.city} - ${city.count} ${city.count === 1 ? 'evento' : 'eventos'}`}
+                    >
+                      <Card className="transition-all duration-200 group-hover:shadow-md group-hover:-translate-y-0.5">
+                        <CardContent className="flex items-center justify-between py-4">
+                          <span className="font-medium group-hover:text-primary transition-colors">
+                            {city.city}
+                          </span>
+                          <span className="text-sm text-muted-foreground" aria-label={`${city.count} ${city.count === 1 ? 'evento' : 'eventos'}`}>
+                            {city.count} {city.count === 1 ? 'evento' : 'eventos'}
+                          </span>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </article>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Summary */}
           {filteredCities.length > 0 && (
-            <div className="mt-8 text-sm text-muted-foreground text-center">
+            <div className="mt-8 text-sm text-muted-foreground text-center" role="status" aria-live="polite">
               {searchTerm ? (
                 <>Mostrando {filteredCities.length} {filteredCities.length === 1 ? 'cidade' : 'cidades'} para "{searchTerm}"</>
               ) : (
