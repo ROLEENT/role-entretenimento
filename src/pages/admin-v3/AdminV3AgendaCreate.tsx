@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
 import AdminEventForm from '@/components/admin/agenda/AdminEventForm';
+import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
 
 export default function AdminV3AgendaCreate() {
   const navigate = useNavigate();
@@ -21,15 +21,20 @@ export default function AdminV3AgendaCreate() {
   };
 
   return (
-    <AdminPageWrapper
-      title="Criar Novo Evento"
-      description="Adicione um novo evento à agenda"
-      breadcrumbs={breadcrumbs}
-    >
+    <div className="space-y-6">
+      <AdminV3Breadcrumb items={breadcrumbs} />
+      
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Criar Novo Evento</h1>
+          <p className="text-muted-foreground">Adicione um novo evento à agenda</p>
+        </div>
+      </div>
+      
       <AdminEventForm 
         onSave={handleSave}
         onCancel={handleCancel}
       />
-    </AdminPageWrapper>
+    </div>
   );
 }

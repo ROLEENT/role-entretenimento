@@ -34,6 +34,9 @@ import { ApplicationsPage } from "@/pages/admin/ApplicationsPage";
 import { ContactPage } from "@/pages/admin/ContactPage";
 import { NewsletterPage } from "@/pages/admin/NewsletterPage";
 
+// Admin V3 Layout
+import { AdminV3Layout } from "@/components/admin/AdminV3Layout";
+
 // Admin V3 Pages
 const AdminV3AgendaList = lazy(() => import("./pages/admin-v3/AdminV3AgendaList"));
 const AdminV3AgendaCreate = lazy(() => import("./pages/admin-v3/AdminV3AgendaCreate"));
@@ -213,42 +216,42 @@ function App() {
                 <Route path="/admin-v2/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Login /></Suspense>} />
                 <Route path="/admin-v2/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Dashboard /></Suspense>} />
                 
-                {/* Admin V3 System */}
+                {/* Admin V3 System - Login standalone */}
                 <Route path="/admin-v3/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Login /></Suspense>} />
-                <Route path="/admin-v3" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
-                <Route path="/admin-v3/dashboard" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
-                <Route path="/admin-v3/debug" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Debug /></Suspense>} />
-                
-                {/* Development Auth Route */}
                 <Route path="/dev-auth" element={<Suspense fallback={<AdminLoadingFallback />}><DevAuth /></Suspense>} />
                 
-                {/* Admin V3 - Agenda Routes */}
-                <Route path="/admin-v3/agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaList /></Suspense>} />
-                <Route path="/admin-v3/agenda/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaCreate /></Suspense>} />
-                <Route path="/admin-v3/agenda/:id/editar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaEdit /></Suspense>} />
-                
-                {/* Admin V3 - Agentes Routes */}
-                <Route path="/admin-v3/agentes/artistas" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsList /></Suspense>} />
-                <Route path="/admin-v3/agentes/artistas/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
-                <Route path="/admin-v3/agentes/artistas/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
-                <Route path="/admin-v3/agentes/artistas/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistEdit /></Suspense>} />
-                
-                {/* Admin V3 - Under Construction Route */}
-                <Route path="/admin-v3/under-construction" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionHandler /></Suspense>} />
-                
-                {/* Admin V3 - Fallback Routes for Development Features */}
-                <Route path="/admin-v3/agenda/rascunhos" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Rascunhos da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Salvar eventos como rascunho', 'Revisar antes de publicar', 'Agendamento de publicação']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Rascunhos'}]} /></Suspense>} />
-                <Route path="/admin-v3/agenda/configuracoes" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Configurações da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Configurações gerais', 'Integração com APIs', 'Notificações automáticas']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Configurações'}]} /></Suspense>} />
-                
-                {/* Under Construction Pages with new AdminLayout */}
-                <Route path="/admin-v3/agentes/venues" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenuesPage /></Suspense>} />
-                <Route path="/admin-v3/agentes/organizadores" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizadoresPage /></Suspense>} />
-                <Route path="/admin-v3/revista" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaPage /></Suspense>} />
-                <Route path="/admin-v3/revista/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaPage /></Suspense>} />
-                <Route path="/admin-v3/gestao" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoPage /></Suspense>} />
-                <Route path="/admin-v3/gestao/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoPage /></Suspense>} />
-                <Route path="/admin-v3/destaques" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
-                <Route path="/admin-v3/destaques/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
+                {/* Admin V3 - All routes with unified layout */}
+                <Route path="/admin-v3" element={<AdminV3Layout />}>
+                  <Route index element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
+                  <Route path="dashboard" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
+                  <Route path="debug" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Debug /></Suspense>} />
+                  
+                  {/* Agenda Routes */}
+                  <Route path="agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaList /></Suspense>} />
+                  <Route path="agenda/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaCreate /></Suspense>} />
+                  <Route path="agenda/:id/editar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaEdit /></Suspense>} />
+                  <Route path="agenda/rascunhos" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Rascunhos da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Salvar eventos como rascunho', 'Revisar antes de publicar', 'Agendamento de publicação']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Rascunhos'}]} /></Suspense>} />
+                  <Route path="agenda/configuracoes" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Configurações da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Configurações gerais', 'Integração com APIs', 'Notificações automáticas']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Configurações'}]} /></Suspense>} />
+                  
+                  {/* Agentes Routes */}
+                  <Route path="agentes/artistas" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsList /></Suspense>} />
+                  <Route path="agentes/artistas/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
+                  <Route path="agentes/artistas/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
+                  <Route path="agentes/artistas/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistEdit /></Suspense>} />
+                  <Route path="agentes/venues" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenuesPage /></Suspense>} />
+                  <Route path="agentes/organizadores" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizadoresPage /></Suspense>} />
+                  
+                  {/* Other modules */}
+                  <Route path="revista" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaPage /></Suspense>} />
+                  <Route path="revista/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaPage /></Suspense>} />
+                  <Route path="gestao" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoPage /></Suspense>} />
+                  <Route path="gestao/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoPage /></Suspense>} />
+                  <Route path="destaques" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
+                  <Route path="destaques/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
+                  
+                  {/* Fallback for under construction */}
+                  <Route path="under-construction" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionHandler /></Suspense>} />
+                </Route>
                 
                 {/* Events Routes */}
                 <Route path="/eventos" element={<EventsPage />} />
