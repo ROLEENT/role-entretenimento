@@ -1,5 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface UseAdminVenuesDataProps {
   search?: string;
@@ -90,11 +91,37 @@ export const useAdminVenuesData = ({ search, status, city }: UseAdminVenuesDataP
     },
   });
 
+  const queryClient = useQueryClient();
+
+  const deleteVenueMutation = useMutation({
+    mutationFn: async (venueId: string) => {
+      const { error } = await supabase
+        .from('venues')
+        .delete()
+        .eq('id', venueId);
+
+      if (error) {
+        console.error('Error deleting venue:', error);
+        throw new Error(`Erro ao excluir local: ${error.message}`);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-venues'] });
+      toast.success('Local excluído com sucesso');
+    },
+    onError: (error: Error) => {
+      console.error('Delete venue mutation failed:', error);
+      toast.error(error.message);
+    },
+  });
+
   return {
     venues: venuesQuery.data,
     cities: citiesQuery.data,
     isLoading: venuesQuery.isLoading || citiesQuery.isLoading,
     error: venuesQuery.error || citiesQuery.error,
     refetch: venuesQuery.refetch,
+    deleteVenue: deleteVenueMutation.mutate,
+    isDeleting: deleteVenueMutation.isPending,
   };
 };

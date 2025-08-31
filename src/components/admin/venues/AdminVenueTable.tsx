@@ -25,12 +25,14 @@ interface AdminVenueTableProps {
   venues: any[];
   onDuplicate: (venue: any) => void;
   onDeactivate: (venue: any) => void;
+  onDelete: (venue: any) => void;
 }
 
 export const AdminVenueTable: React.FC<AdminVenueTableProps> = ({
   venues,
   onDuplicate,
   onDeactivate,
+  onDelete,
 }) => {
   const navigate = useNavigate();
   return (
@@ -123,6 +125,13 @@ export const AdminVenueTable: React.FC<AdminVenueTableProps> = ({
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Desativar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => onDelete(venue)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Excluir
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

@@ -8,14 +8,17 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { AdminVenueFilters } from '@/components/admin/venues/AdminVenueFilters';
 import { AdminVenueTable } from '@/components/admin/venues/AdminVenueTable';
 import { useAdminVenuesData } from '@/hooks/useAdminVenuesData';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { toast } from 'sonner';
 
 const AdminV3VenuesList: React.FC = () => {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
   const [city, setCity] = useState('all');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [venueToDelete, setVenueToDelete] = useState<any>(null);
 
-  const { venues, cities, isLoading, error } = useAdminVenuesData({
+  const { venues, cities, isLoading, error, deleteVenue } = useAdminVenuesData({
     search: search || undefined,
     status: status !== 'all' ? status : undefined,
     city: city !== 'all' ? city : undefined,
@@ -42,6 +45,19 @@ const AdminV3VenuesList: React.FC = () => {
 
   const handleDeactivate = async (venue: any) => {
     toast.info('Funcionalidade de desativar será implementada em breve');
+  };
+
+  const handleDelete = (venue: any) => {
+    setVenueToDelete(venue);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (venueToDelete) {
+      deleteVenue(venueToDelete.id);
+      setDeleteDialogOpen(false);
+      setVenueToDelete(null);
+    }
   };
 
   const statsCards = [
@@ -141,6 +157,7 @@ const AdminV3VenuesList: React.FC = () => {
                 venues={venues || []}
                 onDuplicate={handleDuplicate}
                 onDeactivate={handleDeactivate}
+                onDelete={handleDelete}
               />
             </CardContent>
           </Card>
@@ -152,6 +169,17 @@ const AdminV3VenuesList: React.FC = () => {
           </div>
         )}
       </div>
+
+      <ConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Excluir Local"
+        description={`Tem certeza que deseja excluir o local "${venueToDelete?.name}"? Esta ação não pode ser desfeita.`}
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        variant="destructive"
+        onConfirm={confirmDelete}
+      />
     </AdminPageWrapper>
   );
 };
