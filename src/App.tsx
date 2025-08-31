@@ -254,11 +254,13 @@ function App() {
           <GlobalErrorHandlerProvider>
             <CriticalErrorBoundary>
               <ErrorBoundary>
-            <BrowserRouter>
-              <FocusManagementProvider />
-              <Suspense fallback={<PageLoadingFallback />}>
-                <ScrollToTop />
-                <DevCacheButton />
+                <BrowserRouter>
+                  <FocusManagementProvider />
+                  <Suspense fallback={<PageLoadingFallback />}>
+                    <>
+                      <ScrollToTop />
+                      <DevCacheButton />
+                    </>
               
               <Routes>
                 {/* Root redirect */}
@@ -406,11 +408,10 @@ function App() {
                 
                 {/* Catch-all route MUST be last */}
                 <Route path="*" element={<NotFound />} />
-              </Routes>
-              
-              </Suspense>
-              <PWAInstallPrompt />
-            </BrowserRouter>
+                  </Routes>
+                  </Suspense>
+                  <PWAInstallPrompt />
+                </BrowserRouter>
               </ErrorBoundary>
             </CriticalErrorBoundary>
           </GlobalErrorHandlerProvider>
