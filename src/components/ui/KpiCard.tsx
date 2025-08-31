@@ -23,7 +23,7 @@ export function KpiCard({
   'aria-label': ariaLabel
 }: KpiCardProps) {
   return (
-    <Card className={cn("dashboard-card", className)} aria-label={ariaLabel}>
+    <Card className={cn("dashboard-card", className)} aria-label={ariaLabel} data-testid="kpi-card">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground" id={`kpi-${title.toLowerCase()}`}>
           {title}
