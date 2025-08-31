@@ -3,6 +3,7 @@ import { AdminV3Header } from '@/components/AdminV3Header';
 import { KpiRow } from '@/components/dashboard/KpiRow';
 import { RecentActivityTable } from '@/components/dashboard/RecentActivityTable';
 import { HealthCard } from '@/components/dashboard/HealthCard';
+import { EventsWeeklyChart } from '@/components/dashboard/EventsWeeklyChart';
 
 function DashboardContent() {
   return (
@@ -28,6 +29,13 @@ function DashboardContent() {
           <h2 id="health-heading" className="text-xl font-semibold mb-2">Status do Sistema</h2>
           <p className="text-muted-foreground mb-4">Monitoramento da infraestrutura</p>
           <HealthCard />
+        </section>
+
+        {/* Weekly Chart */}
+        <section aria-labelledby="chart-heading">
+          <h2 id="chart-heading" className="text-xl font-semibold mb-2">Tendência de Eventos</h2>
+          <p className="text-muted-foreground mb-4">Visualização temporal da atividade</p>
+          <EventsWeeklyChart />
         </section>
 
         {/* Recent Activity */}
