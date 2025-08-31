@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AdminV3GuardProps {
   children: React.ReactNode;
@@ -29,9 +30,15 @@ export function AdminV3Guard({ children }: AdminV3GuardProps) {
         return;
       }
       
+      // Set admin email header for storage requests
+      if (user?.email && hasAccess) {
+        localStorage.setItem('admin_email', user.email);
+        console.log('Admin email set for storage requests:', user.email);
+      }
+      
       setAuthChecked(true);
     }
-  }, [session, role, loading, navigate]);
+  }, [session, role, loading, navigate, user]);
 
   // Show loading while checking session and role
   if (loading || !authChecked) {
