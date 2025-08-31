@@ -62,22 +62,16 @@ const AdminV3Login = lazy(() => import("./pages/AdminV3Login"));
 const AdminV3Dashboard = lazy(() => import("./pages/AdminV3Dashboard"));
 const AdminV3Debug = lazy(() => import("./pages/AdminV3Debug"));
 const AdminV3Agenda = lazy(() => import("./pages/AdminV3Agenda"));
-const AdminV3AgendaForm = lazy(() => import("./pages/AdminV3AgendaForm"));
 const AdminV3Artists = lazy(() => import("./pages/AdminV3Artists"));
-const AdminV3ArtistsCreate = lazy(() => import("./pages/AdminV3ArtistsCreate"));
-const AdminV3ArtistsEdit = lazy(() => import("./pages/AdminV3ArtistsEdit"));
 const AdminV3Agentes = lazy(() => import("./pages/AdminV3Agentes"));
 const AdminV3Profile = lazy(() => import("./pages/AdminV3Profile"));
 const AdminV3Contact = lazy(() => import("./pages/AdminV3Contact"));
 const AdminV3Newsletter = lazy(() => import("./pages/AdminV3Newsletter"));
 const AdminV3Categories = lazy(() => import("./pages/AdminV3Categories"));
 const AdminV3Applications = lazy(() => import("./pages/AdminV3Applications"));
-const AdminV3RevistaCreate = lazy(() => import("./pages/AdminV3RevistaCreate"));
-const AdminV3RevistaEdit = lazy(() => import("./pages/AdminV3RevistaEdit"));
 
 // Admin Blog components
 const AdminBlogList = lazy(() => import("./components/admin/blog/AdminBlogList").then(module => ({ default: module.AdminBlogList })));
-const AdminBlogForm = lazy(() => import("./components/admin/blog/AdminBlogForm").then(module => ({ default: module.AdminBlogForm })));
 
 // Revista pages
 const RevistaPage = lazy(() => import("./pages/RevistaPage"));
@@ -195,10 +189,6 @@ function App() {
                 <Route path="/admin-v3/debug" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Debug /></Suspense>} />
                 <Route path="/admin/v3/agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Agenda /></Suspense>} />
                 <Route path="/admin/v3/agenda/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Agenda /></Suspense>} />
-                <Route path="/admin/v3/agenda/new" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaForm /></Suspense>} />
-                <Route path="/admin/v3/agenda/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaForm /></Suspense>} />
-                <Route path="/admin/v3/agenda/create" element={<Navigate to="/admin/v3/agenda/new" replace />} />
-                <Route path="/admin/v3/agenda/:id/edit" element={<Navigate to="/admin/v3/agenda/:id" replace />} />
                 {/* Redirect old artists routes to agentes */}
                 <Route path="/admin-v3/artists" element={<Navigate to="/admin-v3/agentes" replace />} />
                 <Route path="/admin-v3/artists/" element={<Navigate to="/admin-v3/agentes" replace />} />
@@ -211,10 +201,6 @@ function App() {
                 {/* Admin Revista Routes */}
                 <Route path="/admin-v3/revista" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogList /></Suspense>} />
                 <Route path="/admin-v3/revista/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogList /></Suspense>} />
-                <Route path="/admin-v3/revista/novo" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaCreate /></Suspense>} />
-                <Route path="/admin-v3/revista/novo/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaCreate /></Suspense>} />
-                <Route path="/admin-v3/revista/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaEdit /></Suspense>} />
-                <Route path="/admin-v3/revista/:id/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaEdit /></Suspense>} />
                 {/* Admin Gestão Routes */}
                 <Route path="/admin-v3/contatos" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Contact /></Suspense>} />
                 <Route path="/admin-v3/newsletter" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Newsletter /></Suspense>} />
