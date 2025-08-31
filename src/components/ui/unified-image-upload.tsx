@@ -70,13 +70,17 @@ export const UnifiedImageUpload: React.FC<ImageUploadProps> = ({
   const styles = VARIANT_STYLES[variant];
 
   const handleUpload = useCallback(async (file: File) => {
+    console.log('UnifiedImageUpload: Tentando upload para bucket:', bucket, 'folder:', folder);
     const url = await uploadFile(file, bucket, folder, {
       maxSizeMB,
       allowedTypes
     });
     
     if (url) {
+      console.log('UnifiedImageUpload: Upload sucesso, URL:', url);
       onChange(url);
+    } else {
+      console.error('UnifiedImageUpload: Upload falhou');
     }
   }, [uploadFile, bucket, folder, maxSizeMB, allowedTypes, onChange]);
 
