@@ -12,6 +12,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { DevCacheButton } from "./components/DevCacheButton";
 import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { RequireAuth } from "@/components/RequireAuth";
 
 // Preview component

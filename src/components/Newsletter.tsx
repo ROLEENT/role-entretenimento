@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FormProvider } from "react-hook-form";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useResponsive } from "@/hooks/useResponsive";
@@ -75,9 +75,10 @@ const Newsletter = () => {
                     autoComplete="email"
                   />
                 </div>
-                <Button 
+                <LoadingButton 
                   type="submit" 
-                  disabled={form.isSubmitting}
+                  loading={form.isSubmitting}
+                  loadingText="Enviando..."
                   size="lg"
                   className={`${isMobile ? 'h-14 px-8 text-base' : 'h-16 px-12 text-lg'} rounded-full font-bold bg-primary hover:bg-primary/90 text-primary-foreground border-0 group transition-all duration-300 hover:scale-105 hover:shadow-xl`}
                 >
@@ -93,7 +94,7 @@ const Newsletter = () => {
                       <Send className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                     </span>
                   )}
-                </Button>
+                </LoadingButton>
               </div>
             </form>
           </FormProvider>

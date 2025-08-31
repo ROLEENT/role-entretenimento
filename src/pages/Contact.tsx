@@ -4,7 +4,9 @@ import { FormProvider } from "react-hook-form";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Button } from "@/components/ui/button";
+
 import { Mail, MessageSquare, Phone } from "lucide-react";
 import { RHFValidatedInput, RHFValidatedTextarea } from "@/components/form";
 import { contactSchema } from "@/schemas/forms";
@@ -151,13 +153,14 @@ const Contact = () => {
                         </a>.
                       </p>
                       
-                      <Button 
+                      <LoadingButton 
                         type="submit" 
-                        disabled={form.isSubmitting} 
+                        loading={form.isSubmitting}
+                        loadingText="Enviando..."
                         className="w-full"
                       >
-                        {form.isSubmitting ? "Enviando..." : "Enviar Mensagem"}
-                      </Button>
+                        Enviar Mensagem
+                      </LoadingButton>
                     </form>
                   </FormProvider>
                 </CardContent>
