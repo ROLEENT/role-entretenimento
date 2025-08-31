@@ -43,6 +43,7 @@ interface NavigationModule {
   }[];
 }
 
+// Available: ✅ | In Development: 🚧
 const navigationModules: NavigationModule[] = [
   {
     title: 'Agenda',
@@ -50,29 +51,16 @@ const navigationModules: NavigationModule[] = [
     baseUrl: '/admin-v3/agenda',
     items: [
       {
-        label: 'Listar Eventos',
+        label: 'Listar Eventos ✅',
         url: '/admin-v3/agenda',
         icon: Calendar,
         description: 'Ver todos os eventos'
       },
       {
-        label: 'Criar Evento',
+        label: 'Criar Evento ✅',
         url: '/admin-v3/agenda/criar',
         icon: Plus,
         description: 'Adicionar novo evento'
-      },
-      {
-        label: 'Rascunhos',
-        url: '/admin-v3/agenda/rascunhos',
-        icon: FileText,
-        badge: 3,
-        description: 'Eventos em rascunho'
-      },
-      {
-        label: 'Configurações',
-        url: '/admin-v3/agenda/configuracoes',
-        icon: Settings,
-        description: 'Configurar agenda'
       }
     ]
   },
@@ -82,34 +70,28 @@ const navigationModules: NavigationModule[] = [
     baseUrl: '/admin-v3/agentes',
     items: [
       {
-        label: 'Artistas',
+        label: 'Artistas ✅',
         url: '/admin-v3/agentes/artistas',
         icon: Users,
-        description: 'Gerenciar artistas'
+        description: 'Gerenciar artistas cadastrados'
       },
       {
-        label: 'Criar Artista',
+        label: 'Criar Artista ✅',
         url: '/admin-v3/agentes/artistas/criar',
         icon: Plus,
         description: 'Adicionar novo artista'
       },
       {
-        label: 'Venues',
+        label: 'Venues 🚧',
         url: '/admin-v3/agentes/venues',
         icon: MapPin,
-        description: 'Locais e espaços'
+        description: 'Locais e espaços (em desenvolvimento)'
       },
       {
-        label: 'Organizadores',
+        label: 'Organizadores 🚧',
         url: '/admin-v3/agentes/organizadores',
         icon: Briefcase,
-        description: 'Organizadores de eventos'
-      },
-      {
-        label: 'Categorias',
-        url: '/admin-v3/agentes/categorias',
-        icon: Tag,
-        description: 'Categorias de agentes'
+        description: 'Organizadores de eventos (em desenvolvimento)'
       }
     ]
   },
@@ -119,28 +101,16 @@ const navigationModules: NavigationModule[] = [
     baseUrl: '/admin-v3/revista',
     items: [
       {
-        label: 'Artigos',
+        label: 'Artigos 🚧',
         url: '/admin-v3/revista/artigos',
         icon: FileText,
-        description: 'Gerenciar artigos'
+        description: 'Gerenciar artigos (em desenvolvimento)'
       },
       {
-        label: 'Criar Artigo',
+        label: 'Criar Artigo 🚧',
         url: '/admin-v3/revista/criar',
         icon: Plus,
-        description: 'Novo artigo'
-      },
-      {
-        label: 'Categorias',
-        url: '/admin-v3/revista/categorias',
-        icon: Tag,
-        description: 'Categorias da revista'
-      },
-      {
-        label: 'SEO',
-        url: '/admin-v3/revista/seo',
-        icon: Layout,
-        description: 'Configurações SEO'
+        description: 'Novo artigo (em desenvolvimento)'
       }
     ]
   },
@@ -150,29 +120,23 @@ const navigationModules: NavigationModule[] = [
     baseUrl: '/admin-v3/gestao',
     items: [
       {
-        label: 'Contatos',
+        label: 'Contatos 🚧',
         url: '/admin-v3/gestao/contatos',
         icon: Mail,
-        description: 'Mensagens de contato'
+        description: 'Mensagens de contato (em desenvolvimento)'
       },
       {
-        label: 'Newsletter',
+        label: 'Newsletter 🚧',
         url: '/admin-v3/gestao/newsletter',
         icon: Mail,
-        description: 'Gerenciar newsletter'
+        description: 'Gerenciar newsletter (em desenvolvimento)'
       },
       {
-        label: 'Candidaturas',
+        label: 'Candidaturas 🚧',
         url: '/admin-v3/gestao/candidaturas',
         icon: UserCheck,
         badge: 5,
-        description: 'Candidaturas pendentes'
-      },
-      {
-        label: 'Configurações',
-        url: '/admin-v3/gestao/configuracoes',
-        icon: Settings,
-        description: 'Configurações gerais'
+        description: 'Candidaturas pendentes (em desenvolvimento)'
       }
     ]
   },
@@ -182,22 +146,16 @@ const navigationModules: NavigationModule[] = [
     baseUrl: '/admin-v3/destaques',
     items: [
       {
-        label: 'Highlights Ativos',
+        label: 'Highlights Ativos 🚧',
         url: '/admin-v3/destaques/ativos',
         icon: Lightbulb,
-        description: 'Highlights publicados'
+        description: 'Highlights publicados (em desenvolvimento)'
       },
       {
-        label: 'Criar Destaque',
+        label: 'Criar Destaque 🚧',
         url: '/admin-v3/destaques/criar',
         icon: Plus,
-        description: 'Novo highlight'
-      },
-      {
-        label: 'Agenda Curatorial',
-        url: '/admin-v3/destaques/curadoria',
-        icon: Sparkles,
-        description: 'Curadoria especial'
+        description: 'Novo highlight (em desenvolvimento)'
       }
     ]
   }
@@ -258,14 +216,24 @@ export function AdminNavigation() {
               {module.items.map((item) => {
                 const ItemIcon = item.icon;
                 const isItemSelected = isItemActive(item.url);
+                const isInDevelopment = item.label.includes('🚧');
+                const isAvailable = item.label.includes('✅');
                 
                 return (
                   <DropdownMenuItem
                     key={item.url}
-                    onClick={() => navigate(item.url)}
+                    onClick={() => {
+                      if (isInDevelopment) {
+                        // Navigate to under construction page with context
+                        navigate(`/admin-v3/under-construction?module=${encodeURIComponent(module.title)}&feature=${encodeURIComponent(item.label.replace(' 🚧', ''))}`);
+                      } else {
+                        navigate(item.url);
+                      }
+                    }}
                     className={cn(
                       "cursor-pointer flex items-center gap-2 py-2.5 px-2",
-                      isItemSelected && "bg-primary/10 text-primary font-medium"
+                      isItemSelected && "bg-primary/10 text-primary font-medium",
+                      isInDevelopment && "opacity-70"
                     )}
                   >
                     <ItemIcon className="h-4 w-4 flex-shrink-0" />
