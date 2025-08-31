@@ -33,7 +33,7 @@ import { VenueAmenitiesFields } from "@/components/agentes/VenueAmenitiesFields"
 import { VenueOpeningHoursFields } from "@/components/agentes/VenueOpeningHoursFields";
 import { VenueGalleryField } from "@/components/agentes/VenueGalleryField";
 import { ImageUpload } from "@/components/ui/image-upload";
-import { useAgentesAutosave } from "@/hooks/useAgentesAutosave";
+import { useAutosave } from "@/hooks/useAutosave";
 import { useAgentesSlugCheck } from "@/hooks/useAgentesSlugCheck";
 import { useAgentesInstagramValidation } from "@/hooks/useAgentesInstagramValidation";
 
@@ -86,6 +86,7 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
 
   const form = useForm({
     resolver: zodResolver(schema),
+    mode: "onBlur", // Enable onBlur validation for autosave
     defaultValues: {
       name: "",
       slug: "",
@@ -138,15 +139,24 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
   const slugValue = useWatch({ control: form.control, name: "slug" });
   const instagramValue = useWatch({ control: form.control, name: "instagram" });
 
-  // Custom hooks
-  const { isAutosaving } = useAgentesAutosave({
-    data: watchedData,
-    agentId,
-    tableName,
-    isEditing,
-    enabled: form.formState.isDirty,
-    agentType,
-  });
+  // Custom autosave hook
+  const { isAutosaving, hasError, lastSavedAt: autosaveLastSavedAt, handleFieldBlur, performSave } = useAutosave(
+    watchedData,
+    {
+      enabled: isEditing && form.formState.isDirty,
+      delay: 10000, // 10 seconds
+      onSave: async () => {
+        const data = form.getValues();
+        await saveMutation.mutateAsync(data);
+      },
+      onSaveSuccess: () => {
+        setLastSavedAt(new Date());
+      },
+      onSaveError: (error) => {
+        console.error('Autosave error:', error);
+      },
+    }
+  );
 
   const { isCheckingSlug, slugStatus } = useAgentesSlugCheck({
     slug: slugValue,
@@ -409,7 +419,16 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form 
+          onSubmit={form.handleSubmit(onSubmit)} 
+          onBlur={() => {
+            // Trigger autosave on any field blur
+            if (isEditing && form.formState.isDirty) {
+              // This will be handled by the individual field blur events
+            }
+          }}
+          className="space-y-6"
+        >
           {/* Informações Básicas */}
           <Card className="relative overflow-visible">
             <CardHeader>
@@ -727,7 +746,8 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
         isVisible={true}
         isSubmitting={saveMutation.isPending}
         isSaving={isAutosaving}
-        lastSavedAt={lastSavedAt}
+        hasError={hasError}
+        lastSavedAt={autosaveLastSavedAt || lastSavedAt}
         onSave={() => {
           setNextAction('save');
           form.handleSubmit(onSubmit)();
@@ -740,6 +760,7 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
           setNextAction('saveDraft');
           form.handleSubmit(onSubmit)();
         }}
+        onRetry={performSave}
       />
 
       {/* Bottom padding to account for fixed ActionBar */}

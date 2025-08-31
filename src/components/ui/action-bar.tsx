@@ -3,16 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { Save, Plus, FileText, Loader2, Check } from 'lucide-react';
+import { Save, Plus, FileText, Loader2, Check, AlertCircle, RotateCcw } from 'lucide-react';
 
 interface ActionBarProps {
   isVisible?: boolean;
   isSubmitting?: boolean;
   isSaving?: boolean;
+  hasError?: boolean;
   lastSavedAt?: Date | null;
   onSave?: () => void;
   onSaveAndCreate?: () => void;
   onSaveDraft?: () => void;
+  onRetry?: () => void;
   className?: string;
 }
 
@@ -20,10 +22,12 @@ export function ActionBar({
   isVisible = true,
   isSubmitting = false,
   isSaving = false,
+  hasError = false,
   lastSavedAt,
   onSave,
   onSaveAndCreate,
   onSaveDraft,
+  onRetry,
   className,
 }: ActionBarProps) {
   const getTimeSinceLastSaved = () => {
@@ -44,6 +48,25 @@ export function ActionBar({
   };
 
   const getSaveStatus = () => {
+    if (hasError) {
+      return (
+        <div className="flex items-center gap-2 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4" />
+          <span>Erro ao salvar</span>
+          {onRetry && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onRetry}
+              className="h-6 px-2 text-destructive hover:text-destructive"
+            >
+              <RotateCcw className="h-3 w-3" />
+            </Button>
+          )}
+        </div>
+      );
+    }
+
     if (isSaving || isSubmitting) {
       return (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
