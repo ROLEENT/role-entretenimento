@@ -17,9 +17,8 @@ import ActionBar from "@/components/ui/action-bar";
 
 // Import form components
 import { RHFInput, RHFTextarea, RHFSelect, RHFPhoneInput, RHFSlugInput } from "@/components/form";
-import RHFComboboxRemote from "@/components/rhf/RHFComboboxRemote";
+import { RHFAsyncSelect } from "@/components/form/RHFAsyncSelect";
 import CitySelectStable from "@/components/fields/CitySelectStable";
-import ArtistSubtypeSelect from "@/components/fields/ArtistSubtypeSelect";
 import OrganizerSubtypeSelect from "@/components/fields/OrganizerSubtypeSelect";
 import VenueTypeSelect from "@/components/fields/VenueTypeSelect";
 import StatusSelect from "@/components/fields/StatusSelect";
@@ -96,7 +95,7 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
     defaultValues: {
       name: "",
       slug: "",
-      artist_type_id: "",
+      artist_type_id: null,
       genre_ids: [],
       instagram: "",
       email: "",
@@ -243,10 +242,23 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
         links: agentData.links || {},
       };
 
-      // Adicionar artist types e genres se for artista
+      // Converter formato para react-select se for artista
       if (agentType === 'artistas') {
-        formData.artist_type_id = artistTypesData?.[0]?.id || null;
-        formData.genre_ids = genresData?.map(genre => genre.id) || [];
+        // Convert artist_type_id para formato { value, label }
+        if (artistTypesData?.[0]) {
+          formData.artist_type_id = {
+            value: artistTypesData[0].id,
+            label: artistTypesData[0].name
+          };
+        }
+        
+        // Convert genre_ids para formato [{ value, label }]
+        if (genresData?.length) {
+          formData.genre_ids = genresData.map(genre => ({
+            value: genre.id,
+            label: genre.name
+          }));
+        }
       }
 
       form.reset(formData);
@@ -255,12 +267,24 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
 
 
   // Normalize data before submit
-  const normalizeSubmitData = (data: any) => ({
-    ...data,
-    phone: normalizePhone(data.phone || ''),
-    whatsapp: normalizePhone(data.whatsapp || ''),
-    instagram: normalizeInstagram(data.instagram || ''),
-  });
+  const normalizeSubmitData = (data: any) => {
+    const processed = {
+      ...data,
+      phone: normalizePhone(data.phone || ''),
+      whatsapp: normalizePhone(data.whatsapp || ''),
+      instagram: normalizeInstagram(data.instagram || ''),
+    };
+
+    // Convert react-select format to backend format for artists
+    if (agentType === 'artistas') {
+      processed.artist_type_id = data.artist_type_id?.value ?? null;
+      processed.genre_ids = Array.isArray(data.genre_ids) 
+        ? data.genre_ids.map((g: any) => g.value) 
+        : [];
+    }
+
+    return processed;
+  };
 
   const saveMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -520,77 +544,27 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
 
               {agentType === 'artistas' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <RHFComboboxRemote
+                  <RHFAsyncSelect
                     name="artist_type_id"
                     label="Tipo de artista"
                     table="artist_types"
+                    valueField="id"
                     labelField="name"
                     searchField="name"
                     where={{ active: true }}
-                    placeholder="Selecione o tipo de artista"
-                    createButtonText="Tipo de Artista"
-                    createDialogTitle="Criar Novo Tipo de Artista"
-                    createDialogDescription="Adicione um novo tipo de artista à lista."
-                    createFieldLabel="Nome do Tipo"
-                    createFieldPlaceholder="Ex: DJ, Banda, Solo..."
-                    onCreateClick={async (searchTerm) => {
-                      try {
-                        console.log("[artist-types] Creating new:", searchTerm);
-                        const { data, error } = await supabase
-                          .from('artist_types')
-                          .insert({ name: searchTerm, active: true })
-                          .select('id, name')
-                          .single();
-                        
-                        if (error) throw error;
-                        
-                        console.log("[artist-types] Created:", data);
-                        return data;
-                      } catch (error) {
-                        console.error("[artist-types] Error creating:", error);
-                        throw error;
-                      }
-                    }}
                   />
                   
-                  <RHFComboboxRemote
+                  <RHFAsyncSelect
                     name="genre_ids"
                     label="Gêneros musicais"
                     table="genres"
+                    valueField="id"
                     labelField="name"
                     searchField="name"
                     where={{ active: true }}
-                    multiple
-                    placeholder="Selecione os gêneros"
-                    createButtonText="Gênero"
-                    createDialogTitle="Criar Novo Gênero Musical"
-                    createDialogDescription="Adicione um novo gênero musical à lista."
-                    createFieldLabel="Nome do Gênero"
-                    createFieldPlaceholder="Ex: House, Techno, Rock..."
-                    onCreateClick={async (searchTerm) => {
-                      try {
-                        console.log("[genres] Creating new:", searchTerm);
-                        const { data, error } = await supabase
-                          .from('genres')
-                          .insert({ name: searchTerm, active: true })
-                          .select('id, name')
-                          .single();
-                        
-                        if (error) throw error;
-                        
-                        console.log("[genres] Created:", data);
-                        return data;
-                      } catch (error) {
-                        console.error("[genres] Error creating:", error);
-                        throw error;
-                      }
-                    }}
+                    isMulti
                   />
                 </div>
-              )}
-
-              {agentType === 'artistas' && (
-                <ArtistSubtypeSelect name="artist_type" />
               )}
 
               {agentType === 'organizadores' && (

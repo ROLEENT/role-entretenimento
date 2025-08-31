@@ -52,15 +52,68 @@ export function RHFAsyncSelect({
     return (data ?? []).map(r => ({ value: r[valueField], label: r[labelField] }));
   };
 
-  // estilos: menu abre acima de tudo e não é cortado
+  // estilos: menu abre acima de tudo e não é cortado, com background adequado
   const styles = {
     menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
-    menu: (base: any) => ({ ...base, position: "fixed" as const }), // evita scroll do container
+    menu: (base: any) => ({ 
+      ...base, 
+      position: "fixed" as const,
+      backgroundColor: "hsl(var(--background))",
+      border: "1px solid hsl(var(--border))",
+      borderRadius: "var(--radius)",
+    }),
+    option: (base: any, state: any) => ({
+      ...base,
+      backgroundColor: state.isFocused 
+        ? "hsl(var(--accent))" 
+        : state.isSelected 
+          ? "hsl(var(--primary))" 
+          : "transparent",
+      color: state.isSelected 
+        ? "hsl(var(--primary-foreground))" 
+        : "hsl(var(--foreground))",
+      "&:hover": {
+        backgroundColor: "hsl(var(--accent))",
+      }
+    }),
+    control: (base: any, state: any) => ({
+      ...base,
+      backgroundColor: "hsl(var(--background))",
+      borderColor: state.isFocused ? "hsl(var(--ring))" : "hsl(var(--border))",
+      minHeight: "40px",
+      "&:hover": {
+        borderColor: "hsl(var(--border))",
+      }
+    }),
+    placeholder: (base: any) => ({
+      ...base,
+      color: "hsl(var(--muted-foreground))",
+    }),
+    singleValue: (base: any) => ({
+      ...base,
+      color: "hsl(var(--foreground))",
+    }),
+    multiValue: (base: any) => ({
+      ...base,
+      backgroundColor: "hsl(var(--accent))",
+    }),
+    multiValueLabel: (base: any) => ({
+      ...base,
+      color: "hsl(var(--accent-foreground))",
+    }),
+    loadingMessage: (base: any) => ({
+      ...base,
+      color: "hsl(var(--muted-foreground))",
+    }),
+    noOptionsMessage: (base: any) => ({
+      ...base,
+      color: "hsl(var(--muted-foreground))",
+    }),
   };
 
   return (
     <div className="w-full">
-      {label ? <label className="mb-1 block text-sm font-medium">{label}</label> : null}
+      {label ? <label className="mb-2 block text-sm font-medium text-foreground">{label}</label> : null}
       <Controller
         control={control}
         name={name}
