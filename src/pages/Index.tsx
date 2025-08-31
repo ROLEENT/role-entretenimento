@@ -12,6 +12,7 @@ import { NotificationPermissionPrompt } from "@/components/NotificationPermissio
 import { Toaster } from "@/components/ui/sonner";
 import SEOOptimizations from "@/components/SEOOptimizations";
 import AccessibilityEnhancements from "@/components/AccessibilityEnhancements";
+import { AdminAccessButton } from "@/components/AdminAccessButton";
 
 const Index = () => {
   return (
@@ -57,6 +58,7 @@ const Index = () => {
         <Footer />
         
         <NotificationPermissionPrompt />
+        <AdminAccessButton />
         <BackToTop />
         <HeaderGlobalSearch />
         <Toaster />

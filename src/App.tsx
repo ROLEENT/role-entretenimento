@@ -74,6 +74,7 @@ const AdminV2Dashboard = lazy(() => import("./pages/AdminV2Dashboard"));
 const AdminV3Login = lazy(() => import("./pages/AdminV3Login"));
 const AdminV3Dashboard = lazy(() => import("./pages/AdminV3Dashboard"));
 const AdminV3Debug = lazy(() => import("./pages/AdminV3Debug"));
+const DevAuth = lazy(() => import("./pages/DevAuth"));
 
 // Under Construction Components
 const UnderConstructionPage = lazy(() => import("@/components/admin/UnderConstructionPage").then(module => ({ default: module.UnderConstructionPage })));
@@ -212,6 +213,9 @@ function App() {
                 <Route path="/admin-v3" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
                 <Route path="/admin-v3/dashboard" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
                 <Route path="/admin-v3/debug" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Debug /></Suspense>} />
+                
+                {/* Development Auth Route */}
+                <Route path="/dev-auth" element={<Suspense fallback={<AdminLoadingFallback />}><DevAuth /></Suspense>} />
                 
                 {/* Admin V3 - Agenda Routes */}
                 <Route path="/admin-v3/agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaList /></Suspense>} />
