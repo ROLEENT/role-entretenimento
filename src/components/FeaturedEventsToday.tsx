@@ -8,6 +8,8 @@ import { Link } from "react-router-dom";
 import { useResponsive } from "@/hooks/useResponsive";
 import { supabase } from "@/integrations/supabase/client";
 import LazyImage from "@/components/LazyImage";
+import SkeletonGrid from "@/components/home/SkeletonGrid";
+import EmptyState from "@/components/home/EmptyState";
 
 interface FeaturedEvent {
   id: string;
@@ -132,24 +134,13 @@ const FeaturedEventsToday = () => {
 
   if (loading) {
     return (
-      <section className={`${isMobile ? 'py-16' : 'py-24'} bg-background`}>
+      <section className={`${isMobile ? 'py-16' : 'py-24'} bg-gradient-to-br from-accent/20 to-muted/30 relative overflow-hidden border-y border-border/50 shadow-inner`}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 animate-pulse">
             <div className="h-12 bg-muted rounded mb-4 w-80 mx-auto"></div>
             <div className="h-6 bg-muted rounded w-96 mx-auto"></div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="space-y-4 animate-pulse">
-                <div className="h-48 bg-muted rounded-lg"></div>
-                <div className="space-y-2">
-                  <div className="h-6 bg-muted rounded w-3/4"></div>
-                  <div className="h-4 bg-muted rounded w-1/2"></div>
-                  <div className="h-4 bg-muted rounded w-2/3"></div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <SkeletonGrid count={3} />
         </div>
       </section>
     );
@@ -303,18 +294,15 @@ const FeaturedEventsToday = () => {
             </div>
           </>
         ) : (
-          <div className="text-center py-16 text-muted-foreground bg-muted/20 rounded-lg border-2 border-dashed border-muted">
-            <div className="max-w-md mx-auto">
-              <CalendarDays className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-              <p className="text-lg font-medium mb-2">Nenhum evento em destaque</p>
-              <p className="text-sm">
-                {selectedCity === 'Todas' 
-                  ? 'Novos eventos serão adicionados em breve' 
-                  : `Novos eventos em ${selectedCity} serão adicionados em breve`
-                }
-              </p>
-            </div>
-          </div>
+          <EmptyState
+            title="Nenhum evento em destaque"
+            description={selectedCity === 'Todas' 
+              ? 'Novos eventos serão adicionados em breve' 
+              : `Novos eventos em ${selectedCity} serão adicionados em breve`
+            }
+            actionLabel="Ver toda a Revista"
+            actionLink="/revista"
+          />
         )}
       </div>
     </section>
