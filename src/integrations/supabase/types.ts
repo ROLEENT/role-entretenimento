@@ -3396,6 +3396,48 @@ export type Database = {
         }
         Relationships: []
       }
+      posts_public: {
+        Row: {
+          cover_url: string | null
+          excerpt: string | null
+          id: string | null
+          published_at: string | null
+          reading_time: number | null
+          reads: number | null
+          saves: number | null
+          section: string | null
+          slug: string | null
+          status: Database["public"]["Enums"]["article_status"] | null
+          title: string | null
+        }
+        Insert: {
+          cover_url?: string | null
+          excerpt?: string | null
+          id?: string | null
+          published_at?: string | null
+          reading_time?: number | null
+          reads?: number | null
+          saves?: number | null
+          section?: string | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["article_status"] | null
+          title?: string | null
+        }
+        Update: {
+          cover_url?: string | null
+          excerpt?: string | null
+          id?: string | null
+          published_at?: string | null
+          reading_time?: number | null
+          reads?: number | null
+          saves?: number | null
+          section?: string | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["article_status"] | null
+          title?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
