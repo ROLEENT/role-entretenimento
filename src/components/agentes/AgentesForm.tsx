@@ -430,18 +430,18 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
                     name="artist_type_id"
                     label="Tipo de artista"
                     loadOptions={async (q) => {
-                      const response = await supabase.functions.invoke('options/artist-types', {
-                        body: { q },
-                      });
-                      if (response.error) throw response.error;
-                      return response.data.items.map((i:any) => ({ label: i.name, value: i.id }));
+                      const response = await fetch(`/api/options/artist-types?q=${encodeURIComponent(q)}`, { cache: "no-store" });
+                      const result = await response.json();
+                      return result.items.map((i:any) => ({ label: i.name, value: i.id }));
                     }}
                     onCreate={async (label) => {
-                      const response = await supabase.functions.invoke('options/artist-types', {
-                        body: { name: label },
+                      const response = await fetch(`/api/options/artist-types`, { 
+                        method: "POST", 
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ name: label }) 
                       });
-                      if (response.error) throw response.error;
-                      return { label: response.data.name, value: response.data.id };
+                      const result = await response.json();
+                      return { label: result.name, value: result.id };
                     }}
                   />
                   
@@ -449,18 +449,18 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
                     name="genre_ids"
                     label="Gêneros musicais"
                     loadOptions={async (q) => {
-                      const response = await supabase.functions.invoke('options/genres', {
-                        body: { q },
-                      });
-                      if (response.error) throw response.error;
-                      return response.data.items.map((i:any) => ({ label: i.name, value: i.id }));
+                      const response = await fetch(`/api/options/genres?q=${encodeURIComponent(q)}`, { cache: "no-store" });
+                      const result = await response.json();
+                      return result.items.map((i:any) => ({ label: i.name, value: i.id }));
                     }}
                     onCreate={async (label) => {
-                      const response = await supabase.functions.invoke('options/genres', {
-                        body: { name: label },
+                      const response = await fetch(`/api/options/genres`, { 
+                        method: "POST", 
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ name: label }) 
                       });
-                      if (response.error) throw response.error;
-                      return { label: response.data.name, value: response.data.id };
+                      const result = await response.json();
+                      return { label: result.name, value: result.id };
                     }}
                   />
                 </div>

@@ -8,7 +8,7 @@ export async function GET(req: Request) {
     .from("genres")
     .select("id, name")
     .ilike("name", `%${q}%`)
-    .eq("is_active", true)
+    .eq("active", true)
     .order("name")
     .limit(50);
     
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
   
   const { data, error } = await sb
     .from("genres")
-    .upsert({ name, slug, is_active: true }, { onConflict: "slug" })
+    .upsert({ name, slug, active: true }, { onConflict: "slug" })
     .select("id, name")
     .single();
     
