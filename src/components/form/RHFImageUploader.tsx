@@ -1,0 +1,239 @@
+"use client";
+
+import { useFormContext, Controller } from "react-hook-form";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Upload, X, Image, AlertCircle } from "lucide-react";
+import { useState, useRef } from "react";
+import { BaseFormFieldProps } from "@/lib/forms";
+
+interface RHFImageUploaderProps extends BaseFormFieldProps {
+  accept?: string;
+  maxSize?: number; // in MB
+  maxWidth?: number;
+  maxHeight?: number;
+  onUpload?: (file: File) => Promise<string>; // Returns URL
+  multiple?: boolean;
+  preview?: boolean;
+}
+
+export default function RHFImageUploader({
+  name,
+  label,
+  description,
+  disabled,
+  className,
+  accept = "image/*",
+  maxSize = 5,
+  maxWidth = 1920,
+  maxHeight = 1080,
+  onUpload,
+  multiple = false,
+  preview = true,
+}: RHFImageUploaderProps) {
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
+
+  const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fieldError = errors[name];
+
+  const validateFile = (file: File): string | null => {
+    if (file.size > maxSize * 1024 * 1024) {
+      return `Arquivo muito grande. Máximo ${maxSize}MB.`;
+    }
+    
+    if (!file.type.startsWith('image/')) {
+      return 'Apenas imagens são permitidas.';
+    }
+    
+    return null;
+  };
+
+  const handleFileSelect = async (files: FileList | null, onChange: (value: any) => void, currentValue: any) => {
+    if (!files || files.length === 0) return;
+    
+    const file = files[0];
+    const validationError = validateFile(file);
+    
+    if (validationError) {
+      // Could show toast here
+      return;
+    }
+
+    if (onUpload) {
+      setUploading(true);
+      try {
+        const url = await onUpload(file);
+        
+        if (multiple) {
+          const newValue = Array.isArray(currentValue) ? [...currentValue, url] : [url];
+          onChange(newValue);
+        } else {
+          onChange(url);
+        }
+      } catch (error) {
+        console.error('Upload failed:', error);
+        // Could show toast here
+      } finally {
+        setUploading(false);
+      }
+    } else {
+      // If no upload handler, just store the file reference
+      if (multiple) {
+        const newValue = Array.isArray(currentValue) ? [...currentValue, file] : [file];
+        onChange(newValue);
+      } else {
+        onChange(file);
+      }
+    }
+  };
+
+  const removeItem = (index: number, onChange: (value: any) => void, currentValue: any) => {
+    if (multiple && Array.isArray(currentValue)) {
+      const newValue = currentValue.filter((_, i) => i !== index);
+      onChange(newValue);
+    } else {
+      onChange(null);
+    }
+  };
+
+  const renderPreview = (value: any, index?: number) => {
+    let src = "";
+    
+    if (typeof value === 'string') {
+      src = value;
+    } else if (value instanceof File) {
+      src = URL.createObjectURL(value);
+    }
+    
+    if (!src) return null;
+
+    return (
+      <div key={index || 0} className="relative group">
+        <img
+          src={src}
+          alt="Preview"
+          className="w-20 h-20 object-cover rounded border"
+          onLoad={() => {
+            if (value instanceof File) {
+              URL.revokeObjectURL(src);
+            }
+          }}
+        />
+        {!disabled && (
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            className="absolute -top-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={() => removeItem(index || 0, () => {}, [])}
+          >
+            <X size={12} />
+          </Button>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-2">
+      {label && (
+        <Label htmlFor={name} className={fieldError ? "text-destructive" : ""}>
+          {label}
+        </Label>
+      )}
+      
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <div className="space-y-3">
+            {/* Upload area */}
+            <Card
+              className={`
+                relative cursor-pointer transition-colors
+                ${dragOver ? 'border-primary bg-primary/5' : 'border-dashed'}
+                ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-accent/50'}
+                ${className}
+              `}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragOver(true);
+              }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragOver(false);
+                if (!disabled) {
+                  handleFileSelect(e.dataTransfer.files, field.onChange, field.value);
+                }
+              }}
+              onClick={() => !disabled && fileInputRef.current?.click()}
+            >
+              <CardContent className="flex flex-col items-center justify-center p-6 text-center">
+                {uploading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
+                    <span className="text-sm">Enviando...</span>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      Clique para selecionar ou arraste arquivos aqui
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Máximo {maxSize}MB • {accept}
+                    </p>
+                  </>
+                )}
+              </CardContent>
+              
+              <Input
+                ref={fileInputRef}
+                type="file"
+                accept={accept}
+                multiple={multiple}
+                disabled={disabled || uploading}
+                onChange={(e) => handleFileSelect(e.target.files, field.onChange, field.value)}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                aria-invalid={!!fieldError}
+                aria-describedby={description ? `${name}-description` : undefined}
+              />
+            </Card>
+            
+            {/* Preview area */}
+            {preview && field.value && (
+              <div className="flex flex-wrap gap-2">
+                {multiple && Array.isArray(field.value) ? (
+                  field.value.map((item, index) => renderPreview(item, index))
+                ) : (
+                  renderPreview(field.value)
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      />
+      
+      {description && (
+        <p id={`${name}-description`} className="text-sm text-muted-foreground">
+          {description}
+        </p>
+      )}
+      
+      {fieldError && (
+        <div className="flex items-center gap-1 text-sm text-destructive" role="alert">
+          <AlertCircle size={14} />
+          {fieldError.message as string}
+        </div>
+      )}
+    </div>
+  );
+}

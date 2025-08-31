@@ -16,5 +16,10 @@ export { default as RHFLinks } from './RHFLinks';
 export { default as RHFSlug } from './RHFSlug';
 export { default as RHFRichEditor } from './RHFRichEditor';
 
+// New standardized components
+export { default as RHFComboboxChips } from './RHFComboboxChips';
+export { default as RHFDateTimeUtc } from './RHFDateTimeUtc';
+export { default as RHFImageUploader } from './RHFImageUploader';
+
 // Example
 export { default as ExampleForm } from './ExampleForm';
