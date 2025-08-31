@@ -817,6 +817,33 @@ export type Database = {
         }
         Relationships: []
       }
+      artist_types: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          id: string
+          name: string
+          slug: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          id?: string
+          name: string
+          slug?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          slug?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       artists: {
         Row: {
           accommodation_notes: string | null
@@ -989,6 +1016,66 @@ export type Database = {
             columns: ["city_id"]
             isOneToOne: false
             referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      artists_artist_types: {
+        Row: {
+          artist_id: string
+          type_id: string
+        }
+        Insert: {
+          artist_id: string
+          type_id: string
+        }
+        Update: {
+          artist_id?: string
+          type_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artists_artist_types_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artists_artist_types_type_id_fkey"
+            columns: ["type_id"]
+            isOneToOne: false
+            referencedRelation: "artist_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      artists_genres: {
+        Row: {
+          artist_id: string
+          genre_id: string
+        }
+        Insert: {
+          artist_id: string
+          genre_id: string
+        }
+        Update: {
+          artist_id?: string
+          genre_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artists_genres_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artists_genres_genre_id_fkey"
+            columns: ["genre_id"]
+            isOneToOne: false
+            referencedRelation: "genres"
             referencedColumns: ["id"]
           },
         ]
@@ -1898,6 +1985,33 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      genres: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          id: string
+          name: string
+          slug: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          id?: string
+          name: string
+          slug?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          slug?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       group_event_participants: {
         Row: {
