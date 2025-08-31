@@ -8,14 +8,6 @@ export function DashboardRedirect() {
   const { user, session, loading, role } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!loading) {
-      if (session && (role === 'admin' || role === 'editor')) {
-        navigate('/admin-v3', { replace: true });
-      }
-    }
-  }, [session, role, loading, navigate]);
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -24,10 +16,6 @@ export function DashboardRedirect() {
     );
   }
 
-  // If not logged in or no admin role, show the homepage
-  if (!session || (role !== 'admin' && role !== 'editor')) {
-    return <Index />;
-  }
-
-  return null;
+  // Always show the homepage, regardless of user role
+  return <Index />;
 }

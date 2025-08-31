@@ -1,4 +1,4 @@
-import { Search, Menu, User, Heart, LogOut, Calendar } from "lucide-react";
+import { Search, Menu, User, Heart, LogOut, Calendar, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -25,7 +25,7 @@ import { Avatar, AvatarFallback } from "./ui/avatar";
 const Header = () => {
   const location = useLocation();
   const { isMobile } = useResponsive();
-  const { user } = useAuth();
+  const { user, hasAdminAccess } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [inlineSearchOpen, setInlineSearchOpen] = useState(false);
@@ -208,6 +208,16 @@ const Header = () => {
                       <Calendar className="h-4 w-4" />
                       Meu Calendário
                     </Link>
+                    {hasAdminAccess && (
+                      <Link
+                        to="/admin-v3"
+                        className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Settings className="h-4 w-4" />
+                        Painel Admin
+                      </Link>
+                    )}
                     <button className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors w-full text-left">
                       <LogOut className="h-4 w-4" />
                       Sair
@@ -359,6 +369,14 @@ const Header = () => {
                           Meu Calendário
                         </Link>
                       </DropdownMenuItem>
+                      {hasAdminAccess && (
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin-v3">
+                            <Settings className="mr-2 h-4 w-4" />
+                            Painel Admin
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem>
                         <LogOut className="mr-2 h-4 w-4" />
