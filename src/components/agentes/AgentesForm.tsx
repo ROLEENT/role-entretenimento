@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useCallback, useState } from "react";
+import React, { useEffect, useCallback, useState, useRef } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -59,7 +59,7 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
   const isEditing = !!agentId;
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [nextAction, setNextAction] = useState<'save' | 'saveAndCreate' | 'saveDraft'>('save');
-  const [slugLocked, setSlugLocked] = useState(false);
+  const slugLocked = useRef(false);
 
   // Hooks para artist types e genres (apenas para artistas)
   const { searchArtistTypes, createArtistType } = useArtistTypesOptions();
@@ -139,35 +139,37 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
     },
   });
 
-  // Watch form fields for autosave and slug generation
-  const watchedData = useWatch({ control: form.control });
-  const nameValue = useWatch({ control: form.control, name: "name" });
-  const slugValue = useWatch({ control: form.control, name: "slug" });
-  const instagramValue = useWatch({ control: form.control, name: "instagram" });
+  // Efficient slug generation - only when field is empty and name changes
+  const { watch, setValue } = form;
+  const name = watch("name");
+  const slug = watch("slug");
 
-  // Auto-generate slug from name when name changes (only if not locked)
   useEffect(() => {
-    if (!slugLocked && nameValue) {
-      const newSlug = generateSlug(nameValue);
-      if (newSlug !== slugValue) {
-        form.setValue("slug", newSlug, { shouldDirty: true });
+    if (!slugLocked.current && name && (!slug || !slug.trim())) {
+      const next = name.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu,"").replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+      if (next !== slug) {
+        setValue("slug", next, { shouldDirty: true, shouldTouch: false });
       }
     }
-  }, [nameValue, slugLocked, form, slugValue]);
+  }, [name, setValue]); // não dependa de slug ou errors
 
   // Function to regenerate slug manually
   const regenerateSlug = useCallback(() => {
-    if (nameValue) {
-      const newSlug = generateSlug(nameValue);
-      form.setValue("slug", newSlug, { shouldDirty: true });
-      setSlugLocked(false); // Unlock when regenerating
+    if (name) {
+      const newSlug = name.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu,"").replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+      setValue("slug", newSlug, { shouldDirty: true, shouldTouch: false });
+      slugLocked.current = false; // Unlock when regenerating
     }
-  }, [nameValue, form]);
+  }, [name, setValue]);
 
   // Function to handle manual slug edit
   const handleSlugEdit = useCallback(() => {
-    setSlugLocked(true);
+    slugLocked.current = true;
   }, []);
+
+  // Watch other form fields for autosave and validation
+  const watchedData = useWatch({ control: form.control });
+  const instagramValue = useWatch({ control: form.control, name: "instagram" });
 
   // Custom autosave hook
   const { isAutosaving, hasError, lastSavedAt: autosaveLastSavedAt, handleFieldBlur, performSave } = useAutosave(
@@ -189,10 +191,10 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
   );
 
   const { isCheckingSlug, slugStatus } = useAgentesSlugCheck({
-    slug: slugValue,
+    slug: slug,
     agentId,
     tableName,
-    enabled: !!slugValue && slugValue.length > 2,
+    enabled: !!slug && slug.length > 2,
   });
 
   const { isValidatingInstagram, instagramStatus } = useAgentesInstagramValidation({
@@ -510,11 +512,11 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
                   label="Slug"
                   placeholder="sera-gerado-automaticamente"
                   description="URL amigável. Gerado automaticamente a partir do nome."
-                  locked={slugLocked}
+                  locked={slugLocked.current}
                   statusIcon={getSlugStatusIcon()}
                   onRegenerate={regenerateSlug}
                   onEdit={handleSlugEdit}
-                  regenerateDisabled={!nameValue}
+                  regenerateDisabled={!name}
                 />
               </div>
 
