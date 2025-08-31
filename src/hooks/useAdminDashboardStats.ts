@@ -45,7 +45,7 @@ export const useAdminDashboardStats = () => {
         setLoading(true);
         setError(null);
 
-        // Fetch events stats
+        // Fetch events stats using the correct column name 'starts_at'
         const { data: eventsData, error: eventsError } = await supabase
           .from('agenda_itens')
           .select('status, city, starts_at');
