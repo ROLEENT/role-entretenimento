@@ -32,12 +32,11 @@ interface RevistaPost {
   featured?: boolean;
 }
 
-type Filters = { q: string; cidade: string; secao: string };
+type Filters = { q: string; secao: string };
 
 function readFromURL(sp: URLSearchParams): Filters {
   return {
     q: sp.get("q") ?? "",
-    cidade: sp.get("cidade") ?? "",
     secao: sp.get("secao") ?? "",
   };
 }
@@ -45,7 +44,6 @@ function readFromURL(sp: URLSearchParams): Filters {
 function normalize(f: Filters) {
   const out: Record<string, string> = {};
   if (f.q) out.q = f.q;
-  if (f.cidade) out.cidade = f.cidade;
   if (f.secao) out.secao = f.secao;
   return out;
 }
@@ -56,7 +54,7 @@ function toQS(f: Filters) {
 }
 
 function shallowEqual(a: Filters, b: Filters) {
-  return a.q === b.q && a.cidade === b.cidade && a.secao === b.secao;
+  return a.q === b.q && a.secao === b.secao;
 }
 
 export default function RevistaPage() {
@@ -83,8 +81,8 @@ export default function RevistaPage() {
 
   // Chave estável para efeitos
   const fKey = useMemo(
-    () => `${filters.q}|${filters.cidade}|${filters.secao}`,
-    [filters.q, filters.cidade, filters.secao]
+    () => `${filters.q}|${filters.secao}`,
+    [filters.q, filters.secao]
   );
 
   // Hidratação única protegida
@@ -165,12 +163,12 @@ export default function RevistaPage() {
         .order('published_at', { ascending: false })
         .range(offset, offset + 11); // 12 items (0-11)
 
-      if (filters.cidade) {
-        query = query.eq('city', filters.cidade);
-      }
-
       if (filters.q) {
         query = query.ilike('title', `%${filters.q}%`);
+      }
+      
+      if (filters.secao) {
+        query = query.eq('blog_post_categories.blog_categories.name', filters.secao);
       }
 
       const { data, error: fetchError, count } = await query;
@@ -271,18 +269,15 @@ export default function RevistaPage() {
   const onSearchChange = (v: string) =>
     setFilters(prev => (prev.q === v ? prev : { ...prev, q: v }));
 
-  const onCityChange = (v: string) =>
-    setFilters(prev => (prev.cidade === v ? prev : { ...prev, cidade: v }));
-
   const onSectionChange = (v: string) =>
     setFilters(prev => (prev.secao === v ? prev : { ...prev, secao: v }));
 
   const handleClearFilters = () => {
-    setFilters({ q: "", cidade: "", secao: "" });
+    setFilters({ q: "", secao: "" });
   };
 
   const handleViewAll = () => {
-    setFilters({ q: "", cidade: "", secao: "" });
+    setFilters({ q: "", secao: "" });
   };
 
   const handleRetry = () => {
@@ -291,10 +286,10 @@ export default function RevistaPage() {
     fetchPosts({ offset: 0, reset: true, filters, signal: abortRef.current.signal });
   };
 
-  const hasFilters = filters.q || filters.cidade || filters.secao;
+  const hasFilters = filters.q || filters.secao;
 
   const metaDescription = hasFilters 
-    ? `Resultados de busca na Revista ROLÊ${filters.q ? ` para "${filters.q}"` : ''}${filters.cidade ? ` em ${filters.cidade}` : ''}` 
+    ? `Resultados de busca na Revista ROLÊ${filters.q ? ` para "${filters.q}"` : ''}${filters.secao ? ` sobre ${filters.secao}` : ''}` 
     : "Mergulhos em cultura, música e noite no Brasil. Descubra as melhores matérias sobre a cena cultural.";
 
   // Generate JSON-LD ItemList for SEO when articles exist
@@ -359,15 +354,13 @@ export default function RevistaPage() {
           {totalArticlesExist && (
             <div className="sticky top-16 z-20 mb-8 rounded-xl border bg-background/80 backdrop-blur-md shadow-sm">
               <div className="p-4">
-                <RevistaFilters
-                  searchTerm={filters.q}
-                  cityFilter={filters.cidade}
-                  sectionFilter={filters.secao}
-                  onSearchChange={onSearchChange}
-                  onCityChange={onCityChange}
-                  onSectionChange={onSectionChange}
-                  onClearFilters={handleClearFilters}
-                />
+            <RevistaFilters
+              searchTerm={filters.q}
+              sectionFilter={filters.secao}
+              onSearchChange={onSearchChange}
+              onSectionChange={onSectionChange}
+              onClearFilters={handleClearFilters}
+            />
               </div>
             </div>
           )}
@@ -451,7 +444,7 @@ export default function RevistaPage() {
                 <>
                   <h3 className="text-lg font-semibold mb-2">Nenhum artigo encontrado</h3>
                   <p className="text-muted-foreground mb-6">
-                    Tente mudar cidade ou seção, ou limpe os filtros.
+                    Tente mudar a seção ou limpe os filtros.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <Button onClick={handleClearFilters} variant="outline">
