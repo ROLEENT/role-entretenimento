@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -13,6 +13,7 @@ import { Form } from "@/components/ui/form";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ArrowLeft, Save, Copy, UserX, Check, X, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import ActionBar from "@/components/ui/action-bar";
 
 // Import form components
 import { RHFInput, RHFTextarea, RHFSelect } from "@/components/form";
@@ -53,6 +54,8 @@ interface AgentesFormProps {
 export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps) {
   const queryClient = useQueryClient();
   const isEditing = !!agentId;
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [nextAction, setNextAction] = useState<'save' | 'saveAndCreate' | 'saveDraft'>('save');
 
   // Hooks para artist types e genres (apenas para artistas)
   const { searchArtistTypes, createArtistType } = useArtistTypesOptions();
@@ -284,9 +287,20 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
       return savedAgentId;
     },
     onSuccess: () => {
-      toast.success(isEditing ? "Agente atualizado com sucesso!" : "Agente criado com sucesso!");
+      setLastSavedAt(new Date());
+      if (nextAction === 'saveAndCreate') {
+        // Reset form and stay on page
+        form.reset();
+        setLastSavedAt(null);
+        toast.success(`Agente criado com sucesso! Formulário limpo para novo cadastro.`);
+      } else if (nextAction === 'saveDraft') {
+        toast.success(`Rascunho salvo com sucesso!`);
+      } else {
+        toast.success(isEditing ? "Agente atualizado com sucesso!" : "Agente criado com sucesso!");
+        onSuccess();
+      }
+      setNextAction('save');
       queryClient.invalidateQueries({ queryKey: [tableName] });
-      onSuccess();
     },
     onError: (error: any) => {
       toast.error(error.message || "Erro ao salvar agente");
@@ -704,29 +718,32 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
                 </>
               )}
             </div>
-
-            <div className="flex gap-4">
-              <Button type="button" variant="outline" asChild>
-                <Link to={getBackLink()}>
-                  Cancelar
-                </Link>
-              </Button>
-              
-              <Button 
-                type="submit" 
-                disabled={saveMutation.isPending}
-              >
-                {saveMutation.isPending ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Save className="mr-2 h-4 w-4" />
-                )}
-                {isEditing ? "Atualizar" : "Criar"}
-              </Button>
-            </div>
           </div>
         </form>
       </Form>
+
+      {/* Fixed Action Bar */}
+      <ActionBar
+        isVisible={true}
+        isSubmitting={saveMutation.isPending}
+        isSaving={isAutosaving}
+        lastSavedAt={lastSavedAt}
+        onSave={() => {
+          setNextAction('save');
+          form.handleSubmit(onSubmit)();
+        }}
+        onSaveAndCreate={!isEditing ? () => {
+          setNextAction('saveAndCreate');
+          form.handleSubmit(onSubmit)();
+        } : undefined}
+        onSaveDraft={() => {
+          setNextAction('saveDraft');
+          form.handleSubmit(onSubmit)();
+        }}
+      />
+
+      {/* Bottom padding to account for fixed ActionBar */}
+      <div className="h-24" />
     </div>
   );
 }
