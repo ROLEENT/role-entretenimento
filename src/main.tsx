@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
+import { AuthProvider } from '@/hooks/useAuth'
 import { preloadCriticalResources, registerServiceWorker } from "@/utils/serviceWorker";
 import { addResourceHints, optimizeForMobile } from "@/utils/performanceHelpers";
 import { initPerformanceMonitoring } from "./utils/performanceMonitor";
@@ -16,4 +17,8 @@ initPerformanceMonitoring();
 // Register service worker for push notifications and caching
 registerServiceWorker();
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(
+  <AuthProvider>
+    <App />
+  </AuthProvider>
+);

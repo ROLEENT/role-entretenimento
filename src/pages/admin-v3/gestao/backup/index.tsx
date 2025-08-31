@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Database, Download, Upload, AlertTriangle, CheckCircle, Clock, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAdminSession } from "@/hooks/useAdminSession";
+import { useAdminSession } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";

@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, BarChart3, TrendingUp, Users, Eye, Calendar, MapPin, RefreshCw, Activity, Clock, Database } from "lucide-react";
-import { useAdminSession } from "@/hooks/useAdminSession";
+import { useAdminSession } from "@/hooks/useAuth";
 import { useAnalyticsAdmin, ComprehensiveAnalytics, RealtimeMetrics } from "@/hooks/useAnalyticsAdmin";
 import { toast } from "sonner";
 import { subDays, format } from "date-fns";

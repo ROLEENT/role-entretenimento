@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Activity, Users, Eye, Clock, RefreshCw, TrendingUp, Database, Wifi } from 'lucide-react';
-import { useAdminSession } from '@/hooks/useAdminSession';
+import { useAdminSession } from '@/hooks/useAuth';
 import { useAnalyticsAdmin, RealtimeMetrics } from '@/hooks/useAnalyticsAdmin';
 import { toast } from 'sonner';
 
