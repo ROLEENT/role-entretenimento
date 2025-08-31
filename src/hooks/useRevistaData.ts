@@ -149,6 +149,12 @@ export const useRevistaData = (params: UseRevistaDataParams = {}) => {
       setPosts(transformedPosts);
       setTotalCount(count || 0);
       setTotalPages(Math.ceil((count || 0) / (params.limit || 12)));
+      
+      console.log('[useRevistaData] Success:', { 
+        articles: transformedArticles.length, 
+        posts: transformedPosts.length, 
+        total: count 
+      });
     } catch (err) {
       console.error('[useRevistaData] Error fetching articles:', err);
       const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar artigos';
