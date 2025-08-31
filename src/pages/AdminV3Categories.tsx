@@ -26,7 +26,7 @@ import {
 import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
 import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
-import CategoryForm from '@/components/admin/CategoryForm';
+import PlaceholderForm from '@/components/PlaceholderForm';
 import { useCategoryManagement, Category } from '@/hooks/useCategoryManagement';
 
 const AdminV3Categories = () => {
@@ -314,13 +314,22 @@ const AdminV3Categories = () => {
           </div>
         </main>
 
-        {/* Category Form Modal */}
-        <CategoryForm
-          category={editingCategory}
-          isOpen={isFormOpen}
-          onClose={() => setIsFormOpen(false)}
-          onSave={handleSaveCategory}
-        />
+        {/* Category Form Modal - Placeholder */}
+        {isFormOpen && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="max-w-md w-full mx-4">
+              <PlaceholderForm 
+                title="Formulário de Categoria"
+                description="O formulário de categoria está sendo reconstruído."
+              />
+              <div className="mt-4 flex justify-end">
+                <Button onClick={() => setIsFormOpen(false)}>
+                  Fechar
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Delete Confirmation Dialog */}
         <AlertDialog 

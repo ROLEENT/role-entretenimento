@@ -51,7 +51,7 @@ const HighlightDetailPage = lazy(() => import("./pages/HighlightDetailPage"));
 // Admin pages - simple system
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-const AdminHighlightForm = lazy(() => import("./pages/AdminHighlightForm"));
+// Legacy AdminHighlightForm removed
 
 // Admin V2 pages - advanced system
 const AdminV2Login = lazy(() => import("./pages/AdminV2Login"));
