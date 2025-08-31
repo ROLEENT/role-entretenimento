@@ -2,19 +2,16 @@
 const VERSION = '2025-08-31-01';
 const STATIC_CACHE = `static-${VERSION}`;
 
-self.addEventListener('install', (e) => {
-  console.log('Service Worker installing.');
+self.addEventListener('install', () => {
   self.skipWaiting();
 });
 
-self.addEventListener('activate', (e) => {
-  console.log('Service Worker activating.');
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== STATIC_CACHE).map(k => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
+self.addEventListener('activate', e => {
+  e.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.map(k => caches.delete(k)));
+    await self.clients.claim();
+  })());
 });
 
 // Push notification handling
