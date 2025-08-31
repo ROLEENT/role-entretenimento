@@ -1,9 +1,32 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
+import AdminEventForm from '@/components/admin/agenda/AdminEventForm';
+import { Card, CardContent } from '@/components/ui/card';
+import { Loader2, AlertCircle } from 'lucide-react';
 
 export default function AdminV3AgendaEdit() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
+  const { data: event, isLoading, error } = useQuery({
+    queryKey: ['agenda-item', id],
+    queryFn: async () => {
+      if (!id) throw new Error('ID não fornecido');
+      
+      const { data, error } = await supabase
+        .from('agenda_itens')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
 
   const breadcrumbs = [
     { label: 'Dashboard', path: '/admin-v3' },
@@ -11,23 +34,86 @@ export default function AdminV3AgendaEdit() {
     { label: 'Editar Evento' }
   ];
 
+  const handleSave = () => {
+    navigate('/admin-v3/agenda');
+  };
+
+  const handleCancel = () => {
+    navigate('/admin-v3/agenda');
+  };
+
+  if (isLoading) {
+    return (
+      <AdminPageWrapper
+        title="Carregando..."
+        description="Carregando dados do evento"
+        breadcrumbs={breadcrumbs}
+      >
+        <Card>
+          <CardContent className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin" />
+            <span className="ml-2">Carregando evento...</span>
+          </CardContent>
+        </Card>
+      </AdminPageWrapper>
+    );
+  }
+
+  if (error || !event) {
+    return (
+      <AdminPageWrapper
+        title="Erro"
+        description="Erro ao carregar evento"
+        breadcrumbs={breadcrumbs}
+      >
+        <Card>
+          <CardContent className="flex items-center justify-center py-12 text-destructive">
+            <AlertCircle className="w-8 h-8" />
+            <span className="ml-2">
+              {error?.message || 'Evento não encontrado'}
+            </span>
+          </CardContent>
+        </Card>
+      </AdminPageWrapper>
+    );
+  }
+
+  // Transform the data to match the form schema
+  const initialData = {
+    id: event.id,
+    title: event.title || '',
+    slug: event.slug || '',
+    status: (event.status === 'published' ? 'published' : 'draft') as "draft" | "published",
+    city_id: event.city_id || '',
+    venue_id: event.venue_id || null,
+    organizer_id: event.organizer_id || null,
+    starts_at: event.starts_at || '',
+    ends_at: event.end_at || '',
+    price_min: event.price_min || null,
+    price_max: event.price_max || null,
+    age_rating: event.age_rating || null,
+    lineup: [], // This would need to be populated from a relation
+    excerpt: event.summary || null,
+    content: event.summary || null, // Using summary as content for now
+    links: [],
+    cover_url: event.cover_url || null,
+    gallery: [],
+    seo_title: event.meta_title || null,
+    seo_description: event.meta_description || null,
+  };
+
   return (
     <AdminPageWrapper
       title="Editar Evento"
       description="Edite as informações do evento"
       breadcrumbs={breadcrumbs}
     >
-      <div className="space-y-6">
-        <div className="text-center py-12">
-          <h3 className="text-lg font-medium">Formulário de Edição</h3>
-          <p className="text-muted-foreground mt-2">
-            Esta página será implementada na próxima etapa com o formulário completo de edição de eventos.
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Evento ID: {id}
-          </p>
-        </div>
-      </div>
+      <AdminEventForm 
+        initialData={initialData}
+        eventId={id}
+        onSave={handleSave}
+        onCancel={handleCancel}
+      />
     </AdminPageWrapper>
   );
 }
