@@ -132,19 +132,7 @@ const FeaturedEventsToday = () => {
     return `R$ ${priceMin} - R$ ${priceMax}`;
   };
 
-  if (loading) {
-    return (
-      <section className={`${isMobile ? 'py-16' : 'py-24'} bg-gradient-to-br from-accent/20 to-muted/30 relative overflow-hidden border-y border-border/50 shadow-inner`}>
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12 animate-pulse">
-            <div className="h-12 bg-muted rounded mb-4 w-80 mx-auto"></div>
-            <div className="h-6 bg-muted rounded w-96 mx-auto"></div>
-          </div>
-          <SkeletonGrid count={3} />
-        </div>
-      </section>
-    );
-  }
+  const showSkeleton = loading && events.length === 0;
 
   return (
     <section className={`${isMobile ? 'py-16' : 'py-24'} bg-gradient-to-br from-accent/20 to-muted/30 relative overflow-hidden border-y border-border/50 shadow-inner`}>
@@ -181,7 +169,16 @@ const FeaturedEventsToday = () => {
           </div>
         </div>
 
-        {events.length > 0 ? (
+        {showSkeleton ? (
+          <div className="text-center mb-12 animate-pulse">
+            <div className="h-12 bg-muted rounded mb-4 w-80 mx-auto"></div>
+            <div className="h-6 bg-muted rounded w-96 mx-auto"></div>
+          </div>
+        ) : null}
+        
+        {showSkeleton ? (
+          <SkeletonGrid count={3} />
+        ) : events.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
               {events.map((event, index) => {

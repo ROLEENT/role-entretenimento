@@ -83,27 +83,7 @@ const BlocoRevista = () => {
     return `${readTime} min`;
   };
 
-  if (loading) {
-    return (
-      <section className={`${isMobile ? 'py-16' : 'py-24'} bg-gradient-to-br from-muted/20 to-background`}>
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12 animate-pulse">
-            <div className="h-12 bg-muted rounded mb-4 w-80 mx-auto"></div>
-            <div className="h-6 bg-muted rounded w-96 mx-auto"></div>
-          </div>
-          <div className={`${isMobile ? 'flex gap-4 overflow-hidden' : 'grid grid-cols-1 md:grid-cols-3 gap-8'}`}>
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className={`animate-pulse ${isMobile ? 'flex-shrink-0 w-80' : ''}`}>
-                <div className="h-48 bg-muted rounded-lg mb-4"></div>
-                <div className="h-6 bg-muted rounded mb-2"></div>
-                <div className="h-4 bg-muted rounded w-24"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
+  const showSkeleton = loading && posts.length === 0;
 
   return (
     <section className={`${isMobile ? 'py-16' : 'py-24'} bg-gradient-to-br from-muted/20 to-background relative overflow-hidden`}>
@@ -123,7 +103,24 @@ const BlocoRevista = () => {
           </p>
         </div>
 
-        {posts.length > 0 ? (
+        {showSkeleton ? (
+          <div className="text-center mb-12 animate-pulse">
+            <div className="h-12 bg-muted rounded mb-4 w-80 mx-auto"></div>
+            <div className="h-6 bg-muted rounded w-96 mx-auto"></div>
+          </div>
+        ) : null}
+        
+        {showSkeleton ? (
+          <div className={`${isMobile ? 'flex gap-4 overflow-hidden' : 'grid grid-cols-1 md:grid-cols-3 gap-8'}`}>
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className={`animate-pulse ${isMobile ? 'flex-shrink-0 w-80' : ''}`}>
+                <div className="h-48 bg-muted rounded-lg mb-4"></div>
+                <div className="h-6 bg-muted rounded mb-2"></div>
+                <div className="h-4 bg-muted rounded w-24"></div>
+              </div>
+            ))}
+          </div>
+        ) : posts.length > 0 ? (
           <>
             {isMobile ? (
               /* Mobile Carousel */
