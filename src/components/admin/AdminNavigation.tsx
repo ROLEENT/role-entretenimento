@@ -58,7 +58,7 @@ const navigationModules: NavigationModule[] = [
       },
       {
         label: 'Criar Evento ✅',
-        url: '/admin-v3/agenda/new',
+        url: '/admin-v3/agenda/criar',
         icon: Plus,
         description: 'Adicionar novo evento'
       }
@@ -77,19 +77,19 @@ const navigationModules: NavigationModule[] = [
       },
       {
         label: 'Criar Artista ✅',
-        url: '/admin-v3/agentes/artistas/new',
+        url: '/admin-v3/agentes/artistas/criar',
         icon: Plus,
         description: 'Adicionar novo artista'
       },
       {
         label: 'Organizadores 🚧',
-        url: '/admin-v3/agentes/organizadores/new',
+        url: '/admin-v3/agentes/organizadores',
         icon: Briefcase,
         description: 'Organizadores de eventos'
       },
       {
         label: 'Locais 🚧',
-        url: '/admin-v3/agentes/locais/new',
+        url: '/admin-v3/agentes/venues',
         icon: MapPin,
         description: 'Locais e espaços'
       }

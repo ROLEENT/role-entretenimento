@@ -22,7 +22,7 @@ interface QuickAction {
 const quickActions: QuickAction[] = [
   {
     label: 'Novo Evento',
-    url: '/admin-v3/agenda/new',
+    url: '/admin-v3/agenda/criar',
     icon: Calendar,
     description: 'Criar evento na agenda',
     category: 'Agenda'
@@ -36,21 +36,21 @@ const quickActions: QuickAction[] = [
   },
   {
     label: 'Novo Artista',
-    url: '/admin-v3/agentes/artistas/new',
+    url: '/admin-v3/agentes/artistas/criar',
     icon: Users,
     description: 'Cadastrar novo artista',
     category: 'Agentes'
   },
   {
     label: 'Novo Organizador',
-    url: '/admin-v3/agentes/organizadores/new',
+    url: '/admin-v3/agentes/organizadores',
     icon: Users,
     description: 'Cadastrar organizador',
     category: 'Agentes'
   },
   {
     label: 'Novo Local',
-    url: '/admin-v3/agentes/locais/new',
+    url: '/admin-v3/agentes/venues',
     icon: Users,
     description: 'Cadastrar local',
     category: 'Agentes'
