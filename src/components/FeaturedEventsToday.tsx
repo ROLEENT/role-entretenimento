@@ -16,7 +16,7 @@ interface FeaturedEvent {
   title: string;
   city: string;
   cover_url?: string;
-  start_at: string;
+  starts_at: string;
   venue_name?: string;
   tags?: string[];
   event_type: 'curadoria' | 'vitrine';
@@ -66,10 +66,10 @@ const FeaturedEventsToday = () => {
         // Fetch curated events from agenda
         const { data: agendaData, error: agendaError } = await supabase
           .from('agenda_itens')
-          .select('id, title, city, cover_url, start_at, location_name, tags')
+          .select('id, title, city, cover_url, starts_at, location_name, tags')
           .eq('status', 'published')
-          .gte('start_at', new Date().toISOString())
-          .order('start_at', { ascending: true })
+          .gte('starts_at', new Date().toISOString())
+          .order('starts_at', { ascending: true })
           .limit(2);
 
         if (agendaData && !agendaError) {
@@ -96,7 +96,7 @@ const FeaturedEventsToday = () => {
             title: event.title,
             city: event.city,
             cover_url: event.image_url,
-            start_at: event.date_start,
+            starts_at: event.date_start,
             venue_name: undefined, // Will be handled separately if needed
             tags: event.tags,
             event_type: 'vitrine' as const,
@@ -226,7 +226,7 @@ const FeaturedEventsToday = () => {
                           <div className="flex items-center gap-2 text-muted-foreground text-sm">
                             <CalendarDays className="h-4 w-4 text-primary flex-shrink-0" />
                             <span className="font-medium">
-                              {new Date(event.start_at).toLocaleDateString('pt-BR', {
+                              {new Date(event.starts_at).toLocaleDateString('pt-BR', {
                                 weekday: 'short',
                                 day: '2-digit',
                                 month: 'short',
