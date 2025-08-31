@@ -9,6 +9,7 @@ import { FocusManagementProvider } from "@/components/FocusManagementProvider";
 import { queryClient } from "@/lib/queryClient";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { CriticalErrorBoundary, GlobalErrorHandlerProvider } from "@/components/error";
 import { DevCacheButton } from "./components/DevCacheButton";
 import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -161,7 +162,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <ErrorBoundary>
+          <GlobalErrorHandlerProvider>
+            <CriticalErrorBoundary>
+              <ErrorBoundary>
             <BrowserRouter>
               <FocusManagementProvider />
               <Suspense fallback={<PageLoadingFallback />}>
@@ -319,7 +322,9 @@ function App() {
               </Suspense>
               <PWAInstallPrompt />
             </BrowserRouter>
-          </ErrorBoundary>
+              </ErrorBoundary>
+            </CriticalErrorBoundary>
+          </GlobalErrorHandlerProvider>
           <Toaster />
           <Sonner />
           <ReactQueryDevtools initialIsOpen={false} />
