@@ -28,8 +28,8 @@ const blogPostSchema = z.object({
   featured: z.boolean(),
   category_ids: z.array(z.string()),
   tags: z.array(z.string()),
-  published_at: z.string().optional(),
-  scheduled_at: z.string().optional(),
+  published_at: z.string().optional().nullable(),
+  scheduled_at: z.string().optional().nullable(),
 });
 
 const AdminV3BlogCreate: React.FC = () => {
@@ -55,8 +55,8 @@ const AdminV3BlogCreate: React.FC = () => {
       featured: false,
       category_ids: [],
       tags: [],
-      published_at: '',
-      scheduled_at: '',
+      published_at: undefined,
+      scheduled_at: undefined,
     },
   });
 

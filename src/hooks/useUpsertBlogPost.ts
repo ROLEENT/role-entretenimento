@@ -53,8 +53,17 @@ export const useUpsertBlogPost = () => {
             : [],
         views: 0,
         featured: data.featured || false,
-        published_at: data.status === 'published' ? new Date().toISOString() : data.published_at,
+        ...(data.status === 'published' && { published_at: new Date().toISOString() }),
+        ...(data.status === 'scheduled' && data.scheduled_at && { scheduled_at: data.scheduled_at }),
       };
+
+      // Remove empty or undefined timestamp fields to avoid DB errors
+      if (!processedData.published_at || processedData.published_at === '') {
+        delete processedData.published_at;
+      }
+      if (!processedData.scheduled_at || processedData.scheduled_at === '') {
+        delete processedData.scheduled_at;
+      }
 
       console.log("Processed blog post data:", processedData);
 
