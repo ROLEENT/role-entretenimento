@@ -97,15 +97,24 @@ const BaseAgendaItemSchema = z.object({
     .max(50, "Tipo deve ter no máximo 50 caracteres")
     .optional(),
   
-  // Dates and times
+  // Dates and times - UTC with 15-minute intervals
   start_at_utc: z.date({
     required_error: "Data de início é obrigatória",
     invalid_type_error: "Data de início deve ser uma data válida"
-  }),
+  }).refine((date) => {
+    // Ensure the date is rounded to 15-minute intervals
+    const minutes = date.getMinutes();
+    return minutes % 15 === 0;
+  }, "Horário deve estar em intervalos de 15 minutos"),
+  
   end_at_utc: z.date({
     required_error: "Data de fim é obrigatória", 
     invalid_type_error: "Data de fim deve ser uma data válida"
-  }),
+  }).refine((date) => {
+    // Ensure the date is rounded to 15-minute intervals
+    const minutes = date.getMinutes();
+    return minutes % 15 === 0;
+  }, "Horário deve estar em intervalos de 15 minutos"),
   
   // Content
   summary: z.string()
@@ -247,7 +256,7 @@ export const AgendaItemSchema = BaseAgendaItemSchema
     return true;
   },
   {
-    message: "Data de fim deve ser pelo menos 15 minutos após o início",
+    message: "O evento deve ter duração mínima de 15 minutos. Ajuste a data/hora de fim.",
     path: ["end_at_utc"]
   }
 )

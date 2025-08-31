@@ -5,10 +5,11 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Calendar, Clock, AlertTriangle } from "lucide-react";
+import { Calendar, Clock, AlertTriangle, Info } from "lucide-react";
 import { format, addMinutes, differenceInMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { BaseFormFieldProps, toUTC, fromUTC, roundTo15Min } from "@/lib/forms";
+import { useState } from "react";
 
 interface RHFDateTimeUtcProps extends BaseFormFieldProps {
   showTime?: boolean;
@@ -38,8 +39,11 @@ export default function RHFDateTimeUtc({
     control,
     formState: { errors },
     watch,
+    setValue,
   } = useFormContext();
 
+  const [adjustmentNotice, setAdjustmentNotice] = useState<string | null>(null);
+  
   const fieldError = errors[name];
   
   // Watch the comparison field if provided
@@ -56,15 +60,29 @@ export default function RHFDateTimeUtc({
     return format(localDate, "yyyy-MM-dd", { locale: ptBR });
   };
 
-  const parseLocalToUtc = (dateTimeString: string): Date | null => {
-    if (!dateTimeString) return null;
+  const parseLocalToUtc = (dateTimeString: string, showNotice = true): { date: Date | null; wasAdjusted: boolean } => {
+    if (!dateTimeString) return { date: null, wasAdjusted: false };
     
     const localDate = new Date(dateTimeString);
-    if (isNaN(localDate.getTime())) return null;
+    if (isNaN(localDate.getTime())) return { date: null, wasAdjusted: false };
+    
+    // Check if rounding is needed
+    const originalMinutes = localDate.getMinutes();
+    const remainderMinutes = originalMinutes % 15;
+    const wasAdjusted = remainderMinutes !== 0;
     
     // Always round to 15 minutes for better UX
     const roundedDate = roundTo15Min(localDate);
-    return toUTC(roundedDate, timeZone);
+    const utcDate = toUTC(roundedDate, timeZone);
+    
+    // Show adjustment notice if needed
+    if (wasAdjusted && showNotice) {
+      const adjustment = remainderMinutes <= 7 ? "para baixo" : "para cima";
+      setAdjustmentNotice(`Horário ajustado automaticamente ${adjustment} para o intervalo de 15 minutos mais próximo.`);
+      setTimeout(() => setAdjustmentNotice(null), 3000); // Hide after 3 seconds
+    }
+    
+    return { date: utcDate, wasAdjusted };
   };
 
   const getDisplayValue = (utcDate: Date | null): string => {
@@ -78,7 +96,7 @@ export default function RHFDateTimeUtc({
     return format(localDate, "dd/MM/yyyy", { locale: ptBR });
   };
 
-  // Validation function for date comparison
+  // Enhanced validation function for date comparison
   const validateDateComparison = (currentValue: Date | null): string | null => {
     if (!currentValue || !compareValue || !isEndDate) return null;
     
@@ -89,6 +107,23 @@ export default function RHFDateTimeUtc({
     }
     
     return null;
+  };
+
+  // Auto-adjust end date if needed when start date changes
+  const handleEndDateAdjustment = (startDate: Date | null, endFieldName: string) => {
+    if (!startDate || !endFieldName) return;
+    
+    const endDate = watch(endFieldName);
+    if (!endDate) return;
+    
+    const diffMinutes = differenceInMinutes(endDate, startDate);
+    if (diffMinutes < 15) {
+      // Auto-adjust end date to be 1 hour after start
+      const newEndDate = addMinutes(startDate, 60);
+      setValue(endFieldName, newEndDate);
+      setAdjustmentNotice("Data de fim ajustada automaticamente para manter o intervalo mínimo de 15 minutos.");
+      setTimeout(() => setAdjustmentNotice(null), 4000);
+    }
   };
 
   return (
@@ -113,8 +148,15 @@ export default function RHFDateTimeUtc({
                 type="datetime-local"
                 value={formatDateTimeLocal(field.value)}
                 onChange={(e) => {
-                  const utcDate = parseLocalToUtc(e.target.value);
-                  field.onChange(utcDate);
+                  const result = parseLocalToUtc(e.target.value);
+                  field.onChange(result.date);
+                  
+                  // Handle auto-adjustment of end date if this is start date
+                  if (!isEndDate && result.date) {
+                    // Find corresponding end date field (assuming pattern start_at_utc -> end_at_utc)
+                    const endFieldName = name.replace('start_at', 'end_at');
+                    handleEndDateAdjustment(result.date, endFieldName);
+                  }
                 }}
                 step="900" // 15 minutes in seconds
                 disabled={disabled}
@@ -125,6 +167,14 @@ export default function RHFDateTimeUtc({
                 aria-describedby={description ? `${name}-description` : undefined}
                 aria-required={required}
               />
+              
+              {/* Adjustment notice */}
+              {adjustmentNotice && (
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>{adjustmentNotice}</AlertDescription>
+                </Alert>
+              )}
               
               {/* Date comparison warning */}
               {validationError && (
