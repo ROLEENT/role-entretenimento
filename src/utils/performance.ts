@@ -4,11 +4,11 @@
 
 import React, { useRef, useEffect } from 'react';
 
-export function useIntersectionObserver(
+export function useIntersectionObserver<T extends Element = HTMLDivElement>(
   callback: () => void,
   options: IntersectionObserverInit = {}
 ) {
-  const ref = useRef<Element | null>(null);
+  const ref = useRef<T | null>(null);
   
   useEffect(() => {
     if (!ref.current) return;
@@ -82,3 +82,55 @@ export class QueryCache {
 }
 
 export const queryCache = new QueryCache();
+
+// VirtualizedList component for large lists
+interface VirtualizedListProps<T> {
+  items: T[];
+  itemHeight: number;
+  containerHeight: number;
+  renderItem: (item: T, index: number) => React.ReactNode;
+  keyExtractor: (item: T, index: number) => string;
+}
+
+export function VirtualizedList<T>({
+  items,
+  itemHeight,
+  containerHeight,
+  renderItem,
+  keyExtractor
+}: VirtualizedListProps<T>) {
+  const [scrollTop, setScrollTop] = React.useState(0);
+  
+  const visibleStart = Math.floor(scrollTop / itemHeight);
+  const visibleEnd = Math.min(
+    items.length - 1,
+    visibleStart + Math.ceil(containerHeight / itemHeight) + 2
+  );
+  
+  const visibleItems = items.slice(visibleStart, visibleEnd + 1);
+  const totalHeight = items.length * itemHeight;
+  const offsetY = visibleStart * itemHeight;
+  
+  const handleScroll = React.useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    setScrollTop(e.currentTarget.scrollTop);
+  }, []);
+  
+  return React.createElement('div', {
+    style: { height: containerHeight, overflow: 'auto' },
+    onScroll: handleScroll
+  }, 
+    React.createElement('div', {
+      style: { height: totalHeight, position: 'relative' }
+    },
+      React.createElement('div', {
+        style: { transform: `translateY(${offsetY}px)` }
+      },
+        visibleItems.map((item, index) => 
+          React.createElement('div', {
+            key: keyExtractor(item, visibleStart + index)
+          }, renderItem(item, visibleStart + index))
+        )
+      )
+    )
+  );
+}

@@ -63,7 +63,7 @@ export function OptimizedList<T>({
   }, [loading, optimizedItems.length, loadingComponent, emptyStateComponent]);
   
   // Infinite scroll intersection observer
-  const loadMoreRef = useIntersectionObserver(
+  const loadMoreRef = useIntersectionObserver<HTMLDivElement>(
     useCallback(() => {
       if (onLoadMore && hasMore && !loading) {
         onLoadMore();
