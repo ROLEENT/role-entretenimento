@@ -88,10 +88,11 @@ export function AdminAgendaFilters({ filters, onFiltersChange, onReset }: AdminA
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Todos os status</SelectItem>
-                <SelectItem value="draft">Rascunho</SelectItem>
                 <SelectItem value="published">Publicado</SelectItem>
+                <SelectItem value="draft">Rascunho</SelectItem>
                 <SelectItem value="scheduled">Agendado</SelectItem>
                 <SelectItem value="archived">Arquivado</SelectItem>
+                <SelectItem value="rejected">Rejeitado</SelectItem>
               </SelectContent>
             </Select>
           </div>

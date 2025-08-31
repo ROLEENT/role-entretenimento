@@ -1,22 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
 import { Button } from '@/components/ui/button';
 import { Plus, Filter, Download, FileText } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { AdminAgendaTable } from '@/components/admin/agenda/AdminAgendaTable';
 import { AdminAgendaFilters } from '@/components/admin/agenda/AdminAgendaFilters';
 import { useAdminAgendaData } from '@/hooks/useAdminAgendaData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AdminV3AgendaList() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Initialize filters from URL
   const [filters, setFilters] = useState({
-    search: '',
-    status: '',
-    city: '',
-    dateRange: { from: null as Date | null, to: null as Date | null },
-    tags: [] as string[]
+    search: searchParams.get('search') || '',
+    status: searchParams.get('status') || '',
+    city: searchParams.get('city') || '',
+    dateRange: { 
+      from: searchParams.get('date_from') ? new Date(searchParams.get('date_from')!) : null,
+      to: searchParams.get('date_to') ? new Date(searchParams.get('date_to')!) : null
+    },
+    tags: searchParams.get('tags')?.split(',').filter(Boolean) || []
   });
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    
+    if (filters.search) params.set('search', filters.search);
+    if (filters.status) params.set('status', filters.status);
+    if (filters.city) params.set('city', filters.city);
+    if (filters.dateRange.from) params.set('date_from', filters.dateRange.from.toISOString());
+    if (filters.dateRange.to) params.set('date_to', filters.dateRange.to.toISOString());
+    if (filters.tags.length > 0) params.set('tags', filters.tags.join(','));
+    
+    setSearchParams(params, { replace: true });
+  }, [filters, setSearchParams]);
 
   const { data, loading, error, refetch } = useAdminAgendaData(filters);
 
@@ -119,13 +139,16 @@ export default function AdminV3AgendaList() {
         <AdminAgendaFilters 
           filters={filters}
           onFiltersChange={setFilters}
-          onReset={() => setFilters({
-            search: '',
-            status: '',
-            city: '',
-            dateRange: { from: null, to: null },
-            tags: []
-          })}
+          onReset={() => {
+            const resetFilters = {
+              search: '',
+              status: '',
+              city: '',
+              dateRange: { from: null, to: null },
+              tags: []
+            };
+            setFilters(resetFilters);
+          }}
         />
       )}
 

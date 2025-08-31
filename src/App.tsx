@@ -55,6 +55,7 @@ const AdminV3DestaquesPage = lazy(() => import("./pages/admin-v3/destaques/index
 const OrganizerTerms = lazy(() => import("./pages/OrganizerTerms"));
 const Help = lazy(() => import("./pages/Help"));
 const Agenda = lazy(() => import("./pages/Agenda"));
+const AgendaTodos = lazy(() => import("./pages/AgendaTodos"));
 const AgendaCidade = lazy(() => import("./pages/AgendaCidade"));
 const OutrasCidades = lazy(() => import("./pages/OutrasCidades"));
 const AgendaDetailPage = lazy(() => import("./pages/AgendaDetailPage"));
@@ -169,6 +170,7 @@ function App() {
                 
                 {/* Agenda Routes - Order matters for routing */}
                 <Route path="/agenda" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><Agenda /></AgendaLayout></Suspense>} />
+                <Route path="/agenda/todos" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><AgendaTodos /></AgendaLayout></Suspense>} />
                 <Route path="/agenda/outras-cidades" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><OutrasCidades /></AgendaLayout></Suspense>} />
                 <Route path="/agenda/cidade/:cidade" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><AgendaCidade /></AgendaLayout></Suspense>} />
                 <Route path="/agenda/:slug" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><AgendaDetailPage /></AgendaLayout></Suspense>} />

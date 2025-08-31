@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -6,6 +7,8 @@ import { Calendar, MapPin, Users } from 'lucide-react';
 import { useAgendaData } from '@/hooks/useAgendaData';
 import { CounterAnimation } from '@/components/CounterAnimation';
 import { HorizontalCarousel } from '@/components/HorizontalCarousel';
+import { AgendaFilters } from '@/components/agenda/AgendaFilters';
+import { FilteredAgendaList } from '@/components/agenda/FilteredAgendaList';
 
 const CITIES = [
   { key: 'porto_alegre', name: 'POA', fullName: 'Porto Alegre' },
@@ -17,7 +20,30 @@ const CITIES = [
 
 
 export default function Agenda() {
-  const { upcomingEvents, cityStats, stats, isLoadingEvents, error, refetch } = useAgendaData();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [showFilters, setShowFilters] = useState(false);
+  
+  // Initialize filters from URL
+  const [filters, setFilters] = useState({
+    search: searchParams.get('search') || '',
+    status: searchParams.get('status') || 'all',
+    city: searchParams.get('city') || '',
+    tags: searchParams.get('tags')?.split(',').filter(Boolean) || []
+  });
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    
+    if (filters.search) params.set('search', filters.search);
+    if (filters.status && filters.status !== 'all') params.set('status', filters.status);
+    if (filters.city) params.set('city', filters.city);
+    if (filters.tags.length > 0) params.set('tags', filters.tags.join(','));
+    
+    setSearchParams(params, { replace: true });
+  }, [filters, setSearchParams]);
+
+  const { upcomingEvents, cityStats, stats, isLoadingEvents, error, refetch } = useAgendaData(filters);
 
   if (error) {
     return (
@@ -61,10 +87,42 @@ export default function Agenda() {
           </div>
         </section>
 
+        {/* Filters */}
+        <section className="px-4 py-6">
+          <div className="max-w-6xl mx-auto">
+            <AgendaFilters
+              filters={filters}
+              onFiltersChange={setFilters}
+              onReset={() => setFilters({
+                search: '',
+                status: 'all',
+                city: '',
+                tags: []
+              })}
+              showFilters={showFilters}
+              onToggleFilters={() => setShowFilters(!showFilters)}
+            />
+          </div>
+        </section>
+
+        {/* Filtered Events List */}
+        {(filters.search || filters.city || (filters.status && filters.status !== 'all')) && (
+          <section className="px-4 py-6">
+            <div className="max-w-6xl mx-auto">
+              <h2 className="text-2xl font-bold mb-6">Eventos filtrados</h2>
+              <FilteredAgendaList 
+                filters={filters} 
+                limit={20} 
+                showViewMore={true}
+              />
+            </div>
+          </section>
+        )}
+
         {/* Upcoming Events Horizontal Carousel */}
         <HorizontalCarousel 
           items={upcomingEvents}
-          title="Próximos eventos"
+          title={filters.search || filters.city || (filters.status && filters.status !== 'all') ? "Eventos em destaque" : "Próximos eventos"}
           isLoading={isLoadingEvents}
           className="px-4"
         />
