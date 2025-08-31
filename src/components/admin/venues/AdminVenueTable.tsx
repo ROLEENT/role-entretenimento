@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { MoreHorizontal, Edit, Copy, Trash2, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -32,6 +32,7 @@ export const AdminVenueTable: React.FC<AdminVenueTableProps> = ({
   onDuplicate,
   onDeactivate,
 }) => {
+  const navigate = useNavigate();
   return (
     <div className="rounded-md border">
       <Table>
@@ -107,11 +108,9 @@ export const AdminVenueTable: React.FC<AdminVenueTableProps> = ({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                      <DropdownMenuItem asChild>
-                        <Link to={`/admin-v3/agentes/venues/${venue.id}/edit`}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Editar
-                        </Link>
+                      <DropdownMenuItem onClick={() => navigate(`/admin-v3/agentes/venues/${venue.id}/edit`)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Editar
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => onDuplicate(venue)}>
                         <Copy className="mr-2 h-4 w-4" />
