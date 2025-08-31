@@ -2860,6 +2860,8 @@ export type Database = {
       organizers: {
         Row: {
           about: string | null
+          avatar_alt: string | null
+          avatar_url: string | null
           bank: Json | null
           bio_short: string | null
           booking_email: string | null
@@ -2892,6 +2894,8 @@ export type Database = {
         }
         Insert: {
           about?: string | null
+          avatar_alt?: string | null
+          avatar_url?: string | null
           bank?: Json | null
           bio_short?: string | null
           booking_email?: string | null
@@ -2924,6 +2928,8 @@ export type Database = {
         }
         Update: {
           about?: string | null
+          avatar_alt?: string | null
+          avatar_url?: string | null
           bank?: Json | null
           bio_short?: string | null
           booking_email?: string | null
