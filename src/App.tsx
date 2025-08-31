@@ -17,7 +17,10 @@ import { RequireAuth } from "@/components/RequireAuth";
 // Preview component
 const PreviewAgenda = lazy(() => import("./pages/PreviewAgenda"));
 const ChecklistTest = lazy(() => import("./pages/ChecklistTest"));
-// Removed old test component
+// Dashboard components
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const DashboardLayout = lazy(() => import("./components/DashboardLayout"));
+import { DashboardRedirect } from "@/components/DashboardRedirect";
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
 const About = lazy(() => import("./pages/About"));
@@ -128,7 +131,11 @@ function App() {
                 <DevCacheButton />
               
               <Routes>
-                <Route path="/" element={<Index />} />
+                {/* Root redirect */}
+                <Route path="/" element={<DashboardRedirect />} />
+                
+                {/* Home route for public */}
+                <Route path="/home" element={<Index />} />
                 
                 {/* Static Pages */}
                 <Route path="/sobre" element={<About />} />
@@ -168,7 +175,16 @@ function App() {
                 <Route path="/highlights" element={<HighlightsPage />} />
                 <Route path="/cidade/:cidade" element={<CityHighlights />} />
                 
-            {/* Admin Panel Routes */}
+            {/* New Dashboard Route */}
+            <Route path="/dashboard" element={
+              <Suspense fallback={<AdminLoadingFallback />}>
+                <DashboardLayout>
+                  <DashboardPage />
+                </DashboardLayout>
+              </Suspense>
+            } />
+
+            {/* Admin Panel Routes (legacy) */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<NewAdminDashboard />} />
               <Route path="applications" element={<ApplicationsPage />} />
