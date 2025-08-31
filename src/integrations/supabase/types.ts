@@ -846,17 +846,19 @@ export type Database = {
       }
       artists: {
         Row: {
+          about: string | null
           accommodation_notes: string | null
-          artist_type: string
+          artist_type: string | null
           audius_url: string | null
           availability_days: string[] | null
           avatar_url: string | null
           beatport_url: string | null
           bio: string | null
           bio_long: string | null
-          bio_short: string
-          booking_email: string
-          booking_whatsapp: string
+          bio_short: string | null
+          booking_email: string | null
+          booking_phone: string | null
+          booking_whatsapp: string | null
           cities_active: string[] | null
           city: string | null
           city_id: number | null
@@ -876,17 +878,17 @@ export type Database = {
           phone: string | null
           presskit_url: string | null
           priority: number | null
-          profile_image_url: string
+          profile_image_url: string | null
           pronouns: string | null
           real_name: string | null
           responsible_name: string | null
           responsible_role: string | null
           set_time_minutes: number | null
           show_format: string | null
-          slug: string
+          slug: string | null
           soundcloud_url: string | null
           spotify_url: string | null
-          stage_name: string
+          stage_name: string | null
           state: string | null
           status: string | null
           tags: string[] | null
@@ -896,22 +898,25 @@ export type Database = {
           tech_rider_url: string | null
           tech_stage: string | null
           updated_at: string | null
+          website: string | null
           website_url: string | null
           whatsapp: string | null
           youtube_url: string | null
         }
         Insert: {
+          about?: string | null
           accommodation_notes?: string | null
-          artist_type?: string
+          artist_type?: string | null
           audius_url?: string | null
           availability_days?: string[] | null
           avatar_url?: string | null
           beatport_url?: string | null
           bio?: string | null
           bio_long?: string | null
-          bio_short: string
-          booking_email: string
-          booking_whatsapp: string
+          bio_short?: string | null
+          booking_email?: string | null
+          booking_phone?: string | null
+          booking_whatsapp?: string | null
           cities_active?: string[] | null
           city?: string | null
           city_id?: number | null
@@ -931,17 +936,17 @@ export type Database = {
           phone?: string | null
           presskit_url?: string | null
           priority?: number | null
-          profile_image_url: string
+          profile_image_url?: string | null
           pronouns?: string | null
           real_name?: string | null
           responsible_name?: string | null
           responsible_role?: string | null
           set_time_minutes?: number | null
           show_format?: string | null
-          slug: string
+          slug?: string | null
           soundcloud_url?: string | null
           spotify_url?: string | null
-          stage_name: string
+          stage_name?: string | null
           state?: string | null
           status?: string | null
           tags?: string[] | null
@@ -951,22 +956,25 @@ export type Database = {
           tech_rider_url?: string | null
           tech_stage?: string | null
           updated_at?: string | null
+          website?: string | null
           website_url?: string | null
           whatsapp?: string | null
           youtube_url?: string | null
         }
         Update: {
+          about?: string | null
           accommodation_notes?: string | null
-          artist_type?: string
+          artist_type?: string | null
           audius_url?: string | null
           availability_days?: string[] | null
           avatar_url?: string | null
           beatport_url?: string | null
           bio?: string | null
           bio_long?: string | null
-          bio_short?: string
-          booking_email?: string
-          booking_whatsapp?: string
+          bio_short?: string | null
+          booking_email?: string | null
+          booking_phone?: string | null
+          booking_whatsapp?: string | null
           cities_active?: string[] | null
           city?: string | null
           city_id?: number | null
@@ -986,17 +994,17 @@ export type Database = {
           phone?: string | null
           presskit_url?: string | null
           priority?: number | null
-          profile_image_url?: string
+          profile_image_url?: string | null
           pronouns?: string | null
           real_name?: string | null
           responsible_name?: string | null
           responsible_role?: string | null
           set_time_minutes?: number | null
           show_format?: string | null
-          slug?: string
+          slug?: string | null
           soundcloud_url?: string | null
           spotify_url?: string | null
-          stage_name?: string
+          stage_name?: string | null
           state?: string | null
           status?: string | null
           tags?: string[] | null
@@ -1006,6 +1014,7 @@ export type Database = {
           tech_rider_url?: string | null
           tech_stage?: string | null
           updated_at?: string | null
+          website?: string | null
           website_url?: string | null
           whatsapp?: string | null
           youtube_url?: string | null
@@ -1400,30 +1409,51 @@ export type Database = {
       }
       cities: {
         Row: {
+          country_id: string | null
           created_at: string
           id: number
           name: string
           slug: string
+          state_id: string | null
           uf: string
           updated_at: string
         }
         Insert: {
+          country_id?: string | null
           created_at?: string
           id?: number
           name: string
           slug: string
+          state_id?: string | null
           uf: string
           updated_at?: string
         }
         Update: {
+          country_id?: string | null
           created_at?: string
           id?: number
           name?: string
           slug?: string
+          state_id?: string | null
           uf?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "cities_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cities_state_id_fkey"
+            columns: ["state_id"]
+            isOneToOne: false
+            referencedRelation: "states"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       companion_responses: {
         Row: {
@@ -1547,6 +1577,33 @@ export type Database = {
           subject?: string | null
           tags?: string[] | null
           user_agent?: string | null
+        }
+        Relationships: []
+      }
+      countries: {
+        Row: {
+          code: string
+          created_at: string
+          flag_emoji: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          flag_emoji?: string | null
+          id: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          flag_emoji?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2982,10 +3039,10 @@ export type Database = {
           booking_whatsapp: string | null
           city: string | null
           city_id: number | null
-          contact_email: string
+          contact_email: string | null
           contact_whatsapp: string | null
           country: string | null
-          created_at: string
+          created_at: string | null
           email: string | null
           id: string
           instagram: string | null
@@ -3002,7 +3059,7 @@ export type Database = {
           status: string | null
           tax_id: string | null
           type: string | null
-          updated_at: string
+          updated_at: string | null
           website: string | null
           whatsapp: string | null
         }
@@ -3016,10 +3073,10 @@ export type Database = {
           booking_whatsapp?: string | null
           city?: string | null
           city_id?: number | null
-          contact_email: string
+          contact_email?: string | null
           contact_whatsapp?: string | null
           country?: string | null
-          created_at?: string
+          created_at?: string | null
           email?: string | null
           id?: string
           instagram?: string | null
@@ -3036,7 +3093,7 @@ export type Database = {
           status?: string | null
           tax_id?: string | null
           type?: string | null
-          updated_at?: string
+          updated_at?: string | null
           website?: string | null
           whatsapp?: string | null
         }
@@ -3050,10 +3107,10 @@ export type Database = {
           booking_whatsapp?: string | null
           city?: string | null
           city_id?: number | null
-          contact_email?: string
+          contact_email?: string | null
           contact_whatsapp?: string | null
           country?: string | null
-          created_at?: string
+          created_at?: string | null
           email?: string | null
           id?: string
           instagram?: string | null
@@ -3070,7 +3127,7 @@ export type Database = {
           status?: string | null
           tax_id?: string | null
           type?: string | null
-          updated_at?: string
+          updated_at?: string | null
           website?: string | null
           whatsapp?: string | null
         }
@@ -3411,6 +3468,41 @@ export type Database = {
           views_millions?: number | null
         }
         Relationships: []
+      }
+      states: {
+        Row: {
+          code: string | null
+          country_id: string
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          code?: string | null
+          country_id: string
+          created_at?: string
+          id: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string | null
+          country_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "states_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       testimonials: {
         Row: {
@@ -3874,17 +3966,17 @@ export type Database = {
       venues: {
         Row: {
           about: string | null
-          address: string
+          address: string | null
           address_line: string | null
           amenities: Json | null
           capacity: number | null
-          city: string
+          city: string | null
           city_id: number | null
           contacts_json: Json | null
           country: string | null
           cover_alt: string | null
           cover_url: string | null
-          created_at: string
+          created_at: string | null
           district: string | null
           email: string | null
           gallery: Json | null
@@ -3901,26 +3993,26 @@ export type Database = {
           phone: string | null
           postal_code: string | null
           slug: string | null
-          state: string
+          state: string | null
           status: Database["public"]["Enums"]["agent_status"] | null
-          updated_at: string
+          updated_at: string | null
           venue_type_id: number | null
           website: string | null
           whatsapp: string | null
         }
         Insert: {
           about?: string | null
-          address: string
+          address?: string | null
           address_line?: string | null
           amenities?: Json | null
           capacity?: number | null
-          city: string
+          city?: string | null
           city_id?: number | null
           contacts_json?: Json | null
           country?: string | null
           cover_alt?: string | null
           cover_url?: string | null
-          created_at?: string
+          created_at?: string | null
           district?: string | null
           email?: string | null
           gallery?: Json | null
@@ -3937,26 +4029,26 @@ export type Database = {
           phone?: string | null
           postal_code?: string | null
           slug?: string | null
-          state: string
+          state?: string | null
           status?: Database["public"]["Enums"]["agent_status"] | null
-          updated_at?: string
+          updated_at?: string | null
           venue_type_id?: number | null
           website?: string | null
           whatsapp?: string | null
         }
         Update: {
           about?: string | null
-          address?: string
+          address?: string | null
           address_line?: string | null
           amenities?: Json | null
           capacity?: number | null
-          city?: string
+          city?: string | null
           city_id?: number | null
           contacts_json?: Json | null
           country?: string | null
           cover_alt?: string | null
           cover_url?: string | null
-          created_at?: string
+          created_at?: string | null
           district?: string | null
           email?: string | null
           gallery?: Json | null
@@ -3973,9 +4065,9 @@ export type Database = {
           phone?: string | null
           postal_code?: string | null
           slug?: string | null
-          state?: string
+          state?: string | null
           status?: Database["public"]["Enums"]["agent_status"] | null
-          updated_at?: string
+          updated_at?: string | null
           venue_type_id?: number | null
           website?: string | null
           whatsapp?: string | null
@@ -4116,6 +4208,22 @@ export type Database = {
           visibility_type?:
             | Database["public"]["Enums"]["agenda_visibility"]
             | null
+        }
+        Relationships: []
+      }
+      agentes: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string | null
+          id: string | null
+          instagram: string | null
+          kind: string | null
+          name: string | null
+          slug: string | null
+          state: string | null
+          status: string | null
+          updated_at: string | null
         }
         Relationships: []
       }
@@ -5243,6 +5351,10 @@ export type Database = {
         Args: { create_missing?: boolean; default_artist_type?: string }
         Returns: Json
       }
+      normalize_instagram: {
+        Args: { inp: string }
+        Returns: string
+      }
       provision_user_profile: {
         Args: { p_email: string; p_user_id: string }
         Returns: Json
@@ -5291,7 +5403,7 @@ export type Database = {
         Returns: string[]
       }
       slugify: {
-        Args: { txt: string }
+        Args: { inp: string }
         Returns: string
       }
       test_admin_insert: {

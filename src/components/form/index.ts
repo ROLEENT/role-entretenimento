@@ -25,6 +25,8 @@ export { RHFCheckbox } from './RHFCheckbox';
 export { RHFPhoneInput } from './RHFPhoneInput';
 export { RHFSlugInput } from './RHFSlugInput';
 export { RHFRemoteCombobox } from './RHFRemoteCombobox';
+export { ArtistLocationFields } from './ArtistLocationFields';
+export { ArtistLocationFieldsRobust } from './ArtistLocationFieldsRobust';
 
 // Examples
 export { default as ExampleForm } from './ExampleForm';
