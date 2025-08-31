@@ -125,14 +125,16 @@ const BaseAgendaItemSchema = z.object({
     alt: z.string().min(1, "Texto alternativo é obrigatório"),
   }).optional(),
   
-  // Artists
+  // Artists - apenas nomes como chips, sem criação automática
   artists_names: z.array(
     z.string()
       .min(1, "Nome do artista não pode estar vazio")
       .max(100, "Nome do artista deve ter no máximo 100 caracteres")
+      .trim()
   )
     .max(12, "Máximo 12 artistas permitidos")
-    .default([]),
+    .default([])
+    .describe("Lista de nomes dos artistas - sem criação automática de registros"),
   
   // Links and tickets
   ticket_url: z.string()
