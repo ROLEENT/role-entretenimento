@@ -63,8 +63,10 @@ export const RHFFormField: React.FC<RHFFormFieldProps> = ({
         name={name}
         control={control}
         disabled={disabled}
-        render={(props) => 
-          React.cloneElement(children(props), {
+        render={(props) => {
+          const childElement = children(props);
+          const existingClassName = (childElement.props as any)?.className || '';
+          const additionalProps = {
             id: fieldId,
             "aria-invalid": !!fieldError,
             "aria-describedby": cn(
@@ -73,12 +75,15 @@ export const RHFFormField: React.FC<RHFFormFieldProps> = ({
             ).trim() || undefined,
             "aria-required": required,
             className: cn(
+              existingClassName,
               props.field.value && "has-value",
               fieldError && "border-destructive focus:border-destructive",
               disabled && "opacity-50 cursor-not-allowed"
             ),
-          })
-        }
+          };
+          
+          return React.cloneElement(childElement, additionalProps);
+        }}
       />
       
       {description && !fieldError && (

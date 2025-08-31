@@ -126,7 +126,7 @@ export const useSimpleLoading = (initialLoading: boolean = false) => {
 // Hook for debounced loading (useful for search/filter operations)
 export const useDebouncedLoading = (delay: number = 300) => {
   const [isLoading, setIsLoading] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const startLoading = useCallback(() => {
     if (timeoutRef.current) {

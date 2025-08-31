@@ -4,7 +4,7 @@ import { sanitizeHTML, createSafeHTML } from '@/utils/sanitize';
 interface SafeHTMLProps {
   content: string;
   className?: string;
-  as?: keyof JSX.IntrinsicElements;
+  as?: React.ElementType;
 }
 
 /**

@@ -57,7 +57,7 @@ export default function RHFMultiCombobox({
   const [options, setOptions] = useState<SelectOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const errorId = `${name}-error`;
   const descriptionId = `${name}-description`;
 
