@@ -38,6 +38,9 @@ import { NewsletterPage } from "@/pages/admin/NewsletterPage";
 const AdminV3AgendaList = lazy(() => import("./pages/admin-v3/AdminV3AgendaList"));
 const AdminV3AgendaCreate = lazy(() => import("./pages/admin-v3/AdminV3AgendaCreate"));
 const AdminV3AgendaEdit = lazy(() => import("./pages/admin-v3/AdminV3AgendaEdit"));
+const AdminV3ArtistsList = lazy(() => import("./pages/admin-v3/AdminV3ArtistsList"));
+const AdminV3ArtistCreate = lazy(() => import("./pages/admin-v3/AdminV3ArtistCreate"));
+const AdminV3ArtistEdit = lazy(() => import("./pages/admin-v3/AdminV3ArtistEdit"));
 
 
 
@@ -211,8 +214,12 @@ function App() {
                 <Route path="/admin-v3/agenda/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaCreate /></Suspense>} />
                 <Route path="/admin-v3/agenda/:id/editar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaEdit /></Suspense>} />
                 
+                {/* Admin V3 - Agentes Routes */}
+                <Route path="/admin-v3/agentes/artistas" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsList /></Suspense>} />
+                <Route path="/admin-v3/agentes/artistas/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
+                <Route path="/admin-v3/agentes/artistas/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistEdit /></Suspense>} />
+                
                 {/* Admin V3 - Other Module Routes (to be implemented) */}
-                {/* <Route path="/admin-v3/agentes" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgentList /></Suspense>} /> */}
                 {/* <Route path="/admin-v3/revista" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaList /></Suspense>} /> */}
                 {/* <Route path="/admin-v3/gestao" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ManagementDashboard /></Suspense>} /> */}
                 {/* <Route path="/admin-v3/destaques" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3HighlightsList /></Suspense>} /> */}
