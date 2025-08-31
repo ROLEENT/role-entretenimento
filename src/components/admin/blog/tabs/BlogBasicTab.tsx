@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RHFInput, RHFTextarea, RHFSelect } from '@/components/form';
+import { RHFInput, RHFTextarea, RHFSelect, RHFSelectAsync } from '@/components/form';
 import { BlogPostForm } from '@/hooks/useUpsertBlogPost';
 import { FileText, User, MapPin } from 'lucide-react';
 
@@ -10,6 +10,20 @@ interface BlogBasicTabProps {
 }
 
 export const BlogBasicTab: React.FC<BlogBasicTabProps> = ({ form }) => {
+  // Auto-generate slug from title
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'title' && value.title && !value.slug) {
+        const slug = value.title.toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .trim();
+        form.setValue('slug', slug);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
   return (
     <div className="space-y-6">
       <Card>
@@ -80,10 +94,18 @@ export const BlogBasicTab: React.FC<BlogBasicTabProps> = ({ form }) => {
             
             <div className="space-y-2">
               <label className="text-sm font-medium">Categorias</label>
-              <RHFInput
+              <RHFSelectAsync
                 name="category_ids"
+                query={{ 
+                  table: "categories", 
+                  fields: "id,name,slug,kind", 
+                  orderBy: "name" 
+                }}
+                mapRow={(r) => ({ 
+                  value: r.id, 
+                  label: `${r.name}${r.kind !== 'ambos' ? ` (${r.kind})` : ''}` 
+                })}
                 placeholder="Selecione categorias"
-                className="text-sm"
               />
               <p className="text-xs text-muted-foreground">
                 Categorias relacionadas ao conteúdo

@@ -19,7 +19,7 @@ export interface BlogPostForm {
   status: 'draft' | 'published' | 'scheduled';
   featured: boolean;
   category_ids: string[];
-  tags: string[];
+  tags: string[] | string;
   published_at?: string;
   scheduled_at?: string;
 }
@@ -31,9 +31,36 @@ export const useUpsertBlogPost = () => {
     mutationFn: async (data: BlogPostForm) => {
       console.log("Upserting blog post:", data);
 
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      // Process and convert data
+      const processedData = {
+        ...data,
+        author_id: user.id, // Use authenticated user's UUID
+        slug_data: data.slug || data.title.toLowerCase().replace(/\s+/g, '-'),
+        reading_time: 5, // Default reading time
+        category_ids: Array.isArray(data.category_ids) 
+          ? data.category_ids.filter(id => id && id.trim())
+          : [],
+        tags: Array.isArray(data.tags) 
+          ? data.tags.filter(tag => tag && tag.trim())
+          : typeof data.tags === 'string' && data.tags
+            ? data.tags.split(',').map(tag => tag.trim()).filter(Boolean)
+            : [],
+        views: 0,
+        featured: data.featured || false,
+        published_at: data.status === 'published' ? new Date().toISOString() : data.published_at,
+      };
+
+      console.log("Processed blog post data:", processedData);
+
       const { data: result, error } = await supabase
         .from("blog_posts")
-        .upsert(data, { 
+        .upsert(processedData, { 
           onConflict: "id",
           ignoreDuplicates: false 
         })
