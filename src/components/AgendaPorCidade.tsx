@@ -14,7 +14,7 @@ interface EventData {
   title: string;
   city: string;
   cover_url?: string;
-  start_at: string;
+  starts_at: string;
   venue_name?: string;
   tags?: string[];
   featured?: boolean;
@@ -85,11 +85,11 @@ const AgendaPorCidade = () => {
           
           const { data, error } = await supabase
             .from('agenda_itens')
-            .select('id, title, city, cover_url, start_at, tags')
+            .select('id, title, city, cover_url, starts_at, tags')
             .eq('city', cityCode)
             .eq('status', 'published')
-            .gte('start_at', new Date().toISOString())
-            .order('start_at', { ascending: true })
+            .gte('starts_at', new Date().toISOString())
+            .order('starts_at', { ascending: true })
             .limit(3);
 
           if (error) {
@@ -230,7 +230,7 @@ const AgendaPorCidade = () => {
                                 <div className="flex items-center gap-2 text-muted-foreground text-sm">
                                   <CalendarDays className="h-4 w-4 text-primary flex-shrink-0" />
                                   <span className="font-medium">
-                                    {new Date(event.start_at).toLocaleDateString('pt-BR', {
+                                    {new Date(event.starts_at).toLocaleDateString('pt-BR', {
                                       weekday: 'short',
                                       day: '2-digit',
                                       month: 'short',

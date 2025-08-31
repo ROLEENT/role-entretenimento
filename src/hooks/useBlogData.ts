@@ -34,7 +34,7 @@ export const useBlogData = () => {
       const { data, error } = await supabase
         .from("blog_posts")
         .select("*")
-        .eq("status", "published" as any)
+        .eq("status", "published")
         .order("published_at", { ascending: false });
 
       if (error) throw error;

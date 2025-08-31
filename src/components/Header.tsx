@@ -53,16 +53,16 @@ const Header = () => {
   useEffect(() => {
     const fetchData = async () => {
       const { data: eventsData } = await supabase
-        .from('agenda')
-        .select('id, title, start_at, venue_name, city')
-        .eq('is_published', true)
-        .gte('start_at', new Date().toISOString())
-        .order('start_at', { ascending: true })
+        .from('agenda_itens')
+        .select('id, title, starts_at, location_name, city')
+        .eq('status', 'published')
+        .gte('starts_at', new Date().toISOString())
+        .order('starts_at', { ascending: true })
         .limit(100);
 
       const { data: highlightsData } = await supabase
         .from('highlights')
-        .select('id, title, excerpt, cover_url, published_at, author, slug')
+        .select('id, title, summary, cover_url, published_at, author, slug')
         .eq('status', 'publicado')
         .order('published_at', { ascending: false })
         .limit(50);
@@ -428,16 +428,16 @@ export const HeaderGlobalSearch = () => {
   useEffect(() => {
     const fetchData = async () => {
       const { data: eventsData } = await supabase
-        .from('agenda')
-        .select('id, title, start_at, venue_name, city')
-        .eq('is_published', true)
-        .gte('start_at', new Date().toISOString())
-        .order('start_at', { ascending: true })
+        .from('agenda_itens')
+        .select('id, title, starts_at, location_name, city')
+        .eq('status', 'published')
+        .gte('starts_at', new Date().toISOString())
+        .order('starts_at', { ascending: true })
         .limit(100);
 
       const { data: highlightsData } = await supabase
         .from('highlights')
-        .select('id, title, excerpt, cover_url, published_at, author, slug')
+        .select('id, title, summary, cover_url, published_at, author, slug')
         .eq('status', 'publicado')
         .order('published_at', { ascending: false })
         .limit(50);

@@ -32,7 +32,7 @@ const BlocoRevista = () => {
         const { data, error } = await supabase
           .from('blog_posts')
           .select('id, title, cover_image, published_at, reading_time, city, slug')
-          .eq('published', true)
+          .eq('status', 'published')
           .order('published_at', { ascending: false })
           .limit(3);
 

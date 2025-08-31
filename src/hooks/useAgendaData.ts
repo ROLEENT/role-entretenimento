@@ -41,7 +41,7 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
   thirtyDaysFromNow.setDate(today.getDate() + 30);
 
   let query = supabase
-    .from('agenda_public')
+    .from('agenda_itens')
     .select('*')
     .eq('status', 'published');
 
@@ -86,7 +86,7 @@ const fetchCityStats = async (): Promise<{ cityStats: CityStats[]; totalEvents: 
   const today = new Date();
 
   const { data, error } = await supabase
-    .from('agenda_public')
+    .from('agenda_itens')
     .select('city')
     .eq('status', 'published')
     .gte('starts_at', today.toISOString());
