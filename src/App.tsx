@@ -50,6 +50,11 @@ const AdminV3OrganizadoresList = lazy(() => import("./pages/admin-v3/AdminV3Orga
 const AdminV3OrganizerCreate = lazy(() => import("./pages/admin-v3/AdminV3OrganizerCreate"));
 const AdminV3OrganizerEdit = lazy(() => import("./pages/admin-v3/AdminV3OrganizerEdit"));
 
+// Admin V3 Venues Pages
+const AdminV3VenuesList = lazy(() => import("./pages/admin-v3/AdminV3VenuesList"));
+const AdminV3VenueCreate = lazy(() => import("./pages/admin-v3/AdminV3VenueCreate"));
+const AdminV3VenueEdit = lazy(() => import("./pages/admin-v3/AdminV3VenueEdit"));
+
 // Admin V3 Functional Pages
 const AdminV3VenuesPage = lazy(() => import("./pages/admin-v3/AdminV3VenuesList"));
 const AdminV3RevistaPage = lazy(() => import("./pages/admin-v3/AdminV3RevistaList"));
@@ -258,7 +263,9 @@ function App() {
                   <Route path="agentes/artistas/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
                   <Route path="agentes/artistas/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
                   <Route path="agentes/artistas/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistEdit /></Suspense>} />
-                  <Route path="agentes/venues" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenuesPage /></Suspense>} />
+                  <Route path="agentes/venues" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenuesList /></Suspense>} />
+                  <Route path="agentes/venues/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenueCreate /></Suspense>} />
+                  <Route path="agentes/venues/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenueEdit /></Suspense>} />
                   <Route path="agentes/organizadores" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizadoresList /></Suspense>} />
                   <Route path="agentes/organizadores/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerCreate /></Suspense>} />
                   <Route path="agentes/organizadores/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerEdit /></Suspense>} />

@@ -1,15 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { AdminVenueFilters } from '@/components/admin/venues/AdminVenueFilters';
+import { AdminVenueTable } from '@/components/admin/venues/AdminVenueTable';
+import { useAdminVenuesData } from '@/hooks/useAdminVenuesData';
+import { toast } from 'sonner';
 
 const AdminV3VenuesList: React.FC = () => {
-  // TODO: Implementar hook useAdminVenuesData
-  const venues = []; // Placeholder
-  const isLoading = false;
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('all');
+  const [city, setCity] = useState('all');
+
+  const { venues, cities, isLoading, error } = useAdminVenuesData({
+    search: search || undefined,
+    status: status !== 'all' ? status : undefined,
+    city: city !== 'all' ? city : undefined,
+  });
 
   const breadcrumbs = [
     { label: 'Admin', path: '/admin-v3' },
@@ -25,6 +35,14 @@ const AdminV3VenuesList: React.FC = () => {
       </Link>
     </Button>
   );
+
+  const handleDuplicate = async (venue: any) => {
+    toast.info('Funcionalidade de duplicar será implementada em breve');
+  };
+
+  const handleDeactivate = async (venue: any) => {
+    toast.info('Funcionalidade de desativar será implementada em breve');
+  };
 
   const statsCards = [
     {
@@ -52,6 +70,21 @@ const AdminV3VenuesList: React.FC = () => {
       change: '+3%'
     }
   ];
+
+  if (error) {
+    return (
+      <AdminPageWrapper
+        title="Locais (Venues)"
+        description="Gerencie casas de show, bares, clubes e espaços culturais"
+        breadcrumbs={breadcrumbs}
+        actions={actions}
+      >
+        <div className="text-center py-12">
+          <p className="text-destructive">Erro ao carregar locais: {error.message}</p>
+        </div>
+      </AdminPageWrapper>
+    );
+  }
 
   return (
     <AdminPageWrapper
@@ -81,79 +114,43 @@ const AdminV3VenuesList: React.FC = () => {
           ))}
         </div>
 
-        {/* Development Notice */}
-        <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
-          <CardHeader>
-            <CardTitle className="text-amber-800 dark:text-amber-200 flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
-              Sistema de Locais em Desenvolvimento
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-amber-700 dark:text-amber-300">
-            <div className="space-y-4">
-              <p>O sistema completo de gestão de locais está sendo desenvolvido e incluirá:</p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>Cadastro completo de casas de show, bares, clubes e espaços culturais</li>
-                <li>Gerenciamento de capacidade e características técnicas</li>
-                <li>Integração com mapas e localização</li>
-                <li>Sistema de avaliações e comentários</li>
-                <li>Galeria de fotos dos espaços</li>
-                <li>Histórico de eventos realizados</li>
-                <li>Relatórios de performance e ocupação</li>
-              </ul>
-              <div className="flex items-center gap-2 pt-4">
-                <Badge variant="secondary">Previsão: Março 2025</Badge>
-                <Badge variant="outline">Em desenvolvimento ativo</Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Quick Actions */}
+        {/* Filters */}
         <Card>
-          <CardHeader>
-            <CardTitle>Ações Rápidas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button variant="outline" className="h-24 flex flex-col gap-2" disabled>
-                <Plus className="h-6 w-6" />
-                <span className="text-sm">Cadastrar Local</span>
-              </Button>
-              <Button variant="outline" className="h-24 flex flex-col gap-2" disabled>
-                <MapPin className="h-6 w-6" />
-                <span className="text-sm">Importar Locais</span>
-              </Button>
-              <Button variant="outline" className="h-24 flex flex-col gap-2" disabled>
-                <MapPin className="h-6 w-6" />
-                <span className="text-sm">Relatório de Locais</span>
-              </Button>
-            </div>
+          <CardContent className="p-6">
+            <AdminVenueFilters
+              search={search}
+              onSearchChange={setSearch}
+              status={status}
+              onStatusChange={setStatus}
+              city={city}
+              onCityChange={setCity}
+              cities={cities || []}
+            />
           </CardContent>
         </Card>
 
-        {/* Empty State */}
-        <div className="text-center py-12">
-          <div className="mx-auto w-24 h-24 mb-4 text-muted-foreground">
-            <MapPin className="w-full h-full" />
+        {/* Content */}
+        {isLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <LoadingSpinner />
           </div>
-          <h3 className="text-lg font-semibold mb-2">Sistema em Desenvolvimento</h3>
-          <p className="text-muted-foreground mb-6">
-            O módulo de gestão de locais está sendo desenvolvido com funcionalidades completas para gerenciar todos os tipos de espaços culturais.
-          </p>
-          <div className="flex justify-center gap-4">
-            <Button asChild variant="outline">
-              <Link to="/admin-v3/agentes/artistas">
-                Gerenciar Artistas
-              </Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link to="/admin-v3/agenda">
-                Ver Agenda
-              </Link>
-            </Button>
+        ) : (
+          <Card>
+            <CardContent className="p-0">
+              <AdminVenueTable
+                venues={venues || []}
+                onDuplicate={handleDuplicate}
+                onDeactivate={handleDeactivate}
+              />
+            </CardContent>
+          </Card>
+        )}
+
+        {venues && venues.length > 0 && (
+          <div className="text-center text-sm text-muted-foreground">
+            Mostrando {venues.length} local(is)
           </div>
-        </div>
+        )}
       </div>
     </AdminPageWrapper>
   );
