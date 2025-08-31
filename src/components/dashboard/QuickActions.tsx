@@ -13,7 +13,7 @@ const quickActions: QuickAction[] = [
   {
     label: 'Novo Evento',
     icon: Plus,
-    path: '/admin-v3/agenda/new'
+    path: '/admin-v3/agenda/criar'
   },
   {
     label: 'Ver Agenda',
@@ -21,14 +21,14 @@ const quickActions: QuickAction[] = [
     path: '/admin-v3/agenda'
   },
   {
-    label: 'Novo Agente',
+    label: 'Novo Artista',
     icon: Users,
-    path: '/admin-v3/agentes/new'
+    path: '/admin-v3/agentes/artistas/create'
   },
   {
-    label: 'Nova Revista',
+    label: 'Ver Artistas',
     icon: FileText,
-    path: '/admin-v3/revista/new'
+    path: '/admin-v3/agentes/artistas'
   }
 ];
 

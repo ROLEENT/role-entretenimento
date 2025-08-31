@@ -23,18 +23,25 @@ export interface RecentActivityItem {
  */
 export async function getKpis(): Promise<DashboardKpis> {
   try {
-    // Run all KPI queries in parallel
-    const [publishedResult, scheduledResult, draftResult, agentsResult] = await Promise.all([
+    // Run all KPI queries in parallel - using both agenda_itens and events tables
+    const [
+      publishedAgendaResult, 
+      scheduledAgendaResult, 
+      draftAgendaResult,
+      publishedEventsResult,
+      agentsResult
+    ] = await Promise.all([
       countSafe('agenda_itens', { column: 'status', value: 'published' }),
       countSafe('agenda_itens', { column: 'status', value: 'scheduled' }),
       countSafe('agenda_itens', { column: 'status', value: 'draft' }),
+      countSafe('events', { column: 'status', value: 'active' }),
       getAgentsTotal()
     ]);
 
     return {
-      publishedEvents: publishedResult.count,
-      scheduledEvents: scheduledResult.count,
-      draftEvents: draftResult.count,
+      publishedEvents: publishedAgendaResult.count + publishedEventsResult.count,
+      scheduledEvents: scheduledAgendaResult.count,
+      draftEvents: draftAgendaResult.count,
       agentsTotal: agentsResult.count
     };
   } catch (error) {
@@ -54,16 +61,22 @@ export async function getKpis(): Promise<DashboardKpis> {
  */
 async function getAgentsTotal() {
   try {
-    // First try the unified 'agentes' table
-    const agentesResult = await countSafe('agentes');
+    // Count active artists as the primary metric for agents
+    const artistsResult = await countSafe('artists', { column: 'status', value: 'active' });
     
-    // If agentes table exists and has data, use it
-    if (agentesResult.count > 0 || (agentesResult.error === null && agentesResult.count === 0)) {
+    // If artists table exists, use it as primary count
+    if (artistsResult.error === null) {
+      return artistsResult;
+    }
+
+    // Fallback to unified agentes table if artists table doesn't exist
+    const agentesResult = await countSafe('agentes');
+    if (agentesResult.error === null) {
       return agentesResult;
     }
 
-    // Fallback to individual tables
-    const individualTablesResult = await countSafeMultiple(['artists', 'organizers', 'venues']);
+    // Last fallback to counting all tables
+    const individualTablesResult = await countSafeMultiple(['organizers', 'venues']);
     return individualTablesResult;
   } catch (error) {
     console.error('Error counting agents:', error);
@@ -77,62 +90,57 @@ async function getAgentsTotal() {
  */
 export async function getRecentActivity(): Promise<RecentActivityItem[]> {
   try {
-    // Try to fetch with updated_at first
-    let { data, error } = await supabase
-      .from('agenda_itens')
-      .select('id, title, status, updated_at, created_at')
-      .order('updated_at', { ascending: false })
-      .limit(10);
+    const activities: RecentActivityItem[] = [];
 
-    // If updated_at column doesn't exist, try created_at
-    if (error && error.code === '42703') {
-      console.warn('updated_at column not found, trying created_at');
+    // Fetch recent artists
+    try {
+      const { data: artistsData } = await supabase
+        .from('artists')
+        .select('id, stage_name, status, updated_at, created_at')
+        .order('updated_at', { ascending: false })
+        .limit(5);
       
-      const result = await supabase
-        .from('agenda_itens')
-        .select('id, title, status, created_at')
-        .order('created_at', { ascending: false })
-        .limit(10);
-      
-      if (result.error) {
-        if (result.error.code === '42P01') {
-          console.warn('agenda_itens table does not exist, returning empty activity');
-          return [];
-        }
-        console.error('Error fetching recent activity:', result.error);
-        return [];
+      if (artistsData) {
+        activities.push(...artistsData.map(item => ({
+          id: item.id,
+          title: item.stage_name || 'Artista sem nome',
+          status: item.status,
+          updated_at: item.updated_at || item.created_at,
+          created_at: item.created_at,
+          type: 'artist'
+        })));
       }
-
-      // Map data ensuring updated_at is always present
-      return (result.data || []).map(item => ({
-        id: item.id,
-        title: item.title || 'Sem título',
-        status: item.status,
-        updated_at: item.created_at, // Use created_at as updated_at fallback
-        created_at: item.created_at,
-        type: 'agenda_item'
-      }));
+    } catch (error) {
+      console.warn('Could not fetch recent artists:', error);
     }
 
-    // If table doesn't exist at all
-    if (error && error.code === '42P01') {
-      console.warn('agenda_itens table does not exist, returning empty activity');
-      return [];
+    // Fetch recent agenda items
+    try {
+      const { data: agendaData } = await supabase
+        .from('agenda_itens')
+        .select('id, title, status, updated_at, created_at')
+        .order('updated_at', { ascending: false })
+        .limit(5);
+      
+      if (agendaData) {
+        activities.push(...agendaData.map(item => ({
+          id: item.id,
+          title: item.title || 'Evento sem título',
+          status: item.status,
+          updated_at: item.updated_at || item.created_at,
+          created_at: item.created_at,
+          type: 'agenda_item'
+        })));
+      }
+    } catch (error) {
+      console.warn('Could not fetch recent agenda items:', error);
     }
 
-    if (error) {
-      console.error('Error fetching recent activity:', error);
-      return [];
-    }
+    // Sort all activities by updated_at and limit to 10
+    return activities
+      .sort((a, b) => new Date(b.updated_at || b.created_at!).getTime() - new Date(a.updated_at || a.created_at!).getTime())
+      .slice(0, 10);
 
-    return (data || []).map(item => ({
-      id: item.id,
-      title: item.title || 'Sem título',
-      status: item.status,
-      updated_at: item.updated_at || item.created_at, // Fallback to created_at if updated_at doesn't exist
-      created_at: item.created_at,
-      type: 'agenda_item'
-    }));
   } catch (error) {
     console.error('Unexpected error fetching recent activity:', error);
     return [];
@@ -162,24 +170,31 @@ export async function getSystemHealth(): Promise<SystemHealth> {
   const health: SystemHealth = {
     database: { status: 'ok', message: 'Conectado' },
     storage: { status: 'ok', message: 'Acessível' },
-    schema: { status: 'ok', message: 'Versão atual' }
+    schema: { status: 'ok', message: '5 artistas, 5 locais' }
   };
 
-  // Test database connection with simple ping
+  // Test database connection by checking core tables
   try {
-    const { error } = await supabase
-      .from('agenda_itens')
-      .select('id')
-      .limit(1);
+    const [artistsResult, venuesResult, eventsResult] = await Promise.all([
+      supabase.from('artists').select('id').limit(1),
+      supabase.from('venues').select('id').limit(1),
+      supabase.from('events').select('id').limit(1)
+    ]);
     
-    if (error && error.code === '42P01') {
-      // Table doesn't exist, but connection works
-      health.database = { status: 'warning', message: 'Tabelas não encontradas' };
-    } else if (error) {
-      health.database = { status: 'error', message: 'Erro de conexão' };
+    const tableStatus = [];
+    if (!artistsResult.error) tableStatus.push('Artists');
+    if (!venuesResult.error) tableStatus.push('Venues');
+    if (!eventsResult.error) tableStatus.push('Events');
+    
+    if (tableStatus.length === 3) {
+      health.database = { status: 'ok', message: 'Todas as tabelas acessíveis' };
+    } else if (tableStatus.length > 0) {
+      health.database = { status: 'warning', message: `${tableStatus.length}/3 tabelas disponíveis` };
+    } else {
+      health.database = { status: 'error', message: 'Tabelas principais inacessíveis' };
     }
   } catch (error) {
-    health.database = { status: 'error', message: 'Não conectado' };
+    health.database = { status: 'error', message: 'Erro de conexão' };
   }
 
   // Test storage access
@@ -187,24 +202,24 @@ export async function getSystemHealth(): Promise<SystemHealth> {
     const { error } = await supabase.storage.listBuckets();
     if (error) {
       health.storage = { status: 'warning', message: 'Acesso limitado' };
+    } else {
+      health.storage = { status: 'ok', message: 'Buckets disponíveis' };
     }
   } catch (error) {
-    health.storage = { status: 'error', message: 'Não acessível' };
+    health.storage = { status: 'error', message: 'Storage inacessível' };
   }
 
-  // Check schema version if available (optional)
+  // Get actual data counts for schema status
   try {
-    const { data, error } = await supabase
-      .from('information_schema.routines')
-      .select('routine_name')
-      .eq('routine_name', 'get_schema_version')
-      .maybeSingle();
+    const [artistsCount, venuesCount] = await Promise.all([
+      countSafe('artists'),
+      countSafe('venues')
+    ]);
     
-    if (error || !data) {
-      health.schema = { status: 'warning', message: 'Versão não disponível' };
-    }
+    const dataStatus = `${artistsCount.count} artistas, ${venuesCount.count} locais`;
+    health.schema = { status: 'ok', message: dataStatus };
   } catch (error) {
-    health.schema = { status: 'warning', message: 'Versão não detectada' };
+    health.schema = { status: 'warning', message: 'Contadores indisponíveis' };
   }
 
   return health;
