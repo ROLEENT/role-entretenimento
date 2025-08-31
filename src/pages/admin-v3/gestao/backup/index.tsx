@@ -50,25 +50,7 @@ function BackupRestorePage() {
   };
 
   const createBackup = async (type: string = 'full') => {
-    if (!adminEmail) return;
-    
-    setCreating(true);
-    try {
-      const { data, error } = await supabase.rpc('create_system_backup', {
-        p_admin_email: adminEmail,
-        p_backup_type: type
-      });
-
-      if (error) throw error;
-
-      toast.success('Backup iniciado com sucesso!');
-      fetchBackups();
-    } catch (error) {
-      console.error('Error creating backup:', error);
-      toast.error('Erro ao criar backup');
-    } finally {
-      setCreating(false);
-    }
+    toast.error('Funcionalidade de backup removida. Use a página principal de Backup & Restore para backup de configurações.');
   };
 
   const getStatusBadge = (status: string) => {

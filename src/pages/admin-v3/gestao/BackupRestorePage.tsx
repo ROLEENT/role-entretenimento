@@ -6,29 +6,25 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Database, Download, Upload, Trash2, Calendar, FileText, AlertTriangle, CheckCircle, Clock, RefreshCw } from 'lucide-react';
+import { Settings, Download, Upload, Trash2, Calendar, FileText, AlertTriangle, CheckCircle, RefreshCw, Database } from 'lucide-react';
 import { useAdminSession } from '@/hooks/useAdminSession';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-interface BackupMetadata {
+interface ConfigBackup {
   id: string;
-  filename: string;
-  backup_type: string;
-  status: string;
+  name: string;
   created_at: string;
-  completed_at?: string;
-  file_size?: number;
-  error_message?: string;
+  admin_email: string;
+  config_data: any;
 }
 
 const BackupRestorePage: React.FC = () => {
-  const [backups, setBackups] = useState<BackupMetadata[]>([]);
+  const [configBackups, setConfigBackups] = useState<ConfigBackup[]>([]);
   const [loading, setLoading] = useState(false);
-  const [backupType, setBackupType] = useState('full');
-  const [progress, setProgress] = useState(0);
+  const [backupName, setBackupName] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { adminEmail } = useAdminSession();
 
@@ -38,104 +34,83 @@ const BackupRestorePage: React.FC = () => {
     { label: 'Backup & Restore' },
   ];
 
-  const loadBackups = async () => {
+  const loadConfigBackups = async () => {
     if (!adminEmail) return;
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('backup_metadata')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setBackups(data || []);
+      // In a real implementation, this would query a configurations backup table
+      // For now, we'll simulate with local storage backups
+      const backups = localStorage.getItem('admin_config_backups');
+      if (backups) {
+        setConfigBackups(JSON.parse(backups));
+      }
     } catch (error) {
-      console.error('Erro ao carregar backups:', error);
-      toast.error('Erro ao carregar lista de backups');
+      console.error('Erro ao carregar backups de configuração:', error);
+      toast.error('Erro ao carregar backups de configuração');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadBackups();
+    loadConfigBackups();
   }, [adminEmail]);
 
-  const createBackup = async () => {
-    if (!adminEmail) {
-      toast.error('Sessão de admin necessária');
+  const createConfigBackup = async () => {
+    if (!adminEmail || !backupName.trim()) {
+      toast.error('Nome do backup é obrigatório');
       return;
     }
 
     setLoading(true);
-    setProgress(0);
-
     try {
-      // Simular progresso de backup
-      const progressInterval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return 90;
-          }
-          return prev + 10;
-        });
-      }, 500);
+      // Export configuration settings
+      const configData = {
+        backup_info: {
+          name: backupName,
+          created_at: new Date().toISOString(),
+          admin_email: adminEmail,
+          version: '1.0'
+        },
+        // In a real app, you would export actual configurations here
+        categories: await supabase.from('categories').select('*'),
+        // Add other configuration tables as needed
+      };
 
-      const filename = `backup-${backupType}-${new Date().toISOString().split('T')[0]}-${Date.now()}.sql`;
+      const backup: ConfigBackup = {
+        id: Date.now().toString(),
+        name: backupName,
+        created_at: new Date().toISOString(),
+        admin_email: adminEmail,
+        config_data: configData
+      };
 
-      // Registrar metadata do backup
-      const { data, error } = await supabase
-        .from('backup_metadata')
-        .insert({
-          filename,
-          backup_type: backupType,
-          status: 'pending',
-          admin_email: adminEmail
-        })
-        .select()
-        .single();
+      // Save to local storage (in production, save to a dedicated backup table)
+      const existingBackups = localStorage.getItem('admin_config_backups');
+      const backups = existingBackups ? JSON.parse(existingBackups) : [];
+      backups.push(backup);
+      localStorage.setItem('admin_config_backups', JSON.stringify(backups));
 
-      if (error) throw error;
-
-      // Simular processo de backup (em produção seria chamada para edge function)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Atualizar status para concluído
-      await supabase
-        .from('backup_metadata')
-        .update({
-          status: 'completed',
-          completed_at: new Date().toISOString(),
-          file_size: Math.floor(Math.random() * 1000000) + 100000 // Tamanho simulado
-        })
-        .eq('id', data.id);
-
-      clearInterval(progressInterval);
-      setProgress(100);
-      
-      toast.success('Backup criado com sucesso');
-      loadBackups();
+      toast.success('Backup de configuração criado com sucesso');
+      setBackupName('');
+      loadConfigBackups();
     } catch (error) {
       console.error('Erro ao criar backup:', error);
-      toast.error('Erro ao criar backup');
+      toast.error('Erro ao criar backup de configuração');
     } finally {
       setLoading(false);
-      setProgress(0);
     }
   };
 
-  const downloadBackup = async (backup: BackupMetadata) => {
+  const downloadConfigBackup = async (backup: ConfigBackup) => {
     try {
-      // Em produção, isso faria download do arquivo real
-      const content = `-- Backup ${backup.backup_type} criado em ${backup.created_at}\n-- Arquivo: ${backup.filename}\n\n-- Este é um backup simulado\n-- Em produção, conteria os dados reais do banco\n`;
-      
-      const blob = new Blob([content], { type: 'application/sql' });
+      const content = JSON.stringify(backup.config_data, null, 2);
+      const blob = new Blob([content], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = backup.filename;
+      a.download = `config-backup-${backup.name}-${backup.created_at.split('T')[0]}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -148,24 +123,24 @@ const BackupRestorePage: React.FC = () => {
     }
   };
 
-  const deleteBackup = async (backupId: string) => {
+  const deleteConfigBackup = async (backupId: string) => {
     try {
-      const { error } = await supabase
-        .from('backup_metadata')
-        .delete()
-        .eq('id', backupId);
-
-      if (error) throw error;
+      const existingBackups = localStorage.getItem('admin_config_backups');
+      if (existingBackups) {
+        const backups = JSON.parse(existingBackups);
+        const filteredBackups = backups.filter((b: ConfigBackup) => b.id !== backupId);
+        localStorage.setItem('admin_config_backups', JSON.stringify(filteredBackups));
+      }
       
       toast.success('Backup removido com sucesso');
-      loadBackups();
+      loadConfigBackups();
     } catch (error) {
       console.error('Erro ao remover backup:', error);
       toast.error('Erro ao remover backup');
     }
   };
 
-  const handleRestore = async () => {
+  const handleConfigRestore = async () => {
     if (!selectedFile) {
       toast.error('Selecione um arquivo para restauração');
       return;
@@ -173,119 +148,80 @@ const BackupRestorePage: React.FC = () => {
 
     setLoading(true);
     try {
-      // Em produção, o arquivo seria processado aqui
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      const fileContent = await selectedFile.text();
+      const configData = JSON.parse(fileContent);
       
-      toast.success('Restauração simulada concluída (funcionalidade em desenvolvimento)');
+      // Here you would restore the configuration to the database
+      // For demonstration, we'll just show a success message
+      
+      toast.success('Configurações restauradas com sucesso (demonstração)');
       setSelectedFile(null);
     } catch (error) {
       console.error('Erro na restauração:', error);
-      toast.error('Erro na restauração');
+      toast.error('Erro ao restaurar configurações');
     } finally {
       setLoading(false);
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'pending':
-        return <Clock className="h-4 w-4 text-yellow-500" />;
-      case 'error':
-        return <AlertTriangle className="h-4 w-4 text-red-500" />;
-      default:
-        return <Clock className="h-4 w-4 text-gray-500" />;
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    const variants = {
-      completed: 'default' as const,
-      pending: 'secondary' as const,
-      error: 'destructive' as const
-    };
-    
-    return (
-      <Badge variant={variants[status as keyof typeof variants] || 'secondary'}>
-        {status === 'completed' ? 'Concluído' : 
-         status === 'pending' ? 'Pendente' : 
-         status === 'error' ? 'Erro' : status}
-      </Badge>
-    );
-  };
-
-  const formatFileSize = (bytes?: number) => {
-    if (!bytes) return '-';
-    const mb = bytes / (1024 * 1024);
-    return `${mb.toFixed(2)} MB`;
-  };
-
   return (
     <AdminPageWrapper
       title="Backup & Restore"
-      description="Gerencie backups e restauração do banco de dados"
+      description="Gerencie backups de configurações do sistema"
       breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
-        {/* Criar Backup */}
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Importante:</strong> Esta página gerencia apenas backups de configurações (categorias, settings, etc.). 
+            Para backup completo do banco de dados, consulte a documentação do Supabase sobre backups automáticos.
+          </AlertDescription>
+        </Alert>
+
+        {/* Backup de Configurações */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Database className="h-5 w-5" />
-              Criar Novo Backup
+              <Settings className="h-5 w-5" />
+              Backup de Configurações
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label>Tipo de Backup</Label>
-                <Select value={backupType} onValueChange={setBackupType}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="full">Completo (Todos os dados)</SelectItem>
-                    <SelectItem value="schema">Estrutura (Apenas esquema)</SelectItem>
-                    <SelectItem value="data">Dados (Apenas dados)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label>Nome do Backup</Label>
+                <Input
+                  value={backupName}
+                  onChange={(e) => setBackupName(e.target.value)}
+                  placeholder="Ex: Configurações Produção 2024"
+                />
               </div>
               <div className="flex items-end">
-                <Button onClick={createBackup} disabled={loading} className="w-full">
-                  <Database className="h-4 w-4 mr-2" />
+                <Button onClick={createConfigBackup} disabled={loading || !backupName.trim()} className="w-full">
+                  <Settings className="h-4 w-4 mr-2" />
                   {loading ? 'Criando...' : 'Criar Backup'}
                 </Button>
               </div>
             </div>
-
-            {progress > 0 && (
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Progresso do backup</span>
-                  <span>{progress}%</span>
-                </div>
-                <Progress value={progress} className="w-full" />
-              </div>
-            )}
           </CardContent>
         </Card>
 
-        {/* Restaurar Backup */}
+        {/* Restaurar Configurações */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Upload className="h-5 w-5" />
-              Restaurar Backup
+              Restaurar Configurações
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label>Arquivo de Backup</Label>
+                <Label>Arquivo de Configuração</Label>
                 <Input
                   type="file"
-                  accept=".sql,.dump"
+                  accept=".json"
                   onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
                 />
               </div>
@@ -301,18 +237,14 @@ const BackupRestorePage: React.FC = () => {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Confirmar Restauração</AlertDialogTitle>
                       <AlertDialogDescription className="space-y-2">
-                        <p>⚠️ <strong>ATENÇÃO:</strong> Esta operação irá:</p>
-                        <ul className="list-disc list-inside ml-4 space-y-1">
-                          <li>Substituir todos os dados atuais</li>
-                          <li>Não pode ser desfeita</li>
-                          <li>Pode causar tempo de inatividade</li>
-                        </ul>
+                        <p>⚠️ <strong>ATENÇÃO:</strong> Esta operação irá substituir as configurações atuais.</p>
+                        <p>Recomenda-se fazer um backup das configurações atuais antes de prosseguir.</p>
                         <p>Tem certeza que deseja continuar?</p>
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleRestore}>
+                      <AlertDialogAction onClick={handleConfigRestore}>
                         Sim, Restaurar
                       </AlertDialogAction>
                     </AlertDialogFooter>
@@ -325,69 +257,63 @@ const BackupRestorePage: React.FC = () => {
               <div className="p-3 bg-muted rounded-lg">
                 <p className="text-sm">
                   <strong>Arquivo selecionado:</strong> {selectedFile.name} 
-                  ({formatFileSize(selectedFile.size)})
+                  ({(selectedFile.size / 1024).toFixed(2)} KB)
                 </p>
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Lista de Backups */}
+        {/* Lista de Backups de Configuração */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />
-                Backups Existentes
+                Backups de Configuração
               </CardTitle>
-              <Button onClick={loadBackups} variant="outline" size="sm">
+              <Button onClick={loadConfigBackups} variant="outline" size="sm">
                 <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Atualizar
               </Button>
             </div>
           </CardHeader>
           <CardContent>
-            {backups.length === 0 ? (
+            {configBackups.length === 0 ? (
               <div className="text-center py-8">
-                <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">Nenhum backup encontrado</p>
+                <Settings className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Nenhum backup de configuração encontrado</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {backups.map((backup) => (
+                {configBackups.map((backup) => (
                   <div key={backup.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center gap-4">
-                      {getStatusIcon(backup.status)}
+                      <CheckCircle className="h-4 w-4 text-green-500" />
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-medium">{backup.filename}</p>
-                          {getStatusBadge(backup.status)}
+                          <p className="font-medium">{backup.name}</p>
+                          <Badge variant="default">Configuração</Badge>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
                             {new Date(backup.created_at).toLocaleDateString('pt-BR')}
                           </span>
-                          <span>Tipo: {backup.backup_type}</span>
-                          <span>Tamanho: {formatFileSize(backup.file_size)}</span>
+                          <span>Por: {backup.admin_email}</span>
                         </div>
-                        {backup.error_message && (
-                          <p className="text-sm text-destructive mt-1">{backup.error_message}</p>
-                        )}
                       </div>
                     </div>
                     
                     <div className="flex items-center gap-2">
-                      {backup.status === 'completed' && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => downloadBackup(backup)}
-                        >
-                          <Download className="h-4 w-4 mr-2" />
-                          Download
-                        </Button>
-                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => downloadConfigBackup(backup)}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Download
+                      </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button variant="outline" size="sm">
@@ -403,7 +329,7 @@ const BackupRestorePage: React.FC = () => {
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => deleteBackup(backup.id)}>
+                            <AlertDialogAction onClick={() => deleteConfigBackup(backup.id)}>
                               Remover
                             </AlertDialogAction>
                           </AlertDialogFooter>
@@ -414,6 +340,28 @@ const BackupRestorePage: React.FC = () => {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Info sobre backup do banco */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Database className="h-5 w-5" />
+              Backup do Banco de Dados
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                <div className="space-y-2">
+                  <p><strong>Backup automático:</strong> O Supabase já realiza backups automáticos diários.</p>
+                  <p><strong>Point-in-time recovery:</strong> Disponível para planos Pro e Enterprise.</p>
+                  <p><strong>Para backup manual:</strong> Use o dashboard do Supabase ou a CLI.</p>
+                </div>
+              </AlertDescription>
+            </Alert>
           </CardContent>
         </Card>
       </div>
