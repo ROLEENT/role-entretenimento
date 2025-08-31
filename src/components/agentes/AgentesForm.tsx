@@ -25,6 +25,11 @@ import { AgentesLinksInput } from "@/components/agentes/AgentesLinksInput";
 import { AgentesAvatarUpload } from "@/components/agentes/AgentesAvatarUpload";
 import { OrganizerBillingFields } from "@/components/agentes/OrganizerBillingFields";
 import { OrganizerLinksFields } from "@/components/agentes/OrganizerLinksFields";
+import { VenueAddressFields } from "@/components/agentes/VenueAddressFields";
+import { VenueAmenitiesFields } from "@/components/agentes/VenueAmenitiesFields";
+import { VenueOpeningHoursFields } from "@/components/agentes/VenueOpeningHoursFields";
+import { VenueGalleryField } from "@/components/agentes/VenueGalleryField";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { useAgentesAutosave } from "@/hooks/useAgentesAutosave";
 import { useAgentesSlugCheck } from "@/hooks/useAgentesSlugCheck";
 import { useAgentesInstagramValidation } from "@/hooks/useAgentesInstagramValidation";
@@ -84,6 +89,20 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
       avatar_url: "",
       avatar_alt: "",
       status: "active",
+      // Campos de venue específicos
+      address_line: "",
+      district: "",
+      postal_code: "",
+      latitude: undefined,
+      longitude: undefined,
+      capacity: undefined,
+      amenities: {},
+      opening_hours: {},
+      about: "",
+      cover_url: "",
+      cover_alt: "",
+      gallery_urls: [],
+      tags: [],
       // Organizador específico
       invoice_name: "",
       tax_id: "",
@@ -467,7 +486,54 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
                 </>
               )}
 
-              {agentType !== 'organizadores' && (
+              {agentType === 'locais' && (
+                <>
+                  {/* Campos específicos para venues */}
+                  <VenueAddressFields />
+                  
+                  <RHFInput
+                    name="capacity"
+                    label="Capacidade"
+                    type="number"
+                    placeholder="Número de pessoas"
+                  />
+
+                  <VenueAmenitiesFields />
+                  <VenueOpeningHoursFields />
+
+                  {/* Imagem de capa */}
+                  <div className="space-y-4">
+                    <label className="text-sm font-medium">Imagem de Capa</label>
+                    <ImageUpload
+                      value={form.watch("cover_url") as string}
+                      onChange={(url) => {
+                        form.setValue("cover_url", url, { shouldDirty: true });
+                        if (!url) {
+                          form.setValue("cover_alt", "", { shouldDirty: true });
+                        }
+                      }}
+                      onRemove={() => {
+                        form.setValue("cover_url", "", { shouldDirty: true });
+                        form.setValue("cover_alt", "", { shouldDirty: true });
+                      }}
+                      bucket="venues"
+                    />
+
+                    {form.watch("cover_url") && (
+                      <RHFInput
+                        name="cover_alt"
+                        label="Texto alternativo da capa"
+                        placeholder="Descreva a imagem para acessibilidade"
+                        required
+                      />
+                    )}
+                  </div>
+
+                  <VenueGalleryField />
+                </>
+              )}
+
+              {agentType !== 'organizadores' && agentType !== 'locais' && (
                 <>
                   <AgentesTagsInput name="tags" />
                   <AgentesLinksInput name="links" />

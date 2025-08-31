@@ -3774,6 +3774,7 @@ export type Database = {
           district: string | null
           email: string | null
           gallery: Json | null
+          gallery_urls: Json | null
           id: string
           instagram: string | null
           lat: number | null
@@ -3809,6 +3810,7 @@ export type Database = {
           district?: string | null
           email?: string | null
           gallery?: Json | null
+          gallery_urls?: Json | null
           id?: string
           instagram?: string | null
           lat?: number | null
@@ -3844,6 +3846,7 @@ export type Database = {
           district?: string | null
           email?: string | null
           gallery?: Json | null
+          gallery_urls?: Json | null
           id?: string
           instagram?: string | null
           lat?: number | null

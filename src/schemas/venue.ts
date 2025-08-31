@@ -12,18 +12,13 @@ export type VenueStatusType = z.infer<typeof VenueStatus>;
 
 // Amenities schema - boolean object for venue features
 export const venueAmenitiesSchema = z.object({
+  accessible: z.boolean().default(false),
+  stage: z.boolean().default(false),
+  sound: z.boolean().default(false),
+  lighting: z.boolean().default(false),
   parking: z.boolean().default(false),
-  wifi: z.boolean().default(false),
-  air_conditioning: z.boolean().default(false),
-  sound_system: z.boolean().default(false),
-  lighting_system: z.boolean().default(false),
-  backstage: z.boolean().default(false),
-  bar: z.boolean().default(false),
-  food_service: z.boolean().default(false),
-  accessibility: z.boolean().default(false),
-  security: z.boolean().default(false),
-  valet: z.boolean().default(false),
-  outdoor_area: z.boolean().default(false),
+  food: z.boolean().default(false),
+  smoking: z.boolean().default(false),
 }).default({});
 
 // Opening hours schema - object with short text for each day
@@ -101,18 +96,20 @@ export const venueSchema = z.object({
   instagram: z.string().optional(),
   email: z.string().email("Email inválido").optional(),
   phone: z.string().optional(),
+  whatsapp: z.string().optional(),
   website: z.string().url("URL inválida").optional().or(z.literal('')),
   
   // Content
-  description: z.string().optional(),
-  
+  about: z.string().optional(),
+
   tags: z.array(z.string())
     .max(12, "Máximo de 12 tags permitidas")
     .default([]),
-  
+
   // Media
-  cover_url: z.string().url("URL inválida").optional(),
+  cover_url: z.string().optional(),
   cover_alt: z.string().optional(),
+  gallery_urls: z.array(z.string()).default([]),
   
   // Metadata
   status: VenueStatus.default('active'),
@@ -147,18 +144,13 @@ export const VENUE_STATUS_OPTIONS = [
 
 // Helper for amenities labels
 export const AMENITIES_LABELS = {
+  accessible: "Acessível",
+  stage: "Palco",
+  sound: "Sistema de Som",
+  lighting: "Iluminação",
   parking: "Estacionamento",
-  wifi: "Wi-Fi",
-  air_conditioning: "Ar Condicionado",
-  sound_system: "Sistema de Som",
-  lighting_system: "Sistema de Iluminação",
-  backstage: "Camarim",
-  bar: "Bar",
-  food_service: "Serviço de Alimentação",
-  accessibility: "Acessibilidade",
-  security: "Segurança",
-  valet: "Valet",
-  outdoor_area: "Área Externa",
+  food: "Alimentação",
+  smoking: "Área para Fumantes",
 } as const;
 
 // Helper for days labels

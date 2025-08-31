@@ -21,6 +21,7 @@ export { default as RHFComboboxChips } from './RHFComboboxChips';
 export { default as RHFDateTimeUtc } from './RHFDateTimeUtc';
 export { default as RHFImageUploader } from './RHFImageUploader';
 export { RHFMaskedInput } from './RHFMaskedInput';
+export { RHFCheckbox } from './RHFCheckbox';
 
 // Examples
 export { default as ExampleForm } from './ExampleForm';
