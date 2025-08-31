@@ -12,7 +12,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { DevCacheButton } from "./components/DevCacheButton";
 import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { RequireAuth } from "@/components/RequireAuth";
+// Removed RequireAuth component
 
 // Preview component
 const PreviewAgenda = lazy(() => import("./pages/PreviewAgenda"));
@@ -303,11 +303,7 @@ function App() {
                 <Route path="/feed" element={<FeedPage />} />
                 <Route path="/descobrir" element={<DiscoverUsers />} />
                 <Route path="/eventos/semana/:data" element={<WeeklyHighlights />} />
-                <Route path="/meu-calendario" element={
-                  <RequireAuth>
-                    <CalendarPage />
-                  </RequireAuth>
-                } />
+                <Route path="/meu-calendario" element={<CalendarPage />} />
                 <Route path="/conquistas" element={<GamificationPage />} />
                 {/* Removed: Groups and Music routes */}
                 

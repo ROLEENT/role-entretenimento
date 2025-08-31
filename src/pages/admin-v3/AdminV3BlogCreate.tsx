@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { AdminV3Guard } from '@/components/AdminV3Guard';
+import { AdminGuard } from '@/components/layouts/AdminGuard';
 import { AdminV3Header } from '@/components/AdminV3Header';
 import { FormShell } from '@/components/form';
 import { Form } from '@/components/ui/form';
@@ -76,7 +76,7 @@ const AdminV3BlogCreate: React.FC = () => {
   ];
 
   return (
-    <AdminV3Guard>
+    <AdminGuard>
       <AdminV3Header />
       <main className="container mx-auto px-4 py-8">
         <AdminV3Breadcrumb items={breadcrumbs} />
@@ -94,7 +94,7 @@ const AdminV3BlogCreate: React.FC = () => {
           </FormShell>
         </Form>
       </main>
-    </AdminV3Guard>
+    </AdminGuard>
   );
 };
 

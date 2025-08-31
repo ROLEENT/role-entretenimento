@@ -4,26 +4,23 @@ import { useAuth } from '@/hooks/useAuth';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { supabase } from '@/integrations/supabase/client';
 
-interface AdminV3GuardProps {
+interface AdminGuardProps {
   children: React.ReactNode;
 }
 
-export function AdminV3Guard({ children }: AdminV3GuardProps) {
+export function AdminGuard({ children }: AdminGuardProps) {
   const { user, session, loading, role, signOut } = useAuth();
   const navigate = useNavigate();
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    // Single auth listener with decision logging
     if (!loading) {
       const hasSession = !!session;
       const userRole = role || 'none';
       const hasAccess = role === 'admin' || role === 'editor';
-      const state = hasAccess ? 'allowed' : 'denied';
       
-      console.log(`[GUARD DECISION] session:${hasSession} role:${userRole} state:${state}`);
+      console.log(`[ADMIN GUARD] session:${hasSession} role:${userRole} access:${hasAccess}`);
       
       if (!hasSession) {
         navigate('/admin-v3/login');
@@ -33,7 +30,6 @@ export function AdminV3Guard({ children }: AdminV3GuardProps) {
       // Set admin email header for storage requests
       if (user?.email && hasAccess) {
         localStorage.setItem('admin_email', user.email);
-        console.log('Admin email set for storage requests:', user.email);
       }
       
       setAuthChecked(true);
@@ -44,29 +40,38 @@ export function AdminV3Guard({ children }: AdminV3GuardProps) {
   if (loading || !authChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" text="Verificando acesso..." />
+        <LoadingSpinner size="lg" text="Verificando acesso administrativo..." />
       </div>
     );
   }
 
-  // Show access denied for viewers
-  if (role === 'viewer') {
+  // Show access denied for viewers or non-authenticated users
+  if (role === 'viewer' || !role) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-center">Acesso Negado</CardTitle>
+            <CardTitle className="text-center">Acesso Restrito</CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <p className="text-muted-foreground">
-              Você não tem permissão para acessar esta área.
+              Faça login como administrador para continuar.
             </p>
-            <p className="text-sm text-muted-foreground">
-              Role atual: <strong>{role}</strong>
-            </p>
-            <Button onClick={signOut} variant="outline" className="w-full">
-              Sair
-            </Button>
+            {role && (
+              <p className="text-sm text-muted-foreground">
+                Role atual: <strong>{role}</strong>
+              </p>
+            )}
+            <div className="space-y-2">
+              <Button onClick={() => navigate('/admin-v3/login')} className="w-full">
+                Fazer Login
+              </Button>
+              {session && (
+                <Button onClick={signOut} variant="outline" className="w-full">
+                  Sair
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>

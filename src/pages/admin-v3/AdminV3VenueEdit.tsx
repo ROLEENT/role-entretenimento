@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { AdminV3Guard } from '@/components/AdminV3Guard';
+import { AdminGuard } from '@/components/layouts/AdminGuard';
 import { AdminV3Header } from '@/components/AdminV3Header';
 import { FormShell } from '@/components/form';
 import { Form } from '@/components/ui/form';
@@ -108,19 +108,19 @@ const AdminV3VenueEdit: React.FC = () => {
 
   if (isLoading) {
     return (
-      <AdminV3Guard>
+      <AdminGuard>
         <AdminV3Header />
         <main className="container mx-auto px-4 py-8">
           <div className="flex justify-center items-center min-h-64">
             <LoadingSpinner />
           </div>
         </main>
-      </AdminV3Guard>
+      </AdminGuard>
     );
   }
 
   return (
-    <AdminV3Guard>
+    <AdminGuard>
       <AdminV3Header />
       <main className="container mx-auto px-4 py-8">
         <AdminV3Breadcrumb items={breadcrumbs} />
@@ -138,7 +138,7 @@ const AdminV3VenueEdit: React.FC = () => {
           </FormShell>
         </Form>
       </main>
-    </AdminV3Guard>
+    </AdminGuard>
   );
 };
 

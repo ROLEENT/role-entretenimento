@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AdminV3Guard } from "@/components/AdminV3Guard";
+import { AdminGuard } from "@/components/layouts/AdminGuard";
 import { AdminV3Header } from "@/components/AdminV3Header";
 import { AdminV3Breadcrumb } from "@/components/AdminV3Breadcrumb";
 import { FormShell, FormSection, FORM_SECTIONS } from "@/components/form";
@@ -72,7 +72,7 @@ export default function VenueEditPage() {
   }
 
   return (
-    <AdminV3Guard>
+    <AdminGuard>
       <AdminV3Header />
       <div className="container mx-auto py-6">
         <AdminV3Breadcrumb
@@ -198,6 +198,6 @@ export default function VenueEditPage() {
           </div>
         </FormShell>
       </div>
-    </AdminV3Guard>
+    </AdminGuard>
   );
 }
