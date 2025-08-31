@@ -17,7 +17,7 @@ import { FormProvider } from 'react-hook-form';
 import CitySelectStable from '@/components/fields/CitySelectStable';
 import VenueTypeSelect from '@/components/fields/VenueTypeSelect';
 import ArtistSubtypeSelect from '@/components/fields/ArtistSubtypeSelect';
-import RHFSelectTest from '@/components/form/RHFSelectTest';
+import FormSection from '@/components/form/FormSection';
 import OrganizerSubtypeSelect from '@/components/fields/OrganizerSubtypeSelect';
 import StatusSelect from '@/components/fields/StatusSelect';
 import { useToast } from '@/hooks/use-toast';
@@ -310,103 +310,125 @@ function AgentesContent() {
               </div>
             </div>
 
-            {/* Teste de Selects Estabilizados */}
-            <div className="space-y-4 p-4 border rounded bg-blue-50 mb-6">
-              <h3 className="font-medium text-blue-800">🔧 Debug: Selects Estabilizados</h3>
-              
-              <RHFSelectTest />
-              
-              <div>
-                <Label>CitySelect Estabilizado</Label>
-                <CitySelectStable name="city_id" />
-              </div>
-            </div>
+            {/* Seções organizadas com Accordion */}
+            <div className="space-y-4">
+              {/* Informações Básicas */}
+              <FormSection
+                id="basic-info"
+                title="Informações Básicas"
+                description="Dados principais do agente"
+                defaultOpen={true}
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  <div className="space-y-2">
+                    <Label>Cidade</Label>
+                    <CitySelectStable name="city_id" placeholder="Selecione a cidade" />
+                  </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <div className="space-y-2">
-                <Label>Cidade</Label>
-                <CitySelectStable name="city_id" placeholder="Selecione a cidade" />
-              </div>
+                  <div className="space-y-2">
+                    <Label>Status</Label>
+                    <StatusSelect name="status" placeholder="Status" />
+                  </div>
+                </div>
 
-              <div className="space-y-2">
-                <Label>Status</Label>
-                <StatusSelect name="status" placeholder="Status" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-              <div className="space-y-2">
-                <Label>Instagram</Label>
-                <Controller
-                  name="instagram"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Input 
-                      placeholder="@usuario ou usuario" 
-                      {...field}
-                      value={field.value ? `@${field.value.replace(/^@+/, '')}` : ''}
-                      onChange={(e) => field.onChange(e.target.value.replace(/^@+/, ''))}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                  <div className="space-y-2">
+                    <Label>Instagram</Label>
+                    <Controller
+                      name="instagram"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Input 
+                          placeholder="@usuario ou usuario" 
+                          {...field}
+                          disabled={saving}
+                          value={field.value ? `@${field.value.replace(/^@+/, '')}` : ''}
+                          onChange={(e) => field.onChange(e.target.value.replace(/^@+/, ''))}
+                        />
+                      )}
                     />
-                  )}
-                />
-                {form.formState.errors.instagram && (
-                  <p className="text-sm text-destructive">{form.formState.errors.instagram.message}</p>
-                )}
-              </div>
+                    {form.formState.errors.instagram && (
+                      <p className="text-sm text-destructive">{form.formState.errors.instagram.message}</p>
+                    )}
+                  </div>
 
-              <div className="space-y-2">
-                <Label>WhatsApp</Label>
-                <Controller
-                  name="whatsapp"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Input 
-                      placeholder="(11) 99999-9999" 
-                      {...field}
-                      value={field.value ? field.value.replace(/(\d{2})(\d{4,5})(\d{4})/, '($1) $2-$3') : ''}
-                      onChange={(e) => {
-                        const digits = e.target.value.replace(/\D/g, '');
-                        field.onChange(digits);
-                      }}
+                  <div className="space-y-2">
+                    <Label>WhatsApp</Label>
+                    <Controller
+                      name="whatsapp"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Input 
+                          placeholder="(11) 99999-9999" 
+                          {...field}
+                          disabled={saving}
+                          value={field.value ? field.value.replace(/(\d{2})(\d{4,5})(\d{4})/, '($1) $2-$3') : ''}
+                          onChange={(e) => {
+                            const digits = e.target.value.replace(/\D/g, '');
+                            field.onChange(digits);
+                          }}
+                        />
+                      )}
                     />
-                  )}
-                />
-                {form.formState.errors.whatsapp && (
-                  <p className="text-sm text-destructive">{form.formState.errors.whatsapp.message}</p>
-                )}
-              </div>
+                    {form.formState.errors.whatsapp && (
+                      <p className="text-sm text-destructive">{form.formState.errors.whatsapp.message}</p>
+                    )}
+                  </div>
 
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Controller
-                  name="email"
-                  control={form.control}
-                  render={({ field }) => <Input type="email" placeholder="email@exemplo.com" {...field} />}
-                />
-                {form.formState.errors.email && (
-                  <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>
-                )}
-              </div>
-            </div>
+                  <div className="space-y-2">
+                    <Label>Email</Label>
+                    <Controller
+                      name="email"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Input 
+                          type="email" 
+                          placeholder="email@exemplo.com" 
+                          {...field} 
+                          disabled={saving}
+                        />
+                      )}
+                    />
+                    {form.formState.errors.email && (
+                      <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>
+                    )}
+                  </div>
+                </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-              <div className="space-y-2">
-                <Label>Website</Label>
-                <Controller
-                  name="website"
-                  control={form.control}
-                  render={({ field }) => <Input placeholder="https://exemplo.com" {...field} />}
-                />
-              </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                  <div className="space-y-2">
+                    <Label>Website</Label>
+                    <Controller
+                      name="website"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Input 
+                          placeholder="https://exemplo.com" 
+                          {...field} 
+                          disabled={saving}
+                        />
+                      )}
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label>Bio Curta</Label>
-                <Controller
-                  name="bio_short"
-                  control={form.control}
-                  render={({ field }) => <Textarea placeholder="Descrição breve..." maxLength={280} rows={3} {...field} />}
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label>Bio Curta</Label>
+                    <Controller
+                      name="bio_short"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Textarea 
+                          placeholder="Descrição breve..." 
+                          maxLength={280} 
+                          rows={3} 
+                          {...field} 
+                          disabled={saving}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+              </FormSection>
             </div>
           </CardContent>
         </Card>
