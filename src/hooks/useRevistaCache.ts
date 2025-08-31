@@ -72,10 +72,25 @@ export function useRevistaCache() {
   };
 
   const restoreScrollPosition = (position: number) => {
-    // Restore scroll after a short delay to ensure content is rendered
-    setTimeout(() => {
-      window.scrollTo({ top: position, behavior: 'auto' });
-    }, 100);
+    // Validate scroll position
+    if (!position || position < 0) return;
+    
+    // Restore scroll after content is rendered with fallback
+    const restoreScroll = () => {
+      const maxScroll = Math.max(
+        document.body.scrollHeight - window.innerHeight,
+        document.documentElement.scrollHeight - window.innerHeight
+      );
+      
+      const validPosition = Math.min(position, maxScroll);
+      if (validPosition > 0) {
+        window.scrollTo({ top: validPosition, behavior: 'auto' });
+      }
+    };
+
+    // Multiple attempts for better reliability
+    setTimeout(restoreScroll, 100);
+    setTimeout(restoreScroll, 300);
   };
 
   const clearCache = () => {
