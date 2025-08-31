@@ -390,8 +390,8 @@ export default function RevistaPage() {
             </div>
           )}
 
-          {/* Loading skeletons */}
-          {isLoading && (
+          {/* Loading skeletons - only show if no items loaded yet */}
+          {isLoading && posts.length === 0 && (
             <ResponsiveGrid 
               cols={{ default: 1, md: 2, lg: 3 }}
               gap="lg"
@@ -468,8 +468,8 @@ export default function RevistaPage() {
             </div>
           )}
 
-          {/* Articles grid with accessibility */}
-          {!error && !isLoading && posts.length > 0 && (
+          {/* Articles grid with accessibility - show even while loading more */}
+          {!error && posts.length > 0 && (
             <>
               <div 
                 role="list" 
