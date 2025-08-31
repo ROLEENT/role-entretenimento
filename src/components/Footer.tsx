@@ -6,6 +6,7 @@ import roleLogo from "@/assets/role-logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useResponsive } from "@/hooks/useResponsive";
 import { useActiveCategories } from "@/hooks/useActiveCategories";
+import { oneChild } from "@/components/utils/one-child";
 
 const Footer = () => {
   const { isAdmin } = useAuth();
@@ -143,9 +144,11 @@ const Footer = () => {
                       className="h-12 w-12 text-background/80 hover:text-primary hover:bg-background/10 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
                       asChild
                     >
-                      <a href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label} className="inline-flex items-center justify-center">
-                        <IconComponent className="h-6 w-6" />
-                      </a>
+                      {oneChild(
+                        <a href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label} className="inline-flex items-center justify-center">
+                          <IconComponent className="h-6 w-6" />
+                        </a>
+                      )}
                     </Button>
                   );
                 })}

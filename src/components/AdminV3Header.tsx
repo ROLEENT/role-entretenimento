@@ -26,6 +26,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { User, Settings, LogOut } from 'lucide-react';
 import { QuickActions } from '@/components/admin/QuickActions';
+import { oneChild } from '@/components/utils/one-child';
 
 interface UserProfile {
   email: string;
@@ -199,13 +200,15 @@ export function AdminV3Header() {
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="text-xs">
-                      {user ? getUserInitials(user.email) : '?'}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
+                {oneChild(
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="text-xs">
+                        {user ? getUserInitials(user.email) : '?'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                )}
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
