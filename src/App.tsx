@@ -101,6 +101,7 @@ const GamificationPage = lazy(() => import("./pages/GamificationPage"));
 const DiscoverUsers = lazy(() => import("./pages/DiscoverUsers"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ScrollToTop = lazy(() => import("./components/ScrollToTop"));
+const DebugCombo = lazy(() => import("./pages/DebugCombo"));
 
 // Optimized loading components
 const AdminLoadingFallback = () => (
@@ -165,6 +166,7 @@ function App() {
                 
                 {/* Test Routes */}
                 <Route path="/test/checklist" element={<ChecklistTest />} />
+                <Route path="/debug/combo" element={<DebugCombo />} />
                 {/* Removed old test route */}
                 
                 {/* Revista Routes */}
