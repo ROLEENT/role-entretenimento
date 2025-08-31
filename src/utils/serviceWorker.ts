@@ -1,21 +1,11 @@
 // Service Worker utilities for caching and offline support
 
 export const registerServiceWorker = async () => {
-  // Service Worker temporariamente desabilitado
-  console.log('SW registration disabled for debugging');
-  return;
-
-  // Skip service worker registration for admin routes
-  if (window.location.pathname.startsWith('/admin')) {
-    console.log('SW registration skipped for admin routes');
-    return;
-  }
-
-  // Service Worker temporarily disabled for debugging
-  if (false && 'serviceWorker' in navigator) {
+  if ('serviceWorker' in navigator) {
     try {
+      console.log('Registering Service Worker...');
       const registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('SW registered: ', registration);
+      console.log('Service Worker registered successfully:', registration);
       
       // Force update if there's an existing SW
       if (registration && navigator.serviceWorker.controller) {
@@ -56,8 +46,10 @@ export const registerServiceWorker = async () => {
       
       return registration;
     } catch (error) {
-      console.log('SW registration failed: ', error);
+      console.error('Service Worker registration failed:', error);
     }
+  } else {
+    console.log('Service Worker not supported');
   }
 };
 
@@ -93,19 +85,6 @@ export const clearCache = async () => {
 // Preload critical resources - DISABLED to prevent console warnings
 export const preloadCriticalResources = () => {
   // Temporarily disabled to prevent preload warnings
-  // const criticalResources = [
-  //   '/role-logo.png',
-  //   '/banner-home.png',
-  //   '/manifest.json'
-  // ];
-
-  // criticalResources.forEach(resource => {
-  //   const link = document.createElement('link');
-  //   link.rel = 'preload';
-  //   link.href = resource;
-  //   link.as = resource.endsWith('.png') ? 'image' : 'fetch';
-  //   document.head.appendChild(link);
-  // });
 };
 
 // Network status detection
