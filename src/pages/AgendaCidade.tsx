@@ -132,6 +132,23 @@ export default function AgendaCidade() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
+  // Force scroll to top when city changes
+  useEffect(() => {
+    const scrollToTop = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+    
+    // Immediate scroll
+    scrollToTop();
+    
+    // Backup scroll after brief delay for content loading
+    const timeout = setTimeout(scrollToTop, 50);
+    
+    return () => clearTimeout(timeout);
+  }, [cidade]);
+
   // URL state
   const currentSearch = searchParams.get('busca') || '';
   const currentPeriod = searchParams.get('periodo') || 'proximos-7-dias';
