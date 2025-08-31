@@ -45,12 +45,12 @@ const AdminV3ArtistsList = lazy(() => import("./pages/admin-v3/AdminV3ArtistsLis
 const AdminV3ArtistCreate = lazy(() => import("./pages/admin-v3/AdminV3ArtistCreate").then(module => ({ default: module.default })));
 const AdminV3ArtistEdit = lazy(() => import("./pages/admin-v3/AdminV3ArtistEdit").then(module => ({ default: module.default })));
 
-// Admin V3 Under Construction Pages
-const AdminV3VenuesPage = lazy(() => import("./pages/admin-v3/agentes/venues"));
-const AdminV3OrganizadoresPage = lazy(() => import("./pages/admin-v3/agentes/organizadores"));
-const AdminV3RevistaPage = lazy(() => import("./pages/admin-v3/revista/index"));
-const AdminV3GestaoPage = lazy(() => import("./pages/admin-v3/gestao/index"));
-const AdminV3DestaquesPage = lazy(() => import("./pages/admin-v3/destaques/index"));
+// Admin V3 Functional Pages
+const AdminV3VenuesPage = lazy(() => import("./pages/admin-v3/AdminV3VenuesList"));
+const AdminV3OrganizadoresPage = lazy(() => import("./pages/admin-v3/AdminV3OrganizadoresList"));
+const AdminV3RevistaPage = lazy(() => import("./pages/admin-v3/AdminV3RevistaList"));
+const AdminV3GestaoPage = lazy(() => import("./pages/admin-v3/AdminV3GestaoList"));
+const AdminV3DestaquesPage = lazy(() => import("./pages/admin-v3/AdminV3DestaquesList"));
 
 const OrganizerTerms = lazy(() => import("./pages/OrganizerTerms"));
 const Help = lazy(() => import("./pages/Help"));
