@@ -1,48 +1,81 @@
-# Test Data Setup
+# Tests
 
-This directory contains test data and utilities for E2E testing.
+## Overview
+This directory contains automated tests for the application, including E2E tests with Playwright and unit tests with Vitest.
 
-## Admin Test Account
+## Test Structure
 
-For the admin tests to work, you need to create a test admin account:
+### E2E Tests (Playwright)
+- `forms.e2e.spec.ts` - Tests for main form workflows (Agenda, Venue, Revista)
+- `rhf-select.e2e.spec.ts` - Tests for RHFSelect and RHFSelectAsync components
+- `admin.e2e.spec.ts` - Admin dashboard tests
+- `agenda.e2e.spec.ts` - Agenda-specific tests
+- `city-links.e2e.spec.ts` - City navigation tests
 
-1. Go to your Supabase dashboard
-2. In the Authentication > Users section, create a new user:
-   - Email: `admin@test.com`
-   - Password: `TestPassword123!`
-3. In your database, add this user to the `approved_admins` table:
-   ```sql
-   INSERT INTO approved_admins (email, approved_by, is_active) 
-   VALUES ('admin@test.com', 'system', true);
-   ```
+### Unit Tests (Vitest)
+- `unit/RHFSelect.test.tsx` - Unit tests for RHFSelect component
+- `unit/RHFSelectAsync.test.tsx` - Unit tests for RHFSelectAsync component
 
-## Test Data
+## New Form Tests
 
-The tests will create and clean up their own test data during execution. If you want to pre-populate test data, you can add SQL scripts here.
+### Agenda Form Tests
+- Create new agenda item with city/venue selection
+- Save draft and verify persistence
+- Reopen saved draft and verify values are loaded correctly
+
+### Venue Form Tests  
+- Create venue with city and type selection
+- Verify all required fields are validated
+- Test form submission and success handling
+
+### Revista (Blog Post) Form Tests
+- Create blog post with category selection
+- Upload cover image
+- Test content creation and saving
+
+### RHF Component Tests
+- Test value changes propagate to React Hook Form
+- Test validation and error handling
+- Test async loading and selection
+- Test search functionality
+- Test disabled states
 
 ## Running Tests
 
 ```bash
 # Run all E2E tests
-npm run test:e2e
+npx playwright test
 
-# Run tests with UI mode
-npm run test:e2e:ui
+# Run specific test file
+npx playwright test forms.e2e.spec.ts
 
-# Run tests in headed mode (see browser)
-npm run test:e2e:headed
+# Run unit tests (if vitest is set up)
+npx vitest
 
-# Debug tests
-npm run test:e2e:debug
+# Run with UI
+npx playwright test --ui
 
-# View test report
-npm run test:e2e:report
+# Run tests in debug mode
+npx playwright test --debug
 ```
 
-## CI Configuration
+## Test Data Mocking
+All tests use mocked API responses to ensure consistent, fast, and reliable test execution. The mocks include:
+- Authentication responses
+- Supabase database queries
+- File upload responses
+- Form submission responses
 
-For CI environments, ensure:
-1. Admin test account exists
-2. Database is properly migrated
-3. Environment variables are set
-4. Test server is running on port 8080
+## Admin Test Account Setup
+
+For admin tests to work, create a test admin account:
+
+1. Go to your Supabase dashboard
+2. In Authentication > Users, create:
+   - Email: `admin@test.com`
+   - Password: `TestPassword123!`
+3. Add to approved_admins table:
+   ```sql
+   INSERT INTO approved_admins (email, approved_by, is_active) 
+   VALUES ('admin@test.com', 'system', true);
+   ```

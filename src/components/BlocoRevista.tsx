@@ -13,7 +13,7 @@ interface BlogPost {
   excerpt?: string;
   cover_image?: string;
   published_at: string;
-  read_time?: number;
+  reading_time?: number;
   city?: string;
   slug: string;
 }
@@ -31,7 +31,7 @@ const BlocoRevista = () => {
         setLoading(true);
         const { data, error } = await supabase
           .from('blog_posts')
-          .select('id, title, cover_image, published_at, read_time, city, slug')
+          .select('id, title, cover_image, published_at, reading_time, city, slug')
           .eq('published', true)
           .order('published_at', { ascending: false })
           .limit(3);
@@ -165,7 +165,7 @@ const BlocoRevista = () => {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2 text-muted-foreground text-sm">
                               <Clock className="h-4 w-4 text-primary" />
-                              <span>{getReadTimeText(post.read_time)} de leitura</span>
+                              <span>{getReadTimeText(post.reading_time)} de leitura</span>
                             </div>
                             
                             {post.city && (
@@ -248,7 +248,7 @@ const BlocoRevista = () => {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2 text-muted-foreground text-sm">
                             <Clock className="h-4 w-4 text-primary" />
-                            <span>{getReadTimeText(post.read_time)} de leitura</span>
+                            <span>{getReadTimeText(post.reading_time)} de leitura</span>
                           </div>
                           
                           {post.city && (
