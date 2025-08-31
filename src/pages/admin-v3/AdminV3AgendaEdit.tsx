@@ -18,11 +18,7 @@ export default function AdminV3AgendaEdit() {
       
       const { data, error } = await supabase
         .from('agenda_itens')
-        .select(`
-          *,
-          venues:venue_id(id, name),
-          organizers:organizer_id(id, name)
-        `)
+        .select('*')
         .eq('id', id)
         .single();
       
@@ -88,7 +84,7 @@ export default function AdminV3AgendaEdit() {
     title: event.title || '',
     slug: event.slug || '',
     status: (event.status === 'published' ? 'published' : 'draft') as "draft" | "published",
-    city_id: event.city || '', // agenda_itens stores city as text
+    city_id: event.city_id || '',
     venue_id: event.venue_id || null,
     organizer_id: event.organizer_id || null,
     starts_at: event.starts_at || '',
@@ -96,12 +92,12 @@ export default function AdminV3AgendaEdit() {
     price_min: event.price_min || null,
     price_max: event.price_max || null,
     age_rating: event.age_rating || null,
-    lineup: event.lineup_ids || [], // Use the new lineup_ids field
+    lineup: [], // This would need to be populated from a relation
     excerpt: event.summary || null,
-    content: event.subtitle || null, // Use subtitle as content
-    links: event.external_links || [],
+    content: event.summary || null, // Using summary as content for now
+    links: [],
     cover_url: event.cover_url || null,
-    gallery: event.gallery_urls || [],
+    gallery: [],
     seo_title: event.meta_title || null,
     seo_description: event.meta_description || null,
   };

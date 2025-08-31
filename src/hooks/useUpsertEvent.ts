@@ -12,45 +12,19 @@ export const useUpsertEvent = () => {
     mutationFn: async (data: EventForm) => {
       console.log("Upserting event:", data);
 
-      // Transform data to match agenda_itens table structure
+      // Transform dates to proper format
       const eventData = {
-        // Basic info
-        title: data.title,
-        slug: data.slug,
-        status: data.status === 'published' ? 'published' : 'draft',
-        summary: data.excerpt || null,
-        
-        // Dates
+        ...data,
         starts_at: data.starts_at ? new Date(data.starts_at).toISOString() : null,
-        end_at: data.ends_at ? new Date(data.ends_at).toISOString() : null,
-        
-        // Location
-        city: data.city_id, // For now, storing city_id as city text
+        ends_at: data.ends_at ? new Date(data.ends_at).toISOString() : null,
+        // Convert string UUIDs to proper format
+        city_id: data.city_id || null,
         venue_id: data.venue_id || null,
         organizer_id: data.organizer_id || null,
-        
-        // Pricing
-        price_min: data.price_min || null,
-        price_max: data.price_max || null,
-        
-        // Content
-        subtitle: data.content || null,
-        age_rating: data.age_rating || null,
-        
-        // Media
-        cover_url: data.cover_url || null,
-        
-        // New columns we added
-        lineup_ids: data.lineup || [],
-        external_links: data.links || [],
-        gallery_urls: data.gallery || [],
-        
-        // SEO
-        meta_title: data.seo_title || null,
-        meta_description: data.seo_description || null,
-        
-        // If updating existing event, include ID
-        ...(data.id && { id: data.id })
+        // Ensure arrays have proper defaults
+        lineup: data.lineup || [],
+        links: data.links || [],
+        gallery: data.gallery || [],
       };
 
       const { data: result, error } = await supabase
@@ -70,9 +44,8 @@ export const useUpsertEvent = () => {
       return result;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["agenda-items"] });
-      queryClient.invalidateQueries({ queryKey: ["agenda-item", data.id] });
-      queryClient.invalidateQueries({ queryKey: ["events"] }); // Legacy support
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["event", data.id] });
       toast.success("Evento salvo com sucesso!");
     },
     onError: (error) => {

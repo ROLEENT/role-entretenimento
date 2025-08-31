@@ -232,30 +232,6 @@ export type Database = {
         }
         Relationships: []
       }
-      agenda_cities: {
-        Row: {
-          created_at: string | null
-          id: string
-          name: string
-          slug: string
-          uf: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          name: string
-          slug: string
-          uf?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          name?: string
-          slug?: string
-          uf?: string | null
-        }
-        Relationships: []
-      }
       agenda_item_artists: {
         Row: {
           agenda_id: string
@@ -327,13 +303,10 @@ export type Database = {
           editorial_notes: string | null
           end_at: string | null
           event_id: string | null
-          external_links: Json | null
           focal_point_x: number | null
           focal_point_y: number | null
-          gallery_urls: string[] | null
           id: string
           latitude: number | null
-          lineup_ids: string[] | null
           location_name: string | null
           longitude: number | null
           meta_description: string | null
@@ -384,13 +357,10 @@ export type Database = {
           editorial_notes?: string | null
           end_at?: string | null
           event_id?: string | null
-          external_links?: Json | null
           focal_point_x?: number | null
           focal_point_y?: number | null
-          gallery_urls?: string[] | null
           id?: string
           latitude?: number | null
-          lineup_ids?: string[] | null
           location_name?: string | null
           longitude?: number | null
           meta_description?: string | null
@@ -441,13 +411,10 @@ export type Database = {
           editorial_notes?: string | null
           end_at?: string | null
           event_id?: string | null
-          external_links?: Json | null
           focal_point_x?: number | null
           focal_point_y?: number | null
-          gallery_urls?: string[] | null
           id?: string
           latitude?: number | null
-          lineup_ids?: string[] | null
           location_name?: string | null
           longitude?: number | null
           meta_description?: string | null
