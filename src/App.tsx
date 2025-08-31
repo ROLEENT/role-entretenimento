@@ -11,7 +11,7 @@ import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { CriticalErrorBoundary, GlobalErrorHandlerProvider } from "@/components/error";
 import { DevCacheButton } from "./components/DevCacheButton";
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -158,95 +158,6 @@ const PageLoadingFallback = () => (
 );
 
 function App() {
-  // 🚨 GLOBAL DROPDOWN FIX - Auto-heal all menus on DOM changes
-  useEffect(() => {
-    const fixAllInteractiveElements = () => {
-      // Find all potentially clickable elements
-      const selectors = [
-        'button',
-        '[role="button"]',
-        '[type="button"]',
-        '[data-radix-dropdown-menu-trigger]',
-        '[data-radix-popover-trigger]',
-        '[data-radix-select-trigger]',
-        '[data-radix-menubar-trigger]',
-        'button[role="combobox"]',
-        '.dropdown-trigger',
-        '.cursor-pointer',
-        '[class*="dropdown"]',
-        '[class*="menu"] button',
-        '[class*="trigger"]',
-        '[data-testid*="menu"]',
-        '[class*="three-dots"]',
-        '[class*="kebab"]',
-        '[class*="more-options"]',
-        '.clickable',
-        '.interactive'
-      ];
-      
-      const elements = document.querySelectorAll(selectors.join(', '));
-      
-      elements.forEach((el) => {
-        const htmlEl = el as HTMLElement;
-        // Only fix if not disabled
-        if (!htmlEl.hasAttribute('disabled') && htmlEl.getAttribute('aria-disabled') !== 'true') {
-          htmlEl.style.cursor = 'pointer';
-          htmlEl.style.pointerEvents = 'auto';
-          htmlEl.style.userSelect = 'none';
-        }
-      });
-      
-      // Fix dropdown content z-index
-      const dropdownContent = document.querySelectorAll([
-        '[data-radix-dropdown-menu-content]',
-        '[data-radix-popover-content]',
-        '[data-radix-select-content]',
-        '[data-radix-menubar-content]',
-        '[class*="dropdown-menu"]',
-        '[class*="menu-content"]',
-        '[class*="popover-content"]'
-      ].join(', '));
-      
-      dropdownContent.forEach((el) => {
-        const htmlEl = el as HTMLElement;
-        htmlEl.style.zIndex = '9999';
-        htmlEl.style.pointerEvents = 'auto';
-      });
-    };
-    
-    // Run immediately
-    fixAllInteractiveElements();
-    
-    // Set up MutationObserver to fix new elements
-    const observer = new MutationObserver((mutations) => {
-      let shouldFix = false;
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-          shouldFix = true;
-        }
-      });
-      
-      if (shouldFix) {
-        setTimeout(fixAllInteractiveElements, 100); // Small delay to ensure DOM is ready
-      }
-    });
-    
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['class', 'style']
-    });
-    
-    // Also fix on route changes (React Router)
-    const intervalFix = setInterval(fixAllInteractiveElements, 3000);
-    
-    return () => {
-      observer.disconnect();
-      clearInterval(intervalFix);
-    };
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -254,13 +165,13 @@ function App() {
           <GlobalErrorHandlerProvider>
             <CriticalErrorBoundary>
               <ErrorBoundary>
-                <BrowserRouter>
-                  <FocusManagementProvider />
-                  <Suspense fallback={<PageLoadingFallback />}>
-                    <ScrollToTop />
-                    <DevCacheButton />
+            <BrowserRouter>
+              <FocusManagementProvider />
+              <Suspense fallback={<PageLoadingFallback />}>
+                <ScrollToTop />
+                <DevCacheButton />
               
-                    <Routes>
+              <Routes>
                 {/* Root redirect */}
                 <Route path="/" element={<DashboardRedirect />} />
                 
@@ -406,10 +317,11 @@ function App() {
                 
                 {/* Catch-all route MUST be last */}
                 <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Suspense>
-                  <PWAInstallPrompt />
-                </BrowserRouter>
+              </Routes>
+              
+              </Suspense>
+              <PWAInstallPrompt />
+            </BrowserRouter>
               </ErrorBoundary>
             </CriticalErrorBoundary>
           </GlobalErrorHandlerProvider>

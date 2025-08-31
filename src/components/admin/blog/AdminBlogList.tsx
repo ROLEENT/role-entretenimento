@@ -76,8 +76,8 @@ export function AdminBlogList() {
               <p className="text-muted-foreground">Gerencie os artigos da revista</p>
             </div>
             <Button asChild>
-              <Link to="/admin-v3/revista/novo" className="inline-flex items-center gap-2">
-                <Plus className="w-4 h-4" />
+              <Link to="/admin-v3/revista/novo">
+                <Plus className="w-4 h-4 mr-2" />
                 Novo Artigo
               </Link>
             </Button>
@@ -175,14 +175,14 @@ export function AdminBlogList() {
                           <div className="flex items-center justify-end gap-2">
                             {post.status === 'published' && (
                               <Button variant="ghost" size="icon" asChild>
-                                <Link to={`/revista/${post.slug_data}`} target="_blank" className="inline-flex items-center justify-center">
+                                <Link to={`/revista/${post.slug_data}`} target="_blank">
                                   <Eye className="w-4 h-4" />
                                 </Link>
                               </Button>
                             )}
                             
                             <Button variant="ghost" size="icon" asChild>
-                              <Link to={`/admin-v3/revista/${post.id}`} className="inline-flex items-center justify-center">
+                              <Link to={`/admin-v3/revista/${post.id}`}>
                                 <Edit className="w-4 h-4" />
                               </Link>
                             </Button>

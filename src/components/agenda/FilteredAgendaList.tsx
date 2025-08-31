@@ -217,14 +217,14 @@ export function FilteredAgendaList({ filters, limit, showViewMore = false }: Fil
                   <div className="flex gap-2 ml-4">
                     {event.ticket_url && (
                       <Button size="sm" variant="outline" asChild>
-                        <a href={event.ticket_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1">
-                          <Ticket className="w-4 h-4" />
+                        <a href={event.ticket_url} target="_blank" rel="noopener noreferrer">
+                          <Ticket className="w-4 h-4 mr-1" />
                           Ingressos
                         </a>
                       </Button>
                     )}
                     <Button size="sm" asChild>
-                      <Link to={`/agenda/${event.slug || event.id}`} className="inline-flex items-center justify-center">
+                      <Link to={`/agenda/${event.slug || event.id}`}>
                         Ver mais
                       </Link>
                     </Button>
@@ -240,7 +240,7 @@ export function FilteredAgendaList({ filters, limit, showViewMore = false }: Fil
       {showViewMore && events.length >= (limit || 10) && (
         <div className="text-center pt-4">
           <Button variant="outline" asChild>
-            <Link to="/agenda/todos" className="inline-flex items-center justify-center">Ver todos os eventos</Link>
+            <Link to="/agenda/todos">Ver todos os eventos</Link>
           </Button>
         </div>
       )}

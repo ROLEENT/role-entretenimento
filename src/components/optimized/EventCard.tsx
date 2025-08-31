@@ -65,7 +65,7 @@ const EventCard = React.memo<EventCardProps>(({
   );
   
   // Lazy load for non-priority images
-  const intersectionRef = useIntersectionObserver<HTMLDivElement>(
+  const intersectionRef = useIntersectionObserver(
     useCallback(() => {
       if (!priority && event.image_url && !imageLoaded) {
         const img = new Image();

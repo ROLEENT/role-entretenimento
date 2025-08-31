@@ -81,21 +81,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Check if user is admin
   const checkAdminStatus = async (email: string): Promise<boolean> => {
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('admin_users')
         .select('email')
         .eq('email', email)
         .eq('is_active', true)
-        .maybeSingle();
-      
-      if (error) {
-        console.error('[AUTH] Admin check error:', error);
-        return false;
-      }
+        .single();
       
       return !!data;
     } catch (error) {
-      console.error('[AUTH] Admin check exception:', error);
       return false;
     }
   };

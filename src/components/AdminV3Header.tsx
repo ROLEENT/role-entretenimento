@@ -205,6 +205,9 @@ export function AdminV3Header() {
                       {user ? getUserInitials(user.email) : '?'}
                     </AvatarFallback>
                   </Avatar>
+                  <span className="sr-only" aria-label={`Menu do usuário ${user?.email || ''}`}>
+                    Abrir menu do usuário
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>

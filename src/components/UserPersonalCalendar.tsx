@@ -136,9 +136,8 @@ const UserPersonalCalendar: React.FC = () => {
                   href="https://calendar.google.com/calendar/u/0/r" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2"
                 >
-                  <ExternalLink className="h-4 w-4" />
+                  <ExternalLink className="h-4 w-4 mr-2" />
                   Google Calendar
                 </a>
               </Button>

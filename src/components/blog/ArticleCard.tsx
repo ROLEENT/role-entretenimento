@@ -57,9 +57,9 @@ const ArticleCard = ({ post, showCity = true }: ArticleCardProps) => {
         </div>
         
         <Button asChild size="sm" variant="ghost" className="w-full">
-          <Link to={`/destaques/${post.city}/${post.slug_data}`} className="inline-flex items-center gap-1">
+          <Link to={`/destaques/${post.city}/${post.slug_data}`}>
             Ler mais
-            <ArrowRight className="w-3 h-3" />
+            <ArrowRight className="w-3 h-3 ml-1" />
           </Link>
         </Button>
       </CardContent>
