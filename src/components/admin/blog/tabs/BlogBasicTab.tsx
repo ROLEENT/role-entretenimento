@@ -86,10 +86,17 @@ export const BlogBasicTab: React.FC<BlogBasicTabProps> = ({ form }) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <RHFInput
+            <RHFSelect
               name="city"
               label="Cidade *"
-              placeholder="São Paulo"
+              placeholder="Selecione a cidade"
+              options={[
+                { value: 'poa', label: 'Porto Alegre' },
+                { value: 'sp', label: 'São Paulo' },
+                { value: 'rj', label: 'Rio de Janeiro' },
+                { value: 'curitiba', label: 'Curitiba' },
+                { value: 'floripa', label: 'Florianópolis' }
+              ]}
             />
             
             <div className="space-y-2">

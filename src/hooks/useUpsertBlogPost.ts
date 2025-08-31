@@ -111,9 +111,14 @@ export const useUpsertBlogPost = () => {
       queryClient.invalidateQueries({ queryKey: ["blog-post", data.id] });
       toast.success("Post salvo com sucesso!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Blog post save error:", error);
-      toast.error(error.message || "Erro ao salvar post");
+      const message = String(error?.message || '');
+      if (message.includes('blog_posts_city_check')) {
+        toast.error('Cidade inválida. Use: POA, SP, RJ, Curitiba ou Floripa.');
+      } else {
+        toast.error('Não foi possível salvar o post. Tenta de novo mais tarde.');
+      }
     },
   });
 };
