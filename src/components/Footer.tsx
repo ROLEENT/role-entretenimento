@@ -32,7 +32,7 @@ const Footer = () => {
   // Generate dynamic categories from database
   const categoriesLinks = [
     { name: "Agenda", href: "/agenda" },
-    { name: "Revista", href: "#revista-em-breve" },
+    { name: "Revista", href: "/revista" },
     ...categories.slice(0, 4).map(cat => ({
       name: cat.name,
       href: cat.kind === 'agenda' ? `/agenda?categoria=${cat.slug}` : `/revista?categoria=${cat.slug}`

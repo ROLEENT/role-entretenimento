@@ -112,7 +112,8 @@ const UnderConstructionHandler = lazy(() => import("@/components/admin/UnderCons
 // Admin Blog components
 const AdminBlogList = lazy(() => import("./components/admin/blog/AdminBlogList").then(module => ({ default: module.AdminBlogList })));
 
-// Revista pages - REMOVED
+// Revista pages
+const RevistaPage = lazy(() => import("./pages/RevistaPage"));
 
 // Institutional pages
 const Parcerias = lazy(() => import("./pages/institucional/Parcerias"));
@@ -201,7 +202,8 @@ function App() {
                 <Route path="/debug/combo" element={<DebugCombo />} />
                 {/* Removed old test route */}
                 
-                {/* Revista Routes - REMOVED - Will be reimplemented */}
+                {/* Revista Routes */}
+                <Route path="/revista" element={<Suspense fallback={<PageLoadingFallback />}><RevistaPage /></Suspense>} />
                 
                 {/* Rotas antigas de destaques removidas */}
                 <Route path="/cidades" element={<CitiesPage />} />

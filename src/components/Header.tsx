@@ -37,7 +37,7 @@ const Header = () => {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/agenda', label: 'Agenda' },
-    { href: '#revista-em-breve', label: 'Revista' },
+    { href: '/revista', label: 'Revista' },
     { href: '/cidades', label: 'Cidades' },
     { href: '/ajuda', label: 'Ajuda' }
   ];
