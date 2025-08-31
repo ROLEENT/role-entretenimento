@@ -27,6 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import { User, Settings, LogOut } from 'lucide-react';
 import { AdminNavigation } from '@/components/admin/AdminNavigation';
 import { QuickActions } from '@/components/admin/QuickActions';
+import { ExplorarMegaMenu } from '@/components/admin/ExplorarMegaMenu';
 
 interface UserProfile {
   email: string;
@@ -170,10 +171,10 @@ export function AdminV3Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-[100] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center justify-between">
+      <header className="sticky top-0 z-[50] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" style={{ overflow: 'visible' }}>
+        <div className="container flex h-14 items-center justify-between" style={{ overflow: 'visible' }}>
           {/* Left side - Logo and Navigation */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-6" style={{ overflow: 'visible' }}>
             <Button 
               variant="ghost" 
               onClick={() => navigate('/admin-v3')}
@@ -181,6 +182,9 @@ export function AdminV3Header() {
             >
               Admin v3
             </Button>
+            
+            {/* Explorar MegaMenu */}
+            <ExplorarMegaMenu />
             
             {/* Admin Navigation */}
             <AdminNavigation />
