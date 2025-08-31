@@ -5,6 +5,7 @@ import { useDebounce } from 'use-debounce';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronsUpDown, Check, Plus, Loader2, X } from 'lucide-react';
+import { QuickCreateDialog } from '@/components/ui/quick-create-dialog';
 import { cn } from '@/lib/utils';
 import {
   Command,
@@ -35,11 +36,16 @@ interface RHFComboboxRemoteProps {
   searchField: string;
   where?: Record<string, any>;
   multiple?: boolean;
-  onCreateClick?: (searchTerm: string) => void;
+  onCreateClick?: (searchTerm: string) => Promise<any>;
   placeholder?: string;
   description?: string;
   disabled?: boolean;
   className?: string;
+  createButtonText?: string;
+  createDialogTitle?: string;
+  createDialogDescription?: string;
+  createFieldLabel?: string;
+  createFieldPlaceholder?: string;
 }
 
 export default function RHFComboboxRemote({
@@ -56,6 +62,11 @@ export default function RHFComboboxRemote({
   description,
   disabled = false,
   className,
+  createButtonText,
+  createDialogTitle,
+  createDialogDescription,
+  createFieldLabel,
+  createFieldPlaceholder,
 }: RHFComboboxRemoteProps) {
   const { control } = useFormContext();
   const { field, fieldState } = useController({ name, control });
@@ -63,14 +74,13 @@ export default function RHFComboboxRemote({
   const { error } = fieldState;
 
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
   const [options, setOptions] = useState<SelectOption[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(0);
-  
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
-  const [debouncedSearch] = useDebounce(search, 300);
+  const [isLoading, setIsLoading] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   // Convert value to array for consistent handling
   const valueArray = useMemo(() => {
@@ -85,18 +95,19 @@ export default function RHFComboboxRemote({
     return options.filter(opt => valueArray.includes(opt.id));
   }, [options, valueArray]);
 
-  // Load options from Supabase
-  const loadOptions = useCallback(async (searchTerm: string, pageNum: number = 0, reset: boolean = true) => {
+  // Search options from Supabase
+  const searchOptions = useCallback(async (searchTerm: string) => {
     if (!table || !labelField || !searchField) return;
 
-    setLoading(true);
+    setIsLoading(true);
     try {
-      console.log(`[RHFComboboxRemote] Loading from ${table}, search: "${searchTerm}", page: ${pageNum}`);
+      console.log(`[RHFComboboxRemote] Searching ${table} for: "${searchTerm}"`);
       
       let query = supabase
         .from(table)
         .select(`${valueField}, ${labelField}`)
-        .order(labelField);
+        .order(labelField)
+        .limit(20);
 
       // Apply search filter
       if (searchTerm.trim()) {
@@ -110,15 +121,10 @@ export default function RHFComboboxRemote({
         }
       });
 
-      // Apply pagination
-      const from = pageNum * 20;
-      const to = from + 19;
-      query = query.range(from, to);
-
-      const { data, error, count } = await query;
+      const { data, error } = await query;
 
       if (error) {
-        console.error(`[RHFComboboxRemote] Error loading from ${table}:`, error);
+        console.error(`[RHFComboboxRemote] Error searching ${table}:`, error);
         return;
       }
 
@@ -127,79 +133,137 @@ export default function RHFComboboxRemote({
         label: String(item[labelField]),
       }));
 
-      if (reset) {
-        setOptions(newOptions);
-      } else {
-        setOptions(prev => [...prev, ...newOptions]);
-      }
-
-      setHasMore(newOptions.length === 20);
-      setPage(pageNum);
-      
-      console.log(`[RHFComboboxRemote] Loaded ${newOptions.length} options from ${table}`);
+      setOptions(newOptions);
+      console.log(`[RHFComboboxRemote] Found ${newOptions.length} options`);
     } catch (error) {
-      console.error(`[RHFComboboxRemote] Error loading options from ${table}:`, error);
+      console.error(`[RHFComboboxRemote] Error searching options:`, error);
       setOptions([]);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, [table, valueField, labelField, searchField, where]);
 
   // Effect for debounced search
   useEffect(() => {
-    loadOptions(debouncedSearch, 0, true);
-  }, [debouncedSearch, loadOptions]);
-
-  // Load initial options when component mounts
-  useEffect(() => {
-    if (open && options.length === 0 && !loading) {
-      loadOptions('', 0, true);
+    if (open) {
+      searchOptions(debouncedSearchTerm);
     }
-  }, [open, options.length, loading, loadOptions]);
+  }, [debouncedSearchTerm, open, searchOptions]);
 
+  // Load initial options when opened
+  useEffect(() => {
+    if (open && options.length === 0 && !isLoading) {
+      searchOptions('');
+    }
+  }, [open, options.length, isLoading, searchOptions]);
+
+  // Handle quick create
+  const handleQuickCreate = useCallback(async (itemName: string) => {
+    if (!onCreateClick) return;
+
+    setIsCreating(true);
+    try {
+      const newItem = await onCreateClick(itemName);
+      
+      // Refresh options to include the new item
+      await searchOptions(debouncedSearchTerm);
+      
+      // Auto-select the newly created item
+      if (newItem && newItem[valueField]) {
+        const newValue = newItem[valueField];
+        
+        if (multiple) {
+          const currentValues = Array.isArray(value) ? value : [];
+          if (!currentValues.includes(newValue)) {
+            onChange([...currentValues, newValue]);
+          }
+        } else {
+          onChange(newValue);
+        }
+      }
+      
+      setSearchTerm('');
+      setOpen(false);
+    } catch (error) {
+      console.error('Error in quick create:', error);
+      throw error;
+    } finally {
+      setIsCreating(false);
+    }
+  }, [onCreateClick, debouncedSearchTerm, searchOptions, valueField, multiple, value, onChange]);
+
+  // Get display text for create button
+  const getCreateButtonText = () => {
+    if (createButtonText) return createButtonText;
+    
+    const typeMap: Record<string, string> = {
+      'artist_types': 'Tipo de Artista',
+      'genres': 'Gênero',
+      'venues': 'Local',
+      'organizers': 'Organizador',
+      'artists': 'Artista',
+    };
+    
+    return typeMap[table] || 'Item';
+  };
+
+  const getDialogTitle = () => {
+    if (createDialogTitle) return createDialogTitle;
+    return `Criar ${getCreateButtonText()}`;
+  };
+
+  const getFieldLabel = () => {
+    if (createFieldLabel) return createFieldLabel;
+    return `Nome do ${getCreateButtonText()}`;
+  };
+
+  // Clear selection
+  const clearSelection = useCallback(() => {
+    onChange(multiple ? [] : '');
+  }, [onChange, multiple]);
+
+  // Remove chip
+  const removeChip = useCallback((valueToRemove: string) => {
+    if (multiple && Array.isArray(value)) {
+      const newValues = value.filter(v => v !== valueToRemove);
+      onChange(newValues);
+    }
+  }, [multiple, value, onChange]);
+
+  // Handle selection
   const handleSelect = useCallback((selectedValue: string) => {
     if (multiple) {
-      const currentValues = valueArray;
+      const currentValues = Array.isArray(value) ? value : [];
       const newValues = currentValues.includes(selectedValue)
         ? currentValues.filter(v => v !== selectedValue)
         : [...currentValues, selectedValue];
       onChange(newValues);
     } else {
-      onChange(selectedValue === value ? null : selectedValue);
+      onChange(selectedValue);
       setOpen(false);
     }
-    setSearch('');
-  }, [multiple, valueArray, value, onChange]);
+  }, [multiple, value, onChange]);
 
-  const handleRemoveChip = useCallback((removedValue: string) => {
-    if (multiple) {
-      const newValues = valueArray.filter(v => v !== removedValue);
-      onChange(newValues);
-    }
-  }, [multiple, valueArray, onChange]);
+  // Get selected options for display
+  const displaySelectedOptions = useMemo(() => {
+    if (!value) return [];
+    
+    const values = Array.isArray(value) ? value : [value];
+    return options.filter(option => values.includes(option.id));
+  }, [value, options]);
 
-  const handleCreate = useCallback(() => {
-    if (onCreateClick && search.trim()) {
-      onCreateClick(search.trim());
-      setOpen(false);
-      setSearch('');
-    }
-  }, [onCreateClick, search]);
-
-  const loadMore = useCallback(() => {
-    if (hasMore && !loading) {
-      loadOptions(debouncedSearch, page + 1, false);
-    }
-  }, [hasMore, loading, debouncedSearch, page, loadOptions]);
-
+  // Get display text
   const getDisplayText = () => {
+    if (!value || (Array.isArray(value) && value.length === 0)) {
+      return placeholder || "Selecione...";
+    }
+    
     if (multiple) {
-      return valueArray.length > 0 
-        ? `${valueArray.length} selecionado(s)`
-        : placeholder;
+      const count = Array.isArray(value) ? value.length : 0;
+      return count === 1 ? "1 item selecionado" : `${count} itens selecionados`;
     } else {
-      const selected = selectedOptions[0];
-      return selected?.label || placeholder;
+      const selected = displaySelectedOptions[0];
+      return selected ? selected.label : placeholder || "Selecione...";
     }
   };
 
@@ -208,9 +272,9 @@ export default function RHFComboboxRemote({
       {label && <FormLabel>{label}</FormLabel>}
 
       {/* Selected items as chips for multiple selection */}
-      {multiple && selectedOptions.length > 0 && (
+      {multiple && displaySelectedOptions.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-2">
-          {selectedOptions.map((option) => (
+          {displaySelectedOptions.map((option) => (
             <Badge
               key={option.id}
               variant="secondary"
@@ -225,7 +289,7 @@ export default function RHFComboboxRemote({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  handleRemoveChip(option.id);
+                  removeChip(option.id);
                 }}
               >
                 <X className="h-3 w-3" />
@@ -238,6 +302,7 @@ export default function RHFComboboxRemote({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
+            ref={triggerRef}
             variant="outline"
             role="combobox"
             aria-expanded={open}
@@ -254,51 +319,53 @@ export default function RHFComboboxRemote({
           </Button>
         </PopoverTrigger>
         
-        <PopoverContent className="p-0 z-[9999] w-[var(--radix-popover-trigger-width)]" align="start">
+        <PopoverContent className="p-0 z-[50] bg-popover" align="start" style={{width: triggerRef.current?.offsetWidth}}>
           <Command shouldFilter={false}>
             <CommandInput
               placeholder="Digite para buscar..."
-              value={search}
-              onValueChange={setSearch}
+              value={searchTerm}
+              onValueChange={setSearchTerm}
             />
             <CommandList>
-              {loading && (
-                <div className="flex items-center justify-center py-6">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-4">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="ml-2 text-sm">Carregando...</span>
+                  <span className="ml-2 text-sm text-muted-foreground">Carregando...</span>
                 </div>
-              )}
-
-              {!loading && options.length === 0 && (
-                <CommandEmpty>
-                  <div className="text-center py-6">
+              ) : options.length === 0 ? (
+                debouncedSearchTerm ? (
+                  // Empty state with create option
+                  <div className="py-6 text-center">
                     <p className="text-sm text-muted-foreground mb-3">
-                      {search ? `Nenhum resultado para "${search}"` : 'Nenhum item encontrado'}
+                      Nenhum resultado encontrado para "{debouncedSearchTerm}"
                     </p>
-                    {onCreateClick && search.trim() && (
+                    {onCreateClick && (
                       <Button
+                        variant="outline"
                         size="sm"
-                        onClick={handleCreate}
+                        onClick={() => setCreateDialogOpen(true)}
                         className="gap-2"
                       >
-                        <Plus className="h-4 w-4" />
-                        Criar "{search}"
+                        <Plus className="h-3 w-3" />
+                        Criar {getCreateButtonText()}
                       </Button>
                     )}
                   </div>
-                </CommandEmpty>
-              )}
-
-              {!loading && options.length > 0 && (
+                ) : (
+                  <CommandEmpty>Digite para buscar...</CommandEmpty>
+                )
+              ) : (
                 <CommandGroup>
                   {options.map((option) => {
-                    const isSelected = valueArray.includes(option.id);
+                    const isSelected = multiple 
+                      ? Array.isArray(value) && value.includes(option.id)
+                      : value === option.id;
+                    
                     return (
                       <CommandItem
                         key={option.id}
                         value={option.id}
                         onSelect={() => handleSelect(option.id)}
-                        className="cursor-pointer"
                       >
                         <Check
                           className={cn(
@@ -306,39 +373,29 @@ export default function RHFComboboxRemote({
                             isSelected ? "opacity-100" : "opacity-0"
                           )}
                         />
-                        <span className="truncate">{option.label}</span>
+                        {option.label}
                       </CommandItem>
                     );
                   })}
-                  
-                  {/* Load more button */}
-                  {hasMore && !loading && (
-                    <CommandItem
-                      onSelect={loadMore}
-                      className="justify-center cursor-pointer border-t"
-                    >
-                      <span className="text-sm text-muted-foreground">
-                        Carregar mais...
-                      </span>
-                    </CommandItem>
-                  )}
-                  
-                  {/* Create new option */}
-                  {onCreateClick && search.trim() && options.length > 0 && (
-                    <CommandItem
-                      onSelect={handleCreate}
-                      className="justify-center cursor-pointer border-t gap-2"
-                    >
-                      <Plus className="h-4 w-4" />
-                      <span className="text-sm">Criar "{search}"</span>
-                    </CommandItem>
-                  )}
                 </CommandGroup>
               )}
             </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
+
+      {/* Quick Create Dialog */}
+      <QuickCreateDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        title={getDialogTitle()}
+        description={createDialogDescription}
+        fieldLabel={getFieldLabel()}
+        fieldPlaceholder={createFieldPlaceholder}
+        searchTerm={debouncedSearchTerm}
+        onSave={handleQuickCreate}
+        isLoading={isCreating}
+      />
 
       {description && (
         <p className="text-sm text-muted-foreground">{description}</p>

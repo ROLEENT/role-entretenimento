@@ -501,6 +501,11 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
                     searchField="name"
                     where={{ active: true }}
                     placeholder="Selecione o tipo de artista"
+                    createButtonText="Tipo de Artista"
+                    createDialogTitle="Criar Novo Tipo de Artista"
+                    createDialogDescription="Adicione um novo tipo de artista à lista."
+                    createFieldLabel="Nome do Tipo"
+                    createFieldPlaceholder="Ex: DJ, Banda, Solo..."
                     onCreateClick={async (searchTerm) => {
                       try {
                         console.log("[artist-types] Creating new:", searchTerm);
@@ -512,9 +517,8 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
                         
                         if (error) throw error;
                         
-                        // Update the form value with the new artist type
-                        form.setValue('artist_type_id', data.id);
                         console.log("[artist-types] Created:", data);
+                        return data;
                       } catch (error) {
                         console.error("[artist-types] Error creating:", error);
                         throw error;
@@ -531,6 +535,11 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
                     where={{ active: true }}
                     multiple
                     placeholder="Selecione os gêneros"
+                    createButtonText="Gênero"
+                    createDialogTitle="Criar Novo Gênero Musical"
+                    createDialogDescription="Adicione um novo gênero musical à lista."
+                    createFieldLabel="Nome do Gênero"
+                    createFieldPlaceholder="Ex: House, Techno, Rock..."
                     onCreateClick={async (searchTerm) => {
                       try {
                         console.log("[genres] Creating new:", searchTerm);
@@ -542,10 +551,8 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
                         
                         if (error) throw error;
                         
-                        // Add the new genre to the current selection
-                        const currentGenres = form.getValues('genre_ids') || [];
-                        form.setValue('genre_ids', [...currentGenres, data.id]);
                         console.log("[genres] Created:", data);
+                        return data;
                       } catch (error) {
                         console.error("[genres] Error creating:", error);
                         throw error;
