@@ -99,6 +99,20 @@ html {
   }
 }
 
+/* Aparência do select nativo */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 7l5 5 5-5' fill='none' stroke='currentColor' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .75rem center;
+  background-size: 1rem;
+}
+
+select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(199,125,255,.35);
+}
+
 /* Ensure full height layout for admin */
 html, body, #root {
   height: 100%;
