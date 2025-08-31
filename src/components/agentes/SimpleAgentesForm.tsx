@@ -5,8 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Form } from "@/components/ui/form";
 import RHFInput from "@/components/form/RHFInput";
-import ArtistTypeSelect from "@/components/fields/ArtistTypeSelect";
-import GenreMultiSelect from "@/components/fields/GenreMultiSelect";
 import { Button } from "@/components/ui/button";
 import { generateSlug } from "@/utils/slugUtils";
 import { useEffect } from "react";
@@ -32,8 +30,6 @@ export function SimpleAgentesForm({ agentType, agentId, onSuccess, onFormSubmit,
       bio: "",
       email: "",
       phone: "",
-      artist_type_id: null,
-      genre_ids: [],
     },
   });
 
@@ -60,8 +56,6 @@ export function SimpleAgentesForm({ agentType, agentId, onSuccess, onFormSubmit,
             bio: data.bio || "",
             email: data.email || "",
             phone: data.phone || "",
-            artist_type_id: data.artist_type_id || null,
-            genre_ids: data.genre_ids || [],
           });
         }
       };
@@ -81,8 +75,6 @@ export function SimpleAgentesForm({ agentType, agentId, onSuccess, onFormSubmit,
         bio: values.bio || null,
         email: values.email || null,
         phone: values.phone || null,
-        artist_type_id: values.artist_type_id || null,
-        genre_ids: values.genre_ids || [],
         status: "active",
         updated_at: new Date().toISOString(),
       };
@@ -177,13 +169,6 @@ export function SimpleAgentesForm({ agentType, agentId, onSuccess, onFormSubmit,
             label="Telefone"
             placeholder="(11) 99999-9999"
           />
-          
-          {agentType === "artistas" && (
-            <>
-              <ArtistTypeSelect />
-              <GenreMultiSelect />
-            </>
-          )}
           
           <RHFInput
             name="bio"

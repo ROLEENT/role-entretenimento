@@ -8,8 +8,6 @@ export const artistSchema = z.object({
   bio: z.string().optional().nullable(),
   email: z.string().email().optional().or(z.literal("")).nullable(),
   phone: z.string().optional().nullable(),
-  artist_type_id: z.string().uuid().optional().nullable(),
-  genre_ids: z.array(z.string().uuid()).optional().default([]),
 });
 
 export type ArtistForm = z.infer<typeof artistSchema>;
