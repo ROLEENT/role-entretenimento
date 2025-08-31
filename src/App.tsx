@@ -52,11 +52,11 @@ const AdminV3RevistaPage = lazy(() => import("./pages/admin-v3/AdminV3RevistaLis
 const AdminV3GestaoPage = lazy(() => import("./pages/admin-v3/gestao/index"));
 const AdminV3DestaquesPage = lazy(() => import("./pages/admin-v3/AdminV3DestaquesList"));
 
-// Admin V3 Gestao Pages
-const AdminV3GestaoLogsPage = lazy(() => import("./pages/admin-v3/gestao/logs/index").then(m => ({ default: m.default })));
-const AdminV3GestaoNotificacoesPage = lazy(() => import("./pages/admin-v3/gestao/notificacoes/index").then(m => ({ default: m.default })));
-const AdminV3GestaoAnalyticsPage = lazy(() => import("./pages/admin-v3/gestao/analytics/index").then(m => ({ default: m.default })));
-const AdminV3GestaoBackupPage = lazy(() => import("./pages/admin-v3/gestao/backup/index").then(m => ({ default: m.default })));
+// Admin V3 Gestao Pages - Simple components for now
+const SystemLogsPage = () => <div className="p-6"><h1 className="text-2xl font-bold">Logs do Sistema</h1><p>Funcionalidade em desenvolvimento</p></div>;
+const NotificationsPushPage = () => <div className="p-6"><h1 className="text-2xl font-bold">Notificações Push</h1><p>Funcionalidade em desenvolvimento</p></div>;
+const AnalyticsPage = () => <div className="p-6"><h1 className="text-2xl font-bold">Analytics</h1><p>Funcionalidade em desenvolvimento</p></div>;
+const BackupRestorePage = () => <div className="p-6"><h1 className="text-2xl font-bold">Backup & Restore</h1><p>Funcionalidade em desenvolvimento</p></div>;
 
 const OrganizerTerms = lazy(() => import("./pages/OrganizerTerms"));
 const Help = lazy(() => import("./pages/Help"));
@@ -255,10 +255,10 @@ function App() {
                   
                   {/* Gestao Routes */}
                   <Route path="gestao" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoPage /></Suspense>} />
-                  <Route path="gestao/logs" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoLogsPage /></Suspense>} />
-                  <Route path="gestao/notificacoes" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoNotificacoesPage /></Suspense>} />
-                  <Route path="gestao/analytics" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoAnalyticsPage /></Suspense>} />
-                  <Route path="gestao/backup" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoBackupPage /></Suspense>} />
+                  <Route path="gestao/logs" element={<Suspense fallback={<AdminLoadingFallback />}><SystemLogsPage /></Suspense>} />
+                  <Route path="gestao/notificacoes" element={<Suspense fallback={<AdminLoadingFallback />}><NotificationsPushPage /></Suspense>} />
+                  <Route path="gestao/analytics" element={<Suspense fallback={<AdminLoadingFallback />}><AnalyticsPage /></Suspense>} />
+                  <Route path="gestao/backup" element={<Suspense fallback={<AdminLoadingFallback />}><BackupRestorePage /></Suspense>} />
                   <Route path="destaques" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
                   <Route path="destaques/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
                   
