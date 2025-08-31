@@ -42,7 +42,12 @@ const AdminV3ArtistsList = lazy(() => import("./pages/admin-v3/AdminV3ArtistsLis
 const AdminV3ArtistCreate = lazy(() => import("./pages/admin-v3/AdminV3ArtistCreate").then(module => ({ default: module.default })));
 const AdminV3ArtistEdit = lazy(() => import("./pages/admin-v3/AdminV3ArtistEdit").then(module => ({ default: module.default })));
 
-
+// Admin V3 Under Construction Pages
+const AdminV3VenuesPage = lazy(() => import("./pages/admin-v3/agentes/venues"));
+const AdminV3OrganizadoresPage = lazy(() => import("./pages/admin-v3/agentes/organizadores"));
+const AdminV3RevistaPage = lazy(() => import("./pages/admin-v3/revista/index"));
+const AdminV3GestaoPage = lazy(() => import("./pages/admin-v3/gestao/index"));
+const AdminV3DestaquesPage = lazy(() => import("./pages/admin-v3/destaques/index"));
 
 const OrganizerTerms = lazy(() => import("./pages/OrganizerTerms"));
 const Help = lazy(() => import("./pages/Help"));
@@ -235,12 +240,15 @@ function App() {
                 <Route path="/admin-v3/agenda/rascunhos" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Rascunhos da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Salvar eventos como rascunho', 'Revisar antes de publicar', 'Agendamento de publicação']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Rascunhos'}]} /></Suspense>} />
                 <Route path="/admin-v3/agenda/configuracoes" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Configurações da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Configurações gerais', 'Integração com APIs', 'Notificações automáticas']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Configurações'}]} /></Suspense>} />
                 
-                <Route path="/admin-v3/agentes/venues" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Venues" description="Funcionalidade em desenvolvimento" expectedFeatures={['Cadastro de locais', 'Gerenciamento de espaços', 'Integração com mapas']} breadcrumbItems={[{label: 'Agentes', path: '/admin-v3/agentes/artistas'}, {label: 'Venues'}]} /></Suspense>} />
-                <Route path="/admin-v3/agentes/organizadores" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Organizadores" description="Funcionalidade em desenvolvimento" expectedFeatures={['Cadastro de organizadores', 'Histórico de eventos', 'Avaliações e feedback']} breadcrumbItems={[{label: 'Agentes', path: '/admin-v3/agentes/artistas'}, {label: 'Organizadores'}]} /></Suspense>} />
-                
-                <Route path="/admin-v3/revista/*" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Revista" description="Módulo em desenvolvimento" expectedFeatures={['Sistema de artigos', 'Editor de conteúdo', 'SEO otimizado', 'Categorização']} breadcrumbItems={[{label: 'Revista'}]} /></Suspense>} />
-                <Route path="/admin-v3/gestao/*" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Gestão" description="Módulo em desenvolvimento" expectedFeatures={['Gerenciamento de contatos', 'Newsletter', 'Candidaturas', 'Configurações']} breadcrumbItems={[{label: 'Gestão'}]} /></Suspense>} />
-                <Route path="/admin-v3/destaques/*" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Destaques" description="Módulo em desenvolvimento" expectedFeatures={['Highlights automáticos', 'Curadoria especial', 'Agenda curatorial']} breadcrumbItems={[{label: 'Destaques'}]} /></Suspense>} />
+                {/* Under Construction Pages with new AdminLayout */}
+                <Route path="/admin-v3/agentes/venues" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenuesPage /></Suspense>} />
+                <Route path="/admin-v3/agentes/organizadores" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizadoresPage /></Suspense>} />
+                <Route path="/admin-v3/revista" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaPage /></Suspense>} />
+                <Route path="/admin-v3/revista/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaPage /></Suspense>} />
+                <Route path="/admin-v3/gestao" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoPage /></Suspense>} />
+                <Route path="/admin-v3/gestao/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoPage /></Suspense>} />
+                <Route path="/admin-v3/destaques" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
+                <Route path="/admin-v3/destaques/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
                 
                 {/* Events Routes */}
                 <Route path="/eventos" element={<EventsPage />} />
