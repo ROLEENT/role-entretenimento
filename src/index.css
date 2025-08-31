@@ -1088,3 +1088,20 @@ body {
 .skeleton {
   animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+/* scroll fino e único */
+html { scrollbar-gutter: stable; }
+* { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,.28) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-thumb { background: rgba(0,0,0,.28); border-radius: 999px; }
+
+/* forçar só body a rolar */
+html, body, #__next, #root { min-height: 100%; height: auto; overflow-y: auto; }
+
+/* matar scroll em wrappers comuns do form */
+.h-screen { height: auto !important; min-height: 100vh !important; }
+.max-h-screen, .overflow-y-auto, .overflow-auto { max-height: none !important; overflow: visible !important; }
+
+/* cards e seções não criam scroll próprio */
+[class*="Card"] { overflow: visible !important; }
+textarea { overflow: auto; }
