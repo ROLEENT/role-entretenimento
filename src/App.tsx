@@ -257,12 +257,10 @@ function App() {
                 <BrowserRouter>
                   <FocusManagementProvider />
                   <Suspense fallback={<PageLoadingFallback />}>
-                    <>
-                      <ScrollToTop />
-                      <DevCacheButton />
-                    </>
+                    <ScrollToTop />
+                    <DevCacheButton />
               
-              <Routes>
+                    <Routes>
                 {/* Root redirect */}
                 <Route path="/" element={<DashboardRedirect />} />
                 
@@ -408,7 +406,7 @@ function App() {
                 
                 {/* Catch-all route MUST be last */}
                 <Route path="*" element={<NotFound />} />
-                  </Routes>
+                    </Routes>
                   </Suspense>
                   <PWAInstallPrompt />
                 </BrowserRouter>
