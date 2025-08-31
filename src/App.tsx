@@ -93,6 +93,9 @@ const AdminV2Dashboard = lazy(() => import("./pages/AdminV2Dashboard"));
 const AdminV3Login = lazy(() => import("./pages/AdminV3Login"));
 const AdminV3Dashboard = lazy(() => import("./pages/AdminV3Dashboard"));
 const AdminV3Debug = lazy(() => import("./pages/AdminV3Debug"));
+const AdminV3EventsList = lazy(() => import("./pages/admin-v3/AdminV3EventsList"));
+const AdminV3EventCreate = lazy(() => import("./pages/admin-v3/AdminV3EventCreate"));
+const AdminV3EventEdit = lazy(() => import("./pages/admin-v3/AdminV3EventEdit"));
 const DevAuth = lazy(() => import("./pages/DevAuth"));
 
 // Under Construction Components
@@ -244,6 +247,11 @@ function App() {
                   <Route path="agenda/:id/editar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaEdit /></Suspense>} />
                   <Route path="agenda/rascunhos" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Rascunhos da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Salvar eventos como rascunho', 'Revisar antes de publicar', 'Agendamento de publicação']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Rascunhos'}]} /></Suspense>} />
                   <Route path="agenda/configuracoes" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Configurações da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Configurações gerais', 'Integração com APIs', 'Notificações automáticas']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Configurações'}]} /></Suspense>} />
+                  
+                  {/* Eventos Routes */}
+                  <Route path="eventos" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3EventsList /></Suspense>} />
+                  <Route path="eventos/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3EventCreate /></Suspense>} />
+                  <Route path="eventos/:id/editar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3EventEdit /></Suspense>} />
                   
                   {/* Agentes Routes */}
                   <Route path="agentes/artistas" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsList /></Suspense>} />

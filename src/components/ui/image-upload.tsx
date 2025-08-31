@@ -13,6 +13,10 @@ interface ImageUploadProps {
   accept?: string;
   maxSizeMB?: number;
   disabled?: boolean;
+  bucket?: string;
+  folder?: string;
+  className?: string;
+  placeholder?: string;
 }
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({
@@ -22,7 +26,11 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   label = "Imagem",
   accept = "image/*",
   maxSizeMB = 5,
-  disabled = false
+  disabled = false,
+  bucket = "artist-images",
+  folder = "",
+  className,
+  placeholder
 }) => {
   const [isUploading, setIsUploading] = useState(false);
 
@@ -40,11 +48,11 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       // Gerar nome único para o arquivo
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const filePath = folder ? `${folder}/${fileName}` : fileName;
 
       // Upload para o Supabase Storage
       const { data, error } = await supabase.storage
-        .from('artist-images')
+        .from(bucket)
         .upload(filePath, file);
 
       if (error) {
@@ -55,7 +63,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
       // Obter URL pública da imagem
       const { data: { publicUrl } } = supabase.storage
-        .from('artist-images')
+        .from(bucket)
         .getPublicUrl(data.path);
 
       onChange(publicUrl);
