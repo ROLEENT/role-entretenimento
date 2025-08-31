@@ -119,12 +119,7 @@ const SEOHead = ({
         <meta key={tag} property="article:tag" content={tag} />
       ))}
       
-      {/* PWA and mobile optimizations */}
-      <meta name="theme-color" content="#c026d3" />
-      <meta name="apple-mobile-web-app-capable" content="yes" />
-      <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-      <meta name="apple-mobile-web-app-title" content="ROLÊ" />
-      <link rel="apple-touch-icon" href="/role-logo.png" />
+      {/* Note: PWA meta tags are managed in index.html to avoid duplicates */}
       
       {/* Structured Data */}
       <script type="application/ld+json">
