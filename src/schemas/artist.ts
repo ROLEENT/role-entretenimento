@@ -87,13 +87,8 @@ export const artistSchema = z.object({
   links: z.record(z.string()).default({}),
   
   // Artist types and genres
-  artist_types: z.array(z.string())
-    .default([])
-    .optional(),
-  
-  genres: z.array(z.string())
-    .default([])
-    .optional(),
+  artist_type_id: z.string().nullable().optional(),
+  genre_ids: z.array(z.string()).default([]).optional(),
   
   // Media
   avatar_url: z.string().url("URL inválida").optional(),

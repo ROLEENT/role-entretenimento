@@ -90,3 +90,6 @@ verify_jwt = false
 
 [functions.slug-check]
 verify_jwt = false
+
+[functions.options]
+verify_jwt = false

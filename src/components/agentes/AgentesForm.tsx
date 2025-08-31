@@ -16,7 +16,8 @@ import { Link } from "react-router-dom";
 
 // Import form components
 import { RHFInput, RHFTextarea, RHFSelect } from "@/components/form";
-import { RHFSelectAsyncCreatable } from "@/components/rhf/RHFSelectAsyncCreatable";
+import RHFCombobox from "@/components/rhf/RHFCombobox";
+import RHFMultiCombobox from "@/components/rhf/RHFMultiCombobox";
 import CitySelectStable from "@/components/fields/CitySelectStable";
 import ArtistSubtypeSelect from "@/components/fields/ArtistSubtypeSelect";
 import OrganizerSubtypeSelect from "@/components/fields/OrganizerSubtypeSelect";
@@ -125,8 +126,8 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
         },
         links: {},
         // Campos específicos para artistas
-        artist_types: [],
-        genres: [],
+        artist_type_id: null,
+        genre_ids: [],
       },
     });
 
@@ -202,8 +203,8 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
 
       // Adicionar artist types e genres se for artista
       if (agentType === 'artistas') {
-        formData.artist_types = artistTypesData?.map(type => type.id) || [];
-        formData.genres = genresData?.map(genre => genre.id) || [];
+        formData.artist_type_id = artistTypesData?.[0]?.id || null;
+        formData.genre_ids = genresData?.map(genre => genre.id) || [];
       }
 
       form.reset(formData);
@@ -245,7 +246,7 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
   // Mutations
   const saveMutation = useMutation({
     mutationFn: async (data: any) => {
-      const { artist_types, genres, ...agentData } = data;
+      const { artist_type_id, genre_ids, ...agentData } = data;
       
       const processedData = {
         ...agentData,
@@ -273,11 +274,11 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
 
       // Sincronizar pivôs apenas para artistas
       if (agentType === 'artistas' && savedAgentId) {
-        if (artist_types) {
-          await syncArtistTypes(savedAgentId, artist_types);
+        if (artist_type_id) {
+          await syncArtistTypes(savedAgentId, [artist_type_id]);
         }
-        if (genres) {
-          await syncArtistGenres(savedAgentId, genres);
+        if (genre_ids && genre_ids.length > 0) {
+          await syncArtistGenres(savedAgentId, genre_ids);
         }
       }
 
@@ -425,24 +426,42 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
 
               {agentType === 'artistas' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <RHFSelectAsyncCreatable
-                    name="artist_types"
-                    label="Tipos de Artista"
-                    placeholder="Digite para buscar ou criar tipos..."
-                    loadOptions={searchArtistTypes}
-                    onCreate={createArtistType}
-                    multi={true}
-                    description="Pode selecionar múltiplos tipos"
+                  <RHFCombobox
+                    name="artist_type_id"
+                    label="Tipo de artista"
+                    loadOptions={async (q) => {
+                      const response = await supabase.functions.invoke('options/artist-types', {
+                        body: { q },
+                      });
+                      if (response.error) throw response.error;
+                      return response.data.items.map((i:any) => ({ label: i.name, value: i.id }));
+                    }}
+                    onCreate={async (label) => {
+                      const response = await supabase.functions.invoke('options/artist-types', {
+                        body: { name: label },
+                      });
+                      if (response.error) throw response.error;
+                      return { label: response.data.name, value: response.data.id };
+                    }}
                   />
                   
-                  <RHFSelectAsyncCreatable
-                    name="genres"
-                    label="Gêneros Musicais"
-                    placeholder="Digite para buscar ou criar gêneros..."
-                    loadOptions={searchGenres}
-                    onCreate={createGenre}
-                    multi={true}
-                    description="Pode selecionar múltiplos gêneros"
+                  <RHFMultiCombobox
+                    name="genre_ids"
+                    label="Gêneros musicais"
+                    loadOptions={async (q) => {
+                      const response = await supabase.functions.invoke('options/genres', {
+                        body: { q },
+                      });
+                      if (response.error) throw response.error;
+                      return response.data.items.map((i:any) => ({ label: i.name, value: i.id }));
+                    }}
+                    onCreate={async (label) => {
+                      const response = await supabase.functions.invoke('options/genres', {
+                        body: { name: label },
+                      });
+                      if (response.error) throw response.error;
+                      return { label: response.data.name, value: response.data.id };
+                    }}
                   />
                 </div>
               )}
