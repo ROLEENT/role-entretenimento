@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface OptionItem {
-  id: string;
-  name: string;
+interface SelectOption {
+  label: string;
+  value: string;
 }
 
 export const useArtistTypesOptions = () => {
   const [loading, setLoading] = useState(false);
 
-  const searchArtistTypes = async (query: string): Promise<OptionItem[]> => {
+  const searchArtistTypes = async (query: string): Promise<SelectOption[]> => {
     setLoading(true);
     try {
       const queryParams = query ? `?q=${encodeURIComponent(query)}` : '';
@@ -22,7 +22,10 @@ export const useArtistTypesOptions = () => {
         return [];
       }
 
-      return data || [];
+      return (data || []).map(item => ({
+        label: item.name,
+        value: item.id
+      }));
     } catch (error) {
       console.error('Error searching artist types:', error);
       return [];
@@ -31,7 +34,7 @@ export const useArtistTypesOptions = () => {
     }
   };
 
-  const createArtistType = async (name: string): Promise<OptionItem | null> => {
+  const createArtistType = async (name: string): Promise<SelectOption> => {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('options/artist-types', {
@@ -44,13 +47,16 @@ export const useArtistTypesOptions = () => {
 
       if (error) {
         console.error('Error creating artist type:', error);
-        return null;
+        throw error;
       }
 
-      return data;
+      return {
+        label: data.name,
+        value: data.id
+      };
     } catch (error) {
       console.error('Error creating artist type:', error);
-      return null;
+      throw error;
     } finally {
       setLoading(false);
     }

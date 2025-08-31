@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 
 // Import form components
 import { RHFInput, RHFTextarea, RHFSelect } from "@/components/form";
+import { RHFSelectAsyncCreatable } from "@/components/rhf/RHFSelectAsyncCreatable";
 import CitySelectStable from "@/components/fields/CitySelectStable";
 import ArtistSubtypeSelect from "@/components/fields/ArtistSubtypeSelect";
 import OrganizerSubtypeSelect from "@/components/fields/OrganizerSubtypeSelect";
@@ -38,6 +39,9 @@ import { useAgentesInstagramValidation } from "@/hooks/useAgentesInstagramValida
 import { artistSchema } from "@/schemas/artist";
 import { organizerSchema } from "@/schemas/organizer";
 import { venueSchema } from "@/schemas/venue";
+import { useArtistTypesOptions } from "@/hooks/useArtistTypesOptions";
+import { useGenresOptions } from "@/hooks/useGenresOptions";
+import { syncArtistTypes, syncArtistGenres, getArtistTypes, getArtistGenres } from "@/utils/artistPivotSync";
 
 interface AgentesFormProps {
   agentType: 'artistas' | 'organizadores' | 'locais';
@@ -48,6 +52,10 @@ interface AgentesFormProps {
 export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps) {
   const queryClient = useQueryClient();
   const isEditing = !!agentId;
+
+  // Hooks para artist types e genres (apenas para artistas)
+  const { searchArtistTypes, createArtistType } = useArtistTypesOptions();
+  const { searchGenres, createGenre } = useGenresOptions();
 
   // Determinar schema baseado no tipo
   const getSchema = () => {
@@ -113,10 +121,13 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
         agency: "",
         account: "",
         type: "",
+        },
+        links: {},
+        // Campos específicos para artistas
+        artist_types: [],
+        genres: [],
       },
-      links: {},
-    },
-  });
+    });
 
   // Watch form data for autosave
   const watchedData = useWatch({ control: form.control });
@@ -130,6 +141,7 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
     tableName,
     isEditing,
     enabled: form.formState.isDirty,
+    agentType,
   });
 
   const { isCheckingSlug, slugStatus } = useAgentesSlugCheck({
@@ -164,17 +176,38 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
     enabled: isEditing,
   });
 
+  // Buscar artist types e genres para artistas em edição
+  const { data: artistTypesData } = useQuery({
+    queryKey: ['artist-types', agentId],
+    queryFn: () => getArtistTypes(agentId!),
+    enabled: isEditing && agentType === 'artistas',
+  });
+
+  const { data: genresData } = useQuery({
+    queryKey: ['artist-genres', agentId],
+    queryFn: () => getArtistGenres(agentId!),
+    enabled: isEditing && agentType === 'artistas',
+  });
+
   // Preencher formulário quando dados carregarem
   useEffect(() => {
     if (agentData) {
-      form.reset({
+      const formData = {
         ...agentData,
         instagram: agentData.instagram || "",
         tags: agentData.tags || [],
         links: agentData.links || {},
-      });
+      };
+
+      // Adicionar artist types e genres se for artista
+      if (agentType === 'artistas') {
+        formData.artist_types = artistTypesData?.map(type => type.id) || [];
+        formData.genres = genresData?.map(genre => genre.id) || [];
+      }
+
+      form.reset(formData);
     }
-  }, [agentData, form]);
+  }, [agentData, artistTypesData, genresData, form, agentType]);
 
   // Gerar slug automaticamente baseado no nome
   const generateSlug = useCallback((name: string) => {
@@ -211,11 +244,15 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
   // Mutations
   const saveMutation = useMutation({
     mutationFn: async (data: any) => {
+      const { artist_types, genres, ...agentData } = data;
+      
       const processedData = {
-        ...data,
-        instagram: data.instagram ? normalizeInstagram(data.instagram) : null,
+        ...agentData,
+        instagram: agentData.instagram ? normalizeInstagram(agentData.instagram) : null,
         updated_at: new Date().toISOString(),
       };
+
+      let savedAgentId = agentId;
 
       if (isEditing) {
         const { error } = await supabase
@@ -224,11 +261,26 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
           .eq("id", agentId);
         if (error) throw error;
       } else {
-        const { error } = await supabase
+        const { data: insertedData, error } = await supabase
           .from(tableName)
-          .insert(processedData);
+          .insert(processedData)
+          .select('id')
+          .single();
         if (error) throw error;
+        savedAgentId = insertedData.id;
       }
+
+      // Sincronizar pivôs apenas para artistas
+      if (agentType === 'artistas' && savedAgentId) {
+        if (artist_types) {
+          await syncArtistTypes(savedAgentId, artist_types);
+        }
+        if (genres) {
+          await syncArtistGenres(savedAgentId, genres);
+        }
+      }
+
+      return savedAgentId;
     },
     onSuccess: () => {
       toast.success(isEditing ? "Agente atualizado com sucesso!" : "Agente criado com sucesso!");
@@ -369,6 +421,30 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
                   </div>
                 </div>
               </div>
+
+              {agentType === 'artistas' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <RHFSelectAsyncCreatable
+                    name="artist_types"
+                    label="Tipos de Artista"
+                    placeholder="Digite para buscar ou criar tipos..."
+                    loadOptions={searchArtistTypes}
+                    onCreate={createArtistType}
+                    multi={true}
+                    description="Pode selecionar múltiplos tipos"
+                  />
+                  
+                  <RHFSelectAsyncCreatable
+                    name="genres"
+                    label="Gêneros Musicais"
+                    placeholder="Digite para buscar ou criar gêneros..."
+                    loadOptions={searchGenres}
+                    onCreate={createGenre}
+                    multi={true}
+                    description="Pode selecionar múltiplos gêneros"
+                  />
+                </div>
+              )}
 
               {agentType === 'artistas' && (
                 <ArtistSubtypeSelect name="artist_type" />

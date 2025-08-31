@@ -63,6 +63,9 @@ export const artistSchema = z.object({
   
   phone: z.string()
     .optional(),
+
+  whatsapp: z.string()
+    .optional(),
   
   website: z.string()
     .url("URL inválida")
@@ -80,9 +83,21 @@ export const artistSchema = z.object({
   tags: z.array(z.string())
     .max(12, "Máximo de 12 tags permitidas")
     .default([]),
+
+  links: z.record(z.string()).default({}),
+  
+  // Artist types and genres
+  artist_types: z.array(z.string())
+    .default([])
+    .optional(),
+  
+  genres: z.array(z.string())
+    .default([])
+    .optional(),
   
   // Media
   avatar_url: z.string().url("URL inválida").optional(),
+  avatar_alt: z.string().optional(),
   cover_url: z.string().url("URL inválida").optional(),
   
   // Metadata
