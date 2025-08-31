@@ -1,5 +1,5 @@
 "use client";
-import RHFSelect from '@/components/form/RHFSelect';
+import { RHFSelect } from '@/components/form/RHFSelect';
 
 const ORGANIZER_SUBTYPES = [
   { value: 'organizador', label: 'Organizador' },

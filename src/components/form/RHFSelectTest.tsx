@@ -2,7 +2,7 @@
 
 import { useForm, FormProvider } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import RHFSelect from "./RHFSelect";
+import { RHFSelect } from "./RHFSelect";
 
 const testOptions = [
   { value: "1", label: "São Paulo - SP" },

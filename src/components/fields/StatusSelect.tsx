@@ -1,5 +1,5 @@
 "use client";
-import RHFSelect from '@/components/form/RHFSelect';
+import { RHFSelect } from '@/components/form/RHFSelect';
 
 const STATUS_OPTIONS = [
   { value: 'draft', label: 'Rascunho' },

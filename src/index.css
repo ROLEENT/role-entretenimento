@@ -16,9 +16,37 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Dropdown security fixes */
-header, header * { overflow: visible !important; }
-[data-radix-popper-content-wrapper] { z-index: 60 !important; }
+/* Dropdown global patch */
+header, header *, nav, nav * { 
+  overflow: visible !important; 
+  transform: none !important;
+}
+
+[data-radix-popper-content-wrapper], 
+[data-radix-select-content],
+[data-radix-dropdown-menu-content] { 
+  z-index: 9999 !important; 
+}
+
+/* Overlay fixes */
+[data-overlay="screen"] {
+  pointer-events: none;
+}
+
+[data-overlay="screen"] button,
+[data-overlay="screen"] a,
+[data-overlay="screen"] input,
+[data-overlay="screen"] [role="button"] {
+  pointer-events: auto;
+}
+
+/* Remove transform from layout wrappers */
+.layout-wrapper, 
+.page-wrapper,
+.container-wrapper {
+  transform: none !important;
+  overflow: visible !important;
+}
 
 /* Scrollbar elegante e fino - global */
 html {

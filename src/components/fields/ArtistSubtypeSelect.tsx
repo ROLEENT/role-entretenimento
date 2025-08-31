@@ -1,5 +1,5 @@
 "use client";
-import RHFSelect from '@/components/form/RHFSelect';
+import { RHFSelect } from '@/components/form/RHFSelect';
 
 const ARTIST_SUBTYPES = [
   { value: 'banda', label: 'Banda' },
