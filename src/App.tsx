@@ -6,8 +6,6 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { FocusManagementProvider } from "@/components/FocusManagementProvider";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { queryClient } from "@/lib/queryClient";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -142,9 +140,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <AuthProvider>
-            <ErrorBoundary>
-              <BrowserRouter>
+          <ErrorBoundary>
+            <BrowserRouter>
               <FocusManagementProvider />
               <Suspense fallback={<PageLoadingFallback />}>
                 <ScrollToTop />
@@ -225,12 +222,8 @@ function App() {
                 <Route path="/admin-v3/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Login /></Suspense>} />
                 <Route path="/dev-auth" element={<Suspense fallback={<AdminLoadingFallback />}><DevAuth /></Suspense>} />
                 
-                {/* Admin V3 - All routes with unified layout - PROTECTED */}
-                <Route path="/admin-v3" element={
-                  <ProtectedRoute requireAdmin>
-                    <AdminV3Layout />
-                  </ProtectedRoute>
-                }>
+                {/* Admin V3 - All routes with unified layout */}
+                <Route path="/admin-v3" element={<AdminV3Layout />}>
                   <Route index element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
                   <Route path="dashboard" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
                   <Route path="debug" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Debug /></Suspense>} />
@@ -271,7 +264,6 @@ function App() {
                 
                 {/* User Routes */}
                 <Route path="/auth" element={<AuthPage />} />
-                <Route path="/login" element={<AuthPage />} /> {/* Alias for auth */}
                 <Route path="/perfil" element={<Profile />} />
                 <Route path="/feed" element={<FeedPage />} />
                 <Route path="/descobrir" element={<DiscoverUsers />} />
@@ -295,10 +287,9 @@ function App() {
           <Toaster />
           <Sonner />
           <ReactQueryDevtools initialIsOpen={false} />
-        </AuthProvider>
-      </ThemeProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+        </ThemeProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 }
 
