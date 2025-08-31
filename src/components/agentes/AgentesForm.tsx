@@ -400,14 +400,16 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
     deactivateMutation.mutate();
   };
 
+  // Efficient error logging - only when form is submitted and has errors
+  useEffect(() => {
+    if (!form.formState.isSubmitted) return;
+    const errs = form.formState.errors;
+    if (Object.keys(errs).length) console.warn("Validation errors:", errs);
+  }, [form.formState.isSubmitted, form.formState.errors]);
+
   // Handle form submission with validation - usar useCallback para evitar recreação
   const handleFormSubmit = useCallback(
     form.handleSubmit(onSubmit, (errors) => {
-      // Só fazer log se realmente houver erros
-      if (Object.keys(errors).length > 0) {
-        console.log('Validation errors:', errors);
-      }
-      
       // Focus on first error field
       const firstErrorField = Object.keys(errors)[0];
       if (firstErrorField) {
