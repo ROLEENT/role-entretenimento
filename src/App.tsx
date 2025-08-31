@@ -115,6 +115,9 @@ const AdminBlogList = lazy(() => import("./components/admin/blog/AdminBlogList")
 // Revista pages
 const RevistaPage = lazy(() => import("./pages/RevistaPage"));
 
+// Debug pages
+const SupabaseDebug = lazy(() => import("./pages/debug/SupabaseDebug"));
+
 // Institutional pages
 const Parcerias = lazy(() => import("./pages/institucional/Parcerias"));
 const TrabalheConosco = lazy(() => import("./pages/institucional/TrabalheConosco"));
@@ -204,6 +207,9 @@ function App() {
                 
                 {/* Revista Routes */}
                 <Route path="/revista" element={<Suspense fallback={<PageLoadingFallback />}><RevistaPage /></Suspense>} />
+                
+                {/* Debug Routes */}
+                <Route path="/debug/supabase" element={<Suspense fallback={<PageLoadingFallback />}><SupabaseDebug /></Suspense>} />
                 
                 {/* Rotas antigas de destaques removidas */}
                 <Route path="/cidades" element={<CitiesPage />} />
