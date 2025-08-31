@@ -171,24 +171,10 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
   const watchedData = useWatch({ control: form.control });
   const instagramValue = useWatch({ control: form.control, name: "instagram" });
 
-  // Custom autosave hook
-  const { isAutosaving, hasError, lastSavedAt: autosaveLastSavedAt, handleFieldBlur, performSave } = useAutosave(
-    watchedData,
-    {
-      enabled: isEditing && form.formState.isDirty,
-      delay: 10000, // 10 seconds
-      onSave: async () => {
-        const data = form.getValues();
-        await saveMutation.mutateAsync(data);
-      },
-      onSaveSuccess: () => {
-        setLastSavedAt(new Date());
-      },
-      onSaveError: (error) => {
-        console.error('Autosave error:', error);
-      },
-    }
-  );
+  // Custom autosave hook (disabled for now - using simplified submission)
+  const isAutosaving = false;
+  const hasError = false;
+  const autosaveLastSavedAt = null;
 
   const { isCheckingSlug, slugStatus } = useAgentesSlugCheck({
     slug: slug,
@@ -369,27 +355,37 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
     },
   });
 
-  // Event handlers
-  const onSubmit = async (data: any) => {
-    try {
-      await saveMutation.mutateAsync(data);
-    } catch (error) {
-      console.error('Form submission error:', error);
-      
-      // Focus on the first field with error after validation runs
-      setTimeout(() => {
-        const firstErrorField = Object.keys(form.formState.errors)[0];
-        if (firstErrorField) {
-          const element = document.querySelector(`[name="${firstErrorField}"]`) as HTMLElement;
-          if (element) {
-            element.focus();
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }
-      }, 100);
+  // Simple form submission handler
+  const onSubmit = form.handleSubmit(async (values) => {
+    const payload = normalizeSubmitData(values);
+    
+    if (isEditing) {
+      const { error } = await supabase.from(tableName).update(payload).eq("id", agentId);
+      if (error) { 
+        toast.error(error.message); 
+        return; 
+      }
+      toast.success("Agente atualizado");
+    } else {
+      const { error } = await supabase.from(tableName).insert(payload);
+      if (error) { 
+        toast.error(error.message); 
+        return; 
+      }
+      toast.success("Agente criado");
     }
-  };
+    
+    onSuccess();
+  });
 
+  // Efficient error logging - only when form is submitted and has errors
+  useEffect(() => {
+    if (!form.formState.isSubmitted) return;
+    const errs = form.formState.errors;
+    if (Object.keys(errs).length) console.warn("Validation errors:", errs);
+  }, [form.formState.isSubmitted, form.formState.errors]);
+
+  // Event handlers for duplicate and deactivate
   const handleDuplicate = () => {
     if (!agentData) return;
     duplicateMutation.mutate(agentData);
@@ -400,47 +396,24 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
     deactivateMutation.mutate();
   };
 
-  // Efficient error logging - only when form is submitted and has errors
-  useEffect(() => {
-    if (!form.formState.isSubmitted) return;
-    const errs = form.formState.errors;
-    if (Object.keys(errs).length) console.warn("Validation errors:", errs);
-  }, [form.formState.isSubmitted, form.formState.errors]);
-
-  // Handle form submission with validation - usar useCallback para evitar recreação
-  const handleFormSubmit = useCallback(
-    form.handleSubmit(onSubmit, (errors) => {
-      // Focus on first error field
-      const firstErrorField = Object.keys(errors)[0];
-      if (firstErrorField) {
-        const element = document.querySelector(`[name="${firstErrorField}"]`) as HTMLElement;
-        if (element) {
-          element.focus();
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }
-    }),
-    [form, onSubmit]
-  );
-
   // Expose form submit function to parent - estabilizar dependências
   useEffect(() => {
     if (onFormSubmit) {
-      onFormSubmit(handleFormSubmit);
+      onFormSubmit(onSubmit);
     }
-  }, [onFormSubmit, handleFormSubmit]);
+  }, [onFormSubmit, onSubmit]);
 
   // Expose form state to parent  
   useEffect(() => {
     if (onFormState) {
       onFormState({
-        isSubmitting: saveMutation.isPending,
+        isSubmitting: form.formState.isSubmitting,
         isSaving: isAutosaving,
         hasError,
         lastSavedAt: autosaveLastSavedAt || lastSavedAt
       });
     }
-  }, [onFormState, saveMutation.isPending, isAutosaving, hasError, autosaveLastSavedAt, lastSavedAt]);
+  }, [onFormState, form.formState.isSubmitting, isAutosaving, hasError, autosaveLastSavedAt, lastSavedAt]);
 
   if (isLoadingAgent) {
     return <LoadingSpinner />;
@@ -486,7 +459,7 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
 
       <Form {...form}>
         <form 
-          onSubmit={handleFormSubmit}
+          onSubmit={onSubmit}
           onBlur={() => {
             // Trigger autosave on any field blur
             if (isEditing && form.formState.isDirty) {
