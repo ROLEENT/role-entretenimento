@@ -17,7 +17,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 // Preview component
 const PreviewAgenda = lazy(() => import("./pages/PreviewAgenda"));
 const ChecklistTest = lazy(() => import("./pages/ChecklistTest"));
-const AgendaFormIntegrationTest = lazy(() => import("./components/AgendaFormIntegrationTest"));
+// Removed old test component
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
 const About = lazy(() => import("./pages/About"));
@@ -73,6 +73,8 @@ const AdminV3Contact = lazy(() => import("./pages/AdminV3Contact"));
 const AdminV3Newsletter = lazy(() => import("./pages/AdminV3Newsletter"));
 const AdminV3Categories = lazy(() => import("./pages/AdminV3Categories"));
 const AdminV3Applications = lazy(() => import("./pages/AdminV3Applications"));
+const AdminV3RevistaCreate = lazy(() => import("./pages/AdminV3RevistaCreate"));
+const AdminV3RevistaEdit = lazy(() => import("./pages/AdminV3RevistaEdit"));
 
 // Admin Blog components
 const AdminBlogList = lazy(() => import("./components/admin/blog/AdminBlogList").then(module => ({ default: module.AdminBlogList })));
@@ -160,7 +162,7 @@ function App() {
                 
                 {/* Test Routes */}
                 <Route path="/test/checklist" element={<ChecklistTest />} />
-                <Route path="/test/agenda-integration" element={<AgendaFormIntegrationTest />} />
+                {/* Removed old test route */}
                 
                 {/* Revista Routes */}
                 <Route path="/revista" element={<Suspense fallback={<PageLoadingFallback />}><RevistaPage /></Suspense>} />
@@ -212,10 +214,10 @@ function App() {
                 {/* Admin Revista Routes */}
                 <Route path="/admin-v3/revista" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogList /></Suspense>} />
                 <Route path="/admin-v3/revista/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogList /></Suspense>} />
-                <Route path="/admin-v3/revista/novo" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogForm /></Suspense>} />
-                <Route path="/admin-v3/revista/novo/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogForm /></Suspense>} />
-                <Route path="/admin-v3/revista/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogForm /></Suspense>} />
-                <Route path="/admin-v3/revista/:id/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogForm /></Suspense>} />
+                <Route path="/admin-v3/revista/novo" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaCreate /></Suspense>} />
+                <Route path="/admin-v3/revista/novo/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaCreate /></Suspense>} />
+                <Route path="/admin-v3/revista/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaEdit /></Suspense>} />
+                <Route path="/admin-v3/revista/:id/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaEdit /></Suspense>} />
                 {/* Admin Gestão Routes */}
                 <Route path="/admin-v3/contatos" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Contact /></Suspense>} />
                 <Route path="/admin-v3/newsletter" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Newsletter /></Suspense>} />

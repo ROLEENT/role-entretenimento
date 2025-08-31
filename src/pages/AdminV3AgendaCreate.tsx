@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
-import { AgendaForm } from '@/components/AgendaForm';
+import EventEditPage from '@/pages/EventEditPage';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function AdminV3AgendaCreate() {
@@ -228,8 +228,8 @@ export default function AdminV3AgendaCreate() {
             </Button>
           </div>
 
-          {/* AgendaForm */}
-          <AgendaForm mode="create" />
+          {/* New EventEditPage */}
+          <EventEditPage />
         </div>
       </div>
     </div>

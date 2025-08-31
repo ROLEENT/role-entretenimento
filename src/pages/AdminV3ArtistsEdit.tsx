@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
 import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
-import { ArtistForm } from '@/components/ArtistForm';
+import ArtistEditPage from '@/pages/ArtistEditPage';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -122,7 +122,7 @@ function ArtistEditContent() {
     );
   }
 
-  return <ArtistForm initialData={artist} mode="edit" />;
+  return <ArtistEditPage />;
 }
 
 export default function AdminV3ArtistsEdit() {

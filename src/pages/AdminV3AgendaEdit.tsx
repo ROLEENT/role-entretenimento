@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
 import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
-import { AgendaForm } from '@/components/AgendaForm';
+import EventEditPage from '@/pages/EventEditPage';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -156,8 +156,8 @@ export default function AdminV3AgendaEdit() {
               ]}
             />
             
-            {/* AgendaForm with loaded data */}
-            <AgendaForm mode="edit" agendaId={id} />
+            {/* New EventEditPage */}
+            <EventEditPage />
           </div>
         </div>
       </div>

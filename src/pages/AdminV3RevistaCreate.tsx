@@ -2,9 +2,9 @@ import React from 'react';
 import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
 import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
-import ArtistEditPage from '@/pages/ArtistEditPage';
+import PostEditPage from '@/pages/PostEditPage';
 
-export default function AdminV3ArtistsCreate() {
+export default function AdminV3RevistaCreate() {
   return (
     <AdminV3Guard>
       <div className="min-h-screen bg-background">
@@ -14,11 +14,11 @@ export default function AdminV3ArtistsCreate() {
             <AdminV3Breadcrumb 
               items={[
                 { label: 'Dashboard', path: '/admin-v3' },
-                { label: 'Artistas', path: '/admin-v3/artists' },
+                { label: 'Revista', path: '/admin-v3/revista' },
                 { label: 'Criar' }
               ]} 
             />
-            <ArtistEditPage />
+            <PostEditPage />
           </div>
         </div>
       </div>
