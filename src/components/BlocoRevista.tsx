@@ -143,7 +143,8 @@ const BlocoRevista = () => {
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                   {posts.map((post, index) => (
-                    <Link key={post.id} to={`/revista/${post.slug}`} className="flex-shrink-0 w-80 snap-start">
+                    <div key={post.id} className="flex-shrink-0 w-80 snap-start">
+                      {/* Card temporarily disabled - Route will be reimplemented */}
                       <Card className="h-full group hover:shadow-xl transition-all duration-500 overflow-hidden border hover:border-primary/30 bg-card/80 backdrop-blur-sm">
                         <div className="relative">
                           <LazyImage
@@ -185,9 +186,9 @@ const BlocoRevista = () => {
                           </div>
                         </CardContent>
                       </Card>
-                    </Link>
+                    </div>
                   ))}
-                </div>
+                 </div>
                 
                 {/* Mobile Navigation Arrows */}
                 <div className="flex justify-center items-center gap-4 mt-6">
@@ -226,7 +227,8 @@ const BlocoRevista = () => {
               /* Desktop Grid */
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 {posts.map((post, index) => (
-                  <Link key={post.id} to={`/revista/${post.slug}`} className="block group">
+                  <div key={post.id} className="block group">
+                    {/* Card temporarily disabled - Route will be reimplemented */}
                     <Card className="h-full hover:shadow-xl transition-all duration-500 overflow-hidden border hover:border-primary/30 bg-card/80 backdrop-blur-sm">
                       <div className="relative">
                         <LazyImage
@@ -268,7 +270,7 @@ const BlocoRevista = () => {
                         </div>
                       </CardContent>
                     </Card>
-                  </Link>
+                  </div>
                 ))}
               </div>
             )}
@@ -277,8 +279,8 @@ const BlocoRevista = () => {
           <EmptyState
             title="Nenhum artigo disponível"
             description="Em breve, novos artigos e histórias"
-            actionLabel="Ver toda a Revista"
-            actionLink="/revista"
+            actionLabel="Aguardando nova implementação"
+            actionLink="#"
           />
         )}
 
@@ -289,11 +291,11 @@ const BlocoRevista = () => {
             className="group px-8 py-6 text-lg rounded-full border-2 hover:shadow-lg hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300"
             asChild
           >
-            <Link to="/revista">
+            <span onClick={() => console.log('Revista em breve!')}>
               <BookOpen className="mr-3 h-6 w-6" />
-              Ler mais
+              Em breve
               <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
-            </Link>
+            </span>
           </Button>
         </div>
       </div>

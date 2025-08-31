@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Clock, MapPin, Star, Eye, CalendarDays } from "lucide-react";
+import { Clock, MapPin, Star, Eye, CalendarDays, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useResponsive } from "@/hooks/useResponsive";
 import { supabase } from "@/integrations/supabase/client";
@@ -290,12 +290,10 @@ const FeaturedEventsToday = () => {
                 size="lg" 
                 variant="outline"
                 className="group px-8 py-6 text-lg rounded-full border-2 hover:shadow-lg hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300"
-                asChild
+                onClick={() => console.log('Revista em breve!')}
               >
-                <Link to="/revista">
-                  <Eye className="mr-3 h-6 w-6" />
-                  Ver toda a Revista
-                </Link>
+                <BookOpen className="mr-3 h-6 w-6" />
+                Em breve
               </Button>
             </div>
           </>
@@ -306,8 +304,8 @@ const FeaturedEventsToday = () => {
               ? 'Novos eventos serão adicionados em breve' 
               : `Novos eventos em ${selectedCity} serão adicionados em breve`
             }
-            actionLabel="Ver toda a Revista"
-            actionLink="/revista"
+            actionLabel="Em breve"
+            actionLink="#"
           />
         )}
       </div>
