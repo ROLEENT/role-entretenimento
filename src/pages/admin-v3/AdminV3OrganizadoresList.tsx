@@ -1,15 +1,29 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Building2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { AdminOrganizerFilters } from '@/components/admin/agents/AdminOrganizerFilters';
+import { AdminOrganizerTable } from '@/components/admin/agents/AdminOrganizerTable';
+import { useAdminOrganizersData } from '@/hooks/useAdminOrganizersData';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 const AdminV3OrganizadoresList: React.FC = () => {
-  // TODO: Implementar hook useAdminOrganizadoresData
-  const organizadores = []; // Placeholder
-  const isLoading = false;
+  const {
+    organizers,
+    cities,
+    organizerTypes,
+    filters,
+    isLoading,
+    error,
+    updateFilters,
+    duplicateOrganizer,
+    updateOrganizerStatus,
+    deleteOrganizer,
+    isDuplicating,
+    isUpdatingStatus,
+    isDeleting
+  } = useAdminOrganizersData();
 
   const breadcrumbs = [
     { label: 'Admin', path: '/admin-v3' },
@@ -26,134 +40,88 @@ const AdminV3OrganizadoresList: React.FC = () => {
     </Button>
   );
 
-  const statsCards = [
-    {
-      title: 'Total de Organizadores',
-      value: organizadores?.length || 0,
-      icon: Building2,
-      change: '+15%'
-    },
-    {
-      title: 'Organizadores Ativos',
-      value: organizadores?.filter((o: any) => o.status === 'active')?.length || 0,
-      icon: Building2,
-      change: '+12%'
-    },
-    {
-      title: 'Produtoras',
-      value: organizadores?.filter((o: any) => o.type === 'producer')?.length || 0,
-      icon: Building2,
-      change: '+8%'
-    },
-    {
-      title: 'Coletivos',
-      value: organizadores?.filter((o: any) => o.type === 'collective')?.length || 0,
-      icon: Building2,
-      change: '+20%'
-    }
-  ];
+  if (error) {
+    return (
+      <AdminPageWrapper
+        title="Organizadores"
+        description="Gerencie os organizadores cadastrados no sistema"
+        breadcrumbs={breadcrumbs}
+        actions={actions}
+      >
+        <div className="text-center py-8">
+          <p className="text-destructive">Erro ao carregar organizadores: {error.message}</p>
+        </div>
+      </AdminPageWrapper>
+    );
+  }
 
   return (
     <AdminPageWrapper
       title="Organizadores"
-      description="Gerencie organizadores, produtoras, coletivos e selos musicais"
+      description="Gerencie os organizadores cadastrados no sistema"
       breadcrumbs={breadcrumbs}
       actions={actions}
     >
       <div className="space-y-6">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {statsCards.map((stat, index) => (
-            <Card key={index}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {stat.title}
-                </CardTitle>
-                <stat.icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="text-xs text-muted-foreground">
-                  {stat.change} desde o último mês
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        {/* Filters */}
+        <AdminOrganizerFilters
+          filters={filters}
+          cities={cities}
+          organizerTypes={organizerTypes}
+          onFiltersChange={updateFilters}
+          totalCount={organizers?.length}
+        />
 
-        {/* Development Notice */}
-        <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
-          <CardHeader>
-            <CardTitle className="text-blue-800 dark:text-blue-200 flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
-              Sistema de Organizadores em Desenvolvimento
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-blue-700 dark:text-blue-300">
-            <div className="space-y-4">
-              <p>O sistema completo de gestão de organizadores está sendo desenvolvido e incluirá:</p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>Cadastro de organizadores, produtoras, coletivos e selos musicais</li>
-                <li>Histórico completo de eventos organizados</li>
-                <li>Sistema de avaliações e reputação</li>
-                <li>Relatórios de performance e métricas</li>
-                <li>Ferramentas de comunicação integradas</li>
-                <li>Gestão de contratos e documentos</li>
-                <li>Dashboard analítico personalizado</li>
-              </ul>
-              <div className="flex items-center gap-2 pt-4">
-                <Badge variant="secondary">Previsão: Fevereiro 2025</Badge>
-                <Badge variant="outline">Em desenvolvimento ativo</Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex justify-center py-8">
+            <LoadingSpinner />
+          </div>
+        )}
 
-        {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Ações Rápidas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button variant="outline" className="h-24 flex flex-col gap-2" disabled>
-                <Plus className="h-6 w-6" />
-                <span className="text-sm">Cadastrar Organizador</span>
-              </Button>
-              <Button variant="outline" className="h-24 flex flex-col gap-2" disabled>
-                <Building2 className="h-6 w-6" />
-                <span className="text-sm">Importar Organizadores</span>
-              </Button>
-              <Button variant="outline" className="h-24 flex flex-col gap-2" disabled>
-                <Building2 className="h-6 w-6" />
-                <span className="text-sm">Relatório de Performance</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Organizers Table */}
+        {!isLoading && (
+          <AdminOrganizerTable
+            organizers={organizers || []}
+            onDuplicate={duplicateOrganizer}
+            onStatusChange={updateOrganizerStatus}
+            onDelete={deleteOrganizer}
+            isLoading={isDuplicating || isUpdatingStatus || isDeleting}
+          />
+        )}
 
         {/* Empty State */}
-        <div className="text-center py-12">
-          <div className="mx-auto w-24 h-24 mb-4 text-muted-foreground">
-            <Building2 className="w-full h-full" />
-          </div>
-          <h3 className="text-lg font-semibold mb-2">Sistema em Desenvolvimento</h3>
-          <p className="text-muted-foreground mb-6">
-            O módulo de gestão de organizadores está sendo desenvolvido com funcionalidades abrangentes para todos os tipos de organizadores de eventos.
-          </p>
-          <div className="flex justify-center gap-4">
-            <Button asChild variant="outline">
-              <Link to="/admin-v3/agentes/artistas">
-                Gerenciar Artistas
+        {!isLoading && organizers && organizers.length === 0 && (
+          <div className="text-center py-12">
+            <div className="mx-auto w-24 h-24 mb-4 text-muted-foreground">
+              <svg
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1}
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Nenhum organizador encontrado</h3>
+            <p className="text-muted-foreground mb-6">
+              {filters.search || filters.status !== 'all' || filters.city !== 'all' || filters.organizerType !== 'all'
+                ? 'Tente ajustar os filtros para encontrar organizadores.'
+                : 'Comece cadastrando seu primeiro organizador.'}
+            </p>
+            <Button asChild>
+              <Link to="/admin-v3/agentes/organizadores/create">
+                <Plus className="h-4 w-4 mr-2" />
+                Cadastrar Primeiro Organizador
               </Link>
             </Button>
-            <Button asChild variant="outline">
-              <Link to="/admin-v3/agenda">
-                Ver Agenda
-              </Link>
-            </Button>
           </div>
-        </div>
+        )}
       </div>
     </AdminPageWrapper>
   );
