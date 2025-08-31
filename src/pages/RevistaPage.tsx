@@ -12,7 +12,7 @@ import { useRevistaCache } from "@/hooks/useRevistaCache";
 import { Button } from "@/components/ui/button";
 import { BookOpen, FileText, AlertCircle, Calendar, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase, supabaseReady } from "@/lib/supabase";
 
 interface Article {
   id: string;
@@ -95,10 +95,17 @@ export default function RevistaPage() {
   // Fetch principal
   useEffect(() => {
     let alive = true;
-    setLoading(true);
-    setErrorMsg(null);
+    
+    async function run() {
+      setLoading(true);
+      setErrorMsg(null);
 
-    const t = setTimeout(async () => {
+      if (!supabaseReady) {
+        setErrorMsg("Configuração de Supabase ausente");
+        setLoading(false);
+        return;
+      }
+
       try {
         let q = supabase
           .from("blog_posts")
@@ -121,7 +128,7 @@ export default function RevistaPage() {
           setTotal(0);
           setErrorMsg("Não foi possível carregar agora.");
         } else {
-          // mapeia para camelCase usado no front
+          // mapeia colunas reais para interface do frontend
           setItems((data ?? []).map(r => ({
             id: r.id,
             slug: r.slug,
@@ -140,9 +147,16 @@ export default function RevistaPage() {
         setErrorMsg("Não foi possível carregar agora.");
       }
       setLoading(false);
-    }, 250);
+    }
 
-    return () => { alive = false; clearTimeout(t); };
+    // timeout de segurança, nunca travar skeleton
+    const watchdog = setTimeout(() => setLoading(false), 8000);
+    run();
+    
+    return () => { 
+      alive = false; 
+      clearTimeout(watchdog); 
+    };
   }, [fKey]);
 
   // Handlers idempotentes
