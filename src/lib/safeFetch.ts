@@ -15,3 +15,17 @@ export async function safeFetch<T=any>(url: string, opts?: RequestInit & { timeo
     clearTimeout(id);
   }
 }
+
+export async function safeFetchJSON(url: string, timeoutMs = 8000) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { signal: ctrl.signal, cache: "no-store" });
+    const json = await res.json().catch(() => ({}));
+    return { ok: res.ok, status: res.status, json };
+  } catch (e:any) {
+    return { ok: false, status: 0, json: { error: e?.name === "AbortError" ? "timeout" : "fetch_error" } };
+  } finally {
+    clearTimeout(t);
+  }
+}
