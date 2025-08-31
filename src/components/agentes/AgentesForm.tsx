@@ -16,8 +16,7 @@ import { Link } from "react-router-dom";
 
 // Import form components
 import { RHFInput, RHFTextarea, RHFSelect } from "@/components/form";
-import RHFCombobox from "@/components/rhf/RHFCombobox";
-import RHFMultiCombobox from "@/components/rhf/RHFMultiCombobox";
+import RHFComboboxRemote from "@/components/rhf/RHFComboboxRemote";
 import CitySelectStable from "@/components/fields/CitySelectStable";
 import ArtistSubtypeSelect from "@/components/fields/ArtistSubtypeSelect";
 import OrganizerSubtypeSelect from "@/components/fields/OrganizerSubtypeSelect";
@@ -426,40 +425,28 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
 
               {agentType === 'artistas' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <RHFCombobox
+                  <RHFComboboxRemote
                     name="artist_type_id"
                     label="Tipo de artista"
-                    loadOptions={async (q) => {
+                    table="artist_types"
+                    labelField="name"
+                    searchField="name"
+                    where={{ active: true }}
+                    placeholder="Selecione o tipo de artista"
+                    onCreateClick={async (searchTerm) => {
                       try {
-                        console.log("[artist-types] Loading options for:", q);
-                        const response = await fetch(`/api/options/artist-types?q=${encodeURIComponent(q)}`, { cache: "no-store" });
-                        if (!response.ok) {
-                          console.error("[artist-types] Response not ok:", response.status, response.statusText);
-                          return [];
-                        }
-                        const result = await response.json();
-                        console.log("[artist-types] Loaded result:", result);
-                        return result.items?.map((i:any) => ({ label: i.name, value: i.id })) || [];
-                      } catch (error) {
-                        console.error("[artist-types] Error loading options:", error);
-                        return [];
-                      }
-                    }}
-                    onCreate={async (label) => {
-                      try {
-                        console.log("[artist-types] Creating new:", label);
-                        const response = await fetch(`/api/options/artist-types`, { 
-                          method: "POST", 
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ name: label }) 
-                        });
-                        if (!response.ok) {
-                          console.error("[artist-types] Create failed:", response.status, response.statusText);
-                          throw new Error(`Failed to create artist type: ${response.statusText}`);
-                        }
-                        const result = await response.json();
-                        console.log("[artist-types] Created result:", result);
-                        return { label: result.name, value: result.id };
+                        console.log("[artist-types] Creating new:", searchTerm);
+                        const { data, error } = await supabase
+                          .from('artist_types')
+                          .insert({ name: searchTerm, active: true })
+                          .select('id, name')
+                          .single();
+                        
+                        if (error) throw error;
+                        
+                        // Update the form value with the new artist type
+                        form.setValue('artist_type_id', data.id);
+                        console.log("[artist-types] Created:", data);
                       } catch (error) {
                         console.error("[artist-types] Error creating:", error);
                         throw error;
@@ -467,40 +454,30 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
                     }}
                   />
                   
-                  <RHFMultiCombobox
+                  <RHFComboboxRemote
                     name="genre_ids"
                     label="Gêneros musicais"
-                    loadOptions={async (q) => {
+                    table="genres"
+                    labelField="name"
+                    searchField="name"
+                    where={{ active: true }}
+                    multiple
+                    placeholder="Selecione os gêneros"
+                    onCreateClick={async (searchTerm) => {
                       try {
-                        console.log("[genres] Loading options for:", q);
-                        const response = await fetch(`/api/options/genres?q=${encodeURIComponent(q)}`, { cache: "no-store" });
-                        if (!response.ok) {
-                          console.error("[genres] Response not ok:", response.status, response.statusText);
-                          return [];
-                        }
-                        const result = await response.json();
-                        console.log("[genres] Loaded result:", result);
-                        return result.items?.map((i:any) => ({ label: i.name, value: i.id })) || [];
-                      } catch (error) {
-                        console.error("[genres] Error loading options:", error);
-                        return [];
-                      }
-                    }}
-                    onCreate={async (label) => {
-                      try {
-                        console.log("[genres] Creating new:", label);
-                        const response = await fetch(`/api/options/genres`, { 
-                          method: "POST", 
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ name: label }) 
-                        });
-                        if (!response.ok) {
-                          console.error("[genres] Create failed:", response.status, response.statusText);
-                          throw new Error(`Failed to create genre: ${response.statusText}`);
-                        }
-                        const result = await response.json();
-                        console.log("[genres] Created result:", result);
-                        return { label: result.name, value: result.id };
+                        console.log("[genres] Creating new:", searchTerm);
+                        const { data, error } = await supabase
+                          .from('genres')
+                          .insert({ name: searchTerm, active: true })
+                          .select('id, name')
+                          .single();
+                        
+                        if (error) throw error;
+                        
+                        // Add the new genre to the current selection
+                        const currentGenres = form.getValues('genre_ids') || [];
+                        form.setValue('genre_ids', [...currentGenres, data.id]);
+                        console.log("[genres] Created:", data);
                       } catch (error) {
                         console.error("[genres] Error creating:", error);
                         throw error;
