@@ -740,6 +740,9 @@ body {
     padding-top: max(8px, env(safe-area-inset-top));
     min-width: 0;
     height: 56px;
+    /* Prevent content overflow and ensure proper spacing */
+    flex-wrap: nowrap;
+    width: 100%;
   }
 
   .mobile-logo {
@@ -755,9 +758,11 @@ body {
   .mobile-header-actions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px; /* Reduced gap to prevent crowding */
     flex: 0 0 auto;
     min-width: 0;
+    /* Ensure buttons don't get cut off */
+    min-width: fit-content;
   }
 
   .mobile-action-button {
@@ -772,6 +777,9 @@ body {
     color: hsl(var(--foreground));
     transition: all 0.2s;
     flex: 0 0 auto;
+    /* Prevent button shrinking */
+    min-width: 40px;
+    cursor: pointer;
   }
 
   .mobile-action-button:hover {

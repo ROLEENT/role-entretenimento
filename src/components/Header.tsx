@@ -106,9 +106,9 @@ const Header = () => {
       <>
         <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
           <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-14">
+            <div className="flex items-center justify-between h-14 min-w-0">
               {/* Logo */}
-              <Link to="/" className="flex items-center">
+              <Link to="/" className="flex items-center flex-shrink-0">
                 <img 
                   src={roleIcon} 
                   alt="ROLÊ" 
@@ -122,7 +122,7 @@ const Header = () => {
                 size="icon"
                 onClick={() => setMobileMenuOpen(true)}
                 aria-label="Abrir menu"
-                className="h-10 w-10"
+                className="h-10 w-10 flex-shrink-0"
               >
                 <Menu className="h-5 w-5" />
               </Button>
@@ -132,7 +132,7 @@ const Header = () => {
 
         {/* Mobile Menu Drawer */}
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-          <SheetContent side="right" className="w-[300px] sm:w-[350px] bg-background">
+          <SheetContent side="right" className="w-[300px] sm:w-[350px] bg-background overflow-y-auto">
             <SheetHeader>
               <SheetTitle className="text-left">Menu</SheetTitle>
             </SheetHeader>
