@@ -1,6 +1,5 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   DropdownMenu,
@@ -186,27 +185,27 @@ export function AdminNavigation() {
         const ModuleIcon = module.icon;
 
         return (
-          <DropdownMenu key={module.title}>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
-                className={cn(
-                  "h-9 px-3 py-2 gap-1.5 font-medium transition-colors",
-                  getModuleColor(module, isActive)
-                )}
-                onClick={() => console.log(`Dropdown clicked: ${module.title}`)}
+          <div key={module.title} className="relative">
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    "inline-flex items-center gap-1.5 h-9 px-3 py-2 text-sm font-medium transition-colors rounded-md",
+                    getModuleColor(module, isActive)
+                  )}
+                >
+                  <ModuleIcon className="h-4 w-4" />
+                  <span className="hidden lg:inline">{module.title}</span>
+                  <ChevronDown className="h-3 w-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent 
+                className="z-[60] w-64" 
+                align="start" 
+                side="bottom"
+                sideOffset={8}
               >
-                <ModuleIcon className="h-4 w-4" />
-                <span className="hidden lg:inline">{module.title}</span>
-                <ChevronDown className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent 
-              className="w-64" 
-              align="start" 
-              side="bottom"
-              sideOffset={4}
-            >
               <DropdownMenuLabel className="flex items-center gap-2">
                 <ModuleIcon className="h-4 w-4" />
                 {module.title}
@@ -254,6 +253,7 @@ export function AdminNavigation() {
               })}
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         );
       })}
     </nav>

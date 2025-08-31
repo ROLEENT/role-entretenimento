@@ -16,6 +16,10 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Dropdown security fixes */
+header, header * { overflow: visible !important; }
+[data-radix-popper-content-wrapper] { z-index: 60 !important; }
+
 /* Scrollbar elegante e fino - global */
 html {
   scrollbar-gutter: stable;
