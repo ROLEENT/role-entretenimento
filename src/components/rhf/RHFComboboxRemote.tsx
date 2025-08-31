@@ -319,7 +319,7 @@ export default function RHFComboboxRemote({
           </Button>
         </PopoverTrigger>
         
-        <PopoverContent className="p-0 z-[50] bg-popover" align="start" style={{width: triggerRef.current?.offsetWidth}}>
+        <PopoverContent className="p-0 z-[9999] bg-popover border shadow-lg" align="start" sideOffset={6} style={{width: triggerRef.current?.offsetWidth}}>
           <Command shouldFilter={false}>
             <CommandInput
               placeholder="Digite para buscar..."

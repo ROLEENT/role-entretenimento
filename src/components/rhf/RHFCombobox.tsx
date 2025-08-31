@@ -168,7 +168,7 @@ export default function RHFCombobox({
           </Button>
         </PopoverTrigger>
         
-        <PopoverContent className="p-0 z-[9999] w-[var(--radix-popover-trigger-width)]" align="start">
+        <PopoverContent className="p-0 z-[9999] w-[var(--radix-popover-trigger-width)]" align="start" sideOffset={6}>
           <Command shouldFilter={false}>
             <CommandInput
               placeholder="Digite para buscar..."
