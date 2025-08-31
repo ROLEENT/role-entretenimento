@@ -90,9 +90,12 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
   const form = useForm({
     resolver: zodResolver(schema),
     mode: "onBlur", // Enable onBlur validation for autosave
+    reValidateMode: "onChange", // Re-validate on change after first validation
     defaultValues: {
       name: "",
       slug: "",
+      artist_type_id: "",
+      genre_ids: [],
       instagram: "",
       email: "",
       phone: "",
@@ -129,13 +132,10 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
         agency: "",
         account: "",
         type: "",
-        },
-        links: {},
-        // Campos específicos para artistas
-        artist_type_id: null,
-        genre_ids: [],
       },
-    });
+      links: {},
+    },
+  });
 
   // Watch form fields for autosave and slug generation
   const watchedData = useWatch({ control: form.control });
@@ -365,8 +365,25 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
     },
   });
 
-  const onSubmit = (data: any) => {
-    saveMutation.mutate(data);
+  // Event handlers
+  const onSubmit = async (data: any) => {
+    try {
+      await saveMutation.mutateAsync(data);
+    } catch (error) {
+      console.error('Form submission error:', error);
+      
+      // Focus on the first field with error after validation runs
+      setTimeout(() => {
+        const firstErrorField = Object.keys(form.formState.errors)[0];
+        if (firstErrorField) {
+          const element = document.querySelector(`[name="${firstErrorField}"]`) as HTMLElement;
+          if (element) {
+            element.focus();
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }, 100);
+    }
   };
 
   const handleDuplicate = () => {
@@ -378,6 +395,21 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
     if (!agentId) return;
     deactivateMutation.mutate();
   };
+
+  // Handle form submission with validation
+  const handleFormSubmit = form.handleSubmit(onSubmit, (errors) => {
+    console.log('Validation errors:', errors);
+    
+    // Focus on first error field
+    const firstErrorField = Object.keys(errors)[0];
+    if (firstErrorField) {
+      const element = document.querySelector(`[name="${firstErrorField}"]`) as HTMLElement;
+      if (element) {
+        element.focus();
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  });
 
   if (isLoadingAgent) {
     return <LoadingSpinner />;
@@ -423,7 +455,7 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
 
       <Form {...form}>
         <form 
-          onSubmit={form.handleSubmit(onSubmit)} 
+          onSubmit={handleFormSubmit}
           onBlur={() => {
             // Trigger autosave on any field blur
             if (isEditing && form.formState.isDirty) {
@@ -757,15 +789,15 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
         lastSavedAt={autosaveLastSavedAt || lastSavedAt}
         onSave={() => {
           setNextAction('save');
-          form.handleSubmit(onSubmit)();
+          handleFormSubmit();
         }}
         onSaveAndCreate={!isEditing ? () => {
           setNextAction('saveAndCreate');
-          form.handleSubmit(onSubmit)();
+          handleFormSubmit();
         } : undefined}
         onSaveDraft={() => {
           setNextAction('saveDraft');
-          form.handleSubmit(onSubmit)();
+          handleFormSubmit();
         }}
         onRetry={performSave}
       />

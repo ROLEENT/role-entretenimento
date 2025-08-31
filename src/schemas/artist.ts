@@ -1,125 +1,138 @@
 import { z } from "zod";
+import { formValidation } from "@/lib/forms";
 
-// Helper function to normalize Instagram handle
-const normalizeInstagram = (handle: string): string => {
-  return handle.replace(/^@+/, '').toLowerCase().trim();
-};
-
-// Helper function to validate slug format
-const validateSlugFormat = (slug: string): boolean => {
-  const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-  return slugRegex.test(slug);
-};
-
-// Status enum
-export const ArtistStatus = z.enum(['active', 'inactive']);
-export type ArtistStatusType = z.infer<typeof ArtistStatus>;
-
-// Artist schema
 export const artistSchema = z.object({
-  id: z.string().uuid().optional(),
-  
-  // Basic info
-  name: z.string()
+  // Informações básicas
+  name: z
+    .string({ required_error: "Nome é obrigatório" })
     .min(2, "Nome deve ter pelo menos 2 caracteres")
-    .max(200, "Nome muito longo"),
+    .max(255, "Nome não pode exceder 255 caracteres")
+    .trim(),
   
-  slug: z.string()
+  slug: z
+    .string({ required_error: "Slug é obrigatório" })
+    .min(2, "Slug deve ter pelo menos 2 caracteres")
+    .max(255, "Slug não pode exceder 255 caracteres")
+    .regex(formValidation.slug, "Slug deve conter apenas letras, números e hífens")
+    .trim(),
+  
+  // Tipo de artista (obrigatório)
+  artist_type_id: z
+    .string({ required_error: "Tipo de artista é obrigatório" })
+    .min(1, "Tipo de artista é obrigatório"),
+  
+  // Gêneros musicais (array de IDs)
+  genre_ids: z
+    .array(z.string().min(1, "ID de gênero inválido"))
+    .min(1, "Selecione pelo menos um gênero musical")
+    .max(10, "Máximo de 10 gêneros permitidos"),
+  
+  // Informações de contato
+  email: z
+    .string()
     .optional()
-    .refine(
-      (slug) => !slug || validateSlugFormat(slug),
-      "Slug deve conter apenas letras minúsculas, números e hífens"
-    ),
+    .refine((val) => !val || formValidation.email.test(val), {
+      message: "E-mail deve ter um formato válido"
+    }),
   
-  // Contact info
-  instagram: z.string()
+  phone: z
+    .string()
     .optional()
-    .transform((val) => val ? normalizeInstagram(val) : val)
-    .refine(
-      async (instagram) => {
-        if (!instagram) return true;
-        
-        // Call API to check for duplicates
-        try {
-          const response = await fetch('/api/validate-instagram', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ instagram, type: 'artist' })
-          });
-          
-          const result = await response.json();
-          return !result.isDuplicate;
-        } catch {
-          // If API fails, allow the validation to pass
-          return true;
-        }
-      },
-      "Este Instagram já está sendo usado por outro artista"
-    ),
+    .refine((val) => !val || val.replace(/\D/g, '').length >= 10, {
+      message: "Telefone deve ter pelo menos 10 dígitos"
+    }),
   
-  email: z.string()
-    .email("Email inválido")
+  whatsapp: z
+    .string()
+    .optional()
+    .refine((val) => !val || val.replace(/\D/g, '').length >= 10, {
+      message: "WhatsApp deve ter pelo menos 10 dígitos"
+    }),
+  
+  instagram: z
+    .string()
+    .optional()
+    .refine((val) => !val || formValidation.instagram.test(val), {
+      message: "Instagram deve ter um formato válido (apenas nome de usuário)"
+    }),
+  
+  website: z
+    .string()
+    .optional()
+    .refine((val) => !val || formValidation.url.test(val), {
+      message: "Website deve ter um formato válido (https://...)"
+    }),
+  
+  // Localização
+  city: z
+    .string()
+    .optional()
+    .refine((val) => !val || val.length >= 2, {
+      message: "Cidade deve ter pelo menos 2 caracteres"
+    }),
+  
+  state: z
+    .string()
+    .optional()
+    .refine((val) => !val || val.length === 2, {
+      message: "Estado deve ter 2 caracteres"
+    }),
+  
+  country: z
+    .string()
+    .default("BR"),
+  
+  // Biografia
+  bio: z
+    .string()
+    .optional()
+    .refine((val) => !val || val.length <= 2000, {
+      message: "Biografia não pode exceder 2000 caracteres"
+    }),
+  
+  // Campos específicos do artista
+  subtype: z
+    .string()
     .optional(),
   
-  phone: z.string()
-    .optional(),
-
-  whatsapp: z.string()
-    .optional(),
+  // Tags e links
+  tags: z
+    .array(z.string().min(1, "Tag não pode estar vazia"))
+    .default([])
+    .refine((val) => val.length <= 20, {
+      message: "Máximo de 20 tags permitidas"
+    }),
   
-  website: z.string()
-    .url("URL inválida")
+  links: z
+    .array(z.object({
+      label: z.string().min(1, "Label do link é obrigatório"),
+      url: z.string().url("URL deve ter um formato válido")
+    }))
+    .default([])
+    .refine((val) => val.length <= 10, {
+      message: "Máximo de 10 links permitidos"
+    }),
+  
+  // Avatar
+  avatar_url: z
+    .string()
     .optional()
-    .or(z.literal('')),
+    .refine((val) => !val || formValidation.url.test(val), {
+      message: "URL do avatar deve ser válida"
+    }),
   
-  // Location
-  city: z.string().optional(),
-  state: z.string().optional(),
-  country: z.string().default('BR'),
+  // Status
+  status: z
+    .enum(["active", "inactive", "draft"], {
+      required_error: "Status é obrigatório"
+    })
+    .default("draft"),
   
-  // Content
-  bio: z.string().optional(),
-  
-  tags: z.array(z.string())
-    .max(12, "Máximo de 12 tags permitidas")
-    .default([]),
+  // Campos adicionais opcionais
+  verified: z.boolean().default(false),
+  featured: z.boolean().default(false),
+  created_at: z.string().optional(),
+  updated_at: z.string().optional(),
+});
 
-  links: z.record(z.string()).default({}),
-  
-  // Artist types and genres
-  artist_type_id: z.string().nullable().optional(),
-  genre_ids: z.array(z.string()).default([]).optional(),
-  
-  // Media
-  avatar_url: z.string().url("URL inválida").optional(),
-  avatar_alt: z.string().optional(),
-  cover_url: z.string().url("URL inválida").optional(),
-  
-  // Metadata
-  status: ArtistStatus.default('active'),
-  priority: z.number().int().default(0),
-  
-  // Timestamps
-  created_at: z.string().datetime().optional(),
-  updated_at: z.string().datetime().optional(),
-}).refine(
-  (data) => {
-    // Custom validation: if cover_url is present, require cover_alt
-    if (data.cover_url && !data.bio) {
-      return false;
-    }
-    return true;
-  },
-  {
-    message: "Bio é obrigatória quando uma imagem de capa é fornecida",
-    path: ["bio"]
-  }
-);
-
-export type ArtistFormData = z.infer<typeof artistSchema>;
-
-// Export for form options
-export const ARTIST_STATUS_OPTIONS = [
-  { value: 'active', label: 'Ativo' },
-  { value: 'inactive', label: 'Inativo' },
-] as const;
+export type ArtistForm = z.infer<typeof artistSchema>;
