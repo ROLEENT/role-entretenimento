@@ -75,7 +75,7 @@ export function useRevistaCache() {
     // Validate scroll position
     if (!position || position < 0) return;
     
-    // Restore scroll after content is rendered with fallback
+    // Use RAF for better performance and reliability
     const restoreScroll = () => {
       const maxScroll = Math.max(
         document.body.scrollHeight - window.innerHeight,
@@ -88,9 +88,12 @@ export function useRevistaCache() {
       }
     };
 
-    // Multiple attempts for better reliability
-    setTimeout(restoreScroll, 100);
-    setTimeout(restoreScroll, 300);
+    // Single RAF call instead of multiple timeouts
+    requestAnimationFrame(() => {
+      restoreScroll();
+      // Fallback for complex layouts
+      setTimeout(restoreScroll, 100);
+    });
   };
 
   const clearCache = () => {

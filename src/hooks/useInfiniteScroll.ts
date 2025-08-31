@@ -24,14 +24,18 @@ export function useInfiniteScroll({
     const [entry] = entries;
     const now = Date.now();
     
-    // Prevent duplicate calls within 500ms
-    if (now - lastCallRef.current < 500) {
+    // Prevent duplicate calls within 1000ms for better throttling
+    if (now - lastCallRef.current < 1000) {
       return;
     }
     
     if (entry.isIntersecting && hasMore && !isLoading && isEnabled) {
       lastCallRef.current = now;
-      onLoadMore();
+      
+      // Use RAF for better performance
+      requestAnimationFrame(() => {
+        onLoadMore();
+      });
     }
   }, [hasMore, isLoading, onLoadMore, isEnabled]);
 

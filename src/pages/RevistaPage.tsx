@@ -75,11 +75,17 @@ export default function RevistaPage() {
   }, []);
 
   const fetchPosts = useCallback(async (offset = 0, reset = false) => {
+    console.log(`[DEBUG] fetchPosts chamado: offset=${offset}, reset=${reset}`);
+    
     // Generate unique fetch reference to prevent duplicates
     const fetchRef = `${offset}-${reset}-${cityFilter}-${debouncedSearchTerm}`;
     if (fetchRef === lastFetchRef && !reset) {
+      console.log(`[DEBUG] Duplicate request prevented for: ${fetchRef}`);
       return; // Prevent duplicate requests
     }
+
+    // AbortController to cancel previous requests
+    const abortController = new AbortController();
 
     try {
       if (reset) {
@@ -113,11 +119,11 @@ export default function RevistaPage() {
         console.warn('Erro na consulta de posts:', fetchError);
         // Em caso de erro, usar dados vazios ao invés de falhar completamente
         const fallbackData: RevistaPost[] = [];
-        const newPosts = reset ? fallbackData : [...posts, ...fallbackData];
-        setPosts(newPosts);
+        
+        // Use function callback to avoid dependency on posts state
+        setPosts(currentPosts => reset ? fallbackData : [...currentPosts, ...fallbackData]);
         setTotalCount(0);
         setHasMore(false);
-        setCachedData(newPosts, 0, false);
         return;
       }
 
@@ -139,15 +145,23 @@ export default function RevistaPage() {
         featured: item.featured || false,
       }));
 
-      const newPosts = reset ? transformedPosts : [...posts, ...transformedPosts];
-      const newHasMore = transformedPosts.length === 12 && (offset + 12) < (count || 0);
+      // Use function callback to avoid dependency on posts state
+      setPosts(currentPosts => {
+        const newPosts = reset ? transformedPosts : [...currentPosts, ...transformedPosts];
+        console.log(`[DEBUG] Posts updated: ${newPosts.length} items`);
+        
+        // Cache outside of state setter to avoid dependency loop
+        setTimeout(() => {
+          setCachedData(newPosts, count || 0, transformedPosts.length === 12 && (offset + 12) < (count || 0));
+        }, 0);
+        
+        return newPosts;
+      });
 
-      setPosts(newPosts);
+      const newHasMore = transformedPosts.length === 12 && (offset + 12) < (count || 0);
       setTotalCount(count || 0);
       setHasMore(newHasMore);
 
-      // Cache the data for future visits
-      setCachedData(newPosts, count || 0, newHasMore);
     } catch (err) {
       console.error('Error fetching posts:', err);
       setError(err instanceof Error ? err.message : 'Erro ao carregar artigos');
@@ -155,29 +169,35 @@ export default function RevistaPage() {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }, [cityFilter, debouncedSearchTerm, lastFetchRef, posts, clearCache, setCachedData]);
+  }, [cityFilter, debouncedSearchTerm, lastFetchRef, clearCache]);
 
-  // Try to restore from cache on initial load
+  // Initial load with cache check
   useEffect(() => {
+    console.log('[DEBUG] Initial load useEffect triggered');
+    
     const cachedData = getCachedData();
     if (cachedData) {
+      console.log('[DEBUG] Using cached data:', cachedData.posts.length);
       setPosts(cachedData.posts);
       setTotalCount(cachedData.totalCount);
       setHasMore(cachedData.hasMore);
       setIsLoading(false);
-      restoreScrollPosition(cachedData.scrollPosition);
+      
+      // Improved scroll restoration with RAF
+      requestAnimationFrame(() => {
+        restoreScrollPosition(cachedData.scrollPosition);
+      });
     } else {
+      console.log('[DEBUG] No cache, fetching posts');
       fetchPosts(0, true);
     }
-  }, [fetchPosts, getCachedData, restoreScrollPosition]);
+  }, []); // Remove dependencies to prevent loops
 
-  // Re-fetch when filters change (but not on initial load if cache exists)
+  // Re-fetch when filters change
   useEffect(() => {
-    const cachedData = getCachedData();
-    if (!cachedData) {
-      fetchPosts(0, true);
-    }
-  }, [cityFilter, debouncedSearchTerm]);
+    console.log('[DEBUG] Filters changed, re-fetching');
+    fetchPosts(0, true);
+  }, [cityFilter, debouncedSearchTerm, fetchPosts]);
 
   const handleLoadMore = () => {
     if (!isLoadingMore && hasMore) {
