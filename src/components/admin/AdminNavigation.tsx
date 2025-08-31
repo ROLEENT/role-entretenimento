@@ -194,6 +194,7 @@ export function AdminNavigation() {
                   "h-9 px-3 py-2 gap-1.5 font-medium transition-colors",
                   getModuleColor(module, isActive)
                 )}
+                onClick={() => console.log(`Dropdown clicked: ${module.title}`)}
               >
                 <ModuleIcon className="h-4 w-4" />
                 <span className="hidden lg:inline">{module.title}</span>
