@@ -11,12 +11,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { ArrowLeft, Save, Copy, UserX, Check, X, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Copy, UserX, Check, X, Loader2, RotateCcw } from "lucide-react";
 import { Link } from "react-router-dom";
 import ActionBar from "@/components/ui/action-bar";
 
 // Import form components
-import { RHFInput, RHFTextarea, RHFSelect, RHFPhoneInput } from "@/components/form";
+import { RHFInput, RHFTextarea, RHFSelect, RHFPhoneInput, RHFSlugInput } from "@/components/form";
 import RHFComboboxRemote from "@/components/rhf/RHFComboboxRemote";
 import CitySelectStable from "@/components/fields/CitySelectStable";
 import ArtistSubtypeSelect from "@/components/fields/ArtistSubtypeSelect";
@@ -45,6 +45,7 @@ import { useArtistTypesOptions } from "@/hooks/useArtistTypesOptions";
 import { useGenresOptions } from "@/hooks/useGenresOptions";
 import { syncArtistTypes, syncArtistGenres, getArtistTypes, getArtistGenres } from "@/utils/artistPivotSync";
 import { normalizePhone, normalizeInstagram } from "@/utils/formatters";
+import { generateSlug } from "@/utils/slugUtils";
 
 interface AgentesFormProps {
   agentType: 'artistas' | 'organizadores' | 'locais';
@@ -57,6 +58,7 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
   const isEditing = !!agentId;
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [nextAction, setNextAction] = useState<'save' | 'saveAndCreate' | 'saveDraft'>('save');
+  const [slugLocked, setSlugLocked] = useState(false);
 
   // Hooks para artist types e genres (apenas para artistas)
   const { searchArtistTypes, createArtistType } = useArtistTypesOptions();
@@ -135,10 +137,35 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
       },
     });
 
-  // Watch form data for autosave
+  // Watch form fields for autosave and slug generation
   const watchedData = useWatch({ control: form.control });
+  const nameValue = useWatch({ control: form.control, name: "name" });
   const slugValue = useWatch({ control: form.control, name: "slug" });
   const instagramValue = useWatch({ control: form.control, name: "instagram" });
+
+  // Auto-generate slug from name when name changes (only if not locked)
+  useEffect(() => {
+    if (!slugLocked && nameValue) {
+      const newSlug = generateSlug(nameValue);
+      if (newSlug !== slugValue) {
+        form.setValue("slug", newSlug, { shouldDirty: true });
+      }
+    }
+  }, [nameValue, slugLocked, form, slugValue]);
+
+  // Function to regenerate slug manually
+  const regenerateSlug = useCallback(() => {
+    if (nameValue) {
+      const newSlug = generateSlug(nameValue);
+      form.setValue("slug", newSlug, { shouldDirty: true });
+      setSlugLocked(false); // Unlock when regenerating
+    }
+  }, [nameValue, form]);
+
+  // Function to handle manual slug edit
+  const handleSlugEdit = useCallback(() => {
+    setSlugLocked(true);
+  }, []);
 
   // Custom autosave hook
   const { isAutosaving, hasError, lastSavedAt: autosaveLastSavedAt, handleFieldBlur, performSave } = useAutosave(
@@ -224,32 +251,6 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
     }
   }, [agentData, artistTypesData, genresData, form, agentType]);
 
-  // Gerar slug automaticamente baseado no nome
-  const generateSlug = useCallback((name: string) => {
-    if (!name || form.getValues("slug")) return;
-    
-    const slug = name
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-    
-    form.setValue("slug", slug, { shouldValidate: true });
-  }, [form]);
-
-  // Watch name changes to generate slug
-  const debouncedGenerateSlug = useDebouncedCallback(generateSlug, 500);
-  
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === "name" && value.name) {
-        debouncedGenerateSlug(value.name);
-      }
-    });
-    
-    return () => subscription.unsubscribe();
-  }, [form, debouncedGenerateSlug]);
 
   // Normalize data before submit
   const normalizeSubmitData = (data: any) => ({
@@ -445,17 +446,17 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
                   required
                 />
                 
-                <div className="relative">
-                  <RHFInput
-                    name="slug"
-                    label="Slug"
-                    placeholder="sera-gerado-automaticamente"
-                    description="URL amigável. Será gerado automaticamente se não preenchido."
-                  />
-                  <div className="absolute right-3 top-8">
-                    {getSlugStatusIcon()}
-                  </div>
-                </div>
+                <RHFSlugInput
+                  name="slug"
+                  label="Slug"
+                  placeholder="sera-gerado-automaticamente"
+                  description="URL amigável. Gerado automaticamente a partir do nome."
+                  locked={slugLocked}
+                  statusIcon={getSlugStatusIcon()}
+                  onRegenerate={regenerateSlug}
+                  onEdit={handleSlugEdit}
+                  regenerateDisabled={!nameValue}
+                />
               </div>
 
               {agentType === 'artistas' && (
