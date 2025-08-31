@@ -1,5 +1,7 @@
 import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
+import { KpiRow } from '@/components/dashboard/KpiRow';
+import { RecentActivityTable } from '@/components/dashboard/RecentActivityTable';
 
 function DashboardContent() {
   return (
@@ -11,9 +13,21 @@ function DashboardContent() {
         </p>
       </div>
       
-      {/* Ready for new components */}
-      <div className="min-h-[400px] flex items-center justify-center border-2 border-dashed border-muted rounded-lg">
-        <p className="text-muted-foreground">Dashboard em construção</p>
+      {/* Dashboard Grid */}
+      <div className="dashboard-spacing-2xl">
+        {/* KPIs */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-2">Visão Geral</h2>
+          <p className="text-muted-foreground mb-4">Principais métricas da plataforma</p>
+          <KpiRow />
+        </div>
+
+        {/* Recent Activity */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-2">Atividade Recente</h2>
+          <p className="text-muted-foreground mb-4">Últimas atualizações no sistema</p>
+          <RecentActivityTable />
+        </div>
       </div>
     </div>
   );

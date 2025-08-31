@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 import { countSafe, countSafeMultiple } from './safeCount';
 
 export interface DashboardKpis {

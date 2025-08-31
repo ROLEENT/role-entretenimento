@@ -87,7 +87,15 @@ export function RecentActivityTable() {
               ))
             ) : activities.length > 0 ? (
               activities.map((activity) => (
-                <TableRow key={activity.id}>
+                <TableRow 
+                  key={activity.id} 
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => {
+                    if (activity.id) {
+                      window.location.href = `/agenda/${activity.id}`;
+                    }
+                  }}
+                >
                   <TableCell className="font-medium">
                     {activity.title}
                   </TableCell>
