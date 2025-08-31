@@ -236,7 +236,7 @@ const AgendaDetailPage = () => {
             {error || 'O evento que você está procurando não existe ou foi removido.'}
           </p>
           <Button asChild>
-            <Link to="/agenda">Ver Agenda</Link>
+            <Link to="/agenda" className="inline-flex items-center justify-center">Ver Agenda</Link>
           </Button>
         </main>
       </div>
@@ -318,7 +318,7 @@ const AgendaDetailPage = () => {
                     href={item.ticket_url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="gap-2"
+                    className="inline-flex items-center gap-2"
                   >
                     <ExternalLink className="h-4 w-4" />
                     Comprar Ingresso
@@ -398,7 +398,7 @@ const AgendaDetailPage = () => {
                           href={item.organizer.site} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="gap-2"
+                          className="inline-flex items-center gap-2"
                         >
                           <ExternalLink className="h-3 w-3" />
                           Website
@@ -412,7 +412,7 @@ const AgendaDetailPage = () => {
                           href={`https://instagram.com/${item.organizer.instagram.replace('@', '')}`} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="gap-2"
+                          className="inline-flex items-center gap-2"
                         >
                           <ExternalLink className="h-3 w-3" />
                           Instagram
@@ -457,14 +457,12 @@ const AgendaDetailPage = () => {
                   variant="ghost" 
                   className="h-auto p-3 justify-start text-left"
                 >
-                  <Link to={`/agenda/${previousItem.slug}`} className="group">
-                    <div className="flex items-center gap-2">
-                      <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-                      <div>
-                        <div className="text-xs text-muted-foreground">Anterior</div>
-                        <div className="text-sm font-medium line-clamp-1">
-                          {previousItem.title}
-                        </div>
+                  <Link to={`/agenda/${previousItem.slug}`} className="group inline-flex items-center gap-2">
+                    <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+                    <div>
+                      <div className="text-xs text-muted-foreground">Anterior</div>
+                      <div className="text-sm font-medium line-clamp-1">
+                        {previousItem.title}
                       </div>
                     </div>
                   </Link>
@@ -479,16 +477,14 @@ const AgendaDetailPage = () => {
                   variant="ghost" 
                   className="h-auto p-3 justify-end text-right"
                 >
-                  <Link to={`/agenda/${nextItem.slug}`} className="group">
-                    <div className="flex items-center gap-2">
-                      <div>
-                        <div className="text-xs text-muted-foreground">Próximo</div>
-                        <div className="text-sm font-medium line-clamp-1">
-                          {nextItem.title}
-                        </div>
+                  <Link to={`/agenda/${nextItem.slug}`} className="group inline-flex items-center gap-2">
+                    <div>
+                      <div className="text-xs text-muted-foreground">Próximo</div>
+                      <div className="text-sm font-medium line-clamp-1">
+                        {nextItem.title}
                       </div>
-                      <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </div>
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
               )}

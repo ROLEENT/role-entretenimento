@@ -107,7 +107,9 @@ const EventDetailPage = () => {
         <Header />
         <main className="container mx-auto px-4 py-8 text-center">
           <h1 className="text-2xl font-bold mb-4">Evento não encontrado</h1>
-          <Button asChild><Link to="/eventos">Ver Todos os Eventos</Link></Button>
+          <Button asChild>
+            <Link to="/eventos" className="inline-flex items-center justify-center">Ver Todos os Eventos</Link>
+          </Button>
         </main>
         <Footer />
       </div>

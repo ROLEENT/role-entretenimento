@@ -223,9 +223,9 @@ const FeaturedHighlights = () => {
         {/* Call to Action */}
         <div className="text-center">
           <Button variant="outline" className="rounded-full" asChild>
-            <Link to="/destaques">
+            <Link to="/destaques" className="inline-flex items-center gap-2">
               Ver todos os destaques
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
         </div>
@@ -237,7 +237,7 @@ const FeaturedHighlights = () => {
               Nenhum destaque encontrado no momento
             </p>
             <Button variant="outline" asChild>
-              <Link to="/revista">Ver Revista</Link>
+              <Link to="/revista" className="inline-flex items-center justify-center">Ver Revista</Link>
             </Button>
           </div>
         )}

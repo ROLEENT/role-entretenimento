@@ -273,7 +273,7 @@ const PersonalizedRecommendations = () => {
                       </span>
                       
                       <Button asChild size="sm">
-                        <Link to={`/evento/${event.id}`}>
+                        <Link to={`/evento/${event.id}`} className="inline-flex items-center justify-center">
                           Ver Detalhes
                         </Link>
                       </Button>
@@ -287,7 +287,7 @@ const PersonalizedRecommendations = () => {
 
         <div className="text-center mt-8">
           <Button asChild variant="outline">
-            <Link to="/eventos">
+            <Link to="/eventos" className="inline-flex items-center justify-center">
               Ver Todos os Eventos
             </Link>
           </Button>
