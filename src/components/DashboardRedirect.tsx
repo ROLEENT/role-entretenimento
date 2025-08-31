@@ -11,7 +11,7 @@ export function DashboardRedirect() {
   useEffect(() => {
     if (!loading) {
       if (session && (role === 'admin' || role === 'editor')) {
-        navigate('/dashboard', { replace: true });
+        navigate('/admin-v3', { replace: true });
       }
     }
   }, [session, role, loading, navigate]);
