@@ -5,9 +5,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Upload, X, Image, AlertCircle, ImageIcon } from "lucide-react";
+import { Upload, X, AlertCircle } from "lucide-react";
 import { useState, useRef } from "react";
 import { BaseFormFieldProps } from "@/lib/forms";
+import { useStorageUpload } from "@/hooks/useStorageUpload";
+import { useToast } from "@/hooks/use-toast";
 
 interface ImageWithAlt {
   url: string;
@@ -17,12 +19,10 @@ interface ImageWithAlt {
 interface RHFImageUploaderProps extends BaseFormFieldProps {
   accept?: string;
   maxSize?: number; // in MB
-  maxWidth?: number;
-  maxHeight?: number;
-  onUpload?: (file: File) => Promise<string>; // Returns URL
   multiple?: boolean;
   preview?: boolean;
   requireAlt?: boolean; // Whether alt text is required
+  maxAltLength?: number; // Character limit for alt text
 }
 
 export default function RHFImageUploader({
@@ -34,19 +34,18 @@ export default function RHFImageUploader({
   className,
   accept = "image/*",
   maxSize = 5,
-  maxWidth = 1920,
-  maxHeight = 1080,
-  onUpload,
   multiple = false,
   preview = true,
   requireAlt = true,
+  maxAltLength = 200,
 }: RHFImageUploaderProps) {
   const {
     control,
     formState: { errors },
   } = useFormContext();
 
-  const [uploading, setUploading] = useState(false);
+  const { uploadFile, uploading } = useStorageUpload();
+  const { toast } = useToast();
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fieldError = errors[name];
@@ -70,15 +69,18 @@ export default function RHFImageUploader({
     const validationError = validateFile(file);
     
     if (validationError) {
-      // Could show toast here
+      toast({
+        title: "Erro no upload",
+        description: validationError,
+        variant: "destructive"
+      });
       return;
     }
 
-    if (onUpload) {
-      setUploading(true);
-      try {
-        const url = await onUpload(file);
-        
+    try {
+      const url = await uploadFile(file);
+      
+      if (url) {
         const imageData: ImageWithAlt = {
           url,
           alt: requireAlt ? "" : `Image: ${file.name}`,
@@ -90,25 +92,14 @@ export default function RHFImageUploader({
         } else {
           onChange(imageData);
         }
-      } catch (error) {
-        console.error('Upload failed:', error);
-        // Could show toast here
-      } finally {
-        setUploading(false);
       }
-    } else {
-      // If no upload handler, create object with File reference
-      const imageData: ImageWithAlt = {
-        url: URL.createObjectURL(file),
-        alt: requireAlt ? "" : `Image: ${file.name}`,
-      };
-      
-      if (multiple) {
-        const newValue = Array.isArray(currentValue) ? [...currentValue, imageData] : [imageData];
-        onChange(newValue);
-      } else {
-        onChange(imageData);
-      }
+    } catch (error) {
+      console.error('Upload failed:', error);
+      toast({
+        title: "Erro no upload",
+        description: "Falha ao enviar arquivo",
+        variant: "destructive"
+      });
     }
   };
 
@@ -117,7 +108,7 @@ export default function RHFImageUploader({
       const newValue = currentValue.filter((_, i) => i !== index);
       onChange(newValue);
     } else {
-      onChange(null);
+      onChange({ url: "", alt: "" }); // Clear both fields as requested
     }
   };
 
@@ -159,15 +150,25 @@ export default function RHFImageUploader({
         
         {requireAlt && (
           <div className="space-y-1">
-            <Label className={hasAltError ? "text-destructive" : ""}>
-              Texto alternativo *
-            </Label>
+            <div className="flex items-center justify-between">
+              <Label className={hasAltError ? "text-destructive" : ""}>
+                Texto alternativo *
+              </Label>
+              <span className="text-xs text-muted-foreground">
+                {(value.alt || "").length}/{maxAltLength}
+              </span>
+            </div>
             <Input
               value={value.alt || ""}
-              onChange={(e) => updateAltText(index, e.target.value, onChange, currentValue)}
+              onChange={(e) => {
+                if (e.target.value.length <= maxAltLength) {
+                  updateAltText(index, e.target.value, onChange, currentValue);
+                }
+              }}
               placeholder="Descreva a imagem"
               disabled={disabled}
               className={hasAltError ? "border-destructive" : ""}
+              maxLength={maxAltLength}
             />
             {hasAltError && (
               <p className="text-xs text-destructive">Texto alternativo é obrigatório</p>

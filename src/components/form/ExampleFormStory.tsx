@@ -59,11 +59,6 @@ export default function ExampleFormStory() {
     "Dança"
   ];
 
-  const mockUpload = async (file: File): Promise<string> => {
-    // Simulate upload delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return URL.createObjectURL(file);
-  };
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
@@ -131,7 +126,6 @@ export default function ExampleFormStory() {
                 name="image"
                 label="Imagem do Evento"
                 description="Upload de uma imagem (máximo 5MB)"
-                onUpload={mockUpload}
                 requireAlt
               />
 
