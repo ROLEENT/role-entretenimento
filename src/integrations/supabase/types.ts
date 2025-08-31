@@ -86,6 +86,36 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_push_subscriptions: {
+        Row: {
+          admin_email: string
+          auth: string
+          created_at: string | null
+          endpoint: string
+          id: string
+          is_active: boolean | null
+          p256dh: string
+        }
+        Insert: {
+          admin_email: string
+          auth: string
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          is_active?: boolean | null
+          p256dh: string
+        }
+        Update: {
+          admin_email?: string
+          auth?: string
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          is_active?: boolean | null
+          p256dh?: string
+        }
+        Relationships: []
+      }
       admin_sessions: {
         Row: {
           admin_id: string
@@ -1121,6 +1151,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      backup_metadata: {
+        Row: {
+          admin_email: string
+          backup_type: string
+          completed_at: string | null
+          created_at: string | null
+          error_message: string | null
+          file_size: number | null
+          filename: string
+          id: string
+          status: string
+        }
+        Insert: {
+          admin_email: string
+          backup_type?: string
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          file_size?: number | null
+          filename: string
+          id?: string
+          status?: string
+        }
+        Update: {
+          admin_email?: string
+          backup_type?: string
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          file_size?: number | null
+          filename?: string
+          id?: string
+          status?: string
+        }
+        Relationships: []
       }
       badges: {
         Row: {
@@ -3537,6 +3603,45 @@ export type Database = {
           },
         ]
       }
+      system_logs: {
+        Row: {
+          action: string
+          admin_email: string
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string | null
+          table_name: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          admin_email: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          admin_email?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       testimonials: {
         Row: {
           avatar_url: string | null
@@ -4972,6 +5077,10 @@ export type Database = {
         }
         Returns: string
       }
+      create_system_backup: {
+        Args: { p_admin_email: string; p_backup_type?: string }
+        Returns: string
+      }
       debug_admin_highlight_auth: {
         Args: { p_admin_email: string; p_highlight_id?: string }
         Returns: Json
@@ -5057,6 +5166,25 @@ export type Database = {
           source: string
           unique_sessions: number
           unique_users: number
+        }[]
+      }
+      get_analytics_summary: {
+        Args: {
+          p_admin_email: string
+          p_end_date?: string
+          p_start_date?: string
+        }
+        Returns: {
+          draft_events: number
+          page_views: number
+          popular_cities: Json
+          published_events: number
+          top_events: Json
+          total_artists: number
+          total_events: number
+          total_organizers: number
+          total_venues: number
+          unique_visitors: number
         }[]
       }
       get_analytics_totals: {
@@ -5273,6 +5401,21 @@ export type Database = {
       get_secure_comment_count: {
         Args: { p_post_id: string }
         Returns: number
+      }
+      get_system_logs: {
+        Args: { p_admin_email: string; p_limit?: number; p_offset?: number }
+        Returns: {
+          action: string
+          admin_email: string
+          created_at: string
+          id: string
+          ip_address: unknown
+          new_values: Json
+          old_values: Json
+          record_id: string
+          table_name: string
+          user_agent: string
+        }[]
       }
       get_top_errors: {
         Args: { days_back?: number; limit_count?: number }
