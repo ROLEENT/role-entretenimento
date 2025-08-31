@@ -36,7 +36,7 @@ import { NewsletterPage } from "@/pages/admin/NewsletterPage";
 
 // Admin V3 Pages
 const AdminV3Agentes = lazy(() => import("./pages/AdminV3Agentes"));
-const AdminV3AgentesForm = lazy(() => import("./pages/AdminV3AgentesForm"));
+
 
 const OrganizerTerms = lazy(() => import("./pages/OrganizerTerms"));
 const Help = lazy(() => import("./pages/Help"));
@@ -221,14 +221,14 @@ function App() {
                 {/* Agentes Routes */}
                 <Route path="/admin-v3/agentes" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Agentes /></Suspense>} />
                 <Route path="/admin-v3/agentes/artistas" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Agentes /></Suspense>} />
-                <Route path="/admin-v3/agentes/artistas/new" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgentesForm /></Suspense>} />
-                <Route path="/admin-v3/agentes/artistas/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgentesForm /></Suspense>} />
+                <Route path="/admin-v3/agentes/artistas/new" element={<Navigate to="/admin-v3/agentes" replace />} />
+                <Route path="/admin-v3/agentes/artistas/:id/edit" element={<Navigate to="/admin-v3/agentes" replace />} />
                 <Route path="/admin-v3/agentes/organizadores" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Agentes /></Suspense>} />
-                <Route path="/admin-v3/agentes/organizadores/new" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgentesForm /></Suspense>} />
-                <Route path="/admin-v3/agentes/organizadores/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgentesForm /></Suspense>} />
+                <Route path="/admin-v3/agentes/organizadores/new" element={<Navigate to="/admin-v3/agentes" replace />} />
+                <Route path="/admin-v3/agentes/organizadores/:id/edit" element={<Navigate to="/admin-v3/agentes" replace />} />
                 <Route path="/admin-v3/agentes/locais" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Agentes /></Suspense>} />
-                <Route path="/admin-v3/agentes/locais/new" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgentesForm /></Suspense>} />
-                <Route path="/admin-v3/agentes/locais/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgentesForm /></Suspense>} />
+                <Route path="/admin-v3/agentes/locais/new" element={<Navigate to="/admin-v3/agentes" replace />} />
+                <Route path="/admin-v3/agentes/locais/:id/edit" element={<Navigate to="/admin-v3/agentes" replace />} />
                 {/* Admin Revista Routes */}
                 <Route path="/admin-v3/revista" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogList /></Suspense>} />
                 <Route path="/admin-v3/revista/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminBlogList /></Suspense>} />
