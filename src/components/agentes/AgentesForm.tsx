@@ -434,7 +434,7 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24">
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="sm" asChild>
           <Link to={getBackLink()}>
@@ -808,9 +808,6 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
         }}
         onRetry={performSave}
       />
-
-      {/* Bottom padding to account for fixed ActionBar */}
-      <div className="h-24" />
     </div>
   );
 }

@@ -103,8 +103,8 @@ export function ActionBar({
             duration: 0.3
           }}
           className={cn(
-            "fixed bottom-0 left-0 right-0 z-40",
-            "bg-background/80 backdrop-blur-sm border-t",
+            "fixed bottom-0 left-0 right-0 z-40 h-20",
+            "bg-background/95 backdrop-blur border-t",
             "shadow-lg",
             className
           )}
