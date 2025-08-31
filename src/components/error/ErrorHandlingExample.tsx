@@ -2,6 +2,7 @@ import React from 'react';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useValidatedForm } from '@/hooks/useValidatedForm';
 import { ErrorDisplay } from '@/components/error/ErrorDisplay';
+import { ErrorCategory, ErrorSeverity } from '@/lib/error-types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -175,13 +176,13 @@ export const ErrorHandlingExample: React.FC = () => {
             </div>
             <div className="p-3 border rounded">
               <div className="text-2xl font-bold">
-                {errorHandler.getErrorsByCategory('network').length}
+                {errorHandler.getErrorsByCategory(ErrorCategory.NETWORK).length}
               </div>
               <div className="text-sm text-muted-foreground">Erros de Rede</div>
             </div>
             <div className="p-3 border rounded">
               <div className="text-2xl font-bold">
-                {errorHandler.getErrorsBySeverity('high').length}
+                {errorHandler.getErrorsBySeverity(ErrorSeverity.HIGH).length}
               </div>
               <div className="text-sm text-muted-foreground">Alta Severidade</div>
             </div>

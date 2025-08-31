@@ -38,12 +38,12 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
     }
   };
 
-  const getSeverityVariant = () => {
+  const getSeverityVariant = (): "default" | "destructive" => {
     switch (error.severity) {
       case ErrorSeverity.LOW:
         return 'default';
       case ErrorSeverity.MEDIUM:
-        return 'secondary';
+        return 'default';
       case ErrorSeverity.HIGH:
       case ErrorSeverity.CRITICAL:
         return 'destructive';

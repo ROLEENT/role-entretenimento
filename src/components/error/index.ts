@@ -34,7 +34,7 @@ export const errorHandlingUtils = {
       return React.createElement(
         BoundaryComponent,
         {},
-        React.createElement(Component, { ref, ...props })
+        React.createElement(Component, props as any)
       );
     });
     

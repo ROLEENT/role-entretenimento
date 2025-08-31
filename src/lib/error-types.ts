@@ -167,10 +167,10 @@ export class AppErrorFactory {
     const isNotFound = error.status === 404;
     const isRateLimit = error.status === 429;
     
-    let category = ErrorCategory.SERVER;
-    let severity = ErrorSeverity.MEDIUM;
-    let code = ERROR_CODES.INTERNAL_ERROR;
-    let userMessage = USER_ERROR_MESSAGES[ERROR_CODES.INTERNAL_ERROR];
+    let category: ErrorCategory = ErrorCategory.SERVER;
+    let severity: ErrorSeverity = ErrorSeverity.MEDIUM;
+    let code: string = ERROR_CODES.INTERNAL_ERROR;
+    let userMessage: string = USER_ERROR_MESSAGES[ERROR_CODES.INTERNAL_ERROR];
     
     if (isAuthError) {
       category = ErrorCategory.AUTHENTICATION;

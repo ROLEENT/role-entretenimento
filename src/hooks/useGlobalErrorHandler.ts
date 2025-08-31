@@ -72,10 +72,11 @@ export const useGlobalErrorHandler = (options: GlobalErrorHandlerOptions = {}) =
         ErrorCategory.NETWORK,
         'medium' as any,
         {
-          source: 'resource_error',
-          tagName,
-          src,
-          element: target?.outerHTML?.substring(0, 200),
+          context: {
+            tagName,
+            src,
+            element: target?.outerHTML?.substring(0, 200),
+          }
         }
       );
 
@@ -124,7 +125,7 @@ export const GlobalErrorHandlerProvider: React.FC<GlobalErrorHandlerProviderProp
   options = {},
 }) => {
   useGlobalErrorHandler(options);
-  return <>{children}</>;
+  return React.createElement(React.Fragment, null, children);
 };
 
 export default useGlobalErrorHandler;
