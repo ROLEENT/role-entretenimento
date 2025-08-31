@@ -43,6 +43,7 @@ export const RHFValidatedTextarea: React.FC<RHFValidatedTextareaProps> = ({
         <div className="space-y-1">
           <Textarea
             {...field}
+            value={field.value as string || ''}
             rows={rows}
             placeholder={placeholder}
             maxLength={maxLength}
@@ -61,11 +62,11 @@ export const RHFValidatedTextarea: React.FC<RHFValidatedTextareaProps> = ({
             <div className="flex justify-end">
               <span className={cn(
                 "text-xs",
-                field.value?.length > maxLength * 0.9 
+                (field.value as string)?.length > maxLength * 0.9 
                   ? "text-destructive" 
                   : "text-muted-foreground"
               )}>
-                {field.value?.length || 0} / {maxLength}
+                {(field.value as string)?.length || 0} / {maxLength}
               </span>
             </div>
           )}

@@ -59,6 +59,7 @@ export const RHFValidatedInput: React.FC<RHFValidatedInputProps> = ({
           
           <Input
             {...field}
+            value={field.value as string || ''}
             type={type}
             placeholder={placeholder}
             autoComplete={autoComplete}

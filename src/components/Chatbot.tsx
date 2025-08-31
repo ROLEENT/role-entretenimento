@@ -10,7 +10,25 @@ import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 interface EventCardProps {
-  event: any;
+  event: {
+    id: string;
+    title: string;
+    date_start: string;
+    city?: string;
+    image_url?: string;
+    price_min?: number;
+    price_max?: number;
+    external_url?: string;
+    organizer?: {
+      name: string;
+    };
+    venue?: {
+      name: string;
+    };
+    venues?: {
+      name: string;
+    };
+  };
 }
 
 const EventCard: React.FC<EventCardProps> = ({ event }) => {
@@ -83,7 +101,23 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
   );
 };
 
-const ChatMessage: React.FC<{ message: any }> = ({ message }) => {
+interface ChatMessageProps {
+  message: {
+    id: string;
+    content: string;
+    role: 'user' | 'assistant';
+    timestamp: Date;
+    events?: Array<{
+      id: string;
+      title: string;
+      date_start: string;
+      city?: string;
+      image_url?: string;
+    }>;
+  };
+}
+
+const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const isUser = message.role === 'user';
   
   return (

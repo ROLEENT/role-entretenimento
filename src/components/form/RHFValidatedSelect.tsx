@@ -64,7 +64,7 @@ export const RHFValidatedSelect: React.FC<RHFValidatedSelectProps> = ({
             field.onChange(parsedValue);
             onValueChange?.(parsedValue);
           }}
-          value={serializeValue ? serializeValue(field.value) : field.value || ""}
+          value={serializeValue ? serializeValue(field.value) : (field.value as string) || ""}
           disabled={disabled}
         >
           <SelectTrigger 

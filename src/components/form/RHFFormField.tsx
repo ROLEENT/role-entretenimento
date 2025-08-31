@@ -14,9 +14,23 @@ interface RHFFormFieldProps {
   disabled?: boolean;
   className?: string;
   children: (props: {
-    field: any;
-    fieldState: any;
-    formState: any;
+    field: {
+      name: string;
+      value: unknown;
+      onChange: (value: unknown) => void;
+      onBlur: () => void;
+    };
+    fieldState: {
+      invalid: boolean;
+      isTouched: boolean;
+      isDirty: boolean;
+      error?: { message?: string };
+    };
+    formState: {
+      isSubmitting: boolean;
+      isValid: boolean;
+      errors: Record<string, unknown>;
+    };
   }) => React.ReactElement;
 }
 

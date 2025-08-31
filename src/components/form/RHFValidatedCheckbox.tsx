@@ -38,7 +38,7 @@ export const RHFValidatedCheckbox: React.FC<RHFValidatedCheckboxProps> = ({
       {({ field, fieldState }) => (
         <div className="flex items-start space-x-3">
           <Checkbox
-            checked={field.value || false}
+            checked={!!field.value}
             onCheckedChange={(checked) => {
               field.onChange(checked);
               onValueChange?.(!!checked);
