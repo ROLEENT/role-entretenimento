@@ -9,13 +9,14 @@ type DBRow = {
   id: string;
   slug: string;
   title: string;
-  summary: string;
-  cover_image: string;
-  city: string;
+  excerpt: string;
+  cover_url: string;
+  section: string;
   reading_time: number | null;
   published_at: string;
   status?: string;
-  views?: number | null;
+  reads?: number | null;
+  saves?: number | null;
 };
 
 export default function RevistaPage() {
@@ -43,16 +44,16 @@ export default function RevistaPage() {
       }
 
       let q = supabase
-        .from("blog_posts")
-        .select("id, slug, title, summary, cover_image, city, reading_time, published_at", { count: "exact" })
+        .from("posts_public")
+        .select("id, slug, title, excerpt, cover_url, section, reading_time, published_at", { count: "exact" })
         .eq("status", "published");
 
-      if (filters.section) q = q.eq("city", filters.section);
+      if (filters.section) q = q.eq("section", filters.section);
       if (filters.q) q = q.ilike("title", `%${filters.q}%`);
 
       const sortCol =
-        filters.sort === "most_read" ? "views" :
-        filters.sort === "most_saved" ? "views" : "published_at";
+        filters.sort === "most_read" ? "reads" :
+        filters.sort === "most_saved" ? "saves" : "published_at";
 
       // se a coluna de ordenação não existir, não quebra
       try {
@@ -70,9 +71,9 @@ export default function RevistaPage() {
             id: r.id,
             slug: r.slug,
             title: r.title,
-            excerpt: r.summary || '',
-            coverUrl: r.cover_image || '',
-            section: "editorial", // Default section since we're using city field
+            excerpt: r.excerpt || '',
+            coverUrl: r.cover_url || '',
+            section: r.section as Article["section"],
             readingTimeMin: r.reading_time ?? undefined,
             dateISO: r.published_at,
           }));
