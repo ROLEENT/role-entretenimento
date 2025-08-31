@@ -1,46 +1,51 @@
 import { useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 
-interface UseNavigationGuardProps {
-  when: boolean;
+export interface UseNavigationGuardProps {
+  isDirty: boolean;
   message?: string;
+  onBeforeNavigation?: () => boolean | Promise<boolean>;
 }
 
-export const useNavigationGuard = ({ 
-  when, 
-  message = 'Você tem alterações não salvas. Deseja realmente sair?' 
+export const useNavigationGuard = ({
+  isDirty,
+  message = 'Você tem alterações não salvas. Deseja sair mesmo assim?',
+  onBeforeNavigation,
 }: UseNavigationGuardProps) => {
-  const navigate = useNavigate();
-  const location = useLocation();
 
-  const handleBeforeUnload = useCallback((event: BeforeUnloadEvent) => {
-    if (when) {
-      event.preventDefault();
-      event.returnValue = message;
-      return message;
-    }
-  }, [when, message]);
-
+  // Browser navigation guard (refresh, close tab, etc.)
   useEffect(() => {
-    if (when) {
-      window.addEventListener('beforeunload', handleBeforeUnload);
-      return () => {
-        window.removeEventListener('beforeunload', handleBeforeUnload);
-      };
-    }
-  }, [when, handleBeforeUnload]);
+    if (!isDirty) return;
 
-  const confirmNavigation = useCallback((targetPath: string) => {
-    if (when) {
-      const confirmed = window.confirm(message);
-      if (confirmed) {
-        navigate(targetPath);
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = message;
+      return message;
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isDirty, message]);
+
+  // Internal navigation confirmation
+  const confirmNavigation = useCallback(
+    async (targetPath: string): Promise<boolean> => {
+      if (!isDirty) return true;
+
+      // Check with custom handler first
+      if (onBeforeNavigation) {
+        return await onBeforeNavigation();
+      } else {
+        // Default confirmation dialog
+        return window.confirm(message);
       }
-      return confirmed;
-    }
-    navigate(targetPath);
-    return true;
-  }, [when, message, navigate]);
+    },
+    [isDirty, message, onBeforeNavigation]
+  );
 
-  return { confirmNavigation };
+  return {
+    confirmNavigation,
+  };
 };

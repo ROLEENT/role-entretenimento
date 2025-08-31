@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { FormProvider } from 'react-hook-form';
-import { Save, Eye, Copy, Trash2, ArrowLeft, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { Save, Eye, Copy, Trash2, ArrowLeft, CheckCircle, AlertCircle, Clock, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useDebounce } from 'use-debounce';
 import {
@@ -29,7 +29,9 @@ import {
 } from '@/components/form';
 import { useSlugValidation } from '@/hooks/useSlugValidation';
 import { useAgendaManagement } from '@/hooks/useAgendaManagement';
-import { useFormDirtyGuard } from '@/lib/forms';
+import { useAutosave } from '@/hooks/useAutosave';
+import { useNavigationGuard } from '@/hooks/useNavigationGuard';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 interface AgendaFormProps {
   agendaId?: string;
@@ -39,8 +41,9 @@ interface AgendaFormProps {
 export function AgendaForm({ agendaId, onBack }: AgendaFormProps) {
   const [loading, setLoading] = useState(false);
   const [publishing, setPublishing] = useState(false);
-  const [autosaving, setAutosaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [showExitDialog, setShowExitDialog] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
 
   const isEditing = Boolean(agendaId);
   
@@ -70,11 +73,34 @@ export function AgendaForm({ agendaId, onBack }: AgendaFormProps) {
   const watchedSlug = watch('slug');
   const watchedValues = watch();
 
-  // Debounced values for autosave
-  const [debouncedValues] = useDebounce(watchedValues, 3000);
+  // Autosave functionality
+  const { isAutosaving: autosaving } = useAutosave(watchedValues, {
+    enabled: isEditing && Boolean(agendaId) && isDirty && Boolean(watchedTitle?.trim()),
+    delay: 3000,
+    onSave: async () => {
+      if (!agendaId || publishing) return;
+      
+      const formData = { ...watchedValues };
+      await agendaManagement.updateAgendaItem(agendaId, formData);
+      setLastSaved(new Date());
+    },
+    onSaveError: (error) => {
+      console.error('Autosave failed:', error);
+      // Don't show toast for autosave errors to avoid spam
+    }
+  });
 
-  // Form dirty guard
-  useFormDirtyGuard(isDirty);
+  // Navigation guard
+  const { confirmNavigation } = useNavigationGuard({
+    isDirty: isDirty && !autosaving,
+    message: 'Você tem alterações não salvas. Deseja sair mesmo assim?',
+    onBeforeNavigation: async () => {
+      return new Promise((resolve) => {
+        setShowExitDialog(true);
+        setPendingNavigation(() => () => resolve(true));
+      });
+    }
+  });
 
   // Auto-generate slug from title
   useEffect(() => {
@@ -106,6 +132,7 @@ export function AgendaForm({ agendaId, onBack }: AgendaFormProps) {
       const data = await agendaManagement.getAgendaItem(id);
       if (data) {
         reset(data);
+        setLastSaved(new Date()); // Set as saved when loaded
       }
     } catch (error) {
       console.error('Error loading agenda data:', error);
@@ -115,34 +142,16 @@ export function AgendaForm({ agendaId, onBack }: AgendaFormProps) {
     }
   };
 
-  
-  const handleAutosave = useCallback(async () => {
-    if (autosaving || publishing) return;
-
-    try {
-      setAutosaving(true);
-      const formData = { ...watchedValues };
-      
-      if (isEditing && agendaId) {
-        await agendaManagement.updateAgendaItem(agendaId, formData);
-      } else {
-        // For new items, we only autosave after first manual save
-        // This prevents creating empty records
-        return;
-      }
-      
-      setLastSaved(new Date());
-    } catch (error) {
-      console.error('Autosave failed:', error);
-    } finally {
-      setAutosaving(false);
-    }
-  }, [watchedValues, autosaving, publishing, isEditing, agendaId, agendaManagement]);
-
   const handleSaveDraft = async (data: AgendaItemInput) => {
     try {
       setLoading(true);
       const draftData = { ...data, is_published: false };
+      
+      // Only allow saving if title is present
+      if (!draftData.title?.trim()) {
+        toast.error('Título é obrigatório para salvar rascunho');
+        return;
+      }
       
       if (isEditing && agendaId) {
         await agendaManagement.updateAgendaItem(agendaId, draftData);
@@ -155,6 +164,7 @@ export function AgendaForm({ agendaId, onBack }: AgendaFormProps) {
       }
       
       setLastSaved(new Date());
+      toast.success('Rascunho salvo com sucesso!');
     } catch (error) {
       console.error('Error saving draft:', error);
       toast.error('Erro ao salvar rascunho');
@@ -235,17 +245,39 @@ export function AgendaForm({ agendaId, onBack }: AgendaFormProps) {
   const handleDelete = async () => {
     if (!agendaId) return;
     
-    const confirmed = window.confirm('Tem certeza que deseja excluir esta agenda?');
-    if (!confirmed) return;
-
-    try {
-      const success = await agendaManagement.deleteAgendaItem(agendaId);
-      if (success) {
-        onBack();
+    setShowExitDialog(true);
+    setPendingNavigation(() => async () => {
+      try {
+        const success = await agendaManagement.deleteAgendaItem(agendaId);
+        if (success) {
+          onBack();
+        }
+      } catch (error) {
+        console.error('Error deleting:', error);
+        toast.error('Erro ao excluir agenda');
       }
-    } catch (error) {
-      console.error('Error deleting:', error);
-      toast.error('Erro ao excluir agenda');
+    });
+  };
+
+  const handleConfirmExit = () => {
+    if (pendingNavigation) {
+      pendingNavigation();
+      setPendingNavigation(null);
+    }
+    setShowExitDialog(false);
+  };
+
+  const handleCancelExit = () => {
+    setPendingNavigation(null);
+    setShowExitDialog(false);
+  };
+
+  const handleBackNavigation = () => {
+    if (isDirty && !autosaving) {
+      setShowExitDialog(true);
+      setPendingNavigation(() => onBack);
+    } else {
+      onBack();
     }
   };
 
@@ -281,17 +313,21 @@ export function AgendaForm({ agendaId, onBack }: AgendaFormProps) {
           <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
             {autosaving && (
               <div className="flex items-center gap-1">
-                <Clock className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
                 Salvando automaticamente...
               </div>
             )}
-            {lastSaved && (
+            {lastSaved && !autosaving && (
               <div className="flex items-center gap-1">
                 <CheckCircle className="w-4 h-4 text-green-500" />
-                Salvo às {lastSaved.toLocaleTimeString()}
+                Salvo às {lastSaved.toLocaleTimeString('pt-BR', { 
+                  hour: '2-digit', 
+                  minute: '2-digit', 
+                  second: '2-digit' 
+                })}
               </div>
             )}
-            {isDirty && !autosaving && (
+            {isDirty && !autosaving && !lastSaved && (
               <div className="flex items-center gap-1">
                 <AlertCircle className="w-4 h-4 text-amber-500" />
                 Alterações não salvas
@@ -302,7 +338,7 @@ export function AgendaForm({ agendaId, onBack }: AgendaFormProps) {
 
         {/* Toolbar */}
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={onBack}>
+          <Button variant="outline" onClick={handleBackNavigation}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar
           </Button>
@@ -310,7 +346,7 @@ export function AgendaForm({ agendaId, onBack }: AgendaFormProps) {
           <Button
             variant="outline"
             onClick={handleSubmit(handleSaveDraft)}
-            disabled={loading || agendaManagement.loading}
+            disabled={loading || agendaManagement.loading || !watchedValues.title?.trim()}
           >
             <Save className="w-4 h-4 mr-2" />
             Salvar Rascunho
@@ -318,11 +354,20 @@ export function AgendaForm({ agendaId, onBack }: AgendaFormProps) {
 
           <Button
             onClick={handleSubmit(handlePublish)}
-            disabled={publishing || !watchedValues.title}
+            disabled={publishing || !watchedValues.title?.trim()}
             className="bg-green-600 hover:bg-green-700"
           >
-            <Eye className="w-4 h-4 mr-2" />
-            {publishing ? 'Publicando...' : 'Publicar'}
+            {publishing ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Publicando...
+              </>
+            ) : (
+              <>
+                <Eye className="w-4 h-4 mr-2" />
+                Publicar
+              </>
+            )}
           </Button>
 
           {isEditing && (
@@ -507,6 +552,19 @@ export function AgendaForm({ agendaId, onBack }: AgendaFormProps) {
           </Card>
         </form>
       </FormProvider>
+
+      {/* Exit Confirmation Dialog */}
+      <ConfirmationDialog
+        open={showExitDialog}
+        onOpenChange={setShowExitDialog}
+        title="Alterações não salvas"
+        description="Você tem alterações não salvas. Deseja sair mesmo assim?"
+        confirmText="Sair sem salvar"
+        cancelText="Continuar editando"
+        variant="destructive"
+        onConfirm={handleConfirmExit}
+        onCancel={handleCancelExit}
+      />
     </div>
   );
 }
