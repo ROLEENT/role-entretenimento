@@ -2,6 +2,26 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+const ALLOWED_CITIES = ['poa','sp','rj','curitiba','floripa'] as const;
+type City = typeof ALLOWED_CITIES[number];
+
+function normalizeCity(input?: string | null): City | null {
+  if (!input) return null;
+  const v = input.trim().toLowerCase();
+  return (ALLOWED_CITIES as readonly string[]).includes(v) ? (v as City) : null;
+}
+
+function validateBlogPayload(p: any) {
+  const city = normalizeCity(p.city);
+  const hasCitiesArray = Array.isArray(p.cities) && p.cities.length > 0;
+
+  // Regra compatível com o CHECK típico
+  if (!city && !hasCitiesArray) {
+    throw new Error('Selecione uma cidade válida ou preencha o campo de cidades do post.');
+  }
+  return { ...p, city };
+}
+
 export interface BlogPostForm {
   id?: string;
   title: string;
@@ -67,9 +87,12 @@ export const useUpsertBlogPost = () => {
 
       console.log("Processed blog post data:", processedData);
 
+      // Validate payload before upsert
+      const validatedData = validateBlogPayload(processedData);
+
       const { data: result, error } = await supabase
         .from("blog_posts")
-        .upsert(processedData, { 
+        .upsert(validatedData, { 
           onConflict: "id",
           ignoreDuplicates: false 
         })
