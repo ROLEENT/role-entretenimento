@@ -17,6 +17,7 @@ import { FormProvider } from 'react-hook-form';
 import CitySelect from '@/components/fields/CitySelect';
 import VenueTypeSelect from '@/components/fields/VenueTypeSelect';
 import ArtistSubtypeSelect from '@/components/fields/ArtistSubtypeSelect';
+import SimpleSelect from '@/components/form/SimpleSelect';
 import OrganizerSubtypeSelect from '@/components/fields/OrganizerSubtypeSelect';
 import StatusSelect from '@/components/fields/StatusSelect';
 import { useToast } from '@/hooks/use-toast';
@@ -311,7 +312,24 @@ function AgentesContent() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
-                <Label>Cidade</Label>
+                <Label>Cidade (Teste Simples)</Label>
+                <Controller
+                  name="city_id"
+                  control={form.control}
+                  render={({ field }) => (
+                    <SimpleSelect 
+                      onValueChange={(value) => {
+                        console.log("[AdminV3Agentes] City selected:", value);
+                        field.onChange(Number(value));
+                      }}
+                      placeholder="Selecione a cidade"
+                    />
+                  )}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Cidade (Original)</Label>
                 <CitySelect name="city_id" placeholder="Selecione a cidade" />
               </div>
 

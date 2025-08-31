@@ -35,12 +35,17 @@ export default function RHFSelectAsync({
     (async () => {
       try {
         console.log(`[RHFSelectAsync] Carregando dados da tabela: ${query.table}`);
+        console.log(`[RHFSelectAsync] Query fields: ${query.fields}`);
+        console.log(`[RHFSelectAsync] Query orderBy: ${query.orderBy}`);
         setError(null);
         
         const q = supabase.from(query.table).select(query.fields);
         if (query.orderBy) q.order(query.orderBy);
         
+        console.log(`[RHFSelectAsync] Executando query...`);
         const { data, error } = await q;
+        
+        console.log(`[RHFSelectAsync] Resposta completa:`, { data, error, alive });
         
         if (!alive) return;
         
@@ -62,6 +67,7 @@ export default function RHFSelectAsync({
         setError(`Erro inesperado: ${err instanceof Error ? err.message : 'Erro desconhecido'}`);
         setOpts([]);
       } finally {
+        console.log(`[RHFSelectAsync] Finalizando carregamento, setting loading = false`);
         setLoading(false);
       }
     })();

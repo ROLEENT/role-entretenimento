@@ -68,6 +68,20 @@ export const AgentSchema = z.discriminatedUnion('type', [
 
 export type AgentFormValues = z.infer<typeof AgentSchema>;
 
+// Simple schema for testing - TEMPORARY
+export const simpleAgentSchema = z.object({
+  name: z.string().min(1, "Nome é obrigatório"),
+  email: z.string().email("Email deve ter formato válido").optional(),
+  phone: z.string().optional(),
+  city_id: z.number().optional().or(z.string().optional()),
+  artist_subtype: z.string().optional(),
+  bio: z.string().optional(),
+  social_instagram: z.string().optional(),
+  social_youtube: z.string().optional(),
+  social_spotify: z.string().optional(),
+  website: z.string().optional(),
+});
+
 // Legacy exports for compatibility
 export const agentSchema = AgentSchema;
 export type AgentFormData = AgentFormValues;
