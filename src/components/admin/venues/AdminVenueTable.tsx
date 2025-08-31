@@ -69,20 +69,20 @@ export const AdminVenueTable: React.FC<AdminVenueTableProps> = ({
                         {venue.name?.charAt(0)?.toUpperCase() || 'L'}
                       </AvatarFallback>
                     </Avatar>
-                    <div>
-                      <div className="font-medium">{venue.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        @{venue.slug}
-                      </div>
-                    </div>
+                     <div>
+                       <div className="font-medium">{venue.name || 'Nome não informado'}</div>
+                       <div className="text-sm text-muted-foreground">
+                         @{venue.slug || 'sem-slug'}
+                       </div>
+                     </div>
                   </div>
                 </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    {venue.city || 'N/A'}
-                  </div>
-                </TableCell>
+                 <TableCell>
+                   <div className="flex items-center gap-1">
+                     <MapPin className="h-4 w-4 text-muted-foreground" />
+                     {venue.city || 'Cidade não informada'}
+                   </div>
+                 </TableCell>
                 <TableCell>
                   {venue.capacity ? `${venue.capacity} pessoas` : 'N/A'}
                 </TableCell>
