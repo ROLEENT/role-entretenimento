@@ -81,3 +81,6 @@ verify_jwt = true
 
 [functions.agenda-api]
 verify_jwt = false
+
+[functions.agenda-scheduler]
+verify_jwt = false
