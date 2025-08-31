@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -58,7 +58,7 @@ const navigationModules: NavigationModule[] = [
       },
       {
         label: 'Criar Evento ✅',
-        url: '/admin-v3/agenda/criar',
+        url: '/admin-v3/agenda/new',
         icon: Plus,
         description: 'Adicionar novo evento'
       }
@@ -77,21 +77,21 @@ const navigationModules: NavigationModule[] = [
       },
       {
         label: 'Criar Artista ✅',
-        url: '/admin-v3/agentes/artistas/criar',
+        url: '/admin-v3/agentes/artistas/new',
         icon: Plus,
         description: 'Adicionar novo artista'
       },
       {
-        label: 'Venues 🚧',
-        url: '/admin-v3/agentes/venues',
-        icon: MapPin,
-        description: 'Locais e espaços (em desenvolvimento)'
+        label: 'Organizadores 🚧',
+        url: '/admin-v3/agentes/organizadores/new',
+        icon: Briefcase,
+        description: 'Organizadores de eventos'
       },
       {
-        label: 'Organizadores 🚧',
-        url: '/admin-v3/agentes/organizadores',
-        icon: Briefcase,
-        description: 'Organizadores de eventos (em desenvolvimento)'
+        label: 'Locais 🚧',
+        url: '/admin-v3/agentes/locais/new',
+        icon: MapPin,
+        description: 'Locais e espaços'
       }
     ]
   },
@@ -102,15 +102,15 @@ const navigationModules: NavigationModule[] = [
     items: [
       {
         label: 'Artigos 🚧',
-        url: '/admin-v3/revista/artigos',
+        url: '/admin-v3/revista',
         icon: FileText,
-        description: 'Gerenciar artigos (em desenvolvimento)'
+        description: 'Gerenciar artigos'
       },
       {
-        label: 'Criar Artigo 🚧',
-        url: '/admin-v3/revista/criar',
+        label: 'Nova Matéria 🚧',
+        url: '/admin-v3/revista/new',
         icon: Plus,
-        description: 'Novo artigo (em desenvolvimento)'
+        description: 'Nova matéria'
       }
     ]
   },
@@ -123,20 +123,20 @@ const navigationModules: NavigationModule[] = [
         label: 'Contatos 🚧',
         url: '/admin-v3/gestao/contatos',
         icon: Mail,
-        description: 'Mensagens de contato (em desenvolvimento)'
+        description: 'Mensagens de contato'
       },
       {
         label: 'Newsletter 🚧',
         url: '/admin-v3/gestao/newsletter',
         icon: Mail,
-        description: 'Gerenciar newsletter (em desenvolvimento)'
+        description: 'Gerenciar newsletter'
       },
       {
         label: 'Candidaturas 🚧',
         url: '/admin-v3/gestao/candidaturas',
         icon: UserCheck,
         badge: 5,
-        description: 'Candidaturas pendentes (em desenvolvimento)'
+        description: 'Candidaturas pendentes'
       }
     ]
   },
@@ -147,22 +147,21 @@ const navigationModules: NavigationModule[] = [
     items: [
       {
         label: 'Highlights Ativos 🚧',
-        url: '/admin-v3/destaques/ativos',
+        url: '/admin-v3/destaques',
         icon: Lightbulb,
-        description: 'Highlights publicados (em desenvolvimento)'
+        description: 'Highlights publicados'
       },
       {
         label: 'Criar Destaque 🚧',
-        url: '/admin-v3/destaques/criar',
+        url: '/admin-v3/destaques/new',
         icon: Plus,
-        description: 'Novo highlight (em desenvolvimento)'
+        description: 'Novo highlight'
       }
     ]
   }
 ];
 
 export function AdminNavigation() {
-  const navigate = useNavigate();
   const location = useLocation();
 
   const isModuleActive = (module: NavigationModule): boolean => {
@@ -217,44 +216,38 @@ export function AdminNavigation() {
                 const ItemIcon = item.icon;
                 const isItemSelected = isItemActive(item.url);
                 const isInDevelopment = item.label.includes('🚧');
-                const isAvailable = item.label.includes('✅');
                 
                 return (
-                  <DropdownMenuItem
-                    key={item.url}
-                    onClick={() => {
-                      if (isInDevelopment) {
-                        // Navigate to under construction page with context
-                        navigate(`/admin-v3/under-construction?module=${encodeURIComponent(module.title)}&feature=${encodeURIComponent(item.label.replace(' 🚧', ''))}`);
-                      } else {
-                        navigate(item.url);
-                      }
-                    }}
-                    className={cn(
-                      "cursor-pointer flex items-center gap-2 py-2.5 px-2",
-                      isItemSelected && "bg-primary/10 text-primary font-medium",
-                      isInDevelopment && "opacity-70"
-                    )}
-                  >
-                    <ItemIcon className="h-4 w-4 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="truncate">{item.label}</span>
-                        {item.badge && (
-                          <Badge 
-                            variant="secondary" 
-                            className="h-5 px-1.5 text-xs tabular-nums"
-                          >
-                            {item.badge}
-                          </Badge>
+                  <DropdownMenuItem key={item.url} asChild>
+                    <NavLink
+                      to={item.url}
+                      className={({ isActive }) => cn(
+                        "cursor-pointer flex items-center gap-2 py-2.5 px-2 text-foreground no-underline",
+                        isActive && "bg-primary/10 text-primary font-medium",
+                        isInDevelopment && "opacity-70"
+                      )}
+                      aria-current={isItemSelected ? "page" : undefined}
+                    >
+                      <ItemIcon className="h-4 w-4 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="truncate">{item.label}</span>
+                          {item.badge && (
+                            <Badge 
+                              variant="secondary" 
+                              className="h-5 px-1.5 text-xs tabular-nums"
+                            >
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </div>
+                        {item.description && (
+                          <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                            {item.description}
+                          </p>
                         )}
                       </div>
-                      {item.description && (
-                        <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                          {item.description}
-                        </p>
-                      )}
-                    </div>
+                    </NavLink>
                   </DropdownMenuItem>
                 );
               })}

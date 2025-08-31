@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   DropdownMenu,
@@ -22,44 +22,42 @@ interface QuickAction {
 const quickActions: QuickAction[] = [
   {
     label: 'Novo Evento',
-    url: '/admin-v3/agenda/criar',
+    url: '/admin-v3/agenda/new',
     icon: Calendar,
     description: 'Criar evento na agenda',
     category: 'Agenda'
   },
   {
-    label: 'Novo Artigo',
-    url: '/admin-v3/revista/criar',
+    label: 'Nova Matéria',
+    url: '/admin-v3/revista/new',
     icon: FileText,
-    description: 'Escrever artigo da revista',
+    description: 'Escrever nova matéria',
     category: 'Revista'
   },
   {
     label: 'Novo Artista',
-    url: '/admin-v3/agentes/artistas/criar',
+    url: '/admin-v3/agentes/artistas/new',
     icon: Users,
     description: 'Cadastrar novo artista',
     category: 'Agentes'
   },
   {
-    label: 'Novo Destaque',
-    url: '/admin-v3/destaques/criar',
-    icon: Star,
-    description: 'Criar highlight especial',
-    category: 'Destaques'
+    label: 'Novo Organizador',
+    url: '/admin-v3/agentes/organizadores/new',
+    icon: Users,
+    description: 'Cadastrar organizador',
+    category: 'Agentes'
   },
   {
-    label: 'Curadoria',
-    url: '/admin-v3/destaques/curadoria',
-    icon: Sparkles,
-    description: 'Agenda curatorial',
-    category: 'Destaques'
+    label: 'Novo Local',
+    url: '/admin-v3/agentes/locais/new',
+    icon: Users,
+    description: 'Cadastrar local',
+    category: 'Agentes'
   }
 ];
 
 export function QuickActions() {
-  const navigate = useNavigate();
-
   const groupedActions = quickActions.reduce((acc, action) => {
     if (!acc[action.category]) {
       acc[action.category] = [];
@@ -92,18 +90,19 @@ export function QuickActions() {
               const ActionIcon = action.icon;
               
               return (
-                <DropdownMenuItem
-                  key={action.url}
-                  onClick={() => navigate(action.url)}
-                  className="cursor-pointer flex items-center gap-3 py-2.5"
-                >
-                  <ActionIcon className="h-4 w-4 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium">{action.label}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {action.description}
+                <DropdownMenuItem key={action.url} asChild>
+                  <NavLink
+                    to={action.url}
+                    className="cursor-pointer flex items-center gap-3 py-2.5 text-foreground no-underline"
+                  >
+                    <ActionIcon className="h-4 w-4 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium">{action.label}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {action.description}
+                      </div>
                     </div>
-                  </div>
+                  </NavLink>
                 </DropdownMenuItem>
               );
             })}
