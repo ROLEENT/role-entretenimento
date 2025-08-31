@@ -20,6 +20,7 @@ export { default as RHFRichEditor } from './RHFRichEditor';
 export { default as RHFComboboxChips } from './RHFComboboxChips';
 export { default as RHFDateTimeUtc } from './RHFDateTimeUtc';
 export { default as RHFImageUploader } from './RHFImageUploader';
+export { RHFMaskedInput } from './RHFMaskedInput';
 
 // Examples
 export { default as ExampleForm } from './ExampleForm';

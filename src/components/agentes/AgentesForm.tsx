@@ -3,7 +3,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useDebounce } from "@/hooks/useDebouncedCallback";
+import { useDebouncedCallback } from "@/hooks/useDebouncedCallback";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,8 @@ import StatusSelect from "@/components/fields/StatusSelect";
 import { AgentesTagsInput } from "@/components/agentes/AgentesTagsInput";
 import { AgentesLinksInput } from "@/components/agentes/AgentesLinksInput";
 import { AgentesAvatarUpload } from "@/components/agentes/AgentesAvatarUpload";
+import { OrganizerBillingFields } from "@/components/agentes/OrganizerBillingFields";
+import { OrganizerLinksFields } from "@/components/agentes/OrganizerLinksFields";
 import { useAgentesAutosave } from "@/hooks/useAgentesAutosave";
 import { useAgentesSlugCheck } from "@/hooks/useAgentesSlugCheck";
 import { useAgentesInstagramValidation } from "@/hooks/useAgentesInstagramValidation";
@@ -73,15 +75,27 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
       instagram: "",
       email: "",
       phone: "",
+      whatsapp: "",
       city: "",
       state: "",
       country: "BR",
-      tags: [],
-      links: {},
       bio: "",
+      website: "",
       avatar_url: "",
       avatar_alt: "",
       status: "active",
+      // Organizador específico
+      invoice_name: "",
+      tax_id: "",
+      invoice_email: "",
+      pix_key: "",
+      bank: {
+        bank: "",
+        agency: "",
+        account: "",
+        type: "",
+      },
+      links: {},
     },
   });
 
@@ -158,7 +172,7 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
   }, [form]);
 
   // Watch name changes to generate slug
-  const debouncedGenerateSlug = useDebounce(generateSlug, 500);
+  const debouncedGenerateSlug = useDebouncedCallback(generateSlug, 500);
   
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
@@ -371,7 +385,7 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <RHFInput
                   name="email"
                   label="E-mail"
@@ -384,13 +398,22 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
                   label="Telefone"
                   placeholder="(11) 99999-9999"
                 />
+
+                <RHFInput
+                  name="whatsapp"
+                  label="WhatsApp"
+                  placeholder="(11) 99999-9999"
+                />
               </div>
 
-              <RHFInput
-                name="whatsapp"
-                label="WhatsApp"
-                placeholder="(11) 99999-9999"
-              />
+              {agentType === 'organizadores' && (
+                <RHFInput
+                  name="website"
+                  label="Website"
+                  type="url"
+                  placeholder="https://meusite.com"
+                />
+              )}
             </CardContent>
           </Card>
 
@@ -427,16 +450,29 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
               <CardTitle>Conteúdo</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <AgentesTagsInput name="tags" />
-              
-              <AgentesLinksInput name="links" />
-
               <RHFTextarea
                 name="bio"
-                label="Bio"
-                placeholder="Descrição do agente"
+                label="Sobre"
+                placeholder="Descrição do organizador, história, missão e valores"
                 rows={4}
               />
+
+              {agentType === 'organizadores' && (
+                <>
+                  {/* Faturamento - só para organizadores */}
+                  <OrganizerBillingFields />
+                  
+                  {/* Links extras - só para organizadores */}
+                  <OrganizerLinksFields />
+                </>
+              )}
+
+              {agentType !== 'organizadores' && (
+                <>
+                  <AgentesTagsInput name="tags" />
+                  <AgentesLinksInput name="links" />
+                </>
+              )}
             </CardContent>
           </Card>
 

@@ -15,6 +15,23 @@ const validateSlugFormat = (slug: string): boolean => {
 export const OrganizerStatus = z.enum(['active', 'inactive']);
 export type OrganizerStatusType = z.infer<typeof OrganizerStatus>;
 
+// Bank schema
+export const bankSchema = z.object({
+  bank: z.string().max(100, "Nome do banco muito longo").optional(),
+  agency: z.string().max(20, "Agência inválida").optional(), 
+  account: z.string().max(30, "Conta inválida").optional(),
+  type: z.enum(['corrente', 'poupanca']).optional(),
+}).optional();
+
+// Links schema
+export const organizerLinksSchema = z.object({
+  facebook: z.string().url("URL inválida").optional().or(z.literal('')),
+  linkedin: z.string().url("URL inválida").optional().or(z.literal('')),
+  youtube: z.string().url("URL inválida").optional().or(z.literal('')),
+  tiktok: z.string().url("URL inválida").optional().or(z.literal('')),
+  twitter: z.string().url("URL inválida").optional().or(z.literal('')),
+}).optional();
+
 // Organizer schema
 export const organizerSchema = z.object({
   id: z.string().uuid().optional(),
@@ -31,31 +48,10 @@ export const organizerSchema = z.object({
       "Slug deve conter apenas letras minúsculas, números e hífens"
     ),
   
-  // Contact info (same as artist)
+  // Contact info
   instagram: z.string()
     .optional()
-    .transform((val) => val ? normalizeInstagram(val) : val)
-    .refine(
-      async (instagram) => {
-        if (!instagram) return true;
-        
-        // Call API to check for duplicates
-        try {
-          const response = await fetch('/api/validate-instagram', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ instagram, type: 'organizer' })
-          });
-          
-          const result = await response.json();
-          return !result.isDuplicate;
-        } catch {
-          // If API fails, allow the validation to pass
-          return true;
-        }
-      },
-      "Este Instagram já está sendo usado por outro organizador"
-    ),
+    .transform((val) => val ? normalizeInstagram(val) : val),
   
   email: z.string()
     .email("Email inválido")
@@ -63,7 +59,10 @@ export const organizerSchema = z.object({
   
   phone: z.string()
     .optional(),
-  
+
+  whatsapp: z.string()
+    .optional(),
+
   website: z.string()
     .url("URL inválida")
     .optional()
@@ -85,6 +84,12 @@ export const organizerSchema = z.object({
   pix_key: z.string()
     .max(100, "Chave PIX muito longa")
     .optional(),
+
+  // Bank info
+  bank: bankSchema,
+
+  // Additional links
+  links: organizerLinksSchema,
   
   // Location
   city: z.string().optional(),
@@ -94,11 +99,9 @@ export const organizerSchema = z.object({
   // Content
   bio: z.string().optional(),
   
-  tags: z.array(z.string())
-    .max(12, "Máximo de 12 tags permitidas")
-    .default([]),
-  
   // Media
+  avatar_url: z.string().url("URL inválida").optional(),
+  avatar_alt: z.string().optional(),
   logo_url: z.string().url("URL inválida").optional(),
   cover_url: z.string().url("URL inválida").optional(),
   
@@ -112,6 +115,8 @@ export const organizerSchema = z.object({
 });
 
 export type OrganizerFormData = z.infer<typeof organizerSchema>;
+export type OrganizerBank = z.infer<typeof bankSchema>;
+export type OrganizerLinks = z.infer<typeof organizerLinksSchema>;
 
 // Export for form options
 export const ORGANIZER_STATUS_OPTIONS = [
