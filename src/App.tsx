@@ -58,6 +58,8 @@ const AdminV3VenueEdit = lazy(() => import("./pages/admin-v3/AdminV3VenueEdit"))
 // Admin V3 Functional Pages
 const AdminV3VenuesPage = lazy(() => import("./pages/admin-v3/AdminV3VenuesList"));
 const AdminV3RevistaPage = lazy(() => import("./pages/admin-v3/AdminV3RevistaList"));
+const AdminV3BlogCreate = lazy(() => import("./pages/admin-v3/AdminV3BlogCreate"));
+const AdminV3BlogEdit = lazy(() => import("./pages/admin-v3/AdminV3BlogEdit"));
 const AdminV3GestaoPage = lazy(() => import("./pages/admin-v3/gestao/index"));
 const AdminV3DestaquesPage = lazy(() => import("./pages/admin-v3/AdminV3DestaquesList"));
 
@@ -272,7 +274,8 @@ function App() {
                   
                   {/* Other modules */}
                   <Route path="revista" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaPage /></Suspense>} />
-                  <Route path="revista/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaPage /></Suspense>} />
+                  <Route path="revista/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3BlogCreate /></Suspense>} />
+                  <Route path="revista/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3BlogEdit /></Suspense>} />
                   
                   {/* Gestao Routes */}
                   <Route path="gestao" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoPage /></Suspense>} />
