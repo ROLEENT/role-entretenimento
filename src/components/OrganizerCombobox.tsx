@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ComboboxAsync, ComboboxAsyncOption } from '@/components/ui/combobox-async';
 import { AgentQuickCreateModal } from '@/components/AgentQuickCreateModal';
-import { useOrganizerSearch } from '@/hooks/useOrganizerSearch';
+import { useEntityLookup } from '@/hooks/useEntityLookup';
 
 interface OrganizerComboboxProps {
   value?: string;
@@ -17,7 +17,7 @@ export function OrganizerCombobox({
   disabled = false,
 }: OrganizerComboboxProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const { searchOrganizers } = useOrganizerSearch();
+  const { searchEntities: searchOrganizers } = useEntityLookup({ type: 'organizers' });
 
   const handleCreateNew = () => {
     setModalOpen(true);

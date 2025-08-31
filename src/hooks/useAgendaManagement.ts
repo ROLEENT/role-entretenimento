@@ -79,7 +79,7 @@ export const useAgendaManagement = () => {
         noindex: data.noindex,
         venue_id: data.venue_id,
         organizer_id: data.organizer_id,
-        event_id: data.event_id,
+        // event_id: removed field
         publish_at: data.publish_at?.toISOString(),
         unpublish_at: data.unpublish_at?.toISOString(),
         patrocinado: data.patrocinado,
@@ -149,7 +149,7 @@ export const useAgendaManagement = () => {
         noindex: data.noindex,
         venue_id: data.venue_id,
         organizer_id: data.organizer_id,
-        event_id: data.event_id,
+        // event_id: removed field
         publish_at: data.publish_at?.toISOString(),
         unpublish_at: data.unpublish_at?.toISOString(),
         patrocinado: data.patrocinado,

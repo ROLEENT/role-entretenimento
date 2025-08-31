@@ -63,8 +63,8 @@ export const CityEnum = z.enum(["POA", "FLORIPA", "CURITIBA", "SP", "RJ"], {
   errorMap: () => ({ message: "Cidade deve ser POA, FLORIPA, CURITIBA, SP ou RJ" })
 });
 
-export const AgendaStatusEnum = z.enum(["draft", "published", "archived"], {
-  errorMap: () => ({ message: "Status deve ser 'draft', 'published' ou 'archived'" })
+export const AgendaStatusEnum = z.enum(["draft", "published", "scheduled", "archived"], {
+  errorMap: () => ({ message: "Status deve ser 'draft', 'published', 'scheduled' ou 'archived'" })
 });
 
 export const VisibilityTypeEnum = z.enum(["curadoria", "patrocinado", "comunidade"], {
@@ -134,6 +134,22 @@ const BaseAgendaItemSchema = z.object({
     alt: z.string().min(1, "Texto alternativo é obrigatório"),
   }).optional(),
   
+  // Agents - relacionamentos com entidades cadastradas
+  organizer_id: z.string()
+    .uuid("ID do organizador deve ser um UUID válido")
+    .optional(),
+  venue_id: z.string()
+    .uuid("ID do local deve ser um UUID válido")
+    .optional(),
+  
+  // Artists - multi-select de artistas cadastrados
+  artist_ids: z.array(
+    z.string().uuid("ID do artista deve ser um UUID válido")
+  )
+    .max(12, "Máximo 12 artistas cadastrados permitidos")
+    .default([])
+    .describe("IDs dos artistas cadastrados no sistema"),
+  
   // Artists - apenas nomes como chips, sem criação automática
   artists_names: z.array(
     z.string()
@@ -141,9 +157,9 @@ const BaseAgendaItemSchema = z.object({
       .max(100, "Nome do artista deve ter no máximo 100 caracteres")
       .trim()
   )
-    .max(12, "Máximo 12 artistas permitidos")
+    .max(12, "Máximo 12 artistas extras permitidos")
     .default([])
-    .describe("Lista de nomes dos artistas - sem criação automática de registros"),
+    .describe("Lista de nomes dos artistas extras - sem criação automática de registros"),
   
   // Links and tickets
   ticket_url: z.string()
@@ -208,10 +224,6 @@ const BaseAgendaItemSchema = z.object({
     .optional(),
   noindex: z.boolean().default(false),
   
-  // Relations
-  venue_id: z.string().uuid("ID do local deve ser um UUID válido").optional(),
-  organizer_id: z.string().uuid("ID do organizador deve ser um UUID válido").optional(),
-  event_id: z.string().uuid("ID do evento deve ser um UUID válido").optional(),
   
   // Timestamps
   created_at: z.date().optional(),
@@ -243,7 +255,7 @@ const BaseAgendaItemSchema = z.object({
   accessibility: z.record(z.unknown()).default({}),
 });
 
-// Full schema with refinements
+// Full schema with refinements and publishing rules
 export const AgendaItemSchema = BaseAgendaItemSchema
 .refine(
   (data) => {
@@ -256,14 +268,17 @@ export const AgendaItemSchema = BaseAgendaItemSchema
     return true;
   },
   {
-    message: "O evento deve ter duração mínima de 15 minutos. Ajuste a data/hora de fim.",
+    message: "Data de fim deve ser pelo menos 15 minutos após o início",
     path: ["end_at_utc"]
   }
 )
 .refine(
   (data) => {
-    // If cover_url exists, cover_alt is required
+    // Cover image validation
     if (data.cover_url && !data.cover_alt) {
+      return false;
+    }
+    if (data.cover_image && !data.cover_image.alt) {
       return false;
     }
     return true;
@@ -275,7 +290,6 @@ export const AgendaItemSchema = BaseAgendaItemSchema
 )
 .refine(
   (data) => {
-    // Price max should be greater than or equal to price min
     if (data.price_min !== undefined && data.price_max !== undefined) {
       return data.price_max >= data.price_min;
     }
@@ -284,6 +298,46 @@ export const AgendaItemSchema = BaseAgendaItemSchema
   {
     message: "Preço máximo deve ser maior ou igual ao preço mínimo",
     path: ["price_max"]
+  }
+)
+.refine(
+  (data) => {
+    // Publishing rules for 'published' status
+    if (data.status === 'published') {
+      return !!(
+        data.title &&
+        data.city &&
+        data.slug &&
+        data.start_at_utc &&
+        data.end_at_utc &&
+        data.organizer_id &&
+        data.venue_id
+      );
+    }
+    return true;
+  },
+  {
+    message: "Para publicar é obrigatório: título, cidade, slug, datas, organizador e local",
+    path: ["status"]
+  }
+)
+.refine(
+  (data) => {
+    // Publishing rules for 'scheduled' status
+    if (data.status === 'scheduled') {
+      return !!(
+        data.title &&
+        data.city &&
+        data.slug &&
+        data.start_at_utc &&
+        data.end_at_utc
+      );
+    }
+    return true;
+  },
+  {
+    message: "Para agendar é obrigatório: título, cidade, slug e datas",
+    path: ["status"]
   }
 );
 
