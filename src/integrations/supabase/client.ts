@@ -57,10 +57,5 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     autoRefreshToken: true,
     detectSessionInUrl: true,
     flowType: 'implicit'
-  },
-  global: {
-    headers: {
-      'X-Client-Info': 'lovable-dashboard'
-    }
   }
 });

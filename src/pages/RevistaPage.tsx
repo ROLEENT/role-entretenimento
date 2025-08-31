@@ -1,123 +1,536 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-import ArticleCard from "../features/revista/ArticleCard";
-import SkeletonGrid from "../features/revista/SkeletonGrid";
-import EmptyState from "../features/revista/EmptyState";
-import FiltersBar, { Filters } from "../features/revista/FiltersBar";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { SEOHelmet } from "@/components/SEOHelmet";
+import { PublicLayout } from "@/components/PublicLayout";
+import { RevistaCard } from "@/components/revista/RevistaCard";
+import { RevistaCardSkeleton } from "@/components/revista/RevistaCardSkeleton";
+import { RevistaFilters } from "@/components/revista/RevistaFilters";
+import { ResponsiveGrid } from "@/components/ui/responsive-grid";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+import { useRevistaCache } from "@/hooks/useRevistaCache";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { BookOpen, FileText, AlertCircle, Calendar, Mail } from "lucide-react";
+import { Link } from "react-router-dom";
 
-const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const anon = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-const supabase = createClient(url || "", anon || "", { auth: { persistSession: false } });
+interface RevistaPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  summary: string;
+  cover_url: string;
+  cover_image: string;
+  publish_at: string;
+  published_at: string;
+  reading_time_min: number;
+  reading_time: number;
+  city: string;
+  slug: string;
+  slug_data?: string;
+  author_name?: string;
+  featured?: boolean;
+}
 
-type Row = {
-  id: string; slug: string; title: string; excerpt: string;
-  cover_url?: string | null;
-  coverUrl?: string | null; // fallback se a coluna já estiver camelCase
-  section: "editorial" | "posfacio" | "fala" | "bpm" | "achadinhos";
-  reading_time_min?: number | null;
-  readingTimeMin?: number | null;
-  published_at?: string; dateISO?: string;
-  status?: string | null;
-  reads?: number | null; saves?: number | null;
-};
+type Filters = { q: string; secao: string };
+
+function readFromURL(sp: URLSearchParams): Filters {
+  return {
+    q: sp.get("q") ?? "",
+    secao: sp.get("secao") ?? "",
+  };
+}
+
+function normalize(f: Filters) {
+  const out: Record<string, string> = {};
+  if (f.q) out.q = f.q;
+  if (f.secao) out.secao = f.secao;
+  return out;
+}
+
+function toQS(f: Filters) {
+  const entries = Object.entries(normalize(f)).sort(([a], [b]) => a.localeCompare(b));
+  return new URLSearchParams(entries).toString();
+}
+
+function shallowEqual(a: Filters, b: Filters) {
+  return a.q === b.q && a.secao === b.secao;
+}
 
 export default function RevistaPage() {
-  const [filters, setFilters] = useState<Filters>({ q: "", section: "", sort: "recent" });
-  const [items, setItems] = useState<any[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
+  // Estado com filtros únicos
+  const [filters, setFilters] = useState<Filters>(() => readFromURL(searchParams));
+  const didHydrate = useRef(false);
+  
+  // Estados de dados
+  const [posts, setPosts] = useState<RevistaPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalArticlesExist, setTotalArticlesExist] = useState(false);
+  
+  // AbortController para cancelar requests
+  const abortRef = useRef<AbortController | null>(null);
+  
+  const { getCachedData, setCachedData, restoreScrollPosition, clearCache } = useRevistaCache();
 
-  const fKey = useMemo(() => `${filters.q}|${filters.section}|${filters.sort}`, [filters.q, filters.section, filters.sort]);
+  // Chave estável para efeitos
+  const fKey = useMemo(
+    () => `${filters.q}|${filters.secao}`,
+    [filters.q, filters.secao]
+  );
 
+  // Hidratação única protegida
   useEffect(() => {
-    let alive = true;
-    setLoading(true);
-    setErr(null);
+    if (didHydrate.current) return;
+    didHydrate.current = true;
+    const fromUrl = readFromURL(searchParams);
+    setFilters(prev => shallowEqual(prev, fromUrl) ? prev : fromUrl);
+  }, []);
 
-    const watchdog = setTimeout(() => setLoading(false), 8000);
-
-    async function run() {
-      if (!url || !anon) {
-        setErr("Ambiente sem VITE_SUPABASE_URL ou VITE_SUPABASE_ANON_KEY");
-        setItems([]); setLoading(false); return;
-      }
-
-      // Select básico SEM alias para não quebrar em views
-      let q = supabase
-        .from("posts_public")
-        .select("id, slug, title, excerpt, cover_url, coverUrl, section, reading_time_min, readingTimeMin, published_at, dateISO, status, reads, saves", { count: "exact" });
-
-      // Filtro por seção se existir
-      if (filters.section) q = q.eq("section", filters.section);
-
-      // Se a coluna "status" existir na view, filtra published. Se não, segue sem filtrar.
-      const testStatus = await supabase.from("posts_public").select("status").limit(0);
-      if (!testStatus.error) q = q.eq("status", "published");
-
-      // Busca textual simples
-      if (filters.q) q = q.ilike("title", `%${filters.q}%`);
-
-      // Ordenação com fallback
-      const sortCol =
-        filters.sort === "most_read" ? "reads" :
-        filters.sort === "most_saved" ? "saves" : "published_at";
-      const { data, error, count } = await q.order(sortCol as any, { ascending: false }).range(0, 11);
-
-      if (!alive) return;
-
-      if (error) {
-        console.error("[revista] db_error", error);
-        setErr("Não foi possível carregar agora");
-        setItems([]); setTotal(0);
-      } else {
-        const mapped = (data ?? []).map((r: Row) => ({
-          id: r.id,
-          slug: r.slug,
-          title: r.title,
-          excerpt: r.excerpt,
-          coverUrl: r.cover_url ?? r.coverUrl ?? "",
-          section: r.section,
-          readingTimeMin: r.reading_time_min ?? r.readingTimeMin ?? undefined,
-          dateISO: r.published_at ?? r.dateISO ?? new Date().toISOString(),
-        }));
-        setItems(mapped);
-        setTotal(count ?? mapped.length);
-      }
-      setLoading(false);
-      clearTimeout(watchdog);
+  // Sincronização com URL apenas quando fKey muda
+  useEffect(() => {
+    const qs = toQS(filters);
+    const current = typeof window !== "undefined"
+      ? window.location.search.replace(/^\?/, "")
+      : "";
+    if (qs !== current) {
+      navigate(qs ? `?${qs}` : "?", { replace: true });
     }
+  }, [fKey, navigate, filters]);
 
-    run();
-    return () => { alive = false; clearTimeout(watchdog); };
-  }, [fKey]);
+  // Infinite scroll setup
+  const handleLoadMore = () => {
+    if (!isLoadingMore && hasMore) {
+      fetchPosts({ offset: posts.length, reset: false, filters, signal: abortRef.current?.signal });
+    }
+  };
 
-  const showSkeleton = loading && items.length === 0;
+  const { targetRef, isEnabled: isInfiniteScrollEnabled, enableInfiniteScroll, disableInfiniteScroll } = useInfiniteScroll({
+    hasMore,
+    isLoading: isLoadingMore,
+    onLoadMore: handleLoadMore,
+    threshold: 0.1,
+    rootMargin: '100px'
+  });
+
+  // Check if there are any articles in the CMS
+  useEffect(() => {
+    const checkTotalArticles = async () => {
+      const { count } = await supabase
+        .from('blog_posts')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'published');
+      
+      setTotalArticlesExist((count || 0) > 0);
+    };
+    
+    checkTotalArticles();
+  }, []);
+
+  // Fetch com debounce e AbortController integrados
+  const fetchPosts = async ({
+    offset,
+    reset,
+    filters,
+    signal,
+  }: {
+    offset: number;
+    reset: boolean;
+    filters: Filters;
+    signal?: AbortSignal;
+  }) => {
+    console.log(`[DEBUG] fetchPosts chamado: offset=${offset}, reset=${reset}`, filters);
+
+    try {
+      if (reset) {
+        setIsLoading(true);
+        clearCache();
+      } else {
+        setIsLoadingMore(true);
+      }
+      setError(null);
+
+      let query = supabase
+        .from('blog_posts')
+        .select('*', { count: 'exact' })
+        .eq('status', 'published')
+        .order('published_at', { ascending: false })
+        .range(offset, offset + 11); // 12 items (0-11)
+
+      if (filters.q) {
+        query = query.ilike('title', `%${filters.q}%`);
+      }
+      
+      if (filters.secao) {
+        query = query.eq('blog_post_categories.blog_categories.name', filters.secao);
+      }
+
+      const { data, error: fetchError, count } = await query;
+
+      if (signal?.aborted) {
+        console.log('[DEBUG] Request abortado');
+        return;
+      }
+
+      if (fetchError) {
+        console.warn('Erro na consulta de posts:', fetchError);
+        const fallbackData: RevistaPost[] = [];
+        setPosts(currentPosts => reset ? fallbackData : [...currentPosts, ...fallbackData]);
+        setTotalCount(0);
+        setHasMore(false);
+        return;
+      }
+
+      const transformedPosts: RevistaPost[] = (data || []).map(item => ({
+        id: item.id,
+        title: item.title,
+        excerpt: item.summary,
+        summary: item.summary,
+        cover_url: item.cover_image,
+        cover_image: item.cover_image,
+        publish_at: item.published_at,
+        published_at: item.published_at,
+        reading_time_min: item.reading_time || 5,
+        reading_time: item.reading_time || 5,
+        city: item.city,
+        slug: item.slug,
+        slug_data: item.slug_data,
+        author_name: item.author_name,
+        featured: item.featured || false,
+      }));
+
+      setPosts(currentPosts => {
+        const newPosts = reset ? transformedPosts : [...currentPosts, ...transformedPosts];
+        console.log(`[DEBUG] Posts updated: ${newPosts.length} items`);
+        
+        // Cache de forma assíncrona
+        requestAnimationFrame(() => {
+          setCachedData(newPosts, count || 0, transformedPosts.length === 12 && (offset + 12) < (count || 0));
+        });
+        
+        return newPosts;
+      });
+
+      const newHasMore = transformedPosts.length === 12 && (offset + 12) < (count || 0);
+      setTotalCount(count || 0);
+      setHasMore(newHasMore);
+
+    } catch (err) {
+      if (signal?.aborted) return;
+      console.error('Error fetching posts:', err);
+      setError(err instanceof Error ? err.message : 'Erro ao carregar artigos');
+    } finally {
+      if (!signal?.aborted) {
+        setIsLoading(false);
+        setIsLoadingMore(false);
+      }
+    }
+  };
+
+  // Initial load with cache check - só uma vez
+  useEffect(() => {
+    console.log('[DEBUG] Initial load useEffect triggered');
+    
+    const cachedData = getCachedData();
+    if (cachedData) {
+      console.log('[DEBUG] Using cached data:', cachedData.posts.length);
+      setPosts(cachedData.posts);
+      setTotalCount(cachedData.totalCount);
+      setHasMore(cachedData.hasMore);
+      setIsLoading(false);
+      
+      requestAnimationFrame(() => {
+        restoreScrollPosition(cachedData.scrollPosition);
+      });
+    } else {
+      console.log('[DEBUG] No cache, fetching posts');
+      abortRef.current = new AbortController();
+      fetchPosts({ offset: 0, reset: true, filters, signal: abortRef.current.signal });
+    }
+  }, []); // Sem dependências para evitar loops
+
+  // Fetch com debounce quando filtros mudam
+  useEffect(() => {
+    const t = setTimeout(() => {
+      abortRef.current?.abort();
+      abortRef.current = new AbortController();
+      fetchPosts({ offset: 0, reset: true, filters, signal: abortRef.current.signal });
+    }, 250);
+    return () => clearTimeout(t);
+  }, [fKey]); // Só quando a chave muda
+
+  // Handlers idempotentes - não setam estado igual
+  const onSearchChange = (v: string) =>
+    setFilters(prev => (prev.q === v ? prev : { ...prev, q: v }));
+
+  const onSectionChange = (v: string) =>
+    setFilters(prev => (prev.secao === v ? prev : { ...prev, secao: v }));
+
+  const handleClearFilters = () => {
+    setFilters({ q: "", secao: "" });
+  };
+
+  const handleViewAll = () => {
+    setFilters({ q: "", secao: "" });
+  };
+
+  const handleRetry = () => {
+    abortRef.current?.abort();
+    abortRef.current = new AbortController();
+    fetchPosts({ offset: 0, reset: true, filters, signal: abortRef.current.signal });
+  };
+
+  const hasFilters = filters.q || filters.secao;
+
+  const metaDescription = hasFilters 
+    ? `Resultados de busca na Revista ROLÊ${filters.q ? ` para "${filters.q}"` : ''}${filters.secao ? ` sobre ${filters.secao}` : ''}` 
+    : "Mergulhos em cultura, música e noite no Brasil. Descubra as melhores matérias sobre a cena cultural.";
+
+  // Generate JSON-LD ItemList for SEO when articles exist
+  const itemListSchema = posts.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "numberOfItems": Math.min(posts.length, 10),
+    "itemListElement": posts.slice(0, 10).map((post, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "Article",
+        "headline": post.title,
+        "description": post.summary,
+        "image": post.cover_image,
+        "author": {
+          "@type": "Person",
+          "name": post.author_name || "ROLÊ"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "ROLÊ",
+          "logo": {
+            "@type": "ImageObject",
+            "url": `${window.location.origin}/role-logo.png`
+          }
+        },
+        "datePublished": post.published_at,
+        "url": `${window.location.origin}/revista/${post.slug}`
+      }
+    }))
+  } : undefined;
 
   return (
-    <main className="mx-auto max-w-6xl px-4 md:px-6 py-10 grid gap-8">
-      <header className="grid gap-2">
-        <h1 className="text-3xl font-bold">Revista ROLÊ</h1>
-        <p className="text-gray-600">Mergulhos em cultura, música e noite no Brasil.</p>
-      </header>
-
-      <FiltersBar initial={filters} count={total} onChange={setFilters} />
-
-      {showSkeleton ? (
-        <SkeletonGrid count={6} />
-      ) : err ? (
-        <div className="text-center py-16 grid gap-2">
-          <h3 className="text-lg font-semibold">Erro ao carregar artigos</h3>
-          <p className="text-sm text-gray-600">{err}</p>
-          <button className="px-4 py-2 rounded-md border" onClick={() => location.reload()}>Tentar novamente</button>
-        </div>
-      ) : items.length ? (
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.map((a) => <ArticleCard key={a.id} a={a} />)}
-        </section>
-      ) : (
-        <EmptyState />
+    <PublicLayout>
+      <SEOHelmet
+        title="Revista ROLÊ"
+        description={metaDescription}
+        url="https://roleentretenimento.com/revista"
+        type="website"
+        structuredData={itemListSchema}
+      />
+      
+      {/* Add noindex when no articles exist */}
+      {!totalArticlesExist && (
+        <meta name="robots" content="noindex, follow" />
       )}
-    </main>
+      
+      <div className="container mx-auto max-w-5xl px-4 md:px-6 py-8">
+          {/* Header */}
+          <div className="text-center mb-10">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <BookOpen className="w-6 h-6 text-primary" />
+              <h1 className="text-4xl font-bold">Revista ROLÊ</h1>
+            </div>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Mergulhos em cultura, música e noite no Brasil.
+            </p>
+          </div>
+
+          {/* Filters - sticky with blur effect */}
+          {totalArticlesExist && (
+            <div className="sticky top-16 z-20 mb-8 rounded-xl border bg-background/80 backdrop-blur-md shadow-sm">
+              <div className="p-4">
+            <RevistaFilters
+              searchTerm={filters.q}
+              sectionFilter={filters.secao}
+              onSearchChange={onSearchChange}
+              onSectionChange={onSectionChange}
+              onClearFilters={handleClearFilters}
+            />
+              </div>
+            </div>
+          )}
+
+          {/* Error state */}
+          {error && (
+            <div className="text-center py-12">
+              <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Erro ao carregar artigos</h3>
+              <p className="text-muted-foreground mb-4">{error}</p>
+              <Button onClick={handleRetry} variant="outline">
+                Tentar novamente
+              </Button>
+            </div>
+          )}
+
+          {/* Results summary - only show if there are articles */}
+          {totalArticlesExist && !error && (
+            <div className="flex items-center gap-2 mb-6 text-sm text-muted-foreground">
+              <FileText className="w-4 h-4" />
+              <span>
+                {isLoading ? 'Carregando...' : `${totalCount} artigo${totalCount !== 1 ? 's' : ''} encontrado${totalCount !== 1 ? 's' : ''}`}
+                {hasFilters && ' para sua busca'}
+              </span>
+            </div>
+          )}
+
+          {/* Loading skeletons */}
+          {isLoading && (
+            <ResponsiveGrid 
+              cols={{ default: 1, md: 2, lg: 3 }}
+              gap="lg"
+              className="mb-8"
+            >
+              {Array.from({ length: 6 }, (_, i) => (
+                <div 
+                  key={i} 
+                  className={`
+                    ${i < 3 ? 'block' : 'hidden md:block'}
+                  `}
+                >
+                  <RevistaCardSkeleton />
+                </div>
+              ))}
+            </ResponsiveGrid>
+          )}
+
+          {/* Empty state */}
+          {!error && !isLoading && posts.length === 0 && (
+            <div className="text-center py-12">
+              <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              
+              {!totalArticlesExist ? (
+                <>
+                  <h3 className="text-lg font-semibold mb-2">Nenhum artigo publicado</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Estamos preparando conteúdos novos.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Button asChild size="lg">
+                      <Link to="/agenda" className="gap-2">
+                        <Calendar className="w-4 h-4" />
+                        Voltar para a Agenda
+                      </Link>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="lg"
+                      className="gap-2"
+                      onClick={() => {
+                        // TODO: Implementar modal de newsletter
+                        console.log('Abrir modal de newsletter');
+                      }}
+                    >
+                      <Mail className="w-4 h-4" />
+                      Assinar newsletter
+                    </Button>
+                  </div>
+                </>
+              ) : hasFilters ? (
+                <>
+                  <h3 className="text-lg font-semibold mb-2">Nenhum artigo encontrado</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Tente mudar a seção ou limpe os filtros.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Button onClick={handleClearFilters} variant="outline">
+                      Limpar filtros
+                    </Button>
+                    <Button onClick={handleViewAll} variant="default">
+                      Ver todos
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-lg font-semibold mb-2">Nenhum artigo publicado</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Volte em breve para conferir novos conteúdos.
+                  </p>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Articles grid with accessibility */}
+          {!error && !isLoading && posts.length > 0 && (
+            <>
+              <div 
+                role="list" 
+                aria-label={`Lista de ${totalCount} artigo${totalCount !== 1 ? 's' : ''} da revista`}
+                id="revista-articles-list"
+              >
+                <ResponsiveGrid 
+                  cols={{ default: 1, md: 2, lg: 3 }}
+                  gap="lg"
+                  className="mb-8"
+                >
+                  {posts.map((post) => (
+                    <div key={post.id} role="listitem">
+                      <RevistaCard post={post} />
+                    </div>
+                  ))}
+                </ResponsiveGrid>
+              </div>
+
+              {/* Load more section with infinite scroll trigger */}
+              {hasMore && (
+                <div className="flex flex-col items-center gap-4">
+                  {/* Manual load more button */}
+                  <Button 
+                    onClick={handleLoadMore}
+                    disabled={isLoadingMore}
+                    variant="outline"
+                    size="lg"
+                    aria-label={`Carregar mais artigos. ${posts.length} de ${totalCount} artigos carregados`}
+                  >
+                    {isLoadingMore ? (
+                      <>
+                        <LoadingSpinner className="w-4 h-4 mr-2" />
+                        Carregando...
+                      </>
+                    ) : (
+                      'Carregar mais artigos'
+                    )}
+                  </Button>
+
+                  {/* Infinite scroll controls */}
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={isInfiniteScrollEnabled ? disableInfiniteScroll : enableInfiniteScroll}
+                      className="text-xs"
+                    >
+                      {isInfiniteScrollEnabled ? 'Desabilitar scroll infinito' : 'Habilitar scroll infinito'}
+                    </Button>
+                  </div>
+
+                  {/* Invisible trigger for infinite scroll */}
+                  <div 
+                    ref={targetRef} 
+                    className="h-4 w-full opacity-0"
+                    aria-hidden="true"
+                  />
+                </div>
+              )}
+            </>
+          )}
+        </div>
+    </PublicLayout>
   );
 }

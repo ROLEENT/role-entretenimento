@@ -1,4 +1,4 @@
-import { AdminGuard } from '@/components/layouts/AdminGuard';
+import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
 
 export default function AdminLayout({
@@ -7,13 +7,13 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AdminGuard>
+    <AdminV3Guard>
       <div className="min-h-screen bg-background">
         <AdminV3Header />
         <div className="pt-16">
           {children}
         </div>
       </div>
-    </AdminGuard>
+    </AdminV3Guard>
   );
 }

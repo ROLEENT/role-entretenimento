@@ -84,28 +84,16 @@ export default function FormShell({
 
   const handleSaveAndExit = async () => {
     try {
-      console.log('[FormShell] Attempting to save data...');
       const data = form.getValues();
-      console.log('[FormShell] Form data:', data);
-      
-      // First validate the form
-      const isValid = await form.trigger();
-      if (!isValid) {
-        console.error('[FormShell] Form validation failed:', form.formState.errors);
-        toast.error("Corrija os erros no formulário antes de salvar");
-        return;
-      }
-      
       await onSaveAndExit?.(data);
-      console.log('[FormShell] Save successful');
       toast.success("Salvo com sucesso!");
       
       if (backUrl) {
         navigate(backUrl);
       }
     } catch (error) {
-      console.error("[FormShell] Erro ao salvar:", error);
-      toast.error(`Erro ao salvar: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+      console.error("Erro ao salvar:", error);
+      toast.error("Erro ao salvar");
     }
   };
 

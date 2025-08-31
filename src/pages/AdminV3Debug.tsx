@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { AdminGuard } from '@/components/layouts/AdminGuard';
+import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
 import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
 import { supabase } from '@/integrations/supabase/client';
@@ -95,7 +95,7 @@ export default function AdminV3Debug() {
   }
 
   return (
-    <AdminGuard>
+    <AdminV3Guard>
       <div className="min-h-screen bg-background">
         <AdminV3Header />
         <div className="p-6">
@@ -195,6 +195,6 @@ export default function AdminV3Debug() {
           </div>
         </div>
       </div>
-    </AdminGuard>
+    </AdminV3Guard>
   );
 }

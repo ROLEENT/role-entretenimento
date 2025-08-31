@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { MoreHorizontal, Edit, Copy, Trash2, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,16 +25,13 @@ interface AdminVenueTableProps {
   venues: any[];
   onDuplicate: (venue: any) => void;
   onDeactivate: (venue: any) => void;
-  onDelete: (venue: any) => void;
 }
 
 export const AdminVenueTable: React.FC<AdminVenueTableProps> = ({
   venues,
   onDuplicate,
   onDeactivate,
-  onDelete,
 }) => {
-  const navigate = useNavigate();
   return (
     <div className="rounded-md border">
       <Table>
@@ -72,20 +69,20 @@ export const AdminVenueTable: React.FC<AdminVenueTableProps> = ({
                         {venue.name?.charAt(0)?.toUpperCase() || 'L'}
                       </AvatarFallback>
                     </Avatar>
-                     <div>
-                       <div className="font-medium">{venue.name || 'Nome não informado'}</div>
-                       <div className="text-sm text-muted-foreground">
-                         @{venue.slug || 'sem-slug'}
-                       </div>
-                     </div>
+                    <div>
+                      <div className="font-medium">{venue.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        @{venue.slug}
+                      </div>
+                    </div>
                   </div>
                 </TableCell>
-                 <TableCell>
-                   <div className="flex items-center gap-1">
-                     <MapPin className="h-4 w-4 text-muted-foreground" />
-                     {venue.city || 'Cidade não informada'}
-                   </div>
-                 </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    {venue.city || 'N/A'}
+                  </div>
+                </TableCell>
                 <TableCell>
                   {venue.capacity ? `${venue.capacity} pessoas` : 'N/A'}
                 </TableCell>
@@ -110,9 +107,11 @@ export const AdminVenueTable: React.FC<AdminVenueTableProps> = ({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                      <DropdownMenuItem onClick={() => navigate(`/admin-v3/agentes/venues/${venue.id}/edit`)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Editar
+                      <DropdownMenuItem asChild>
+                        <Link to={`/admin-v3/agentes/venues/${venue.id}/edit`}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Editar
+                        </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => onDuplicate(venue)}>
                         <Copy className="mr-2 h-4 w-4" />
@@ -125,13 +124,6 @@ export const AdminVenueTable: React.FC<AdminVenueTableProps> = ({
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Desativar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => onDelete(venue)}
-                        className="text-destructive"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Excluir
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

@@ -12,7 +12,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { DevCacheButton } from "./components/DevCacheButton";
 import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-// Removed RequireAuth component
+import { RequireAuth } from "@/components/RequireAuth";
 
 // Preview component
 const PreviewAgenda = lazy(() => import("./pages/PreviewAgenda"));
@@ -114,9 +114,7 @@ const AdminBlogList = lazy(() => import("./components/admin/blog/AdminBlogList")
 
 // Revista pages
 const RevistaPage = lazy(() => import("./pages/RevistaPage"));
-
-// Debug pages
-const SupabaseDebug = lazy(() => import("./pages/debug/SupabaseDebug"));
+const RevistaArticlePage = lazy(() => import("./pages/RevistaArticlePage"));
 
 // Institutional pages
 const Parcerias = lazy(() => import("./pages/institucional/Parcerias"));
@@ -207,9 +205,7 @@ function App() {
                 
                 {/* Revista Routes */}
                 <Route path="/revista" element={<Suspense fallback={<PageLoadingFallback />}><RevistaPage /></Suspense>} />
-                
-                {/* Debug Routes */}
-                <Route path="/debug/supabase" element={<Suspense fallback={<PageLoadingFallback />}><SupabaseDebug /></Suspense>} />
+                <Route path="/revista/:slug" element={<Suspense fallback={<PageLoadingFallback />}><RevistaArticlePage /></Suspense>} />
                 
                 {/* Rotas antigas de destaques removidas */}
                 <Route path="/cidades" element={<CitiesPage />} />
@@ -307,7 +303,11 @@ function App() {
                 <Route path="/feed" element={<FeedPage />} />
                 <Route path="/descobrir" element={<DiscoverUsers />} />
                 <Route path="/eventos/semana/:data" element={<WeeklyHighlights />} />
-                <Route path="/meu-calendario" element={<CalendarPage />} />
+                <Route path="/meu-calendario" element={
+                  <RequireAuth>
+                    <CalendarPage />
+                  </RequireAuth>
+                } />
                 <Route path="/conquistas" element={<GamificationPage />} />
                 {/* Removed: Groups and Music routes */}
                 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AdminGuard } from '@/components/layouts/AdminGuard';
+import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
 import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -313,7 +313,7 @@ export default function AdminV3Profile() {
 
   if (error) {
     return (
-      <AdminGuard>
+      <AdminV3Guard>
         <AdminV3Header />
         <div className="min-h-screen bg-background p-6">
           <div className="max-w-2xl mx-auto">
@@ -331,12 +331,12 @@ export default function AdminV3Profile() {
             </Card>
           </div>
         </div>
-      </AdminGuard>
+      </AdminV3Guard>
     );
   }
 
   return (
-    <AdminGuard>
+    <AdminV3Guard>
       <AdminV3Header />
       <div className="min-h-screen bg-background p-6">
         <div className="max-w-2xl mx-auto space-y-6">
@@ -495,6 +495,6 @@ export default function AdminV3Profile() {
           </Card>
         </div>
       </div>
-    </AdminGuard>
+    </AdminV3Guard>
   );
 }

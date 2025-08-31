@@ -4,9 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Clock, BookOpen, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useResponsive } from "@/hooks/useResponsive";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 import LazyImage from "@/components/LazyImage";
-import EmptyState from "@/components/home/EmptyState";
 
 interface BlogPost {
   id: string;
@@ -22,18 +21,14 @@ interface BlogPost {
 const BlocoRevista = () => {
   const { isMobile } = useResponsive();
   const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let alive = true;
-    setLoading(true);
-    setErrorMsg(null);
-
-    const t = setTimeout(async () => {
+    const fetchBlogPosts = async () => {
       try {
+        setLoading(true);
         const { data, error } = await supabase
           .from('blog_posts')
           .select('id, title, cover_image, published_at, reading_time, city, slug')
@@ -41,25 +36,18 @@ const BlocoRevista = () => {
           .order('published_at', { ascending: false })
           .limit(3);
 
-        if (!alive) return;
-
-        if (error) {
-          throw error;
-        }
-        
+        if (error) throw error;
         setPosts(data || []);
       } catch (error) {
-        if (!alive) return;
         console.error('Erro ao carregar posts do blog:', error);
-        setErrorMsg("Não foi possível carregar os artigos.");
+        // Fallback to empty array on error
+        setPosts([]);
       } finally {
-        if (alive) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
-    }, 250);
+    };
 
-    return () => { alive = false; clearTimeout(t); };
+    fetchBlogPosts();
   }, []);
 
   const nextSlide = () => {
@@ -95,7 +83,27 @@ const BlocoRevista = () => {
     return `${readTime} min`;
   };
 
-  const showSkeleton = loading && posts.length === 0;
+  if (loading) {
+    return (
+      <section className={`${isMobile ? 'py-16' : 'py-24'} bg-gradient-to-br from-muted/20 to-background`}>
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12 animate-pulse">
+            <div className="h-12 bg-muted rounded mb-4 w-80 mx-auto"></div>
+            <div className="h-6 bg-muted rounded w-96 mx-auto"></div>
+          </div>
+          <div className={`${isMobile ? 'flex gap-4 overflow-hidden' : 'grid grid-cols-1 md:grid-cols-3 gap-8'}`}>
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className={`animate-pulse ${isMobile ? 'flex-shrink-0 w-80' : ''}`}>
+                <div className="h-48 bg-muted rounded-lg mb-4"></div>
+                <div className="h-6 bg-muted rounded mb-2"></div>
+                <div className="h-4 bg-muted rounded w-24"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className={`${isMobile ? 'py-16' : 'py-24'} bg-gradient-to-br from-muted/20 to-background relative overflow-hidden`}>
@@ -115,24 +123,7 @@ const BlocoRevista = () => {
           </p>
         </div>
 
-        {showSkeleton ? (
-          <div className={`${isMobile ? 'flex gap-4 overflow-hidden' : 'grid grid-cols-1 md:grid-cols-3 gap-8'}`}>
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className={`animate-pulse ${isMobile ? 'flex-shrink-0 w-80' : ''}`}>
-                <div className="h-48 bg-muted rounded-lg mb-4"></div>
-                <div className="h-6 bg-muted rounded mb-2"></div>
-                <div className="h-4 bg-muted rounded w-24"></div>
-              </div>
-            ))}
-          </div>
-        ) : errorMsg ? (
-          <EmptyState
-            title="Erro ao carregar artigos"
-            description={errorMsg}
-            actionLabel="Tentar novamente"
-            actionLink="#"
-          />
-        ) : posts.length > 0 ? (
+        {posts.length > 0 ? (
           <>
             {isMobile ? (
               /* Mobile Carousel */
@@ -143,8 +134,7 @@ const BlocoRevista = () => {
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                   {posts.map((post, index) => (
-                    <div key={post.id} className="flex-shrink-0 w-80 snap-start">
-                      {/* Card temporarily disabled - Route will be reimplemented */}
+                    <Link key={post.id} to={`/revista/${post.slug}`} className="flex-shrink-0 w-80 snap-start">
                       <Card className="h-full group hover:shadow-xl transition-all duration-500 overflow-hidden border hover:border-primary/30 bg-card/80 backdrop-blur-sm">
                         <div className="relative">
                           <LazyImage
@@ -186,9 +176,9 @@ const BlocoRevista = () => {
                           </div>
                         </CardContent>
                       </Card>
-                    </div>
+                    </Link>
                   ))}
-                 </div>
+                </div>
                 
                 {/* Mobile Navigation Arrows */}
                 <div className="flex justify-center items-center gap-4 mt-6">
@@ -227,8 +217,7 @@ const BlocoRevista = () => {
               /* Desktop Grid */
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 {posts.map((post, index) => (
-                  <div key={post.id} className="block group">
-                    {/* Card temporarily disabled - Route will be reimplemented */}
+                  <Link key={post.id} to={`/revista/${post.slug}`} className="block group">
                     <Card className="h-full hover:shadow-xl transition-all duration-500 overflow-hidden border hover:border-primary/30 bg-card/80 backdrop-blur-sm">
                       <div className="relative">
                         <LazyImage
@@ -270,18 +259,18 @@ const BlocoRevista = () => {
                         </div>
                       </CardContent>
                     </Card>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
           </>
         ) : (
-          <EmptyState
-            title="Nenhum artigo disponível"
-            description="Em breve, novos artigos e histórias"
-            actionLabel="Aguardando nova implementação"
-            actionLink="#"
-          />
+          <div className="text-center py-12">
+            <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground text-lg">
+              Em breve, novos artigos e histórias
+            </p>
+          </div>
         )}
 
         <div className="text-right">
@@ -291,11 +280,11 @@ const BlocoRevista = () => {
             className="group px-8 py-6 text-lg rounded-full border-2 hover:shadow-lg hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300"
             asChild
           >
-            <span onClick={() => console.log('Revista em breve!')}>
+            <Link to="/revista">
               <BookOpen className="mr-3 h-6 w-6" />
-              Em breve
+              Ler mais
               <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
-            </span>
+            </Link>
           </Button>
         </div>
       </div>

@@ -51,19 +51,15 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       const filePath = folder ? `${folder}/${fileName}` : fileName;
 
       // Upload para o Supabase Storage
-      console.log('Tentando upload para bucket:', bucket, 'path:', filePath);
       const { data, error } = await supabase.storage
         .from(bucket)
         .upload(filePath, file);
 
       if (error) {
         console.error('Upload error:', error);
-        console.error('Bucket:', bucket, 'Path:', filePath);
-        toast.error(`Erro ao fazer upload: ${error.message}`);
+        toast.error('Erro ao fazer upload da imagem');
         return;
       }
-
-      console.log('Upload sucesso:', data);
 
       // Obter URL pública da imagem
       const { data: { publicUrl } } = supabase.storage

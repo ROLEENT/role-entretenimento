@@ -1,12 +1,12 @@
 import { Outlet } from "react-router-dom";
-import { AdminGuard } from '@/components/layouts/AdminGuard';
+import { AdminV3Guard } from '@/components/AdminV3Guard';
 import AdminProviders from './AdminProviders';
 import { AdminSidebar } from './AdminSidebar';
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 
 export function AdminV3Layout() {
   return (
-    <AdminGuard>
+    <AdminV3Guard>
       <AdminProviders>
         <div className="flex min-h-screen w-full">
           <AdminSidebar />
@@ -23,6 +23,6 @@ export function AdminV3Layout() {
           </SidebarInset>
         </div>
       </AdminProviders>
-    </AdminGuard>
+    </AdminV3Guard>
   );
 }

@@ -39,44 +39,26 @@ export default function RHFUpload({
   const uploadFile = async (file: File): Promise<string | null> => {
     try {
       setUploading(true);
-      
+
       // Validate file size
       if (file.size > maxSizeMB * 1024 * 1024) {
         toast.error(`Arquivo muito grande. Máximo ${maxSizeMB}MB.`);
         return null;
       }
 
-      // Check admin email for debugging
-      const adminEmail = localStorage.getItem('admin_email');
-      if (!adminEmail) {
-        console.warn('Admin email not found in localStorage');
-        toast.error('Erro de autenticação: admin não identificado');
-        return null;
-      }
-
-      console.log("Uploading file:", file.name, "to bucket:", bucket, "as admin:", adminEmail);
-
       // Generate unique filename
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
       const filePath = fileName;
 
-      // Upload to Supabase Storage with admin email header
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
         .from(bucket)
-        .upload(filePath, file, {
-          headers: {
-            'x-admin-email': adminEmail
-          }
-        });
+        .upload(filePath, file);
 
       if (uploadError) {
         console.error('Upload error:', uploadError);
-        if (uploadError.message?.includes('denied')) {
-          toast.error('Erro de permissão: verifique se você está logado como admin');
-        } else {
-          toast.error(`Erro no upload: ${uploadError.message}`);
-        }
+        toast.error(`Erro no upload: ${uploadError.message}`);
         return null;
       }
 
@@ -85,12 +67,11 @@ export default function RHFUpload({
         .from(bucket)
         .getPublicUrl(filePath);
 
-      console.log("Upload successful, public URL:", data.publicUrl);
       toast.success("Arquivo enviado com sucesso!");
       return data.publicUrl;
 
     } catch (error) {
-      console.error('Upload failed:', error);
+      console.error('Upload error:', error);
       toast.error("Erro inesperado no upload");
       return null;
     } finally {

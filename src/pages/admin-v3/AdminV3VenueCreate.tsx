@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AdminGuard } from '@/components/layouts/AdminGuard';
+import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
 import { FormShell } from '@/components/form';
 import { Form } from '@/components/ui/form';
@@ -36,6 +36,15 @@ const AdminV3VenueCreate: React.FC = () => {
       cover_alt: '',
       gallery_urls: [],
       tags: [],
+      amenities: {
+        accessible: false,
+        stage: false,
+        sound: false,
+        lighting: false,
+        parking: false,
+        food: false,
+        smoking: false,
+      },
       opening_hours: {
         monday: '',
         tuesday: '',
@@ -47,75 +56,6 @@ const AdminV3VenueCreate: React.FC = () => {
       },
       status: 'active',
       priority: 0,
-      
-      // Novos campos de características detalhadas com valores padrão
-      caracteristicas_estabelecimento: { descricao: null },
-      estruturas: {
-        descricao: null,
-        ar_condicionado: false,
-        wifi: false,
-        aquecimento: false,
-        estacionamento: false,
-        aceita_pets: false,
-        area_fumantes: false,
-        pista_danca: false,
-        area_vip: false,
-        rooftop: false,
-        estacoes_carregamento: false,
-        lugares_sentados: false,
-      },
-      diferenciais: {
-        descricao: null,
-        dj: false,
-        happy_hour: false,
-        mesa_bilhar: false,
-        jogos_arcade: false,
-        karaoke: false,
-        narguile: false,
-        transmissao_eventos_esportivos: false,
-        shows_ao_vivo: false,
-        stand_up: false,
-        musica_ao_vivo: false,
-        amigavel_lgbtqia: false,
-      },
-      bebidas: {
-        descricao: null,
-        menu_cervejas: false,
-        cervejas_artesanais: false,
-        coqueteis_classicos: false,
-        coqueteis_autorais: false,
-        menu_vinhos: false,
-      },
-      cozinha: {
-        descricao: null,
-        serve_comida: false,
-        opcoes_veganas: false,
-        opcoes_vegetarianas: false,
-        opcoes_sem_gluten: false,
-        opcoes_sem_lactose: false,
-        menu_kids: false,
-      },
-      seguranca: {
-        descricao: null,
-        equipe_seguranca: false,
-        bombeiros_local: false,
-        saidas_emergencia_sinalizadas: false,
-      },
-      acessibilidade: {
-        descricao: null,
-        elevador_acesso: false,
-        rampa_cadeirantes: false,
-        banheiro_acessivel: false,
-        cardapio_braille: false,
-        audio_acessivel: false,
-        area_caes_guia: false,
-      },
-      banheiros: {
-        descricao: null,
-        masculinos: 0,
-        femininos: 0,
-        genero_neutro: 0,
-      },
     },
   });
 
@@ -136,7 +76,7 @@ const AdminV3VenueCreate: React.FC = () => {
   ];
 
   return (
-    <AdminGuard>
+    <AdminV3Guard>
       <AdminV3Header />
       <main className="container mx-auto px-4 py-8">
         <AdminV3Breadcrumb items={breadcrumbs} />
@@ -154,7 +94,7 @@ const AdminV3VenueCreate: React.FC = () => {
           </FormShell>
         </Form>
       </main>
-    </AdminGuard>
+    </AdminV3Guard>
   );
 };
 

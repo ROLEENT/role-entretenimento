@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { AdminGuard } from '@/components/layouts/AdminGuard';
+import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
 import { FormShell } from '@/components/form';
 import { Form } from '@/components/ui/form';
@@ -114,19 +114,19 @@ const AdminV3BlogEdit: React.FC = () => {
 
   if (isLoading) {
     return (
-      <AdminGuard>
+      <AdminV3Guard>
         <AdminV3Header />
         <main className="container mx-auto px-4 py-8">
           <div className="flex justify-center items-center min-h-64">
             <LoadingSpinner />
           </div>
         </main>
-      </AdminGuard>
+      </AdminV3Guard>
     );
   }
 
   return (
-    <AdminGuard>
+    <AdminV3Guard>
       <AdminV3Header />
       <main className="container mx-auto px-4 py-8">
         <AdminV3Breadcrumb items={breadcrumbs} />
@@ -144,7 +144,7 @@ const AdminV3BlogEdit: React.FC = () => {
           </FormShell>
         </Form>
       </main>
-    </AdminGuard>
+    </AdminV3Guard>
   );
 };
 

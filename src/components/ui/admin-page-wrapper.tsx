@@ -1,5 +1,5 @@
 import React from 'react';
-import { AdminGuard } from '@/components/layouts/AdminGuard';
+import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
 import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -27,7 +27,7 @@ export const AdminPageWrapper: React.FC<AdminPageWrapperProps> = ({
   className = ""
 }) => {
   return (
-    <AdminGuard>
+    <AdminV3Guard>
       <div className="min-h-screen bg-background">
         <AdminV3Header />
         <div className={`pt-16 p-6 ${className}`}>
@@ -60,6 +60,6 @@ export const AdminPageWrapper: React.FC<AdminPageWrapperProps> = ({
           </div>
         </div>
       </div>
-    </AdminGuard>
+    </AdminV3Guard>
   );
 };

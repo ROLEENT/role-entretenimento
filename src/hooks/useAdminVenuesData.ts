@@ -1,6 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
 interface UseAdminVenuesDataProps {
   search?: string;
@@ -12,106 +11,53 @@ export const useAdminVenuesData = ({ search, status, city }: UseAdminVenuesDataP
   const venuesQuery = useQuery({
     queryKey: ['admin-venues', { search, status, city }],
     queryFn: async () => {
-      console.log('Fetching venues with params:', { search, status, city });
-      
-      try {
-        let query = supabase
-          .from('venues')
-          .select('*')
-          .order('created_at', { ascending: false });
+      let query = supabase
+        .from('venues')
+        .select(`
+          *,
+          city:cities(name, slug)
+        `)
+        .order('created_at', { ascending: false });
 
-        if (search) {
-          query = query.or(`name.ilike.%${search}%,slug.ilike.%${search}%`);
-        }
-
-        if (status && status !== 'all') {
-          query = query.eq('status', status);
-        }
-
-        if (city && city !== 'all') {
-          query = query.eq('city', city);
-        }
-
-        const { data, error } = await query;
-
-        if (error) {
-          console.error('Error fetching venues:', error);
-          throw new Error(`Erro ao carregar locais: ${error.message}`);
-        }
-
-        console.log('Venues fetched successfully:', data?.length, 'venues');
-        
-        // Ensure data consistency and handle null values
-        const processedData = (data || []).map(venue => ({
-          ...venue,
-          slug: venue.slug || `venue-${venue.id}`, // Generate fallback slug
-          name: venue.name || 'Nome não informado',
-          city: venue.city || 'Cidade não informada',
-          status: venue.status || 'inactive',
-          capacity: venue.capacity || null,
-          updated_at: venue.updated_at || venue.created_at
-        }));
-
-        return processedData;
-      } catch (error) {
-        console.error('Venues query failed:', error);
-        throw error;
+      if (search) {
+        query = query.or(`name.ilike.%${search}%,slug.ilike.%${search}%`);
       }
+
+      if (status && status !== 'all') {
+        query = query.eq('status', status);
+      }
+
+      if (city && city !== 'all') {
+        query = query.eq('city', city);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Error fetching venues:', error);
+        throw new Error('Erro ao carregar locais');
+      }
+
+      return data || [];
     },
   });
 
   const citiesQuery = useQuery({
     queryKey: ['venues-cities'],
     queryFn: async () => {
-      try {
-        console.log('Fetching venue cities...');
-        
-        const { data, error } = await supabase
-          .from('venues')
-          .select('city')
-          .not('city', 'is', null);
-
-        if (error) {
-          console.error('Error fetching venue cities:', error);
-          throw new Error(`Erro ao carregar cidades: ${error.message}`);
-        }
-
-        // Get unique cities and filter out empty/null values
-        const uniqueCities = [...new Set(
-          data?.map(item => item.city)
-            .filter(city => city && city.trim().length > 0) || []
-        )];
-        
-        console.log('Cities fetched successfully:', uniqueCities);
-        return uniqueCities.sort();
-      } catch (error) {
-        console.error('Cities query failed:', error);
-        throw error;
-      }
-    },
-  });
-
-  const queryClient = useQueryClient();
-
-  const deleteVenueMutation = useMutation({
-    mutationFn: async (venueId: string) => {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('venues')
-        .delete()
-        .eq('id', venueId);
+        .select('city')
+        .not('city', 'is', null);
 
       if (error) {
-        console.error('Error deleting venue:', error);
-        throw new Error(`Erro ao excluir local: ${error.message}`);
+        console.error('Error fetching venue cities:', error);
+        throw new Error('Erro ao carregar cidades');
       }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-venues'] });
-      toast.success('Local excluído com sucesso');
-    },
-    onError: (error: Error) => {
-      console.error('Delete venue mutation failed:', error);
-      toast.error(error.message);
+
+      // Get unique cities
+      const uniqueCities = [...new Set(data?.map(item => item.city) || [])];
+      return uniqueCities.filter(Boolean);
     },
   });
 
@@ -121,7 +67,5 @@ export const useAdminVenuesData = ({ search, status, city }: UseAdminVenuesDataP
     isLoading: venuesQuery.isLoading || citiesQuery.isLoading,
     error: venuesQuery.error || citiesQuery.error,
     refetch: venuesQuery.refetch,
-    deleteVenue: deleteVenueMutation.mutate,
-    isDeleting: deleteVenueMutation.isPending,
   };
 };

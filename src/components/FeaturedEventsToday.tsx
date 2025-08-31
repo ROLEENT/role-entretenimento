@@ -3,21 +3,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Clock, MapPin, Star, Eye, CalendarDays, BookOpen } from "lucide-react";
+import { Clock, MapPin, Star, Eye, CalendarDays } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useResponsive } from "@/hooks/useResponsive";
 import { supabase } from "@/integrations/supabase/client";
 import LazyImage from "@/components/LazyImage";
-import SkeletonGrid from "@/components/home/SkeletonGrid";
-import EmptyState from "@/components/home/EmptyState";
-import { safeFetch } from "@/lib/safeFetch";
 
 interface FeaturedEvent {
   id: string;
   title: string;
   city: string;
   cover_url?: string;
-  starts_at: string;
+  start_at: string;
   venue_name?: string;
   tags?: string[];
   event_type: 'curadoria' | 'vitrine';
@@ -29,8 +26,7 @@ const FeaturedEventsToday = () => {
   const { isMobile } = useResponsive();
   const [selectedCity, setSelectedCity] = useState("Todas");
   const [events, setEvents] = useState<FeaturedEvent[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const cities = [
     { name: 'Todas', value: 'Todas' },
@@ -58,22 +54,20 @@ const FeaturedEventsToday = () => {
   };
 
   useEffect(() => {
-    let alive = true;
-    setLoading(true);
-    setErrorMsg(null);
-
-    const t = setTimeout(async () => {
+    const fetchFeaturedEvents = async () => {
       try {
+        setLoading(true);
+        
         // Create a mixed array of events from agenda (curadoria) and events (vitrine)
         const mixedEvents: FeaturedEvent[] = [];
         
         // Fetch curated events from agenda
         const { data: agendaData, error: agendaError } = await supabase
           .from('agenda_itens')
-          .select('id, title, city, cover_url, starts_at, location_name, tags')
+          .select('id, title, city, cover_url, start_at, location_name, tags')
           .eq('status', 'published')
-          .gte('starts_at', new Date().toISOString())
-          .order('starts_at', { ascending: true })
+          .gte('start_at', new Date().toISOString())
+          .order('start_at', { ascending: true })
           .limit(2);
 
         if (agendaData && !agendaError) {
@@ -100,8 +94,8 @@ const FeaturedEventsToday = () => {
             title: event.title,
             city: event.city,
             cover_url: event.image_url,
-            starts_at: event.date_start,
-            venue_name: undefined,
+            start_at: event.date_start,
+            venue_name: undefined, // Will be handled separately if needed
             tags: event.tags,
             event_type: 'vitrine' as const,
             price_min: event.price_min,
@@ -109,8 +103,6 @@ const FeaturedEventsToday = () => {
           }));
           mixedEvents.push(...vitrineEvents);
         }
-
-        if (!alive) return;
 
         // Filter by city if not "Todas"
         const filteredEvents = selectedCity === 'Todas' 
@@ -122,17 +114,14 @@ const FeaturedEventsToday = () => {
         setEvents(shuffledEvents);
 
       } catch (error) {
-        if (!alive) return;
         console.error('Erro ao carregar eventos em destaque:', error);
-        setErrorMsg("Não foi possível carregar os eventos.");
+        setEvents([]);
       } finally {
-        if (alive) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
-    }, 250);
+    };
 
-    return () => { alive = false; clearTimeout(t); };
+    fetchFeaturedEvents();
   }, [selectedCity]);
 
   const formatPrice = (priceMin?: number, priceMax?: number) => {
@@ -141,7 +130,30 @@ const FeaturedEventsToday = () => {
     return `R$ ${priceMin} - R$ ${priceMax}`;
   };
 
-  const showSkeleton = loading && events.length === 0;
+  if (loading) {
+    return (
+      <section className={`${isMobile ? 'py-16' : 'py-24'} bg-background`}>
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12 animate-pulse">
+            <div className="h-12 bg-muted rounded mb-4 w-80 mx-auto"></div>
+            <div className="h-6 bg-muted rounded w-96 mx-auto"></div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="space-y-4 animate-pulse">
+                <div className="h-48 bg-muted rounded-lg"></div>
+                <div className="space-y-2">
+                  <div className="h-6 bg-muted rounded w-3/4"></div>
+                  <div className="h-4 bg-muted rounded w-1/2"></div>
+                  <div className="h-4 bg-muted rounded w-2/3"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className={`${isMobile ? 'py-16' : 'py-24'} bg-gradient-to-br from-accent/20 to-muted/30 relative overflow-hidden border-y border-border/50 shadow-inner`}>
@@ -178,16 +190,7 @@ const FeaturedEventsToday = () => {
           </div>
         </div>
 
-        {showSkeleton ? (
-          <SkeletonGrid count={3} />
-        ) : errorMsg ? (
-          <EmptyState
-            title="Erro ao carregar eventos"
-            description={errorMsg}
-            actionLabel="Tentar novamente"
-            actionLink="#"
-          />
-        ) : events.length > 0 ? (
+        {events.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
               {events.map((event, index) => {
@@ -232,7 +235,7 @@ const FeaturedEventsToday = () => {
                           <div className="flex items-center gap-2 text-muted-foreground text-sm">
                             <CalendarDays className="h-4 w-4 text-primary flex-shrink-0" />
                             <span className="font-medium">
-                              {new Date(event.starts_at).toLocaleDateString('pt-BR', {
+                              {new Date(event.start_at).toLocaleDateString('pt-BR', {
                                 weekday: 'short',
                                 day: '2-digit',
                                 month: 'short',
@@ -290,23 +293,28 @@ const FeaturedEventsToday = () => {
                 size="lg" 
                 variant="outline"
                 className="group px-8 py-6 text-lg rounded-full border-2 hover:shadow-lg hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300"
-                onClick={() => console.log('Revista em breve!')}
+                asChild
               >
-                <BookOpen className="mr-3 h-6 w-6" />
-                Em breve
+                <Link to="/revista">
+                  <Eye className="mr-3 h-6 w-6" />
+                  Ver toda a Revista
+                </Link>
               </Button>
             </div>
           </>
         ) : (
-          <EmptyState
-            title="Nenhum evento em destaque"
-            description={selectedCity === 'Todas' 
-              ? 'Novos eventos serão adicionados em breve' 
-              : `Novos eventos em ${selectedCity} serão adicionados em breve`
-            }
-            actionLabel="Em breve"
-            actionLink="#"
-          />
+          <div className="text-center py-16 text-muted-foreground bg-muted/20 rounded-lg border-2 border-dashed border-muted">
+            <div className="max-w-md mx-auto">
+              <CalendarDays className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+              <p className="text-lg font-medium mb-2">Nenhum evento em destaque</p>
+              <p className="text-sm">
+                {selectedCity === 'Todas' 
+                  ? 'Novos eventos serão adicionados em breve' 
+                  : `Novos eventos em ${selectedCity} serão adicionados em breve`
+                }
+              </p>
+            </div>
+          </div>
         )}
       </div>
     </section>

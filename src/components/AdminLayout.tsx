@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { AdminGuard } from "@/components/layouts/AdminGuard";
+import { AdminGuard } from "@/components/AdminGuard";
 import { Button } from "@/components/ui/button";
 import { 
   SidebarProvider, 

@@ -1,52 +1,16 @@
 "use client";
-import React, { createContext, useContext, useState, useRef, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
 
 const Ctx = createContext<{open:boolean; setOpen:(v:boolean)=>void} | null>(null);
 
 export function DropdownMenu({ children, modal }: { children: React.ReactNode; modal?: boolean }) {
   const [open, setOpen] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout>();
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseEnter = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    setOpen(true);
-  };
-
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setOpen(false);
-    }, 150);
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-
-    if (open) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [open]);
-
   return (
     <Ctx.Provider value={{ open, setOpen }}>
       <div
-        ref={containerRef}
         className="relative inline-block group"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
       >
         {children}
       </div>
@@ -76,8 +40,8 @@ export function DropdownMenuContent({ children, align = "start", sideOffset = 8,
   return (
     <div
       role="menu"
-      className={`${alignClass} absolute mt-2 min-w-48 rounded-xl border bg-background p-1 shadow-lg z-[9999]
-        transition-all duration-200 ${ctx.open ? "visible opacity-100 scale-100" : "invisible opacity-0 scale-95"} ${className ?? ""}`}
+      className={`${alignClass} absolute mt-2 min-w-48 rounded-xl border bg-popover p-1 shadow-lg z-50
+        transition-opacity ${ctx.open ? "visible opacity-100" : "invisible opacity-0"} ${className ?? ""}`}
       style={{ marginTop: sideOffset }}
       {...rest}
     >
@@ -86,34 +50,14 @@ export function DropdownMenuContent({ children, align = "start", sideOffset = 8,
   );
 }
 
-export function DropdownMenuItem({ children, onSelect, onClick, className, inset, asChild, ...rest }: any) {
-  const ctx = useContext(Ctx)!;
-  const handle = (e: any) => {
-    if (onSelect) onSelect(e);
-    if (onClick) onClick(e);
-    ctx.setOpen(false);
-  };
-
-  if (asChild) {
-    return (
-      <li>
-        <div
-          onClick={handle}
-          className={`block w-full text-left rounded-md px-3 py-2 hover:bg-accent transition-colors cursor-pointer ${inset ? 'pl-8' : ''} ${className ?? ""}`}
-          {...rest}
-        >
-          {children}
-        </div>
-      </li>
-    );
-  }
-
+export function DropdownMenuItem({ children, onSelect, onClick, className, inset, ...rest }: any) {
+  const handle = onSelect ?? onClick;
   return (
     <li>
       <button
         type="button"
         onClick={handle}
-        className={`block w-full text-left rounded-md px-3 py-2 hover:bg-accent transition-colors ${inset ? 'pl-8' : ''} ${className ?? ""}`}
+        className={`block w-full text-left rounded-md px-3 py-2 hover:bg-accent ${inset ? 'pl-8' : ''} ${className ?? ""}`}
         {...rest}
       >
         {children}

@@ -2,8 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ArtistForm, OrganizerForm } from "@/schemas/agents";
-import { VenueFormData } from "@/schemas/venue";
+import { ArtistForm, VenueForm, OrganizerForm } from "@/schemas/agents";
 import { toast } from "sonner";
 
 export const useUpsertArtist = () => {
@@ -45,7 +44,7 @@ export const useUpsertVenue = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: VenueFormData) => {
+    mutationFn: async (data: VenueForm) => {
       console.log("Upserting venue:", data);
 
       const { data: result, error } = await supabase
