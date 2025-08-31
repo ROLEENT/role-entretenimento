@@ -16,7 +16,7 @@ import { Link } from "react-router-dom";
 import ActionBar from "@/components/ui/action-bar";
 
 // Import form components
-import { RHFInput, RHFTextarea, RHFSelect } from "@/components/form";
+import { RHFInput, RHFTextarea, RHFSelect, RHFPhoneInput } from "@/components/form";
 import RHFComboboxRemote from "@/components/rhf/RHFComboboxRemote";
 import CitySelectStable from "@/components/fields/CitySelectStable";
 import ArtistSubtypeSelect from "@/components/fields/ArtistSubtypeSelect";
@@ -44,6 +44,7 @@ import { venueSchema } from "@/schemas/venue";
 import { useArtistTypesOptions } from "@/hooks/useArtistTypesOptions";
 import { useGenresOptions } from "@/hooks/useGenresOptions";
 import { syncArtistTypes, syncArtistGenres, getArtistTypes, getArtistGenres } from "@/utils/artistPivotSync";
+import { normalizePhone, normalizeInstagram } from "@/utils/formatters";
 
 interface AgentesFormProps {
   agentType: 'artistas' | 'organizadores' | 'locais';
@@ -250,19 +251,20 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
     return () => subscription.unsubscribe();
   }, [form, debouncedGenerateSlug]);
 
-  // Normalizar Instagram
-  const normalizeInstagram = (value: string) => {
-    return value.replace(/^@+/, "").toLowerCase().trim();
-  };
+  // Normalize data before submit
+  const normalizeSubmitData = (data: any) => ({
+    ...data,
+    phone: normalizePhone(data.phone || ''),
+    whatsapp: normalizePhone(data.whatsapp || ''),
+    instagram: normalizeInstagram(data.instagram || ''),
+  });
 
-  // Mutations
   const saveMutation = useMutation({
     mutationFn: async (data: any) => {
-      const { artist_type_id, genre_ids, ...agentData } = data;
+      const { artist_type_id, genre_ids, ...agentData } = normalizeSubmitData(data);
       
       const processedData = {
         ...agentData,
-        instagram: agentData.instagram ? normalizeInstagram(agentData.instagram) : null,
         updated_at: new Date().toISOString(),
       };
 
@@ -547,7 +549,11 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
                   name="instagram"
                   label="Instagram"
                   placeholder="usuario (sem @)"
-                  description="Digite apenas o nome de usuário, sem o @"
+                  description={
+                    instagramStatus === "taken" 
+                      ? "⚠️ Este Instagram já está em uso por outro agente"
+                      : "Digite apenas o nome de usuário, sem o @"
+                  }
                 />
                 <div className="absolute right-3 top-8">
                   {getInstagramStatusIcon()}
@@ -562,13 +568,13 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
                   placeholder="contato@exemplo.com"
                 />
                 
-                <RHFInput
+                <RHFPhoneInput
                   name="phone"
                   label="Telefone"
                   placeholder="(11) 99999-9999"
                 />
 
-                <RHFInput
+                <RHFPhoneInput
                   name="whatsapp"
                   label="WhatsApp"
                   placeholder="(11) 99999-9999"

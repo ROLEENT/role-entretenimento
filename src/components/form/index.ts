@@ -22,6 +22,7 @@ export { default as RHFDateTimeUtc } from './RHFDateTimeUtc';
 export { default as RHFImageUploader } from './RHFImageUploader';
 export { RHFMaskedInput } from './RHFMaskedInput';
 export { RHFCheckbox } from './RHFCheckbox';
+export { RHFPhoneInput } from './RHFPhoneInput';
 
 // Examples
 export { default as ExampleForm } from './ExampleForm';
