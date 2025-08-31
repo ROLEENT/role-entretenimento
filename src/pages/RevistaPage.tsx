@@ -289,9 +289,30 @@ export default function RevistaPage() {
                 <div key={post.id} role="listitem">
                   <RevistaCard post={{
                     ...post,
+                    publish_at: post.published_at,
                     summary: post.excerpt,
                     cover_image: post.cover_url,
-                    reading_time: post.reading_time_min
+                    reading_time: post.reading_time_min,
+                    // Required fields for RevistaPost interface
+                    content: '',
+                    content_html: '',
+                    content_json: {},
+                    tags: [],
+                    categories: [],
+                    status: 'published' as const,
+                    views: 0,
+                    created_at: post.published_at,
+                    updated_at: post.published_at,
+                    author_id: '',
+                    author_name: '',
+                    section: post.city || 'geral',
+                    category_slug: '',
+                    category_name: '',
+                    author_slug: '',
+                    seo_title: post.title,
+                    seo_description: post.excerpt,
+                    slug_data: post.slug,
+                    featured: false
                   }} />
                 </div>
               ))}

@@ -19,7 +19,7 @@ export function RevistaCard({ post }: RevistaCardProps) {
   });
 
   // Determine section from available data
-  const section = post.categories?.[0]?.name || 'Cultura';
+  const section = post.categories?.[0] || 'Cultura';
 
   return (
     <Card className="group h-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2">

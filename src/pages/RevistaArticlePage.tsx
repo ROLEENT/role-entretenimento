@@ -167,7 +167,7 @@ export default function RevistaArticlePage() {
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbPage className="text-foreground">
-                  {post.categories?.[0]?.name || 'Artigo'}
+                  {post.categories?.[0] || 'Artigo'}
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
@@ -196,7 +196,7 @@ export default function RevistaArticlePage() {
               
               {post.categories && post.categories.length > 0 && (
                 <Badge variant="outline" className="text-xs">
-                  {post.categories[0].name}
+                  {post.categories[0]}
                 </Badge>
               )}
               
