@@ -53,6 +53,15 @@ export default function RHFCombobox({
 
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
+
+  // Debug logs
+  useEffect(() => {
+    console.log("[combo-open]", name, open);
+  }, [name, open]);
+
+  useEffect(() => {
+    console.log("[combo-query]", name, search);
+  }, [name, search]);
   const [options, setOptions] = useState<SelectOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
