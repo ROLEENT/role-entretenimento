@@ -23,7 +23,7 @@ const quickActions: QuickAction[] = [
   {
     label: 'Novo Artista',
     icon: Users,
-    path: '/admin-v3/agentes/artistas/create'
+    path: '/admin-v3/agentes/artistas/criar'
   },
   {
     label: 'Ver Artistas',

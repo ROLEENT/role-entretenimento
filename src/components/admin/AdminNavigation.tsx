@@ -88,6 +88,12 @@ const navigationModules: NavigationModule[] = [
         description: 'Gerenciar artistas'
       },
       {
+        label: 'Criar Artista',
+        url: '/admin-v3/agentes/artistas/criar',
+        icon: Plus,
+        description: 'Adicionar novo artista'
+      },
+      {
         label: 'Venues',
         url: '/admin-v3/agentes/venues',
         icon: MapPin,

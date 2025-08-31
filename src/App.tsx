@@ -216,6 +216,7 @@ function App() {
                 
                 {/* Admin V3 - Agentes Routes */}
                 <Route path="/admin-v3/agentes/artistas" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsList /></Suspense>} />
+                <Route path="/admin-v3/agentes/artistas/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
                 <Route path="/admin-v3/agentes/artistas/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
                 <Route path="/admin-v3/agentes/artistas/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistEdit /></Suspense>} />
                 
