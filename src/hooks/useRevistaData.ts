@@ -57,6 +57,8 @@ export const useRevistaData = (params: UseRevistaDataParams = {}) => {
     try {
       setIsLoading(true);
       setError(null);
+      
+      console.log('[useRevistaData] Iniciando fetch com parâmetros:', params);
 
       let query = supabase
         .from('blog_posts')
@@ -99,8 +101,13 @@ export const useRevistaData = (params: UseRevistaDataParams = {}) => {
       }
 
       const { data, error: fetchError, count } = await query;
+      
+      console.log('[useRevistaData] Resposta do Supabase:', { data: data?.length, count, error: fetchError });
 
-      if (fetchError) throw fetchError;
+      if (fetchError) {
+        console.error('[useRevistaData] Erro no fetch:', fetchError);
+        throw fetchError;
+      }
 
       // Transform data to match both interfaces
       const transformedArticles: RevistaArticle[] = (data || []).map(item => ({
@@ -143,14 +150,17 @@ export const useRevistaData = (params: UseRevistaDataParams = {}) => {
       setTotalCount(count || 0);
       setTotalPages(Math.ceil((count || 0) / (params.limit || 12)));
     } catch (err) {
-      console.error('Error fetching articles:', err);
-      setError(err instanceof Error ? err.message : 'Erro ao carregar artigos');
+      console.error('[useRevistaData] Error fetching articles:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar artigos';
+      console.error('[useRevistaData] Erro detalhado:', errorMessage);
+      setError(errorMessage);
       // Não re-fazer fetch em caso de erro - empty state
       setArticles([]);
       setPosts([]);
       setTotalCount(0);
       setTotalPages(0);
     } finally {
+      console.log('[useRevistaData] Finalizando fetch, setIsLoading(false)');
       setIsLoading(false);
     }
   }, [params.searchTerm, params.sectionFilter, params.sortBy, params.page, params.limit]);
