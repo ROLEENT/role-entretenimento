@@ -1,9 +1,0 @@
-{
-  "name": "ROLÊ Admin",
-  "short_name": "ROLÊ",
-  "start_url": "/admin-v3",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
-  "icons": []
-}

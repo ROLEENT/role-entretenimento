@@ -68,7 +68,7 @@ const EventCard = ({ item }: { item: AgendaItem }) => {
             {item.title}
           </h3>
           <p className="text-chip text-muted-foreground">
-            {item.city} · {item.starts_at ? formatDate(item.starts_at) : 'Data a definir'}
+            {item.city} · {item.start_at ? formatDate(item.start_at) : 'Data a definir'}
           </p>
         </CardContent>
       </Link>

@@ -67,69 +67,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      // Use maybeSingle() to handle 406 errors gracefully
-      const q = supabase
-        .from('admin_users')
-        .select('id,is_active')
-        .eq('email', email)
-        .eq('is_active', true)
-        .maybeSingle(); // 406 -> null
+      const { data, error } = await supabase
+        .from("admin_users")
+        .select("id, is_active")
+        .eq("email", email)
+        .eq("is_active", true)
+        .single();
 
-      const { data, error } = await q;
-      
-      // Treat 406 (Not Acceptable) as "not admin" instead of error
-      if (error && error.code === 'PGRST406') {
-        console.log("Admin check: User not found or RLS restriction (406) - treating as non-admin");
-        setIsAdmin(false);
-        return;
-      }
-      
-      // Handle other errors
-      if (error) {
-        console.warn("Admin check error:", error);
-        setIsAdmin(false);
-        return;
-      }
-      
-      // If no data, user is not an active admin
-      if (!data) {
+      if (error || !data) {
         setIsAdmin(false);
         return;
       }
 
-      // Double-check with approved_admins table (also handle 406 gracefully)
-      const approvedQuery = supabase
+      // Check if also in approved_admins
+      const { data: approvedData } = await supabase
         .from("approved_admins")
         .select("id")
         .eq("email", email)
         .eq("is_active", true)
-        .maybeSingle();
+        .single();
 
-      const { data: approvedData, error: approvedError } = await approvedQuery;
-      
-      // Treat 406 as "not approved" 
-      if (approvedError && approvedError.code === 'PGRST406') {
-        console.log("Approved admin check: User not found or RLS restriction (406) - treating as non-admin");
-        setIsAdmin(false);
-        return;
-      }
-      
-      if (approvedError) {
-        console.warn("Approved admin check error:", approvedError);
-        setIsAdmin(false);
-        return;
-      }
-
-      // User is admin only if found in both tables
-      const isValidAdmin = !!data && !!approvedData;
-      setIsAdmin(isValidAdmin);
-      
-      if (isValidAdmin) {
-        console.log("Admin access granted for:", email);
-      }
-      
+      setIsAdmin(!!approvedData);
     } catch (error) {
-      console.error("Unexpected error checking admin status:", error);
+      console.error("Error checking admin status:", error);
       setIsAdmin(false);
     }
   };
