@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { useController, useFormContext } from 'react-hook-form';
 import { Check, ChevronsUpDown, Plus, X } from 'lucide-react';

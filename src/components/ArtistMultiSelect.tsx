@@ -1,3 +1,4 @@
+"use client";
 import { useState } from 'react';
 import { ComboboxAsync, ComboboxAsyncOption } from '@/components/ui/combobox-async';
 import { Badge } from '@/components/ui/badge';
