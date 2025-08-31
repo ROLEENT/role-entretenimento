@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import LazyImage from "@/components/LazyImage";
 import SkeletonGrid from "@/components/home/SkeletonGrid";
 import EmptyState from "@/components/home/EmptyState";
+import { safeFetch } from "@/lib/safeFetch";
 
 interface FeaturedEvent {
   id: string;
@@ -28,7 +29,8 @@ const FeaturedEventsToday = () => {
   const { isMobile } = useResponsive();
   const [selectedCity, setSelectedCity] = useState("Todas");
   const [events, setEvents] = useState<FeaturedEvent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const cities = [
     { name: 'Todas', value: 'Todas' },
@@ -56,10 +58,12 @@ const FeaturedEventsToday = () => {
   };
 
   useEffect(() => {
-    const fetchFeaturedEvents = async () => {
+    let alive = true;
+    setLoading(true);
+    setErrorMsg(null);
+
+    const t = setTimeout(async () => {
       try {
-        setLoading(true);
-        
         // Create a mixed array of events from agenda (curadoria) and events (vitrine)
         const mixedEvents: FeaturedEvent[] = [];
         
@@ -97,7 +101,7 @@ const FeaturedEventsToday = () => {
             city: event.city,
             cover_url: event.image_url,
             starts_at: event.date_start,
-            venue_name: undefined, // Will be handled separately if needed
+            venue_name: undefined,
             tags: event.tags,
             event_type: 'vitrine' as const,
             price_min: event.price_min,
@@ -105,6 +109,8 @@ const FeaturedEventsToday = () => {
           }));
           mixedEvents.push(...vitrineEvents);
         }
+
+        if (!alive) return;
 
         // Filter by city if not "Todas"
         const filteredEvents = selectedCity === 'Todas' 
@@ -116,14 +122,17 @@ const FeaturedEventsToday = () => {
         setEvents(shuffledEvents);
 
       } catch (error) {
+        if (!alive) return;
         console.error('Erro ao carregar eventos em destaque:', error);
-        setEvents([]);
+        setErrorMsg("Não foi possível carregar os eventos.");
       } finally {
-        setLoading(false);
+        if (alive) {
+          setLoading(false);
+        }
       }
-    };
+    }, 250);
 
-    fetchFeaturedEvents();
+    return () => { alive = false; clearTimeout(t); };
   }, [selectedCity]);
 
   const formatPrice = (priceMin?: number, priceMax?: number) => {
@@ -170,14 +179,14 @@ const FeaturedEventsToday = () => {
         </div>
 
         {showSkeleton ? (
-          <div className="text-center mb-12 animate-pulse">
-            <div className="h-12 bg-muted rounded mb-4 w-80 mx-auto"></div>
-            <div className="h-6 bg-muted rounded w-96 mx-auto"></div>
-          </div>
-        ) : null}
-        
-        {showSkeleton ? (
           <SkeletonGrid count={3} />
+        ) : errorMsg ? (
+          <EmptyState
+            title="Erro ao carregar eventos"
+            description={errorMsg}
+            actionLabel="Tentar novamente"
+            actionLink="#"
+          />
         ) : events.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">

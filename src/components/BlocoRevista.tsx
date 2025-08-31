@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import { useResponsive } from "@/hooks/useResponsive";
 import { supabase } from "@/integrations/supabase/client";
 import LazyImage from "@/components/LazyImage";
+import EmptyState from "@/components/home/EmptyState";
+import { safeFetch } from "@/lib/safeFetch";
 
 interface BlogPost {
   id: string;
@@ -21,14 +23,18 @@ interface BlogPost {
 const BlocoRevista = () => {
   const { isMobile } = useResponsive();
   const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchBlogPosts = async () => {
+    let alive = true;
+    setLoading(true);
+    setErrorMsg(null);
+
+    const t = setTimeout(async () => {
       try {
-        setLoading(true);
         const { data, error } = await supabase
           .from('blog_posts')
           .select('id, title, cover_image, published_at, reading_time, city, slug')
@@ -36,18 +42,25 @@ const BlocoRevista = () => {
           .order('published_at', { ascending: false })
           .limit(3);
 
-        if (error) throw error;
+        if (!alive) return;
+
+        if (error) {
+          throw error;
+        }
+        
         setPosts(data || []);
       } catch (error) {
+        if (!alive) return;
         console.error('Erro ao carregar posts do blog:', error);
-        // Fallback to empty array on error
-        setPosts([]);
+        setErrorMsg("Não foi possível carregar os artigos.");
       } finally {
-        setLoading(false);
+        if (alive) {
+          setLoading(false);
+        }
       }
-    };
+    }, 250);
 
-    fetchBlogPosts();
+    return () => { alive = false; clearTimeout(t); };
   }, []);
 
   const nextSlide = () => {
@@ -104,13 +117,6 @@ const BlocoRevista = () => {
         </div>
 
         {showSkeleton ? (
-          <div className="text-center mb-12 animate-pulse">
-            <div className="h-12 bg-muted rounded mb-4 w-80 mx-auto"></div>
-            <div className="h-6 bg-muted rounded w-96 mx-auto"></div>
-          </div>
-        ) : null}
-        
-        {showSkeleton ? (
           <div className={`${isMobile ? 'flex gap-4 overflow-hidden' : 'grid grid-cols-1 md:grid-cols-3 gap-8'}`}>
             {[...Array(3)].map((_, i) => (
               <div key={i} className={`animate-pulse ${isMobile ? 'flex-shrink-0 w-80' : ''}`}>
@@ -120,6 +126,13 @@ const BlocoRevista = () => {
               </div>
             ))}
           </div>
+        ) : errorMsg ? (
+          <EmptyState
+            title="Erro ao carregar artigos"
+            description={errorMsg}
+            actionLabel="Tentar novamente"
+            actionLink="#"
+          />
         ) : posts.length > 0 ? (
           <>
             {isMobile ? (
@@ -262,12 +275,12 @@ const BlocoRevista = () => {
             )}
           </>
         ) : (
-          <div className="text-center py-12">
-            <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground text-lg">
-              Em breve, novos artigos e histórias
-            </p>
-          </div>
+          <EmptyState
+            title="Nenhum artigo disponível"
+            description="Em breve, novos artigos e histórias"
+            actionLabel="Ver toda a Revista"
+            actionLink="/revista"
+          />
         )}
 
         <div className="text-right">
