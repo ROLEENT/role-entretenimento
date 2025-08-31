@@ -90,25 +90,15 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
 
   const form = useForm({
     resolver: zodResolver(schema),
-    mode: "onBlur", // Enable onBlur validation for autosave
-    reValidateMode: "onChange", // Re-validate on change after first validation
+    mode: "onBlur",
+    reValidateMode: "onChange",
     defaultValues: {
       name: "",
       slug: "",
       artist_type_id: null,
       genre_ids: [],
-      instagram: "",
-      email: "",
-      phone: "",
-      whatsapp: "",
-      city: "",
-      state: "",
-      country: "BR",
-      bio: "",
-      website: "",
-      avatar_url: "",
-      avatar_alt: "",
-      status: "active",
+      instagram: null,
+      links: {},
       // Campos de venue específicos
       address_line: "",
       district: "",
@@ -134,7 +124,18 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
         account: "",
         type: "",
       },
-      links: {},
+      // Campos compartilhados
+      email: "",
+      phone: "",
+      whatsapp: "",
+      city: "",
+      state: "",
+      country: "BR",
+      bio: "",
+      website: "",
+      avatar_url: "",
+      avatar_alt: "",
+      status: "active",
     },
   });
 
