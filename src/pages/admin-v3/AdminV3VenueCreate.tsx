@@ -36,15 +36,6 @@ const AdminV3VenueCreate: React.FC = () => {
       cover_alt: '',
       gallery_urls: [],
       tags: [],
-      amenities: {
-        accessible: false,
-        stage: false,
-        sound: false,
-        lighting: false,
-        parking: false,
-        food: false,
-        smoking: false,
-      },
       opening_hours: {
         monday: '',
         tuesday: '',

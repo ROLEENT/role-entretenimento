@@ -5,7 +5,6 @@ import { VenueFormData } from '@/schemas/venue';
 import { VenueBasicTab } from './tabs/VenueBasicTab';
 import { VenueLocationTab } from './tabs/VenueLocationTab';
 import { VenueContactTab } from './tabs/VenueContactTab';
-import { VenueAmenitiesTab } from './tabs/VenueAmenitiesTab';
 import { VenueHoursTab } from './tabs/VenueHoursTab';
 import { VenueCharacteristicsTab } from './tabs/VenueCharacteristicsTab';
 import { VenueStructuresTab } from './tabs/VenueStructuresTab';
@@ -19,11 +18,10 @@ interface AdminVenueFormProps {
 export const AdminVenueForm: React.FC<AdminVenueFormProps> = ({ form }) => {
   return (
     <Tabs defaultValue="basic" className="w-full">
-      <TabsList className="grid w-full grid-cols-8">
+      <TabsList className="grid w-full grid-cols-7">
         <TabsTrigger value="basic">Básico</TabsTrigger>
         <TabsTrigger value="location">Localização</TabsTrigger>
         <TabsTrigger value="contact">Contato</TabsTrigger>
-        <TabsTrigger value="amenities">Comodidades</TabsTrigger>
         <TabsTrigger value="hours">Horários</TabsTrigger>
         <TabsTrigger value="characteristics">Características</TabsTrigger>
         <TabsTrigger value="specialties">Especificações</TabsTrigger>
@@ -41,10 +39,6 @@ export const AdminVenueForm: React.FC<AdminVenueFormProps> = ({ form }) => {
 
         <TabsContent value="contact" className="space-y-6">
           <VenueContactTab form={form} />
-        </TabsContent>
-
-        <TabsContent value="amenities" className="space-y-6">
-          <VenueAmenitiesTab form={form} />
         </TabsContent>
 
         <TabsContent value="hours" className="space-y-6">
