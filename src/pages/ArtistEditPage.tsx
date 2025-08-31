@@ -10,7 +10,7 @@ import { AdminV3Guard } from "@/components/AdminV3Guard";
 import { AdminV3Header } from "@/components/AdminV3Header";
 import { AdminV3Breadcrumb } from "@/components/AdminV3Breadcrumb";
 import { FormShell, FormSection, FORM_SECTIONS } from "@/components/form";
-import { RHFInput, RHFTextarea, RHFSelectAsync, RHFUpload } from "@/components/form";
+import { RHFInput, RHFTextarea, RHFSelectAsync, RHFUpload, ArtistLocationFields } from "@/components/form";
 import RHFSlug from "@/components/form/RHFSlug";
 import { artistSchema, ArtistForm } from "@/schemas/agents";
 import { useUpsertArtist } from "@/hooks/useUpsertAgents";
@@ -134,6 +134,8 @@ export default function ArtistEditPage() {
                 placeholder="Descrição breve do artista..."
                 rows={4}
               />
+              
+              <ArtistLocationFields />
             </FormSection>
 
             {/* Mídia */}
