@@ -398,22 +398,28 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
     deactivateMutation.mutate();
   };
 
-  // Handle form submission with validation
-  const handleFormSubmit = form.handleSubmit(onSubmit, (errors) => {
-    console.log('Validation errors:', errors);
-    
-    // Focus on first error field
-    const firstErrorField = Object.keys(errors)[0];
-    if (firstErrorField) {
-      const element = document.querySelector(`[name="${firstErrorField}"]`) as HTMLElement;
-      if (element) {
-        element.focus();
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  // Handle form submission with validation - usar useCallback para evitar recreação
+  const handleFormSubmit = useCallback(
+    form.handleSubmit(onSubmit, (errors) => {
+      // Só fazer log se realmente houver erros
+      if (Object.keys(errors).length > 0) {
+        console.log('Validation errors:', errors);
       }
-    }
-  });
+      
+      // Focus on first error field
+      const firstErrorField = Object.keys(errors)[0];
+      if (firstErrorField) {
+        const element = document.querySelector(`[name="${firstErrorField}"]`) as HTMLElement;
+        if (element) {
+          element.focus();
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }),
+    [form, onSubmit]
+  );
 
-  // Expose form submit function to parent
+  // Expose form submit function to parent - estabilizar dependências
   useEffect(() => {
     if (onFormSubmit) {
       onFormSubmit(handleFormSubmit);
