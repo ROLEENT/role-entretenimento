@@ -213,7 +213,7 @@ export const useAgendaManagement = () => {
       const duplicateData: AgendaItemCreate = {
         ...originalItem,
         title: `${originalItem.title} (Cópia)`,
-        slug: `${originalItem.slug}-copia-${Date.now()}`,
+        slug: `${originalItem.slug}-copy`,
         is_published: false,
         status: 'draft',
       };

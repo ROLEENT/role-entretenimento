@@ -43,6 +43,7 @@ export function AgendaForm({ agendaId, onBack }: AgendaFormProps) {
   const [publishing, setPublishing] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [showExitDialog, setShowExitDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
 
   const isEditing = Boolean(agendaId);
@@ -244,19 +245,22 @@ export function AgendaForm({ agendaId, onBack }: AgendaFormProps) {
 
   const handleDelete = async () => {
     if (!agendaId) return;
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!agendaId) return;
     
-    setShowExitDialog(true);
-    setPendingNavigation(() => async () => {
-      try {
-        const success = await agendaManagement.deleteAgendaItem(agendaId);
-        if (success) {
-          onBack();
-        }
-      } catch (error) {
-        console.error('Error deleting:', error);
-        toast.error('Erro ao excluir agenda');
+    try {
+      const success = await agendaManagement.deleteAgendaItem(agendaId);
+      if (success) {
+        setShowDeleteDialog(false);
+        onBack();
       }
-    });
+    } catch (error) {
+      console.error('Error deleting:', error);
+      toast.error('Erro ao excluir agenda');
+    }
   };
 
   const handleConfirmExit = () => {
@@ -564,6 +568,19 @@ export function AgendaForm({ agendaId, onBack }: AgendaFormProps) {
         variant="destructive"
         onConfirm={handleConfirmExit}
         onCancel={handleCancelExit}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        title="Excluir agenda"
+        description="Tem certeza que deseja excluir esta agenda? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        variant="destructive"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteDialog(false)}
       />
     </div>
   );
