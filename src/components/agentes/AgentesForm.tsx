@@ -787,27 +787,6 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
         </form>
       </Form>
 
-      {/* Fixed Action Bar */}
-      <ActionBar
-        isVisible={true}
-        isSubmitting={saveMutation.isPending}
-        isSaving={isAutosaving}
-        hasError={hasError}
-        lastSavedAt={autosaveLastSavedAt || lastSavedAt}
-        onSave={() => {
-          setNextAction('save');
-          handleFormSubmit();
-        }}
-        onSaveAndCreate={!isEditing ? () => {
-          setNextAction('saveAndCreate');
-          handleFormSubmit();
-        } : undefined}
-        onSaveDraft={() => {
-          setNextAction('saveDraft');
-          handleFormSubmit();
-        }}
-        onRetry={performSave}
-      />
     </div>
   );
 }

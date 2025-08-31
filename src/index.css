@@ -11,6 +11,11 @@ html, body, #root {
   scroll-behavior: smooth; 
 }
 
+/* Mobile momentum scrolling */
+body {
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Scrollbar elegante e fino - global */
 html {
   scrollbar-gutter: stable;
@@ -56,7 +61,14 @@ html, body, #root {
 
 /* Remove hotfix - inputs should work properly now */
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+/* Mobile safe areas para iOS */
+@supports (padding: max(0px)) {
+  body {
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
 All colors MUST be HSL.
 */
 
