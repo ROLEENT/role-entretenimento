@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import RHFSelect from "./RHFSelect";
 
@@ -30,22 +30,28 @@ export default function RHFSelectAsync({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Memoize query key to prevent unnecessary re-renders
+  const queryKey = useMemo(() => 
+    `${query.table}-${query.fields}-${query.orderBy || 'none'}`, 
+    [query.table, query.fields, query.orderBy]
+  );
+
+  // Stable mapRow function
+  const stableMapRow = useCallback(mapRow, []);
+
   useEffect(() => {
     let alive = true;
-    (async () => {
+    
+    const loadData = async () => {
       try {
-        console.log(`[RHFSelectAsync] Carregando dados da tabela: ${query.table}`);
-        console.log(`[RHFSelectAsync] Query fields: ${query.fields}`);
-        console.log(`[RHFSelectAsync] Query orderBy: ${query.orderBy}`);
+        console.log(`[RHFSelectAsync] Carregando dados para: ${queryKey}`);
+        setLoading(true);
         setError(null);
         
         const q = supabase.from(query.table).select(query.fields);
         if (query.orderBy) q.order(query.orderBy);
         
-        console.log(`[RHFSelectAsync] Executando query...`);
         const { data, error } = await q;
-        
-        console.log(`[RHFSelectAsync] Resposta completa:`, { data, error, alive });
         
         if (!alive) return;
         
@@ -54,25 +60,27 @@ export default function RHFSelectAsync({
           setError(`Erro ao carregar dados: ${error.message}`);
           setOpts([]);
         } else if (data) {
-          console.log(`[RHFSelectAsync] Dados carregados de ${query.table}:`, data);
-          const mappedOptions = data.map(mapRow);
-          console.log(`[RHFSelectAsync] Opções mapeadas:`, mappedOptions);
+          console.log(`[RHFSelectAsync] Dados carregados (${data.length} items):`, data);
+          const mappedOptions = data.map(stableMapRow);
           setOpts(mappedOptions);
         } else {
-          console.warn(`[RHFSelectAsync] Nenhum dado encontrado na tabela ${query.table}`);
           setOpts([]);
         }
       } catch (err) {
+        if (!alive) return;
         console.error(`[RHFSelectAsync] Erro inesperado:`, err);
         setError(`Erro inesperado: ${err instanceof Error ? err.message : 'Erro desconhecido'}`);
         setOpts([]);
       } finally {
-        console.log(`[RHFSelectAsync] Finalizando carregamento, setting loading = false`);
-        setLoading(false);
+        if (alive) {
+          setLoading(false);
+        }
       }
-    })();
+    };
+
+    loadData();
     return () => { alive = false; };
-  }, [query.table, query.fields, query.orderBy, mapRow]);
+  }, [queryKey, stableMapRow, query.table, query.fields, query.orderBy]);
 
   return (
     <RHFSelect

@@ -14,10 +14,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { FormProvider } from 'react-hook-form';
-import CitySelect from '@/components/fields/CitySelect';
+import CitySelectStable from '@/components/fields/CitySelectStable';
 import VenueTypeSelect from '@/components/fields/VenueTypeSelect';
 import ArtistSubtypeSelect from '@/components/fields/ArtistSubtypeSelect';
-import SimpleSelect from '@/components/form/SimpleSelect';
+import RHFSelectTest from '@/components/form/RHFSelectTest';
 import OrganizerSubtypeSelect from '@/components/fields/OrganizerSubtypeSelect';
 import StatusSelect from '@/components/fields/StatusSelect';
 import { useToast } from '@/hooks/use-toast';
@@ -310,27 +310,22 @@ function AgentesContent() {
               </div>
             </div>
 
+            {/* Teste de Selects Estabilizados */}
+            <div className="space-y-4 p-4 border rounded bg-blue-50 mb-6">
+              <h3 className="font-medium text-blue-800">🔧 Debug: Selects Estabilizados</h3>
+              
+              <RHFSelectTest />
+              
+              <div>
+                <Label>CitySelect Estabilizado</Label>
+                <CitySelectStable name="city_id" />
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
-                <Label>Cidade (Teste Simples)</Label>
-                <Controller
-                  name="city_id"
-                  control={form.control}
-                  render={({ field }) => (
-                    <SimpleSelect 
-                      onValueChange={(value) => {
-                        console.log("[AdminV3Agentes] City selected:", value);
-                        field.onChange(Number(value));
-                      }}
-                      placeholder="Selecione a cidade"
-                    />
-                  )}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Cidade (Original)</Label>
-                <CitySelect name="city_id" placeholder="Selecione a cidade" />
+                <Label>Cidade</Label>
+                <CitySelectStable name="city_id" placeholder="Selecione a cidade" />
               </div>
 
               <div className="space-y-2">
