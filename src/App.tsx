@@ -66,8 +66,8 @@ const AdminV3DestaquesPage = lazy(() => import("./pages/admin-v3/AdminV3Destaque
 // Admin V3 Gestao Pages
 const AdminV3GestaoLogsPage = lazy(() => import("./pages/admin-v3/gestao/SystemLogsPage"));
 const AdminV3GestaoNotificacoesPage = lazy(() => import("./pages/admin-v3/gestao/NotificationsPushPage"));
-const AnalyticsPage = () => <div className="p-6"><h1 className="text-2xl font-bold">Analytics</h1><p>Funcionalidade em desenvolvimento</p></div>;
-const BackupRestorePage = () => <div className="p-6"><h1 className="text-2xl font-bold">Backup & Restore</h1><p>Funcionalidade em desenvolvimento</p></div>;
+const AnalyticsPage = lazy(() => import("./pages/admin-v3/gestao/AnalyticsPage"));
+const BackupRestorePage = lazy(() => import("./pages/admin-v3/gestao/BackupRestorePage"));
 
 const OrganizerTerms = lazy(() => import("./pages/OrganizerTerms"));
 const Help = lazy(() => import("./pages/Help"));
