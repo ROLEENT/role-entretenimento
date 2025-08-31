@@ -11,7 +11,7 @@ import {
 
 export function RecentActivityTable() {
   return (
-    <Card>
+    <Card className="dashboard-card">
       <CardHeader>
         <CardTitle>Atividade Recente</CardTitle>
       </CardHeader>

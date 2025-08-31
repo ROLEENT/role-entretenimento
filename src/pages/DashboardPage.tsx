@@ -3,12 +3,13 @@ import { QuickActions } from '@/components/dashboard/QuickActions';
 import { EventsWeeklyChart } from '@/components/dashboard/EventsWeeklyChart';
 import { RecentActivityTable } from '@/components/dashboard/RecentActivityTable';
 import { HealthCard } from '@/components/dashboard/HealthCard';
+import { Section } from '@/components/dashboard/Section';
 
 export default function DashboardPage() {
   return (
-    <main className="container mx-auto p-6 space-y-8" role="main">
+    <main className="container mx-auto p-6 dashboard-spacing-xl" role="main">
       {/* Header */}
-      <header>
+      <header className="dashboard-section-header">
         <h1 className="text-4xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground mt-1">
           Painel administrativo
@@ -16,47 +17,45 @@ export default function DashboardPage() {
       </header>
 
       {/* Dashboard Grid */}
-      <div className="space-y-8">
+      <div className="dashboard-spacing-2xl">
         {/* KPIs */}
-        <section aria-labelledby="kpi-heading">
-          <h2 id="kpi-heading" className="sr-only">
-            Indicadores principais
-          </h2>
+        <Section 
+          title="Visão Geral"
+          description="Principais métricas da plataforma"
+        >
           <KpiRow />
-        </section>
+        </Section>
 
         {/* Quick Actions */}
-        <section aria-labelledby="actions-heading">
-          <h2 id="actions-heading" className="sr-only">
-            Ações rápidas
-          </h2>
-          <QuickActions />
-        </section>
+        <QuickActions />
 
         {/* Charts and Tables */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <section aria-labelledby="chart-heading">
-            <h2 id="chart-heading" className="sr-only">
-              Gráfico semanal de eventos
-            </h2>
+        <div className="dashboard-grid-2-col">
+          <Section 
+            title="Análise Temporal"
+            description="Tendências e padrões de eventos"
+            headingLevel="h3"
+          >
             <EventsWeeklyChart />
-          </section>
+          </Section>
 
-          <section aria-labelledby="activity-heading">
-            <h2 id="activity-heading" className="sr-only">
-              Atividade recente
-            </h2>
+          <Section 
+            title="Monitoramento"
+            description="Atividades e logs recentes"
+            headingLevel="h3"
+          >
             <RecentActivityTable />
-          </section>
+          </Section>
         </div>
 
         {/* Health Status */}
-        <section aria-labelledby="health-heading">
-          <h2 id="health-heading" className="sr-only">
-            Status do sistema
-          </h2>
+        <Section 
+          title="Sistema"
+          description="Status de saúde dos serviços"
+          headingLevel="h3"
+        >
           <HealthCard />
-        </section>
+        </Section>
       </div>
     </main>
   );

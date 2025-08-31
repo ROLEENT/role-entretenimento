@@ -1,11 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CheckCircle, AlertCircle, XCircle } from 'lucide-react';
 
 export function HealthCard() {
   return (
-    <Card>
+    <Card className="dashboard-card">
       <CardHeader>
         <CardTitle>Status do Sistema</CardTitle>
       </CardHeader>

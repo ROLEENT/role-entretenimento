@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export function EventsWeeklyChart() {
   return (
-    <Card>
+    <Card className="dashboard-card">
       <CardHeader>
         <CardTitle>Eventos por Semana</CardTitle>
       </CardHeader>
