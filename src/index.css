@@ -40,6 +40,19 @@ header, header *, nav, nav * {
   pointer-events: auto;
 }
 
+/* Base visual dos menus do shim */
+.bg-popover { 
+  background: hsl(var(--background)); 
+}
+
+.hover\:bg-accent:hover { 
+  background: hsl(var(--accent) / 0.06); 
+}
+
+.dark .hover\:bg-accent:hover { 
+  background: hsl(var(--accent) / 0.12); 
+}
+
 /* Remove transform from layout wrappers */
 .layout-wrapper, 
 .page-wrapper,
