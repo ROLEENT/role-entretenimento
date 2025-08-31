@@ -4,10 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Clock, BookOpen, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useResponsive } from "@/hooks/useResponsive";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 import LazyImage from "@/components/LazyImage";
 import EmptyState from "@/components/home/EmptyState";
-import { safeFetch } from "@/lib/safeFetch";
 
 interface BlogPost {
   id: string;

@@ -9,11 +9,10 @@ import { ResponsiveGrid } from "@/components/ui/responsive-grid";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { useRevistaCache } from "@/hooks/useRevistaCache";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { BookOpen, FileText, AlertCircle, Calendar, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
-import { safeFetch } from "@/lib/safeFetch";
+import { supabase } from "@/lib/supabaseClient";
 
 interface Article {
   id: string;
@@ -100,20 +99,44 @@ export default function RevistaPage() {
     setErrorMsg(null);
 
     const t = setTimeout(async () => {
-      const qs = new URLSearchParams();
-      if (filters.q) qs.set("q", filters.q);
-      if (filters.section) qs.set("section", filters.section);
-      if (filters.sort && filters.sort !== "recent") qs.set("sort", filters.sort);
+      try {
+        let q = supabase
+          .from("blog_posts")
+          .select("id, slug, title, summary, cover_image, city, reading_time, published_at", { count: "exact" })
+          .eq("status", "published");
 
-      const res = await safeFetch<{ data: Article[]; total: number }>(`/functions/v1/revista-api?${qs}`, { timeout: 8000 });
+        if (filters.section) q = q.eq("city", filters.section);
+        if (filters.q) q = q.ilike("title", `%${filters.q}%`);
 
-      console.debug("[revista] fetch status", res.status, res.error ?? "");
-      if (!alive) return;
+        const sortCol = filters.sort === "most_read" ? "views" : "published_at";
+        q = q.order(sortCol as "published_at", { ascending: false }).range(0, 11);
 
-      if (res.ok && res.data) {
-        setItems(res.data.data ?? []);
-        setTotal(res.data.total ?? 0);
-      } else {
+        const { data, error, count } = await q;
+
+        if (!alive) return;
+
+        if (error) {
+          console.error("[revista] db_error", error);
+          setItems([]);
+          setTotal(0);
+          setErrorMsg("Não foi possível carregar agora.");
+        } else {
+          // mapeia para camelCase usado no front
+          setItems((data ?? []).map(r => ({
+            id: r.id,
+            slug: r.slug,
+            title: r.title,
+            excerpt: r.summary || '',
+            cover_url: r.cover_image || '',
+            city: r.city || '',
+            reading_time_min: r.reading_time || 5,
+            published_at: r.published_at || '',
+          })));
+          setTotal(count ?? 0);
+        }
+      } catch (error) {
+        if (!alive) return;
+        console.error("[revista] fetch error", error);
         setErrorMsg("Não foi possível carregar agora.");
       }
       setLoading(false);

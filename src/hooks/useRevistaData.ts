@@ -1,8 +1,7 @@
-import { useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { safeFetchJSON } from '@/lib/safeFetch';
+import { useState, useCallback, useEffect } from 'react';
+import { supabase } from '@/lib/supabaseClient';
 
-// Interface for basic article data
+// Data structure interfaces
 export interface RevistaArticle {
   id: string;
   title: string;
@@ -10,41 +9,35 @@ export interface RevistaArticle {
   cover_url: string;
   publish_at: string;
   reading_time_min: number;
-  city?: string;
   slug: string;
+  city?: string;
 }
 
-// Interface for detailed post data with SEO and author info
-export interface RevistaPost {
-  id: string;
-  title: string;
-  summary: string;
+export interface RevistaPost extends RevistaArticle {
+  author_name: string;
+  author_avatar?: string;
+  seo_title?: string;
+  seo_description?: string;
+  content: string;
+  content_html?: string;
+  content_json: Record<string, any>;
+  tags: string[];
+  categories: string[];
+  featured: boolean;
+  status: 'published' | 'draft' | 'archived';
+  views: number;
+  created_at: string;
+  updated_at: string;
+  author_id: string;
+  section: string;
+  category_slug?: string;
+  category_name?: string;
+  author_slug?: string;
   cover_image: string;
   published_at: string;
   reading_time: number;
-  slug: string;
-  section?: string;
-  author_name?: string;
-  views?: number;
-  // SEO fields
-  meta_title?: string;
-  meta_description?: string;
-  seo_title?: string; // Alias
-  seo_description?: string; // Alias
-  // Content fields  
-  content?: string;
-  content_html?: string; // Alias
-  excerpt?: string;
-  reading_time_min?: number; // Alias for compatibility
-  city?: string;
-  tags?: string[];
-  categories?: Array<{ name: string; id?: string; slug?: string }>; // For complex category objects
-  status?: string;
-  featured_image?: string; // Alias for cover_image
-  cover_url?: string; // Alias for cover_image
-  featured?: boolean;
-  updated_at?: string;
-  slug_data?: any; // For compatibility
+  summary: string;
+  slug_data?: string;
 }
 
 export interface UseRevistaDataParams {
@@ -60,7 +53,7 @@ export const useRevistaData = (params: UseRevistaDataParams = {}) => {
   const [posts, setPosts] = useState<RevistaPost[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchArticles = useCallback(async () => {
@@ -69,69 +62,77 @@ export const useRevistaData = (params: UseRevistaDataParams = {}) => {
     setError(null);
 
     const timeout = setTimeout(async () => {
-      const qs = new URLSearchParams();
-      if (params.searchTerm?.trim()) qs.set("q", params.searchTerm.trim());
-      if (params.sectionFilter?.trim()) qs.set("section", params.sectionFilter.trim());
-      if (params.sortBy && params.sortBy !== "recent") qs.set("sort", params.sortBy);
-      if (params.limit) qs.set("limit", params.limit.toString());
-      if (params.page && params.page > 1) {
-        const offset = (params.page - 1) * (params.limit || 12);
-        qs.set("offset", offset.toString());
-      }
+      try {
+        let q = supabase
+          .from("blog_posts")
+          .select("id, slug, title, summary, cover_image, city, reading_time, published_at", { count: "exact" })
+          .eq("status", "published");
 
-      // Try /functions/v1/revista-unified first, fallback to /functions/v1/revista-api
-      let r = await safeFetchJSON(`https://nutlcbnruabjsxecqpnd.supabase.co/functions/v1/revista-unified?${qs}`);
-      if (!r.ok && r.status === 404) {
-        r = await safeFetchJSON(`https://nutlcbnruabjsxecqpnd.supabase.co/functions/v1/revista-api?${qs}`);
-      }
+        if (params.sectionFilter) q = q.eq("city", params.sectionFilter);
+        if (params.searchTerm) q = q.ilike("title", `%${params.searchTerm}%`);
 
-      console.debug("[useRevistaData] status", r.status, r.json?.error);
+        const sortCol = params.sortBy === "most_read" ? "views" : "published_at";
+        const limit = params.limit || 12;
+        const offset = ((params.page || 1) - 1) * limit;
+        
+        q = q.order(sortCol as "published_at", { ascending: false }).range(offset, offset + limit - 1);
 
-      if (!alive) return;
-      const payload = r.json as any;
+        const { data, error, count } = await q;
 
-      if (payload?.data) {
-        const transformedArticles: RevistaArticle[] = (payload.data || []).map((item: any) => ({
+        if (!alive) return;
+
+        if (error) {
+          throw error;
+        }
+
+        // Transform articles
+        const transformedArticles: RevistaArticle[] = (data || []).map(item => ({
           id: item.id,
           title: item.title,
-          excerpt: item.summary || item.excerpt || '',
-          cover_url: item.cover_image || item.coverUrl || '',
-          publish_at: item.published_at || item.dateISO,
-          reading_time_min: item.reading_time || item.readingTimeMin || 5,
+          excerpt: item.summary || '',
+          cover_url: item.cover_image || '',
+          publish_at: item.published_at || '',
+          reading_time_min: item.reading_time || 5,
           slug: item.slug,
-          city: item.city || item.section || ''
+          city: item.city
         }));
 
-        const transformedPosts: RevistaPost[] = (payload.data || []).map((item: any) => ({
-          id: item.id,
-          title: item.title,
-          summary: item.summary || item.excerpt || '',
-          cover_image: item.cover_image || item.coverUrl || '',
-          published_at: item.published_at || item.dateISO,
-          reading_time: item.reading_time || item.readingTimeMin || 5,
-          slug: item.slug,
-          section: item.city || item.section || '',
-          author_name: item.author_name || 'ROLÊ',
-          views: item.views || 0,
-          // Aliases for compatibility
-          excerpt: item.summary || item.excerpt || '',
-          reading_time_min: item.reading_time || item.readingTimeMin || 5,
-          featured_image: item.cover_image || item.coverUrl || '',
-          cover_url: item.cover_image || item.coverUrl || '',
-          categories: (item.tags || []).map((tag: string) => ({ name: tag })),
-          seo_title: item.meta_title,
-          seo_description: item.meta_description,
-          content_html: item.content,
+        // Transform posts (for compatibility)
+        const transformedPosts: RevistaPost[] = transformedArticles.map(article => ({
+          ...article,
+          author_name: '',
+          author_avatar: '',
+          seo_title: article.title,
+          seo_description: article.excerpt,
+          content: '',
+          content_html: '',
+          content_json: {},
+          tags: [],
+          categories: [],
           featured: false,
-          updated_at: item.published_at || item.dateISO,
-          slug_data: { slug: item.slug },
+          status: 'published' as const,
+          views: 0,
+          created_at: article.publish_at,
+          updated_at: article.publish_at,
+          author_id: '',
+          section: article.city || 'geral',
+          category_slug: '',
+          category_name: '',
+          author_slug: '',
+          cover_image: article.cover_url,
+          published_at: article.publish_at,
+          reading_time: article.reading_time_min,
+          summary: article.excerpt,
+          slug_data: article.slug
         }));
 
         setArticles(transformedArticles);
         setPosts(transformedPosts);
-        setTotalCount(payload.total ?? payload.data.length ?? 0);
-        setTotalPages(Math.ceil((payload.total ?? payload.data.length ?? 0) / (params.limit || 12)));
-      } else {
+        setTotalCount(count ?? 0);
+        setTotalPages(Math.ceil((count ?? 0) / limit));
+      } catch (error) {
+        if (!alive) return;
+        console.error("[useRevistaData] fetch error", error);
         setArticles([]);
         setPosts([]);
         setTotalCount(0);
@@ -178,24 +179,16 @@ export const getRevistaCities = async (): Promise<string[]> => {
 
     if (error) throw error;
 
-    const cities = [...new Set(data?.map(item => item.city).filter(Boolean))];
+    const cities = [...new Set((data || []).map(item => item.city).filter(Boolean))];
     return cities.sort();
   } catch (error) {
-    console.error('[getRevistaCities] Error:', error);
+    console.error('Error fetching cities:', error);
     return [];
   }
 };
 
 export const getRevistaSections = (): string[] => {
-  return [
-    'música',
-    'arte',
-    'cultura',
-    'gastronomia',
-    'noite',
-    'viagem',
-    'lifestyle'
-  ];
+  return ['música', 'arte', 'noite', 'cultura', 'entrevista', 'opinião'];
 };
 
 export const getRevistaPostBySlug = async (slug: string): Promise<RevistaPost | null> => {
@@ -207,38 +200,45 @@ export const getRevistaPostBySlug = async (slug: string): Promise<RevistaPost | 
       .eq('status', 'published')
       .single();
 
-    if (error || !data) return null;
+    if (error) throw error;
+    if (!data) return null;
 
     return {
       id: data.id,
       title: data.title,
-      summary: data.summary || '',
-      cover_image: data.cover_image || '',
-      published_at: data.published_at,
-      reading_time: data.reading_time || 0,
-      slug: data.slug,
-      section: data.section || '',
-      author_name: data.author_name || 'ROLÊ',
-      views: data.views || 0,
-      content: data.content || '',
-      meta_title: data.meta_title,
-      meta_description: data.meta_description,
-      tags: data.tags || [],
-      // Aliases
       excerpt: data.summary || '',
-      reading_time_min: data.reading_time || 0,
-      featured_image: data.cover_image || '',
       cover_url: data.cover_image || '',
-      categories: (data.tags || []).map((tag: string) => ({ name: tag })),
-      seo_title: data.meta_title,
-      seo_description: data.meta_description,
-      content_html: data.content || '',
-      featured: false,
-      updated_at: data.updated_at || data.published_at,
-      slug_data: { slug: data.slug },
+      publish_at: data.published_at || '',
+      reading_time_min: data.reading_time || 5,
+      slug: data.slug,
+      city: data.city,
+      author_name: data.author_name || '',
+      author_avatar: '',
+      seo_title: data.seo_title || data.title,
+      seo_description: data.seo_description || data.summary,
+      content: data.content_html || '',
+      content_html: data.content_html || '',
+      content_json: data.content_md ? { content: data.content_md } : {},
+      tags: data.tags || [],
+      categories: [],
+      featured: data.featured || false,
+      status: 'published' as const,
+      views: data.views || 0,
+      created_at: data.created_at,
+      updated_at: data.updated_at,
+      author_id: data.author_id || '',
+      section: data.city || 'geral',
+      category_slug: '',
+      category_name: '',
+      author_slug: '',
+      cover_image: data.cover_image || '',
+      published_at: data.published_at || '',
+      reading_time: data.reading_time || 5,
+      summary: data.summary || '',
+      slug_data: data.slug || ''
     };
   } catch (error) {
-    console.error('[getRevistaPostBySlug] Error:', error);
+    console.error('Error fetching post by slug:', error);
     return null;
   }
 };
