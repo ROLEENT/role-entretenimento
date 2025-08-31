@@ -167,14 +167,14 @@ export const AdminOrganizerTable: React.FC<AdminOrganizerTableProps> = ({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
-                      <Link to={`/admin-v3/agentes/organizadores/${organizer.id}/edit`} className="inline-flex items-center">
+                      <Link to={`/admin-v3/agentes/organizadores/${organizer.id}/edit`}>
                         <Edit className="mr-2 h-4 w-4" />
                         Editar
                       </Link>
                     </DropdownMenuItem>
                     
                     <DropdownMenuItem asChild>
-                      <Link to={`/admin-v3/agentes/organizadores/${organizer.id}`} className="inline-flex items-center">
+                      <Link to={`/admin-v3/agentes/organizadores/${organizer.id}`}>
                         <Eye className="mr-2 h-4 w-4" />
                         Visualizar
                       </Link>
@@ -205,7 +205,6 @@ export const AdminOrganizerTable: React.FC<AdminOrganizerTableProps> = ({
                             href={`https://instagram.com/${organizer.instagram.replace('@', '')}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center"
                           >
                             <ExternalLink className="mr-2 h-4 w-4" />
                             Ver Instagram

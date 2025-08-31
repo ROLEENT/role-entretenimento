@@ -2,150 +2,69 @@
 const VERSION = '2025-08-31-01';
 const STATIC_CACHE = `static-${VERSION}`;
 
-self.addEventListener('install', () => {
+self.addEventListener('install', (e) => {
+  console.log('Service Worker installing.');
   self.skipWaiting();
 });
 
-self.addEventListener('activate', e => {
-  e.waitUntil((async () => {
-    const keys = await caches.keys();
-    await Promise.all(keys.map(k => caches.delete(k)));
-    await self.clients.claim();
-  })());
+self.addEventListener('activate', (e) => {
+  console.log('Service Worker activating.');
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== STATIC_CACHE).map(k => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
 });
 
 // Push notification handling
 self.addEventListener('push', (event) => {
-  console.log('Push notification received:', event);
-
   if (!event.data) {
-    console.log('No data in push event');
     return;
   }
 
-  let notificationData = {
-    title: 'Nova notificação',
-    body: 'Você tem uma nova notificação',
-    icon: '/icon-192x192.png',
-    badge: '/icon-192x192.png',
-    data: {},
-    actions: [],
-    tag: 'default',
-    requireInteraction: false,
-    silent: false
-  };
-
-  try {
-    const data = event.data.json();
-    notificationData = { ...notificationData, ...data };
-    console.log('Parsed notification data:', notificationData);
-  } catch (error) {
-    console.error('Error parsing push data:', error);
-    notificationData.body = event.data.text() || notificationData.body;
-  }
-
-  // Ensure we have default actions
-  if (!notificationData.actions || notificationData.actions.length === 0) {
-    notificationData.actions = [
+  const data = event.data.json();
+  const options = {
+    body: data.body,
+    icon: data.icon || '/favicon.png',
+    badge: data.badge || '/favicon.png',
+    data: {
+      url: data.url || '/'
+    },
+    actions: [
       {
         action: 'view',
         title: 'Ver',
-        icon: '/icon-192x192.png'
-      },
-      {
-        action: 'dismiss',
-        title: 'Dispensar'
+        icon: '/favicon.png'
       }
-    ];
-  }
-
-  const options = {
-    body: notificationData.body,
-    icon: notificationData.icon,
-    badge: notificationData.badge,
-    data: notificationData.data,
-    actions: notificationData.actions,
-    tag: notificationData.tag,
-    requireInteraction: notificationData.requireInteraction,
-    silent: notificationData.silent,
-    timestamp: Date.now(),
-    vibrate: [200, 100, 200] // Vibration pattern for mobile
+    ]
   };
 
   event.waitUntil(
-    self.registration.showNotification(notificationData.title, options)
+    self.registration.showNotification(data.title, options)
   );
 });
 
 self.addEventListener('notificationclick', (event) => {
-  console.log('Notification clicked:', event);
-  
   event.notification.close();
 
-  // Handle action button clicks
-  if (event.action) {
-    console.log('Action clicked:', event.action);
-    
-    switch (event.action) {
-      case 'view':
-        const url = event.notification.data?.url || '/';
-        event.waitUntil(
-          clients.matchAll({ type: 'window', includeUncontrolled: true })
-            .then((clientList) => {
-              // Check if app is already open
-              for (const client of clientList) {
-                if (client.url.includes(self.location.origin) && 'focus' in client) {
-                  console.log('Focusing existing window');
-                  return client.focus();
-                }
-              }
-              
-              // Open new window if app is not open
-              console.log('Opening new window:', url);
-              if (clients.openWindow) {
-                return clients.openWindow(url);
-              }
-            })
-        );
-        break;
-      case 'dismiss':
-        // Just close the notification (already done above)
-        console.log('Notification dismissed');
-        break;
-      default:
-        console.log('Unknown action:', event.action);
-    }
-  } else {
-    // Default click behavior - open the app
-    const url = event.notification.data?.url || '/';
-    
-    event.waitUntil(
-      clients.matchAll({ type: 'window', includeUncontrolled: true })
-        .then((clientList) => {
-          // Check if there is already a window/tab open with the target URL
-          for (const client of clientList) {
-            if (client.url.includes(self.location.origin) && 'focus' in client) {
-              console.log('Focusing existing window');
-              return client.focus();
-            }
-          }
-          
-          // If not, then open the target URL in a new window/tab
-          console.log('Opening new window:', url);
-          if (clients.openWindow) {
-            return clients.openWindow(url);
-          }
-        })
-    );
-  }
-});
-
-// Notification close event
-self.addEventListener('notificationclose', (event) => {
-  console.log('Notification closed:', event);
+  const url = event.notification.data?.url || '/';
   
-  // Optional: Send analytics about notification dismissal
-  // You could send this data to your analytics service
+  event.waitUntil(
+    clients.matchAll({ type: 'window' }).then((clientList) => {
+      // Check if there is already a window/tab open with the target URL
+      for (const client of clientList) {
+        if (client.url === url && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      
+      // If not, then open the target URL in a new window/tab
+      if (clients.openWindow) {
+        return clients.openWindow(url);
+      }
+    })
+  );
 });
 
 self.addEventListener('fetch', (event) => {

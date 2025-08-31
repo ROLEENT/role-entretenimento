@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminEventForm from '@/components/admin/agenda/AdminEventForm';
-import { AdminBreadcrumb } from '@/components/ui/unified-breadcrumb';
+import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
 
 export default function AdminV3AgendaCreate() {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ export default function AdminV3AgendaCreate() {
 
   return (
     <div className="space-y-6">
-      <AdminBreadcrumb items={breadcrumbs} />
+      <AdminV3Breadcrumb items={breadcrumbs} />
       
       <div className="flex items-center justify-between">
         <div>

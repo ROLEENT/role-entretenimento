@@ -8,7 +8,7 @@ import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
 import { FormShell } from '@/components/form';
 import { Form } from '@/components/ui/form';
-import { AdminBreadcrumb } from '@/components/ui/unified-breadcrumb';
+import { AdminV3Breadcrumb } from '@/components/admin/common/AdminV3Breadcrumb';
 import { AdminVenueForm } from '@/components/admin/venues/AdminVenueForm';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { venueSchema, VenueFormData } from '@/schemas/venue';
@@ -123,7 +123,7 @@ const AdminV3VenueEdit: React.FC = () => {
     <AdminV3Guard>
       <AdminV3Header />
       <main className="container mx-auto px-4 py-8">
-        <AdminBreadcrumb items={breadcrumbs} />
+        <AdminV3Breadcrumb items={breadcrumbs} />
         
         <Form {...form}>
           <FormShell

@@ -20,7 +20,6 @@ import {
   DropdownMenuTrigger 
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "./ui/avatar";
-import { oneChild } from "@/components/utils/one-child";
 
 // Header mobile 2 linhas com carrossel de cidades
 const Header = () => {
@@ -230,12 +229,10 @@ const Header = () => {
                     className="w-full h-12"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    {oneChild(
-                      <Link to="/auth" className="inline-flex items-center gap-2">
-                        <User className="h-4 w-4" />
-                        Entrar
-                      </Link>
-                    )}
+                    <Link to="/auth">
+                      <User className="mr-2 h-4 w-4" />
+                      Entrar
+                    </Link>
                   </Button>
                 )}
 
@@ -342,15 +339,13 @@ const Header = () => {
                 {user ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      {oneChild(
-                        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback className="bg-primary text-primary-foreground">
-                              {user.email?.charAt(0).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                        </Button>
-                      )}
+                      <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                            {user.email?.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56" align="end" forceMount>
                       <DropdownMenuLabel className="font-normal">
@@ -363,29 +358,23 @@ const Header = () => {
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        {oneChild(
-                          <Link to="/profile" className="inline-flex items-center">
-                            <User className="mr-2 h-4 w-4" />
-                            Perfil
-                          </Link>
-                        )}
+                        <Link to="/profile">
+                          <User className="mr-2 h-4 w-4" />
+                          Perfil
+                        </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        {oneChild(
-                          <Link to="/calendar" className="inline-flex items-center">
-                            <Calendar className="mr-2 h-4 w-4" />
-                            Meu Calendário
-                          </Link>
-                        )}
+                        <Link to="/calendar">
+                          <Calendar className="mr-2 h-4 w-4" />
+                          Meu Calendário
+                        </Link>
                       </DropdownMenuItem>
                       {hasAdminAccess && (
                         <DropdownMenuItem asChild>
-                          {oneChild(
-                            <Link to="/admin-v3" className="inline-flex items-center">
-                              <Settings className="mr-2 h-4 w-4" />
-                              Painel Admin
-                            </Link>
-                          )}
+                          <Link to="/admin-v3">
+                            <Settings className="mr-2 h-4 w-4" />
+                            Painel Admin
+                          </Link>
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuSeparator />
@@ -397,7 +386,7 @@ const Header = () => {
                   </DropdownMenu>
                 ) : (
                   <Button variant="outline" size="sm" asChild>
-                    {oneChild(<Link to="/auth">Entrar</Link>)}
+                    <Link to="/auth">Entrar</Link>
                   </Button>
                 )}
 
@@ -408,11 +397,9 @@ const Header = () => {
                   className="hover:bg-accent"
                   aria-label="Favoritos"
                 >
-                  {oneChild(
-                    <Link to="/favorites" className="inline-flex items-center justify-center">
-                      <Heart className="h-4 w-4" />
-                    </Link>
-                  )}
+                  <Link to="/favorites">
+                    <Heart className="h-4 w-4" />
+                  </Link>
                 </Button>
               </div>
             </div>

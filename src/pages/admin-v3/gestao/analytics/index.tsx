@@ -4,20 +4,31 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, BarChart3, TrendingUp, Users, Eye, Calendar, MapPin, RefreshCw, Activity, Clock, Database } from "lucide-react";
-import { useAdminSession } from "@/hooks/useAuth";
-import { useAnalyticsAdmin, ComprehensiveAnalytics, RealtimeMetrics } from "@/hooks/useAnalyticsAdmin";
+import { Loader2, BarChart3, TrendingUp, Users, Eye, Calendar, MapPin, RefreshCw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAdminSession } from "@/hooks/useAdminSession";
 import { toast } from "sonner";
 import { subDays, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
+interface AnalyticsSummary {
+  total_events: number;
+  published_events: number;
+  draft_events: number;
+  total_artists: number;
+  total_venues: number;
+  total_organizers: number;
+  page_views: number;
+  unique_visitors: number;
+  top_events: Array<{ title: string; views: number }>;
+  popular_cities: Array<{ city: string; count: number }>;
+}
+
 function AnalyticsPage() {
-  const [analytics, setAnalytics] = useState<ComprehensiveAnalytics | null>(null);
-  const [realtimeMetrics, setRealtimeMetrics] = useState<RealtimeMetrics | null>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState("30");
   const { adminEmail } = useAdminSession();
-  const { getComprehensiveAnalytics, getRealtimeMetrics } = useAnalyticsAdmin();
 
   const fetchAnalytics = async () => {
     if (!adminEmail) return;
@@ -27,18 +38,14 @@ function AnalyticsPage() {
       const startDate = subDays(new Date(), parseInt(dateRange));
       const endDate = new Date();
 
-      // Fetch comprehensive analytics
-      const analyticsData = await getComprehensiveAnalytics(
-        adminEmail,
-        format(startDate, 'yyyy-MM-dd HH:mm:ss'),
-        format(endDate, 'yyyy-MM-dd HH:mm:ss')
-      );
+      const { data, error } = await supabase.rpc('get_analytics_summary', {
+        p_admin_email: adminEmail,
+        p_start_date: format(startDate, 'yyyy-MM-dd'),
+        p_end_date: format(endDate, 'yyyy-MM-dd')
+      });
 
-      // Fetch realtime metrics
-      const realtimeData = await getRealtimeMetrics(adminEmail);
-
-      setAnalytics(analyticsData);
-      setRealtimeMetrics(realtimeData);
+      if (error) throw error;
+      setAnalytics(data?.[0] || null);
     } catch (error) {
       console.error('Error fetching analytics:', error);
       toast.error('Erro ao carregar analytics');
@@ -50,18 +57,6 @@ function AnalyticsPage() {
   useEffect(() => {
     fetchAnalytics();
   }, [adminEmail, dateRange]);
-
-  useEffect(() => {
-    if (!adminEmail) return;
-    
-    // Auto-refresh realtime metrics every 30 seconds
-    const interval = setInterval(async () => {
-      const realtimeData = await getRealtimeMetrics(adminEmail);
-      setRealtimeMetrics(realtimeData);
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [adminEmail, getRealtimeMetrics]);
 
   const StatCard = ({ 
     title, 
@@ -137,35 +132,33 @@ function AnalyticsPage() {
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList>
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-            <TabsTrigger value="realtime">Tempo Real</TabsTrigger>
             <TabsTrigger value="content">Conteúdo</TabsTrigger>
             <TabsTrigger value="locations">Localização</TabsTrigger>
-            <TabsTrigger value="performance">Performance</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <StatCard
                 title="Total de Eventos"
-                value={analytics.events.total_events}
+                value={analytics.total_events}
                 description="Todos os eventos"
                 icon={Calendar}
               />
               <StatCard
                 title="Eventos Publicados"
-                value={analytics.events.published_events}
+                value={analytics.published_events}
                 description="Ativos no site"
                 icon={Eye}
               />
               <StatCard
-                title="Posts do Blog"
-                value={analytics.blog.total_posts}
-                description="Artigos publicados"
+                title="Artistas Ativos"
+                value={analytics.total_artists}
+                description="Cadastrados"
                 icon={Users}
               />
               <StatCard
                 title="Visualizações"
-                value={analytics.analytics.page_views.toLocaleString()}
+                value={analytics.page_views.toLocaleString()}
                 description="Total de views"
                 icon={BarChart3}
               />
@@ -186,11 +179,11 @@ function AnalyticsPage() {
                           <div 
                             className="bg-green-500 h-2 rounded-full" 
                             style={{ 
-                              width: `${(analytics.events.published_events / analytics.events.total_events) * 100}%` 
+                              width: `${(analytics.published_events / analytics.total_events) * 100}%` 
                             }}
                           />
                         </div>
-                        <span className="text-sm font-medium">{analytics.events.published_events}</span>
+                        <span className="text-sm font-medium">{analytics.published_events}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
@@ -200,11 +193,11 @@ function AnalyticsPage() {
                           <div 
                             className="bg-yellow-500 h-2 rounded-full" 
                             style={{ 
-                              width: `${(analytics.events.draft_events / analytics.events.total_events) * 100}%` 
+                              width: `${(analytics.draft_events / analytics.total_events) * 100}%` 
                             }}
                           />
                         </div>
-                        <span className="text-sm font-medium">{analytics.events.draft_events}</span>
+                        <span className="text-sm font-medium">{analytics.draft_events}</span>
                       </div>
                     </div>
                   </div>
@@ -219,101 +212,16 @@ function AnalyticsPage() {
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">Favoritos</span>
-                      <Badge variant="secondary">{analytics.users.total_favorites}</Badge>
+                      <span className="text-sm">Locais</span>
+                      <Badge variant="secondary">{analytics.total_venues}</Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">Check-ins</span>
-                      <Badge variant="secondary">{analytics.users.total_checkins}</Badge>
+                      <span className="text-sm">Organizadores</span>
+                      <Badge variant="secondary">{analytics.total_organizers}</Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">Comentários</span>
-                      <Badge variant="secondary">{analytics.users.total_comments}</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Curtidas</span>
-                      <Badge variant="secondary">{analytics.users.total_likes}</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Sessões únicas</span>
-                      <Badge variant="secondary">{analytics.analytics.unique_sessions}</Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="realtime" className="space-y-6">
-            {realtimeMetrics && (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatCard
-                  title="Usuários Ativos"
-                  value={realtimeMetrics.active_users_last_hour}
-                  description="Última hora"
-                  icon={Activity}
-                />
-                <StatCard
-                  title="Views/Hora"
-                  value={realtimeMetrics.page_views_last_hour}
-                  description="Última hora"
-                  icon={Eye}
-                />
-                <StatCard
-                  title="Tempo de Carregamento"
-                  value={`${realtimeMetrics.avg_load_time_last_hour.toFixed(2)}s`}
-                  description="Média da última hora"
-                  icon={Clock}
-                />
-                <StatCard
-                  title="Erros"
-                  value={realtimeMetrics.errors_last_hour}
-                  description="Última hora"
-                  icon={BarChart3}
-                />
-              </div>
-            )}
-            
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Status do Sistema</CardTitle>
-                  <CardDescription>Saúde geral da aplicação</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Uptime</span>
-                      <Badge variant="secondary">{realtimeMetrics?.system_uptime}%</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Base de Dados</span>
-                      <Badge variant={realtimeMetrics?.database_health === 'healthy' ? 'default' : 'destructive'}>
-                        {realtimeMetrics?.database_health}
-                      </Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Performance em Tempo Real</CardTitle>
-                  <CardDescription>Métricas atualizadas automaticamente</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Carregamento médio</span>
-                      <span className="text-sm font-medium">
-                        {realtimeMetrics?.avg_load_time_last_hour.toFixed(2)}s
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Taxa de erro</span>
-                      <span className="text-sm font-medium">
-                        {((realtimeMetrics?.errors_last_hour || 0) / Math.max(realtimeMetrics?.page_views_last_hour || 1, 1) * 100).toFixed(2)}%
-                      </span>
+                      <span className="text-sm">Visitantes únicos</span>
+                      <Badge variant="secondary">{analytics.unique_visitors.toLocaleString()}</Badge>
                     </div>
                   </div>
                 </CardContent>
@@ -376,74 +284,6 @@ function AnalyticsPage() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
-
-          <TabsContent value="performance" className="space-y-6">
-            {analytics && (
-              <div className="grid gap-6 md:grid-cols-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Métricas de Performance</CardTitle>
-                    <CardDescription>Dados coletados do sistema</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Tempo de carregamento médio</span>
-                        <span className="text-sm font-medium">
-                          {analytics.performance.avg_page_load.toFixed(2)}ms
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">TTFB médio</span>
-                        <span className="text-sm font-medium">
-                          {analytics.performance.avg_ttfb.toFixed(2)}ms
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Total de sessões</span>
-                        <span className="text-sm font-medium">
-                          {analytics.performance.total_sessions}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Taxa de erro</span>
-                        <span className="text-sm font-medium">
-                          {analytics.performance.error_rate.toFixed(2)}%
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Resumo de Atividade</CardTitle>
-                    <CardDescription>Período selecionado</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Eventos no período</span>
-                        <Badge variant="secondary">{analytics.events.events_in_period}</Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Posts no período</span>
-                        <Badge variant="secondary">{analytics.blog.posts_in_period}</Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Views de eventos</span>
-                        <Badge variant="secondary">{analytics.analytics.event_views}</Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Usuários únicos</span>
-                        <Badge variant="secondary">{analytics.analytics.unique_users}</Badge>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
           </TabsContent>
         </Tabs>
       ) : (

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
-import { AdminBreadcrumb } from '@/components/ui/unified-breadcrumb';
+import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -101,7 +101,7 @@ export default function AdminV3Debug() {
         <div className="p-6">
           <div className="max-w-4xl mx-auto space-y-6">
             {/* Breadcrumb */}
-            <AdminBreadcrumb 
+            <AdminV3Breadcrumb 
               items={[
                 { label: 'Debug' }
               ]}

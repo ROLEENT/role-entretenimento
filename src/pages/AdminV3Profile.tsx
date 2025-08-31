@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
-import { AdminBreadcrumb } from '@/components/ui/unified-breadcrumb';
+import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -341,7 +341,7 @@ export default function AdminV3Profile() {
       <div className="min-h-screen bg-background p-6">
         <div className="max-w-2xl mx-auto space-y-6">
           {/* Breadcrumb */}
-          <AdminBreadcrumb 
+          <AdminV3Breadcrumb 
             items={[
               { label: 'Perfil' }
             ]}

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Construction, ArrowLeft, Calendar, Users, BookOpen, Settings, Star } from 'lucide-react';
-import { AdminBreadcrumb } from '@/components/ui/unified-breadcrumb';
+import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
 
 interface UnderConstructionPageProps {
   title: string;
@@ -62,7 +62,7 @@ export function UnderConstructionPage({
   return (
     <div className="p-6 max-w-4xl mx-auto">
       {breadcrumbItems.length > 0 && (
-        <AdminBreadcrumb items={breadcrumbItems} />
+        <AdminV3Breadcrumb items={breadcrumbItems} />
       )}
       
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">

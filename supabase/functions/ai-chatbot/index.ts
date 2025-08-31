@@ -1,4 +1,5 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
 
 const corsHeaders = {
@@ -6,176 +7,225 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const supabase = createClient(
-  Deno.env.get('SUPABASE_URL') ?? '',
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-);
-
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-
 interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
 }
 
-interface ChatbotRequest {
-  message: string;
-  history: ChatMessage[];
-  location?: {
-    latitude: number;
-    longitude: number;
-    city?: string;
-  };
+interface EventSearchParams {
+  city?: string;
+  keywords?: string;
 }
 
-async function getRelevantEvents(location?: { latitude: number; longitude: number; city?: string }) {
-  try {
-    let query = supabase
-      .from('events')
-      .select('id, title, description, date_start, city, venue_name')
-      .eq('status', 'active')
-      .gte('date_start', new Date().toISOString())
-      .order('date_start')
-      .limit(10);
-
-    if (location?.city) {
-      query = query.ilike('city', `%${location.city}%`);
-    }
-
-    const { data: events, error } = await query;
-
-    if (error) {
-      console.error('Error fetching events:', error);
-      return [];
-    }
-
-    return events || [];
-  } catch (error) {
-    console.error('Error in getRelevantEvents:', error);
-    return [];
+serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
   }
-}
 
-async function getSystemPrompt(location?: { latitude: number; longitude: number; city?: string }) {
-  const events = await getRelevantEvents(location);
-  
-  const eventsContext = events.length > 0 ? 
-    `Eventos próximos disponíveis:\n${events.map(e => 
-      `- ${e.title} em ${e.city} (${e.venue_name}) - ${new Date(e.date_start).toLocaleDateString('pt-BR')}`
-    ).join('\n')}` : 
-    'Nenhum evento próximo encontrado na região.';
+  try {
+    console.log('🤖 AI Chatbot - Recebendo requisição...');
+    
+    const { message, chatHistory = [], userLocation } = await req.json();
+    
+    console.log('📝 Mensagem:', message);
+    console.log('📍 Localização:', userLocation);
+    
+    if (!message?.trim()) {
+      return new Response(JSON.stringify({ error: 'Mensagem é obrigatória' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
-  return `Você é um assistente virtual especializado em eventos de música eletrônica. Sua função é ajudar usuários a descobrir eventos, artistas e informações relacionadas à cena eletrônica.
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    console.log('🔑 OpenAI Key disponível:', !!openAIApiKey);
+    
+    if (!openAIApiKey) {
+      console.error('❌ OPENAI_API_KEY não configurada');
+      return new Response(JSON.stringify({ error: 'Configuração da IA não encontrada' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // System prompt simplificado
+    const systemPrompt = `Você é um assistente especializado em eventos culturais brasileiros para a plataforma ROLÊ.
 
 Características:
-- Seja amigável, empolgado e conhecedor da cultura eletrônica
-- Forneça informações precisas sobre eventos, artistas e locais
-- Sugira eventos baseados na localização e preferências do usuário
-- Use linguagem jovem e descontraída, mas sempre profissional
-- Seja conciso mas informativo
+- Seja conversacional, amigável e use linguagem brasileira natural
+- Ajude usuários a encontrar eventos culturais (shows, festas, exposições, teatro, etc.)
+- Use a função search_events para buscar dados reais quando apropriado
+- Foca em cidades brasileiras: São Paulo, Rio, Porto Alegre, Curitiba, Florianópolis
+- Use emojis moderadamente para deixar mais amigável
 
-${eventsContext}
+Se o usuário perguntar sobre eventos, use a função search_events para encontrar eventos reais.`;
 
-Sempre que relevante, mencione eventos específicos da lista acima. Se o usuário perguntar sobre eventos em uma cidade específica, foque nos eventos dessa região.`;
-}
+    // Function to search events (simplificada)
+    const searchEvents = async (params: EventSearchParams) => {
+      console.log('🔍 Buscando eventos com parâmetros:', params);
+      
+      try {
+        let query = supabase
+          .from('events')
+          .select(`
+            id, title, description, date_start, date_end, city, state, 
+            price_min, price_max, image_url, external_url
+          `)
+          .eq('status', 'active')
+          .gte('date_start', new Date().toISOString())
+          .order('date_start', { ascending: true })
+          .limit(6);
 
-async function generateResponse(request: ChatbotRequest): Promise<string> {
-  if (!openAIApiKey) {
-    return 'Desculpe, o serviço de chatbot está temporariamente indisponível.';
-  }
+        if (params.city) {
+          query = query.ilike('city', `%${params.city}%`);
+        }
 
-  const systemPrompt = await getSystemPrompt(request.location);
-  
-  const messages: ChatMessage[] = [
-    { role: 'system', content: systemPrompt },
-    ...request.history.slice(-6), // Keep last 6 messages for context
-    { role: 'user', content: request.message }
-  ];
+        if (params.keywords) {
+          query = query.or(`title.ilike.%${params.keywords}%,description.ilike.%${params.keywords}%`);
+        }
 
-  try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        const { data: events, error } = await query;
+
+        if (error) {
+          console.error('❌ Erro na busca de eventos:', error);
+          return [];
+        }
+
+        console.log(`✅ Encontrados ${events?.length || 0} eventos`);
+        return events || [];
+      } catch (error) {
+        console.error('❌ Erro na função de busca:', error);
+        return [];
+      }
+    };
+
+    // Prepare messages for OpenAI
+    const messages: ChatMessage[] = [
+      { role: 'system', content: systemPrompt },
+      ...chatHistory,
+      { role: 'user', content: message }
+    ];
+
+    // OpenAI function calling configuration
+    const tools = [
+      {
+        type: "function",
+        function: {
+          name: "search_events",
+          description: "Busca eventos culturais na plataforma",
+          parameters: {
+            type: "object",
+            properties: {
+              city: {
+                type: "string",
+                description: "Cidade para buscar eventos"
+              },
+              keywords: {
+                type: "string", 
+                description: "Palavras-chave para buscar eventos"
+              }
+            }
+          }
+        }
+      }
+    ];
+
+    // Call OpenAI API
+    console.log('🚀 Chamando OpenAI...');
+    
+    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-5-2025-08-07',
         messages,
-        max_tokens: 500,
-        temperature: 0.7,
+        tools,
+        tool_choice: 'auto',
+        max_completion_tokens: 1000,
       }),
     });
 
-    if (!response.ok) {
-      console.error('OpenAI API error:', response.status, await response.text());
-      return 'Desculpe, não consegui processar sua mensagem no momento. Tente novamente.';
-    }
-
-    const data = await response.json();
-    return data.choices[0].message.content;
-  } catch (error) {
-    console.error('Error calling OpenAI API:', error);
-    return 'Desculpe, ocorreu um erro. Tente novamente em alguns instantes.';
-  }
-}
-
-async function logChatInteraction(message: string, response: string, location?: any) {
-  try {
-    await supabase
-      .from('chatbot_interactions')
-      .insert({
-        user_message: message,
-        bot_response: response,
-        location: location,
-        timestamp: new Date().toISOString()
-      });
-  } catch (error) {
-    console.error('Error logging chat interaction:', error);
-  }
-}
-
-Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  try {
-    if (req.method !== 'POST') {
-      return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-        status: 405,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    if (!openAIResponse.ok) {
+      const errorText = await openAIResponse.text();
+      console.error('❌ Erro na API OpenAI:', errorText);
+      return new Response(JSON.stringify({ 
+        error: 'Erro no serviço de IA',
+        details: errorText 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const requestData: ChatbotRequest = await req.json();
+    const aiData = await openAIResponse.json();
+    console.log('✅ Resposta OpenAI recebida');
+
+    let finalResponse = '';
+    let eventsData = [];
     
-    if (!requestData.message) {
-      return new Response(JSON.stringify({ error: 'Message is required' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+    // Check if AI wants to use function calling
+    const firstChoice = aiData.choices[0];
+    if (firstChoice.message.tool_calls) {
+      console.log('🔍 AI solicitou busca de eventos');
+      
+      // Execute function calls
+      for (const toolCall of firstChoice.message.tool_calls) {
+        if (toolCall.function.name === 'search_events') {
+          const params = JSON.parse(toolCall.function.arguments);
+          console.log('📋 Argumentos da busca:', params);
+          
+          eventsData = await searchEvents(params);
+          
+          // Build response with events
+          if (eventsData.length > 0) {
+            finalResponse = `Encontrei ${eventsData.length} eventos interessantes para você! 🎉\n\n`;
+            finalResponse += 'Aqui estão os destaques:\n\n';
+            eventsData.forEach((event: any, index: number) => {
+              finalResponse += `${index + 1}. **${event.title}**\n`;
+              finalResponse += `📍 ${event.city}, ${event.state}\n`;
+              finalResponse += `📅 ${new Date(event.date_start).toLocaleDateString('pt-BR')}\n`;
+              if (event.price_min && event.price_max) {
+                finalResponse += `💰 R$ ${event.price_min} - R$ ${event.price_max}\n`;
+              }
+              finalResponse += '\n';
+            });
+          } else {
+            finalResponse = 'Não encontrei eventos específicos para sua busca, mas há muitas opções incríveis rolando! 🎭\n\n';
+            finalResponse += 'Que tal me dizer uma cidade específica ou tipo de evento que você curte? ';
+            finalResponse += 'Posso te ajudar a encontrar shows, teatro, exposições e muito mais! 🎵🎨';
+          }
+        }
+      }
+    } else {
+      finalResponse = firstChoice.message.content;
+      console.log('💬 Resposta direta (sem busca)');
     }
 
-    const response = await generateResponse(requestData);
-    
-    // Log interaction (async, don't wait)
-    logChatInteraction(requestData.message, response, requestData.location).catch(console.error);
-    
     return new Response(JSON.stringify({ 
-      response,
+      message: finalResponse,
+      events: eventsData,
       timestamp: new Date().toISOString()
     }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
+
   } catch (error) {
-    console.error('Error in ai-chatbot function:', error);
+    console.error('❌ Erro no chatbot:', error);
     return new Response(JSON.stringify({ 
-      error: 'Internal server error',
-      response: 'Desculpe, ocorreu um erro interno. Tente novamente.'
+      error: 'Erro interno do servidor',
+      details: error.message 
     }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });

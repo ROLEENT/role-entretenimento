@@ -1,43 +1,68 @@
-import React from "react";
+import { useState } from "react";
 import { Helmet } from "react-helmet";
-import { FormProvider } from "react-hook-form";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LoadingButton } from "@/components/ui/loading-button";
 import { Button } from "@/components/ui/button";
-
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Mail, MessageSquare, Phone } from "lucide-react";
-import { RHFValidatedInput, RHFValidatedTextarea } from "@/components/form";
-import { contactSchema } from "@/schemas/forms";
-import { useValidatedForm } from "@/hooks/useValidatedForm";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ContactSchema } from "@/schemas/forms";
+import { supabase } from "@/integrations/supabase/client";
 
 const Contact = () => {
-  const form = useValidatedForm({
-    schema: contactSchema,
-    defaultValues: {
-      name: '',
-      email: '',
-      subject: '',
-      message: ''
-    },
-    onSubmit: async (data) => {
-      const { data: result, error } = await supabase.functions.invoke('forms-contact', {
-        body: data,
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    // Validate with Zod schema
+    try {
+      ContactSchema.parse(formData);
+    } catch (error: any) {
+      const firstError = error.errors?.[0]?.message || 'Por favor, preencha todos os campos obrigatórios';
+      toast.error(firstError);
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('forms-contact', {
+        body: formData,
       });
 
       if (error) throw error;
 
-      if (result?.ok) {
+      if (data?.ok) {
         toast.success("Mensagem enviada com sucesso! Responderemos em breve.");
-        form.reset();
+        setFormData({ name: '', email: '', subject: '', message: '' });
       } else {
-        throw new Error(result?.error || 'Erro ao enviar mensagem');
+        throw new Error(data?.error || 'Erro ao enviar mensagem');
       }
+    } catch (error: any) {
+      console.error('Erro ao enviar mensagem:', error);
+      toast.error(error.message || 'Erro ao enviar mensagem. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
     }
-  });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -111,58 +136,67 @@ const Contact = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <FormProvider {...form}>
-                    <form onSubmit={form.submitHandler} className="space-y-4">
-                      <RHFValidatedInput
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Nome *</Label>
+                      <Input
+                        id="name"
                         name="name"
-                        label="Nome"
-                        placeholder="Seu nome completo"
+                        value={formData.name}
+                        onChange={handleInputChange}
                         required
-                        autoComplete="name"
+                        placeholder="Seu nome completo"
                       />
-                      
-                      <RHFValidatedInput
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email *</Label>
+                      <Input
+                        id="email"
                         name="email"
                         type="email"
-                        label="Email"
-                        placeholder="seu@email.com"
+                        value={formData.email}
+                        onChange={handleInputChange}
                         required
-                        autoComplete="email"
+                        placeholder="seu@email.com"
                       />
-                      
-                      <RHFValidatedInput
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="subject">Assunto</Label>
+                      <Input
+                        id="subject"
                         name="subject"
-                        label="Assunto"
+                        value={formData.subject}
+                        onChange={handleInputChange}
                         placeholder="Assunto da sua mensagem"
                       />
-                      
-                      <RHFValidatedTextarea
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="message">Mensagem *</Label>
+                      <Textarea
+                        id="message"
                         name="message"
-                        label="Mensagem"
+                        value={formData.message}
+                        onChange={handleInputChange}
+                        required
                         placeholder="Digite sua mensagem aqui..."
                         rows={6}
-                        required
-                        showCharCount
-                        maxLength={2000}
                       />
+                    </div>
 
-                      <p className="text-xs text-muted-foreground">
-                        Ao enviar esta mensagem, você concorda com nossa{" "}
-                        <a href="/politica-privacidade" className="text-primary hover:underline">
-                          Política de Privacidade
-                        </a>.
-                      </p>
-                      
-                      <LoadingButton 
-                        type="submit" 
-                        loading={form.isSubmitting}
-                        loadingText="Enviando..."
-                        className="w-full"
-                      >
-                        Enviar Mensagem
-                      </LoadingButton>
-                    </form>
-                  </FormProvider>
+                    <p className="text-xs text-muted-foreground">
+                      Ao enviar esta mensagem, você concorda com nossa{" "}
+                      <a href="/politica-privacidade" className="text-primary hover:underline">
+                        Política de Privacidade
+                      </a>.
+                    </p>
+                    
+                    <Button type="submit" disabled={isSubmitting} className="w-full">
+                      {isSubmitting ? "Enviando..." : "Enviar Mensagem"}
+                    </Button>
+                  </form>
                 </CardContent>
               </Card>
 

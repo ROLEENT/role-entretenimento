@@ -23,7 +23,7 @@ const LazyImageComponent = ({
   const [isError, setIsError] = useState(false);
   const [imageSrc, setImageSrc] = useState(placeholder);
   const imgRef = useRef<HTMLImageElement>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
+  const observerRef = useRef<IntersectionObserver>();
 
   useEffect(() => {
     const img = imgRef.current;

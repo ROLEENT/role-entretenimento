@@ -7,7 +7,6 @@ import { Clock, MapPin, ArrowRight } from "lucide-react";
 import { useBlogData, BlogPost } from "@/hooks/useBlogData";
 import ScrollAnimationWrapper from "@/components/ScrollAnimationWrapper";
 import { Skeleton } from "@/components/ui/skeleton";
-import { oneChild } from "@/components/utils/one-child";
 
 const FeaturedBlogPosts = () => {
   const { posts, isLoading } = useBlogData();
@@ -104,12 +103,10 @@ const FeaturedBlogPosts = () => {
                       {post.reading_time || 5} min de leitura
                     </div>
                     <Button asChild size="sm" variant="ghost">
-                      {oneChild(
-                        <Link to={`/destaques/${post.city}/${post.slug_data}`} className="inline-flex items-center gap-1">
-                          Ler mais
-                          <ArrowRight className="w-3 h-3" />
-                        </Link>
-                      )}
+                      <Link to={`/destaques/${post.city}/${post.slug_data}`}>
+                        Ler mais
+                        <ArrowRight className="w-3 h-3 ml-1" />
+                      </Link>
                     </Button>
                   </div>
                 </CardContent>
@@ -119,12 +116,10 @@ const FeaturedBlogPosts = () => {
           
           <div className="text-center">
             <Button asChild size="lg" variant="outline">
-              {oneChild(
-                <Link to="/destaques" className="inline-flex items-center gap-2">
-                  Ver Todos os Destaques
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              )}
+              <Link to="/destaques">
+                Ver Todos os Destaques
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
             </Button>
           </div>
         </div>

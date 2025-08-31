@@ -1,38 +1,34 @@
 import { z } from 'zod';
-import { baseFields } from '@/lib/validation';
 
 // Schema para candidaturas (Trabalhe Conosco)
-export const applicationSchema = z.object({
-  full_name: baseFields.name,
-  email: baseFields.email,
-  phone: baseFields.phone,
-  portfolio_url: baseFields.url,
-  role: baseFields.shortText,
-  message: baseFields.description,
-  lgpd_consent: baseFields.requiredBoolean,
+export const ApplicationSchema = z.object({
+  full_name: z.string().min(2, 'Nome completo é obrigatório').max(100),
+  email: z.string().email('Email inválido').max(255),
+  phone: z.string().max(20).optional(),
+  portfolio_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  role: z.string().max(50).optional(),
+  message: z.string().max(2000).optional(),
+  lgpd_consent: z.boolean().refine(val => val === true, {
+    message: 'Você deve aceitar os termos de privacidade'
+  })
 });
 
 // Schema para contato
-export const contactSchema = z.object({
-  name: baseFields.name,
-  email: baseFields.email,
-  subject: baseFields.shortText,
-  message: baseFields.requiredDescription,
+export const ContactSchema = z.object({
+  name: z.string().min(2, 'Nome é obrigatório').max(100),
+  email: z.string().email('Email inválido').max(255),
+  subject: z.string().max(200).optional(),
+  message: z.string().min(10, 'Mensagem deve ter pelo menos 10 caracteres').max(2000)
 });
 
 // Schema para newsletter
-export const newsletterSchema = z.object({
-  email: baseFields.email,
-  name: baseFields.optionalName,
-  city: baseFields.shortText,
-  preferences: z.array(z.string()).optional().default([]),
+export const NewsletterSchema = z.object({
+  email: z.string().email('Email inválido').max(255),
+  name: z.string().max(100).optional(),
+  city: z.string().max(100).optional(),
+  preferences: z.array(z.string()).optional()
 });
 
-// Export legacy names for compatibility
-export const ApplicationSchema = applicationSchema;
-export const ContactSchema = contactSchema;
-export const NewsletterSchema = newsletterSchema;
-
-export type ApplicationData = z.infer<typeof applicationSchema>;
-export type ContactData = z.infer<typeof contactSchema>;
-export type NewsletterData = z.infer<typeof newsletterSchema>;
+export type ApplicationData = z.infer<typeof ApplicationSchema>;
+export type ContactData = z.infer<typeof ContactSchema>;
+export type NewsletterData = z.infer<typeof NewsletterSchema>;

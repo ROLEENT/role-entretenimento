@@ -37,11 +37,11 @@ export const AnalyticsDashboard = () => {
     try {
       setLoading(true);
       
-      // Fetch from agenda_itens instead of events
+      // Fetch total events
       const { data: events, error: eventsError } = await supabase
-        .from('agenda_itens')
+        .from('events')
         .select('id, title, city')
-        .eq('status', 'published');
+        .eq('status', 'active' as any);
 
       if (eventsError) throw eventsError;
 
@@ -49,42 +49,25 @@ export const AnalyticsDashboard = () => {
       const { data: posts, error: postsError } = await supabase
         .from('blog_posts')
         .select('views')
-        .eq('status', 'published');
+        .eq('status', 'published' as any);
 
       if (postsError) throw postsError;
 
-      // Fetch favorites count from real table
+      // Fetch favorites count
       const { data: favorites, error: favoritesError } = await supabase
         .from('event_favorites')
         .select('id');
 
-      if (favoritesError) {
-        console.warn('No event_favorites table found, using mock data');
-      }
-
-      // Fetch real analytics events
-      const { data: analyticsEvents, error: analyticsError } = await supabase
-        .from('analytics_events')
-        .select('event_name, created_at')
-        .gte('created_at', new Date(Date.now() - (parseInt(timeRange.slice(0, -1)) * 24 * 60 * 60 * 1000)).toISOString());
-
-      if (analyticsError) {
-        console.warn('No analytics_events table found, using mock data');
-      }
+      if (favoritesError) throw favoritesError;
 
       // Calculate analytics
       const totalEvents = events?.length || 0;
       const totalViews = Array.isArray(posts) ? posts.reduce((sum, post: any) => sum + (post.views || 0), 0) : 0;
       const totalFavorites = favorites?.length || 0;
 
-      // Calculate page views from analytics events
-      const pageViews = analyticsEvents?.filter(e => e.event_name === 'page_view').length || Math.floor(totalViews * 1.5);
-
       // Calculate popular cities
       const cityCount = Array.isArray(events) ? events.reduce((acc: any, event: any) => {
-        if (event.city) {
-          acc[event.city] = (acc[event.city] || 0) + 1;
-        }
+        acc[event.city] = (acc[event.city] || 0) + 1;
         return acc;
       }, {} as Record<string, number>) : {};
 
@@ -93,26 +76,26 @@ export const AnalyticsDashboard = () => {
         .sort((a, b) => Number(b.count) - Number(a.count))
         .slice(0, 5);
 
-      // Top events with real data when possible
+      // Top events by title (mock views)
       const topEvents = Array.isArray(events) ? events
         .slice(0, 5)
         .map((event: any, index: number) => ({
           title: event.title,
-          views: Math.floor(Math.random() * 500) + 50, // Will be replaced with real data when available
+          views: Math.floor(Math.random() * 1000) + 100, // Mock views
           city: event.city
         })) : [];
 
-      // Real recent activity when possible
+      // Mock recent activity
       const recentActivity = [
-        { action: 'Páginas visualizadas', count: pageViews, date: `Últimos ${timeRange.slice(0, -1)} dias` },
-        { action: 'Eventos favoritados', count: totalFavorites, date: `Últimos ${timeRange.slice(0, -1)} dias` },
-        { action: 'Compartilhamentos', count: Math.floor(pageViews * 0.05), date: `Últimos ${timeRange.slice(0, -1)} dias` }
+        { action: 'Eventos visualizados', count: totalViews, date: 'Últimos 7 dias' },
+        { action: 'Novos favoritos', count: totalFavorites, date: 'Últimos 7 dias' },
+        { action: 'Compartilhamentos', count: Math.floor(totalViews * 0.1), date: 'Últimos 7 dias' }
       ];
 
       setAnalytics({
         totalEvents,
-        totalViews: pageViews,
-        totalShares: Math.floor(pageViews * 0.05),
+        totalViews,
+        totalShares: Math.floor(totalViews * 0.1), // Mock shares
         totalFavorites,
         popularCities,
         recentActivity,

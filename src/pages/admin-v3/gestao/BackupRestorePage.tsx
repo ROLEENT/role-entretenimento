@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Settings, Download, Upload, Trash2, Calendar, FileText, AlertTriangle, CheckCircle, RefreshCw, Database } from 'lucide-react';
-import { useAdminSession } from '@/hooks/useAuth';
+import { useAdminSession } from '@/hooks/useAdminSession';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -228,8 +228,8 @@ const BackupRestorePage: React.FC = () => {
               <div className="flex items-end">
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" disabled={!selectedFile || loading} className="w-full inline-flex items-center gap-2">
-                      <Upload className="h-4 w-4" />
+                    <Button variant="destructive" disabled={!selectedFile || loading} className="w-full">
+                      <Upload className="h-4 w-4 mr-2" />
                       Restaurar
                     </Button>
                   </AlertDialogTrigger>
@@ -316,7 +316,7 @@ const BackupRestorePage: React.FC = () => {
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="inline-flex items-center justify-center">
+                          <Button variant="outline" size="sm">
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>

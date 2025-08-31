@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2, Bell, Send, Settings, CheckCircle, XCircle, BellRing } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAdminSession } from "@/hooks/useAuth";
+import { useAdminSession } from "@/hooks/useAdminSession";
 import { toast } from "sonner";
 import { urlBase64ToUint8Array, VAPID_PUBLIC_KEY } from "@/utils/vapidKeys";
 

@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Database, Download, Upload, AlertTriangle, CheckCircle, Clock, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAdminSession } from "@/hooks/useAuth";
+import { useAdminSession } from "@/hooks/useAdminSession";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -50,71 +50,7 @@ function BackupRestorePage() {
   };
 
   const createBackup = async (type: string = 'full') => {
-    if (!adminEmail || creating) return;
-    
-    setCreating(true);
-    try {
-      const response = await supabase.functions.invoke('create-backup', {
-        body: {
-          backup_type: type,
-          admin_email: adminEmail
-        }
-      });
-
-      if (response.error) {
-        throw new Error(response.error.message);
-      }
-
-      toast.success('Backup iniciado! Acompanhe o progresso na tabela abaixo.');
-      fetchBackups(); // Refresh the list
-    } catch (error) {
-      console.error('Error creating backup:', error);
-      toast.error('Erro ao iniciar backup: ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  const downloadBackup = async (backupId: string) => {
-    if (!adminEmail) return;
-    
-    try {
-      const response = await supabase.functions.invoke('download-backup', {
-        headers: {
-          'x-admin-email': adminEmail
-        },
-        body: new URLSearchParams({ backup_id: backupId })
-      });
-
-      if (response.error) {
-        throw new Error(response.error.message);
-      }
-
-      // The response should be a blob for download
-      toast.success('Download iniciado!');
-    } catch (error) {
-      console.error('Error downloading backup:', error);
-      toast.error('Erro ao fazer download: ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
-    }
-  };
-
-  const deleteBackup = async (backupId: string) => {
-    if (!adminEmail) return;
-    
-    try {
-      const { error } = await supabase
-        .from('backup_metadata')
-        .delete()
-        .eq('id', backupId);
-
-      if (error) throw error;
-
-      toast.success('Backup removido com sucesso!');
-      fetchBackups(); // Refresh the list
-    } catch (error) {
-      console.error('Error deleting backup:', error);
-      toast.error('Erro ao remover backup');
-    }
+    toast.error('Funcionalidade de backup removida. Use a página principal de Backup & Restore para backup de configurações.');
   };
 
   const getStatusBadge = (status: string) => {
@@ -224,25 +160,17 @@ function BackupRestorePage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <h4 className="font-medium">Backup de Configuração</h4>
-              <p className="text-sm text-muted-foreground">
-                Cria backup apenas das configurações do sistema (categorias, tipos de artista, etc.)
-              </p>
-              <Button 
-                onClick={() => createBackup('config')}
-                disabled={creating}
-                variant="outline"
-                className="w-full"
-              >
-                {creating ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Upload className="h-4 w-4 mr-2" />
-                )}
-                Criar Backup de Configuração
-              </Button>
-            </div>
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                A funcionalidade de restore está em desenvolvimento. 
+                Por enquanto, use os arquivos de backup para restauração manual.
+              </AlertDescription>
+            </Alert>
+            <Button disabled className="w-full">
+              <Upload className="h-4 w-4 mr-2" />
+              Restaurar Backup (Em breve)
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -310,19 +238,11 @@ function BackupRestorePage() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {backup.status === 'completed' && (
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => downloadBackup(backup.id)}
-                            >
+                            <Button variant="outline" size="sm" disabled>
                               <Download className="h-3 w-3" />
                             </Button>
                           )}
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => deleteBackup(backup.id)}
-                          >
+                          <Button variant="outline" size="sm" disabled>
                             <Trash2 className="h-3 w-3" />
                           </Button>
                         </div>

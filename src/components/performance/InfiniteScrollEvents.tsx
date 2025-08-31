@@ -48,8 +48,8 @@ export function InfiniteScrollEvents({
   const [page, setPage] = useState(0);
   const [error, setError] = useState<string | null>(null);
   
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const lastEventElementRef = useRef<HTMLDivElement | null>(null);
+  const observerRef = useRef<IntersectionObserver>();
+  const lastEventElementRef = useRef<HTMLDivElement>();
 
   // Cache for API responses
   const cacheRef = useRef<Map<string, { data: Event[], timestamp: number }>>(new Map());

@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { AdminBreadcrumb } from "@/components/ui/unified-breadcrumb";
+import { AdminV3Breadcrumb } from "@/components/admin/common/AdminV3Breadcrumb";
 import { AdminEventForm } from "@/components/admin/events/AdminEventForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
@@ -57,7 +57,7 @@ export default function AdminV3EventEdit() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <AdminBreadcrumb items={breadcrumbItems} />
+      <AdminV3Breadcrumb items={breadcrumbItems} />
       
       <div className="flex justify-between items-center">
         <div>

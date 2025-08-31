@@ -175,7 +175,7 @@ export function AgentesArtistsList({ search }: AgentesArtistsListProps) {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link to={`/admin-v3/agentes/artistas/${artist.id}/edit`} className="inline-flex items-center">
+                          <Link to={`/admin-v3/agentes/artistas/${artist.id}/edit`}>
                             <Edit className="mr-2 h-4 w-4" />
                             Editar
                           </Link>

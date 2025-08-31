@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Send, Bell, BellOff, Users, AlertCircle, CheckCircle, Settings } from 'lucide-react';
-import { useAdminSession } from '@/hooks/useAuth';
+import { useAdminSession } from '@/hooks/useAdminSession';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';

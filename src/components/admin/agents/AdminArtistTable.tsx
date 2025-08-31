@@ -159,14 +159,14 @@ export const AdminArtistTable: React.FC<AdminArtistTableProps> = ({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
-                      <Link to={`/admin-v3/agentes/artistas/${artist.id}/edit`} className="inline-flex items-center">
+                      <Link to={`/admin-v3/agentes/artistas/${artist.id}/edit`}>
                         <Edit className="mr-2 h-4 w-4" />
                         Editar
                       </Link>
                     </DropdownMenuItem>
                     
                     <DropdownMenuItem asChild>
-                      <Link to={`/admin-v3/agentes/artistas/${artist.id}`} className="inline-flex items-center">
+                      <Link to={`/admin-v3/agentes/artistas/${artist.id}`}>
                         <Eye className="mr-2 h-4 w-4" />
                         Visualizar
                       </Link>
@@ -197,7 +197,6 @@ export const AdminArtistTable: React.FC<AdminArtistTableProps> = ({
                             href={`https://instagram.com/${artist.instagram.replace('@', '')}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center"
                           >
                             <ExternalLink className="mr-2 h-4 w-4" />
                             Ver Instagram

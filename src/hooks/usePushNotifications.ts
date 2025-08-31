@@ -77,32 +77,27 @@ export const usePushNotifications = () => {
     }
 
     try {
-      // Enable Service Worker for push notifications
+      // Service Worker temporarily disabled for debugging
+      if (false) {
         // Registrar service worker se necessário
         const registration = await navigator.serviceWorker.register('/sw.js');
         await navigator.serviceWorker.ready;
 
-        // VAPID key para admin push notifications
-        const vapidPublicKey = 'BN2zF7_7zF8Qo6xGJQJHmAj3JQqF8xA4Nx1-3fHFdGo8_jDhK3nP8pQ1a0yY8ByO4x-F7HRl5cQJQ-XgH8U3eF0'; // VAPID key
+        // Criar subscrição
+        const vapidPublicKey = 'BP8rBl7ExPJjIyVXE4v8YNY5aYKr3HQVcF8vR-RjF_-XOGwNEJ_iq4nLQHmFyL-5bVzjgM_zGwCmD1pQHfGhGms'; // VAPID key
         
         const pushSubscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
         });
 
-        if (!user?.email) {
-          throw new Error('Email do usuário não encontrado');
-        }
-
-        // Salvar subscrição para admin
+        // Salvar no Supabase
         const { error } = await supabase
-          .from('admin_push_subscriptions')
+          .from('push_subscriptions')
           .upsert({
-            admin_email: user.email,
-            endpoint: pushSubscription.endpoint,
-            p256dh: pushSubscription.toJSON().keys?.p256dh,
-            auth: pushSubscription.toJSON().keys?.auth,
-            is_active: true
+            user_id: user.id,
+            subscription: pushSubscription.toJSON(),
+            event_id: eventId || null
           });
 
         if (error) throw error;
@@ -111,10 +106,19 @@ export const usePushNotifications = () => {
         
         toast({
           title: "Notificações ativadas",
-          description: "Você receberá notificações administrativas importantes"
+          description: eventId ? "Você receberá lembretes deste evento" : "Você receberá notificações importantes"
         });
 
         return true;
+      }
+      
+      // Service Worker disabled - show message
+      toast({
+        title: "Notificações indisponíveis",
+        description: "Service Worker está temporariamente desabilitado",
+        variant: "destructive"
+      });
+      return false;
     } catch (error) {
       console.error('Erro ao criar subscrição:', error);
       toast({
@@ -130,22 +134,27 @@ export const usePushNotifications = () => {
     if (!user) return false;
 
     try {
-      // Para admins, cancelar da tabela admin_push_subscriptions
-      const { error } = await supabase
-        .from('admin_push_subscriptions')
-        .update({ is_active: false })
-        .eq('admin_email', user.email);
+      let query = supabase
+        .from('push_subscriptions')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (eventId) {
+        query = query.eq('event_id', eventId);
+      }
+
+      const { error } = await query;
 
       if (error) throw error;
 
-      if (subscription) {
+      if (!eventId && subscription) {
         await subscription.unsubscribe();
         setSubscription(null);
       }
 
       toast({
         title: "Notificações desativadas",
-        description: "Notificações push foram desativadas"
+        description: eventId ? "Você não receberá mais lembretes deste evento" : "Notificações push foram desativadas"
       });
 
       return true;

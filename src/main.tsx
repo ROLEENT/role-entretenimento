@@ -1,7 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
-import { AuthProvider } from '@/hooks/useAuth'
 import { preloadCriticalResources, registerServiceWorker } from "@/utils/serviceWorker";
 import { addResourceHints, optimizeForMobile } from "@/utils/performanceHelpers";
 import { initPerformanceMonitoring } from "./utils/performanceMonitor";
@@ -14,11 +13,10 @@ optimizeForMobile();
 // Initialize performance monitoring
 initPerformanceMonitoring();
 
-// Register service worker for push notifications and caching
-registerServiceWorker();
+// Register service worker for caching (skip for admin routes)
+// SW temporariamente desabilitado para debugging
+// if (!window.location.pathname.startsWith('/admin')) {
+//   registerServiceWorker();
+// }
 
-createRoot(document.getElementById("root")!).render(
-  <AuthProvider>
-    <App />
-  </AuthProvider>
-);
+createRoot(document.getElementById("root")!).render(<App />);

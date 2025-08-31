@@ -139,13 +139,13 @@ export const AdminBlogTable: React.FC<AdminBlogTableProps> = ({
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Ações</DropdownMenuLabel>
                       <DropdownMenuItem asChild>
-                        <Link to={`/revista/${post.slug}`} target="_blank" className="inline-flex items-center">
+                        <Link to={`/revista/${post.slug}`} target="_blank">
                           <Eye className="mr-2 h-4 w-4" />
                           Visualizar
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to={`/admin-v3/revista/${post.id}/edit`} className="inline-flex items-center">
+                        <Link to={`/admin-v3/revista/${post.id}/edit`}>
                           <Edit className="mr-2 h-4 w-4" />
                           Editar
                         </Link>
