@@ -132,7 +132,7 @@ export default function RHFSelectAsync({
             <SelectTrigger className={className} aria-invalid={!!fieldError}>
               <SelectValue placeholder={finalPlaceholder} />
             </SelectTrigger>
-            <SelectContent position="popper" className="z-50">
+            <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
               {options.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}

@@ -499,6 +499,34 @@ body {
     font-size: 16px; /* Prevents zoom on iOS */
   }
 
+  /* Overlay and dropdown z-index utilities */
+  .overlay-root {
+    z-index: 9999 !important;
+  }
+
+  .dropdown-content {
+    z-index: 9999 !important;
+    background: hsl(var(--popover));
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 4px 12px hsl(0 0% 0% / 0.15);
+  }
+
+  /* Ensure dropdowns work in modals */
+  [data-radix-select-content] {
+    z-index: 9999 !important;
+  }
+
+  [data-radix-popover-content] {
+    z-index: 9999 !important;
+  }
+
+  /* Fix for mobile touch */
+  @media (hover: none) and (pointer: coarse) {
+    [data-radix-select-trigger] {
+      -webkit-tap-highlight-color: transparent;
+    }
+  }
+
   /* Mobile-safe authentication buttons */
   .mobile-auth-button {
     min-height: 48px !important;

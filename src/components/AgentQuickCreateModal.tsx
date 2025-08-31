@@ -261,7 +261,7 @@ export function AgentQuickCreateModal({
                            <SelectValue placeholder="Selecione a cidade" />
                         </SelectTrigger>
                       </FormControl>
-                       <SelectContent position="popper" className="z-[100]">
+                        <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                          {cities.map((city) => (
                            <SelectItem key={city.id} value={String(city.id)}>
                              {city.name} – {city.uf}
@@ -364,7 +364,7 @@ export function AgentQuickCreateModal({
                            <SelectValue placeholder="Selecione o subtipo" />
                           </SelectTrigger>
                         </FormControl>
-                         <SelectContent position="popper" className="z-[100]">
+                          <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                            {ARTIST_SUBTYPES.map((subtype) => (
                              <SelectItem key={subtype.value} value={subtype.value}>
                                {subtype.label}
@@ -411,7 +411,7 @@ export function AgentQuickCreateModal({
                                <SelectValue placeholder="Selecione o tipo" />
                             </SelectTrigger>
                           </FormControl>
-                           <SelectContent position="popper" className="z-[100]">
+                            <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                              {venueTypes.map((type) => (
                                <SelectItem key={type.id} value={String(type.id)}>
                                  {type.name}
@@ -473,7 +473,7 @@ export function AgentQuickCreateModal({
                           <SelectValue placeholder="Selecione o subtipo" />
                         </SelectTrigger>
                       </FormControl>
-                       <SelectContent position="popper" className="z-[100]">
+                       <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                          {ORGANIZER_SUBTYPES.map((subtype) => (
                            <SelectItem key={subtype.value} value={subtype.value}>
                              {subtype.label}

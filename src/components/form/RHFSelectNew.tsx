@@ -76,7 +76,7 @@ export default function RHFSelect({
             >
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
-            <SelectContent className="z-50 bg-popover">
+            <SelectContent className="z-[9999] bg-popover border shadow-lg" position="popper">
               {normalizedOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}

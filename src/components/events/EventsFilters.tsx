@@ -153,7 +153,7 @@ const EventsFilters: React.FC<EventsFiltersProps> = ({
               <SelectTrigger>
                 <SelectValue placeholder="Todas as cidades" />
               </SelectTrigger>
-              <SelectContent position="popper" className="z-[100]">
+              <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                 <SelectItem value="all">Todas as cidades</SelectItem>
                 {cities.map((city) => (
                   <SelectItem key={city.city} value={city.city}>
@@ -175,7 +175,7 @@ const EventsFilters: React.FC<EventsFiltersProps> = ({
               <SelectTrigger>
                 <SelectValue placeholder="Todas as categorias" />
               </SelectTrigger>
-              <SelectContent position="popper" className="z-[100]">
+              <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                 <SelectItem value="all">Todas as categorias</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category.id} value={category.slug}>

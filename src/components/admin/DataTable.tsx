@@ -192,7 +192,7 @@ export function DataTable<T>({
               <SelectTrigger className="w-full md:w-[180px]">
                 <SelectValue placeholder="Filtrar por status" />
               </SelectTrigger>
-               <SelectContent position="popper" className="z-[100]">
+               <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                  <SelectItem value="all">Todos os status</SelectItem>
                  {statusOptions.map((option) => (
                    <SelectItem key={option.value} value={option.value}>

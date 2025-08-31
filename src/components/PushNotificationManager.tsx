@@ -333,7 +333,7 @@ const PushNotificationManager: React.FC<PushNotificationManagerProps> = ({
                   <SelectTrigger className="flex-1">
                     <SelectValue placeholder="Selecione uma cidade" />
                   </SelectTrigger>
-                   <SelectContent position="popper" className="z-[100]">
+                   <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                      <SelectItem value="all">Todas as cidades</SelectItem>
                      {cities.map(city => (
                        <SelectItem key={city} value={city}>

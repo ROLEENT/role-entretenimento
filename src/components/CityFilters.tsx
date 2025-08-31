@@ -114,7 +114,7 @@ const CityFilters = ({ onFilterChange }: CityFiltersProps) => {
                     <SelectTrigger>
                       <SelectValue placeholder="Todos os gêneros" />
                     </SelectTrigger>
-                     <SelectContent position="popper" className="z-[100]">
+                      <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                        {genres.map((genre) => (
                          <SelectItem key={genre} value={genre}>
                            {genre}
@@ -133,7 +133,7 @@ const CityFilters = ({ onFilterChange }: CityFiltersProps) => {
                     <SelectTrigger>
                       <SelectValue placeholder="Qualquer preço" />
                     </SelectTrigger>
-                     <SelectContent position="popper" className="z-[100]">
+                      <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                        {priceRanges.map((range) => (
                          <SelectItem key={range.value} value={range.value}>
                            {range.label}
@@ -152,7 +152,7 @@ const CityFilters = ({ onFilterChange }: CityFiltersProps) => {
                     <SelectTrigger>
                       <SelectValue placeholder="Qualquer data" />
                     </SelectTrigger>
-                     <SelectContent position="popper" className="z-[100]">
+                      <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                        <SelectItem value="today">Hoje</SelectItem>
                        <SelectItem value="tomorrow">Amanhã</SelectItem>
                        <SelectItem value="weekend">Fim de semana</SelectItem>
@@ -171,7 +171,7 @@ const CityFilters = ({ onFilterChange }: CityFiltersProps) => {
                     <SelectTrigger>
                       <SelectValue placeholder="Todos os tipos" />
                     </SelectTrigger>
-                     <SelectContent position="popper" className="z-[100]">
+                      <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                        {venueTypes.map((type) => (
                          <SelectItem key={type} value={type}>
                            {type}
@@ -219,7 +219,7 @@ const CityFilters = ({ onFilterChange }: CityFiltersProps) => {
                         <SelectTrigger>
                           <SelectValue placeholder="Qualquer capacidade" />
                         </SelectTrigger>
-                         <SelectContent position="popper" className="z-[100]">
+                         <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                            {capacityRanges.map((range) => (
                              <SelectItem key={range.value} value={range.value}>
                                {range.label}

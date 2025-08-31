@@ -118,7 +118,7 @@ const UserPersonalCalendar: React.FC = () => {
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue />
                 </SelectTrigger>
-                 <SelectContent position="popper" className="z-[100]">
+                 <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                    <SelectItem value="all">Todos os tipos</SelectItem>
                    <SelectItem value="favorite">Favoritos ({eventStats.favorites})</SelectItem>
                    <SelectItem value="attending">Confirmados ({eventStats.attending})</SelectItem>

@@ -118,7 +118,7 @@ const SearchAndFilters = ({ onSearch, onFilterChange }: SearchAndFiltersProps) =
                   <SelectTrigger>
                     <SelectValue placeholder="Todas" />
                   </SelectTrigger>
-                  <SelectContent position="popper" className="z-[100]">
+                  <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                     {categories.map((category) => (
                       <SelectItem key={category} value={category}>
                         {category}
@@ -138,7 +138,7 @@ const SearchAndFilters = ({ onSearch, onFilterChange }: SearchAndFiltersProps) =
                   <SelectTrigger>
                     <SelectValue placeholder="Todas" />
                   </SelectTrigger>
-                  <SelectContent position="popper" className="z-[100]">
+                  <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                     {cities.map((city) => (
                       <SelectItem key={city} value={city}>
                         {city}
@@ -158,7 +158,7 @@ const SearchAndFilters = ({ onSearch, onFilterChange }: SearchAndFiltersProps) =
                   <SelectTrigger>
                     <SelectValue placeholder="Qualquer" />
                   </SelectTrigger>
-                  <SelectContent position="popper" className="z-[100]">
+                  <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                     {priceRanges.map((range) => (
                       <SelectItem key={range.value} value={range.value}>
                         {range.label}
@@ -178,7 +178,7 @@ const SearchAndFilters = ({ onSearch, onFilterChange }: SearchAndFiltersProps) =
                   <SelectTrigger>
                     <SelectValue placeholder="Qualquer" />
                   </SelectTrigger>
-                  <SelectContent position="popper" className="z-[100]">
+                  <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
                     {dateOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
