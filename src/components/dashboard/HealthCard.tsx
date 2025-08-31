@@ -1,14 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useEffect, useState } from 'react';
-import { getSystemHealth } from '@/data/dashboard';
-import { CheckCircle, AlertCircle, XCircle } from 'lucide-react';
-
-interface SystemHealth {
-  database: boolean;
-  storage: boolean;
-  functions: boolean;
-}
+import { getSystemHealth, SystemHealth } from '@/data/dashboard';
+import { CheckCircle, AlertCircle, XCircle, Settings, ExternalLink } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export function HealthCard() {
   const [health, setHealth] = useState<SystemHealth | null>(null);
@@ -23,9 +18,9 @@ export function HealthCard() {
       } catch (error) {
         console.error('Failed to load system health:', error);
         setHealth({
-          database: false,
-          storage: false,
-          functions: false
+          database: { status: 'error', message: 'Erro de conexão' },
+          storage: { status: 'error', message: 'Não acessível' },
+          schema: { status: 'error', message: 'Não detectada' }
         });
       } finally {
         setLoading(false);
@@ -35,19 +30,26 @@ export function HealthCard() {
     loadHealth();
   }, []);
 
-  const getStatusIcon = (status: boolean) => {
-    if (status) {
-      return <CheckCircle className="h-5 w-5 text-green-500" />;
+  const getStatusIcon = (status: 'ok' | 'warning' | 'error') => {
+    switch (status) {
+      case 'ok':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'warning':
+        return <AlertCircle className="h-4 w-4 text-amber-500" />;
+      case 'error':
+        return <XCircle className="h-4 w-4 text-red-500" />;
     }
-    return <XCircle className="h-5 w-5 text-red-500" />;
   };
 
-  const getStatusBadge = (status: boolean, label: string) => {
-    return (
-      <Badge variant={status ? 'default' : 'destructive'}>
-        {status ? 'OK' : 'Erro'}
-      </Badge>
-    );
+  const getStatusBadge = (status: 'ok' | 'warning' | 'error') => {
+    switch (status) {
+      case 'ok':
+        return <Badge variant="default">OK</Badge>;
+      case 'warning':
+        return <Badge variant="outline" className="text-amber-600 border-amber-300">Atenção</Badge>;
+      case 'error':
+        return <Badge variant="destructive">Erro</Badge>;
+    }
   };
 
   return (
@@ -69,29 +71,50 @@ export function HealthCard() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center gap-2">
-              {getStatusIcon(health?.database ?? false)}
-              <div className="flex-1">
-                <div className="text-sm font-medium">Database</div>
-                {getStatusBadge(health?.database ?? false, 'Database')}
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex items-center gap-2">
+                {getStatusIcon(health?.database.status || 'error')}
+                <div className="flex-1">
+                  <div className="text-sm font-medium">Database</div>
+                  <div className="text-xs text-muted-foreground">
+                    {health?.database.message || 'Erro'}
+                  </div>
+                  {getStatusBadge(health?.database.status || 'error')}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {getStatusIcon(health?.storage.status || 'error')}
+                <div className="flex-1">
+                  <div className="text-sm font-medium">Storage</div>
+                  <div className="text-xs text-muted-foreground">
+                    {health?.storage.message || 'Erro'}
+                  </div>
+                  {getStatusBadge(health?.storage.status || 'error')}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {getStatusIcon(health?.schema.status || 'error')}
+                <div className="flex-1">
+                  <div className="text-sm font-medium">Schema</div>
+                  <div className="text-xs text-muted-foreground">
+                    {health?.schema.message || 'Erro'}
+                  </div>
+                  {getStatusBadge(health?.schema.status || 'error')}
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              {getStatusIcon(health?.storage ?? false)}
-              <div className="flex-1">
-                <div className="text-sm font-medium">Storage</div>
-                {getStatusBadge(health?.storage ?? false, 'Storage')}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {getStatusIcon(health?.functions ?? false)}
-              <div className="flex-1">
-                <div className="text-sm font-medium">Functions</div>
-                {getStatusBadge(health?.functions ?? false, 'Functions')}
-              </div>
+            <div className="flex justify-end">
+              <Button variant="outline" size="sm" asChild>
+                <a href="/gestao/logs" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Ver logs
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              </Button>
             </div>
           </div>
         )}

@@ -141,26 +141,71 @@ export async function getRecentActivity(): Promise<RecentActivityItem[]> {
 
 /**
  * Fetches health status of system components
- * @returns Promise<{database: boolean, storage: boolean, functions: boolean}>
+ * @returns Promise<{database: {status: string, message: string}, storage: {status: string, message: string}, schema: {status: string, message: string}}>
  */
-export async function getSystemHealth() {
-  try {
-    // Test database connectivity by trying to count a system table
-    const dbResult = await countSafe('profiles');
-    const database = dbResult.error === null;
+export interface SystemHealth {
+  database: {
+    status: 'ok' | 'warning' | 'error';
+    message: string;
+  };
+  storage: {
+    status: 'ok' | 'warning' | 'error';
+    message: string;
+  };
+  schema: {
+    status: 'ok' | 'warning' | 'error';
+    message: string;
+  };
+}
 
-    // Basic health checks (can be expanded)
-    return {
-      database,
-      storage: true, // Assume storage is working if database is
-      functions: true // Assume functions are working if database is
-    };
+export async function getSystemHealth(): Promise<SystemHealth> {
+  const health: SystemHealth = {
+    database: { status: 'ok', message: 'Conectado' },
+    storage: { status: 'ok', message: 'Acessível' },
+    schema: { status: 'ok', message: 'Versão atual' }
+  };
+
+  // Test database connection with simple ping
+  try {
+    const { error } = await supabase
+      .from('agenda_itens')
+      .select('id')
+      .limit(1);
+    
+    if (error && error.code === '42P01') {
+      // Table doesn't exist, but connection works
+      health.database = { status: 'warning', message: 'Tabelas não encontradas' };
+    } else if (error) {
+      health.database = { status: 'error', message: 'Erro de conexão' };
+    }
   } catch (error) {
-    console.error('Error checking system health:', error);
-    return {
-      database: false,
-      storage: false,
-      functions: false
-    };
+    health.database = { status: 'error', message: 'Não conectado' };
   }
+
+  // Test storage access
+  try {
+    const { error } = await supabase.storage.listBuckets();
+    if (error) {
+      health.storage = { status: 'warning', message: 'Acesso limitado' };
+    }
+  } catch (error) {
+    health.storage = { status: 'error', message: 'Não acessível' };
+  }
+
+  // Check schema version if available (optional)
+  try {
+    const { data, error } = await supabase
+      .from('information_schema.routines')
+      .select('routine_name')
+      .eq('routine_name', 'get_schema_version')
+      .maybeSingle();
+    
+    if (error || !data) {
+      health.schema = { status: 'warning', message: 'Versão não disponível' };
+    }
+  } catch (error) {
+    health.schema = { status: 'warning', message: 'Versão não detectada' };
+  }
+
+  return health;
 }
