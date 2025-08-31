@@ -110,10 +110,12 @@ export function RHFSelectAsyncCreatable({
         ? currentValues.filter(v => v !== selectedValue)
         : [...currentValues, selectedValue];
       onChange(newValues);
+      // Don't close popup for multi-select to allow multiple selections
     } else {
       onChange(selectedValue === value ? '' : selectedValue);
       setOpen(false);
     }
+    // Clear search for better UX
     setSearch('');
   };
 
@@ -123,15 +125,19 @@ export function RHFSelectAsyncCreatable({
     setCreating(true);
     try {
       const newOption = await onCreate(search.trim());
+      
+      // Add to options list
       setOptions([newOption, ...options]);
       
+      // Select the new option
       if (multi) {
         const currentValues = Array.isArray(value) ? value : [];
         onChange([...currentValues, newOption.value]);
       } else {
         onChange(newOption.value);
-        setOpen(false);
       }
+      
+      // Clear search but don't close popup for multi-select
       setSearch('');
     } catch (error) {
       console.error('Erro ao criar opção:', error);
@@ -218,12 +224,20 @@ export function RHFSelectAsyncCreatable({
               )}
               
               {!loading && search.length > 0 && !hasResults && !showCreateOption && (
-                <CommandEmpty>Nenhum resultado encontrado</CommandEmpty>
+                <div className="p-4 text-center text-sm text-muted-foreground">
+                  <div className="space-y-2">
+                    <p>Nada encontrado.</p>
+                    <p className="text-xs">Clique em "Adicionar" para criar uma nova opção.</p>
+                  </div>
+                </div>
               )}
               
               {!loading && search.length === 0 && (
                 <div className="p-4 text-center text-sm text-muted-foreground">
-                  Digite para buscar opções
+                  <div className="space-y-2">
+                    <p>Digite para buscar opções</p>
+                    <p className="text-xs">ou criar uma nova</p>
+                  </div>
                 </div>
               )}
 
@@ -261,7 +275,7 @@ export function RHFSelectAsyncCreatable({
                   <CommandItem
                     onSelect={handleCreate}
                     disabled={creating}
-                    className="gap-2"
+                    className="gap-2 cursor-pointer"
                   >
                     <Plus className="h-4 w-4" />
                     <span>
