@@ -1,3 +1,4 @@
+import React from "react";
 import AsyncSelect from "react-select/async";
 import { Controller, useFormContext } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
@@ -117,26 +118,94 @@ export function RHFAsyncSelect({
       <Controller
         control={control}
         name={name}
-        render={({ field }) => (
-          <AsyncSelect
-            inputId={name}
-            cacheOptions
-            defaultOptions
-            isClearable
-            isMulti={isMulti}
-            isDisabled={disabled}
-            loadOptions={loadOptions}
-            value={field.value}
-            onChange={(val) => field.onChange(val)}
-            placeholder={placeholder}
-            menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
-            menuPosition="fixed"
-            styles={styles}
-            classNamePrefix="rs"
-            noOptionsMessage={() => "Nenhum resultado"}
-            loadingMessage={() => "Carregando..."}
-          />
-        )}
+        render={({ field }) => {
+          // For editing: load current options to get labels for existing values
+          const [currentOptions, setCurrentOptions] = React.useState<any[]>([]);
+
+          React.useEffect(() => {
+            const loadCurrentOptions = async () => {
+              if (!field.value) return;
+              
+              const values = isMulti ? field.value : [field.value];
+              if (!values.length) return;
+
+              try {
+                const { data } = await supabase
+                  .from(table)
+                  .select(`${valueField}, ${labelField}`)
+                  .in(valueField, values);
+                
+                if (data) {
+                  const options = data.map(item => ({
+                    value: item[valueField],
+                    label: item[labelField]
+                  }));
+                  setCurrentOptions(options);
+                }
+              } catch (error) {
+                console.error('Error loading current options:', error);
+              }
+            };
+
+            loadCurrentOptions();
+          }, [field.value]);
+
+          // Convert string/array values to react-select format
+          const selectValue = React.useMemo(() => {
+            if (!field.value) return isMulti ? [] : null;
+            
+            if (isMulti && Array.isArray(field.value)) {
+              return field.value.map(id => {
+                const option = currentOptions.find(opt => opt.value === id);
+                return option || { value: id, label: id };
+              });
+            }
+            
+            if (!isMulti && typeof field.value === 'string') {
+              const option = currentOptions.find(opt => opt.value === field.value);
+              return option || { value: field.value, label: field.value };
+            }
+            
+            return field.value;
+          }, [field.value, currentOptions, isMulti]);
+
+          // Convert react-select format back to string/array
+          const handleChange = (selectValue: any) => {
+            if (!selectValue) {
+              field.onChange(isMulti ? [] : null);
+              return;
+            }
+            
+            if (isMulti && Array.isArray(selectValue)) {
+              field.onChange(selectValue.map((option: any) => option.value));
+            } else if (!isMulti && selectValue?.value) {
+              field.onChange(selectValue.value);
+            } else {
+              field.onChange(selectValue);
+            }
+          };
+
+          return (
+            <AsyncSelect
+              inputId={name}
+              cacheOptions
+              defaultOptions
+              isClearable
+              isMulti={isMulti}
+              isDisabled={disabled}
+              loadOptions={loadOptions}
+              value={selectValue}
+              onChange={handleChange}
+              placeholder={placeholder}
+              menuPortalTarget={typeof document !== "undefined" ? document.body : undefined}
+              menuPosition="fixed"
+              styles={styles}
+              classNamePrefix="rs"
+              noOptionsMessage={() => "Nenhum resultado"}
+              loadingMessage={() => "Carregando..."}
+            />
+          );
+        }}
       />
     </div>
   );

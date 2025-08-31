@@ -242,23 +242,10 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
         links: agentData.links || {},
       };
 
-      // Converter formato para react-select se for artista
+      // Para artistas, mapear dados dos pivôs diretamente como strings
       if (agentType === 'artistas') {
-        // Convert artist_type_id para formato { value, label }
-        if (artistTypesData?.[0]) {
-          formData.artist_type_id = {
-            value: artistTypesData[0].id,
-            label: artistTypesData[0].name
-          };
-        }
-        
-        // Convert genre_ids para formato [{ value, label }]
-        if (genresData?.length) {
-          formData.genre_ids = genresData.map(genre => ({
-            value: genre.id,
-            label: genre.name
-          }));
-        }
+        formData.artist_type_id = artistTypesData?.[0]?.id || null;
+        formData.genre_ids = genresData?.map(genre => genre.id) || [];
       }
 
       form.reset(formData);
@@ -267,24 +254,12 @@ export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFor
 
 
   // Normalize data before submit
-  const normalizeSubmitData = (data: any) => {
-    const processed = {
-      ...data,
-      phone: normalizePhone(data.phone || ''),
-      whatsapp: normalizePhone(data.whatsapp || ''),
-      instagram: normalizeInstagram(data.instagram || ''),
-    };
-
-    // Convert react-select format to backend format for artists
-    if (agentType === 'artistas') {
-      processed.artist_type_id = data.artist_type_id?.value ?? null;
-      processed.genre_ids = Array.isArray(data.genre_ids) 
-        ? data.genre_ids.map((g: any) => g.value) 
-        : [];
-    }
-
-    return processed;
-  };
+  const normalizeSubmitData = (data: any) => ({
+    ...data,
+    phone: normalizePhone(data.phone || ''),
+    whatsapp: normalizePhone(data.whatsapp || ''),
+    instagram: normalizeInstagram(data.instagram || ''),
+  });
 
   const saveMutation = useMutation({
     mutationFn: async (data: any) => {

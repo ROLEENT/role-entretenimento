@@ -1,132 +1,49 @@
 import { z } from "zod";
-import { formValidation } from "@/lib/forms";
+
+const Url = z.string().url().or(z.literal("")).optional().transform(v => v || null);
 
 export const artistSchema = z.object({
   // Informações básicas
-  name: z
-    .string({ required_error: "Nome é obrigatório" })
-    .min(2, "Nome deve ter pelo menos 2 caracteres")
-    .max(255, "Nome não pode exceder 255 caracteres")
-    .trim(),
+  name: z.string().min(2, "Informe o nome"),
+  slug: z.string().optional().nullable(),
   
-  slug: z
-    .string({ required_error: "Slug é obrigatório" })
-    .min(2, "Slug deve ter pelo menos 2 caracteres")
-    .max(255, "Slug não pode exceder 255 caracteres")
-    .regex(formValidation.slug, "Slug deve conter apenas letras, números e hífens")
-    .trim(),
-  
-  // Tipo de artista (obrigatório)
-  artist_type_id: z
-    .string({ required_error: "Tipo de artista é obrigatório" })
-    .min(1, "Tipo de artista é obrigatório"),
-  
-  // Gêneros musicais (array de IDs)
-  genre_ids: z
-    .array(z.string().min(1, "ID de gênero inválido"))
-    .min(1, "Selecione pelo menos um gênero musical")
-    .max(10, "Máximo de 10 gêneros permitidos"),
+  // IDs como strings simples
+  artist_type_id: z.string().nullable().optional(),
+  genre_ids: z.array(z.string()).default([]),
   
   // Informações de contato
-  email: z
-    .string()
-    .optional()
-    .refine((val) => !val || formValidation.email.test(val), {
-      message: "E-mail deve ter um formato válido"
-    }),
-  
-  phone: z
-    .string()
-    .optional()
-    .refine((val) => !val || val.replace(/\D/g, '').length >= 10, {
-      message: "Telefone deve ter pelo menos 10 dígitos"
-    }),
-  
-  whatsapp: z
-    .string()
-    .optional()
-    .refine((val) => !val || val.replace(/\D/g, '').length >= 10, {
-      message: "WhatsApp deve ter pelo menos 10 dígitos"
-    }),
-  
-  instagram: z
-    .string()
-    .optional()
-    .refine((val) => !val || formValidation.instagram.test(val), {
-      message: "Instagram deve ter um formato válido (apenas nome de usuário)"
-    }),
-  
-  website: z
-    .string()
-    .optional()
-    .refine((val) => !val || formValidation.url.test(val), {
-      message: "Website deve ter um formato válido (https://...)"
-    }),
+  email: z.string().optional().nullable(),
+  phone: z.string().optional().nullable(),
+  whatsapp: z.string().optional().nullable(),
+  instagram: z.string().optional().nullable(),
   
   // Localização
-  city: z
-    .string()
-    .optional()
-    .refine((val) => !val || val.length >= 2, {
-      message: "Cidade deve ter pelo menos 2 caracteres"
-    }),
-  
-  state: z
-    .string()
-    .optional()
-    .refine((val) => !val || val.length === 2, {
-      message: "Estado deve ter 2 caracteres"
-    }),
-  
-  country: z
-    .string()
-    .default("BR"),
+  city: z.string().optional().nullable(),
+  state: z.string().optional().nullable(),
+  country: z.string().default("BR"),
   
   // Biografia
-  bio: z
-    .string()
-    .optional()
-    .refine((val) => !val || val.length <= 2000, {
-      message: "Biografia não pode exceder 2000 caracteres"
-    }),
+  bio: z.string().optional().nullable(),
   
-  // Campos específicos do artista
-  subtype: z
-    .string()
-    .optional(),
+  // Links opcionais com validação
+  links: z.object({
+    website: Url,
+    spotify: Url,
+    soundcloud: Url,
+    youtube: Url,
+    beatport: Url,
+    audius: Url,
+  }).partial().default({}),
   
-  // Tags e links
-  tags: z
-    .array(z.string().min(1, "Tag não pode estar vazia"))
-    .default([])
-    .refine((val) => val.length <= 20, {
-      message: "Máximo de 20 tags permitidas"
-    }),
-  
-  links: z
-    .array(z.object({
-      label: z.string().min(1, "Label do link é obrigatório"),
-      url: z.string().url("URL deve ter um formato válido")
-    }))
-    .default([])
-    .refine((val) => val.length <= 10, {
-      message: "Máximo de 10 links permitidos"
-    }),
+  // Tags
+  tags: z.array(z.string()).default([]),
   
   // Avatar
-  avatar_url: z
-    .string()
-    .optional()
-    .refine((val) => !val || formValidation.url.test(val), {
-      message: "URL do avatar deve ser válida"
-    }),
+  avatar_url: z.string().optional().nullable(),
+  avatar_alt: z.string().optional().nullable(),
   
   // Status
-  status: z
-    .enum(["active", "inactive", "draft"], {
-      required_error: "Status é obrigatório"
-    })
-    .default("draft"),
+  status: z.enum(["active", "inactive", "draft"]).default("active"),
   
   // Campos adicionais opcionais
   verified: z.boolean().default(false),
