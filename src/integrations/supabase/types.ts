@@ -3396,6 +3396,48 @@ export type Database = {
         }
         Relationships: []
       }
+      posts_public: {
+        Row: {
+          cover_url: string | null
+          excerpt: string | null
+          id: string | null
+          published_at: string | null
+          reading_time: number | null
+          reads: number | null
+          saves: number | null
+          section: string | null
+          slug: string | null
+          status: Database["public"]["Enums"]["article_status"] | null
+          title: string | null
+        }
+        Insert: {
+          cover_url?: string | null
+          excerpt?: string | null
+          id?: string | null
+          published_at?: string | null
+          reading_time?: number | null
+          reads?: number | null
+          saves?: number | null
+          section?: string | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["article_status"] | null
+          title?: string | null
+        }
+        Update: {
+          cover_url?: string | null
+          excerpt?: string | null
+          id?: string | null
+          published_at?: string | null
+          reading_time?: number | null
+          reads?: number | null
+          saves?: number | null
+          section?: string | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["article_status"] | null
+          title?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -4107,19 +4149,26 @@ export type Database = {
       venues: {
         Row: {
           about: string | null
+          acessibilidade: Json | null
           address: string | null
           address_line: string | null
           amenities: Json | null
+          banheiros: Json | null
+          bebidas: Json | null
           capacity: number | null
+          caracteristicas_estabelecimento: Json | null
           city: string | null
           city_id: number | null
           contacts_json: Json | null
           country: string | null
           cover_alt: string | null
           cover_url: string | null
+          cozinha: Json | null
           created_at: string | null
+          diferenciais: Json | null
           district: string | null
           email: string | null
+          estruturas: Json | null
           gallery: Json | null
           gallery_urls: Json | null
           id: string
@@ -4133,6 +4182,7 @@ export type Database = {
           opening_hours: Json | null
           phone: string | null
           postal_code: string | null
+          seguranca: Json | null
           slug: string | null
           state: string | null
           status: Database["public"]["Enums"]["agent_status"] | null
@@ -4143,19 +4193,26 @@ export type Database = {
         }
         Insert: {
           about?: string | null
+          acessibilidade?: Json | null
           address?: string | null
           address_line?: string | null
           amenities?: Json | null
+          banheiros?: Json | null
+          bebidas?: Json | null
           capacity?: number | null
+          caracteristicas_estabelecimento?: Json | null
           city?: string | null
           city_id?: number | null
           contacts_json?: Json | null
           country?: string | null
           cover_alt?: string | null
           cover_url?: string | null
+          cozinha?: Json | null
           created_at?: string | null
+          diferenciais?: Json | null
           district?: string | null
           email?: string | null
+          estruturas?: Json | null
           gallery?: Json | null
           gallery_urls?: Json | null
           id?: string
@@ -4169,6 +4226,7 @@ export type Database = {
           opening_hours?: Json | null
           phone?: string | null
           postal_code?: string | null
+          seguranca?: Json | null
           slug?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["agent_status"] | null
@@ -4179,19 +4237,26 @@ export type Database = {
         }
         Update: {
           about?: string | null
+          acessibilidade?: Json | null
           address?: string | null
           address_line?: string | null
           amenities?: Json | null
+          banheiros?: Json | null
+          bebidas?: Json | null
           capacity?: number | null
+          caracteristicas_estabelecimento?: Json | null
           city?: string | null
           city_id?: number | null
           contacts_json?: Json | null
           country?: string | null
           cover_alt?: string | null
           cover_url?: string | null
+          cozinha?: Json | null
           created_at?: string | null
+          diferenciais?: Json | null
           district?: string | null
           email?: string | null
+          estruturas?: Json | null
           gallery?: Json | null
           gallery_urls?: Json | null
           id?: string
@@ -4205,6 +4270,7 @@ export type Database = {
           opening_hours?: Json | null
           phone?: string | null
           postal_code?: string | null
+          seguranca?: Json | null
           slug?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["agent_status"] | null

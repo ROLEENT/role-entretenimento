@@ -1,6 +1,6 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { VenueAmenitiesFields } from '@/components/agentes/VenueAmenitiesFields';
+import { VenueCharacteristicsFields } from '@/components/agentes/VenueCharacteristicsFields';
 import { VenueFormData } from '@/schemas/venue';
 
 interface VenueAmenitiesTabProps {
@@ -10,7 +10,7 @@ interface VenueAmenitiesTabProps {
 export const VenueAmenitiesTab: React.FC<VenueAmenitiesTabProps> = ({ form }) => {
   return (
     <div className="space-y-6">
-      <VenueAmenitiesFields />
+      <VenueCharacteristicsFields />
     </div>
   );
 };
