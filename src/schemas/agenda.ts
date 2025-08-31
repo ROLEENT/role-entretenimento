@@ -120,6 +120,10 @@ const BaseAgendaItemSchema = z.object({
     .min(3, "Texto alternativo deve ter pelo menos 3 caracteres")
     .max(200, "Texto alternativo deve ter no máximo 200 caracteres")
     .optional(),
+  cover_image: z.object({
+    url: z.string().url("URL da imagem deve ser uma URL válida"),
+    alt: z.string().min(1, "Texto alternativo é obrigatório"),
+  }).optional(),
   
   // Artists
   artists_names: z.array(

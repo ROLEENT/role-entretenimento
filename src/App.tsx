@@ -62,8 +62,7 @@ const AdminV3Login = lazy(() => import("./pages/AdminV3Login"));
 const AdminV3Dashboard = lazy(() => import("./pages/AdminV3Dashboard"));
 const AdminV3Debug = lazy(() => import("./pages/AdminV3Debug"));
 const AdminV3Agenda = lazy(() => import("./pages/AdminV3Agenda"));
-const AdminV3AgendaCreate = lazy(() => import("./pages/AdminV3AgendaCreate"));
-const AdminV3AgendaEdit = lazy(() => import("./pages/AdminV3AgendaEdit"));
+const AdminV3AgendaForm = lazy(() => import("./pages/AdminV3AgendaForm"));
 const AdminV3Artists = lazy(() => import("./pages/AdminV3Artists"));
 const AdminV3ArtistsCreate = lazy(() => import("./pages/AdminV3ArtistsCreate"));
 const AdminV3ArtistsEdit = lazy(() => import("./pages/AdminV3ArtistsEdit"));
@@ -194,14 +193,12 @@ function App() {
                 <Route path="/admin-v3/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Login /></Suspense>} />
                 <Route path="/admin-v3" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
                 <Route path="/admin-v3/debug" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Debug /></Suspense>} />
-                <Route path="/admin-v3/agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Agenda /></Suspense>} />
-                <Route path="/admin-v3/agenda/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Agenda /></Suspense>} />
-                <Route path="/admin-v3/agenda/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaCreate /></Suspense>} />
-                <Route path="/admin-v3/agenda/create/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaCreate /></Suspense>} />
-                <Route path="/admin-v3/agenda/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaEdit /></Suspense>} />
-                <Route path="/admin-v3/agenda/:id/edit/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaEdit /></Suspense>} />
-                <Route path="/admin-v3/agenda/new" element={<Navigate to="/admin-v3/agenda/create" replace />} />
-                <Route path="/admin-v3/agenda/new/" element={<Navigate to="/admin-v3/agenda/create" replace />} />
+                <Route path="/admin/v3/agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Agenda /></Suspense>} />
+                <Route path="/admin/v3/agenda/" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Agenda /></Suspense>} />
+                <Route path="/admin/v3/agenda/new" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaForm /></Suspense>} />
+                <Route path="/admin/v3/agenda/:id" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaForm /></Suspense>} />
+                <Route path="/admin/v3/agenda/create" element={<Navigate to="/admin/v3/agenda/new" replace />} />
+                <Route path="/admin/v3/agenda/:id/edit" element={<Navigate to="/admin/v3/agenda/:id" replace />} />
                 {/* Redirect old artists routes to agentes */}
                 <Route path="/admin-v3/artists" element={<Navigate to="/admin-v3/agentes" replace />} />
                 <Route path="/admin-v3/artists/" element={<Navigate to="/admin-v3/agentes" replace />} />
