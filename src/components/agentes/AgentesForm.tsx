@@ -430,18 +430,40 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
                     name="artist_type_id"
                     label="Tipo de artista"
                     loadOptions={async (q) => {
-                      const response = await fetch(`/api/options/artist-types?q=${encodeURIComponent(q)}`, { cache: "no-store" });
-                      const result = await response.json();
-                      return result.items.map((i:any) => ({ label: i.name, value: i.id }));
+                      try {
+                        console.log("[artist-types] Loading options for:", q);
+                        const response = await fetch(`/api/options/artist-types?q=${encodeURIComponent(q)}`, { cache: "no-store" });
+                        if (!response.ok) {
+                          console.error("[artist-types] Response not ok:", response.status, response.statusText);
+                          return [];
+                        }
+                        const result = await response.json();
+                        console.log("[artist-types] Loaded result:", result);
+                        return result.items?.map((i:any) => ({ label: i.name, value: i.id })) || [];
+                      } catch (error) {
+                        console.error("[artist-types] Error loading options:", error);
+                        return [];
+                      }
                     }}
                     onCreate={async (label) => {
-                      const response = await fetch(`/api/options/artist-types`, { 
-                        method: "POST", 
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ name: label }) 
-                      });
-                      const result = await response.json();
-                      return { label: result.name, value: result.id };
+                      try {
+                        console.log("[artist-types] Creating new:", label);
+                        const response = await fetch(`/api/options/artist-types`, { 
+                          method: "POST", 
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ name: label }) 
+                        });
+                        if (!response.ok) {
+                          console.error("[artist-types] Create failed:", response.status, response.statusText);
+                          throw new Error(`Failed to create artist type: ${response.statusText}`);
+                        }
+                        const result = await response.json();
+                        console.log("[artist-types] Created result:", result);
+                        return { label: result.name, value: result.id };
+                      } catch (error) {
+                        console.error("[artist-types] Error creating:", error);
+                        throw error;
+                      }
                     }}
                   />
                   
@@ -449,18 +471,40 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
                     name="genre_ids"
                     label="Gêneros musicais"
                     loadOptions={async (q) => {
-                      const response = await fetch(`/api/options/genres?q=${encodeURIComponent(q)}`, { cache: "no-store" });
-                      const result = await response.json();
-                      return result.items.map((i:any) => ({ label: i.name, value: i.id }));
+                      try {
+                        console.log("[genres] Loading options for:", q);
+                        const response = await fetch(`/api/options/genres?q=${encodeURIComponent(q)}`, { cache: "no-store" });
+                        if (!response.ok) {
+                          console.error("[genres] Response not ok:", response.status, response.statusText);
+                          return [];
+                        }
+                        const result = await response.json();
+                        console.log("[genres] Loaded result:", result);
+                        return result.items?.map((i:any) => ({ label: i.name, value: i.id })) || [];
+                      } catch (error) {
+                        console.error("[genres] Error loading options:", error);
+                        return [];
+                      }
                     }}
                     onCreate={async (label) => {
-                      const response = await fetch(`/api/options/genres`, { 
-                        method: "POST", 
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ name: label }) 
-                      });
-                      const result = await response.json();
-                      return { label: result.name, value: result.id };
+                      try {
+                        console.log("[genres] Creating new:", label);
+                        const response = await fetch(`/api/options/genres`, { 
+                          method: "POST", 
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ name: label }) 
+                        });
+                        if (!response.ok) {
+                          console.error("[genres] Create failed:", response.status, response.statusText);
+                          throw new Error(`Failed to create genre: ${response.statusText}`);
+                        }
+                        const result = await response.json();
+                        console.log("[genres] Created result:", result);
+                        return { label: result.name, value: result.id };
+                      } catch (error) {
+                        console.error("[genres] Error creating:", error);
+                        throw error;
+                      }
                     }}
                   />
                 </div>

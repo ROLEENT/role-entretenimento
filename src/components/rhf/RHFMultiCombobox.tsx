@@ -189,7 +189,7 @@ export default function RHFMultiCombobox({
           </Button>
         </PopoverTrigger>
         
-        <PopoverContent className="p-0 z-50 w-[var(--radix-popover-trigger-width)]" align="start">
+        <PopoverContent className="p-0 z-[999] w-[var(--radix-popover-trigger-width)]" align="start">
           <Command shouldFilter={false}>
             <CommandInput
               placeholder="Digite para buscar..."
