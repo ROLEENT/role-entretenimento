@@ -20,24 +20,83 @@ body {
 header, header * { overflow: visible !important; }
 [data-radix-popper-content-wrapper] { z-index: 60 !important; }
 
-/* FIX: Ensure all dropdown triggers have pointer cursor */
+/* 🚨 COMPREHENSIVE DROPDOWN & MENU FIX - ALL INTERACTIVE ELEMENTS */
+
+/* FORCE pointer cursor on ALL clickable elements */
+button,
+[role="button"],
+[type="button"],
 [data-radix-dropdown-menu-trigger],
 [data-radix-popover-trigger],
 [data-radix-select-trigger],
 [data-radix-menubar-trigger],
+[data-radix-context-menu-trigger],
+[data-radix-accordion-trigger],
 button[role="combobox"],
-.dropdown-trigger {
+.dropdown-trigger,
+.cursor-pointer,
+[class*="dropdown"],
+[class*="menu"] button,
+[class*="trigger"],
+[data-testid*="menu"],
+[class*="three-dots"],
+[class*="kebab"],
+[class*="more-options"],
+.clickable,
+.interactive {
   cursor: pointer !important;
   pointer-events: auto !important;
+  user-select: none !important;
 }
 
-/* Ensure dropdown content has proper pointer events */
+/* FORCE proper behavior on dropdown/popover content */
 [data-radix-dropdown-menu-content],
 [data-radix-popover-content],
 [data-radix-select-content],
-[data-radix-menubar-content] {
+[data-radix-menubar-content],
+[data-radix-context-menu-content],
+[class*="dropdown-menu"],
+[class*="menu-content"],
+[class*="popover-content"] {
   pointer-events: auto !important;
   cursor: default !important;
+  z-index: 9999 !important;
+  position: relative !important;
+}
+
+/* FORCE dropdown items to be clickable */
+[data-radix-dropdown-menu-content] > *,
+[data-radix-popover-content] > *,
+[data-radix-select-content] > *,
+[data-radix-menubar-content] > *,
+[class*="dropdown-menu"] > *,
+[class*="menu-content"] > * {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Disabled states get special cursor */
+button:disabled,
+[aria-disabled="true"],
+[data-disabled="true"] {
+  cursor: not-allowed !important;
+  pointer-events: auto !important;
+}
+
+/* OVERLAYS should not block interaction */
+[data-radix-dropdown-menu-overlay],
+[data-radix-popover-overlay],
+[class*="overlay"],
+[class*="backdrop"] {
+  pointer-events: none !important;
+}
+
+/* But overlay content should be interactive */
+[data-radix-dropdown-menu-overlay] > *,
+[data-radix-popover-overlay] > *,
+[class*="overlay"] > *,
+[class*="backdrop"] > * {
+  pointer-events: auto !important;
 }
 
 /* Scrollbar elegante e fino - global */
