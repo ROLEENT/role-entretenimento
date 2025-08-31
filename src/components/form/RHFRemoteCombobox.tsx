@@ -126,12 +126,12 @@ export function RHFRemoteCombobox({
     }
   }, [table, valueColumn, labelColumn, effectiveSearch, where, query, page, loading]);
 
-  // Debounced search
+  // Debounced search - 250ms para performance (efeito Ingresse)
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setPage(1);
       fetchPage(true);
-    }, 300);
+    }, 250);
     
     return () => clearTimeout(timer);
   }, [query, where, table]); // Removido fetchPage das dependências para evitar loop
@@ -288,7 +288,7 @@ export function RHFRemoteCombobox({
         <PopoverContent
           align="start"
           sideOffset={6}
-          className="z-[9999] w-[var(--radix-popover-trigger-width)] p-0"
+          className="z-[60] w-[var(--radix-popover-trigger-width)] p-0 bg-popover border"
           avoidCollisions={true}
           collisionPadding={8}
         >
@@ -300,7 +300,7 @@ export function RHFRemoteCombobox({
               className="h-9"
             />
             
-            <CommandList onScroll={handleScroll} className="max-h-72">
+            <CommandList onScroll={handleScroll} className="max-h-72 overflow-auto">
               {loading && items.length === 0 ? (
                 <div className="flex items-center justify-center py-6">
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
