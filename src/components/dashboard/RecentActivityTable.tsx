@@ -15,6 +15,7 @@ import {
 export function RecentActivityTable() {
   const [activities, setActivities] = useState<RecentActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasLoggedError, setHasLoggedError] = useState(false);
 
   useEffect(() => {
     const loadActivity = async () => {
@@ -23,7 +24,10 @@ export function RecentActivityTable() {
         const data = await getRecentActivity();
         setActivities(data);
       } catch (error) {
-        console.error('Failed to load recent activity:', error);
+        if (!hasLoggedError) {
+          console.error('Failed to load recent activity:', error);
+          setHasLoggedError(true);
+        }
         setActivities([]);
       } finally {
         setLoading(false);
@@ -74,7 +78,12 @@ export function RecentActivityTable() {
             <TableBody>
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i} role="status" aria-label="Carregando atividade">
+                  <TableRow 
+                    key={i} 
+                    role="status" 
+                    aria-live="polite"
+                    aria-label="Carregando atividade"
+                  >
                     <TableCell>
                       <Skeleton className="h-4 w-32" />
                     </TableCell>
@@ -112,7 +121,7 @@ export function RecentActivityTable() {
                     <TableCell className="hidden sm:table-cell">
                       {getStatusBadge(activity.status)}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-foreground/70">
                       <time dateTime={activity.updated_at}>
                         {formatDate(activity.updated_at)}
                       </time>
@@ -123,7 +132,7 @@ export function RecentActivityTable() {
                 <TableRow>
                   <TableCell 
                     colSpan={3} 
-                    className="text-center text-muted-foreground py-8"
+                    className="text-center text-foreground/70 py-8"
                     role="status"
                     aria-live="polite"
                   >

@@ -6,6 +6,7 @@ import { getKpis, type DashboardKpis } from '@/data/dashboard';
 export function KpiRow() {
   const [kpis, setKpis] = useState<DashboardKpis | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasLoggedError, setHasLoggedError] = useState(false);
 
   useEffect(() => {
     const loadKpis = async () => {
@@ -14,7 +15,10 @@ export function KpiRow() {
         const data = await getKpis();
         setKpis(data);
       } catch (error) {
-        console.error('Failed to load KPIs:', error);
+        if (!hasLoggedError) {
+          console.error('Failed to load KPIs:', error);
+          setHasLoggedError(true);
+        }
         // Set fallback values on error
         setKpis({
           publishedEvents: 0,

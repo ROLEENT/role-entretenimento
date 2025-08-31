@@ -36,7 +36,12 @@ export function KpiCard({
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="space-y-2" role="status" aria-label={`Carregando ${title}`}>
+          <div 
+            className="space-y-2" 
+            role="status" 
+            aria-live="polite"
+            aria-label={`Carregando ${title}`}
+          >
             <Skeleton className="h-8 w-16" />
             {hint && <Skeleton className="h-4 w-24" />}
           </div>
@@ -50,7 +55,7 @@ export function KpiCard({
               {typeof value === 'number' ? value.toLocaleString('pt-BR') : value}
             </div>
             {hint && (
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-foreground/70 mt-1">
                 {hint}
               </p>
             )}

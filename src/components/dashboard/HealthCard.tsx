@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 export function HealthCard() {
   const [health, setHealth] = useState<SystemHealth | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasLoggedError, setHasLoggedError] = useState(false);
 
   useEffect(() => {
     const loadHealth = async () => {
@@ -17,7 +18,10 @@ export function HealthCard() {
         const data = await getSystemHealth();
         setHealth(data);
       } catch (error) {
-        console.error('Failed to load system health:', error);
+        if (!hasLoggedError) {
+          console.error('Failed to load system health:', error);
+          setHasLoggedError(true);
+        }
         // Safe fallback - never leave health as null
         setHealth({
           database: { status: 'error', message: 'Erro de conexão' },
@@ -71,6 +75,7 @@ export function HealthCard() {
           <div 
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" 
             role="status" 
+            aria-live="polite"
             aria-label="Carregando status do sistema"
           >
             {[...Array(3)].map((_, i) => (
@@ -91,7 +96,7 @@ export function HealthCard() {
                 {getStatusIcon(safeHealth.database.status)}
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium" id="db-status">Banco</div>
-                  <div className="text-xs text-muted-foreground truncate" aria-describedby="db-status">
+                  <div className="text-xs text-foreground/70 truncate" aria-describedby="db-status">
                     {safeHealth.database.message}
                   </div>
                   <div className="mt-1">
@@ -105,7 +110,7 @@ export function HealthCard() {
                 {getStatusIcon(safeHealth.storage.status)}
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium" id="storage-status">Storage</div>
-                  <div className="text-xs text-muted-foreground truncate" aria-describedby="storage-status">
+                  <div className="text-xs text-foreground/70 truncate" aria-describedby="storage-status">
                     {safeHealth.storage.message}
                   </div>
                   <div className="mt-1">
@@ -119,7 +124,7 @@ export function HealthCard() {
                 {getStatusIcon(safeHealth.schema.status)}
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium" id="schema-status">Versão</div>
-                  <div className="text-xs text-muted-foreground truncate" aria-describedby="schema-status">
+                  <div className="text-xs text-foreground/70 truncate" aria-describedby="schema-status">
                     {safeHealth.schema.message}
                   </div>
                   <div className="mt-1">
@@ -132,7 +137,7 @@ export function HealthCard() {
             {/* Help text for issues */}
             {(safeHealth.database.status === 'error' || safeHealth.storage.status === 'error') && (
               <div className="bg-muted/50 rounded-lg p-3">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground/80">
                   <strong>Problemas detectados:</strong> Verifique a conexão com o Supabase ou consulte os logs para mais detalhes.
                 </p>
               </div>
@@ -145,10 +150,11 @@ export function HealthCard() {
                 size="sm" 
                 asChild
                 aria-label="Ver detalhes nos logs do sistema"
+                className="w-full sm:w-auto"
               >
-                <a href="/gestao/logs" className="flex items-center gap-2">
+                <a href="/gestao/logs" className="flex items-center justify-center gap-2">
                   <Settings className="h-4 w-4" aria-hidden="true" />
-                  Ver detalhes
+                  <span>Ver detalhes</span>
                   <ExternalLink className="h-3 w-3" aria-hidden="true" />
                 </a>
               </Button>
