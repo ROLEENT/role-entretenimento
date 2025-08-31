@@ -108,7 +108,18 @@ export default function RevistaPage() {
 
       const { data, error: fetchError, count } = await query;
 
-      if (fetchError) throw fetchError;
+      // Tratamento robusto de erros - fallback para array vazio em caso de erro 400
+      if (fetchError) {
+        console.warn('Erro na consulta de posts:', fetchError);
+        // Em caso de erro, usar dados vazios ao invés de falhar completamente
+        const fallbackData: RevistaPost[] = [];
+        const newPosts = reset ? fallbackData : [...posts, ...fallbackData];
+        setPosts(newPosts);
+        setTotalCount(0);
+        setHasMore(false);
+        setCachedData(newPosts, 0, false);
+        return;
+      }
 
       const transformedPosts: RevistaPost[] = (data || []).map(item => ({
         id: item.id,
@@ -266,18 +277,20 @@ export default function RevistaPage() {
             </p>
           </div>
 
-          {/* Filters - only show if there are articles */}
+          {/* Filters - sticky with blur effect */}
           {totalArticlesExist && (
-            <div className="mb-8">
-              <RevistaFilters
-                searchTerm={searchTerm}
-                cityFilter={cityFilter}
-                sectionFilter={sectionFilter}
-                onSearchChange={handleSearchChange}
-                onCityChange={handleCityChange}
-                onSectionChange={handleSectionChange}
-                onClearFilters={handleClearFilters}
-              />
+            <div className="sticky top-16 z-20 mb-8 rounded-xl border bg-background/80 backdrop-blur-md shadow-sm">
+              <div className="p-4">
+                <RevistaFilters
+                  searchTerm={searchTerm}
+                  cityFilter={cityFilter}
+                  sectionFilter={sectionFilter}
+                  onSearchChange={handleSearchChange}
+                  onCityChange={handleCityChange}
+                  onSectionChange={handleSectionChange}
+                  onClearFilters={handleClearFilters}
+                />
+              </div>
             </div>
           )}
 
