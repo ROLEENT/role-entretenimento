@@ -98,14 +98,16 @@ export const BlogBasicTab: React.FC<BlogBasicTabProps> = ({ form }) => {
                 name="category_ids"
                 query={{ 
                   table: "categories", 
-                  fields: "id,name,slug,kind", 
-                  orderBy: "name" 
+                  fields: "id,name,slug,kind,color", 
+                  orderBy: "name",
+                  filter: "kind=eq.revista,is_active=eq.true"
                 }}
                 mapRow={(r) => ({ 
                   value: r.id, 
-                  label: `${r.name}${r.kind !== 'ambos' ? ` (${r.kind})` : ''}` 
+                  label: r.name
                 })}
-                placeholder="Selecione categorias"
+                placeholder="Selecione as seções da revista"
+                multiple={true}
               />
               <p className="text-xs text-muted-foreground">
                 Categorias relacionadas ao conteúdo

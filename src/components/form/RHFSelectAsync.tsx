@@ -16,6 +16,7 @@ interface AsyncQuery {
   table: string;
   fields: string;
   orderBy?: string;
+  filter?: string;
 }
 
 interface SelectOption {
@@ -33,6 +34,7 @@ interface RHFSelectAsyncProps {
   className?: string;
   parseValue?: (value: string) => any;
   serializeValue?: (value: any) => string;
+  multiple?: boolean;
 }
 
 export default function RHFSelectAsync({
@@ -59,8 +61,8 @@ export default function RHFSelectAsync({
 
   // Memoize query key to prevent unnecessary re-renders
   const queryKey = useMemo(() => 
-    `${query.table}-${query.fields}-${query.orderBy || 'none'}`, 
-    [query.table, query.fields, query.orderBy]
+    `${query.table}-${query.fields}-${query.orderBy || 'none'}-${query.filter || 'none'}`, 
+    [query.table, query.fields, query.orderBy, query.filter]
   );
 
   // Stable mapRow function
@@ -74,8 +76,17 @@ export default function RHFSelectAsync({
         setLoading(true);
         setError(null);
         
-        const q = supabase.from(query.table).select(query.fields);
-        if (query.orderBy) q.order(query.orderBy);
+        let q = supabase.from(query.table).select(query.fields);
+        if (query.orderBy) q = q.order(query.orderBy);
+        if (query.filter) {
+          const filters = query.filter.split(',');
+          filters.forEach(filter => {
+            const [field, operation, value] = filter.split('=');
+            if (operation === 'eq') {
+              q = q.eq(field, value);
+            }
+          });
+        }
         
         const { data, error } = await q;
         
@@ -105,7 +116,7 @@ export default function RHFSelectAsync({
 
     loadData();
     return () => { alive = false; };
-  }, [queryKey, stableMapRow, query.table, query.fields, query.orderBy]);
+  }, [queryKey, stableMapRow, query.table, query.fields, query.orderBy, query.filter]);
 
   const finalPlaceholder = loading ? "Carregando..." : error ? `Erro: ${error}` : placeholder;
   const isDisabled = disabled || loading || !!error;
