@@ -5156,6 +5156,10 @@ export type Database = {
           unique_users: number
         }[]
       }
+      get_dashboard_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_highlight_like_count: {
         Args: { p_highlight_id: string }
         Returns: number
@@ -5254,6 +5258,17 @@ export type Database = {
       get_post_likes_count: {
         Args: { p_post_id: string }
         Returns: number
+      }
+      get_recent_activity: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          id: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }[]
       }
       get_secure_comment_count: {
         Args: { p_post_id: string }
