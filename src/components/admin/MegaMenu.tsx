@@ -8,11 +8,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 
+import type { LucideIcon } from "lucide-react";
+
 type Item = { 
   href: string; 
   title: string; 
   description?: string; 
-  icon?: React.ReactNode; 
+  icon?: LucideIcon; 
 };
 
 interface MegaMenuProps {
@@ -43,7 +45,7 @@ export function MegaMenu({ label, items }: MegaMenuProps) {
                 className="flex items-center gap-3 rounded-md p-3 hover:bg-muted/70 transition-colors cursor-pointer no-underline"
               >
                 <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center flex-shrink-0">
-                  {item.icon || "📄"}
+                  {item.icon ? <item.icon className="h-4 w-4" /> : "📄"}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-medium">{item.title}</div>

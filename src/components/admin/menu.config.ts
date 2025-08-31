@@ -1,21 +1,68 @@
+import { Calendar, Plus, Users, Building2, MapPin, UserPlus, BookOpen, Settings, Star } from "lucide-react";
+
 export const MENUS = {
   agenda: [
-    { href: "/admin-v3/agenda", title: "Todos eventos", description: "lista completa" },
-    { href: "/admin-v3/agenda/criar", title: "Criar evento", description: "novo cadastro" },
+    { 
+      href: "/admin-v3/agenda", 
+      title: "Todos eventos", 
+      description: "lista completa",
+      icon: Calendar
+    },
+    { 
+      href: "/admin-v3/agenda/criar", 
+      title: "Criar evento", 
+      description: "novo cadastro",
+      icon: Plus
+    },
   ],
   agentes: [
-    { href: "/admin-v3/agentes/artistas", title: "Artistas", description: "listagem" },
-    { href: "/admin-v3/agentes/organizadores", title: "Organizadores", description: "em desenvolvimento" },
-    { href: "/admin-v3/agentes/venues", title: "Locais", description: "em desenvolvimento" },
-    { href: "/admin-v3/agentes/artistas/criar", title: "Novo artista", description: "cadastro" },
+    { 
+      href: "/admin-v3/agentes/artistas", 
+      title: "Artistas", 
+      description: "listagem",
+      icon: Users
+    },
+    { 
+      href: "/admin-v3/agentes/organizadores", 
+      title: "Organizadores", 
+      description: "em desenvolvimento",
+      icon: Building2
+    },
+    { 
+      href: "/admin-v3/agentes/venues", 
+      title: "Locais", 
+      description: "em desenvolvimento",
+      icon: MapPin
+    },
+    { 
+      href: "/admin-v3/agentes/artistas/criar", 
+      title: "Novo artista", 
+      description: "cadastro",
+      icon: UserPlus
+    },
   ],
   revista: [
-    { href: "/admin-v3/revista", title: "Revista", description: "em desenvolvimento" },
+    { 
+      href: "/admin-v3/revista", 
+      title: "Revista", 
+      description: "em desenvolvimento",
+      icon: BookOpen
+    },
   ],
   gestao: [
-    { href: "/admin-v3/gestao", title: "Gestão", description: "em desenvolvimento" },
+    { 
+      href: "/admin-v3/gestao", 
+      title: "Gestão", 
+      description: "em desenvolvimento",
+      icon: Settings
+    },
   ],
   destaques: [
-    { href: "/admin-v3/destaques", title: "Destaques", description: "em desenvolvimento" },
+    { 
+      href: "/admin-v3/destaques", 
+      title: "Destaques", 
+      description: "em desenvolvimento",
+      icon: Star
+    },
   ],
 } as const;
