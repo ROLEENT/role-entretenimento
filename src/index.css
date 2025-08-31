@@ -149,6 +149,16 @@ All colors MUST be HSL.
     --spacing-section: 64px;
     --spacing-element: 24px;
     --spacing-component: 16px;
+    
+    /* Sidebar colors for light mode */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 222.2 84% 4.9%;
+    --sidebar-primary: 275 100% 75%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 222.2 84% 4.9%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-ring: 275 100% 75%;
   }
 
   .dark {

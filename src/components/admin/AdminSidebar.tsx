@@ -23,15 +23,15 @@ export function AdminSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r">
-      <SidebarHeader className="border-b">
-        <div className="flex items-center gap-2 px-2 py-1">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <span className="text-sm font-bold">A</span>
+      <SidebarHeader className="border-b p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-lg">
+            R
           </div>
           {state === "expanded" && (
             <div className="flex flex-col">
-              <span className="text-sm font-semibold">Admin v3</span>
-              <span className="text-xs text-muted-foreground">Painel de controle</span>
+              <span className="text-base font-bold">ROLÊ</span>
+              <span className="text-xs text-muted-foreground">Admin v3</span>
             </div>
           )}
         </div>
