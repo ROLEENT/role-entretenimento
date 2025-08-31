@@ -42,15 +42,15 @@ const GlobalSearch = ({ events = [], highlights = [], isOpen, onClose }: GlobalS
   
   // Filter events and highlights based on search query
   const filteredEvents = events.filter(event =>
-    event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    event.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    event.venue?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+    event?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    event?.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    event?.venue?.name?.toLowerCase().includes(searchQuery.toLowerCase())
   ).slice(0, 5);
 
   const filteredHighlights = highlights.filter(highlight =>
-    highlight.event_title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    highlight.city.toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
-    highlight.venue.toLowerCase().includes(searchQuery.toLowerCase())
+    highlight?.event_title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    highlight?.city?.toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
+    highlight?.venue?.toLowerCase().includes(searchQuery.toLowerCase())
   ).slice(0, 3);
 
   const hasResults = filteredEvents.length > 0 || filteredHighlights.length > 0;
