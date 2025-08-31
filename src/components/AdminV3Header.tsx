@@ -25,9 +25,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { User, Settings, LogOut } from 'lucide-react';
-import { AdminNavigation } from '@/components/admin/AdminNavigation';
 import { QuickActions } from '@/components/admin/QuickActions';
-import { ExplorarMegaMenu } from '@/components/admin/ExplorarMegaMenu';
+import { AdminTopNav } from '@/components/admin/AdminTopNav';
 
 interface UserProfile {
   email: string;
@@ -183,11 +182,8 @@ export function AdminV3Header() {
               Admin v3
             </Button>
             
-            {/* Explorar MegaMenu */}
-            <ExplorarMegaMenu />
-            
-            {/* Admin Navigation */}
-            <AdminNavigation />
+            {/* Navigation */}
+            <AdminTopNav />
           </div>
 
           {/* Right side */}
