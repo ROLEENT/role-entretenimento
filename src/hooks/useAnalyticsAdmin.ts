@@ -14,8 +14,99 @@ export interface AnalyticsBasicData {
   highlights_likes: number;
 }
 
+export interface ComprehensiveAnalytics {
+  events: {
+    total_events: number;
+    published_events: number;
+    draft_events: number;
+    events_in_period: number;
+    total_views: number;
+  };
+  blog: {
+    total_posts: number;
+    published_posts: number;
+    total_views: number;
+    posts_in_period: number;
+  };
+  users: {
+    total_favorites: number;
+    total_checkins: number;
+    total_comments: number;
+    total_likes: number;
+  };
+  performance: {
+    avg_page_load: number;
+    avg_ttfb: number;
+    total_sessions: number;
+    error_rate: number;
+  };
+  popular_cities: Array<{ city: string; count: number }>;
+  top_events: Array<{ title: string; views: number; city: string; created_at: string }>;
+  analytics: {
+    total_events: number;
+    unique_sessions: number;
+    unique_users: number;
+    page_views: number;
+    event_views: number;
+  };
+  period: {
+    start_date: string;
+    end_date: string;
+    generated_at: string;
+  };
+}
+
+export interface RealtimeMetrics {
+  active_users_last_hour: number;
+  page_views_last_hour: number;
+  avg_load_time_last_hour: number;
+  errors_last_hour: number;
+  system_uptime: number;
+  database_health: string;
+}
+
 export const useAnalyticsAdmin = () => {
   const [loading, setLoading] = useState(false);
+
+  const getComprehensiveAnalytics = useCallback(async (
+    adminEmail: string, 
+    startDate?: string, 
+    endDate?: string
+  ): Promise<ComprehensiveAnalytics | null> => {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase.rpc('get_comprehensive_analytics', {
+        p_admin_email: adminEmail,
+        p_start_date: startDate || undefined,
+        p_end_date: endDate || undefined
+      });
+
+      if (error) throw error;
+      return data;
+    } catch (error: any) {
+      console.error('Error fetching comprehensive analytics:', error);
+      toast.error(error.message || 'Erro ao carregar analytics');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const getRealtimeMetrics = useCallback(async (adminEmail: string): Promise<RealtimeMetrics | null> => {
+    try {
+      const { data, error } = await supabase.rpc('get_realtime_metrics', {
+        p_admin_email: adminEmail
+      });
+
+      if (error) throw error;
+      return data;
+    } catch (error: any) {
+      console.error('Error fetching realtime metrics:', error);
+      toast.error(error.message || 'Erro ao carregar métricas em tempo real');
+      return null;
+    }
+  }, []);
 
   const getAnalyticsData = useCallback(async (startDate: string, endDate: string) => {
     try {
@@ -132,7 +223,9 @@ export const useAnalyticsAdmin = () => {
     loading,
     getAnalyticsData,
     getBasicStats,
-    getTopContent
+    getTopContent,
+    getComprehensiveAnalytics,
+    getRealtimeMetrics
   };
 };
 

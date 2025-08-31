@@ -5278,6 +5278,14 @@ export type Database = {
           slug: string
         }[]
       }
+      get_comprehensive_analytics: {
+        Args: {
+          p_admin_email: string
+          p_end_date?: string
+          p_start_date?: string
+        }
+        Returns: Json
+      }
       get_contact_messages: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -5409,6 +5417,10 @@ export type Database = {
       get_post_likes_count: {
         Args: { p_post_id: string }
         Returns: number
+      }
+      get_realtime_metrics: {
+        Args: { p_admin_email: string }
+        Returns: Json
       }
       get_recent_activity: {
         Args: Record<PropertyKey, never>
