@@ -86,13 +86,6 @@ export function AdminV3Header() {
     }
   };
 
-  const handleCreateAgenda = () => {
-    navigate('/admin-v3/agenda/create');
-  };
-
-  const handleProfile = () => {
-    navigate('/admin-v3/profile');
-  };
 
   const handlePasswordChange = async () => {
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
@@ -189,64 +182,7 @@ export function AdminV3Header() {
             
             {/* Admin Navigation */}
             <nav className="hidden md:flex items-center gap-4">
-              <Button 
-                variant={location.pathname.startsWith('/admin-v3/agenda') ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => navigate('/admin-v3/agenda')}
-              >
-                Agenda
-              </Button>
-              <Button 
-                variant={location.pathname.startsWith('/admin-v3/agentes') ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => navigate('/admin-v3/agentes')}
-              >
-                Agentes
-              </Button>
-              <Button 
-                variant={location.pathname.startsWith('/admin-v3/revista') ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => navigate('/admin-v3/revista')}
-              >
-                Revista
-              </Button>
-              
-              {/* Gestão dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant={
-                      location.pathname.startsWith('/admin-v3/contatos') || 
-                      location.pathname.startsWith('/admin-v3/newsletter') || 
-                      location.pathname.startsWith('/admin-v3/candidaturas') 
-                        ? 'default' : 'ghost'
-                    }
-                    size="sm"
-                  >
-                    Gestão
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="center">
-                  <DropdownMenuItem 
-                    onClick={() => navigate('/admin-v3/contatos')}
-                    className="cursor-pointer"
-                  >
-                    Contatos
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => navigate('/admin-v3/newsletter')}
-                    className="cursor-pointer"
-                  >
-                    Newsletter
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => navigate('/admin-v3/candidaturas')}
-                    className="cursor-pointer"
-                  >
-                    Candidaturas
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {/* Navigation items removed */}
             </nav>
           </div>
 
@@ -257,11 +193,6 @@ export function AdminV3Header() {
               {projectRef}
             </div>
 
-          {/* Create agenda button */}
-          <Button onClick={handleCreateAgenda} size="sm" className="gap-2">
-            <Plus className="w-4 h-4" />
-            Criar Agenda
-          </Button>
 
           {/* User menu */}
           {loading ? (
@@ -290,10 +221,6 @@ export function AdminV3Header() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleProfile} className="cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Meu perfil</span>
-                </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => setPasswordModalOpen(true)} 
                   className="cursor-pointer"
