@@ -13,6 +13,8 @@ import { Toaster } from "@/components/ui/sonner";
 import SEOOptimizations from "@/components/SEOOptimizations";
 import AccessibilityEnhancements from "@/components/AccessibilityEnhancements";
 import { AdminAccessButton } from "@/components/AdminAccessButton";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   return (
@@ -54,11 +56,20 @@ const Index = () => {
           </ScrollAnimationWrapper>
         </main>
         
+        {/* ADMIN ACCESS & LOGIN */}
+        <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-50">
+          <Link to="/auth">
+            <Button variant="outline" size="sm">
+              Login Admin
+            </Button>
+          </Link>
+          <AdminAccessButton />
+        </div>
+        
         {/* 8. FOOTER */}
         <Footer />
         
         <NotificationPermissionPrompt />
-        <AdminAccessButton />
         <BackToTop />
         <HeaderGlobalSearch />
         <Toaster />
