@@ -35,6 +35,9 @@ import { ContactPage } from "@/pages/admin/ContactPage";
 import { NewsletterPage } from "@/pages/admin/NewsletterPage";
 
 // Admin V3 Pages
+const AdminV3AgendaList = lazy(() => import("./pages/admin-v3/AdminV3AgendaList"));
+const AdminV3AgendaCreate = lazy(() => import("./pages/admin-v3/AdminV3AgendaCreate"));
+const AdminV3AgendaEdit = lazy(() => import("./pages/admin-v3/AdminV3AgendaEdit"));
 
 
 
@@ -202,6 +205,17 @@ function App() {
                 <Route path="/admin-v3" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
                 <Route path="/admin-v3/dashboard" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
                 <Route path="/admin-v3/debug" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Debug /></Suspense>} />
+                
+                {/* Admin V3 - Agenda Routes */}
+                <Route path="/admin-v3/agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaList /></Suspense>} />
+                <Route path="/admin-v3/agenda/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaCreate /></Suspense>} />
+                <Route path="/admin-v3/agenda/:id/editar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaEdit /></Suspense>} />
+                
+                {/* Admin V3 - Other Module Routes (to be implemented) */}
+                {/* <Route path="/admin-v3/agentes" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgentList /></Suspense>} /> */}
+                {/* <Route path="/admin-v3/revista" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaList /></Suspense>} /> */}
+                {/* <Route path="/admin-v3/gestao" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ManagementDashboard /></Suspense>} /> */}
+                {/* <Route path="/admin-v3/destaques" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3HighlightsList /></Suspense>} /> */}
                 
                 {/* Events Routes */}
                 <Route path="/eventos" element={<EventsPage />} />
