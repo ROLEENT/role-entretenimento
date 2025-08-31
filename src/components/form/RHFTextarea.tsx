@@ -3,13 +3,9 @@
 import { useFormContext, Controller } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { BaseFormFieldProps } from "@/lib/forms";
 
-interface RHFTextareaProps {
-  name: string;
-  label?: string;
-  placeholder?: string;
-  disabled?: boolean;
-  className?: string;
+interface RHFTextareaProps extends BaseFormFieldProps {
   rows?: number;
 }
 
@@ -17,7 +13,9 @@ export default function RHFTextarea({
   name,
   label,
   placeholder,
+  description,
   disabled,
+  required,
   className,
   rows = 3,
 }: RHFTextareaProps) {
@@ -33,6 +31,7 @@ export default function RHFTextarea({
       {label && (
         <Label htmlFor={name} className={fieldError ? "text-destructive" : ""}>
           {label}
+          {required && <span className="text-destructive ml-1">*</span>}
         </Label>
       )}
       <Controller
@@ -47,11 +46,18 @@ export default function RHFTextarea({
             className={className}
             rows={rows}
             aria-invalid={!!fieldError}
+            aria-describedby={description ? `${name}-description` : undefined}
+            aria-required={required}
           />
         )}
       />
+      {description && (
+        <p id={`${name}-description`} className="text-sm text-muted-foreground">
+          {description}
+        </p>
+      )}
       {fieldError && (
-        <p className="text-sm text-destructive">
+        <p className="text-sm text-destructive" role="alert">
           {fieldError.message as string}
         </p>
       )}

@@ -12,6 +12,7 @@ interface RHFComboboxChipsProps extends BaseFormFieldProps {
   options?: Array<{ value: string; label: string }>;
   onCreateNew?: (value: string) => void;
   maxItems?: number;
+  showCounter?: boolean;
 }
 
 export default function RHFComboboxChips({
@@ -20,10 +21,12 @@ export default function RHFComboboxChips({
   placeholder = "Digite e pressione Enter para adicionar",
   description,
   disabled,
+  required,
   className,
   options = [],
   onCreateNew,
-  maxItems,
+  maxItems = 12,
+  showCounter = true,
 }: RHFComboboxChipsProps) {
   const {
     control,
@@ -43,7 +46,10 @@ export default function RHFComboboxChips({
       const trimmedValue = inputValue.trim();
       
       if (trimmedValue && !currentValue.includes(trimmedValue)) {
-        if (maxItems && currentValue.length >= maxItems) return;
+        if (currentValue.length >= maxItems) {
+          // Could show toast: "Máximo de {maxItems} itens permitido"
+          return;
+        }
         
         const newValue = [...currentValue, trimmedValue];
         onChange(newValue);
@@ -69,6 +75,7 @@ export default function RHFComboboxChips({
       {label && (
         <Label htmlFor={name} className={fieldError ? "text-destructive" : ""}>
           {label}
+          {required && <span className="text-destructive ml-1">*</span>}
         </Label>
       )}
       
@@ -77,36 +84,48 @@ export default function RHFComboboxChips({
         control={control}
         defaultValue={[]}
         render={({ field }) => (
-          <div className={`min-h-[40px] p-2 border rounded-md focus-within:ring-2 focus-within:ring-ring ${className}`}>
-            <div className="flex flex-wrap gap-1 mb-2">
-              {field.value?.map((item: string, index: number) => (
-                <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                  {item}
-                  {!disabled && (
-                    <button
-                      type="button"
-                      onClick={() => removeItem(index, field.onChange, field.value)}
-                      className="ml-1 hover:bg-destructive hover:text-destructive-foreground rounded-full p-0.5"
-                      aria-label={`Remover ${item}`}
-                    >
-                      <X size={12} />
-                    </button>
-                  )}
-                </Badge>
-              ))}
+          <div className="space-y-2">
+            <div className={`min-h-[40px] p-2 border rounded-md focus-within:ring-2 focus-within:ring-ring ${className}`}>
+              <div className="flex flex-wrap gap-1 mb-2">
+                {field.value?.map((item: string, index: number) => (
+                  <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                    {item}
+                    {!disabled && (
+                      <button
+                        type="button"
+                        onClick={() => removeItem(index, field.onChange, field.value)}
+                        className="ml-1 hover:bg-destructive hover:text-destructive-foreground rounded-full p-0.5"
+                        aria-label={`Remover ${item}`}
+                      >
+                        <X size={12} />
+                      </button>
+                    )}
+                  </Badge>
+                ))}
+              </div>
+              
+              {(!maxItems || field.value?.length < maxItems) && (
+                <Input
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(e, field.onChange, field.value || [])}
+                  placeholder={field.value?.length >= maxItems ? "Máximo atingido" : placeholder}
+                  disabled={disabled || field.value?.length >= maxItems}
+                  className="border-0 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
+                  aria-invalid={!!fieldError}
+                  aria-describedby={description ? `${name}-description` : undefined}
+                  aria-required={required}
+                />
+              )}
             </div>
             
-            {(!maxItems || field.value?.length < maxItems) && (
-              <Input
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={(e) => handleKeyDown(e, field.onChange, field.value || [])}
-                placeholder={placeholder}
-                disabled={disabled}
-                className="border-0 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
-                aria-invalid={!!fieldError}
-                aria-describedby={description ? `${name}-description` : undefined}
-              />
+            {showCounter && (
+              <div className="flex justify-between items-center text-xs text-muted-foreground">
+                <span>{field.value?.length || 0}/{maxItems} itens</span>
+                {field.value?.length >= maxItems && (
+                  <span className="text-amber-600">Limite máximo atingido</span>
+                )}
+              </div>
             )}
           </div>
         )}

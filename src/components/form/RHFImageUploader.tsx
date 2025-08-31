@@ -5,9 +5,14 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Upload, X, Image, AlertCircle } from "lucide-react";
+import { Upload, X, Image, AlertCircle, ImageIcon } from "lucide-react";
 import { useState, useRef } from "react";
 import { BaseFormFieldProps } from "@/lib/forms";
+
+interface ImageWithAlt {
+  url: string;
+  alt: string;
+}
 
 interface RHFImageUploaderProps extends BaseFormFieldProps {
   accept?: string;
@@ -17,6 +22,7 @@ interface RHFImageUploaderProps extends BaseFormFieldProps {
   onUpload?: (file: File) => Promise<string>; // Returns URL
   multiple?: boolean;
   preview?: boolean;
+  requireAlt?: boolean; // Whether alt text is required
 }
 
 export default function RHFImageUploader({
@@ -24,6 +30,7 @@ export default function RHFImageUploader({
   label,
   description,
   disabled,
+  required,
   className,
   accept = "image/*",
   maxSize = 5,
@@ -32,6 +39,7 @@ export default function RHFImageUploader({
   onUpload,
   multiple = false,
   preview = true,
+  requireAlt = true,
 }: RHFImageUploaderProps) {
   const {
     control,
@@ -71,11 +79,16 @@ export default function RHFImageUploader({
       try {
         const url = await onUpload(file);
         
+        const imageData: ImageWithAlt = {
+          url,
+          alt: requireAlt ? "" : `Image: ${file.name}`,
+        };
+        
         if (multiple) {
-          const newValue = Array.isArray(currentValue) ? [...currentValue, url] : [url];
+          const newValue = Array.isArray(currentValue) ? [...currentValue, imageData] : [imageData];
           onChange(newValue);
         } else {
-          onChange(url);
+          onChange(imageData);
         }
       } catch (error) {
         console.error('Upload failed:', error);
@@ -84,12 +97,17 @@ export default function RHFImageUploader({
         setUploading(false);
       }
     } else {
-      // If no upload handler, just store the file reference
+      // If no upload handler, create object with File reference
+      const imageData: ImageWithAlt = {
+        url: URL.createObjectURL(file),
+        alt: requireAlt ? "" : `Image: ${file.name}`,
+      };
+      
       if (multiple) {
-        const newValue = Array.isArray(currentValue) ? [...currentValue, file] : [file];
+        const newValue = Array.isArray(currentValue) ? [...currentValue, imageData] : [imageData];
         onChange(newValue);
       } else {
-        onChange(file);
+        onChange(imageData);
       }
     }
   };
@@ -103,39 +121,58 @@ export default function RHFImageUploader({
     }
   };
 
-  const renderPreview = (value: any, index?: number) => {
-    let src = "";
-    
-    if (typeof value === 'string') {
-      src = value;
-    } else if (value instanceof File) {
-      src = URL.createObjectURL(value);
+  const updateAltText = (index: number, newAlt: string, onChange: (value: any) => void, currentValue: any) => {
+    if (multiple && Array.isArray(currentValue)) {
+      const newValue = [...currentValue];
+      newValue[index] = { ...newValue[index], alt: newAlt };
+      onChange(newValue);
+    } else if (currentValue) {
+      onChange({ ...currentValue, alt: newAlt });
     }
-    
-    if (!src) return null;
+  };
+
+  const renderPreview = (value: ImageWithAlt, index: number, onChange: (value: any) => void, currentValue: any) => {
+    if (!value || !value.url) return null;
+
+    const hasAltError = requireAlt && !value.alt?.trim();
 
     return (
-      <div key={index || 0} className="relative group">
-        <img
-          src={src}
-          alt="Preview"
-          className="w-20 h-20 object-cover rounded border"
-          onLoad={() => {
-            if (value instanceof File) {
-              URL.revokeObjectURL(src);
-            }
-          }}
-        />
-        {!disabled && (
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            className="absolute -top-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={() => removeItem(index || 0, () => {}, [])}
-          >
-            <X size={12} />
-          </Button>
+      <div key={index} className="space-y-2 p-3 border rounded-lg">
+        <div className="relative group">
+          <img
+            src={value.url}
+            alt={value.alt || "Preview"}
+            className="w-20 h-20 object-cover rounded border"
+          />
+          {!disabled && (
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              className="absolute -top-2 -right-2 w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={() => removeItem(index, onChange, currentValue)}
+            >
+              <X size={12} />
+            </Button>
+          )}
+        </div>
+        
+        {requireAlt && (
+          <div className="space-y-1">
+            <Label className={hasAltError ? "text-destructive" : ""}>
+              Texto alternativo *
+            </Label>
+            <Input
+              value={value.alt || ""}
+              onChange={(e) => updateAltText(index, e.target.value, onChange, currentValue)}
+              placeholder="Descreva a imagem"
+              disabled={disabled}
+              className={hasAltError ? "border-destructive" : ""}
+            />
+            {hasAltError && (
+              <p className="text-xs text-destructive">Texto alternativo é obrigatório</p>
+            )}
+          </div>
         )}
       </div>
     );
@@ -146,6 +183,7 @@ export default function RHFImageUploader({
       {label && (
         <Label htmlFor={name} className={fieldError ? "text-destructive" : ""}>
           {label}
+          {required && <span className="text-destructive ml-1">*</span>}
         </Label>
       )}
       
@@ -205,16 +243,17 @@ export default function RHFImageUploader({
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 aria-invalid={!!fieldError}
                 aria-describedby={description ? `${name}-description` : undefined}
+                aria-required={required}
               />
             </Card>
             
             {/* Preview area */}
             {preview && field.value && (
-              <div className="flex flex-wrap gap-2">
+              <div className="space-y-3">
                 {multiple && Array.isArray(field.value) ? (
-                  field.value.map((item, index) => renderPreview(item, index))
+                  field.value.map((item, index) => renderPreview(item, index, field.onChange, field.value))
                 ) : (
-                  renderPreview(field.value)
+                  renderPreview(field.value, 0, field.onChange, field.value)
                 )}
               </div>
             )}

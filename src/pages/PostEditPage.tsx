@@ -139,9 +139,10 @@ export default function PostEditPage() {
 
           <RHFSelect
             name="status"
-            options={statusOptions}
-            parseValue={(v) => v as "draft" | "published"}
-            serializeValue={(v) => v || "draft"}
+            options={[
+              { value: "draft", label: "Rascunho" },
+              { value: "published", label: "Publicado" }
+            ]}
             placeholder="Selecione o status"
           />
         </FormSection>
