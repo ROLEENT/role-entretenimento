@@ -1383,6 +1383,7 @@ export type Database = {
           author_id: string
           author_name: string
           category_ids: string[] | null
+          cities: string[] | null
           city: string
           content_html: string
           content_md: string | null
@@ -1409,6 +1410,7 @@ export type Database = {
           author_id: string
           author_name: string
           category_ids?: string[] | null
+          cities?: string[] | null
           city: string
           content_html: string
           content_md?: string | null
@@ -1435,6 +1437,7 @@ export type Database = {
           author_id?: string
           author_name?: string
           category_ids?: string[] | null
+          cities?: string[] | null
           city?: string
           content_html?: string
           content_md?: string | null
