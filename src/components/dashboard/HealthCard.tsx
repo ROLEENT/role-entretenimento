@@ -53,13 +53,17 @@ export function HealthCard() {
   };
 
   return (
-    <Card className="dashboard-card">
+    <Card role="region" aria-label="Status do sistema">
       <CardHeader>
         <CardTitle>Status do Sistema</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" 
+            role="status" 
+            aria-label="Carregando status do sistema"
+          >
             {[...Array(3)].map((_, i) => (
               <div key={i} className="flex items-center gap-2">
                 <div className="h-5 w-5 rounded-full bg-muted animate-pulse" />
@@ -71,35 +75,35 @@ export function HealthCard() {
             ))}
           </div>
         ) : (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center gap-2">
+          <div className="space-y-4" aria-live="polite">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="flex items-center gap-2" role="status">
                 {getStatusIcon(health?.database.status || 'error')}
                 <div className="flex-1">
-                  <div className="text-sm font-medium">Database</div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-sm font-medium" id="db-status">Database</div>
+                  <div className="text-xs text-muted-foreground" aria-describedby="db-status">
                     {health?.database.message || 'Erro'}
                   </div>
                   {getStatusBadge(health?.database.status || 'error')}
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2" role="status">
                 {getStatusIcon(health?.storage.status || 'error')}
                 <div className="flex-1">
-                  <div className="text-sm font-medium">Storage</div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-sm font-medium" id="storage-status">Storage</div>
+                  <div className="text-xs text-muted-foreground" aria-describedby="storage-status">
                     {health?.storage.message || 'Erro'}
                   </div>
                   {getStatusBadge(health?.storage.status || 'error')}
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2" role="status">
                 {getStatusIcon(health?.schema.status || 'error')}
                 <div className="flex-1">
-                  <div className="text-sm font-medium">Schema</div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-sm font-medium" id="schema-status">Schema</div>
+                  <div className="text-xs text-muted-foreground" aria-describedby="schema-status">
                     {health?.schema.message || 'Erro'}
                   </div>
                   {getStatusBadge(health?.schema.status || 'error')}
@@ -107,12 +111,17 @@ export function HealthCard() {
               </div>
             </div>
 
-            <div className="flex justify-end">
-              <Button variant="outline" size="sm" asChild>
+            <div className="flex justify-end pt-2 border-t">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                asChild
+                aria-label="Acessar logs do sistema"
+              >
                 <a href="/gestao/logs" className="flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
+                  <Settings className="h-4 w-4" aria-hidden="true" />
                   Ver logs
-                  <ExternalLink className="h-3 w-3" />
+                  <ExternalLink className="h-3 w-3" aria-hidden="true" />
                 </a>
               </Button>
             </div>

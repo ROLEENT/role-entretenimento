@@ -31,13 +31,14 @@ export function KpiRow() {
   }, []);
 
   return (
-    <div className="dashboard-grid-responsive">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="region" aria-label="Indicadores principais">
       <KpiCard
         title="Eventos Ativos"
         value={kpis?.publishedEvents ?? 0}
         hint="publicados este mês"
         icon={<Calendar className="h-4 w-4" />}
         isLoading={loading}
+        aria-label={`${kpis?.publishedEvents ?? 0} eventos ativos`}
       />
       
       <KpiCard
@@ -46,6 +47,7 @@ export function KpiRow() {
         hint="aguardando publicação"
         icon={<FileText className="h-4 w-4" />}
         isLoading={loading}
+        aria-label={`${kpis?.draftEvents ?? 0} rascunhos`}
       />
       
       <KpiCard
@@ -54,6 +56,7 @@ export function KpiRow() {
         hint="eventos futuros"
         icon={<TrendingUp className="h-4 w-4" />}
         isLoading={loading}
+        aria-label={`${kpis?.scheduledEvents ?? 0} eventos agendados`}
       />
       
       <KpiCard
@@ -62,6 +65,7 @@ export function KpiRow() {
         hint="ativos na plataforma"
         icon={<Users className="h-4 w-4" />}
         isLoading={loading}
+        aria-label={`${kpis?.agentsTotal ?? 0} agentes ativos`}
       />
     </div>
   );

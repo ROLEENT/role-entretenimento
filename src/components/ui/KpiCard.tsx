@@ -10,6 +10,7 @@ interface KpiCardProps {
   icon?: ReactNode;
   isLoading?: boolean;
   className?: string;
+  'aria-label'?: string;
 }
 
 export function KpiCard({ 
@@ -18,30 +19,35 @@ export function KpiCard({
   hint, 
   icon, 
   isLoading = false,
-  className 
+  className,
+  'aria-label': ariaLabel
 }: KpiCardProps) {
   return (
-    <Card className={cn("dashboard-card", className)}>
+    <Card className={cn("dashboard-card", className)} aria-label={ariaLabel}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+        <CardTitle className="text-sm font-medium text-muted-foreground" id={`kpi-${title.toLowerCase()}`}>
           {title}
         </CardTitle>
         {icon && (
-          <div className="text-muted-foreground">
+          <div className="text-muted-foreground" aria-hidden="true">
             {icon}
           </div>
         )}
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="space-y-2">
+          <div className="space-y-2" role="status" aria-label={`Carregando ${title}`}>
             <Skeleton className="h-8 w-16" />
             {hint && <Skeleton className="h-4 w-24" />}
           </div>
         ) : (
           <>
-            <div className="text-2xl font-bold" aria-live="polite">
-              {typeof value === 'number' ? value.toLocaleString() : value}
+            <div 
+              className="text-2xl font-bold" 
+              aria-live="polite"
+              aria-labelledby={`kpi-${title.toLowerCase()}`}
+            >
+              {typeof value === 'number' ? value.toLocaleString('pt-BR') : value}
             </div>
             {hint && (
               <p className="text-xs text-muted-foreground mt-1">
