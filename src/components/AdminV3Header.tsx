@@ -24,7 +24,9 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, User, Settings, LogOut } from 'lucide-react';
+import { User, Settings, LogOut } from 'lucide-react';
+import { AdminNavigation } from '@/components/admin/AdminNavigation';
+import { QuickActions } from '@/components/admin/QuickActions';
 
 interface UserProfile {
   email: string;
@@ -181,13 +183,14 @@ export function AdminV3Header() {
             </Button>
             
             {/* Admin Navigation */}
-            <nav className="hidden md:flex items-center gap-4">
-              {/* Navigation items removed */}
-            </nav>
+            <AdminNavigation />
           </div>
 
           {/* Right side */}
           <div className="flex items-center gap-3">
+            {/* Quick Actions */}
+            <QuickActions />
+            
             {/* Project ref chip */}
             <div className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
               {projectRef}
