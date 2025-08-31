@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
@@ -7,15 +9,8 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
-import { Skeleton } from "@/components/ui/skeleton"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -89,9 +84,7 @@ const SidebarProvider = React.forwardRef<
 
     // Helper to toggle the sidebar.
     const toggleSidebar = React.useCallback(() => {
-      return isMobile
-        ? setOpenMobile((open) => !open)
-        : setOpen((open) => !open)
+      return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
     }, [isMobile, setOpen, setOpenMobile])
 
     // Adds a keyboard shortcut to toggle the sidebar.
@@ -139,7 +132,7 @@ const SidebarProvider = React.forwardRef<
               } as React.CSSProperties
             }
             className={cn(
-              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
+              "group/sidebar-wrapper flex min-h-screen w-full has-[[data-variant=inset]]:bg-sidebar",
               className
             )}
             ref={ref}
@@ -157,14 +150,12 @@ SidebarProvider.displayName = "SidebarProvider"
 const Sidebar = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
-    side?: "left" | "right"
     variant?: "sidebar" | "floating" | "inset"
     collapsible?: "offcanvas" | "icon" | "none"
   }
 >(
   (
     {
-      side = "left",
       variant = "sidebar",
       collapsible = "offcanvas",
       className,
@@ -196,13 +187,12 @@ const Sidebar = React.forwardRef<
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
-            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+            className="w-[--sidebar-width-mobile] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
             style={
               {
-                "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
+                "--sidebar-width-mobile": SIDEBAR_WIDTH_MOBILE,
               } as React.CSSProperties
             }
-            side={side}
           >
             <div className="flex h-full w-full flex-col">{children}</div>
           </SheetContent>
@@ -217,7 +207,7 @@ const Sidebar = React.forwardRef<
         data-state={state}
         data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
-        data-side={side}
+        data-side="left"
       >
         {/* This is what handles the sidebar gap on desktop */}
         <div
@@ -233,20 +223,23 @@ const Sidebar = React.forwardRef<
         <div
           className={cn(
             "duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
-            side === "left"
-              ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
-              : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-            // Adjust the padding for floating and inset variants.
-            variant === "floating" || variant === "inset"
-              ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
+            variant === "floating" &&
+              "p-2 group-data-[side=left]:border-r-0 group-data-[side=right]:border-l-0",
+            variant === "inset" && "group-data-[side=left]:border-r-0 group-data-[side=right]:border-l-0",
+            "group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]",
+            "group-data-[collapsible=icon]:w-[--sidebar-width-icon]",
+            "group-data-[side=left]:left-0",
+            "group-data-[side=right]:right-0",
+            "group-data-[variant=sidebar]:bg-sidebar group-data-[variant=sidebar]:border-r",
+            "group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-border group-data-[variant=floating]:bg-sidebar group-data-[variant=floating]:shadow",
+            "group-data-[variant=inset]:bg-background",
             className
           )}
           {...props}
         >
           <div
             data-sidebar="sidebar"
-            className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
+            className="flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-border group-data-[variant=floating]:bg-sidebar"
           >
             {children}
           </div>
@@ -298,7 +291,7 @@ const SidebarRail = React.forwardRef<
       onClick={toggleSidebar}
       title="Toggle Sidebar"
       className={cn(
-        "absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex",
+        "absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-border group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex",
         "[[data-side=left]_&]:cursor-w-resize [[data-side=right]_&]:cursor-e-resize",
         "[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize",
         "group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full group-data-[collapsible=offcanvas]:hover:bg-sidebar",
@@ -314,7 +307,7 @@ SidebarRail.displayName = "SidebarRail"
 
 const SidebarInset = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"main">
+  React.ComponentProps<"div">
 >(({ className, ...props }, ref) => {
   return (
     <main
@@ -379,14 +372,14 @@ const SidebarFooter = React.forwardRef<
 SidebarFooter.displayName = "SidebarFooter"
 
 const SidebarSeparator = React.forwardRef<
-  React.ElementRef<typeof Separator>,
-  React.ComponentProps<typeof Separator>
+  React.ElementRef<"div">,
+  React.ComponentProps<"div">
 >(({ className, ...props }, ref) => {
   return (
-    <Separator
+    <div
       ref={ref}
       data-sidebar="separator"
-      className={cn("mx-2 w-auto bg-sidebar-border", className)}
+      className={cn("mx-2 w-auto bg-border", className)}
       {...props}
     />
   )
@@ -473,40 +466,46 @@ SidebarGroupAction.displayName = "SidebarGroupAction"
 const SidebarGroupContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div">
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    data-sidebar="group-content"
-    className={cn("w-full text-sm", className)}
-    {...props}
-  />
-))
+>(({ className, ...props }, ref) => {
+  return (
+    <div
+      ref={ref}
+      data-sidebar="group-content"
+      className={cn("w-full text-sm", className)}
+      {...props}
+    />
+  )
+})
 SidebarGroupContent.displayName = "SidebarGroupContent"
 
 const SidebarMenu = React.forwardRef<
-  HTMLUListElement,
-  React.ComponentProps<"ul">
->(({ className, ...props }, ref) => (
-  <ul
-    ref={ref}
-    data-sidebar="menu"
-    className={cn("flex w-full min-w-0 flex-col gap-1", className)}
-    {...props}
-  />
-))
+  HTMLDivElement,
+  React.ComponentProps<"div">
+>(({ className, ...props }, ref) => {
+  return (
+    <div
+      ref={ref}
+      data-sidebar="menu"
+      className={cn("flex w-full min-w-0 flex-col gap-1", className)}
+      {...props}
+    />
+  )
+})
 SidebarMenu.displayName = "SidebarMenu"
 
 const SidebarMenuItem = React.forwardRef<
-  HTMLLIElement,
-  React.ComponentProps<"li">
->(({ className, ...props }, ref) => (
-  <li
-    ref={ref}
-    data-sidebar="menu-item"
-    className={cn("group/menu-item relative", className)}
-    {...props}
-  />
-))
+  HTMLDivElement,
+  React.ComponentProps<"div">
+>(({ className, ...props }, ref) => {
+  return (
+    <div
+      ref={ref}
+      data-sidebar="menu-item"
+      className={cn("group/menu-item relative", className)}
+      {...props}
+    />
+  )
+})
 SidebarMenuItem.displayName = "SidebarMenuItem"
 
 const sidebarMenuButtonVariants = cva(
@@ -521,7 +520,7 @@ const sidebarMenuButtonVariants = cva(
       size: {
         default: "h-8 text-sm",
         sm: "h-7 text-xs",
-        lg: "h-12 text-sm group-data-[collapsible=icon]:!p-0",
+        lg: "h-12 text-sm group-data-[collapsible=icon]:!size-8",
       },
     },
     defaultVariants: {
@@ -624,22 +623,24 @@ SidebarMenuAction.displayName = "SidebarMenuAction"
 const SidebarMenuBadge = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div">
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    data-sidebar="menu-badge"
-    className={cn(
-      "absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums text-sidebar-foreground select-none pointer-events-none",
-      "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
-      "peer-data-[size=sm]/menu-button:top-1",
-      "peer-data-[size=default]/menu-button:top-1.5",
-      "peer-data-[size=lg]/menu-button:top-2.5",
-      "group-data-[collapsible=icon]:hidden",
-      className
-    )}
-    {...props}
-  />
-))
+>(({ className, ...props }, ref) => {
+  return (
+    <div
+      ref={ref}
+      data-sidebar="menu-badge"
+      className={cn(
+        "absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums text-sidebar-foreground select-none pointer-events-none",
+        "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
+        "peer-data-[size=sm]/menu-button:top-1",
+        "peer-data-[size=default]/menu-button:top-1.5",
+        "peer-data-[size=lg]/menu-button:top-2.5",
+        "group-data-[collapsible=icon]:hidden",
+        className
+      )}
+      {...props}
+    />
+  )
+})
 SidebarMenuBadge.displayName = "SidebarMenuBadge"
 
 const SidebarMenuSkeleton = React.forwardRef<
@@ -661,14 +662,10 @@ const SidebarMenuSkeleton = React.forwardRef<
       {...props}
     >
       {showIcon && (
-        <Skeleton
-          className="size-4 rounded-md"
-          data-sidebar="menu-skeleton-icon"
-        />
+        <div className="flex size-4 rounded-sm bg-sidebar-border" />
       )}
-      <Skeleton
-        className="h-4 flex-1 max-w-[--skeleton-width]"
-        data-sidebar="menu-skeleton-text"
+      <div
+        className="h-4 flex-1 max-w-[--skeleton-width] rounded-sm bg-sidebar-border"
         style={
           {
             "--skeleton-width": width,
@@ -681,37 +678,41 @@ const SidebarMenuSkeleton = React.forwardRef<
 SidebarMenuSkeleton.displayName = "SidebarMenuSkeleton"
 
 const SidebarMenuSub = React.forwardRef<
-  HTMLUListElement,
-  React.ComponentProps<"ul">
->(({ className, ...props }, ref) => (
-  <ul
-    ref={ref}
-    data-sidebar="menu-sub"
-    className={cn(
-      "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5",
-      "group-data-[collapsible=icon]:hidden",
-      className
-    )}
-    {...props}
-  />
-))
+  HTMLDivElement,
+  React.ComponentProps<"div">
+>(({ className, ...props }, ref) => {
+  return (
+    <div
+      ref={ref}
+      data-sidebar="menu-sub"
+      className={cn(
+        "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5",
+        "group-data-[collapsible=icon]:hidden",
+        className
+      )}
+      {...props}
+    />
+  )
+})
 SidebarMenuSub.displayName = "SidebarMenuSub"
 
 const SidebarMenuSubItem = React.forwardRef<
-  HTMLLIElement,
-  React.ComponentProps<"li">
->(({ ...props }, ref) => <li ref={ref} {...props} />)
+  HTMLDivElement,
+  React.ComponentProps<"div">
+>(({ ...props }, ref) => {
+  return <div ref={ref} {...props} />
+})
 SidebarMenuSubItem.displayName = "SidebarMenuSubItem"
 
 const SidebarMenuSubButton = React.forwardRef<
-  HTMLAnchorElement,
-  React.ComponentProps<"a"> & {
+  HTMLButtonElement,
+  React.ComponentProps<"button"> & {
     asChild?: boolean
     size?: "sm" | "md"
     isActive?: boolean
   }
 >(({ asChild = false, size = "md", isActive, className, ...props }, ref) => {
-  const Comp = asChild ? Slot : "a"
+  const Comp = asChild ? Slot : "button"
 
   return (
     <Comp
@@ -720,7 +721,7 @@ const SidebarMenuSubButton = React.forwardRef<
       data-size={size}
       data-active={isActive}
       className={cn(
-        "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground",
+        "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-foreground/50",
         "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
         size === "sm" && "text-xs",
         size === "md" && "text-sm",

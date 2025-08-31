@@ -1,14 +1,12 @@
-import { MegaMenu } from "@/components/admin/MegaMenu";
-import { MENUS } from "@/components/admin/menu.config";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export function AdminTopNav() {
   return (
-    <nav className="flex items-center gap-2 overflow-visible">
-      <MegaMenu label="Agenda" items={MENUS.agenda} basePath="/admin-v3/agenda" />
-      <MegaMenu label="Agentes" items={MENUS.agentes} basePath="/admin-v3/agentes" />
-      <MegaMenu label="Revista" items={MENUS.revista} basePath="/admin-v3/revista" />
-      <MegaMenu label="Gestão" items={MENUS.gestao} basePath="/admin-v3/gestao" />
-      <MegaMenu label="Destaques" items={MENUS.destaques} basePath="/admin-v3/destaques" />
-    </nav>
+    <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+      <SidebarTrigger className="-ml-1" />
+      <div className="flex items-center gap-2">
+        <h1 className="text-lg font-semibold">Admin v3</h1>
+      </div>
+    </header>
   );
 }
