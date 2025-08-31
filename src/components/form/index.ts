@@ -24,6 +24,7 @@ export { RHFMaskedInput } from './RHFMaskedInput';
 export { RHFCheckbox } from './RHFCheckbox';
 export { RHFPhoneInput } from './RHFPhoneInput';
 export { RHFSlugInput } from './RHFSlugInput';
+export { RHFRemoteCombobox } from './RHFRemoteCombobox';
 
 // Examples
 export { default as ExampleForm } from './ExampleForm';
