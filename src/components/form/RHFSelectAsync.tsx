@@ -28,11 +28,22 @@ interface RHFSelectAsyncProps {
   name: string;
   label?: string;
   placeholder?: string;
-  loadOptions: () => Promise<AsyncOption[]>;
+  loadOptions?: () => Promise<AsyncOption[]>;
   disabled?: boolean;
   required?: boolean;
   className?: string;
   defaultOptions?: AsyncOption[];
+  // Support for legacy API
+  query?: {
+    table: string;
+    fields: string;
+    orderBy?: string;
+    filter?: string;
+  };
+  mapRow?: (row: any) => { value: string; label: string };
+  parseValue?: (value: any) => any;
+  serializeValue?: (value: any) => string;
+  multiple?: boolean;
 }
 
 export function RHFSelectAsync({

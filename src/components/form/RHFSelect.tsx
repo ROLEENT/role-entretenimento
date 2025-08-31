@@ -30,6 +30,9 @@ interface RHFSelectProps {
   disabled?: boolean;
   required?: boolean;
   className?: string;
+  // Support for legacy API
+  parseValue?: (value: any) => any;
+  serializeValue?: (value: any) => string;
 }
 
 export function RHFSelect({
