@@ -51,9 +51,11 @@ interface AgentesFormProps {
   agentType: 'artistas' | 'organizadores' | 'locais';
   agentId?: string;
   onSuccess: () => void;
+  onFormSubmit?: (submitFn: () => void) => void;
+  onFormState?: (state: { isSubmitting: boolean; isSaving: boolean; hasError: boolean; lastSavedAt: Date | null }) => void;
 }
 
-export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps) {
+export function AgentesForm({ agentType, agentId, onSuccess, onFormSubmit, onFormState }: AgentesFormProps) {
   const queryClient = useQueryClient();
   const isEditing = !!agentId;
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
@@ -411,6 +413,25 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
     }
   });
 
+  // Expose form submit function to parent
+  useEffect(() => {
+    if (onFormSubmit) {
+      onFormSubmit(handleFormSubmit);
+    }
+  }, [onFormSubmit, handleFormSubmit]);
+
+  // Expose form state to parent  
+  useEffect(() => {
+    if (onFormState) {
+      onFormState({
+        isSubmitting: saveMutation.isPending,
+        isSaving: isAutosaving,
+        hasError,
+        lastSavedAt: autosaveLastSavedAt || lastSavedAt
+      });
+    }
+  }, [onFormState, saveMutation.isPending, isAutosaving, hasError, autosaveLastSavedAt, lastSavedAt]);
+
   if (isLoadingAgent) {
     return <LoadingSpinner />;
   }
@@ -434,7 +455,7 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
   };
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="sm" asChild>
           <Link to={getBackLink()}>

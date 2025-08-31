@@ -1,10 +1,19 @@
+import { useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { AdminV3Guard } from "@/components/AdminV3Guard";
 import { AdminV3Header } from "@/components/AdminV3Header";
 import { AdminV3Breadcrumb } from "@/components/AdminV3Breadcrumb";
 import { AgentesForm } from "@/components/agentes/AgentesForm";
+import ActionBar from "@/components/ui/action-bar";
 
 export default function AdminV3AgentesForm() {
+  const [formSubmitFn, setFormSubmitFn] = useState<(() => void) | null>(null);
+  const [formState, setFormState] = useState({
+    isSubmitting: false,
+    isSaving: false, 
+    hasError: false,
+    lastSavedAt: null as Date | null
+  });
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -40,10 +49,11 @@ export default function AdminV3AgentesForm() {
 
   return (
     <AdminV3Guard>
-      <div className="min-h-screen bg-background">
+      <div className="flex min-h-screen flex-col">
         <AdminV3Header />
-        <div className="pt-16">
-          <div className="container mx-auto px-4 py-6">
+        
+        <main className="flex-1 pb-24">
+          <div className="mx-auto w-full max-w-5xl px-4 py-8">
             <AdminV3Breadcrumb 
               items={[
                 { label: "Dashboard", path: "/admin-v3" },
@@ -69,9 +79,23 @@ export default function AdminV3AgentesForm() {
               agentType={agentType}
               agentId={id}
               onSuccess={handleSuccess}
+              onFormSubmit={setFormSubmitFn}
+              onFormState={setFormState}
             />
           </div>
-        </div>
+        </main>
+
+        <ActionBar 
+          className="sticky bottom-0 z-40 border-t bg-background/95 backdrop-blur"
+          isVisible={true}
+          isSubmitting={formState.isSubmitting}
+          isSaving={formState.isSaving}
+          hasError={formState.hasError}
+          lastSavedAt={formState.lastSavedAt}
+          onSave={() => {
+            if (formSubmitFn) formSubmitFn();
+          }}
+        />
       </div>
     </AdminV3Guard>
   );
