@@ -200,14 +200,23 @@ const BaseAgendaItemSchema = z.object({
     .max(100, "Prioridade deve ser menor ou igual a 100")
     .default(0),
   
-  // Tags and metadata
+  // Tags and metadata - with curatorial transparency tags
   tags: z.array(
     z.string()
       .min(1, "Tag não pode estar vazia")
       .max(50, "Tag deve ter no máximo 50 caracteres")
   )
-    .max(20, "Máximo 20 tags permitidas")
-    .default([]),
+    .max(30, "Máximo 30 tags permitidas")
+    .default([])
+    .refine((tags) => {
+      // Validar que pelo menos uma tag de origem está presente
+      const originTags = ["curadoria-equipe", "destaque-editorial", "sugestao-comunidade", 
+                          "indicacao-usuario", "parceria-local", "colaboracao-artista", 
+                          "descoberta-automatica", "monitoramento-redes"];
+      return tags.some(tag => originTags.includes(tag));
+    }, {
+      message: "Pelo menos uma tag de origem é obrigatória (ex: curadoria-equipe, sugestao-comunidade)"
+    }),
   
   // SEO
   meta_title: z.string()
