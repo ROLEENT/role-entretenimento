@@ -5205,6 +5205,29 @@ export type Database = {
           unique_users: number
         }[]
       }
+      get_audit_history: {
+        Args: { p_limit?: number; p_record_id: string; p_table_name: string }
+        Returns: {
+          action: string
+          admin_email: string
+          created_at: string
+          id: string
+          ip_address: unknown
+          new_values: Json
+          old_values: Json
+          user_agent: string
+        }[]
+      }
+      get_audit_statistics: {
+        Args: { p_end_date?: string; p_start_date?: string }
+        Returns: {
+          actions_by_admin: Json
+          actions_by_table: Json
+          actions_by_type: Json
+          total_actions: number
+          total_admins: number
+        }[]
+      }
       get_blog_comments_admin: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -5398,6 +5421,25 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_recent_audit_activity: {
+        Args: {
+          p_admin_email?: string
+          p_limit?: number
+          p_table_name?: string
+        }
+        Returns: {
+          action: string
+          admin_email: string
+          created_at: string
+          id: string
+          ip_address: unknown
+          new_values: Json
+          old_values: Json
+          record_id: string
+          table_name: string
+          user_agent: string
+        }[]
+      }
       get_secure_comment_count: {
         Args: { p_post_id: string }
         Returns: number
@@ -5580,6 +5622,10 @@ export type Database = {
       set_limit: {
         Args: { "": number }
         Returns: number
+      }
+      setup_audit_triggers: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       setup_notification_cron_jobs: {
         Args: Record<PropertyKey, never>
