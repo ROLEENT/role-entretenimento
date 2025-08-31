@@ -11,6 +11,8 @@ export { default as RHFSelect } from './RHFSelect';
 export { default as RHFSelectAsync } from './RHFSelectAsync';
 export { default as RHFDateTime } from './RHFDateTime';
 export { default as RHFUpload } from './RHFUpload';
+export { default as RHFLinks } from './RHFLinks';
+export { default as RHFSlug } from './RHFSlug';
 
 // Example
 export { default as ExampleForm } from './ExampleForm';
