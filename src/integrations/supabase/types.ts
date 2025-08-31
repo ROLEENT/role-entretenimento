@@ -324,7 +324,7 @@ export type Database = {
           share_text: string | null
           slug: string
           source_url: string | null
-          start_at: string | null
+          starts_at: string | null
           status: Database["public"]["Enums"]["agenda_status"]
           subtitle: string | null
           summary: string | null
@@ -378,7 +378,7 @@ export type Database = {
           share_text?: string | null
           slug: string
           source_url?: string | null
-          start_at?: string | null
+          starts_at?: string | null
           status?: Database["public"]["Enums"]["agenda_status"]
           subtitle?: string | null
           summary?: string | null
@@ -432,7 +432,7 @@ export type Database = {
           share_text?: string | null
           slug?: string
           source_url?: string | null
-          start_at?: string | null
+          starts_at?: string | null
           status?: Database["public"]["Enums"]["agenda_status"]
           subtitle?: string | null
           summary?: string | null
@@ -823,7 +823,9 @@ export type Database = {
           artist_type: string
           audius_url: string | null
           availability_days: string[] | null
+          avatar_url: string | null
           beatport_url: string | null
+          bio: string | null
           bio_long: string | null
           bio_short: string
           booking_email: string
@@ -831,8 +833,10 @@ export type Database = {
           cities_active: string[] | null
           city: string | null
           city_id: number | null
+          country: string | null
           cover_image_url: string | null
           created_at: string | null
+          email: string | null
           fee_range: string | null
           home_city: string | null
           id: string
@@ -840,7 +844,9 @@ export type Database = {
           image_rights_authorized: boolean | null
           instagram: string | null
           internal_notes: string | null
+          links: Json | null
           name: string
+          phone: string | null
           presskit_url: string | null
           priority: number | null
           profile_image_url: string
@@ -854,7 +860,9 @@ export type Database = {
           soundcloud_url: string | null
           spotify_url: string | null
           stage_name: string
+          state: string | null
           status: string | null
+          tags: string[] | null
           team_size: number | null
           tech_audio: string | null
           tech_light: string | null
@@ -862,6 +870,7 @@ export type Database = {
           tech_stage: string | null
           updated_at: string | null
           website_url: string | null
+          whatsapp: string | null
           youtube_url: string | null
         }
         Insert: {
@@ -869,7 +878,9 @@ export type Database = {
           artist_type?: string
           audius_url?: string | null
           availability_days?: string[] | null
+          avatar_url?: string | null
           beatport_url?: string | null
+          bio?: string | null
           bio_long?: string | null
           bio_short: string
           booking_email: string
@@ -877,8 +888,10 @@ export type Database = {
           cities_active?: string[] | null
           city?: string | null
           city_id?: number | null
+          country?: string | null
           cover_image_url?: string | null
           created_at?: string | null
+          email?: string | null
           fee_range?: string | null
           home_city?: string | null
           id?: string
@@ -886,7 +899,9 @@ export type Database = {
           image_rights_authorized?: boolean | null
           instagram?: string | null
           internal_notes?: string | null
+          links?: Json | null
           name: string
+          phone?: string | null
           presskit_url?: string | null
           priority?: number | null
           profile_image_url: string
@@ -900,7 +915,9 @@ export type Database = {
           soundcloud_url?: string | null
           spotify_url?: string | null
           stage_name: string
+          state?: string | null
           status?: string | null
+          tags?: string[] | null
           team_size?: number | null
           tech_audio?: string | null
           tech_light?: string | null
@@ -908,6 +925,7 @@ export type Database = {
           tech_stage?: string | null
           updated_at?: string | null
           website_url?: string | null
+          whatsapp?: string | null
           youtube_url?: string | null
         }
         Update: {
@@ -915,7 +933,9 @@ export type Database = {
           artist_type?: string
           audius_url?: string | null
           availability_days?: string[] | null
+          avatar_url?: string | null
           beatport_url?: string | null
+          bio?: string | null
           bio_long?: string | null
           bio_short?: string
           booking_email?: string
@@ -923,8 +943,10 @@ export type Database = {
           cities_active?: string[] | null
           city?: string | null
           city_id?: number | null
+          country?: string | null
           cover_image_url?: string | null
           created_at?: string | null
+          email?: string | null
           fee_range?: string | null
           home_city?: string | null
           id?: string
@@ -932,7 +954,9 @@ export type Database = {
           image_rights_authorized?: boolean | null
           instagram?: string | null
           internal_notes?: string | null
+          links?: Json | null
           name?: string
+          phone?: string | null
           presskit_url?: string | null
           priority?: number | null
           profile_image_url?: string
@@ -946,7 +970,9 @@ export type Database = {
           soundcloud_url?: string | null
           spotify_url?: string | null
           stage_name?: string
+          state?: string | null
           status?: string | null
+          tags?: string[] | null
           team_size?: number | null
           tech_audio?: string | null
           tech_light?: string | null
@@ -954,6 +980,7 @@ export type Database = {
           tech_stage?: string | null
           updated_at?: string | null
           website_url?: string | null
+          whatsapp?: string | null
           youtube_url?: string | null
         }
         Relationships: [
@@ -2832,64 +2859,100 @@ export type Database = {
       }
       organizers: {
         Row: {
+          about: string | null
+          bank: Json | null
           bio_short: string | null
           booking_email: string | null
           booking_whatsapp: string | null
+          city: string | null
           city_id: number | null
           contact_email: string
           contact_whatsapp: string | null
+          country: string | null
           created_at: string
           email: string | null
           id: string
           instagram: string | null
+          invoice_email: string | null
+          invoice_name: string | null
+          links: Json | null
           name: string
           phone: string | null
+          pix_key: string | null
           site: string | null
           site_url: string | null
           slug: string | null
+          state: string | null
           status: string | null
+          tax_id: string | null
           type: string | null
           updated_at: string
+          website: string | null
+          whatsapp: string | null
         }
         Insert: {
+          about?: string | null
+          bank?: Json | null
           bio_short?: string | null
           booking_email?: string | null
           booking_whatsapp?: string | null
+          city?: string | null
           city_id?: number | null
           contact_email: string
           contact_whatsapp?: string | null
+          country?: string | null
           created_at?: string
           email?: string | null
           id?: string
           instagram?: string | null
+          invoice_email?: string | null
+          invoice_name?: string | null
+          links?: Json | null
           name: string
           phone?: string | null
+          pix_key?: string | null
           site?: string | null
           site_url?: string | null
           slug?: string | null
+          state?: string | null
           status?: string | null
+          tax_id?: string | null
           type?: string | null
           updated_at?: string
+          website?: string | null
+          whatsapp?: string | null
         }
         Update: {
+          about?: string | null
+          bank?: Json | null
           bio_short?: string | null
           booking_email?: string | null
           booking_whatsapp?: string | null
+          city?: string | null
           city_id?: number | null
           contact_email?: string
           contact_whatsapp?: string | null
+          country?: string | null
           created_at?: string
           email?: string | null
           id?: string
           instagram?: string | null
+          invoice_email?: string | null
+          invoice_name?: string | null
+          links?: Json | null
           name?: string
           phone?: string | null
+          pix_key?: string | null
           site?: string | null
           site_url?: string | null
           slug?: string | null
+          state?: string | null
           status?: string | null
+          tax_id?: string | null
           type?: string | null
           updated_at?: string
+          website?: string | null
+          whatsapp?: string | null
         }
         Relationships: [
           {
@@ -3690,58 +3753,109 @@ export type Database = {
       }
       venues: {
         Row: {
+          about: string | null
           address: string
+          address_line: string | null
+          amenities: Json | null
           capacity: number | null
           city: string
           city_id: number | null
           contacts_json: Json | null
+          country: string | null
+          cover_alt: string | null
           cover_url: string | null
           created_at: string
+          district: string | null
+          email: string | null
+          gallery: Json | null
           id: string
+          instagram: string | null
           lat: number | null
+          latitude: number | null
           lng: number | null
+          longitude: number | null
           map_url: string | null
           name: string
+          opening_hours: Json | null
+          phone: string | null
+          postal_code: string | null
           slug: string | null
           state: string
+          status: Database["public"]["Enums"]["agent_status"] | null
           updated_at: string
           venue_type_id: number | null
+          website: string | null
+          whatsapp: string | null
         }
         Insert: {
+          about?: string | null
           address: string
+          address_line?: string | null
+          amenities?: Json | null
           capacity?: number | null
           city: string
           city_id?: number | null
           contacts_json?: Json | null
+          country?: string | null
+          cover_alt?: string | null
           cover_url?: string | null
           created_at?: string
+          district?: string | null
+          email?: string | null
+          gallery?: Json | null
           id?: string
+          instagram?: string | null
           lat?: number | null
+          latitude?: number | null
           lng?: number | null
+          longitude?: number | null
           map_url?: string | null
           name: string
+          opening_hours?: Json | null
+          phone?: string | null
+          postal_code?: string | null
           slug?: string | null
           state: string
+          status?: Database["public"]["Enums"]["agent_status"] | null
           updated_at?: string
           venue_type_id?: number | null
+          website?: string | null
+          whatsapp?: string | null
         }
         Update: {
+          about?: string | null
           address?: string
+          address_line?: string | null
+          amenities?: Json | null
           capacity?: number | null
           city?: string
           city_id?: number | null
           contacts_json?: Json | null
+          country?: string | null
+          cover_alt?: string | null
           cover_url?: string | null
           created_at?: string
+          district?: string | null
+          email?: string | null
+          gallery?: Json | null
           id?: string
+          instagram?: string | null
           lat?: number | null
+          latitude?: number | null
           lng?: number | null
+          longitude?: number | null
           map_url?: string | null
           name?: string
+          opening_hours?: Json | null
+          phone?: string | null
+          postal_code?: string | null
           slug?: string | null
           state?: string
+          status?: Database["public"]["Enums"]["agent_status"] | null
           updated_at?: string
           venue_type_id?: number | null
+          website?: string | null
+          whatsapp?: string | null
         }
         Relationships: [
           {
@@ -4407,6 +4521,18 @@ export type Database = {
         }
         Returns: Json
       }
+      agenda_recent_activity_fn: {
+        Args: { limit_count?: number }
+        Returns: {
+          city: string
+          created_at: string
+          id: string
+          starts_at: string
+          status: Database["public"]["Enums"]["agenda_status"]
+          title: string
+          updated_at: string
+        }[]
+      }
       agenda_scheduler: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -4617,6 +4743,13 @@ export type Database = {
       ensure_artist: {
         Args: { p_artist_type?: string; p_stage_name: string }
         Returns: string
+      }
+      events_by_week: {
+        Args: { last_days: number }
+        Returns: {
+          total: number
+          week_start: string
+        }[]
       }
       generate_category_slug: {
         Args: { category_name: string }
@@ -4879,6 +5012,26 @@ export type Database = {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      gtrgm_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_decompress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_in: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_options: {
+        Args: { "": unknown }
+        Returns: undefined
+      }
+      gtrgm_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
       hash_email_for_client: {
         Args: { email_input: string }
         Returns: string
@@ -4998,9 +5151,21 @@ export type Database = {
         Args: { admin_email: string }
         Returns: boolean
       }
+      set_limit: {
+        Args: { "": number }
+        Returns: number
+      }
       setup_notification_cron_jobs: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      show_limit: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      show_trgm: {
+        Args: { "": string }
+        Returns: string[]
       }
       slugify: {
         Args: { txt: string }
@@ -5126,8 +5291,9 @@ export type Database = {
       }
     }
     Enums: {
-      agenda_status: "draft" | "published"
+      agenda_status: "draft" | "published" | "scheduled"
       agenda_visibility: "curadoria" | "vitrine"
+      agent_status: "active" | "inactive"
       article_status: "draft" | "published" | "scheduled"
       badge_type: "activity" | "achievement" | "special" | "milestone"
       category_type:
@@ -5276,8 +5442,9 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      agenda_status: ["draft", "published"],
+      agenda_status: ["draft", "published", "scheduled"],
       agenda_visibility: ["curadoria", "vitrine"],
+      agent_status: ["active", "inactive"],
       article_status: ["draft", "published", "scheduled"],
       badge_type: ["activity", "achievement", "special", "milestone"],
       category_type: [

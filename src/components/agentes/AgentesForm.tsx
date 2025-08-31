@@ -3,8 +3,9 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useDebounce } from "@/hooks/useDebouncedCallback";
 import { toast } from "sonner";
-import { useDebounce } from "@/hooks/useDebounce";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
@@ -143,32 +144,31 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
   }, [agentData, form]);
 
   // Gerar slug automaticamente baseado no nome
-  const generateSlug = useCallback(
-    useDebounce((name: string) => {
-      if (!name || form.getValues("slug")) return;
-      
-      const slug = name
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
-      
-      form.setValue("slug", slug, { shouldValidate: true });
-    }, 500),
-    [form]
-  );
+  const generateSlug = useCallback((name: string) => {
+    if (!name || form.getValues("slug")) return;
+    
+    const slug = name
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    
+    form.setValue("slug", slug, { shouldValidate: true });
+  }, [form]);
 
   // Watch name changes to generate slug
+  const debouncedGenerateSlug = useDebounce(generateSlug, 500);
+  
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
       if (name === "name" && value.name) {
-        generateSlug(value.name);
+        debouncedGenerateSlug(value.name);
       }
     });
     
     return () => subscription.unsubscribe();
-  }, [form, generateSlug]);
+  }, [form, debouncedGenerateSlug]);
 
   // Normalizar Instagram
   const normalizeInstagram = (value: string) => {
