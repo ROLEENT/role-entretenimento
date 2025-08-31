@@ -398,11 +398,11 @@ export function AgentesForm({ agentType, agentId, onSuccess }: AgentesFormProps)
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Informações Básicas */}
-          <Card>
+          <Card className="relative overflow-visible">
             <CardHeader>
               <CardTitle>Informações Básicas</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 overflow-visible">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <RHFInput
                   name="name"

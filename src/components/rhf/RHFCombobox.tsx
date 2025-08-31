@@ -141,7 +141,10 @@ export default function RHFCombobox({
     <FormItem className={className}>
       {label && <FormLabel>{label}</FormLabel>}
 
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={(newOpen) => {
+        console.log(`RHFCombobox ${name} onOpenChange:`, newOpen);
+        setOpen(newOpen);
+      }}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
@@ -165,7 +168,7 @@ export default function RHFCombobox({
           </Button>
         </PopoverTrigger>
         
-        <PopoverContent className="p-0 z-[999] w-[var(--radix-popover-trigger-width)]" align="start">
+        <PopoverContent className="p-0 z-[9999] w-[var(--radix-popover-trigger-width)]" align="start">
           <Command shouldFilter={false}>
             <CommandInput
               placeholder="Digite para buscar..."
