@@ -2,6 +2,7 @@ import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { ArtistFormData } from '../AdminArtistForm';
 
 interface ArtistMediaTabProps {
@@ -20,12 +21,12 @@ export const ArtistMediaTab: React.FC<ArtistMediaTabProps> = ({ form }) => {
             name="profile_image_url"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>URL da Imagem de Perfil</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="url"
-                    placeholder="https://exemplo.com/perfil.jpg"
-                    {...field} 
+                  <ImageUpload
+                    value={field.value || ''}
+                    onChange={field.onChange}
+                    label="Imagem de Perfil"
+                    maxSizeMB={5}
                   />
                 </FormControl>
                 <FormMessage />
@@ -38,12 +39,12 @@ export const ArtistMediaTab: React.FC<ArtistMediaTabProps> = ({ form }) => {
             name="cover_image_url"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>URL da Imagem de Capa</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="url"
-                    placeholder="https://exemplo.com/capa.jpg"
-                    {...field} 
+                  <ImageUpload
+                    value={field.value || ''}
+                    onChange={field.onChange}
+                    label="Imagem de Capa"
+                    maxSizeMB={10}
                   />
                 </FormControl>
                 <FormMessage />

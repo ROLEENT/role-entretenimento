@@ -1,227 +1,188 @@
-import { useState, useRef, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import React, { useState, useCallback } from 'react';
+import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Upload, X, RotateCcw, Eye } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 interface ImageUploadProps {
   value?: string;
   onChange: (url: string) => void;
-  onRemove: () => void;
-  className?: string;
-  bucket?: string;
-  maxSize?: number; // em MB
-  allowedTypes?: string[];
-  showPreview?: boolean;
-  onPreview?: () => void;
+  onRemove?: () => void;
+  label?: string;
+  accept?: string;
+  maxSizeMB?: number;
+  disabled?: boolean;
 }
 
-export function ImageUpload({
+export const ImageUpload: React.FC<ImageUploadProps> = ({
   value,
   onChange,
   onRemove,
-  className,
-  bucket = 'admin',
-  maxSize = 5,
-  allowedTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'],
-  showPreview = false,
-  onPreview
-}: ImageUploadProps) {
-  const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const validateFile = (file: File): string | null => {
-    if (!allowedTypes.includes(file.type)) {
-      return `Tipo de arquivo não suportado. Use: ${allowedTypes.join(', ')}`;
-    }
-    
-    if (file.size > maxSize * 1024 * 1024) {
-      return `Arquivo muito grande. Máximo ${maxSize}MB`;
-    }
-    
-    return null;
-  };
+  label = "Imagem",
+  accept = "image/*",
+  maxSizeMB = 5,
+  disabled = false
+}) => {
+  const [isUploading, setIsUploading] = useState(false);
 
   const uploadFile = useCallback(async (file: File) => {
-    const validation = validateFile(file);
-    if (validation) {
-      setError(validation);
-      return;
-    }
-
-    setError(null);
-    setUploading(true);
-    setProgress(0);
-
     try {
-      // Gerar nome único
-      const timestamp = Date.now();
-      const randomStr = Math.random().toString(36).substring(7);
-      const extension = file.name.split('.').pop();
-      const fileName = `${timestamp}_${randomStr}.${extension}`;
-      const filePath = `covers/${fileName}`;
+      setIsUploading(true);
 
-      // Upload com progresso
-      const { data, error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+      // Verificar tamanho do arquivo
+      const fileSizeMB = file.size / (1024 * 1024);
+      if (fileSizeMB > maxSizeMB) {
+        toast.error(`Arquivo muito grande. Máximo permitido: ${maxSizeMB}MB`);
+        return;
+      }
 
-      if (uploadError) throw uploadError;
+      // Gerar nome único para o arquivo
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+      const filePath = `${fileName}`;
 
-      // Obter URL pública
+      // Upload para o Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('artist-images')
+        .upload(filePath, file);
+
+      if (error) {
+        console.error('Upload error:', error);
+        toast.error('Erro ao fazer upload da imagem');
+        return;
+      }
+
+      // Obter URL pública da imagem
       const { data: { publicUrl } } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(filePath);
+        .from('artist-images')
+        .getPublicUrl(data.path);
 
       onChange(publicUrl);
-      setProgress(100);
       toast.success('Imagem enviada com sucesso!');
-      
-    } catch (error: any) {
-      console.error('Erro no upload:', error);
-      setError(error.message || 'Erro ao enviar arquivo');
-      toast.error('Erro ao enviar imagem');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Erro ao fazer upload da imagem');
     } finally {
-      setUploading(false);
-      setProgress(0);
+      setIsUploading(false);
     }
-  }, [bucket, maxSize, allowedTypes, onChange]);
+  }, [onChange, maxSizeMB]);
 
   const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       uploadFile(file);
     }
-    // Reset input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    // Limpar o input para permitir selecionar o mesmo arquivo novamente
+    event.target.value = '';
   }, [uploadFile]);
 
-  const handleDrop = useCallback((event: React.DragEvent) => {
+  const handleDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const file = event.dataTransfer.files[0];
-    if (file) {
+    event.stopPropagation();
+
+    const file = event.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
       uploadFile(file);
+    } else {
+      toast.error('Por favor, selecione um arquivo de imagem válido');
     }
   }, [uploadFile]);
 
-  const handleDragOver = useCallback((event: React.DragEvent) => {
+  const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
+    event.stopPropagation();
   }, []);
 
   const handleRemove = useCallback(() => {
-    onRemove();
-    setError(null);
-    toast.success('Imagem removida');
-  }, [onRemove]);
-
-  const retry = useCallback(() => {
-    setError(null);
-    fileInputRef.current?.click();
-  }, []);
+    if (onRemove) {
+      onRemove();
+    } else {
+      onChange('');
+    }
+  }, [onChange, onRemove]);
 
   return (
-    <div className={cn("space-y-4", className)}>
-      {/* Upload Area */}
-      <div
-        className={cn(
-          "border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors",
-          uploading ? "border-primary bg-primary/5" : "border-muted-foreground/25 hover:border-primary/50",
-          value && "border-solid border-border"
-        )}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onClick={() => !uploading && !value && fileInputRef.current?.click()}
-      >
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept={allowedTypes.join(',')}
-          onChange={handleFileSelect}
-          className="hidden"
-        />
+    <div className="space-y-2">
+      <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        {label}
+      </label>
 
-        {value ? (
-          <div className="relative">
-            <img
-              src={value}
-              alt="Preview"
-              className="max-h-48 mx-auto rounded-lg object-cover"
-            />
-            <div className="absolute top-2 right-2 flex gap-2">
-              {showPreview && onPreview && (
+      {value ? (
+        <Card className="relative overflow-hidden">
+          <CardContent className="p-0">
+            <div className="relative group">
+              <img
+                src={value}
+                alt={label}
+                className="w-full h-48 object-cover"
+              />
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <Button
                   type="button"
+                  variant="destructive"
                   size="sm"
-                  variant="secondary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onPreview();
-                  }}
+                  onClick={handleRemove}
+                  disabled={disabled || isUploading}
                 >
-                  <Eye className="h-4 w-4" />
+                  <X className="h-4 w-4 mr-2" />
+                  Remover
                 </Button>
-              )}
-              <Button
-                type="button"
-                size="sm"
-                variant="destructive"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRemove();
-                }}
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              </div>
             </div>
-          </div>
-        ) : uploading ? (
-          <div className="space-y-3">
-            <Upload className="h-8 w-8 mx-auto text-primary animate-pulse" />
-            <div>
-              <p className="text-sm text-muted-foreground">Enviando...</p>
-              <Progress value={progress} className="mt-2" />
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
-            <div>
-              <p className="text-sm font-medium">Clique ou arraste uma imagem</p>
-              <p className="text-xs text-muted-foreground">
-                PNG, JPG, JPEG, WebP até {maxSize}MB
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Error with Retry */}
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription className="flex items-center justify-between">
-            <span>{error}</span>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={retry}
-              className="ml-2"
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="border-2 border-dashed border-muted-foreground/25 hover:border-muted-foreground/50 transition-colors">
+          <CardContent className="p-6">
+            <div
+              className="flex flex-col items-center justify-center space-y-4 text-center cursor-pointer"
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onClick={() => !disabled && !isUploading && document.getElementById(`file-upload-${label}`)?.click()}
             >
-              <RotateCcw className="h-4 w-4 mr-1" />
-              Tentar novamente
-            </Button>
-          </AlertDescription>
-        </Alert>
+              {isUploading ? (
+                <div className="flex flex-col items-center space-y-2">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  <p className="text-sm text-muted-foreground">Enviando...</p>
+                </div>
+              ) : (
+                <>
+                  <div className="p-4 bg-muted rounded-full">
+                    <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">
+                      Clique para selecionar ou arraste uma imagem
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      PNG, JPG, GIF até {maxSizeMB}MB
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={disabled || isUploading}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Selecionar Arquivo
+                  </Button>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       )}
+
+      <input
+        id={`file-upload-${label}`}
+        type="file"
+        accept={accept}
+        onChange={handleFileSelect}
+        className="hidden"
+        disabled={disabled || isUploading}
+      />
     </div>
   );
-}
+};
