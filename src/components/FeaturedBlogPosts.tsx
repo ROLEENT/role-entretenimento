@@ -103,9 +103,9 @@ const FeaturedBlogPosts = () => {
                       {post.reading_time || 5} min de leitura
                     </div>
                     <Button asChild size="sm" variant="ghost">
-                      <Link to={`/destaques/${post.city}/${post.slug_data}`}>
+                      <Link to={`/destaques/${post.city}/${post.slug_data}`} className="inline-flex items-center gap-1">
                         Ler mais
-                        <ArrowRight className="w-3 h-3 ml-1" />
+                        <ArrowRight className="w-3 h-3" />
                       </Link>
                     </Button>
                   </div>
@@ -116,9 +116,9 @@ const FeaturedBlogPosts = () => {
           
           <div className="text-center">
             <Button asChild size="lg" variant="outline">
-              <Link to="/destaques">
+              <Link to="/destaques" className="inline-flex items-center gap-2">
                 Ver Todos os Destaques
-                <ArrowRight className="w-4 h-4 ml-2" />
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>
           </div>

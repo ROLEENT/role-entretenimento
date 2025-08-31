@@ -229,8 +229,8 @@ const Header = () => {
                     className="w-full h-12"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Link to="/auth">
-                      <User className="mr-2 h-4 w-4" />
+                    <Link to="/auth" className="inline-flex items-center gap-2">
+                      <User className="h-4 w-4" />
                       Entrar
                     </Link>
                   </Button>
@@ -358,20 +358,20 @@ const Header = () => {
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link to="/profile">
+                        <Link to="/profile" className="inline-flex items-center">
                           <User className="mr-2 h-4 w-4" />
                           Perfil
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to="/calendar">
+                        <Link to="/calendar" className="inline-flex items-center">
                           <Calendar className="mr-2 h-4 w-4" />
                           Meu Calendário
                         </Link>
                       </DropdownMenuItem>
                       {hasAdminAccess && (
                         <DropdownMenuItem asChild>
-                          <Link to="/admin-v3">
+                          <Link to="/admin-v3" className="inline-flex items-center">
                             <Settings className="mr-2 h-4 w-4" />
                             Painel Admin
                           </Link>
@@ -397,7 +397,7 @@ const Header = () => {
                   className="hover:bg-accent"
                   aria-label="Favoritos"
                 >
-                  <Link to="/favorites">
+                  <Link to="/favorites" className="inline-flex items-center justify-center">
                     <Heart className="h-4 w-4" />
                   </Link>
                 </Button>

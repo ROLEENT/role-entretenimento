@@ -174,7 +174,7 @@ export function AgentesOrganizadoresList({ search }: AgentesOrganizadoresListPro
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link to={`/admin-v3/agentes/organizadores/${organizer.id}/edit`}>
+                          <Link to={`/admin-v3/agentes/organizadores/${organizer.id}/edit`} className="inline-flex items-center">
                             <Edit className="mr-2 h-4 w-4" />
                             Editar
                           </Link>

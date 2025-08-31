@@ -228,8 +228,8 @@ const BackupRestorePage: React.FC = () => {
               <div className="flex items-end">
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" disabled={!selectedFile || loading} className="w-full">
-                      <Upload className="h-4 w-4 mr-2" />
+                    <Button variant="destructive" disabled={!selectedFile || loading} className="w-full inline-flex items-center gap-2">
+                      <Upload className="h-4 w-4" />
                       Restaurar
                     </Button>
                   </AlertDialogTrigger>
@@ -316,7 +316,7 @@ const BackupRestorePage: React.FC = () => {
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="inline-flex items-center justify-center">
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>

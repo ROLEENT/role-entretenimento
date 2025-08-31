@@ -108,7 +108,7 @@ export const AdminVenueTable: React.FC<AdminVenueTableProps> = ({
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Ações</DropdownMenuLabel>
                       <DropdownMenuItem asChild>
-                        <Link to={`/admin-v3/agentes/venues/${venue.id}/edit`}>
+                        <Link to={`/admin-v3/agentes/venues/${venue.id}/edit`} className="inline-flex items-center">
                           <Edit className="mr-2 h-4 w-4" />
                           Editar
                         </Link>
