@@ -1,34 +1,61 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { useFormContext, Controller } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
-import RHFSelect from "./RHFSelect";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-type AsyncProps = {
+interface AsyncQuery {
+  table: string;
+  fields: string;
+  orderBy?: string;
+}
+
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+interface RHFSelectAsyncProps {
   name: string;
+  query: AsyncQuery;
+  mapRow: (row: any) => SelectOption;
+  label?: string;
   placeholder?: string;
-  /** query: { table, fields, orderBy } */
-  query: { table: string; fields: string; orderBy?: string };
-  /** mapeia linha -> { value, label } */
-  mapRow: (row: any) => { value: string; label: string };
-  /** parse/serialize para tipos não-string (ex: number) */
-  parseValue?: (v: string) => any;
-  serializeValue?: (v: any) => string;
   disabled?: boolean;
-};
+  className?: string;
+  parseValue?: (value: string) => any;
+  serializeValue?: (value: any) => string;
+}
 
 export default function RHFSelectAsync({
   name,
-  placeholder,
   query,
   mapRow,
+  label,
+  placeholder = "Carregando...",
+  disabled,
+  className,
   parseValue,
   serializeValue,
-  disabled,
-}: AsyncProps) {
-  const [opts, setOpts] = useState<{ value: string; label: string }[]>([]);
+}: RHFSelectAsyncProps) {
+  const [options, setOptions] = useState<SelectOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
+
+  const fieldError = errors[name];
 
   // Memoize query key to prevent unnecessary re-renders
   const queryKey = useMemo(() => 
@@ -44,7 +71,6 @@ export default function RHFSelectAsync({
     
     const loadData = async () => {
       try {
-        console.log(`[RHFSelectAsync] Carregando dados para: ${queryKey}`);
         setLoading(true);
         setError(null);
         
@@ -56,21 +82,20 @@ export default function RHFSelectAsync({
         if (!alive) return;
         
         if (error) {
-          console.error(`[RHFSelectAsync] Erro ao carregar ${query.table}:`, error);
+          console.error(`Erro ao carregar ${query.table}:`, error);
           setError(`Erro ao carregar dados: ${error.message}`);
-          setOpts([]);
+          setOptions([]);
         } else if (data) {
-          console.log(`[RHFSelectAsync] Dados carregados (${data.length} items):`, data);
           const mappedOptions = data.map(stableMapRow);
-          setOpts(mappedOptions);
+          setOptions(mappedOptions);
         } else {
-          setOpts([]);
+          setOptions([]);
         }
       } catch (err) {
         if (!alive) return;
-        console.error(`[RHFSelectAsync] Erro inesperado:`, err);
+        console.error(`Erro inesperado:`, err);
         setError(`Erro inesperado: ${err instanceof Error ? err.message : 'Erro desconhecido'}`);
-        setOpts([]);
+        setOptions([]);
       } finally {
         if (alive) {
           setLoading(false);
@@ -82,20 +107,46 @@ export default function RHFSelectAsync({
     return () => { alive = false; };
   }, [queryKey, stableMapRow, query.table, query.fields, query.orderBy]);
 
+  const finalPlaceholder = loading ? "Carregando..." : error ? `Erro: ${error}` : placeholder;
+  const isDisabled = disabled || loading || !!error;
+
   return (
-    <RHFSelect
-      name={name}
-      options={opts}
-      placeholder={
-        loading 
-          ? "Carregando..." 
-          : error 
-            ? `Erro: ${error}` 
-            : (placeholder ?? "Selecione...")
-      }
-      disabled={disabled || loading || !!error}
-      parseValue={parseValue}
-      serializeValue={serializeValue}
-    />
+    <div className="space-y-2">
+      {label && (
+        <Label htmlFor={name} className={fieldError ? "text-destructive" : ""}>
+          {label}
+        </Label>
+      )}
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <Select
+            onValueChange={(value) => {
+              const parsedValue = parseValue ? parseValue(value) : value;
+              field.onChange(parsedValue);
+            }}
+            value={serializeValue ? serializeValue(field.value) : field.value}
+            disabled={isDisabled}
+          >
+            <SelectTrigger className={className} aria-invalid={!!fieldError}>
+              <SelectValue placeholder={finalPlaceholder} />
+            </SelectTrigger>
+            <SelectContent position="popper" className="z-50">
+              {options.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+      {fieldError && (
+        <p className="text-sm text-destructive">
+          {fieldError.message as string}
+        </p>
+      )}
+    </div>
   );
 }

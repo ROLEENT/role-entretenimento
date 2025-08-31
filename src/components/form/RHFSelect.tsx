@@ -1,66 +1,85 @@
 "use client";
 
-import { Controller, useFormContext } from "react-hook-form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { useFormContext, Controller } from "react-hook-form";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-type Opt = { value: string; label: string };
+interface SelectOption {
+  value: string;
+  label: string;
+}
 
-type Props = {
+interface RHFSelectProps {
   name: string;
-  options: Opt[];
+  options: SelectOption[];
+  label?: string;
   placeholder?: string;
-  className?: string;
   disabled?: boolean;
-  /** transforma string do UI -> tipo do form (ex: number/uuid) */
-  parseValue?: (v: string) => any;
-  /** transforma valor do form -> string do UI */
-  serializeValue?: (v: any) => string;
-};
+  className?: string;
+  parseValue?: (value: string) => any;
+  serializeValue?: (value: any) => string;
+}
 
 export default function RHFSelect({
   name,
   options,
+  label,
   placeholder = "Selecione...",
-  className,
   disabled,
-  parseValue = (v) => v,           // por padrão, mantém string
-  serializeValue = (v) => (v ?? "")?.toString(),
-}: Props) {
-  const { control } = useFormContext();
+  className,
+  parseValue,
+  serializeValue,
+}: RHFSelectProps) {
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
+
+  const fieldError = errors[name];
 
   return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field, fieldState }) => {
-        const uiValue = field.value == null ? "" : serializeValue(field.value);
-
-        return (
-          <div className={cn("space-y-1", className)}>
-            <Select
-              value={uiValue}
-              onValueChange={(v) => field.onChange(parseValue(v))}
-              disabled={disabled}
-            >
-              <SelectTrigger className={cn(fieldState.error && "border-destructive")}>
-                <SelectValue placeholder={placeholder} />
-              </SelectTrigger>
-              {/* evita problemas de portal/z-index dentro de dialogs/accordions */}
-              <SelectContent position="popper" className="z-[100]">
-                {options.map((o) => (
-                  <SelectItem key={o.value} value={o.value}>
-                    {o.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {fieldState.error && (
-              <p className="text-xs text-destructive">{fieldState.error.message}</p>
-            )}
-          </div>
-        );
-      }}
-    />
+    <div className="space-y-2">
+      {label && (
+        <Label htmlFor={name} className={fieldError ? "text-destructive" : ""}>
+          {label}
+        </Label>
+      )}
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <Select
+            onValueChange={(value) => {
+              const parsedValue = parseValue ? parseValue(value) : value;
+              field.onChange(parsedValue);
+            }}
+            value={serializeValue ? serializeValue(field.value) : field.value}
+            disabled={disabled}
+          >
+            <SelectTrigger className={className} aria-invalid={!!fieldError}>
+              <SelectValue placeholder={placeholder} />
+            </SelectTrigger>
+            <SelectContent position="popper" className="z-50">
+              {options.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+      {fieldError && (
+        <p className="text-sm text-destructive">
+          {fieldError.message as string}
+        </p>
+      )}
+    </div>
   );
 }
