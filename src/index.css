@@ -20,6 +20,26 @@ body {
 header, header * { overflow: visible !important; }
 [data-radix-popper-content-wrapper] { z-index: 60 !important; }
 
+/* FIX: Ensure all dropdown triggers have pointer cursor */
+[data-radix-dropdown-menu-trigger],
+[data-radix-popover-trigger],
+[data-radix-select-trigger],
+[data-radix-menubar-trigger],
+button[role="combobox"],
+.dropdown-trigger {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure dropdown content has proper pointer events */
+[data-radix-dropdown-menu-content],
+[data-radix-popover-content],
+[data-radix-select-content],
+[data-radix-menubar-content] {
+  pointer-events: auto !important;
+  cursor: default !important;
+}
+
 /* Scrollbar elegante e fino - global */
 html {
   scrollbar-gutter: stable;
