@@ -3,7 +3,14 @@ export { default as FormShell } from './FormShell';
 export { default as FormSection, FORM_SECTIONS } from './FormSection';
 export { default as FormLayout } from './FormLayout';
 
-// Input components
+// Base validation components
+export { default as RHFFormField } from './RHFFormField';
+export { default as RHFValidatedInput } from './RHFValidatedInput';
+export { default as RHFValidatedTextarea } from './RHFValidatedTextarea';
+export { default as RHFValidatedSelect } from './RHFValidatedSelect';
+export { default as RHFValidatedCheckbox } from './RHFValidatedCheckbox';
+
+// Legacy input components (to be migrated)
 export { default as RHFInput } from './RHFInput';
 export { default as RHFTextarea } from './RHFTextarea';
 export { default as RHFSwitch } from './RHFSwitch';

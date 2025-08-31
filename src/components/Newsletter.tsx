@@ -1,75 +1,46 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
+import { FormProvider } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useResponsive } from "@/hooks/useResponsive";
-import { Mail, Send, Sparkles } from "lucide-react";
+import { useValidatedForm } from "@/hooks/useValidatedForm";
+import { newsletterSchema } from "@/schemas/forms";
+import { RHFValidatedInput } from "@/components/form";
+import { Mail, Send } from "lucide-react";
 
 const Newsletter = () => {
   const { isMobile } = useResponsive();
-  const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const validateEmail = (email: string) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email) {
-      toast({
-        title: "Email obrigatório",
-        description: "Por favor, insira seu email para continuar.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      toast({
-        title: "Email inválido",
-        description: "Por favor, insira um email válido.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const { data, error } = await supabase.functions.invoke('forms-newsletter', {
-        body: {
-          email,
-        },
+  const form = useValidatedForm({
+    schema: newsletterSchema,
+    defaultValues: {
+      email: '',
+      name: '',
+      city: '',
+      preferences: []
+    },
+    onSubmit: async (data) => {
+      const { data: result, error } = await supabase.functions.invoke('forms-newsletter', {
+        body: data,
       });
 
       if (error) throw error;
 
-      if (data?.ok) {
+      if (result?.ok) {
         toast({
           title: "Inscrição realizada com sucesso! 🎉",
           description: "Você receberá nossa curadoria semanal em breve.",
         });
-        setEmail("");
+        form.reset();
       } else {
-        throw new Error(data?.error || 'Erro na inscrição');
+        throw new Error(result?.error || 'Erro na inscrição');
       }
-    } catch (error: any) {
-      console.error('Erro na inscrição:', error);
-      toast({
-        title: "Erro na inscrição",
-        description: error.message || "Tente novamente em alguns minutos.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    showToastOnError: true,
+  });
 
   return (
     <section className={`${isMobile ? 'py-16' : 'py-24'} bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden`}>
@@ -90,40 +61,42 @@ const Newsletter = () => {
             </p>
           </div>
           
-          <form onSubmit={handleSubmit} className="mb-6">
-            <div className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-4 max-w-3xl mx-auto'}`}>
-              <div className="relative flex-1">
-                <Mail className="absolute left-5 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  type="email"
-                  placeholder="Digite seu melhor email aqui"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={`${isMobile ? 'h-14 text-base' : 'h-16 text-lg'} pl-14 pr-6 rounded-full border-2 focus:border-primary font-medium bg-background/80 backdrop-blur-sm`}
-                  required
-                />
+          <FormProvider {...form}>
+            <form onSubmit={form.submitHandler} className="mb-6">
+              <div className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-4 max-w-3xl mx-auto'}`}>
+                <div className="relative flex-1">
+                  <RHFValidatedInput
+                    name="email"
+                    type="email"
+                    placeholder="Digite seu melhor email aqui"
+                    prefix={<Mail className="h-5 w-5" />}
+                    className={`${isMobile ? 'h-14 text-base' : 'h-16 text-lg'} pl-14 pr-6 rounded-full border-2 focus:border-primary font-medium bg-background/80 backdrop-blur-sm`}
+                    required
+                    autoComplete="email"
+                  />
+                </div>
+                <Button 
+                  type="submit" 
+                  disabled={form.isSubmitting}
+                  size="lg"
+                  className={`${isMobile ? 'h-14 px-8 text-base' : 'h-16 px-12 text-lg'} rounded-full font-bold bg-primary hover:bg-primary/90 text-primary-foreground border-0 group transition-all duration-300 hover:scale-105 hover:shadow-xl`}
+                >
+                  {form.isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      Enviando...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-3">
+                      <Mail className="h-5 w-5 group-hover:animate-bounce-subtle" />
+                      Quero receber
+                      <Send className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  )}
+                </Button>
               </div>
-              <Button 
-                type="submit" 
-                disabled={isLoading}
-                size="lg"
-                className={`${isMobile ? 'h-14 px-8 text-base' : 'h-16 px-12 text-lg'} rounded-full font-bold bg-primary hover:bg-primary/90 text-primary-foreground border-0 group transition-all duration-300 hover:scale-105 hover:shadow-xl`}
-              >
-                {isLoading ? (
-                  <span className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    Enviando...
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-3">
-                    <Mail className="h-5 w-5 group-hover:animate-bounce-subtle" />
-                    Quero receber
-                    <Send className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </span>
-                )}
-              </Button>
-            </div>
-          </form>
+            </form>
+          </FormProvider>
 
           <p className="text-muted-foreground text-sm max-w-lg mx-auto leading-relaxed">
             Prometemos não enviar spam. Consulte nossa{" "}
