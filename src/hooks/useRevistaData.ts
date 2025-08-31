@@ -38,10 +38,9 @@ export interface RevistaPost {
 }
 
 interface UseRevistaDataParams {
-  city?: string;
-  cityFilter?: string;
   searchTerm?: string;
   sectionFilter?: string;
+  sortBy?: string;
   page?: number;
   limit?: number;
 }
@@ -62,19 +61,34 @@ export const useRevistaData = (params: UseRevistaDataParams = {}) => {
       let query = supabase
         .from('blog_posts')
         .select('*', { count: 'exact' })
-        .eq('status', 'published')
-        .order('published_at', { ascending: false });
+        .eq('status', 'published');
 
-      // Filtros de compatibilidade
-      const cityToFilter = params.city || params.cityFilter;
-      if (cityToFilter) {
-        query = query.eq('city', cityToFilter);
+      // Ordenação
+      switch (params.sortBy) {
+        case 'most_read':
+          query = query.order('views', { ascending: false });
+          break;
+        case 'most_saved':
+          // Para implementar quando tivermos sistema de favoritos
+          query = query.order('published_at', { ascending: false });
+          break;
+        case 'recent':
+        default:
+          query = query.order('published_at', { ascending: false });
+          break;
       }
 
+      // Filtro de busca
       if (params.searchTerm) {
         query = query.ilike('title', `%${params.searchTerm}%`);
       }
 
+      // Filtro de seção (usando tags)
+      if (params.sectionFilter) {
+        query = query.contains('tags', [params.sectionFilter]);
+      }
+
+      // Paginação
       if (params.limit) {
         query = query.limit(params.limit);
       }
@@ -139,7 +153,7 @@ export const useRevistaData = (params: UseRevistaDataParams = {}) => {
     } finally {
       setIsLoading(false);
     }
-  }, [params.city, params.cityFilter, params.searchTerm, params.sectionFilter, params.page, params.limit]);
+  }, [params.searchTerm, params.sectionFilter, params.sortBy, params.page, params.limit]);
 
   useEffect(() => {
     fetchArticles();

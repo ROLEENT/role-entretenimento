@@ -32,12 +32,13 @@ interface RevistaPost {
   featured?: boolean;
 }
 
-type Filters = { q: string; secao: string };
+type Filters = { q: string; secao: string; sort: string };
 
 function readFromURL(sp: URLSearchParams): Filters {
   return {
     q: sp.get("q") ?? "",
     secao: sp.get("secao") ?? "",
+    sort: sp.get("sort") ?? "recent",
   };
 }
 
@@ -45,6 +46,7 @@ function normalize(f: Filters) {
   const out: Record<string, string> = {};
   if (f.q) out.q = f.q;
   if (f.secao) out.secao = f.secao;
+  if (f.sort && f.sort !== 'recent') out.sort = f.sort;
   return out;
 }
 
@@ -54,7 +56,7 @@ function toQS(f: Filters) {
 }
 
 function shallowEqual(a: Filters, b: Filters) {
-  return a.q === b.q && a.secao === b.secao;
+  return a.q === b.q && a.secao === b.secao && a.sort === b.sort;
 }
 
 export default function RevistaPage() {
@@ -81,8 +83,8 @@ export default function RevistaPage() {
 
   // Chave estável para efeitos
   const fKey = useMemo(
-    () => `${filters.q}|${filters.secao}`,
-    [filters.q, filters.secao]
+    () => `${filters.q}|${filters.secao}|${filters.sort}`,
+    [filters.q, filters.secao, filters.sort]
   );
 
   // Hidratação única protegida
@@ -273,11 +275,11 @@ export default function RevistaPage() {
     setFilters(prev => (prev.secao === v ? prev : { ...prev, secao: v }));
 
   const handleClearFilters = () => {
-    setFilters({ q: "", secao: "" });
+    setFilters({ q: "", secao: "", sort: "recent" });
   };
 
   const handleViewAll = () => {
-    setFilters({ q: "", secao: "" });
+    setFilters({ q: "", secao: "", sort: "recent" });
   };
 
   const handleRetry = () => {
@@ -286,7 +288,7 @@ export default function RevistaPage() {
     fetchPosts({ offset: 0, reset: true, filters, signal: abortRef.current.signal });
   };
 
-  const hasFilters = filters.q || filters.secao;
+  const hasFilters = filters.q || filters.secao || (filters.sort && filters.sort !== "recent");
 
   const metaDescription = hasFilters 
     ? `Resultados de busca na Revista ROLÊ${filters.q ? ` para "${filters.q}"` : ''}${filters.secao ? ` sobre ${filters.secao}` : ''}` 
