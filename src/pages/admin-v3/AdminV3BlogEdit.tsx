@@ -9,7 +9,7 @@ import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
 import { FormShell } from '@/components/form';
 import { Form } from '@/components/ui/form';
-import { AdminV3Breadcrumb } from '@/components/admin/common/AdminV3Breadcrumb';
+import { AdminBreadcrumb } from '@/components/ui/unified-breadcrumb';
 import { AdminBlogForm } from '@/components/admin/blog/AdminBlogForm';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { BlogPostForm, useUpsertBlogPost } from '@/hooks/useUpsertBlogPost';
@@ -129,7 +129,7 @@ const AdminV3BlogEdit: React.FC = () => {
     <AdminV3Guard>
       <AdminV3Header />
       <main className="container mx-auto px-4 py-8">
-        <AdminV3Breadcrumb items={breadcrumbs} />
+        <AdminBreadcrumb items={breadcrumbs} />
         
         <Form {...form}>
           <FormShell

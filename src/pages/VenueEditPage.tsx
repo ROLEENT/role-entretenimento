@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminV3Guard } from "@/components/AdminV3Guard";
 import { AdminV3Header } from "@/components/AdminV3Header";
-import { AdminV3Breadcrumb } from "@/components/AdminV3Breadcrumb";
+import { AdminBreadcrumb } from "@/components/ui/unified-breadcrumb";
 import { FormShell, FormSection, FORM_SECTIONS } from "@/components/form";
 import { RHFInput, RHFSelect, RHFSelectAsync, RHFUpload } from "@/components/form";
 import RHFSlug from "@/components/form/RHFSlug";
@@ -75,7 +75,7 @@ export default function VenueEditPage() {
     <AdminV3Guard>
       <AdminV3Header />
       <div className="container mx-auto py-6">
-        <AdminV3Breadcrumb
+        <AdminBreadcrumb
           items={[
             { label: "Dashboard", path: "/admin-v3" },
             { label: "Locais", path: "/admin-v3/locais" },

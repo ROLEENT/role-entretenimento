@@ -1,13 +1,9 @@
 import React from 'react';
 import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { AdminV3Header } from '@/components/AdminV3Header';
-import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
+import { AdminBreadcrumb, BreadcrumbItem } from '@/components/ui/unified-breadcrumb';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
-interface BreadcrumbItem {
-  label: string;
-  path?: string;
-}
 
 interface AdminPageWrapperProps {
   children: React.ReactNode;
@@ -33,7 +29,7 @@ export const AdminPageWrapper: React.FC<AdminPageWrapperProps> = ({
         <div className={`pt-16 p-6 ${className}`}>
           <div className="max-w-7xl mx-auto space-y-6">
             {breadcrumbs.length > 0 && (
-              <AdminV3Breadcrumb items={breadcrumbs} />
+              <AdminBreadcrumb items={breadcrumbs} />
             )}
             
             {(title || actions) && (

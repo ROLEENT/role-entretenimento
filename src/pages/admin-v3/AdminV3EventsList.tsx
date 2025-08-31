@@ -6,7 +6,7 @@ import { Plus, FileDown, Settings } from "lucide-react";
 import { AdminEventFilters } from "@/components/admin/events/AdminEventFilters";
 import { AdminEventTable } from "@/components/admin/events/AdminEventTable";
 import { useAdminEventsData } from "@/hooks/useAdminEventsData";
-import { AdminV3Breadcrumb } from "@/components/admin/common/AdminV3Breadcrumb";
+import { AdminBreadcrumb } from "@/components/ui/unified-breadcrumb";
 import { useNavigate } from "react-router-dom";
 
 interface EventFilters {
@@ -67,7 +67,7 @@ export default function AdminV3EventsList() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <AdminV3Breadcrumb items={breadcrumbItems} />
+      <AdminBreadcrumb items={breadcrumbItems} />
       
       <div className="flex justify-between items-center">
         <div>
