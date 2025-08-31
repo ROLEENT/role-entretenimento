@@ -5009,7 +5009,7 @@ export type Database = {
         Returns: string
       }
       events_by_week: {
-        Args: { last_days: number }
+        Args: { last_days?: number }
         Returns: {
           total: number
           week_start: string
