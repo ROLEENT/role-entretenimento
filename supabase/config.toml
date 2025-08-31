@@ -84,3 +84,9 @@ verify_jwt = false
 
 [functions.agenda-scheduler]
 verify_jwt = false
+
+[functions.lookup]
+verify_jwt = false
+
+[functions.slug-check]
+verify_jwt = false
