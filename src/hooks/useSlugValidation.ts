@@ -7,7 +7,7 @@ interface SlugCheckResult {
   error: string | null;
 }
 
-export const useSlugValidation = (table: 'agenda_itens' | 'artists' | 'venues' | 'organizers') => {
+export const useSlugValidation = (table: 'agenda_itens' | 'artists' | 'venues' | 'organizers' | 'blog_posts') => {
   const [result, setResult] = useState<SlugCheckResult>({
     available: true,
     loading: false,

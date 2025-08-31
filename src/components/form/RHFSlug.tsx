@@ -1,30 +1,33 @@
 "use client";
 
 import { useFormContext, Controller } from "react-hook-form";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { useSlugValidation } from "@/hooks/useSlugValidation";
+import { useEffect, useState } from "react";
+import { Check, X, Loader2 } from "lucide-react";
 
 interface RHFSlugProps {
   name: string;
   label?: string;
-  placeholder?: string;
-  disabled?: boolean;
-  table: string;
+  table: "agenda_itens" | "artists" | "venues" | "organizers" | "blog_posts";
   currentId?: string;
-  generateFrom?: string; // field name to generate slug from
+  generateFrom?: string; // nome do campo para auto-gerar slug
+  disabled?: boolean;
+  className?: string;
+  placeholder?: string;
 }
 
 export default function RHFSlug({
   name,
   label,
-  placeholder,
-  disabled,
   table,
   currentId,
   generateFrom,
+  disabled,
+  className,
+  placeholder = "slug-do-item",
 }: RHFSlugProps) {
   const {
     control,
@@ -33,58 +36,46 @@ export default function RHFSlug({
     setValue,
   } = useFormContext();
 
-  const fieldError = errors[name];
-  const slugValue = watch(name);
-  const sourceValue = generateFrom ? watch(generateFrom) : "";
+  const [debouncedSlug, setDebouncedSlug] = useState("");
+  const { available, loading, error, checkSlug, generateSlug } = useSlugValidation(table);
   
-  const slugStatus = useSlugValidation({
-    value: slugValue,
-    table,
-    currentId,
-  });
+  const fieldError = errors[name];
+  const currentSlug = watch(name) || "";
+  const generateFromValue = generateFrom ? watch(generateFrom) : "";
 
-  // Auto-generate slug from source field
-  const generateSlug = () => {
-    if (sourceValue) {
-      const slug = sourceValue
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "") // Remove accents
-        .replace(/[^a-z0-9\s-]/g, "") // Remove special chars
-        .replace(/\s+/g, "-") // Replace spaces with hyphens
-        .replace(/-+/g, "-") // Replace multiple hyphens
-        .trim()
-        .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
-      
-      setValue(name, slug);
+  // Debounce slug validation
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSlug(currentSlug);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [currentSlug]);
+
+  // Validate slug when debounced value changes
+  useEffect(() => {
+    if (debouncedSlug && debouncedSlug.length >= 3) {
+      checkSlug(debouncedSlug, currentId);
+    }
+  }, [debouncedSlug, currentId, checkSlug]);
+
+  // Auto-generate slug from other field
+  const handleGenerateSlug = () => {
+    if (generateFromValue) {
+      const newSlug = generateSlug(generateFromValue);
+      setValue(name, newSlug, { shouldDirty: true });
     }
   };
 
-  const getStatusIcon = () => {
-    switch (slugStatus) {
-      case "checking":
-        return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />;
-      case "available":
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case "taken":
-        return <XCircle className="h-4 w-4 text-red-600" />;
-      default:
-        return null;
-    }
+  // Get validation status
+  const getValidationStatus = () => {
+    if (!currentSlug || currentSlug.length < 3) return null;
+    if (loading) return "loading";
+    if (error) return "error";
+    if (available) return "available";
+    return "unavailable";
   };
 
-  const getStatusMessage = () => {
-    switch (slugStatus) {
-      case "checking":
-        return "Verificando disponibilidade...";
-      case "available":
-        return "Slug disponível";
-      case "taken":
-        return "Slug já está em uso";
-      default:
-        return "";
-    }
-  };
+  const validationStatus = getValidationStatus();
 
   return (
     <div className="space-y-2">
@@ -93,9 +84,8 @@ export default function RHFSlug({
           {label}
         </Label>
       )}
-      
-      <div className="space-y-2">
-        <div className="flex gap-2">
+      <div className="flex gap-2">
+        <div className="flex-1 relative">
           <Controller
             name={name}
             control={control}
@@ -105,39 +95,57 @@ export default function RHFSlug({
                 id={name}
                 placeholder={placeholder}
                 disabled={disabled}
+                className={className}
                 aria-invalid={!!fieldError}
-                className="flex-1"
               />
             )}
           />
-          
-          {generateFrom && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={generateSlug}
-              disabled={disabled || !sourceValue}
-              size="sm"
-            >
-              Gerar
-            </Button>
+          {validationStatus && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              {validationStatus === "loading" && (
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              )}
+              {validationStatus === "available" && (
+                <Check className="h-4 w-4 text-green-600" />
+              )}
+              {validationStatus === "unavailable" && (
+                <X className="h-4 w-4 text-destructive" />
+              )}
+              {validationStatus === "error" && (
+                <X className="h-4 w-4 text-destructive" />
+              )}
+            </div>
           )}
-          
-          <div className="flex items-center justify-center w-8">
-            {getStatusIcon()}
-          </div>
         </div>
-        
-        {slugStatus !== "idle" && (
-          <p className={`text-sm ${
-            slugStatus === "available" ? "text-green-600" :
-            slugStatus === "taken" ? "text-red-600" :
-            "text-muted-foreground"
-          }`}>
-            {getStatusMessage()}
-          </p>
+        {generateFrom && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleGenerateSlug}
+            disabled={!generateFromValue || disabled}
+          >
+            Gerar
+          </Button>
         )}
       </div>
+      
+      {/* Validation messages */}
+      {validationStatus === "unavailable" && (
+        <p className="text-sm text-destructive">
+          Este slug já está em uso
+        </p>
+      )}
+      {validationStatus === "error" && (
+        <p className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
+      {validationStatus === "available" && (
+        <p className="text-sm text-green-600">
+          Slug disponível
+        </p>
+      )}
       
       {fieldError && (
         <p className="text-sm text-destructive">
