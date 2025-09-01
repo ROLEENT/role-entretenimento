@@ -5,9 +5,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Hide any old auth overlays that might still exist */
-.auth-overlay, #auth-overlay { display: none !important; }
-
 /* garantir altura total e scroll behavior */
 html, body, #root { 
   height: 100%; 

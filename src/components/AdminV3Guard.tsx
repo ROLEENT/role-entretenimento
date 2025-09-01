@@ -33,9 +33,13 @@ export function AdminV3Guard({ children }: AdminV3GuardProps) {
     }
   }, [session, role, loading, navigate]);
 
-  // Don't block on loading - let admin routes render and check auth after
+  // Show loading while checking session and role
   if (loading || !authChecked) {
-    return <>{children}</>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="lg" text="Verificando acesso..." />
+      </div>
+    );
   }
 
   // Show access denied for viewers
