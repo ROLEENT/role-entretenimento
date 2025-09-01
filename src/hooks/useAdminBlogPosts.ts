@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
 interface UseAdminBlogPostsProps {
   search?: string;
@@ -19,7 +18,7 @@ export const useAdminBlogPosts = ({ search, status, category, searchTerm, cityFi
         .from('blog_posts')
         .select(`
           *,
-          author:user_profiles!inner(display_name, avatar_url)
+          author:user_profiles(display_name, avatar_url)
         `)
         .order('created_at', { ascending: false });
 
@@ -76,12 +75,11 @@ export const useAdminBlogPosts = ({ search, status, category, searchTerm, cityFi
         .eq('id', postId);
 
       if (error) throw error;
-
-      toast.success('Post excluído com sucesso!');
-      postsQuery.refetch();
-    } catch (error: any) {
+      
+      await postsQuery.refetch();
+      return true;
+    } catch (error) {
       console.error('Error deleting post:', error);
-      toast.error(error.message || 'Erro ao excluir post');
       throw error;
     }
   };
@@ -89,25 +87,15 @@ export const useAdminBlogPosts = ({ search, status, category, searchTerm, cityFi
   const duplicatePost = async (post: any) => {
     try {
       const duplicatedPost = {
+        ...post,
+        id: undefined,
         title: `${post.title} (Cópia)`,
-        slug: `${post.slug}-copia-${Date.now()}`,
-        slug_data: `${post.slug_data || post.slug}-copia-${Date.now()}`,
-        summary: post.summary,
-        content_html: post.content_html,
-        content_md: post.content_md,
-        cover_image: post.cover_image,
-        cover_alt: post.cover_alt,
-        seo_title: post.seo_title,
-        seo_description: post.seo_description,
-        author_name: post.author_name,
-        author_id: post.author_id,
-        city: post.city,
-        status: 'draft', // Always create duplicates as drafts
-        featured: false, // Don't duplicate featured status
-        category_ids: post.category_ids || [],
-        tags: post.tags || [],
-        reading_time: post.reading_time || 5,
-        views: 0, // Reset views for duplicated post
+        slug: `${post.slug || post.slug_data}-copy-${Date.now()}`,
+        slug_data: `${post.slug || post.slug_data}-copy-${Date.now()}`,
+        status: 'draft',
+        published_at: null,
+        created_at: undefined,
+        updated_at: undefined,
       };
 
       const { data, error } = await supabase
@@ -117,13 +105,11 @@ export const useAdminBlogPosts = ({ search, status, category, searchTerm, cityFi
         .single();
 
       if (error) throw error;
-
-      toast.success('Post duplicado com sucesso!');
-      postsQuery.refetch();
+      
+      await postsQuery.refetch();
       return data;
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error duplicating post:', error);
-      toast.error(error.message || 'Erro ao duplicar post');
       throw error;
     }
   };

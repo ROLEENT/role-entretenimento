@@ -15,7 +15,7 @@ const AdminV3RevistaList: React.FC = () => {
   const [status, setStatus] = useState('all');
   const [category, setCategory] = useState('all');
 
-  const { posts, categories, isLoading, error } = useAdminBlogPosts({
+  const { posts, categories, isLoading, error, deletePost, duplicatePost } = useAdminBlogPosts({
     search: search || undefined,
     status: status !== 'all' ? status : undefined,
     category: category !== 'all' ? category : undefined,
@@ -36,11 +36,23 @@ const AdminV3RevistaList: React.FC = () => {
   );
 
   const handleDuplicate = async (post: any) => {
-    toast.info('Funcionalidade de duplicar será implementada em breve');
+    try {
+      await duplicatePost(post);
+      toast.success('Post duplicado com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao duplicar post');
+    }
   };
 
   const handleDelete = async (post: any) => {
-    toast.info('Funcionalidade de excluir será implementada em breve');
+    if (confirm(`Tem certeza que deseja excluir o post "${post.title}"?`)) {
+      try {
+        await deletePost(post.id);
+        toast.success('Post excluído com sucesso!');
+      } catch (error) {
+        toast.error('Erro ao excluir post');
+      }
+    }
   };
 
   const statsCards = [
