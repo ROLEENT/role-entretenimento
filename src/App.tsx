@@ -140,6 +140,7 @@ const DebugCombo = lazy(() => import("./pages/DebugCombo"));
 // Profiles pages
 const DirectoryPage = lazy(() => import("./pages/profiles/DirectoryPage"));
 const ProfilePage = lazy(() => import("./pages/profiles/ProfilePage"));
+const CityDirectoryPage = lazy(() => import("./pages/profiles/CityDirectoryPage"));
 
 // Optimized loading components
 const AdminLoadingFallback = () => (
@@ -215,6 +216,7 @@ function App() {
                 {/* Profiles Routes */}
                 <Route path="/perfis" element={<Suspense fallback={<PageLoadingFallback />}><DirectoryPage /></Suspense>} />
                 <Route path="/perfil/:handle" element={<Suspense fallback={<PageLoadingFallback />}><ProfilePage /></Suspense>} />
+                <Route path="/cidades/:slug/perfis" element={<Suspense fallback={<PageLoadingFallback />}><CityDirectoryPage /></Suspense>} />
                 
                 {/* Highlights Routes */}
                 <Route path="/highlights" element={<HighlightsPage />} />

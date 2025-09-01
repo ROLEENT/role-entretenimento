@@ -1,18 +1,27 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import ProfileCard from "@/features/profiles/ProfileCard";
 import { listProfiles, ProfileType } from "@/features/profiles/api";
 
 export default function DirectoryPage() {
+  const [searchParams] = useSearchParams();
+  const cityFromUrl = searchParams.get('city') || '';
+  
   const [q, setQ] = useState("");
   const [type, setType] = useState<ProfileType | "">("");
-  const [city, setCity] = useState("");
+  const [city, setCity] = useState(cityFromUrl);
   const [items, setItems] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const fKey = useMemo(() => `${q}|${type}|${city}|${offset}`, [q, type, city, offset]);
+
+  // Update city when URL parameter changes
+  useEffect(() => {
+    setCity(cityFromUrl);
+  }, [cityFromUrl]);
 
   useEffect(() => {
     let alive = true;
