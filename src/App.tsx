@@ -132,6 +132,7 @@ const FeedPage = lazy(() => import("./pages/FeedPage"));
 const CalendarPage = lazy(() => import("./pages/CalendarPage"));
 const GamificationPage = lazy(() => import("./pages/GamificationPage"));
 const DiscoverUsers = lazy(() => import("./pages/DiscoverUsers"));
+const CreateProfilePage = lazy(() => import("./pages/CreateProfilePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ScrollToTop = lazy(() => import("./components/ScrollToTop"));
 const DebugCombo = lazy(() => import("./pages/DebugCombo"));
@@ -300,6 +301,7 @@ function App() {
                 {/* User Routes */}
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/perfil" element={<Profile />} />
+                <Route path="/criar/perfil" element={<CreateProfilePage />} />
                 <Route path="/feed" element={<FeedPage />} />
                 <Route path="/descobrir" element={<DiscoverUsers />} />
                 <Route path="/eventos/semana/:data" element={<WeeklyHighlights />} />
