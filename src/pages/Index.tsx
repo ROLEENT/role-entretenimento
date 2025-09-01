@@ -45,6 +45,27 @@ const Index = () => {
             <FeaturedEventsToday />
           </ScrollAnimationWrapper>
           
+          {/* 5.5. PERFIS EM DESTAQUE */}
+          <ScrollAnimationWrapper>
+            <section className="py-16 bg-muted/30">
+              <div className="container mx-auto px-4">
+                <div className="text-center max-w-3xl mx-auto mb-12">
+                  <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                    Conheça os Perfis da Plataforma
+                  </h2>
+                  <p className="text-lg text-muted-foreground mb-8">
+                    Descubra artistas, locais e organizadores que fazem a diferença na cena cultural
+                  </p>
+                  <Button asChild size="lg" className="px-8">
+                    <Link to="/perfis">
+                      Explorar Perfis
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </section>
+          </ScrollAnimationWrapper>
+          
           {/* 6. ROLÊ EM NÚMEROS */}
           <ScrollAnimationWrapper>
             <RoleEmNumeros />
