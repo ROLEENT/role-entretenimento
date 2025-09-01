@@ -1,14 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useFormContext } from "react-hook-form";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { useFormContext, Controller } from "react-hook-form";
+import { supabase } from "@/integrations/supabase/client";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -16,113 +11,142 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
 
-interface AsyncOption {
+interface AsyncQuery {
+  table: string;
+  fields: string;
+  orderBy?: string;
+}
+
+interface SelectOption {
   value: string;
   label: string;
-  disabled?: boolean;
 }
 
 interface RHFSelectAsyncProps {
   name: string;
+  query: AsyncQuery;
+  mapRow: (row: any) => SelectOption;
   label?: string;
   placeholder?: string;
-  loadOptions?: () => Promise<AsyncOption[]>;
   disabled?: boolean;
-  required?: boolean;
   className?: string;
-  defaultOptions?: AsyncOption[];
-  // Support for legacy API
-  query?: {
-    table: string;
-    fields: string;
-    orderBy?: string;
-    filter?: string;
-  };
-  mapRow?: (row: any) => { value: string; label: string };
-  parseValue?: (value: any) => any;
+  parseValue?: (value: string) => any;
   serializeValue?: (value: any) => string;
-  multiple?: boolean;
 }
 
-export function RHFSelectAsync({
+export default function RHFSelectAsync({
   name,
+  query,
+  mapRow,
   label,
-  placeholder = "Selecione uma opção",
-  loadOptions,
-  disabled = false,
-  required = false,
+  placeholder = "Carregando...",
+  disabled,
   className,
-  defaultOptions = [],
+  parseValue,
+  serializeValue,
 }: RHFSelectAsyncProps) {
-  const { control } = useFormContext();
-  const [options, setOptions] = useState<AsyncOption[]>(defaultOptions);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasLoaded, setHasLoaded] = useState(defaultOptions.length > 0);
+  const [options, setOptions] = useState<SelectOption[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleOpenChange = async (open: boolean) => {
-    if (open && !hasLoaded && !isLoading) {
-      setIsLoading(true);
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
+
+  const fieldError = errors[name];
+
+  // Memoize query key to prevent unnecessary re-renders
+  const queryKey = useMemo(() => 
+    `${query.table}-${query.fields}-${query.orderBy || 'none'}`, 
+    [query.table, query.fields, query.orderBy]
+  );
+
+  // Stable mapRow function
+  const stableMapRow = useCallback(mapRow, []);
+
+  useEffect(() => {
+    let alive = true;
+    
+    const loadData = async () => {
       try {
-        const newOptions = await loadOptions();
-        setOptions(newOptions);
-        setHasLoaded(true);
-      } catch (error) {
-        console.error("Error loading options:", error);
+        setLoading(true);
+        setError(null);
+        
+        const q = supabase.from(query.table).select(query.fields);
+        if (query.orderBy) q.order(query.orderBy);
+        
+        const { data, error } = await q;
+        
+        if (!alive) return;
+        
+        if (error) {
+          console.error(`Erro ao carregar ${query.table}:`, error);
+          setError(`Erro ao carregar dados: ${error.message}`);
+          setOptions([]);
+        } else if (data) {
+          const mappedOptions = data.map(stableMapRow);
+          setOptions(mappedOptions);
+        } else {
+          setOptions([]);
+        }
+      } catch (err) {
+        if (!alive) return;
+        console.error(`Erro inesperado:`, err);
+        setError(`Erro inesperado: ${err instanceof Error ? err.message : 'Erro desconhecido'}`);
+        setOptions([]);
       } finally {
-        setIsLoading(false);
+        if (alive) {
+          setLoading(false);
+        }
       }
-    }
-  };
+    };
+
+    loadData();
+    return () => { alive = false; };
+  }, [queryKey, stableMapRow, query.table, query.fields, query.orderBy]);
+
+  const finalPlaceholder = loading ? "Carregando..." : error ? `Erro: ${error}` : placeholder;
+  const isDisabled = disabled || loading || !!error;
 
   return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className={className}>
-          {label && (
-            <FormLabel>
-              {label}
-              {required && <span className="text-destructive ml-1">*</span>}
-            </FormLabel>
-          )}
+    <div className="space-y-2">
+      {label && (
+        <Label htmlFor={name} className={fieldError ? "text-destructive" : ""}>
+          {label}
+        </Label>
+      )}
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
           <Select
-            onValueChange={field.onChange}
-            value={field.value}
-            disabled={disabled || isLoading}
-            onOpenChange={handleOpenChange}
+            onValueChange={(value) => {
+              const parsedValue = parseValue ? parseValue(value) : value;
+              field.onChange(parsedValue);
+            }}
+            value={serializeValue ? serializeValue(field.value) : field.value}
+            disabled={isDisabled}
           >
-            <FormControl>
-              <SelectTrigger>
-                <SelectValue placeholder={placeholder} />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              {isLoading ? (
-                <div className="flex items-center justify-center py-4">
-                  <LoadingSpinner className="w-4 h-4" />
-                  <span className="ml-2 text-sm text-muted-foreground">
-                    Carregando...
-                  </span>
-                </div>
-              ) : (
-                options.map((option) => (
-                  <SelectItem
-                    key={option.value}
-                    value={option.value}
-                    disabled={option.disabled}
-                  >
-                    {option.label}
-                  </SelectItem>
-                ))
-              )}
+            <SelectTrigger className={className} aria-invalid={!!fieldError}>
+              <SelectValue placeholder={finalPlaceholder} />
+            </SelectTrigger>
+            <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
+              {options.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
-          <FormMessage />
-        </FormItem>
+        )}
+      />
+      {fieldError && (
+        <p className="text-sm text-destructive">
+          {fieldError.message as string}
+        </p>
       )}
-    />
+    </div>
   );
 }

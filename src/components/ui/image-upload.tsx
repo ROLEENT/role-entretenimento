@@ -1,152 +1,227 @@
-import React, { useState, useCallback } from 'react';
-import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { useState, useRef, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { useStorageUpload } from '@/hooks/useStorageUpload';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from 'sonner';
+import { Upload, X, RotateCcw, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ImageUploadProps {
   value?: string;
   onChange: (url: string) => void;
-  onRemove?: () => void;
-  label?: string;
-  accept?: string;
-  maxSizeMB?: number;
-  disabled?: boolean;
-  bucket?: string;
-  folder?: string;
+  onRemove: () => void;
   className?: string;
-  placeholder?: string;
+  bucket?: string;
+  maxSize?: number; // em MB
+  allowedTypes?: string[];
+  showPreview?: boolean;
+  onPreview?: () => void;
 }
 
-export const ImageUpload: React.FC<ImageUploadProps> = ({
+export function ImageUpload({
   value,
   onChange,
   onRemove,
-  label = "Imagem",
-  accept = "image/*",
-  maxSizeMB = 5,
-  disabled = false,
-  bucket = "artists", // Updated to use correct bucket
-  folder = "",
   className,
-  placeholder
-}) => {
-  const [isDragOver, setIsDragOver] = useState(false);
-  const { uploadFile, uploading } = useStorageUpload(bucket);
+  bucket = 'admin',
+  maxSize = 5,
+  allowedTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'],
+  showPreview = false,
+  onPreview
+}: ImageUploadProps) {
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = useCallback(async (file: File) => {
-    try {
-      const url = await uploadFile(file, bucket, folder, {
-        maxSizeMB,
-        allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
-      });
-      
-      if (url) {
-        onChange(url);
-      }
-    } catch (error) {
-      console.error('Upload failed:', error);
+  const validateFile = (file: File): string | null => {
+    if (!allowedTypes.includes(file.type)) {
+      return `Tipo de arquivo não suportado. Use: ${allowedTypes.join(', ')}`;
     }
-  }, [uploadFile, bucket, folder, maxSizeMB, onChange]);
+    
+    if (file.size > maxSize * 1024 * 1024) {
+      return `Arquivo muito grande. Máximo ${maxSize}MB`;
+    }
+    
+    return null;
+  };
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const uploadFile = useCallback(async (file: File) => {
+    const validation = validateFile(file);
+    if (validation) {
+      setError(validation);
+      return;
+    }
+
+    setError(null);
+    setUploading(true);
+    setProgress(0);
+
+    try {
+      // Gerar nome único
+      const timestamp = Date.now();
+      const randomStr = Math.random().toString(36).substring(7);
+      const extension = file.name.split('.').pop();
+      const fileName = `${timestamp}_${randomStr}.${extension}`;
+      const filePath = `covers/${fileName}`;
+
+      // Upload com progresso
+      const { data, error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Obter URL pública
+      const { data: { publicUrl } } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(filePath);
+
+      onChange(publicUrl);
+      setProgress(100);
+      toast.success('Imagem enviada com sucesso!');
+      
+    } catch (error: any) {
+      console.error('Erro no upload:', error);
+      setError(error.message || 'Erro ao enviar arquivo');
+      toast.error('Erro ao enviar imagem');
+    } finally {
+      setUploading(false);
+      setProgress(0);
+    }
+  }, [bucket, maxSize, allowedTypes, onChange]);
+
+  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      handleFileUpload(file);
+      uploadFile(file);
     }
-  };
-
-  const handleDrop = (event: React.DragEvent) => {
-    event.preventDefault();
-    setIsDragOver(false);
-    
-    const file = event.dataTransfer.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      handleFileUpload(file);
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
-  };
+  }, [uploadFile]);
 
-  const handleDragOver = (event: React.DragEvent) => {
+  const handleDrop = useCallback((event: React.DragEvent) => {
     event.preventDefault();
-    setIsDragOver(true);
-  };
+    const file = event.dataTransfer.files[0];
+    if (file) {
+      uploadFile(file);
+    }
+  }, [uploadFile]);
 
-  const handleDragLeave = () => {
-    setIsDragOver(false);
-  };
+  const handleDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+  }, []);
 
-  const handleRemove = () => {
-    onChange('');
-    onRemove?.();
-  };
+  const handleRemove = useCallback(() => {
+    onRemove();
+    setError(null);
+    toast.success('Imagem removida');
+  }, [onRemove]);
+
+  const retry = useCallback(() => {
+    setError(null);
+    fileInputRef.current?.click();
+  }, []);
 
   return (
-    <div className={cn("space-y-2", className)}>
-      {label && (
-        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          {label}
-        </label>
-      )}
-      
-      <div className="space-y-4">
+    <div className={cn("space-y-4", className)}>
+      {/* Upload Area */}
+      <div
+        className={cn(
+          "border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors",
+          uploading ? "border-primary bg-primary/5" : "border-muted-foreground/25 hover:border-primary/50",
+          value && "border-solid border-border"
+        )}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onClick={() => !uploading && !value && fileInputRef.current?.click()}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={allowedTypes.join(',')}
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+
         {value ? (
           <div className="relative">
             <img
               src={value}
-              alt={label}
-              className="w-full h-48 object-cover rounded-lg border"
+              alt="Preview"
+              className="max-h-48 mx-auto rounded-lg object-cover"
             />
-            <Button
-              type="button"
-              variant="destructive"
-              size="sm"
-              className="absolute top-2 right-2"
-              onClick={handleRemove}
-              disabled={disabled || uploading}
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <div className="absolute top-2 right-2 flex gap-2">
+              {showPreview && onPreview && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPreview();
+                  }}
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+              )}
+              <Button
+                type="button"
+                size="sm"
+                variant="destructive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemove();
+                }}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ) : uploading ? (
+          <div className="space-y-3">
+            <Upload className="h-8 w-8 mx-auto text-primary animate-pulse" />
+            <div>
+              <p className="text-sm text-muted-foreground">Enviando...</p>
+              <Progress value={progress} className="mt-2" />
+            </div>
           </div>
         ) : (
-          <div
-            className={cn(
-              "border-2 border-dashed rounded-lg p-6 text-center transition-colors",
-              isDragOver ? "border-primary bg-primary/5" : "border-muted-foreground/25",
-              disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-primary"
-            )}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onClick={() => !disabled && !uploading && document.getElementById(`file-input-${label}`)?.click()}
-          >
-            {uploading ? (
-              <div className="flex flex-col items-center space-y-2">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="text-sm text-muted-foreground">Enviando...</p>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center space-y-2">
-                <Upload className="h-8 w-8 text-muted-foreground" />
-                <div className="text-sm">
-                  <p className="font-medium">Clique para enviar ou arraste aqui</p>
-                  <p className="text-muted-foreground">
-                    {placeholder || `Máximo ${maxSizeMB}MB`}
-                  </p>
-                </div>
-              </div>
-            )}
+          <div className="space-y-3">
+            <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
+            <div>
+              <p className="text-sm font-medium">Clique ou arraste uma imagem</p>
+              <p className="text-xs text-muted-foreground">
+                PNG, JPG, JPEG, WebP até {maxSize}MB
+              </p>
+            </div>
           </div>
         )}
-        
-        <input
-          id={`file-input-${label}`}
-          type="file"
-          accept={accept}
-          onChange={handleFileSelect}
-          disabled={disabled || uploading}
-          className="hidden"
-        />
       </div>
+
+      {/* Error with Retry */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription className="flex items-center justify-between">
+            <span>{error}</span>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={retry}
+              className="ml-2"
+            >
+              <RotateCcw className="h-4 w-4 mr-1" />
+              Tentar novamente
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
     </div>
   );
-};
+}

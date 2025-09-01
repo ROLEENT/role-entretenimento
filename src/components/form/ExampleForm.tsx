@@ -6,8 +6,8 @@ import FormLayout from "./FormLayout";
 import RHFInput from "./RHFInput";
 import RHFTextarea from "./RHFTextarea";
 import RHFSwitch from "./RHFSwitch";
-import { RHFSelect } from "./RHFSelect";
-import { RHFSelectAsync } from "./RHFSelectAsync";
+import RHFSelect from "./RHFSelect";
+import RHFSelectAsync from "./RHFSelectAsync";
 import RHFDateTime from "./RHFDateTime";
 import RHFUpload from "./RHFUpload";
 

@@ -86,36 +86,6 @@ export type Database = {
         }
         Relationships: []
       }
-      admin_push_subscriptions: {
-        Row: {
-          admin_email: string
-          auth: string
-          created_at: string | null
-          endpoint: string
-          id: string
-          is_active: boolean | null
-          p256dh: string
-        }
-        Insert: {
-          admin_email: string
-          auth: string
-          created_at?: string | null
-          endpoint: string
-          id?: string
-          is_active?: boolean | null
-          p256dh: string
-        }
-        Update: {
-          admin_email?: string
-          auth?: string
-          created_at?: string | null
-          endpoint?: string
-          id?: string
-          is_active?: boolean | null
-          p256dh?: string
-        }
-        Relationships: []
-      }
       admin_sessions: {
         Row: {
           admin_id: string
@@ -1152,42 +1122,6 @@ export type Database = {
           },
         ]
       }
-      backup_metadata: {
-        Row: {
-          admin_email: string
-          backup_type: string
-          completed_at: string | null
-          created_at: string | null
-          error_message: string | null
-          file_size: number | null
-          filename: string
-          id: string
-          status: string
-        }
-        Insert: {
-          admin_email: string
-          backup_type?: string
-          completed_at?: string | null
-          created_at?: string | null
-          error_message?: string | null
-          file_size?: number | null
-          filename: string
-          id?: string
-          status?: string
-        }
-        Update: {
-          admin_email?: string
-          backup_type?: string
-          completed_at?: string | null
-          created_at?: string | null
-          error_message?: string | null
-          file_size?: number | null
-          filename?: string
-          id?: string
-          status?: string
-        }
-        Relationships: []
-      }
       badges: {
         Row: {
           color: string
@@ -1383,7 +1317,6 @@ export type Database = {
           author_id: string
           author_name: string
           category_ids: string[] | null
-          cities: string[] | null
           city: string
           content_html: string
           content_md: string | null
@@ -1410,7 +1343,6 @@ export type Database = {
           author_id: string
           author_name: string
           category_ids?: string[] | null
-          cities?: string[] | null
           city: string
           content_html: string
           content_md?: string | null
@@ -1437,7 +1369,6 @@ export type Database = {
           author_id?: string
           author_name?: string
           category_ids?: string[] | null
-          cities?: string[] | null
           city?: string
           content_html?: string
           content_md?: string | null
@@ -1465,7 +1396,7 @@ export type Database = {
             foreignKeyName: "blog_posts_author_id_fkey"
             columns: ["author_id"]
             isOneToOne: false
-            referencedRelation: "user_profiles"
+            referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
         ]
@@ -1706,60 +1637,6 @@ export type Database = {
           id?: string
           name?: string
           updated_at?: string
-        }
-        Relationships: []
-      }
-      entity_profiles: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          bio_short: string | null
-          city: string
-          country: string
-          cover_url: string | null
-          created_at: string
-          handle: string
-          id: string
-          name: string
-          state: string
-          tags: string[] | null
-          type: string
-          updated_at: string
-          verified: boolean | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          bio_short?: string | null
-          city: string
-          country?: string
-          cover_url?: string | null
-          created_at?: string
-          handle: string
-          id?: string
-          name: string
-          state: string
-          tags?: string[] | null
-          type: string
-          updated_at?: string
-          verified?: boolean | null
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          bio_short?: string | null
-          city?: string
-          country?: string
-          cover_url?: string | null
-          created_at?: string
-          handle?: string
-          id?: string
-          name?: string
-          state?: string
-          tags?: string[] | null
-          type?: string
-          updated_at?: string
-          verified?: boolean | null
         }
         Relationships: []
       }
@@ -2163,32 +2040,6 @@ export type Database = {
           },
         ]
       }
-      followers: {
-        Row: {
-          created_at: string
-          profile_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          profile_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          profile_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "followers_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       follows: {
         Row: {
           created_at: string
@@ -2213,14 +2064,14 @@ export type Database = {
             foreignKeyName: "follows_follower_id_fkey"
             columns: ["follower_id"]
             isOneToOne: false
-            referencedRelation: "user_profiles"
+            referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "follows_following_id_fkey"
             columns: ["following_id"]
             isOneToOne: false
-            referencedRelation: "user_profiles"
+            referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
         ]
@@ -3476,287 +3327,72 @@ export type Database = {
         }
         Relationships: []
       }
-      posts_public: {
-        Row: {
-          cover_url: string | null
-          excerpt: string | null
-          id: string | null
-          published_at: string | null
-          reading_time: number | null
-          reads: number | null
-          saves: number | null
-          section: string | null
-          slug: string | null
-          status: Database["public"]["Enums"]["article_status"] | null
-          title: string | null
-        }
-        Insert: {
-          cover_url?: string | null
-          excerpt?: string | null
-          id?: string | null
-          published_at?: string | null
-          reading_time?: number | null
-          reads?: number | null
-          saves?: number | null
-          section?: string | null
-          slug?: string | null
-          status?: Database["public"]["Enums"]["article_status"] | null
-          title?: string | null
-        }
-        Update: {
-          cover_url?: string | null
-          excerpt?: string | null
-          id?: string | null
-          published_at?: string | null
-          reading_time?: number | null
-          reads?: number | null
-          saves?: number | null
-          section?: string | null
-          slug?: string | null
-          status?: Database["public"]["Enums"]["article_status"] | null
-          title?: string | null
-        }
-        Relationships: []
-      }
-      profile_artist: {
-        Row: {
-          agency: string | null
-          fee_band: string | null
-          genres: string[]
-          presskit_url: string | null
-          profile_id: string
-          pronoun: string | null
-          rider_url: string | null
-          soundcloud_url: string | null
-          spotify_id: string | null
-          stageplot_url: string | null
-          touring_city: string | null
-          youtube_url: string | null
-        }
-        Insert: {
-          agency?: string | null
-          fee_band?: string | null
-          genres?: string[]
-          presskit_url?: string | null
-          profile_id: string
-          pronoun?: string | null
-          rider_url?: string | null
-          soundcloud_url?: string | null
-          spotify_id?: string | null
-          stageplot_url?: string | null
-          touring_city?: string | null
-          youtube_url?: string | null
-        }
-        Update: {
-          agency?: string | null
-          fee_band?: string | null
-          genres?: string[]
-          presskit_url?: string | null
-          profile_id?: string
-          pronoun?: string | null
-          rider_url?: string | null
-          soundcloud_url?: string | null
-          spotify_id?: string | null
-          stageplot_url?: string | null
-          touring_city?: string | null
-          youtube_url?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profile_artist_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: true
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      profile_org: {
-        Row: {
-          about: string | null
-          brand_name: string | null
-          cities: string[] | null
-          cnpj: string | null
-          manager_email: string | null
-          manager_name: string | null
-          manager_phone: string | null
-          profile_id: string
-        }
-        Insert: {
-          about?: string | null
-          brand_name?: string | null
-          cities?: string[] | null
-          cnpj?: string | null
-          manager_email?: string | null
-          manager_name?: string | null
-          manager_phone?: string | null
-          profile_id: string
-        }
-        Update: {
-          about?: string | null
-          brand_name?: string | null
-          cities?: string[] | null
-          cnpj?: string | null
-          manager_email?: string | null
-          manager_name?: string | null
-          manager_phone?: string | null
-          profile_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profile_org_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: true
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      profile_roles: {
-        Row: {
-          created_at: string
-          profile_id: string
-          role: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          profile_id: string
-          role: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          profile_id?: string
-          role?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profile_roles_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      profile_venue: {
-        Row: {
-          accessibility: Json | null
-          address: Json | null
-          age_policy: string
-          capacity: number
-          cnpj: string | null
-          hours: Json | null
-          lat: number | null
-          lon: number | null
-          place_id: string | null
-          price_range: string | null
-          profile_id: string
-          sound_gear: Json | null
-        }
-        Insert: {
-          accessibility?: Json | null
-          address?: Json | null
-          age_policy: string
-          capacity: number
-          cnpj?: string | null
-          hours?: Json | null
-          lat?: number | null
-          lon?: number | null
-          place_id?: string | null
-          price_range?: string | null
-          profile_id: string
-          sound_gear?: Json | null
-        }
-        Update: {
-          accessibility?: Json | null
-          address?: Json | null
-          age_policy?: string
-          capacity?: number
-          cnpj?: string | null
-          hours?: Json | null
-          lat?: number | null
-          lon?: number | null
-          place_id?: string | null
-          price_range?: string | null
-          profile_id?: string
-          sound_gear?: Json | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profile_venue_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: true
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       profiles: {
         Row: {
           avatar_url: string | null
           bio: string | null
-          bio_short: string
-          city: string
-          contact_email: string | null
-          contact_phone: string | null
-          country: string
-          cover_url: string | null
+          birth_date: string | null
           created_at: string
-          created_by: string
-          handle: string
+          display_name: string | null
+          email: string | null
+          followers_count: number | null
+          following_count: number | null
+          full_name: string | null
           id: string
-          links: Json | null
-          name: string
-          state: string
-          tags: string[] | null
-          type: string
-          verified: boolean
-          visibility: string
+          is_admin: boolean
+          is_verified: boolean | null
+          location: string | null
+          phone: string | null
+          preferences_json: Json
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+          user_id: string
+          username: string | null
+          website: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
-          bio_short?: string
-          city: string
-          contact_email?: string | null
-          contact_phone?: string | null
-          country?: string
-          cover_url?: string | null
+          birth_date?: string | null
           created_at?: string
-          created_by?: string
-          handle: string
+          display_name?: string | null
+          email?: string | null
+          followers_count?: number | null
+          following_count?: number | null
+          full_name?: string | null
           id?: string
-          links?: Json | null
-          name: string
-          state: string
-          tags?: string[] | null
-          type: string
-          verified?: boolean
-          visibility?: string
+          is_admin?: boolean
+          is_verified?: boolean | null
+          location?: string | null
+          phone?: string | null
+          preferences_json?: Json
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+          user_id: string
+          username?: string | null
+          website?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
-          bio_short?: string
-          city?: string
-          contact_email?: string | null
-          contact_phone?: string | null
-          country?: string
-          cover_url?: string | null
+          birth_date?: string | null
           created_at?: string
-          created_by?: string
-          handle?: string
+          display_name?: string | null
+          email?: string | null
+          followers_count?: number | null
+          following_count?: number | null
+          full_name?: string | null
           id?: string
-          links?: Json | null
-          name?: string
-          state?: string
-          tags?: string[] | null
-          type?: string
-          verified?: boolean
-          visibility?: string
+          is_admin?: boolean
+          is_verified?: boolean | null
+          location?: string | null
+          phone?: string | null
+          preferences_json?: Json
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+          website?: string | null
         }
         Relationships: []
       }
@@ -3900,45 +3536,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      system_logs: {
-        Row: {
-          action: string
-          admin_email: string
-          created_at: string | null
-          id: string
-          ip_address: unknown | null
-          new_values: Json | null
-          old_values: Json | null
-          record_id: string | null
-          table_name: string | null
-          user_agent: string | null
-        }
-        Insert: {
-          action: string
-          admin_email: string
-          created_at?: string | null
-          id?: string
-          ip_address?: unknown | null
-          new_values?: Json | null
-          old_values?: Json | null
-          record_id?: string | null
-          table_name?: string | null
-          user_agent?: string | null
-        }
-        Update: {
-          action?: string
-          admin_email?: string
-          created_at?: string | null
-          id?: string
-          ip_address?: unknown | null
-          new_values?: Json | null
-          old_values?: Json | null
-          record_id?: string | null
-          table_name?: string | null
-          user_agent?: string | null
-        }
-        Relationships: []
       }
       testimonials: {
         Row: {
@@ -4375,117 +3972,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_profiles: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          bio_short: string | null
-          birth_date: string | null
-          city: string | null
-          contact_email: string | null
-          contact_phone: string | null
-          country: string | null
-          cover_url: string | null
-          created_at: string
-          created_by: string | null
-          display_name: string | null
-          email: string | null
-          followers_count: number | null
-          following_count: number | null
-          full_name: string | null
-          handle: string | null
-          id: string
-          is_admin: boolean
-          is_verified: boolean | null
-          links: Json | null
-          location: string | null
-          phone: string | null
-          preferences_json: Json
-          role: Database["public"]["Enums"]["user_role"]
-          state: string | null
-          tags: string[] | null
-          type: string | null
-          updated_at: string
-          user_id: string
-          username: string | null
-          verified: boolean | null
-          visibility: string | null
-          website: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          bio_short?: string | null
-          birth_date?: string | null
-          city?: string | null
-          contact_email?: string | null
-          contact_phone?: string | null
-          country?: string | null
-          cover_url?: string | null
-          created_at?: string
-          created_by?: string | null
-          display_name?: string | null
-          email?: string | null
-          followers_count?: number | null
-          following_count?: number | null
-          full_name?: string | null
-          handle?: string | null
-          id?: string
-          is_admin?: boolean
-          is_verified?: boolean | null
-          links?: Json | null
-          location?: string | null
-          phone?: string | null
-          preferences_json?: Json
-          role?: Database["public"]["Enums"]["user_role"]
-          state?: string | null
-          tags?: string[] | null
-          type?: string | null
-          updated_at?: string
-          user_id: string
-          username?: string | null
-          verified?: boolean | null
-          visibility?: string | null
-          website?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          bio_short?: string | null
-          birth_date?: string | null
-          city?: string | null
-          contact_email?: string | null
-          contact_phone?: string | null
-          country?: string | null
-          cover_url?: string | null
-          created_at?: string
-          created_by?: string | null
-          display_name?: string | null
-          email?: string | null
-          followers_count?: number | null
-          following_count?: number | null
-          full_name?: string | null
-          handle?: string | null
-          id?: string
-          is_admin?: boolean
-          is_verified?: boolean | null
-          links?: Json | null
-          location?: string | null
-          phone?: string | null
-          preferences_json?: Json
-          role?: Database["public"]["Enums"]["user_role"]
-          state?: string | null
-          tags?: string[] | null
-          type?: string | null
-          updated_at?: string
-          user_id?: string
-          username?: string | null
-          verified?: boolean | null
-          visibility?: string | null
-          website?: string | null
-        }
-        Relationships: []
-      }
       venue_types: {
         Row: {
           created_at: string
@@ -4513,26 +3999,19 @@ export type Database = {
       venues: {
         Row: {
           about: string | null
-          acessibilidade: Json | null
           address: string | null
           address_line: string | null
           amenities: Json | null
-          banheiros: Json | null
-          bebidas: Json | null
           capacity: number | null
-          caracteristicas_estabelecimento: Json | null
           city: string | null
           city_id: number | null
           contacts_json: Json | null
           country: string | null
           cover_alt: string | null
           cover_url: string | null
-          cozinha: Json | null
           created_at: string | null
-          diferenciais: Json | null
           district: string | null
           email: string | null
-          estruturas: Json | null
           gallery: Json | null
           gallery_urls: Json | null
           id: string
@@ -4546,7 +4025,6 @@ export type Database = {
           opening_hours: Json | null
           phone: string | null
           postal_code: string | null
-          seguranca: Json | null
           slug: string | null
           state: string | null
           status: Database["public"]["Enums"]["agent_status"] | null
@@ -4557,26 +4035,19 @@ export type Database = {
         }
         Insert: {
           about?: string | null
-          acessibilidade?: Json | null
           address?: string | null
           address_line?: string | null
           amenities?: Json | null
-          banheiros?: Json | null
-          bebidas?: Json | null
           capacity?: number | null
-          caracteristicas_estabelecimento?: Json | null
           city?: string | null
           city_id?: number | null
           contacts_json?: Json | null
           country?: string | null
           cover_alt?: string | null
           cover_url?: string | null
-          cozinha?: Json | null
           created_at?: string | null
-          diferenciais?: Json | null
           district?: string | null
           email?: string | null
-          estruturas?: Json | null
           gallery?: Json | null
           gallery_urls?: Json | null
           id?: string
@@ -4590,7 +4061,6 @@ export type Database = {
           opening_hours?: Json | null
           phone?: string | null
           postal_code?: string | null
-          seguranca?: Json | null
           slug?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["agent_status"] | null
@@ -4601,26 +4071,19 @@ export type Database = {
         }
         Update: {
           about?: string | null
-          acessibilidade?: Json | null
           address?: string | null
           address_line?: string | null
           amenities?: Json | null
-          banheiros?: Json | null
-          bebidas?: Json | null
           capacity?: number | null
-          caracteristicas_estabelecimento?: Json | null
           city?: string | null
           city_id?: number | null
           contacts_json?: Json | null
           country?: string | null
           cover_alt?: string | null
           cover_url?: string | null
-          cozinha?: Json | null
           created_at?: string | null
-          diferenciais?: Json | null
           district?: string | null
           email?: string | null
-          estruturas?: Json | null
           gallery?: Json | null
           gallery_urls?: Json | null
           id?: string
@@ -4634,7 +4097,6 @@ export type Database = {
           opening_hours?: Json | null
           phone?: string | null
           postal_code?: string | null
-          seguranca?: Json | null
           slug?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["agent_status"] | null
@@ -4814,14 +4276,6 @@ export type Database = {
         Row: {
           city_name: string | null
           events_count: number | null
-        }
-        Relationships: []
-      }
-      profile_stats: {
-        Row: {
-          followers_count: number | null
-          profile_id: string | null
-          upcoming_events_count: number | null
         }
         Relationships: []
       }
@@ -5518,10 +4972,6 @@ export type Database = {
         }
         Returns: string
       }
-      create_system_backup: {
-        Args: { p_admin_email: string; p_backup_type?: string }
-        Returns: string
-      }
       debug_admin_highlight_auth: {
         Args: { p_admin_email: string; p_highlight_id?: string }
         Returns: Json
@@ -5559,7 +5009,7 @@ export type Database = {
         Returns: string
       }
       events_by_week: {
-        Args: { last_days?: number }
+        Args: { last_days: number }
         Returns: {
           total: number
           week_start: string
@@ -5609,25 +5059,6 @@ export type Database = {
           unique_users: number
         }[]
       }
-      get_analytics_summary: {
-        Args: {
-          p_admin_email: string
-          p_end_date?: string
-          p_start_date?: string
-        }
-        Returns: {
-          draft_events: number
-          page_views: number
-          popular_cities: Json
-          published_events: number
-          top_events: Json
-          total_artists: number
-          total_events: number
-          total_organizers: number
-          total_venues: number
-          unique_visitors: number
-        }[]
-      }
       get_analytics_totals: {
         Args: {
           p_city?: string
@@ -5644,29 +5075,6 @@ export type Database = {
           total_pageviews: number
           unique_sessions: number
           unique_users: number
-        }[]
-      }
-      get_audit_history: {
-        Args: { p_limit?: number; p_record_id: string; p_table_name: string }
-        Returns: {
-          action: string
-          admin_email: string
-          created_at: string
-          id: string
-          ip_address: unknown
-          new_values: Json
-          old_values: Json
-          user_agent: string
-        }[]
-      }
-      get_audit_statistics: {
-        Args: { p_end_date?: string; p_start_date?: string }
-        Returns: {
-          actions_by_admin: Json
-          actions_by_table: Json
-          actions_by_type: Json
-          total_actions: number
-          total_admins: number
         }[]
       }
       get_blog_comments_admin: {
@@ -5719,14 +5127,6 @@ export type Database = {
           slug: string
         }[]
       }
-      get_comprehensive_analytics: {
-        Args: {
-          p_admin_email: string
-          p_end_date?: string
-          p_start_date?: string
-        }
-        Returns: Json
-      }
       get_contact_messages: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -5755,10 +5155,6 @@ export type Database = {
           pageviews: number
           unique_users: number
         }[]
-      }
-      get_dashboard_stats: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
       }
       get_highlight_like_count: {
         Args: { p_highlight_id: string }
@@ -5859,58 +5255,9 @@ export type Database = {
         Args: { p_post_id: string }
         Returns: number
       }
-      get_realtime_metrics: {
-        Args: { p_admin_email: string }
-        Returns: Json
-      }
-      get_recent_activity: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          created_at: string
-          id: string
-          status: string
-          title: string
-          type: string
-          updated_at: string
-        }[]
-      }
-      get_recent_audit_activity: {
-        Args: {
-          p_admin_email?: string
-          p_limit?: number
-          p_table_name?: string
-        }
-        Returns: {
-          action: string
-          admin_email: string
-          created_at: string
-          id: string
-          ip_address: unknown
-          new_values: Json
-          old_values: Json
-          record_id: string
-          table_name: string
-          user_agent: string
-        }[]
-      }
       get_secure_comment_count: {
         Args: { p_post_id: string }
         Returns: number
-      }
-      get_system_logs: {
-        Args: { p_admin_email: string; p_limit?: number; p_offset?: number }
-        Returns: {
-          action: string
-          admin_email: string
-          created_at: string
-          id: string
-          ip_address: unknown
-          new_values: Json
-          old_values: Json
-          record_id: string
-          table_name: string
-          user_agent: string
-        }[]
       }
       get_top_errors: {
         Args: { days_back?: number; limit_count?: number }
@@ -6075,10 +5422,6 @@ export type Database = {
       set_limit: {
         Args: { "": number }
         Returns: number
-      }
-      setup_audit_triggers: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
       }
       setup_notification_cron_jobs: {
         Args: Record<PropertyKey, never>

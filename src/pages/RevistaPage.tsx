@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo, useRef } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { SEOHelmet } from "@/components/SEOHelmet";
 import { PublicLayout } from "@/components/PublicLayout";
 import { RevistaCard } from "@/components/revista/RevistaCard";
@@ -7,6 +7,7 @@ import { RevistaCardSkeleton } from "@/components/revista/RevistaCardSkeleton";
 import { RevistaFilters } from "@/components/revista/RevistaFilters";
 import { ResponsiveGrid } from "@/components/ui/responsive-grid";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { useDebounce } from "@/hooks/useDebounce";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { useRevistaCache } from "@/hooks/useRevistaCache";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,40 +33,8 @@ interface RevistaPost {
   featured?: boolean;
 }
 
-type Filters = { q: string; secao: string };
-
-function readFromURL(sp: URLSearchParams): Filters {
-  return {
-    q: sp.get("q") ?? "",
-    secao: sp.get("secao") ?? "",
-  };
-}
-
-function normalize(f: Filters) {
-  const out: Record<string, string> = {};
-  if (f.q) out.q = f.q;
-  if (f.secao) out.secao = f.secao;
-  return out;
-}
-
-function toQS(f: Filters) {
-  const entries = Object.entries(normalize(f)).sort(([a], [b]) => a.localeCompare(b));
-  return new URLSearchParams(entries).toString();
-}
-
-function shallowEqual(a: Filters, b: Filters) {
-  return a.q === b.q && a.secao === b.secao;
-}
-
 export default function RevistaPage() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  
-  // Estado com filtros únicos
-  const [filters, setFilters] = useState<Filters>(() => readFromURL(searchParams));
-  const didHydrate = useRef(false);
-  
-  // Estados de dados
+  const [searchParams, setSearchParams] = useSearchParams();
   const [posts, setPosts] = useState<RevistaPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -73,48 +42,20 @@ export default function RevistaPage() {
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [totalArticlesExist, setTotalArticlesExist] = useState(false);
+  const [lastFetchRef, setLastFetchRef] = useState<string>('');
   
-  // AbortController para cancelar requests
-  const abortRef = useRef<AbortController | null>(null);
+  const searchTerm = searchParams.get('q') || '';
+  const cityFilter = searchParams.get('cidade') || '';
+  const sectionFilter = searchParams.get('secao') || '';
   
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const { getCachedData, setCachedData, restoreScrollPosition, clearCache } = useRevistaCache();
 
-  // Chave estável para efeitos
-  const fKey = useMemo(
-    () => `${filters.q}|${filters.secao}`,
-    [filters.q, filters.secao]
-  );
-
-  // Hidratação única protegida
-  useEffect(() => {
-    if (didHydrate.current) return;
-    didHydrate.current = true;
-    const fromUrl = readFromURL(searchParams);
-    setFilters(prev => shallowEqual(prev, fromUrl) ? prev : fromUrl);
-  }, []);
-
-  // Sincronização com URL apenas quando fKey muda
-  useEffect(() => {
-    const qs = toQS(filters);
-    const current = typeof window !== "undefined"
-      ? window.location.search.replace(/^\?/, "")
-      : "";
-    if (qs !== current) {
-      navigate(qs ? `?${qs}` : "?", { replace: true });
-    }
-  }, [fKey, navigate, filters]);
-
   // Infinite scroll setup
-  const handleLoadMore = () => {
-    if (!isLoadingMore && hasMore) {
-      fetchPosts({ offset: posts.length, reset: false, filters, signal: abortRef.current?.signal });
-    }
-  };
-
   const { targetRef, isEnabled: isInfiniteScrollEnabled, enableInfiniteScroll, disableInfiniteScroll } = useInfiniteScroll({
     hasMore,
     isLoading: isLoadingMore,
-    onLoadMore: handleLoadMore,
+    onLoadMore: () => handleLoadMore(),
     threshold: 0.1,
     rootMargin: '100px'
   });
@@ -133,28 +74,22 @@ export default function RevistaPage() {
     checkTotalArticles();
   }, []);
 
-  // Fetch com debounce e AbortController integrados
-  const fetchPosts = async ({
-    offset,
-    reset,
-    filters,
-    signal,
-  }: {
-    offset: number;
-    reset: boolean;
-    filters: Filters;
-    signal?: AbortSignal;
-  }) => {
-    console.log(`[DEBUG] fetchPosts chamado: offset=${offset}, reset=${reset}`, filters);
+  const fetchPosts = useCallback(async (offset = 0, reset = false) => {
+    // Generate unique fetch reference to prevent duplicates
+    const fetchRef = `${offset}-${reset}-${cityFilter}-${debouncedSearchTerm}`;
+    if (fetchRef === lastFetchRef && !reset) {
+      return; // Prevent duplicate requests
+    }
 
     try {
       if (reset) {
         setIsLoading(true);
-        clearCache();
+        clearCache(); // Clear cache when filters change
       } else {
         setIsLoadingMore(true);
       }
       setError(null);
+      setLastFetchRef(fetchRef);
 
       let query = supabase
         .from('blog_posts')
@@ -163,29 +98,17 @@ export default function RevistaPage() {
         .order('published_at', { ascending: false })
         .range(offset, offset + 11); // 12 items (0-11)
 
-      if (filters.q) {
-        query = query.ilike('title', `%${filters.q}%`);
+      if (cityFilter) {
+        query = query.eq('city', cityFilter);
       }
-      
-      if (filters.secao) {
-        query = query.eq('blog_post_categories.blog_categories.name', filters.secao);
+
+      if (debouncedSearchTerm) {
+        query = query.ilike('title', `%${debouncedSearchTerm}%`);
       }
 
       const { data, error: fetchError, count } = await query;
 
-      if (signal?.aborted) {
-        console.log('[DEBUG] Request abortado');
-        return;
-      }
-
-      if (fetchError) {
-        console.warn('Erro na consulta de posts:', fetchError);
-        const fallbackData: RevistaPost[] = [];
-        setPosts(currentPosts => reset ? fallbackData : [...currentPosts, ...fallbackData]);
-        setTotalCount(0);
-        setHasMore(false);
-        return;
-      }
+      if (fetchError) throw fetchError;
 
       const transformedPosts: RevistaPost[] = (data || []).map(item => ({
         id: item.id,
@@ -205,91 +128,84 @@ export default function RevistaPage() {
         featured: item.featured || false,
       }));
 
-      setPosts(currentPosts => {
-        const newPosts = reset ? transformedPosts : [...currentPosts, ...transformedPosts];
-        console.log(`[DEBUG] Posts updated: ${newPosts.length} items`);
-        
-        // Cache de forma assíncrona
-        requestAnimationFrame(() => {
-          setCachedData(newPosts, count || 0, transformedPosts.length === 12 && (offset + 12) < (count || 0));
-        });
-        
-        return newPosts;
-      });
-
+      const newPosts = reset ? transformedPosts : [...posts, ...transformedPosts];
       const newHasMore = transformedPosts.length === 12 && (offset + 12) < (count || 0);
+
+      setPosts(newPosts);
       setTotalCount(count || 0);
       setHasMore(newHasMore);
 
+      // Cache the data for future visits
+      setCachedData(newPosts, count || 0, newHasMore);
     } catch (err) {
-      if (signal?.aborted) return;
       console.error('Error fetching posts:', err);
       setError(err instanceof Error ? err.message : 'Erro ao carregar artigos');
     } finally {
-      if (!signal?.aborted) {
-        setIsLoading(false);
-        setIsLoadingMore(false);
-      }
+      setIsLoading(false);
+      setIsLoadingMore(false);
     }
-  };
+  }, [cityFilter, debouncedSearchTerm, lastFetchRef, posts, clearCache, setCachedData]);
 
-  // Initial load with cache check - só uma vez
+  // Try to restore from cache on initial load
   useEffect(() => {
-    console.log('[DEBUG] Initial load useEffect triggered');
-    
     const cachedData = getCachedData();
     if (cachedData) {
-      console.log('[DEBUG] Using cached data:', cachedData.posts.length);
       setPosts(cachedData.posts);
       setTotalCount(cachedData.totalCount);
       setHasMore(cachedData.hasMore);
       setIsLoading(false);
-      
-      requestAnimationFrame(() => {
-        restoreScrollPosition(cachedData.scrollPosition);
-      });
+      restoreScrollPosition(cachedData.scrollPosition);
     } else {
-      console.log('[DEBUG] No cache, fetching posts');
-      abortRef.current = new AbortController();
-      fetchPosts({ offset: 0, reset: true, filters, signal: abortRef.current.signal });
+      fetchPosts(0, true);
     }
-  }, []); // Sem dependências para evitar loops
+  }, [fetchPosts, getCachedData, restoreScrollPosition]);
 
-  // Fetch com debounce quando filtros mudam
+  // Re-fetch when filters change (but not on initial load if cache exists)
   useEffect(() => {
-    const t = setTimeout(() => {
-      abortRef.current?.abort();
-      abortRef.current = new AbortController();
-      fetchPosts({ offset: 0, reset: true, filters, signal: abortRef.current.signal });
-    }, 250);
-    return () => clearTimeout(t);
-  }, [fKey]); // Só quando a chave muda
+    const cachedData = getCachedData();
+    if (!cachedData) {
+      fetchPosts(0, true);
+    }
+  }, [cityFilter, debouncedSearchTerm]);
 
-  // Handlers idempotentes - não setam estado igual
-  const onSearchChange = (v: string) =>
-    setFilters(prev => (prev.q === v ? prev : { ...prev, q: v }));
+  const handleLoadMore = () => {
+    if (!isLoadingMore && hasMore) {
+      fetchPosts(posts.length);
+    }
+  };
 
-  const onSectionChange = (v: string) =>
-    setFilters(prev => (prev.secao === v ? prev : { ...prev, secao: v }));
+  const updateSearchParams = (key: string, value: string) => {
+    const newParams = new URLSearchParams(searchParams);
+    
+    if (value) {
+      newParams.set(key, value);
+    } else {
+      newParams.delete(key);
+    }
+    
+    setSearchParams(newParams);
+  };
+
+  const handleSearchChange = (value: string) => updateSearchParams('q', value);
+  const handleCityChange = (value: string) => updateSearchParams('cidade', value);
+  const handleSectionChange = (value: string) => updateSearchParams('secao', value);
 
   const handleClearFilters = () => {
-    setFilters({ q: "", secao: "" });
+    setSearchParams({});
   };
 
   const handleViewAll = () => {
-    setFilters({ q: "", secao: "" });
+    setSearchParams({});
   };
 
   const handleRetry = () => {
-    abortRef.current?.abort();
-    abortRef.current = new AbortController();
-    fetchPosts({ offset: 0, reset: true, filters, signal: abortRef.current.signal });
+    fetchPosts(0, true);
   };
 
-  const hasFilters = filters.q || filters.secao;
+  const hasFilters = searchTerm || cityFilter || sectionFilter;
 
   const metaDescription = hasFilters 
-    ? `Resultados de busca na Revista ROLÊ${filters.q ? ` para "${filters.q}"` : ''}${filters.secao ? ` sobre ${filters.secao}` : ''}` 
+    ? `Resultados de busca na Revista ROLÊ${searchTerm ? ` para "${searchTerm}"` : ''}${cityFilter ? ` em ${cityFilter}` : ''}` 
     : "Mergulhos em cultura, música e noite no Brasil. Descubra as melhores matérias sobre a cena cultural.";
 
   // Generate JSON-LD ItemList for SEO when articles exist
@@ -318,7 +234,7 @@ export default function RevistaPage() {
           }
         },
         "datePublished": post.published_at,
-        "url": `${window.location.origin}/revista/${post.slug_data || post.slug}`
+        "url": `${window.location.origin}/revista/${post.slug}`
       }
     }))
   } : undefined;
@@ -350,18 +266,18 @@ export default function RevistaPage() {
             </p>
           </div>
 
-          {/* Filters - sticky with blur effect */}
+          {/* Filters - only show if there are articles */}
           {totalArticlesExist && (
-            <div className="sticky top-16 z-20 mb-8 rounded-xl border bg-background/80 backdrop-blur-md shadow-sm">
-              <div className="p-4">
-            <RevistaFilters
-              searchTerm={filters.q}
-              sectionFilter={filters.secao}
-              onSearchChange={onSearchChange}
-              onSectionChange={onSectionChange}
-              onClearFilters={handleClearFilters}
-            />
-              </div>
+            <div className="mb-8">
+              <RevistaFilters
+                searchTerm={searchTerm}
+                cityFilter={cityFilter}
+                sectionFilter={sectionFilter}
+                onSearchChange={handleSearchChange}
+                onCityChange={handleCityChange}
+                onSectionChange={handleSectionChange}
+                onClearFilters={handleClearFilters}
+              />
             </div>
           )}
 
@@ -444,7 +360,7 @@ export default function RevistaPage() {
                 <>
                   <h3 className="text-lg font-semibold mb-2">Nenhum artigo encontrado</h3>
                   <p className="text-muted-foreground mb-6">
-                    Tente mudar a seção ou limpe os filtros.
+                    Tente mudar cidade ou seção, ou limpe os filtros.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <Button onClick={handleClearFilters} variant="outline">

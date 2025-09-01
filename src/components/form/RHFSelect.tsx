@@ -1,13 +1,7 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { useFormContext, Controller } from "react-hook-form";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -16,73 +10,76 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface Option {
+interface SelectOption {
   value: string;
   label: string;
-  disabled?: boolean;
 }
 
 interface RHFSelectProps {
   name: string;
+  options: SelectOption[];
   label?: string;
   placeholder?: string;
-  options: Option[];
   disabled?: boolean;
-  required?: boolean;
   className?: string;
-  // Support for legacy API
-  parseValue?: (value: any) => any;
+  parseValue?: (value: string) => any;
   serializeValue?: (value: any) => string;
 }
 
-export function RHFSelect({
+export default function RHFSelect({
   name,
-  label,
-  placeholder = "Selecione uma opção",
   options,
-  disabled = false,
-  required = false,
+  label,
+  placeholder = "Selecione...",
+  disabled,
   className,
+  parseValue,
+  serializeValue,
 }: RHFSelectProps) {
-  const { control } = useFormContext();
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
+
+  const fieldError = errors[name];
 
   return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className={className}>
-          {label && (
-            <FormLabel>
-              {label}
-              {required && <span className="text-destructive ml-1">*</span>}
-            </FormLabel>
-          )}
+    <div className="space-y-2">
+      {label && (
+        <Label htmlFor={name} className={fieldError ? "text-destructive" : ""}>
+          {label}
+        </Label>
+      )}
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
           <Select
-            onValueChange={field.onChange}
-            value={field.value}
+            onValueChange={(value) => {
+              const parsedValue = parseValue ? parseValue(value) : value;
+              field.onChange(parsedValue);
+            }}
+            value={serializeValue ? serializeValue(field.value) : field.value}
             disabled={disabled}
           >
-            <FormControl>
-              <SelectTrigger>
-                <SelectValue placeholder={placeholder} />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
+            <SelectTrigger className={className} aria-invalid={!!fieldError}>
+              <SelectValue placeholder={placeholder} />
+            </SelectTrigger>
+            <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
               {options.map((option) => (
-                <SelectItem
-                  key={option.value}
-                  value={option.value}
-                  disabled={option.disabled}
-                >
+                <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <FormMessage />
-        </FormItem>
+        )}
+      />
+      {fieldError && (
+        <p className="text-sm text-destructive">
+          {fieldError.message as string}
+        </p>
       )}
-    />
+    </div>
   );
 }

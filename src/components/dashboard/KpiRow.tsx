@@ -1,46 +1,75 @@
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Calendar, FileText, TrendingUp, Users } from 'lucide-react';
-import { useAdminDashboardCounts } from '@/hooks/useAdminDashboardCounts';
+import { useEffect, useState } from 'react';
+import { getKpis, type DashboardKpis } from '@/data/dashboard';
 
 export function KpiRow() {
-  const { counts, loading, error } = useAdminDashboardCounts();
+  const [kpis, setKpis] = useState<DashboardKpis | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [hasLoggedError, setHasLoggedError] = useState(false);
+
+  useEffect(() => {
+    const loadKpis = async () => {
+      try {
+        setLoading(true);
+        const data = await getKpis();
+        setKpis(data);
+      } catch (error) {
+        if (!hasLoggedError) {
+          console.error('Failed to load KPIs:', error);
+          setHasLoggedError(true);
+        }
+        // Set fallback values on error
+        setKpis({
+          publishedEvents: 0,
+          scheduledEvents: 0,
+          draftEvents: 0,
+          agentsTotal: 0
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadKpis();
+  }, []);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="region" aria-label="Indicadores principais">
       <KpiCard
-        title="Contatos"
-        value={counts?.contacts.total ?? 0}
-        hint={`${counts?.contacts.last_7d ?? 0} nos últimos 7 dias`}
+        title="Eventos Ativos"
+        value={kpis?.publishedEvents ?? 0}
+        hint="publicados este mês"
         icon={<Calendar className="h-4 w-4" />}
         isLoading={loading}
-        aria-label={`${counts?.contacts.total ?? 0} contatos total`}
+        aria-label={`${kpis?.publishedEvents ?? 0} eventos ativos`}
       />
       
       <KpiCard
-        title="Newsletter"
-        value={counts?.newsletter.total ?? 0}
-        hint={`${counts?.newsletter.last_7d ?? 0} novos esta semana`}
+        title="Rascunhos"
+        value={kpis?.draftEvents ?? 0}
+        hint="aguardando publicação"
         icon={<FileText className="h-4 w-4" />}
         isLoading={loading}
-        aria-label={`${counts?.newsletter.total ?? 0} inscritos na newsletter`}
+        aria-label={`${kpis?.draftEvents ?? 0} rascunhos`}
       />
       
       <KpiCard
-        title="Candidaturas"
-        value={counts?.job_applications.total ?? 0}
-        hint={`${counts?.job_applications.last_7d ?? 0} esta semana`}
+        title="Agendados"
+        value={kpis?.scheduledEvents ?? 0}
+        hint="eventos futuros"
         icon={<TrendingUp className="h-4 w-4" />}
         isLoading={loading}
-        aria-label={`${counts?.job_applications.total ?? 0} candidaturas de trabalho`}
+        aria-label={`${kpis?.scheduledEvents ?? 0} eventos agendados`}
       />
       
       <KpiCard
-        title="Sistema"
-        value={error ? 0 : 1}
-        hint={error ? 'Com problemas' : 'Funcionando'}
+        title="Agentes"
+        value={kpis?.agentsTotal ?? 0}
+        hint="ativos na plataforma"
         icon={<Users className="h-4 w-4" />}
         isLoading={loading}
-        aria-label="Status do sistema"
+        aria-label={`${kpis?.agentsTotal ?? 0} agentes ativos`}
       />
     </div>
   );

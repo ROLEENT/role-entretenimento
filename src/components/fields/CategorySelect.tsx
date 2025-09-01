@@ -1,5 +1,5 @@
 "use client";
-import { RHFSelectAsync } from '@/components/form/RHFSelectAsync';
+import RHFSelectAsync from '@/components/form/RHFSelectAsync';
 
 interface CategorySelectProps {
   name?: string;

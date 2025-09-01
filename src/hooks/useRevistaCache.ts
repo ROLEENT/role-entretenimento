@@ -72,28 +72,10 @@ export function useRevistaCache() {
   };
 
   const restoreScrollPosition = (position: number) => {
-    // Validate scroll position
-    if (!position || position < 0) return;
-    
-    // Use RAF for better performance and reliability
-    const restoreScroll = () => {
-      const maxScroll = Math.max(
-        document.body.scrollHeight - window.innerHeight,
-        document.documentElement.scrollHeight - window.innerHeight
-      );
-      
-      const validPosition = Math.min(position, maxScroll);
-      if (validPosition > 0) {
-        window.scrollTo({ top: validPosition, behavior: 'auto' });
-      }
-    };
-
-    // Single RAF call instead of multiple timeouts
-    requestAnimationFrame(() => {
-      restoreScroll();
-      // Fallback for complex layouts
-      setTimeout(restoreScroll, 100);
-    });
+    // Restore scroll after a short delay to ensure content is rendered
+    setTimeout(() => {
+      window.scrollTo({ top: position, behavior: 'auto' });
+    }, 100);
   };
 
   const clearCache = () => {

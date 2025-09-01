@@ -39,7 +39,11 @@ export function useAdminAgendaData(filters: AgendaFilters) {
     queryFn: async () => {
       let query = supabase
         .from('agenda_itens')
-        .select('*', { count: 'exact' })
+        .select(`
+          *,
+          venues:venue_id(name),
+          organizers:organizer_id(name)
+        `, { count: 'exact' })
         .order('created_at', { ascending: false })
         .range((page - 1) * pageSize, page * pageSize - 1);
 
@@ -89,7 +93,7 @@ export function useAdminAgendaData(filters: AgendaFilters) {
       const { data: statusCounts } = await supabase
         .from('agenda_itens')
         .select('status')
-        .not('deleted_at', 'is', null);
+        .is('deleted_at', null);
 
       // Get this week's events
       const startOfWeek = new Date();

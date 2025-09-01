@@ -1,6 +1,6 @@
 "use client";
 import { memo, useCallback } from 'react';
-import { RHFSelectAsync } from '@/components/form/RHFSelectAsync';
+import RHFSelectAsync from '@/components/form/RHFSelectAsync';
 
 interface CitySelectStableProps {
   name?: string;

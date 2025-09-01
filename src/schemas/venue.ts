@@ -10,82 +10,15 @@ const validateSlugFormat = (slug: string): boolean => {
 export const VenueStatus = z.enum(['active', 'inactive']);
 export type VenueStatusType = z.infer<typeof VenueStatus>;
 
-// Venue characteristics schemas
-export const caracteristicasEstabelecimentoSchema = z.object({
-  descricao: z.string().optional(),
-}).default({});
-
-export const estruturasSchema = z.object({
-  descricao: z.string().optional(),
-  ar_condicionado: z.boolean().default(false),
-  wifi: z.boolean().default(false),
-  aquecimento: z.boolean().default(false),
-  estacionamento: z.boolean().default(false),
-  aceita_pets: z.boolean().default(false),
-  area_fumantes: z.boolean().default(false),
-  pista_danca: z.boolean().default(false),
-  area_vip: z.boolean().default(false),
-  rooftop: z.boolean().default(false),
-  estacoes_carregamento: z.boolean().default(false),
-  lugares_sentados: z.boolean().default(false),
-}).default({});
-
-export const diferenciaisSchema = z.object({
-  descricao: z.string().optional(),
-  dj: z.boolean().default(false),
-  happy_hour: z.boolean().default(false),
-  mesa_bilhar: z.boolean().default(false),
-  jogos_arcade: z.boolean().default(false),
-  karaoke: z.boolean().default(false),
-  narguile: z.boolean().default(false),
-  transmissao_eventos_esportivos: z.boolean().default(false),
-  shows_ao_vivo: z.boolean().default(false),
-  stand_up: z.boolean().default(false),
-  musica_ao_vivo: z.boolean().default(false),
-  amigavel_lgbtqia: z.boolean().default(false),
-}).default({});
-
-export const bebidasSchema = z.object({
-  descricao: z.string().optional(),
-  menu_cervejas: z.boolean().default(false),
-  cervejas_artesanais: z.boolean().default(false),
-  coqueteis_classicos: z.boolean().default(false),
-  coqueteis_autorais: z.boolean().default(false),
-  menu_vinhos: z.boolean().default(false),
-}).default({});
-
-export const cozinhaSchema = z.object({
-  descricao: z.string().optional(),
-  serve_comida: z.boolean().default(false),
-  opcoes_veganas: z.boolean().default(false),
-  opcoes_vegetarianas: z.boolean().default(false),
-  opcoes_sem_gluten: z.boolean().default(false),
-  opcoes_sem_lactose: z.boolean().default(false),
-  menu_kids: z.boolean().default(false),
-}).default({});
-
-export const segurancaSchema = z.object({
-  descricao: z.string().optional(),
-  equipe_seguranca: z.boolean().default(false),
-  bombeiros_local: z.boolean().default(false),
-  saidas_emergencia_sinalizadas: z.boolean().default(false),
-}).default({});
-
-export const acessibilidadeSchema = z.object({
-  descricao: z.string().optional(),
-  elevador_acesso: z.boolean().default(false),
-  rampa_cadeirantes: z.boolean().default(false),
-  banheiro_acessivel: z.boolean().default(false),
-  cardapio_braille: z.boolean().default(false),
-  audio_acessivel: z.boolean().default(false),
-  area_caes_guia: z.boolean().default(false),
-}).default({});
-
-export const banheirosSchema = z.object({
-  descricao: z.string().optional(),
-  masculinos: z.number().int().min(0).default(0),
-  femininos: z.number().int().min(0).default(0),
-  genero_neutro: z.number().int().min(0).default(0),
+// Amenities schema - boolean object for venue features
+export const venueAmenitiesSchema = z.object({
+  accessible: z.boolean().default(false),
+  stage: z.boolean().default(false),
+  sound: z.boolean().default(false),
+  lighting: z.boolean().default(false),
+  parking: z.boolean().default(false),
+  food: z.boolean().default(false),
+  smoking: z.boolean().default(false),
 }).default({});
 
 // Opening hours schema - object with short text for each day
@@ -156,17 +89,8 @@ export const venueSchema = z.object({
     .optional(),
   
   // Structured data
+  amenities: venueAmenitiesSchema,
   opening_hours: venueOpeningHoursSchema,
-  
-  // Venue characteristics
-  caracteristicas_estabelecimento: caracteristicasEstabelecimentoSchema,
-  estruturas: estruturasSchema,
-  diferenciais: diferenciaisSchema,
-  bebidas: bebidasSchema,
-  cozinha: cozinhaSchema,
-  seguranca: segurancaSchema,
-  acessibilidade: acessibilidadeSchema,
-  banheiros: banheirosSchema,
   
   // Contact info
   instagram: z.string().optional(),
@@ -209,15 +133,8 @@ export const venueSchema = z.object({
 );
 
 export type VenueFormData = z.infer<typeof venueSchema>;
+export type VenueAmenities = z.infer<typeof venueAmenitiesSchema>;
 export type VenueOpeningHours = z.infer<typeof venueOpeningHoursSchema>;
-export type CaracteristicasEstabelecimento = z.infer<typeof caracteristicasEstabelecimentoSchema>;
-export type Estruturas = z.infer<typeof estruturasSchema>;
-export type Diferenciais = z.infer<typeof diferenciaisSchema>;
-export type Bebidas = z.infer<typeof bebidasSchema>;
-export type Cozinha = z.infer<typeof cozinhaSchema>;
-export type Seguranca = z.infer<typeof segurancaSchema>;
-export type Acessibilidade = z.infer<typeof acessibilidadeSchema>;
-export type Banheiros = z.infer<typeof banheirosSchema>;
 
 // Export for form options
 export const VENUE_STATUS_OPTIONS = [
@@ -225,65 +142,15 @@ export const VENUE_STATUS_OPTIONS = [
   { value: 'inactive', label: 'Inativo' },
 ] as const;
 
-// Labels for venue characteristics
-export const ESTRUTURAS_LABELS = {
-  ar_condicionado: "Ar Condicionado",
-  wifi: "Wi-Fi",
-  aquecimento: "Aquecimento",
-  estacionamento: "Estacionamento",
-  aceita_pets: "Aceita Pets",
-  area_fumantes: "Área para Fumantes",
-  pista_danca: "Pista de Dança",
-  area_vip: "Área VIP",
-  rooftop: "Rooftop",
-  estacoes_carregamento: "Estações de Carregamento",
-  lugares_sentados: "Lugares Sentados",
-} as const;
-
-export const DIFERENCIAIS_LABELS = {
-  dj: "DJ",
-  happy_hour: "Happy Hour",
-  mesa_bilhar: "Mesa de Bilhar",
-  jogos_arcade: "Jogos Arcade",
-  karaoke: "Karaokê",
-  narguile: "Narguilé",
-  transmissao_eventos_esportivos: "Transmissão de Eventos Esportivos",
-  shows_ao_vivo: "Shows ao Vivo",
-  stand_up: "Stand Up",
-  musica_ao_vivo: "Música ao Vivo",
-  amigavel_lgbtqia: "Amigável LGBTQIA+",
-} as const;
-
-export const BEBIDAS_LABELS = {
-  menu_cervejas: "Menu de Cervejas",
-  cervejas_artesanais: "Cervejas Artesanais",
-  coqueteis_classicos: "Coquetéis Clássicos",
-  coqueteis_autorais: "Coquetéis Autorais",
-  menu_vinhos: "Menu de Vinhos",
-} as const;
-
-export const COZINHA_LABELS = {
-  serve_comida: "Serve Comida",
-  opcoes_veganas: "Opções Veganas",
-  opcoes_vegetarianas: "Opções Vegetarianas",
-  opcoes_sem_gluten: "Opções sem Glúten",
-  opcoes_sem_lactose: "Opções sem Lactose",
-  menu_kids: "Menu Kids",
-} as const;
-
-export const SEGURANCA_LABELS = {
-  equipe_seguranca: "Equipe de Segurança",
-  bombeiros_local: "Bombeiros no Local",
-  saidas_emergencia_sinalizadas: "Saídas de Emergência Sinalizadas",
-} as const;
-
-export const ACESSIBILIDADE_LABELS = {
-  elevador_acesso: "Elevador de Acesso",
-  rampa_cadeirantes: "Rampa para Cadeirantes",
-  banheiro_acessivel: "Banheiro Acessível",
-  cardapio_braille: "Cardápio em Braille",
-  audio_acessivel: "Áudio Acessível",
-  area_caes_guia: "Área para Cães-Guia",
+// Helper for amenities labels
+export const AMENITIES_LABELS = {
+  accessible: "Acessível",
+  stage: "Palco",
+  sound: "Sistema de Som",
+  lighting: "Iluminação",
+  parking: "Estacionamento",
+  food: "Alimentação",
+  smoking: "Área para Fumantes",
 } as const;
 
 // Helper for days labels

@@ -1,4 +1,4 @@
-import { Search, Menu, User, Heart, LogOut, Calendar, Settings, ChevronDown } from "lucide-react";
+import { Search, Menu, User, Heart, LogOut, Calendar, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -42,13 +42,6 @@ const Header = () => {
     { href: '/ajuda', label: 'Ajuda' }
   ];
 
-  const perfisDropdownItems = [
-    { href: '/perfis', label: 'Todos os perfis' },
-    { href: '/perfis?type=artista', label: 'Artistas' },
-    { href: '/perfis?type=local', label: 'Locais' },
-    { href: '/perfis?type=organizador', label: 'Organizadores' }
-  ];
-
   const cities = [
     { code: 'POA', name: 'Porto Alegre', slug: 'porto_alegre' },
     { code: 'SP', name: 'São Paulo', slug: 'sao_paulo' },
@@ -60,18 +53,18 @@ const Header = () => {
   useEffect(() => {
     const fetchData = async () => {
       const { data: eventsData } = await supabase
-        .from('agenda_itens')
-        .select('id, title, starts_at, location_name, city')
-        .eq('status', 'published')
-        .gte('starts_at', new Date().toISOString())
-        .order('starts_at', { ascending: true })
+        .from('agenda')
+        .select('id, title, start_at, venue_name, city')
+        .eq('is_published', true)
+        .gte('start_at', new Date().toISOString())
+        .order('start_at', { ascending: true })
         .limit(100);
 
       const { data: highlightsData } = await supabase
         .from('highlights')
-        .select('id, title, summary, cover_url, created_at, role_text, slug')
-        .eq('is_published', true)
-        .order('created_at', { ascending: false })
+        .select('id, title, excerpt, cover_url, published_at, author, slug')
+        .eq('status', 'publicado')
+        .order('published_at', { ascending: false })
         .limit(50);
 
       setEvents(eventsData || []);
@@ -101,12 +94,7 @@ const Header = () => {
   const isActive = (href: string) => {
     if (href === '/' && location.pathname === '/') return true;
     if (href === '/agenda' && location.pathname.startsWith('/agenda')) return true;
-    if (href === '/perfis' && location.pathname.startsWith('/perfil')) return true;
     return location.pathname === href;
-  };
-
-  const isPerfisActive = () => {
-    return location.pathname.startsWith('/perfis') || location.pathname.startsWith('/perfil');
   };
 
   const isCityActive = (citySlug: string) => {
@@ -186,24 +174,6 @@ const Header = () => {
                     {link.label}
                   </Link>
                 ))}
-                
-                {/* Perfis section */}
-                <div className="space-y-1">
-                  <div className="px-4 py-2 text-sm font-medium text-muted-foreground">Perfis</div>
-                  {perfisDropdownItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      to={item.href}
-                      className="flex items-center py-2 px-6 text-sm text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        setTimeout(() => window.scrollTo(0, 0), 100);
-                      }}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
               </nav>
 
               {/* User Section */}
@@ -325,31 +295,6 @@ const Header = () => {
                     )}
                   </Link>
                 ))}
-                
-                {/* Perfis Dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className={cn(
-                      "flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary relative",
-                      isPerfisActive() 
-                        ? "text-primary" 
-                        : "text-muted-foreground"
-                    )}>
-                      Perfis
-                      <ChevronDown className="h-3 w-3" />
-                      {isPerfisActive() && (
-                        <div className="absolute -bottom-6 left-0 right-0 h-0.5 bg-primary rounded-full" />
-                      )}
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    {perfisDropdownItems.map((item) => (
-                      <DropdownMenuItem key={item.href} asChild>
-                        <Link to={item.href}>{item.label}</Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </nav>
             </div>
 
@@ -483,18 +428,18 @@ export const HeaderGlobalSearch = () => {
   useEffect(() => {
     const fetchData = async () => {
       const { data: eventsData } = await supabase
-        .from('agenda_itens')
-        .select('id, title, starts_at, location_name, city')
-        .eq('status', 'published')
-        .gte('starts_at', new Date().toISOString())
-        .order('starts_at', { ascending: true })
+        .from('agenda')
+        .select('id, title, start_at, venue_name, city')
+        .eq('is_published', true)
+        .gte('start_at', new Date().toISOString())
+        .order('start_at', { ascending: true })
         .limit(100);
 
       const { data: highlightsData } = await supabase
         .from('highlights')
-        .select('id, title, summary, cover_url, created_at, role_text, slug')
-        .eq('is_published', true)
-        .order('created_at', { ascending: false })
+        .select('id, title, excerpt, cover_url, published_at, author, slug')
+        .eq('status', 'publicado')
+        .order('published_at', { ascending: false })
         .limit(50);
 
       setEvents(eventsData || []);

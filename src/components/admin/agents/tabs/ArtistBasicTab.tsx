@@ -4,13 +4,14 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { ArtistFormData } from '../AdminArtistForm';
 
 interface ArtistBasicTabProps {
   form: UseFormReturn<ArtistFormData>;
 }
 
-const ARTIST_TYPE_OPTIONS = [
+const ARTIST_TYPES = [
   { value: 'banda', label: 'Banda' },
   { value: 'dj', label: 'DJ' },
   { value: 'solo', label: 'Solo' },
@@ -20,13 +21,14 @@ const ARTIST_TYPE_OPTIONS = [
 ];
 
 const STATUS_OPTIONS = [
-  { value: 'active', label: 'Ativo' },
-  { value: 'inactive', label: 'Inativo' },
+  { value: 'active', label: 'Ativo', variant: 'default' },
+  { value: 'inactive', label: 'Inativo', variant: 'secondary' },
 ];
 
 export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Name and Stage Name */}
       <FormField
         control={form.control}
         name="stage_name"
@@ -34,7 +36,7 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
           <FormItem>
             <FormLabel>Nome Artístico *</FormLabel>
             <FormControl>
-              <Input placeholder="Ex: João Silva Band" {...field} />
+              <Input placeholder="Ex: Artista Incrível" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -46,29 +48,35 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Nome Real</FormLabel>
+            <FormLabel>Nome Completo *</FormLabel>
             <FormControl>
-              <Input placeholder="Ex: João Silva" {...field} />
+              <Input placeholder="Nome completo do artista" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
 
+      {/* Slug */}
       <FormField
         control={form.control}
         name="slug"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Slug *</FormLabel>
+            <FormLabel>Slug (URL) *</FormLabel>
             <FormControl>
-              <Input placeholder="Ex: joao-silva-band" {...field} />
+              <Input 
+                placeholder="artista-incrivel" 
+                {...field}
+                className="font-mono text-sm"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
 
+      {/* Artist Type */}
       <FormField
         control={form.control}
         name="artist_type"
@@ -82,9 +90,9 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {ARTIST_TYPE_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                {ARTIST_TYPES.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -94,6 +102,7 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
         )}
       />
 
+      {/* Status */}
       <FormField
         control={form.control}
         name="status"
@@ -107,13 +116,32 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {STATUS_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                {STATUS_OPTIONS.map((status) => (
+                  <SelectItem key={status.value} value={status.value}>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={status.variant as any} className="px-2 py-0">
+                        {status.label}
+                      </Badge>
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Real Name and Pronouns */}
+      <FormField
+        control={form.control}
+        name="real_name"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Nome Real</FormLabel>
+            <FormControl>
+              <Input placeholder="Nome real (opcional)" {...field} />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}
@@ -133,6 +161,7 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
         )}
       />
 
+      {/* Bio Short */}
       <div className="md:col-span-2">
         <FormField
           control={form.control}
@@ -142,10 +171,36 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
               <FormLabel>Bio Curta</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="Breve descrição do artista (até 500 caracteres)"
-                  className="min-h-[80px]"
-                  maxLength={500}
-                  {...field} 
+                  placeholder="Descrição resumida do artista (máx. 200 caracteres)"
+                  className="resize-none"
+                  rows={3}
+                  maxLength={200}
+                  {...field}
+                />
+              </FormControl>
+              <div className="text-sm text-muted-foreground text-right">
+                {field.value?.length || 0}/200
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      {/* Bio Long */}
+      <div className="md:col-span-2">
+        <FormField
+          control={form.control}
+          name="bio_long"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Bio Completa</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Biografia completa do artista"
+                  className="resize-none"
+                  rows={6}
+                  {...field}
                 />
               </FormControl>
               <FormMessage />
@@ -154,18 +209,20 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
         />
       </div>
 
+      {/* About */}
       <div className="md:col-span-2">
         <FormField
           control={form.control}
-          name="bio_long"
+          name="about"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Bio Longa</FormLabel>
+              <FormLabel>Sobre</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="Descrição completa do artista"
-                  className="min-h-[120px]"
-                  {...field} 
+                  placeholder="Informações adicionais sobre o artista"
+                  className="resize-none"
+                  rows={4}
+                  {...field}
                 />
               </FormControl>
               <FormMessage />

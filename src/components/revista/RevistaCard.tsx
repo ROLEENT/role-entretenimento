@@ -57,6 +57,13 @@ export function RevistaCard({ post }: RevistaCardProps) {
         <CardContent className="p-5 flex flex-col h-full min-h-[200px]">
           {/* Meta info */}
           <div className="flex items-center gap-3 mb-3 text-sm text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <MapPin className="w-4 h-4" />
+              <span className="capitalize font-medium">{post.city}</span>
+            </div>
+            
+            <div className="w-1 h-1 bg-muted-foreground/40 rounded-full" />
+            
             <Badge variant="secondary" className="text-xs px-2 py-0.5">
               {section}
             </Badge>

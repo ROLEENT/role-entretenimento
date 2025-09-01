@@ -43,22 +43,13 @@ export default function ArtistEditPage() {
     resolver: zodResolver(artistSchema),
     defaultValues: {
       name: "",
-      stage_name: "",
       slug: "",
-      artist_type: "",
       instagram: null,
       whatsapp: null,
       email: null,
-      bio_short: null, // Changed from short_bio to bio_short
+      short_bio: null,
       avatar_url: null,
       status: "active",
-      country: "BR",
-      cities_active: [],
-      availability_days: [],
-      tags: [],
-      links: {},
-      image_rights_authorized: false,
-      priority: 0,
     },
   });
 

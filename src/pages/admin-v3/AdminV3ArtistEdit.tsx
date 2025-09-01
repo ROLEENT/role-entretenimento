@@ -6,7 +6,6 @@ import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
 import { AdminArtistForm, ArtistFormData } from '@/components/admin/agents/AdminArtistForm';
 import { useUpsertArtist } from '@/hooks/useUpsertAgents';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { ProfileGenerationButton } from '@/components/admin/agents/ProfileGenerationButton';
 
 const AdminV3ArtistEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -96,28 +95,6 @@ const AdminV3ArtistEdit: React.FC = () => {
       title={`Editar: ${artist.stage_name}`}
       description="Atualize as informações do artista"
       breadcrumbs={breadcrumbs}
-      headerExtra={
-        <ProfileGenerationButton
-          agentData={{
-            id: artist.id,
-            name: artist.stage_name || artist.name,
-            slug: artist.slug,
-            city: artist.city,
-            state: artist.state,
-            country: artist.country,
-            bio_short: artist.bio_short,
-            bio: artist.bio_long,
-            avatar_url: artist.profile_image_url,
-            cover_url: artist.cover_image_url,
-            tags: artist.tags,
-            instagram: artist.instagram,
-            website: artist.website_url,
-            stage_name: artist.stage_name,
-            booking_email: artist.booking_email,
-          }}
-          agentType="artista"
-        />
-      }
     >
       <AdminArtistForm
         artist={artist}

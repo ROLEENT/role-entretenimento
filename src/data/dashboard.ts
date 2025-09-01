@@ -23,35 +23,6 @@ export interface RecentActivityItem {
  */
 export async function getKpis(): Promise<DashboardKpis> {
   try {
-    // Use the new RPC function for dashboard stats
-    const { data, error } = await supabase.rpc('get_dashboard_stats');
-    
-    if (error) {
-      console.warn('RPC get_dashboard_stats failed, using fallback:', error);
-      return await getKpisFallback();
-    }
-
-    if (data) {
-      return {
-        publishedEvents: data.published_events || 0,
-        scheduledEvents: data.scheduled_events || 0,
-        draftEvents: data.draft_events || 0,
-        agentsTotal: (data.total_artists || 0) + (data.total_venues || 0) + (data.total_organizers || 0)
-      };
-    }
-
-    return await getKpisFallback();
-  } catch (error) {
-    console.error('Error fetching KPIs:', error);
-    return await getKpisFallback();
-  }
-}
-
-/**
- * Fallback method for KPIs
- */
-async function getKpisFallback(): Promise<DashboardKpis> {
-  try {
     // Run all KPI queries in parallel - using both agenda_itens and events tables
     const [
       publishedAgendaResult, 
@@ -74,7 +45,7 @@ async function getKpisFallback(): Promise<DashboardKpis> {
       agentsTotal: agentsResult.count
     };
   } catch (error) {
-    console.error('Error in fallback KPIs:', error);
+    console.error('Error fetching KPIs:', error);
     return {
       publishedEvents: 0,
       scheduledEvents: 0,
@@ -119,47 +90,20 @@ async function getAgentsTotal() {
  */
 export async function getRecentActivity(): Promise<RecentActivityItem[]> {
   try {
-    // Try using the RPC function first
-    const { data, error } = await supabase.rpc('get_recent_activity');
-    
-    if (!error && data) {
-      return data.map((item: any) => ({
-        id: item.id,
-        title: item.title || 'Item sem título',
-        status: item.status,
-        updated_at: item.updated_at,
-        created_at: item.created_at,
-        type: item.type
-      }));
-    }
-
-    console.warn('RPC get_recent_activity failed, using fallback:', error);
-    return await getRecentActivityFallback();
-  } catch (error) {
-    console.error('Error fetching recent activity:', error);
-    return await getRecentActivityFallback();
-  }
-}
-
-/**
- * Fallback method for recent activity
- */
-async function getRecentActivityFallback(): Promise<RecentActivityItem[]> {
-  try {
     const activities: RecentActivityItem[] = [];
 
     // Fetch recent artists
     try {
       const { data: artistsData } = await supabase
         .from('artists')
-        .select('id, name, status, updated_at, created_at')
+        .select('id, stage_name, status, updated_at, created_at')
         .order('updated_at', { ascending: false })
         .limit(5);
       
       if (artistsData) {
         activities.push(...artistsData.map(item => ({
           id: item.id,
-          title: item.name || 'Artista sem nome',
+          title: item.stage_name || 'Artista sem nome',
           status: item.status,
           updated_at: item.updated_at || item.created_at,
           created_at: item.created_at,
@@ -226,69 +170,56 @@ export async function getSystemHealth(): Promise<SystemHealth> {
   const health: SystemHealth = {
     database: { status: 'ok', message: 'Conectado' },
     storage: { status: 'ok', message: 'Acessível' },
-    schema: { status: 'ok', message: 'Dados disponíveis' }
+    schema: { status: 'ok', message: '5 artistas, 5 locais' }
   };
 
   // Test database connection by checking core tables
   try {
-    const [artistsResult, agendaResult, venuesResult] = await Promise.all([
-      supabase.from('artists').select('id', { count: 'exact' }).limit(1),
-      supabase.from('agenda_itens').select('id', { count: 'exact' }).limit(1),
-      supabase.from('venues').select('id', { count: 'exact' }).limit(1)
+    const [artistsResult, venuesResult, eventsResult] = await Promise.all([
+      supabase.from('artists').select('id').limit(1),
+      supabase.from('venues').select('id').limit(1),
+      supabase.from('events').select('id').limit(1)
     ]);
     
     const tableStatus = [];
-    let totalRecords = 0;
+    if (!artistsResult.error) tableStatus.push('Artists');
+    if (!venuesResult.error) tableStatus.push('Venues');
+    if (!eventsResult.error) tableStatus.push('Events');
     
-    if (!artistsResult.error) {
-      tableStatus.push('Artists');
-      totalRecords += artistsResult.count || 0;
-    }
-    if (!agendaResult.error) {
-      tableStatus.push('Agenda');
-      totalRecords += agendaResult.count || 0;
-    }
-    if (!venuesResult.error) {
-      tableStatus.push('Venues');
-      totalRecords += venuesResult.count || 0;
-    }
-    
-    if (tableStatus.length >= 2) {
-      health.database = { status: 'ok', message: `${tableStatus.length} tabelas principais acessíveis` };
+    if (tableStatus.length === 3) {
+      health.database = { status: 'ok', message: 'Todas as tabelas acessíveis' };
     } else if (tableStatus.length > 0) {
       health.database = { status: 'warning', message: `${tableStatus.length}/3 tabelas disponíveis` };
     } else {
       health.database = { status: 'error', message: 'Tabelas principais inacessíveis' };
     }
-
-    // Update schema status with actual counts
-    if (totalRecords > 0) {
-      const artistCount = artistsResult.count || 0;
-      const venueCount = venuesResult.count || 0;
-      const agendaCount = agendaResult.count || 0;
-      health.schema = { 
-        status: 'ok', 
-        message: `${artistCount} artistas, ${venueCount} locais, ${agendaCount} eventos` 
-      };
-    } else {
-      health.schema = { status: 'warning', message: 'Sem dados cadastrados' };
-    }
   } catch (error) {
     health.database = { status: 'error', message: 'Erro de conexão' };
-    health.schema = { status: 'error', message: 'Dados inacessíveis' };
   }
 
   // Test storage access
   try {
-    const { data: buckets, error } = await supabase.storage.listBuckets();
+    const { error } = await supabase.storage.listBuckets();
     if (error) {
       health.storage = { status: 'warning', message: 'Acesso limitado' };
     } else {
-      const activeBuckets = buckets?.length || 0;
-      health.storage = { status: 'ok', message: `${activeBuckets} buckets disponíveis` };
+      health.storage = { status: 'ok', message: 'Buckets disponíveis' };
     }
   } catch (error) {
     health.storage = { status: 'error', message: 'Storage inacessível' };
+  }
+
+  // Get actual data counts for schema status
+  try {
+    const [artistsCount, venuesCount] = await Promise.all([
+      countSafe('artists'),
+      countSafe('venues')
+    ]);
+    
+    const dataStatus = `${artistsCount.count} artistas, ${venuesCount.count} locais`;
+    health.schema = { status: 'ok', message: dataStatus };
+  } catch (error) {
+    health.schema = { status: 'warning', message: 'Contadores indisponíveis' };
   }
 
   return health;

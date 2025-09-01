@@ -1,70 +1,18 @@
-// sw.js - Service Worker with Push Notifications
-const VERSION = '2025-08-31-01';
+// sw.js
+const VERSION = '2025-08-30-02';
 const STATIC_CACHE = `static-${VERSION}`;
 
 self.addEventListener('install', (e) => {
-  console.log('Service Worker installing.');
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (e) => {
-  console.log('Service Worker activating.');
   e.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== STATIC_CACHE).map(k => caches.delete(k)))
     )
   );
   self.clients.claim();
-});
-
-// Push notification handling
-self.addEventListener('push', (event) => {
-  if (!event.data) {
-    return;
-  }
-
-  const data = event.data.json();
-  const options = {
-    body: data.body,
-    icon: data.icon || '/favicon.png',
-    badge: data.badge || '/favicon.png',
-    data: {
-      url: data.url || '/'
-    },
-    actions: [
-      {
-        action: 'view',
-        title: 'Ver',
-        icon: '/favicon.png'
-      }
-    ]
-  };
-
-  event.waitUntil(
-    self.registration.showNotification(data.title, options)
-  );
-});
-
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-
-  const url = event.notification.data?.url || '/';
-  
-  event.waitUntil(
-    clients.matchAll({ type: 'window' }).then((clientList) => {
-      // Check if there is already a window/tab open with the target URL
-      for (const client of clientList) {
-        if (client.url === url && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      
-      // If not, then open the target URL in a new window/tab
-      if (clients.openWindow) {
-        return clients.openWindow(url);
-      }
-    })
-  );
 });
 
 self.addEventListener('fetch', (event) => {

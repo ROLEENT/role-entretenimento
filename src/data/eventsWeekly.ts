@@ -43,9 +43,9 @@ async function getEventsWeeklyFallback(lastDays: number): Promise<WeeklyEventDat
 
     const { data, error } = await supabase
       .from('agenda_itens')
-      .select('starts_at, created_at')
-      .gte('created_at', cutoffDate.toISOString())
-      .neq('status', 'deleted');
+      .select('start_at')
+      .gte('start_at', cutoffDate.toISOString())
+      .not('start_at', 'is', null);
 
     if (error) {
       if (error.code === '42P01') {
@@ -60,10 +60,8 @@ async function getEventsWeeklyFallback(lastDays: number): Promise<WeeklyEventDat
     const weeklyData: { [key: string]: number } = {};
 
     (data || []).forEach((item) => {
-      // Use starts_at if available, otherwise use created_at
-      const dateToUse = item.starts_at || item.created_at;
-      if (dateToUse) {
-        const date = new Date(dateToUse);
+      if (item.start_at) {
+        const date = new Date(item.start_at);
         // Get start of week (Monday)
         const dayOfWeek = date.getDay();
         const diff = date.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);

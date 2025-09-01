@@ -177,26 +177,12 @@ export const getRevistaSections = async () => {
 };
 
 export const getRevistaPostBySlug = async (slug: string): Promise<RevistaPost | null> => {
-  // Try slug_data first, then slug as fallback for compatibility
-  let { data, error } = await supabase
+  const { data, error } = await supabase
     .from('blog_posts')
     .select('*')
-    .eq('slug_data', slug)
+    .eq('slug', slug)
     .eq('status', 'published')
     .single();
-
-  // If not found, try with slug field
-  if (error && !data) {
-    const fallbackResult = await supabase
-      .from('blog_posts')
-      .select('*')
-      .eq('slug', slug)
-      .eq('status', 'published')
-      .single();
-    
-    data = fallbackResult.data;
-    error = fallbackResult.error;
-  }
 
   if (error || !data) return null;
 

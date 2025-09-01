@@ -7,22 +7,41 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface RevistaFiltersProps {
   searchTerm: string;
+  cityFilter: string;
   sectionFilter: string;
   onSearchChange: (value: string) => void;
+  onCityChange: (value: string) => void;
   onSectionChange: (value: string) => void;
   onClearFilters: () => void;
 }
 
 export function RevistaFilters({
   searchTerm,
+  cityFilter,
   sectionFilter,
   onSearchChange,
+  onCityChange,
   onSectionChange,
   onClearFilters
 }: RevistaFiltersProps) {
+  const [cities, setCities] = useState<string[]>([]);
   const [sections] = useState<string[]>(['editorial', 'cultura', 'música', 'arte']);
 
-  const hasActiveFilters = searchTerm || sectionFilter;
+  useEffect(() => {
+    const loadCities = async () => {
+      const { data } = await supabase
+        .from('blog_posts')
+        .select('city')
+        .eq('status', 'published');
+        
+      const citiesData = Array.from(new Set((data || []).map(item => item.city).filter(Boolean)));
+      setCities(citiesData);
+    };
+
+    loadCities();
+  }, []);
+
+  const hasActiveFilters = searchTerm || cityFilter || sectionFilter;
 
   return (
     <div className="bg-background/80 backdrop-blur-sm border rounded-lg p-6 space-y-4">
@@ -47,6 +66,28 @@ export function RevistaFilters({
 
       {/* Filters - responsive layout */}
       <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex-1">
+          <Select value={cityFilter} onValueChange={onCityChange}>
+            <SelectTrigger 
+              className="w-full h-11" 
+              aria-label="Filtrar artigos por cidade"
+              aria-describedby="city-filter-help"
+            >
+              <SelectValue placeholder="Cidade" />
+            </SelectTrigger>
+            <SelectContent className="bg-background border shadow-lg z-[9999]">
+              {cities.map((city) => (
+                <SelectItem key={city} value={city} className="capitalize cursor-pointer">
+                  {city}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <div id="city-filter-help" className="sr-only">
+            Filtrar artigos por cidade específica
+          </div>
+        </div>
+
         <div className="flex-1">
           <Select value={sectionFilter} onValueChange={onSectionChange}>
             <SelectTrigger 
@@ -94,6 +135,12 @@ export function RevistaFilters({
           {searchTerm && (
             <span className="bg-primary/10 text-primary px-2 py-1 rounded-md text-xs font-medium">
               "{searchTerm}"
+            </span>
+          )}
+          
+          {cityFilter && (
+            <span className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-xs font-medium capitalize">
+              {cityFilter}
             </span>
           )}
           
