@@ -69,6 +69,10 @@ const AdminV3GestaoNotificacoesPage = lazy(() => import("./pages/admin-v3/gestao
 const AnalyticsPage = lazy(() => import("./pages/admin-v3/gestao/AnalyticsPage"));
 const BackupRestorePage = lazy(() => import("./pages/admin-v3/gestao/BackupRestorePage"));
 
+// Admin V3 Profiles Pages
+const AdminV3ProfilesList = lazy(() => import("./pages/admin-v3/AdminV3ProfilesList"));
+const AdminV3ProfileEdit = lazy(() => import("./pages/admin-v3/AdminV3ProfileEdit"));
+
 const OrganizerTerms = lazy(() => import("./pages/OrganizerTerms"));
 const Help = lazy(() => import("./pages/Help"));
 const Agenda = lazy(() => import("./pages/Agenda"));
@@ -286,6 +290,10 @@ function App() {
                   <Route path="agentes/organizadores" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizadoresList /></Suspense>} />
                   <Route path="agentes/organizadores/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerCreate /></Suspense>} />
                   <Route path="agentes/organizadores/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerEdit /></Suspense>} />
+                  
+                  {/* Perfis Routes */}
+                  <Route path="perfis" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ProfilesList /></Suspense>} />
+                  <Route path="perfis/:id/editar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ProfileEdit /></Suspense>} />
                   
                   {/* Other modules */}
                   <Route path="revista" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaPage /></Suspense>} />

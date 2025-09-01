@@ -84,6 +84,29 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Perfis */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Perfis</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {MENUS.perfis.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActive(item.href)}
+                    tooltip={state === "collapsed" ? item.title : undefined}
+                  >
+                    <NavLink to={item.href}>
+                      {item.icon && <item.icon className="h-4 w-4" />}
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
         {/* Revista */}
         <SidebarGroup>
           <SidebarGroupLabel>Revista</SidebarGroupLabel>
