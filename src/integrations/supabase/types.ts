@@ -2109,6 +2109,39 @@ export type Database = {
           },
         ]
       }
+      followers: {
+        Row: {
+          created_at: string
+          profile_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          profile_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          profile_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "followers_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profile_stats"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "followers_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       follows: {
         Row: {
           created_at: string
@@ -3438,71 +3471,317 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_artist: {
+        Row: {
+          agency: string | null
+          fee_band: string | null
+          genres: string[]
+          presskit_url: string | null
+          profile_id: string
+          pronoun: string | null
+          rider_url: string | null
+          soundcloud_url: string | null
+          spotify_id: string | null
+          stageplot_url: string | null
+          touring_city: string | null
+          youtube_url: string | null
+        }
+        Insert: {
+          agency?: string | null
+          fee_band?: string | null
+          genres?: string[]
+          presskit_url?: string | null
+          profile_id: string
+          pronoun?: string | null
+          rider_url?: string | null
+          soundcloud_url?: string | null
+          spotify_id?: string | null
+          stageplot_url?: string | null
+          touring_city?: string | null
+          youtube_url?: string | null
+        }
+        Update: {
+          agency?: string | null
+          fee_band?: string | null
+          genres?: string[]
+          presskit_url?: string | null
+          profile_id?: string
+          pronoun?: string | null
+          rider_url?: string | null
+          soundcloud_url?: string | null
+          spotify_id?: string | null
+          stageplot_url?: string | null
+          touring_city?: string | null
+          youtube_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_artist_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profile_stats"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "profile_artist_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profile_org: {
+        Row: {
+          about: string | null
+          brand_name: string | null
+          cities: string[] | null
+          cnpj: string | null
+          manager_email: string | null
+          manager_name: string | null
+          manager_phone: string | null
+          profile_id: string
+        }
+        Insert: {
+          about?: string | null
+          brand_name?: string | null
+          cities?: string[] | null
+          cnpj?: string | null
+          manager_email?: string | null
+          manager_name?: string | null
+          manager_phone?: string | null
+          profile_id: string
+        }
+        Update: {
+          about?: string | null
+          brand_name?: string | null
+          cities?: string[] | null
+          cnpj?: string | null
+          manager_email?: string | null
+          manager_name?: string | null
+          manager_phone?: string | null
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_org_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profile_stats"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "profile_org_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profile_roles: {
+        Row: {
+          created_at: string
+          profile_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          profile_id: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          profile_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_roles_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profile_stats"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "profile_roles_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profile_venue: {
+        Row: {
+          accessibility: Json | null
+          address: Json | null
+          age_policy: string
+          capacity: number
+          cnpj: string | null
+          hours: Json | null
+          lat: number | null
+          lon: number | null
+          place_id: string | null
+          price_range: string | null
+          profile_id: string
+          sound_gear: Json | null
+        }
+        Insert: {
+          accessibility?: Json | null
+          address?: Json | null
+          age_policy: string
+          capacity: number
+          cnpj?: string | null
+          hours?: Json | null
+          lat?: number | null
+          lon?: number | null
+          place_id?: string | null
+          price_range?: string | null
+          profile_id: string
+          sound_gear?: Json | null
+        }
+        Update: {
+          accessibility?: Json | null
+          address?: Json | null
+          age_policy?: string
+          capacity?: number
+          cnpj?: string | null
+          hours?: Json | null
+          lat?: number | null
+          lon?: number | null
+          place_id?: string | null
+          price_range?: string | null
+          profile_id?: string
+          sound_gear?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_venue_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profile_stats"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "profile_venue_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           bio: string | null
+          bio_short: string | null
           birth_date: string | null
+          city: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          country: string | null
+          cover_url: string | null
           created_at: string
+          created_by: string | null
           display_name: string | null
           email: string | null
           followers_count: number | null
           following_count: number | null
           full_name: string | null
+          handle: string | null
           id: string
           is_admin: boolean
           is_verified: boolean | null
+          links: Json | null
           location: string | null
           phone: string | null
           preferences_json: Json
           role: Database["public"]["Enums"]["user_role"]
+          state: string | null
+          tags: string[] | null
+          type: string | null
           updated_at: string
           user_id: string
           username: string | null
+          verified: boolean | null
+          visibility: string | null
           website: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          bio_short?: string | null
           birth_date?: string | null
+          city?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          cover_url?: string | null
           created_at?: string
+          created_by?: string | null
           display_name?: string | null
           email?: string | null
           followers_count?: number | null
           following_count?: number | null
           full_name?: string | null
+          handle?: string | null
           id?: string
           is_admin?: boolean
           is_verified?: boolean | null
+          links?: Json | null
           location?: string | null
           phone?: string | null
           preferences_json?: Json
           role?: Database["public"]["Enums"]["user_role"]
+          state?: string | null
+          tags?: string[] | null
+          type?: string | null
           updated_at?: string
           user_id: string
           username?: string | null
+          verified?: boolean | null
+          visibility?: string | null
           website?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          bio_short?: string | null
           birth_date?: string | null
+          city?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          cover_url?: string | null
           created_at?: string
+          created_by?: string | null
           display_name?: string | null
           email?: string | null
           followers_count?: number | null
           following_count?: number | null
           full_name?: string | null
+          handle?: string | null
           id?: string
           is_admin?: boolean
           is_verified?: boolean | null
+          links?: Json | null
           location?: string | null
           phone?: string | null
           preferences_json?: Json
           role?: Database["public"]["Enums"]["user_role"]
+          state?: string | null
+          tags?: string[] | null
+          type?: string | null
           updated_at?: string
           user_id?: string
           username?: string | null
+          verified?: boolean | null
+          visibility?: string | null
           website?: string | null
         }
         Relationships: []
@@ -4450,6 +4729,14 @@ export type Database = {
         Row: {
           city_name: string | null
           events_count: number | null
+        }
+        Relationships: []
+      }
+      profile_stats: {
+        Row: {
+          followers_count: number | null
+          profile_id: string | null
+          upcoming_events_count: number | null
         }
         Relationships: []
       }
