@@ -20,6 +20,7 @@ export type Profile = {
   contact_email?: string | null;
   contact_phone?: string | null;
   visibility?: string;
+  followers_count?: number;
   profile_artist?: any;
   profile_venue?: any;
   profile_org?: any;
@@ -27,12 +28,9 @@ export type Profile = {
 
 export async function getProfileByHandle(handle: string) {
   const { data, error } = await supabase
-    .from("profiles")
+    .from("entity_profiles")
     .select(`
       id, user_id, type, handle, name, city, state, country, bio_short, bio, avatar_url, cover_url, tags, verified,
-      profile_artist(*),
-      profile_venue(*),
-      profile_org(*),
       links, contact_email, contact_phone, visibility
     `)
     .eq("handle", handle.toLowerCase())
@@ -55,24 +53,23 @@ export type ListFilters = {
 
 export async function listProfiles(f: ListFilters) {
   let q = supabase
-    .from("profiles")
-    .select("id, user_id, type, handle, name, city, state, country, avatar_url, cover_url, tags", { count: "exact" });
-
-  // Filter by visibility if specified (defaults to public for public site)
-  if (f.visibility) {
-    q = q.eq("visibility", f.visibility);
-  } else {
-    // Default to public only for public site
-    q = q.eq("visibility", "public");
-  }
+    .from("profiles_with_stats")
+    .select("id, user_id, type, handle, name, city, state, country, avatar_url, cover_url, tags, verified, followers_count", { count: "exact" });
 
   if (f.type) q = q.eq("type", f.type);
-  if (f.city) q = q.ilike("city", f.city);
+  if (f.city) q = q.ilike("city", `%${f.city}%`);
   if (f.q) q = q.ilike("name", `%${f.q}%`);
   if (f.tags?.length) q = q.contains("tags", f.tags);
 
-  if (f.order === "az") q = q.order("name", { ascending: true });
-  else q = q.order("created_at", { ascending: false });
+  // Ordenação
+  if (f.order === "az") {
+    q = q.order("name", { ascending: true });
+  } else if (f.order === "followers") {
+    q = q.order("followers_count", { ascending: false });
+  } else {
+    // Default: trend (created_at desc)
+    q = q.order("created_at", { ascending: false });
+  }
 
   const from = f.offset ?? 0;
   const to = from + ((f.limit ?? 24) - 1);
