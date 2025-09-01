@@ -2,10 +2,10 @@ import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { OrganizerFormData } from '../AdminOrganizerForm';
+import { OrganizerFlexibleForm } from '@/schemas/agents-flexible';
 
 interface OrganizerContactTabProps {
-  form: UseFormReturn<OrganizerFormData>;
+  form: UseFormReturn<OrganizerFlexibleForm>;
 }
 
 export const OrganizerContactTab: React.FC<OrganizerContactTabProps> = ({ form }) => {
@@ -14,12 +14,17 @@ export const OrganizerContactTab: React.FC<OrganizerContactTabProps> = ({ form }
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
           control={form.control}
-          name="contact_email"
+          name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email de Contato *</FormLabel>
+              <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="contato@exemplo.com" {...field} />
+                <Input 
+                  type="email" 
+                  placeholder="contato@exemplo.com" 
+                  {...field}
+                  value={field.value || ''}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -28,12 +33,16 @@ export const OrganizerContactTab: React.FC<OrganizerContactTabProps> = ({ form }
 
         <FormField
           control={form.control}
-          name="contact_whatsapp"
+          name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>WhatsApp *</FormLabel>
+              <FormLabel>Telefone</FormLabel>
               <FormControl>
-                <Input placeholder="(11) 99999-9999" {...field} />
+                <Input 
+                  placeholder="(11) 99999-9999" 
+                  {...field}
+                  value={field.value || ''}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -47,7 +56,11 @@ export const OrganizerContactTab: React.FC<OrganizerContactTabProps> = ({ form }
             <FormItem>
               <FormLabel>Instagram</FormLabel>
               <FormControl>
-                <Input placeholder="@usuario ou usuario" {...field} />
+                <Input 
+                  placeholder="@usuario ou usuario" 
+                  {...field}
+                  value={field.value || ''}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -56,7 +69,7 @@ export const OrganizerContactTab: React.FC<OrganizerContactTabProps> = ({ form }
 
         <FormField
           control={form.control}
-          name="site"
+          name="website"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Website</FormLabel>
@@ -65,6 +78,7 @@ export const OrganizerContactTab: React.FC<OrganizerContactTabProps> = ({ form }
                   type="url"
                   placeholder="https://www.exemplo.com"
                   {...field} 
+                  value={field.value || ''}
                 />
               </FormControl>
               <FormMessage />

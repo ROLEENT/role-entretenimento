@@ -14,80 +14,13 @@ import { ArtistProfessionalTab } from './tabs/ArtistProfessionalTab';
 import { ArtistMediaTab } from './tabs/ArtistMediaTab';
 import { ArtistManagementTab } from './tabs/ArtistManagementTab';
 
-// Complete artist schema based on the database table
-const artistSchema = z.object({
-  // Basic info
-  name: z.string().min(1, 'Nome é obrigatório'),
-  stage_name: z.string().min(1, 'Nome artístico é obrigatório'),
-  slug: z.string().min(1, 'Slug é obrigatório'),
-  artist_type: z.string().min(1, 'Tipo de artista é obrigatório'),
-  status: z.enum(['active', 'inactive']).default('active'),
-  bio_short: z.string().optional(),
-  bio_long: z.string().optional(),
-  bio: z.string().optional(),
-  about: z.string().optional(),
-  
-  // Contact info
-  email: z.string().email().optional().or(z.literal('')),
-  phone: z.string().optional(),
-  whatsapp: z.string().optional(),
-  booking_email: z.string().email().optional().or(z.literal('')),
-  booking_whatsapp: z.string().optional(),
-  booking_phone: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  country: z.string().default('BR'),
-  home_city: z.string().optional(),
-  cities_active: z.array(z.string()).default([]),
-  
-  // Social media - flexible URL validation
-  instagram: z.string().optional(),
-  website: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
-  website_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
-  spotify_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
-  soundcloud_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
-  youtube_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
-  beatport_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
-  audius_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
-  links: z.record(z.string()).optional(),
-  
-  // Professional info
-  fee_range: z.string().optional(),
-  show_format: z.string().optional(),
-  team_size: z.number().optional(),
-  set_time_minutes: z.number().optional(),
-  availability_days: z.array(z.string()).default([]),
-  
-  // Technical requirements
-  tech_audio: z.string().optional(),
-  tech_light: z.string().optional(),
-  tech_stage: z.string().optional(),
-  tech_rider_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
-  
-  // Media - flexible URL validation  
-  profile_image_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
-  cover_image_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
-  avatar_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
-  presskit_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
-  
-  // Management
-  responsible_name: z.string().optional(),
-  responsible_role: z.string().optional(),
-  real_name: z.string().optional(),
-  pronouns: z.string().optional(),
-  accommodation_notes: z.string().optional(),
-  internal_notes: z.string().optional(),
-  image_credits: z.string().optional(),
-  image_rights_authorized: z.boolean().default(false),
-  priority: z.number().default(0),
-  tags: z.array(z.string()).default([]),
-});
+import { artistFlexibleSchema, ArtistFlexibleForm } from '@/schemas/agents-flexible';
 
-export type ArtistFormData = z.infer<typeof artistSchema>;
+export type ArtistFormData = ArtistFlexibleForm;
 
 interface AdminArtistFormProps {
-  artist?: Partial<ArtistFormData>;
-  onSubmit: (data: ArtistFormData) => void;
+  artist?: Partial<ArtistFlexibleForm>;
+  onSubmit: (data: ArtistFlexibleForm) => void;
   isLoading?: boolean;
 }
 
@@ -98,8 +31,8 @@ export const AdminArtistForm: React.FC<AdminArtistFormProps> = ({
 }) => {
   const navigate = useNavigate();
   
-  const form = useForm<ArtistFormData>({
-    resolver: zodResolver(artistSchema),
+  const form = useForm<ArtistFlexibleForm>({
+    resolver: zodResolver(artistFlexibleSchema),
     defaultValues: {
       name: '',
       stage_name: '',
@@ -138,7 +71,7 @@ export const AdminArtistForm: React.FC<AdminArtistFormProps> = ({
     }
   }, [stageName, form, artist?.name]);
 
-  const handleSubmit = (data: ArtistFormData) => {
+  const handleSubmit = (data: ArtistFlexibleForm) => {
     onSubmit(data);
   };
 

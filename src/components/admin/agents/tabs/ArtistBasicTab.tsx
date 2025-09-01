@@ -4,10 +4,10 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArtistFormData } from '../AdminArtistForm';
+import { ArtistFlexibleForm } from '@/schemas/agents-flexible';
 
 interface ArtistBasicTabProps {
-  form: UseFormReturn<ArtistFormData>;
+  form: UseFormReturn<ArtistFlexibleForm>;
 }
 
 const ARTIST_TYPE_OPTIONS = [
@@ -32,7 +32,7 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
         name="stage_name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Nome Artístico *</FormLabel>
+            <FormLabel>Nome Artístico</FormLabel>
             <FormControl>
               <Input placeholder="Ex: João Silva Band" {...field} />
             </FormControl>
@@ -60,7 +60,7 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
         name="slug"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Slug *</FormLabel>
+            <FormLabel>Slug</FormLabel>
             <FormControl>
               <Input placeholder="Ex: joao-silva-band" {...field} />
             </FormControl>
@@ -74,7 +74,7 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
         name="artist_type"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Tipo de Artista *</FormLabel>
+            <FormLabel>Tipo de Artista</FormLabel>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <FormControl>
                 <SelectTrigger>

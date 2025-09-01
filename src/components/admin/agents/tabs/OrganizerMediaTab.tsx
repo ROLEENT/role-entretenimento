@@ -2,10 +2,10 @@ import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { ImageUpload } from '@/components/ui/image-upload';
-import { OrganizerFormData } from '../AdminOrganizerForm';
+import { OrganizerFlexibleForm } from '@/schemas/agents-flexible';
 
 interface OrganizerMediaTabProps {
-  form: UseFormReturn<OrganizerFormData>;
+  form: UseFormReturn<OrganizerFlexibleForm>;
 }
 
 export const OrganizerMediaTab: React.FC<OrganizerMediaTabProps> = ({ form }) => {

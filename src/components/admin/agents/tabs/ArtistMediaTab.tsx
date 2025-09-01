@@ -3,10 +3,10 @@ import { UseFormReturn } from 'react-hook-form';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { ImageUpload } from '@/components/ui/image-upload';
-import { ArtistFormData } from '../AdminArtistForm';
+import { ArtistFlexibleForm } from '@/schemas/agents-flexible';
 
 interface ArtistMediaTabProps {
-  form: UseFormReturn<ArtistFormData>;
+  form: UseFormReturn<ArtistFlexibleForm>;
 }
 
 export const ArtistMediaTab: React.FC<ArtistMediaTabProps> = ({ form }) => {

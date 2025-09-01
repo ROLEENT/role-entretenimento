@@ -12,33 +12,13 @@ import { OrganizerContactTab } from './tabs/OrganizerContactTab';
 import { OrganizerMediaTab } from './tabs/OrganizerMediaTab';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-// Complete organizer schema based on MinimalOrganizerSchema and database table
-const organizerSchema = z.object({
-  // Basic info
-  name: z.string().min(1, 'Nome é obrigatório'),
-  slug: z.string().min(1, 'Slug é obrigatório'),
-  type: z.enum(['organizador', 'produtora', 'coletivo', 'selo']).default('organizador'),
-  status: z.enum(['active', 'inactive']).default('active'),
-  bio_short: z.string().optional(),
-  
-  // Contact info
-  contact_email: z.string().email('Email inválido').min(1, 'Email é obrigatório'),
-  contact_whatsapp: z.string().min(1, 'WhatsApp é obrigatório'),
-  instagram: z.string().optional(),
-  site: z.string().url('URL do site inválida').optional().or(z.literal('')),
-  
-  // Location
-  city_id: z.number().int().positive().optional(),
-  
-  // Media
-  logo_url: z.string().url('URL do logo inválida').optional().or(z.literal('')),
-});
+import { organizerFlexibleSchema, OrganizerFlexibleForm } from '@/schemas/agents-flexible';
 
-export type OrganizerFormData = z.infer<typeof organizerSchema>;
+export type OrganizerFormData = OrganizerFlexibleForm;
 
 interface AdminOrganizerFormProps {
-  organizer?: Partial<OrganizerFormData>;
-  onSubmit: (data: OrganizerFormData) => void;
+  organizer?: Partial<OrganizerFlexibleForm>;
+  onSubmit: (data: OrganizerFlexibleForm) => void;
   isLoading?: boolean;
 }
 
@@ -49,19 +29,18 @@ export const AdminOrganizerForm: React.FC<AdminOrganizerFormProps> = ({
 }) => {
   const navigate = useNavigate();
   
-  const form = useForm<OrganizerFormData>({
-    resolver: zodResolver(organizerSchema),
+  const form = useForm<OrganizerFlexibleForm>({
+    resolver: zodResolver(organizerFlexibleSchema),
     defaultValues: {
       name: '',
       slug: '',
-      type: 'organizador',
       status: 'active',
-      bio_short: '',
-      contact_email: '',
-      contact_whatsapp: '',
+      bio: '',
+      email: '',
+      phone: '',
       instagram: '',
-      site: '',
-      logo_url: '',
+      website: '',
+      avatar_url: '',
       ...organizer,
     },
   });
@@ -80,7 +59,7 @@ export const AdminOrganizerForm: React.FC<AdminOrganizerFormProps> = ({
     }
   }, [name, form, organizer?.slug]);
 
-  const handleSubmit = (data: OrganizerFormData) => {
+  const handleSubmit = (data: OrganizerFlexibleForm) => {
     onSubmit(data);
   };
 
