@@ -208,28 +208,36 @@ const Header = () => {
 
               {/* User Section */}
               <div className="border-t pt-4 space-y-3">
-                {user ? (
-                  <>
-                    <div className="flex items-center gap-3 px-4 py-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                          {user.email?.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {user.email}
-                        </p>
+                  {user ? (
+                    <>
+                      <div className="flex items-center gap-3 px-4 py-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                            {user.email?.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">
+                            {user.email}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <Link
-                      to="/profile"
-                      className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <User className="h-4 w-4" />
-                      Perfil
-                    </Link>
+                      <Link
+                        to="/profile"
+                        className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <User className="h-4 w-4" />
+                        Perfil
+                      </Link>
+                      <Link
+                        to="/criar-perfil"
+                        className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <User className="h-4 w-4" />
+                        Criar Perfil
+                      </Link>
                     <Link
                       to="/calendar"
                       className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
@@ -416,6 +424,12 @@ const Header = () => {
                         <Link to="/profile">
                           <User className="mr-2 h-4 w-4" />
                           Perfil
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/criar-perfil">
+                          <User className="mr-2 h-4 w-4" />
+                          Criar Perfil
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>

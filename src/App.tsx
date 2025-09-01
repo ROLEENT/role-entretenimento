@@ -316,8 +316,8 @@ function App() {
                 
                 {/* User Routes */}
                 <Route path="/auth" element={<AuthPage />} />
-                <Route path="/perfil" element={<Profile />} />
-                <Route path="/criar/perfil" element={<CreateProfilePage />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/criar-perfil" element={<CreateProfilePage />} />
                 <Route path="/feed" element={<FeedPage />} />
                 <Route path="/descobrir" element={<DiscoverUsers />} />
                 <Route path="/eventos/semana/:data" element={<WeeklyHighlights />} />
