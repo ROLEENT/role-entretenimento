@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { FocusManagementProvider } from "@/components/FocusManagementProvider";
 import { queryClient } from "@/lib/queryClient";
@@ -141,6 +141,13 @@ const DebugCombo = lazy(() => import("./pages/DebugCombo"));
 const DirectoryPage = lazy(() => import("./pages/profiles/DirectoryPage"));
 const ProfilePage = lazy(() => import("./pages/profiles/ProfilePage"));
 const CityDirectoryPage = lazy(() => import("./pages/profiles/CityDirectoryPage"));
+
+// Handle @username redirects
+function HandleRedirect() {
+  const { raw = "" } = useParams();
+  if (raw.startsWith("@")) return <Navigate to={`/perfil/${raw.slice(1)}`} replace />;
+  return <Navigate to="/404" replace />;
+}
 
 // Optimized loading components
 const AdminLoadingFallback = () => (
@@ -319,6 +326,9 @@ function App() {
                 } />
                 <Route path="/conquistas" element={<GamificationPage />} />
                 {/* Removed: Groups and Music routes */}
+                
+                {/* Handle @username redirects */}
+                <Route path="/:raw" element={<HandleRedirect />} />
                 
                 {/* Catch-all route MUST be last */}
                 <Route path="*" element={<NotFound />} />

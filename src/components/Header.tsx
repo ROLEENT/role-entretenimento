@@ -1,4 +1,4 @@
-import { Search, Menu, User, Heart, LogOut, Calendar, Settings } from "lucide-react";
+import { Search, Menu, User, Heart, LogOut, Calendar, Settings, ChevronDown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -38,9 +38,15 @@ const Header = () => {
     { href: '/', label: 'Home' },
     { href: '/agenda', label: 'Agenda' },
     { href: '/revista', label: 'Revista' },
-    { href: '/perfis', label: 'Perfis' },
     { href: '/cidades', label: 'Cidades' },
     { href: '/ajuda', label: 'Ajuda' }
+  ];
+
+  const perfisDropdownItems = [
+    { href: '/perfis', label: 'Todos os perfis' },
+    { href: '/perfis?type=artista', label: 'Artistas' },
+    { href: '/perfis?type=local', label: 'Locais' },
+    { href: '/perfis?type=organizador', label: 'Organizadores' }
   ];
 
   const cities = [
@@ -95,7 +101,12 @@ const Header = () => {
   const isActive = (href: string) => {
     if (href === '/' && location.pathname === '/') return true;
     if (href === '/agenda' && location.pathname.startsWith('/agenda')) return true;
+    if (href === '/perfis' && location.pathname.startsWith('/perfil')) return true;
     return location.pathname === href;
+  };
+
+  const isPerfisActive = () => {
+    return location.pathname.startsWith('/perfis') || location.pathname.startsWith('/perfil');
   };
 
   const isCityActive = (citySlug: string) => {
@@ -175,6 +186,24 @@ const Header = () => {
                     {link.label}
                   </Link>
                 ))}
+                
+                {/* Perfis section */}
+                <div className="space-y-1">
+                  <div className="px-4 py-2 text-sm font-medium text-muted-foreground">Perfis</div>
+                  {perfisDropdownItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      to={item.href}
+                      className="flex items-center py-2 px-6 text-sm text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        setTimeout(() => window.scrollTo(0, 0), 100);
+                      }}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
               </nav>
 
               {/* User Section */}
@@ -296,6 +325,31 @@ const Header = () => {
                     )}
                   </Link>
                 ))}
+                
+                {/* Perfis Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className={cn(
+                      "flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary relative",
+                      isPerfisActive() 
+                        ? "text-primary" 
+                        : "text-muted-foreground"
+                    )}>
+                      Perfis
+                      <ChevronDown className="h-3 w-3" />
+                      {isPerfisActive() && (
+                        <div className="absolute -bottom-6 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                      )}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {perfisDropdownItems.map((item) => (
+                      <DropdownMenuItem key={item.href} asChild>
+                        <Link to={item.href}>{item.label}</Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </nav>
             </div>
 
