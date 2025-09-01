@@ -12,7 +12,7 @@ export async function uploadAvatar(profileId: string, file: File): Promise<strin
   const path = `${profileId}/${fileName}`;
   
   const { data, error } = await supabase.storage
-    .from("avatars")
+    .from("profile-avatars")
     .upload(path, file, { 
       upsert: true, 
       cacheControl: "3600" 
@@ -24,7 +24,7 @@ export async function uploadAvatar(profileId: string, file: File): Promise<strin
   }
   
   const { data: publicUrlData } = supabase.storage
-    .from("avatars")
+    .from("profile-avatars")
     .getPublicUrl(data.path);
   
   return publicUrlData.publicUrl;
@@ -42,7 +42,7 @@ export async function uploadCover(profileId: string, file: File): Promise<string
   const path = `${profileId}/${fileName}`;
   
   const { data, error } = await supabase.storage
-    .from("covers")
+    .from("profile-covers")
     .upload(path, file, { 
       upsert: true, 
       cacheControl: "3600" 
@@ -54,7 +54,7 @@ export async function uploadCover(profileId: string, file: File): Promise<string
   }
   
   const { data: publicUrlData } = supabase.storage
-    .from("covers")
+    .from("profile-covers")
     .getPublicUrl(data.path);
   
   return publicUrlData.publicUrl;
@@ -139,12 +139,56 @@ export async function listCovers(profileId: string) {
 }
 
 /**
+ * Validação de arquivo de imagem
+ */
+export function validateImageFile(file: File, type: 'avatar' | 'cover'): string | null {
+  const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  
+  if (!validTypes.includes(file.type)) {
+    return 'Arquivo deve ser JPG, PNG ou WebP';
+  }
+
+  const maxSize = type === 'avatar' ? 5 * 1024 * 1024 : 8 * 1024 * 1024; // 5MB avatar, 8MB cover
+  if (file.size > maxSize) {
+    return `Arquivo muito grande. Máximo: ${type === 'avatar' ? '5MB' : '8MB'}`;
+  }
+
+  return null;
+}
+
+/**
+ * Validação de dimensões da imagem
+ */
+export function validateImageDimensions(file: File, type: 'avatar' | 'cover'): Promise<string | null> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      if (type === 'avatar') {
+        if (img.width < 320 || img.height < 320) {
+          resolve('Avatar deve ter pelo menos 320x320px');
+        } else {
+          resolve(null);
+        }
+      } else {
+        if (img.width < 1920 || img.height < 640) {
+          resolve('Capa deve ter pelo menos 1920x640px');
+        } else {
+          resolve(null);
+        }
+      }
+    };
+    img.onerror = () => resolve('Erro ao validar dimensões da imagem');
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+/**
  * Obter URL pública de um arquivo
- * @param bucket Nome do bucket ('avatars' ou 'covers')
+ * @param bucket Nome do bucket ('profile-avatars' ou 'profile-covers')
  * @param path Caminho do arquivo
  * @returns URL pública
  */
-export function getPublicUrl(bucket: 'avatars' | 'covers', path: string): string {
+export function getPublicUrl(bucket: 'profile-avatars' | 'profile-covers', path: string): string {
   const { data } = supabase.storage
     .from(bucket)
     .getPublicUrl(path);

@@ -1715,51 +1715,66 @@ export type Database = {
           bio: string | null
           bio_short: string | null
           city: string
+          contact_email: string | null
+          contact_phone: string | null
           country: string
           cover_url: string | null
           created_at: string
           handle: string
           id: string
+          links: Json | null
           name: string
+          source_id: string | null
           state: string
           tags: string[] | null
           type: string
           updated_at: string
           verified: boolean | null
+          visibility: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
           bio_short?: string | null
           city: string
+          contact_email?: string | null
+          contact_phone?: string | null
           country?: string
           cover_url?: string | null
           created_at?: string
           handle: string
           id?: string
+          links?: Json | null
           name: string
+          source_id?: string | null
           state: string
           tags?: string[] | null
           type: string
           updated_at?: string
           verified?: boolean | null
+          visibility?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
           bio_short?: string | null
           city?: string
+          contact_email?: string | null
+          contact_phone?: string | null
           country?: string
           cover_url?: string | null
           created_at?: string
           handle?: string
           id?: string
+          links?: Json | null
           name?: string
+          source_id?: string | null
           state?: string
           tags?: string[] | null
           type?: string
           updated_at?: string
           verified?: boolean | null
+          visibility?: string | null
         }
         Relationships: []
       }
