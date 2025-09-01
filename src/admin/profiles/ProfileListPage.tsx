@@ -11,9 +11,9 @@ export default function ProfileListPage() {
     let mounted = true;
     (async () => {
       let query = supabase
-        .from("profiles")
-        .select("id, name, handle, type, city, visibility, published_at")
-        .order("published_at", { ascending: false, nullsFirst: true })
+        .from("entity_profiles")
+        .select("id, name, handle, type, city, visibility, created_at")
+        .order("created_at", { ascending: false, nullsFirst: true })
         .limit(200);
 
       if (q) query = query.ilike("name", `%${q}%`);

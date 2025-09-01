@@ -4,7 +4,7 @@ export type Visibility = "public"|"draft"|"private";
 
 export async function setProfileVisibility(id: string, visibility: Visibility) {
   const { error } = await supabase
-    .from("profiles")
+    .from("entity_profiles")
     .update({ visibility })
     .eq("id", id);
   if (error) throw error;

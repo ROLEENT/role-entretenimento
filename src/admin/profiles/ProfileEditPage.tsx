@@ -34,7 +34,7 @@ export default function ProfileEditPage() {
     async function loadProfile() {
       try {
         const { data, error } = await supabase
-          .from("profiles")
+          .from("entity_profiles")
           .select("*")
           .eq("id", id)
           .single();

@@ -30,7 +30,7 @@ export async function createProfile(data: CreateProfileData): Promise<string> {
   
   // Create main profile
   const { data: created, error } = await supabase
-    .from("profiles")
+    .from("entity_profiles")
     .insert({
       type: profileData.type,
       handle: profileData.handle.toLowerCase(),
@@ -72,7 +72,7 @@ export async function createProfile(data: CreateProfileData): Promise<string> {
     if (cover_url) updates.cover_url = cover_url;
     
     await supabase
-      .from("profiles")
+      .from("entity_profiles")
       .update(updates)
       .eq("id", profileId);
   }
@@ -144,7 +144,7 @@ export async function unfollowProfile(profileId: string, userId: string): Promis
 
 export async function checkHandleAvailability(handle: string): Promise<boolean> {
   const { data, error } = await supabase
-    .from("profiles")
+    .from("entity_profiles")
     .select("id")
     .eq("handle", handle.toLowerCase())
     .maybeSingle();
@@ -156,7 +156,7 @@ export async function checkHandleAvailability(handle: string): Promise<boolean> 
 
 export async function getProfileByHandle(handle: string) {
   const { data, error } = await supabase
-    .from("profiles")
+    .from("entity_profiles")
     .select(`
       id, user_id, type, handle, name, city, state, country, bio_short, bio, avatar_url, cover_url, tags, verified,
       profile_artist(*),
