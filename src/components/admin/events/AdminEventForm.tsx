@@ -15,6 +15,8 @@ import { useUpsertEvent } from "@/hooks/useUpsertEvent";
 import { eventFlexibleSchema, EventFlexibleForm } from "@/schemas/event-flexible";
 import { toast } from "sonner";
 import { Loader2, Save } from "lucide-react";
+import { InlineProgress } from "@/components/ui/progress-indicator";
+import { useEventCompletionStatus } from "@/hooks/useCompletionStatus";
 
 interface AdminEventFormProps {
   event?: any;
@@ -63,8 +65,14 @@ export function AdminEventForm({ event }: AdminEventFormProps) {
     });
   };
 
+  const formData = form.watch();
+  const completion = useEventCompletionStatus(formData);
+
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <div className="space-y-6">
+      <InlineProgress completion={completion} />
+      
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="basic">Básico</TabsTrigger>
@@ -145,5 +153,6 @@ export function AdminEventForm({ event }: AdminEventFormProps) {
         </Button>
       </div>
     </form>
+    </div>
   );
 }

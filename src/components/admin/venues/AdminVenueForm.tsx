@@ -8,14 +8,22 @@ import { VenueContactTab } from './tabs/VenueContactTab';
 import { VenueAmenitiesTab } from './tabs/VenueAmenitiesTab';
 import { VenueHoursTab } from './tabs/VenueHoursTab';
 import { VenueMediaTab } from './tabs/VenueMediaTab';
+import { InlineProgress } from '@/components/ui/progress-indicator';
+import { useVenueCompletionStatus } from '@/hooks/useCompletionStatus';
 
 interface AdminVenueFormProps {
   form: UseFormReturn<VenueFlexibleFormData>;
 }
 
 export const AdminVenueForm: React.FC<AdminVenueFormProps> = ({ form }) => {
+  const formData = form.watch();
+  const completion = useVenueCompletionStatus(formData);
+
   return (
-    <Tabs defaultValue="basic" className="w-full">
+    <div className="space-y-6">
+      <InlineProgress completion={completion} />
+      
+      <Tabs defaultValue="basic" className="w-full">
       <TabsList className="grid w-full grid-cols-6">
         <TabsTrigger value="basic">Básico</TabsTrigger>
         <TabsTrigger value="location">Localização</TabsTrigger>
@@ -51,5 +59,6 @@ export const AdminVenueForm: React.FC<AdminVenueFormProps> = ({ form }) => {
         </TabsContent>
       </div>
     </Tabs>
+    </div>
   );
 };
