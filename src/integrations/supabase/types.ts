@@ -2244,13 +2244,6 @@ export type Database = {
             referencedRelation: "entity_profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "followers_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_with_stats"
-            referencedColumns: ["id"]
-          },
         ]
       }
       follows: {
@@ -5003,22 +4996,6 @@ export type Database = {
         }
         Relationships: []
       }
-      agentes: {
-        Row: {
-          city: string | null
-          country: string | null
-          created_at: string | null
-          id: string | null
-          instagram: string | null
-          kind: string | null
-          name: string | null
-          slug: string | null
-          state: string | null
-          status: string | null
-          updated_at: string | null
-        }
-        Relationships: []
-      }
       analytics_summary: {
         Row: {
           city: string | null
@@ -5035,41 +5012,6 @@ export type Database = {
         Row: {
           city_name: string | null
           events_count: number | null
-        }
-        Relationships: []
-      }
-      profiles_with_stats: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          bio_short: string | null
-          city: string | null
-          contact_email: string | null
-          contact_phone: string | null
-          country: string | null
-          cover_url: string | null
-          created_at: string | null
-          followers_count: number | null
-          handle: string | null
-          id: string | null
-          links: Json | null
-          name: string | null
-          source_id: string | null
-          state: string | null
-          tags: string[] | null
-          type: string | null
-          updated_at: string | null
-          user_id: string | null
-          verified: boolean | null
-          visibility: string | null
-        }
-        Relationships: []
-      }
-      v_admin_dashboard_counts: {
-        Row: {
-          kind: string | null
-          last_7d: number | null
-          total: number | null
         }
         Relationships: []
       }
