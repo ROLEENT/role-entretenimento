@@ -15,12 +15,25 @@ export type Profile = {
   cover_url?: string | null;
   tags?: string[];
   verified?: boolean;
+  links?: Array<{ type: string; url: string }>;
+  contact_email?: string | null;
+  contact_phone?: string | null;
+  visibility?: string;
+  profile_artist?: any;
+  profile_venue?: any;
+  profile_org?: any;
 };
 
 export async function getProfileByHandle(handle: string) {
   const { data, error } = await supabase
-    .from("entity_profiles")
-    .select("id, type, handle, name, city, state, country, bio_short, bio, avatar_url, cover_url, tags, verified")
+    .from("profiles")
+    .select(`
+      id, type, handle, name, city, state, country, bio_short, bio, avatar_url, cover_url, tags, verified,
+      profile_artist(*),
+      profile_venue(*),
+      profile_org(*),
+      links, contact_email, contact_phone, visibility
+    `)
     .eq("handle", handle.toLowerCase())
     .limit(1)
     .maybeSingle();
@@ -41,7 +54,7 @@ export type ListFilters = {
 
 export async function listProfiles(f: ListFilters) {
   let q = supabase
-    .from("entity_profiles")
+    .from("profiles")
     .select("id, type, handle, name, city, state, country, avatar_url, cover_url, tags", { count: "exact" });
 
   // Filter by visibility if specified (defaults to public for public site)

@@ -1,27 +1,85 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Heart, HeartHandshake } from "lucide-react";
+import { useFollowMutation } from "./hooks/useProfiles";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
-export default function FollowButton({ profileId }: { profileId: string }) {
-  const [loading, setLoading] = useState(false);
-  const [following, setFollowing] = useState(false);
+interface FollowButtonProps {
+  profileId: string;
+  className?: string;
+  size?: "sm" | "default" | "lg";
+}
 
-  async function toggle() {
-    setLoading(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { window.location.href = "/entrar"; return; }
-      if (following) {
-        await supabase.from("followers").delete().eq("profile_id", profileId).eq("user_id", user.id);
-        setFollowing(false);
-      } else {
-        await supabase.from("followers").insert({ profile_id: profileId, user_id: user.id });
-        setFollowing(true);
+export default function FollowButton({ profileId, className, size = "default" }: FollowButtonProps) {
+  const { user } = useAuth();
+  const { follow, unfollow, isFollowing, isUnfollowing } = useFollowMutation();
+  const [isFollowingProfile, setIsFollowingProfile] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    const checkFollowStatus = async () => {
+      try {
+        const { data } = await supabase
+          .from('followers')
+          .select('id')
+          .eq('profile_id', profileId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        setIsFollowingProfile(!!data);
+      } catch (error) {
+        console.error('Error checking follow status:', error);
+      } finally {
+        setLoading(false);
       }
-    } finally { setLoading(false); }
+    };
+
+    checkFollowStatus();
+  }, [profileId, user]);
+
+  if (!user) {
+    return null;
   }
+
+  if (loading) {
+    return (
+      <Button variant="outline" size={size} disabled className={className}>
+        <Heart className="w-4 h-4 mr-2" />
+        Carregando...
+      </Button>
+    );
+  }
+
+  const handleClick = () => {
+    if (isFollowingProfile) {
+      unfollow({ profileId });
+      setIsFollowingProfile(false);
+    } else {
+      follow({ profileId });
+      setIsFollowingProfile(true);
+    }
+  };
+
   return (
-    <button onClick={toggle} disabled={loading} className="h-9 px-3 rounded-md border text-sm">
-      {following ? "Seguindo" : "Seguir"}
-    </button>
+    <Button
+      variant={isFollowingProfile ? "default" : "outline"}
+      size={size}
+      onClick={handleClick}
+      disabled={isFollowing || isUnfollowing}
+      className={className}
+    >
+      {isFollowingProfile ? (
+        <HeartHandshake className="w-4 h-4 mr-2" />
+      ) : (
+        <Heart className="w-4 h-4 mr-2" />
+      )}
+      {isFollowingProfile ? "Seguindo" : "Seguir"}
+    </Button>
   );
 }
