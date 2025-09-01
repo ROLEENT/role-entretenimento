@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { FocusManagementProvider } from "@/components/FocusManagementProvider";
 import { queryClient } from "@/lib/queryClient";
@@ -13,12 +13,6 @@ import { DevCacheButton } from "./components/DevCacheButton";
 import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { RequireAuth } from "@/components/RequireAuth";
-import { AuthProvider } from "@/auth/AuthContext";
-import ProtectedRoute from "@/auth/ProtectedRoute";
-
-// Layouts
-import PublicLayout from "@/layouts/PublicLayout";
-import AdminLayout from "@/layouts/AdminLayout";
 
 // Preview component
 const PreviewAgenda = lazy(() => import("./pages/PreviewAgenda"));
@@ -26,6 +20,7 @@ const ChecklistTest = lazy(() => import("./pages/ChecklistTest"));
 // Dashboard components
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const DashboardLayout = lazy(() => import("./components/DashboardLayout"));
+import { DashboardRedirect } from "@/components/DashboardRedirect";
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
 const About = lazy(() => import("./pages/About"));
@@ -33,7 +28,7 @@ const Contact = lazy(() => import("./pages/Contact"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const SpamPolicy = lazy(() => import("./pages/SpamPolicy"));
 const UserTerms = lazy(() => import("./pages/UserTerms"));
-import { AdminLayout as LegacyAdminLayout } from "@/components/AdminLayout";
+import { AdminLayout } from "@/components/AdminLayout";
 import { AdminDashboard as NewAdminDashboard } from "@/pages/admin/AdminDashboard";
 import { ApplicationsPage } from "@/pages/admin/ApplicationsPage";
 import { ContactPage } from "@/pages/admin/ContactPage";
@@ -61,6 +56,7 @@ const AdminV3VenueCreate = lazy(() => import("./pages/admin-v3/AdminV3VenueCreat
 const AdminV3VenueEdit = lazy(() => import("./pages/admin-v3/AdminV3VenueEdit"));
 
 // Admin V3 Functional Pages
+const AdminV3VenuesPage = lazy(() => import("./pages/admin-v3/AdminV3VenuesList"));
 const AdminV3RevistaPage = lazy(() => import("./pages/admin-v3/AdminV3RevistaList"));
 const AdminV3BlogCreate = lazy(() => import("./pages/admin-v3/AdminV3BlogCreate"));
 const AdminV3BlogEdit = lazy(() => import("./pages/admin-v3/AdminV3BlogEdit"));
@@ -83,12 +79,18 @@ const AgendaDetailPage = lazy(() => import("./pages/AgendaDetailPage"));
 
 // Layout components
 const AgendaLayout = lazy(() => import("./components/layouts/AgendaLayout"));
+// const DestaquesHub = lazy(() => import("./pages/DestaquesHub")); // Removido
 const CitiesPage = lazy(() => import("./pages/CitiesPage"));
+const BlogArticle = lazy(() => import("./pages/BlogArticle"));
 const HighlightsPage = lazy(() => import("./pages/HighlightsPage"));
+const CityHighlightsPage = lazy(() => import("./pages/CityHighlightsPage"));
 const CityHighlights = lazy(() => import("./pages/CityHighlights"));
+const HighlightDetailPage = lazy(() => import("./pages/HighlightDetailPage"));
 
 // Admin pages - simple system
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+// Legacy AdminHighlightForm removed
 
 // Admin V2 pages - advanced system
 const AdminV2Login = lazy(() => import("./pages/AdminV2Login"));
@@ -106,6 +108,9 @@ const DevAuth = lazy(() => import("./pages/DevAuth"));
 // Under Construction Components
 const UnderConstructionPage = lazy(() => import("@/components/admin/UnderConstructionPage").then(module => ({ default: module.UnderConstructionPage })));
 const UnderConstructionHandler = lazy(() => import("@/components/admin/UnderConstructionHandler").then(module => ({ default: module.UnderConstructionHandler })));
+
+// Admin Blog components
+const AdminBlogList = lazy(() => import("./components/admin/blog/AdminBlogList").then(module => ({ default: module.AdminBlogList })));
 
 // Revista pages
 const RevistaPage = lazy(() => import("./pages/RevistaPage"));
@@ -153,177 +158,175 @@ const PageLoadingFallback = () => (
 
 function App() {
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            <ErrorBoundary>
-              <BrowserRouter>
-                <FocusManagementProvider />
-                <Suspense fallback={<PageLoadingFallback />}>
-                  <ScrollToTop />
-                  <DevCacheButton />
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <ErrorBoundary>
+            <BrowserRouter>
+              <FocusManagementProvider />
+              <Suspense fallback={<PageLoadingFallback />}>
+                <ScrollToTop />
+                <DevCacheButton />
+              
+              <Routes>
+                {/* Root redirect */}
+                <Route path="/" element={<DashboardRedirect />} />
                 
-                  <Routes>
-                    {/* Public routes - no guard */}
-                    <Route element={<PublicLayout />}>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/home" element={<Index />} />
-                      
-                      {/* Static Pages */}
-                      <Route path="/sobre" element={<About />} />
-                      <Route path="/contato" element={<Contact />} />
-                      <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
-                      <Route path="/politica-spam" element={<SpamPolicy />} />
-                      <Route path="/termos-usuario" element={<UserTerms />} />
-                      <Route path="/termos-organizador" element={<OrganizerTerms />} />
-                      <Route path="/ajuda" element={<Help />} />
-                      
-                      {/* Institutional Pages */}
-                      <Route path="/institucional/parcerias" element={<Parcerias />} />
-                      <Route path="/institucional/trabalhe-conosco" element={<TrabalheConosco />} />
-                      <Route path="/institucional/imprensa" element={<Imprensa />} />
-                      
-                      {/* Agenda Routes - Order matters for routing */}
-                      <Route path="/agenda" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><Agenda /></AgendaLayout></Suspense>} />
-                      <Route path="/agenda/todos" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><AgendaTodos /></AgendaLayout></Suspense>} />
-                      <Route path="/agenda/outras-cidades" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><OutrasCidades /></AgendaLayout></Suspense>} />
-                      <Route path="/agenda/cidade/:cidade" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><AgendaCidade /></AgendaLayout></Suspense>} />
-                      <Route path="/agenda/:slug" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><AgendaDetailPage /></AgendaLayout></Suspense>} />
-                      
-                      {/* Preview Routes */}
-                      <Route path="/preview/agenda/:slug" element={<PreviewAgenda />} />
-                      
-                      {/* Test Routes */}
-                      <Route path="/test/checklist" element={<ChecklistTest />} />
-                      <Route path="/debug/combo" element={<DebugCombo />} />
-                      
-                      {/* Revista Routes */}
-                      <Route path="/revista" element={<Suspense fallback={<PageLoadingFallback />}><RevistaPage /></Suspense>} />
-                      <Route path="/revista/:slug" element={<Suspense fallback={<PageLoadingFallback />}><RevistaArticlePage /></Suspense>} />
-                      
-                      {/* Highlights Routes */}
-                      <Route path="/highlights" element={<HighlightsPage />} />
-                      <Route path="/cidade/:cidade" element={<CityHighlights />} />
-                      <Route path="/cidades" element={<CitiesPage />} />
-                      
-                      {/* Events Routes */}
-                      <Route path="/eventos" element={<EventsPage />} />
-                      <Route path="/eventos/hoje" element={<EventsPage />} />
-                      <Route path="/eventos/:cidade" element={<EventsPage />} />
-                      <Route path="/evento/:id" element={<EventDetailPage />} />
-                      <Route path="/criar-evento" element={<CreateEventPage />} />
-                      
-                      {/* User Routes */}
-                      <Route path="/auth" element={<AuthPage />} />
-                      <Route path="/entrar" element={<AuthPage />} />
-                      <Route path="/perfil" element={<Profile />} />
-                      <Route path="/criar/perfil" element={<CreateProfilePage />} />
-                      <Route path="/feed" element={<FeedPage />} />
-                      <Route path="/descobrir" element={<DiscoverUsers />} />
-                      <Route path="/eventos/semana/:data" element={<WeeklyHighlights />} />
-                      <Route path="/conquistas" element={<GamificationPage />} />
-                    </Route>
+                {/* Home route for public */}
+                <Route path="/home" element={<Index />} />
+                
+                {/* Static Pages */}
+                <Route path="/sobre" element={<About />} />
+                <Route path="/contato" element={<Contact />} />
+                <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
+                <Route path="/politica-spam" element={<SpamPolicy />} />
+                <Route path="/termos-usuario" element={<UserTerms />} />
+                <Route path="/termos-organizador" element={<OrganizerTerms />} />
+                <Route path="/ajuda" element={<Help />} />
+                
+                {/* Institutional Pages */}
+                <Route path="/institucional/parcerias" element={<Parcerias />} />
+                <Route path="/institucional/trabalhe-conosco" element={<TrabalheConosco />} />
+                <Route path="/institucional/imprensa" element={<Imprensa />} />
+                
+                {/* Agenda Routes - Order matters for routing */}
+                <Route path="/agenda" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><Agenda /></AgendaLayout></Suspense>} />
+                <Route path="/agenda/todos" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><AgendaTodos /></AgendaLayout></Suspense>} />
+                <Route path="/agenda/outras-cidades" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><OutrasCidades /></AgendaLayout></Suspense>} />
+                <Route path="/agenda/cidade/:cidade" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><AgendaCidade /></AgendaLayout></Suspense>} />
+                <Route path="/agenda/:slug" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><AgendaDetailPage /></AgendaLayout></Suspense>} />
+                
+                {/* Preview Routes */}
+                <Route path="/preview/agenda/:slug" element={<PreviewAgenda />} />
+                
+                {/* Test Routes */}
+                <Route path="/test/checklist" element={<ChecklistTest />} />
+                <Route path="/debug/combo" element={<DebugCombo />} />
+                {/* Removed old test route */}
+                
+                {/* Revista Routes */}
+                <Route path="/revista" element={<Suspense fallback={<PageLoadingFallback />}><RevistaPage /></Suspense>} />
+                <Route path="/revista/:slug" element={<Suspense fallback={<PageLoadingFallback />}><RevistaArticlePage /></Suspense>} />
+                
+                {/* Rotas antigas de destaques removidas */}
+                <Route path="/cidades" element={<CitiesPage />} />
+                
+                {/* Highlights Routes */}
+                <Route path="/highlights" element={<HighlightsPage />} />
+                <Route path="/cidade/:cidade" element={<CityHighlights />} />
+                
+            {/* New Dashboard Route */}
+            <Route path="/dashboard" element={
+              <Suspense fallback={<AdminLoadingFallback />}>
+                <DashboardLayout>
+                  <DashboardPage />
+                </DashboardLayout>
+              </Suspense>
+            } />
 
-                    {/* Dashboard Route */}
-                    <Route path="/dashboard" element={
-                      <Suspense fallback={<AdminLoadingFallback />}>
-                        <DashboardLayout>
-                          <DashboardPage />
-                        </DashboardLayout>
-                      </Suspense>
-                    } />
+            {/* Admin Panel Routes (legacy) */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<NewAdminDashboard />} />
+              <Route path="applications" element={<ApplicationsPage />} />
+              <Route path="contact" element={<ContactPage />} />
+              <Route path="newsletter" element={<NewsletterPage />} />
+            </Route>
 
-                    {/* Protected calendar route */}
-                    <Route path="/meu-calendario" element={
-                      <RequireAuth>
-                        <CalendarPage />
-                      </RequireAuth>
-                    } />
-
-                    {/* Admin login pages - not protected */}
-                    <Route path="/admin/login" element={<AdminLogin />} />
-                    <Route path="/admin-v2/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Login /></Suspense>} />
-                    <Route path="/admin-v3/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Login /></Suspense>} />
-                    <Route path="/dev-auth" element={<Suspense fallback={<AdminLoadingFallback />}><DevAuth /></Suspense>} />
-
-                    {/* Protected Admin routes */}
-                    <Route element={<ProtectedRoute requireRole="admin" />}>
-                      {/* Legacy Admin Panel */}
-                      <Route path="/admin" element={<LegacyAdminLayout />}>
-                        <Route index element={<NewAdminDashboard />} />
-                        <Route path="applications" element={<ApplicationsPage />} />
-                        <Route path="contact" element={<ContactPage />} />
-                        <Route path="newsletter" element={<NewsletterPage />} />
-                      </Route>
-
-                      {/* Admin V2 System */}
-                      <Route path="/admin-v2/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Dashboard /></Suspense>} />
-
-                      {/* Admin V3 System */}
-                      <Route path="/admin-v3" element={<AdminV3Layout />}>
-                        <Route index element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
-                        <Route path="dashboard" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
-                        <Route path="debug" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Debug /></Suspense>} />
-                        
-                        {/* Agenda Routes */}
-                        <Route path="agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaList /></Suspense>} />
-                        <Route path="agenda/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaCreate /></Suspense>} />
-                        <Route path="agenda/:id/editar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaEdit /></Suspense>} />
-                        <Route path="agenda/rascunhos" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Rascunhos da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Salvar eventos como rascunho', 'Revisar antes de publicar', 'Agendamento de publicação']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Rascunhos'}]} /></Suspense>} />
-                        <Route path="agenda/configuracoes" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Configurações da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Configurações gerais', 'Integração com APIs', 'Notificações automáticas']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Configurações'}]} /></Suspense>} />
-                        
-                        {/* Eventos Routes */}
-                        <Route path="eventos" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3EventsList /></Suspense>} />
-                        <Route path="eventos/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3EventCreate /></Suspense>} />
-                        <Route path="eventos/:id/editar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3EventEdit /></Suspense>} />
-                        
-                        {/* Agentes Routes */}
-                        <Route path="agentes/artistas" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsList /></Suspense>} />
-                        <Route path="agentes/artistas/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
-                        <Route path="agentes/artistas/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
-                        <Route path="agentes/artistas/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistEdit /></Suspense>} />
-                        <Route path="agentes/venues" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenuesList /></Suspense>} />
-                        <Route path="agentes/venues/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenueCreate /></Suspense>} />
-                        <Route path="agentes/venues/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenueEdit /></Suspense>} />
-                        <Route path="agentes/organizadores" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizadoresList /></Suspense>} />
-                        <Route path="agentes/organizadores/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerCreate /></Suspense>} />
-                        <Route path="agentes/organizadores/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerEdit /></Suspense>} />
-                        
-                        {/* Other modules */}
-                        <Route path="revista" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaPage /></Suspense>} />
-                        <Route path="revista/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3BlogCreate /></Suspense>} />
-                        <Route path="revista/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3BlogEdit /></Suspense>} />
-                        
-                        {/* Gestao Routes */}
-                        <Route path="gestao" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoPage /></Suspense>} />
-                        <Route path="gestao/logs" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoLogsPage /></Suspense>} />
-                        <Route path="gestao/notificacoes" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoNotificacoesPage /></Suspense>} />
-                        <Route path="gestao/analytics" element={<Suspense fallback={<AdminLoadingFallback />}><AnalyticsPage /></Suspense>} />
-                        <Route path="gestao/backup" element={<Suspense fallback={<AdminLoadingFallback />}><BackupRestorePage /></Suspense>} />
-                        <Route path="destaques" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
-                        <Route path="destaques/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
-                        
-                        {/* Fallback for under construction */}
-                        <Route path="under-construction" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionHandler /></Suspense>} />
-                      </Route>
-                    </Route>
-                    
-                    {/* Catch-all route MUST be last */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
+            {/* Legacy Simple Admin System */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+                
+                {/* Admin V2 System */}
+                <Route path="/admin-v2/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Login /></Suspense>} />
+                <Route path="/admin-v2/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Dashboard /></Suspense>} />
+                
+                {/* Admin V3 System - Login standalone */}
+                <Route path="/admin-v3/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Login /></Suspense>} />
+                <Route path="/dev-auth" element={<Suspense fallback={<AdminLoadingFallback />}><DevAuth /></Suspense>} />
+                
+                {/* Admin V3 - All routes with unified layout */}
+                <Route path="/admin-v3" element={<AdminV3Layout />}>
+                  <Route index element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
+                  <Route path="dashboard" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
+                  <Route path="debug" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Debug /></Suspense>} />
                   
-                </Suspense>
-                <PWAInstallPrompt />
-              </BrowserRouter>
-            </ErrorBoundary>
-            <Toaster />
-            <Sonner />
-            <ReactQueryDevtools initialIsOpen={false} />
-          </ThemeProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </AuthProvider>
+                  {/* Agenda Routes */}
+                  <Route path="agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaList /></Suspense>} />
+                  <Route path="agenda/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaCreate /></Suspense>} />
+                  <Route path="agenda/:id/editar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaEdit /></Suspense>} />
+                  <Route path="agenda/rascunhos" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Rascunhos da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Salvar eventos como rascunho', 'Revisar antes de publicar', 'Agendamento de publicação']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Rascunhos'}]} /></Suspense>} />
+                  <Route path="agenda/configuracoes" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Configurações da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Configurações gerais', 'Integração com APIs', 'Notificações automáticas']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Configurações'}]} /></Suspense>} />
+                  
+                  {/* Eventos Routes */}
+                  <Route path="eventos" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3EventsList /></Suspense>} />
+                  <Route path="eventos/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3EventCreate /></Suspense>} />
+                  <Route path="eventos/:id/editar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3EventEdit /></Suspense>} />
+                  
+                  {/* Agentes Routes */}
+                  <Route path="agentes/artistas" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsList /></Suspense>} />
+                  <Route path="agentes/artistas/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
+                  <Route path="agentes/artistas/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
+                  <Route path="agentes/artistas/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistEdit /></Suspense>} />
+                  <Route path="agentes/venues" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenuesList /></Suspense>} />
+                  <Route path="agentes/venues/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenueCreate /></Suspense>} />
+                  <Route path="agentes/venues/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenueEdit /></Suspense>} />
+                  <Route path="agentes/organizadores" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizadoresList /></Suspense>} />
+                  <Route path="agentes/organizadores/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerCreate /></Suspense>} />
+                  <Route path="agentes/organizadores/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerEdit /></Suspense>} />
+                  
+                  {/* Other modules */}
+                  <Route path="revista" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaPage /></Suspense>} />
+                  <Route path="revista/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3BlogCreate /></Suspense>} />
+                  <Route path="revista/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3BlogEdit /></Suspense>} />
+                  
+                  {/* Gestao Routes */}
+                  <Route path="gestao" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoPage /></Suspense>} />
+                  <Route path="gestao/logs" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoLogsPage /></Suspense>} />
+                  <Route path="gestao/notificacoes" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoNotificacoesPage /></Suspense>} />
+                  <Route path="gestao/analytics" element={<Suspense fallback={<AdminLoadingFallback />}><AnalyticsPage /></Suspense>} />
+                  <Route path="gestao/backup" element={<Suspense fallback={<AdminLoadingFallback />}><BackupRestorePage /></Suspense>} />
+                  <Route path="destaques" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
+                  <Route path="destaques/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
+                  
+                  {/* Fallback for under construction */}
+                  <Route path="under-construction" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionHandler /></Suspense>} />
+                </Route>
+                
+                {/* Events Routes */}
+                <Route path="/eventos" element={<EventsPage />} />
+                <Route path="/eventos/hoje" element={<EventsPage />} />
+                <Route path="/eventos/:cidade" element={<EventsPage />} />
+                <Route path="/evento/:id" element={<EventDetailPage />} />
+                <Route path="/criar-evento" element={<CreateEventPage />} />
+                
+                {/* User Routes */}
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/perfil" element={<Profile />} />
+                <Route path="/criar/perfil" element={<CreateProfilePage />} />
+                <Route path="/feed" element={<FeedPage />} />
+                <Route path="/descobrir" element={<DiscoverUsers />} />
+                <Route path="/eventos/semana/:data" element={<WeeklyHighlights />} />
+                <Route path="/meu-calendario" element={
+                  <RequireAuth>
+                    <CalendarPage />
+                  </RequireAuth>
+                } />
+                <Route path="/conquistas" element={<GamificationPage />} />
+                {/* Removed: Groups and Music routes */}
+                
+                {/* Catch-all route MUST be last */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              
+              </Suspense>
+              <PWAInstallPrompt />
+            </BrowserRouter>
+          </ErrorBoundary>
+          <Toaster />
+          <Sonner />
+          <ReactQueryDevtools initialIsOpen={false} />
+        </ThemeProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 }
 
