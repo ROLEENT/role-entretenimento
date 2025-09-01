@@ -1465,7 +1465,7 @@ export type Database = {
             foreignKeyName: "blog_posts_author_id_fkey"
             columns: ["author_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "user_profiles"
             referencedColumns: ["user_id"]
           },
         ]
@@ -2184,14 +2184,7 @@ export type Database = {
             foreignKeyName: "followers_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
-            referencedRelation: "profile_stats"
-            referencedColumns: ["profile_id"]
-          },
-          {
-            foreignKeyName: "followers_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "user_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -2220,14 +2213,14 @@ export type Database = {
             foreignKeyName: "follows_follower_id_fkey"
             columns: ["follower_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "user_profiles"
             referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "follows_following_id_fkey"
             columns: ["following_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "user_profiles"
             referencedColumns: ["user_id"]
           },
         ]
@@ -3573,14 +3566,7 @@ export type Database = {
             foreignKeyName: "profile_artist_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: true
-            referencedRelation: "profile_stats"
-            referencedColumns: ["profile_id"]
-          },
-          {
-            foreignKeyName: "profile_artist_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
+            referencedRelation: "user_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -3621,14 +3607,7 @@ export type Database = {
             foreignKeyName: "profile_org_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: true
-            referencedRelation: "profile_stats"
-            referencedColumns: ["profile_id"]
-          },
-          {
-            foreignKeyName: "profile_org_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
+            referencedRelation: "user_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -3657,14 +3636,7 @@ export type Database = {
             foreignKeyName: "profile_roles_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
-            referencedRelation: "profile_stats"
-            referencedColumns: ["profile_id"]
-          },
-          {
-            foreignKeyName: "profile_roles_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "user_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -3717,126 +3689,32 @@ export type Database = {
             foreignKeyName: "profile_venue_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: true
-            referencedRelation: "profile_stats"
-            referencedColumns: ["profile_id"]
-          },
-          {
-            foreignKeyName: "profile_venue_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
+            referencedRelation: "user_profiles"
             referencedColumns: ["id"]
           },
         ]
       }
       profiles: {
         Row: {
-          avatar_url: string | null
-          bio: string | null
-          bio_short: string | null
-          birth_date: string | null
-          city: string | null
-          contact_email: string | null
-          contact_phone: string | null
-          country: string | null
-          cover_url: string | null
-          created_at: string
-          created_by: string | null
-          display_name: string | null
+          created_at: string | null
           email: string | null
-          followers_count: number | null
-          following_count: number | null
-          full_name: string | null
-          handle: string | null
-          id: string
-          is_admin: boolean
-          is_verified: boolean | null
-          links: Json | null
-          location: string | null
-          phone: string | null
-          preferences_json: Json
-          role: Database["public"]["Enums"]["user_role"]
-          state: string | null
-          tags: string[] | null
-          type: string | null
-          updated_at: string
+          role: string | null
+          updated_at: string | null
           user_id: string
-          username: string | null
-          verified: boolean | null
-          visibility: string | null
-          website: string | null
         }
         Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          bio_short?: string | null
-          birth_date?: string | null
-          city?: string | null
-          contact_email?: string | null
-          contact_phone?: string | null
-          country?: string | null
-          cover_url?: string | null
-          created_at?: string
-          created_by?: string | null
-          display_name?: string | null
+          created_at?: string | null
           email?: string | null
-          followers_count?: number | null
-          following_count?: number | null
-          full_name?: string | null
-          handle?: string | null
-          id?: string
-          is_admin?: boolean
-          is_verified?: boolean | null
-          links?: Json | null
-          location?: string | null
-          phone?: string | null
-          preferences_json?: Json
-          role?: Database["public"]["Enums"]["user_role"]
-          state?: string | null
-          tags?: string[] | null
-          type?: string | null
-          updated_at?: string
+          role?: string | null
+          updated_at?: string | null
           user_id: string
-          username?: string | null
-          verified?: boolean | null
-          visibility?: string | null
-          website?: string | null
         }
         Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          bio_short?: string | null
-          birth_date?: string | null
-          city?: string | null
-          contact_email?: string | null
-          contact_phone?: string | null
-          country?: string | null
-          cover_url?: string | null
-          created_at?: string
-          created_by?: string | null
-          display_name?: string | null
+          created_at?: string | null
           email?: string | null
-          followers_count?: number | null
-          following_count?: number | null
-          full_name?: string | null
-          handle?: string | null
-          id?: string
-          is_admin?: boolean
-          is_verified?: boolean | null
-          links?: Json | null
-          location?: string | null
-          phone?: string | null
-          preferences_json?: Json
-          role?: Database["public"]["Enums"]["user_role"]
-          state?: string | null
-          tags?: string[] | null
-          type?: string | null
-          updated_at?: string
+          role?: string | null
+          updated_at?: string | null
           user_id?: string
-          username?: string | null
-          verified?: boolean | null
-          visibility?: string | null
-          website?: string | null
         }
         Relationships: []
       }
@@ -4455,6 +4333,117 @@ export type Database = {
         }
         Relationships: []
       }
+      user_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          bio_short: string | null
+          birth_date: string | null
+          city: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          country: string | null
+          cover_url: string | null
+          created_at: string
+          created_by: string | null
+          display_name: string | null
+          email: string | null
+          followers_count: number | null
+          following_count: number | null
+          full_name: string | null
+          handle: string | null
+          id: string
+          is_admin: boolean
+          is_verified: boolean | null
+          links: Json | null
+          location: string | null
+          phone: string | null
+          preferences_json: Json
+          role: Database["public"]["Enums"]["user_role"]
+          state: string | null
+          tags: string[] | null
+          type: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+          verified: boolean | null
+          visibility: string | null
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          bio_short?: string | null
+          birth_date?: string | null
+          city?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_name?: string | null
+          email?: string | null
+          followers_count?: number | null
+          following_count?: number | null
+          full_name?: string | null
+          handle?: string | null
+          id?: string
+          is_admin?: boolean
+          is_verified?: boolean | null
+          links?: Json | null
+          location?: string | null
+          phone?: string | null
+          preferences_json?: Json
+          role?: Database["public"]["Enums"]["user_role"]
+          state?: string | null
+          tags?: string[] | null
+          type?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+          verified?: boolean | null
+          visibility?: string | null
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          bio_short?: string | null
+          birth_date?: string | null
+          city?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_name?: string | null
+          email?: string | null
+          followers_count?: number | null
+          following_count?: number | null
+          full_name?: string | null
+          handle?: string | null
+          id?: string
+          is_admin?: boolean
+          is_verified?: boolean | null
+          links?: Json | null
+          location?: string | null
+          phone?: string | null
+          preferences_json?: Json
+          role?: Database["public"]["Enums"]["user_role"]
+          state?: string | null
+          tags?: string[] | null
+          type?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+          verified?: boolean | null
+          visibility?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
       venue_types: {
         Row: {
           created_at: string
@@ -4783,14 +4772,6 @@ export type Database = {
         Row: {
           city_name: string | null
           events_count: number | null
-        }
-        Relationships: []
-      }
-      profile_stats: {
-        Row: {
-          followers_count: number | null
-          profile_id: string | null
-          upcoming_events_count: number | null
         }
         Relationships: []
       }
@@ -5430,6 +5411,10 @@ export type Database = {
         Args: { "": string }
         Returns: string
       }
+      cleanup_orphaned_profile_files: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       confirm_newsletter_subscription: {
         Args: { p_token: string }
         Returns: boolean
@@ -6010,8 +5995,14 @@ export type Database = {
         Args: { inp: string }
         Returns: string
       }
+      promote_to_admin: {
+        Args: { target_email: string }
+        Returns: undefined
+      }
       provision_user_profile: {
-        Args: { p_email: string; p_user_id: string }
+        Args:
+          | Record<PropertyKey, never>
+          | { p_email: string; p_user_id: string }
         Returns: Json
       }
       reject_blog_comment: {
@@ -6124,6 +6115,14 @@ export type Database = {
           p_venue_id?: string
         }
         Returns: boolean
+      }
+      upload_profile_avatar: {
+        Args: { p_file_data: string; p_file_name: string; p_profile_id: string }
+        Returns: string
+      }
+      upload_profile_cover: {
+        Args: { p_file_data: string; p_file_name: string; p_profile_id: string }
+        Returns: string
       }
       user_liked_highlight: {
         Args: { p_highlight_id: string }
