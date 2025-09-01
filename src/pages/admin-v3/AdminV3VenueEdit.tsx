@@ -13,6 +13,7 @@ import { AdminVenueForm } from '@/components/admin/venues/AdminVenueForm';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { venueSchema, VenueFormData } from '@/schemas/venue';
 import { useUpsertVenue } from '@/hooks/useUpsertAgents';
+import { ProfileGenerationButton } from '@/components/admin/agents/ProfileGenerationButton';
 
 const AdminV3VenueEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -183,10 +184,36 @@ const AdminV3VenueEdit: React.FC = () => {
       <main className="container mx-auto px-4 py-8">
         <AdminV3Breadcrumb items={breadcrumbs} />
         
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">{`Editar Local: ${venue?.name}`}</h1>
+            <p className="text-muted-foreground">Atualize as informações do local</p>
+          </div>
+          <ProfileGenerationButton
+            agentData={{
+              id: venue.id,
+              name: venue.name,
+              slug: venue.slug,
+              city: venue.city,
+              state: venue.state,
+              country: venue.country,
+              bio_short: venue.about?.slice(0, 160),
+              bio: venue.about,
+              avatar_url: venue.cover_url,
+              cover_url: venue.cover_url,
+              tags: venue.tags,
+              instagram: venue.instagram,
+              website: venue.website,
+              email: venue.email,
+            }}
+            agentType="local"
+          />
+        </div>
+
         <Form {...form}>
           <FormShell
-            title={`Editar Local: ${venue?.name}`}
-            description="Atualize as informações do local"
+            title=""
+            description=""
             form={form}
             onSaveAndExit={handleSaveAndExit}
             backUrl="/admin-v3/agentes/venues"

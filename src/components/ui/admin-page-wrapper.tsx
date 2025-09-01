@@ -15,6 +15,7 @@ interface AdminPageWrapperProps {
   description?: string;
   breadcrumbs?: BreadcrumbItem[];
   actions?: React.ReactNode;
+  headerExtra?: React.ReactNode;
   className?: string;
 }
 
@@ -24,6 +25,7 @@ export const AdminPageWrapper: React.FC<AdminPageWrapperProps> = ({
   description,
   breadcrumbs = [],
   actions,
+  headerExtra,
   className = ""
 }) => {
   return (
@@ -36,7 +38,7 @@ export const AdminPageWrapper: React.FC<AdminPageWrapperProps> = ({
               <AdminV3Breadcrumb items={breadcrumbs} />
             )}
             
-            {(title || actions) && (
+            {(title || actions || headerExtra) && (
               <div className="flex items-center justify-between">
                 {title && (
                   <div>
@@ -46,11 +48,14 @@ export const AdminPageWrapper: React.FC<AdminPageWrapperProps> = ({
                     )}
                   </div>
                 )}
-                {actions && (
-                  <div className="flex gap-2">
-                    {actions}
-                  </div>
-                )}
+                <div className="flex items-center gap-4">
+                  {headerExtra}
+                  {actions && (
+                    <div className="flex gap-2">
+                      {actions}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
             

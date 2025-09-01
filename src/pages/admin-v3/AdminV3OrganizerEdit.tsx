@@ -6,6 +6,7 @@ import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
 import { AdminOrganizerForm, OrganizerFormData } from '@/components/admin/agents/AdminOrganizerForm';
 import { useUpsertOrganizer } from '@/hooks/useUpsertAgents';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { ProfileGenerationButton } from '@/components/admin/agents/ProfileGenerationButton';
 
 const AdminV3OrganizerEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -95,6 +96,27 @@ const AdminV3OrganizerEdit: React.FC = () => {
       title={`Editar: ${organizer.name}`}
       description="Atualize as informações do organizador"
       breadcrumbs={breadcrumbs}
+      headerExtra={
+        <ProfileGenerationButton
+          agentData={{
+            id: organizer.id,
+            name: organizer.name,
+            slug: organizer.slug,
+            city: organizer.city,
+            state: organizer.state,
+            country: organizer.country,
+            bio_short: organizer.bio_short,
+            bio: organizer.bio,
+            avatar_url: organizer.avatar_url,
+            cover_url: organizer.cover_url,
+            tags: organizer.tags,
+            instagram: organizer.instagram,
+            website: organizer.site,
+            contact_email: organizer.contact_email,
+          }}
+          agentType="organizador"
+        />
+      }
     >
       <AdminOrganizerForm
         organizer={organizer}
