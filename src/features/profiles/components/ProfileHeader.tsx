@@ -1,10 +1,12 @@
-import { Share2, Mail, Phone, MapPin, ExternalLink, Heart } from "lucide-react";
+import { Share2, Mail, Phone, MapPin, ExternalLink, Heart, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Profile } from "../api";
 import { FollowButton } from "@/components/profiles/FollowButton";
 import { useProfileStats } from "../hooks/useProfileStats";
+import { ClaimProfileDialog } from "@/components/profiles/ClaimProfileDialog";
+import { useState } from "react";
 
 interface ProfileHeaderProps {
   profile: Profile;
@@ -12,6 +14,7 @@ interface ProfileHeaderProps {
 
 export function ProfileHeader({ profile }: ProfileHeaderProps) {
   const { stats, loading: statsLoading } = useProfileStats(profile.id);
+  const [showClaimDialog, setShowClaimDialog] = useState(false);
   
   const handleShare = () => {
     if (navigator.share) {
@@ -96,6 +99,18 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-2 lg:flex-nowrap lg:gap-3">
               <FollowButton profileId={profile.id} />
+              
+              {!profile.user_id && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowClaimDialog(true)}
+                  className="gap-2"
+                >
+                  <Shield className="w-4 h-4" />
+                  <span className="hidden sm:inline">É seu perfil?</span>
+                </Button>
+              )}
               
               <Button 
                 variant="outline" 
@@ -225,6 +240,18 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
           </div>
         </div>
       </div>
+
+      <ClaimProfileDialog
+        isOpen={showClaimDialog}
+        onClose={() => setShowClaimDialog(false)}
+        profile={{
+          id: profile.id,
+          handle: profile.handle,
+          name: profile.name,
+          bio: profile.bio_short,
+          avatar_url: profile.avatar_url
+        }}
+      />
     </div>
   );
 }

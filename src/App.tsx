@@ -128,6 +128,7 @@ const EventDetailPage = lazy(() => import("./pages/EventDetailPage"));
 const CreateEventPage = lazy(() => import("./pages/CreateEventPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const PublicAuthPage = lazy(() => import("./pages/PublicAuthPage"));
+const ClaimProfilePage = lazy(() => import("./pages/ClaimProfilePage"));
 const Profile = lazy(() => import("./pages/Profile"));
 const WeeklyHighlights = lazy(() => import("./pages/WeeklyHighlights"));
 const FeedPage = lazy(() => import("./pages/FeedPage"));
@@ -225,6 +226,7 @@ function App() {
                 {/* Profiles Routes */}
                 <Route path="/perfis" element={<Suspense fallback={<PageLoadingFallback />}><DirectoryPage /></Suspense>} />
                 <Route path="/perfil/:handle" element={<Suspense fallback={<PageLoadingFallback />}><ProfilePage /></Suspense>} />
+                <Route path="/claim/:handle" element={<Suspense fallback={<PageLoadingFallback />}><ClaimProfilePage /></Suspense>} />
                 <Route path="/cidades/:slug/perfis" element={<Suspense fallback={<PageLoadingFallback />}><CityDirectoryPage /></Suspense>} />
                 
                 {/* Highlights Routes */}
