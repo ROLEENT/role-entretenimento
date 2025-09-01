@@ -1,4 +1,4 @@
-import { Calendar, Plus, Users, Building2, MapPin, UserPlus, BookOpen, Settings, Star } from "lucide-react";
+import { Calendar, Plus, Users, Building2, MapPin, UserPlus, BookOpen, Settings, Star, Activity, Bell, BarChart3, Database, FileText, User } from "lucide-react";
 
 export const MENUS = {
   agenda: [
@@ -15,7 +15,7 @@ export const MENUS = {
       icon: Plus
     },
   ],
-  agentes: [
+  perfis: [
     { 
       href: "/admin-v3/agentes/artistas", 
       title: "Artistas", 
@@ -52,9 +52,33 @@ export const MENUS = {
   gestao: [
     { 
       href: "/admin-v3/gestao", 
-      title: "Gestão", 
-      description: "em desenvolvimento",
+      title: "Visão Geral", 
+      description: "dashboard principal",
       icon: Settings
+    },
+    { 
+      href: "/admin-v3/gestao/logs", 
+      title: "Logs do Sistema", 
+      description: "auditoria",
+      icon: Activity
+    },
+    { 
+      href: "/admin-v3/gestao/notificacoes", 
+      title: "Notificações Push", 
+      description: "admin alerts",
+      icon: Bell
+    },
+    { 
+      href: "/admin-v3/gestao/analytics", 
+      title: "Analytics", 
+      description: "relatórios",
+      icon: BarChart3
+    },
+    { 
+      href: "/admin-v3/gestao/backup", 
+      title: "Backup/Restore", 
+      description: "dados",
+      icon: Database
     },
   ],
   destaques: [

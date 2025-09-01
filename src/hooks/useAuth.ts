@@ -2,139 +2,199 @@ import { useState, useEffect } from 'react';
 import { authService, type AuthUser } from '@/services/authService';
 import type { Session } from '@supabase/supabase-js';
 
+// Global state to prevent multiple auth listeners
+let globalAuthState = {
+  user: null as AuthUser | null,
+  session: null as Session | null,
+  loading: true,
+  role: null as 'admin' | 'editor' | 'viewer' | null,
+  listeners: new Set<Function>(),
+  initialized: false,
+  subscription: null as any
+};
+
+// Debounce function to prevent spam
+let lastUpdateTime = 0;
+const UPDATE_DEBOUNCE = 100;
+
+function updateGlobalState(updates: Partial<typeof globalAuthState>) {
+  const now = Date.now();
+  if (now - lastUpdateTime < UPDATE_DEBOUNCE) return;
+  lastUpdateTime = now;
+  
+  Object.assign(globalAuthState, updates);
+  globalAuthState.listeners.forEach(listener => listener(globalAuthState));
+}
+
 export const useAuth = () => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState<'admin' | 'editor' | 'viewer' | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(globalAuthState.user);
+  const [session, setSession] = useState<Session | null>(globalAuthState.session);
+  const [loading, setLoading] = useState(globalAuthState.loading);
+  const [role, setRole] = useState<'admin' | 'editor' | 'viewer' | null>(globalAuthState.role);
 
   useEffect(() => {
     let isMounted = true;
     
-    // Clear potentially corrupted auth data
-    const clearCorruptedData = () => {
-      try {
-        const keys = ['sb-nutlcbnruabjsxecqpnd-auth-token', 'admin_session'];
-        keys.forEach(key => {
-          const item = localStorage.getItem(key);
-          if (item) {
-            try {
-              JSON.parse(item);
-            } catch {
-              console.log('Removing corrupted localStorage item:', key);
-              localStorage.removeItem(key);
-            }
-          }
-        });
-      } catch (error) {
-        console.error('Error clearing corrupted data:', error);
-      }
+    // Add this component to global listeners
+    const updateLocalState = (state: typeof globalAuthState) => {
+      if (!isMounted) return;
+      setUser(state.user);
+      setSession(state.session);
+      setLoading(state.loading);
+      setRole(state.role);
     };
+    
+    globalAuthState.listeners.add(updateLocalState);
+    
+    // Initialize global auth state only once
+    if (!globalAuthState.initialized) {
+      globalAuthState.initialized = true;
+      
+      // Clear potentially corrupted auth data
+      const clearCorruptedData = () => {
+        try {
+          const keys = ['sb-nutlcbnruabjsxecqpnd-auth-token', 'admin_session'];
+          keys.forEach(key => {
+            const item = localStorage.getItem(key);
+            if (item) {
+              try {
+                JSON.parse(item);
+              } catch {
+                console.log('[AUTH] Removing corrupted localStorage item:', key);
+                localStorage.removeItem(key);
+              }
+            }
+          });
+        } catch (error) {
+          console.error('[AUTH] Error clearing corrupted data:', error);
+        }
+      };
 
-    clearCorruptedData();
+      clearCorruptedData();
 
-    // Get initial session synchronously
-    const getInitialSession = async () => {
-      try {
-        const { data: { session } } = await authService.getSession();
-        if (isMounted) {
-          setSession(session);
+      // Get initial session synchronously
+      const getInitialSession = async () => {
+        try {
+          const { data: { session } } = await authService.getSession();
           
           if (session?.user) {
             const currentUser = await authService.getCurrentUser();
-            setUser(currentUser);
-            
-            // Extract and log role decision
             const userRole = currentUser?.profile?.role || 'viewer';
-            setRole(userRole);
             
             const hasAccess = userRole === 'admin' || userRole === 'editor';
             const state = hasAccess ? 'allowed' : 'denied';
             const reason = hasAccess ? 'valid_role' : 'insufficient_permissions';
             
-            console.log(`[AUTH DECISION] session:true role:${userRole} state:${state} reason:${reason}`);
+            console.log(`[AUTH] Initial session loaded - role:${userRole} state:${state}`);
+            
+            updateGlobalState({
+              user: currentUser,
+              session,
+              role: userRole,
+              loading: false
+            });
           } else {
-            setUser(null);
-            setRole(null);
-            console.log('[AUTH DECISION] session:false role:none state:denied reason:no_session');
+            console.log('[AUTH] No initial session found');
+            updateGlobalState({
+              user: null,
+              session: null,
+              role: null,
+              loading: false
+            });
           }
-          
-          setLoading(false);
+        } catch (error) {
+          console.error('[AUTH] Error getting initial session:', error);
+          updateGlobalState({ loading: false });
         }
-      } catch (error) {
-        console.error('Error getting initial session:', error);
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
+      };
 
-    // Auth state listener - load profile and role after session change
-    const { data: { subscription } } = authService.onAuthStateChange(
-      (event, session) => {
-        if (!isMounted) return;
-        
-        console.log('[AUTH] State changed:', event, !!session);
-        setSession(session);
-        
-        if (session?.user && event !== 'INITIAL_SESSION') {
-          // Load user profile and role after auth state change (not initial)
-          setTimeout(async () => {
-            try {
-              const currentUser = await authService.getCurrentUser();
-              setUser(currentUser);
-              
-              const userRole = currentUser?.profile?.role || 'viewer';
-              setRole(userRole);
-              
-              const hasAccess = userRole === 'admin' || userRole === 'editor';
-              const state = hasAccess ? 'allowed' : 'denied';
-              const reason = hasAccess ? 'valid_role' : 'insufficient_permissions';
-              
-              console.log(`[AUTH DECISION] session:true role:${userRole} state:${state} reason:${reason}`);
-            } catch (error) {
-              console.error('[AUTH] Erro ao carregar profile:', error);
+      // Create single auth state listener
+      if (!globalAuthState.subscription) {
+        const { data: { subscription } } = authService.onAuthStateChange(
+          async (event, session) => {
+            // Skip INITIAL_SESSION events to prevent loops
+            if (event === 'INITIAL_SESSION') return;
+            
+            console.log('[AUTH] State changed:', event, !!session);
+            
+            if (session?.user) {
+              try {
+                const currentUser = await authService.getCurrentUser();
+                const userRole = currentUser?.profile?.role || 'viewer';
+                
+                const hasAccess = userRole === 'admin' || userRole === 'editor';
+                const state = hasAccess ? 'allowed' : 'denied';
+                const reason = hasAccess ? 'valid_role' : 'insufficient_permissions';
+                
+                console.log(`[AUTH] User authenticated - role:${userRole} state:${state}`);
+                
+                updateGlobalState({
+                  user: currentUser,
+                  session,
+                  role: userRole,
+                  loading: false
+                });
+              } catch (error) {
+                console.error('[AUTH] Error loading profile:', error);
+                updateGlobalState({ loading: false });
+              }
+            } else {
+              console.log('[AUTH] User signed out');
+              updateGlobalState({
+                user: null,
+                session: null,
+                role: null,
+                loading: false
+              });
             }
-            setLoading(false);
-          }, 0);
-        } else if (!session) {
-          setUser(null);
-          setRole(null);
-          setLoading(false);
-          console.log('[AUTH DECISION] session:false role:none state:denied reason:signed_out');
-        }
+          }
+        );
+        
+        globalAuthState.subscription = subscription;
       }
-    );
 
-    getInitialSession();
+      getInitialSession();
+    } else {
+      // If already initialized, just sync local state
+      updateLocalState(globalAuthState);
+    }
 
     return () => {
       isMounted = false;
-      subscription.unsubscribe();
+      globalAuthState.listeners.delete(updateLocalState);
+      
+      // Cleanup subscription only when no more listeners
+      if (globalAuthState.listeners.size === 0 && globalAuthState.subscription) {
+        globalAuthState.subscription.unsubscribe();
+        globalAuthState.subscription = null;
+        globalAuthState.initialized = false;
+      }
     };
   }, []);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
-    setLoading(true);
+    updateGlobalState({ loading: true });
     const result = await authService.signUp(email, password, displayName);
-    setLoading(false);
+    updateGlobalState({ loading: false });
     return result;
   };
 
   const signIn = async (email: string, password: string) => {
-    setLoading(true);
+    updateGlobalState({ loading: true });
     const result = await authService.signIn(email, password);
-    setLoading(false);
+    updateGlobalState({ loading: false });
     return result;
   };
 
   const signOut = async () => {
-    setLoading(true);
+    updateGlobalState({ loading: true });
     const result = await authService.signOut();
-    setUser(null);
-    setSession(null);
-    setRole(null);
-    setLoading(false);
+    updateGlobalState({
+      user: null,
+      session: null,
+      role: null,
+      loading: false
+    });
     return result;
   };
 
@@ -162,7 +222,7 @@ export const useAuth = () => {
       if (!result.error) {
         // Refresh user data após sucesso
         const updatedUser = await authService.getCurrentUser();
-        setUser(updatedUser);
+        updateGlobalState({ user: updatedUser });
         console.log('Perfil atualizado com sucesso');
       } else {
         console.error('Erro ao atualizar perfil:', result.error);

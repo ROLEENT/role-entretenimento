@@ -5,8 +5,11 @@ import { useLocation } from 'react-router-dom';
  * Custom hook to handle scroll restoration on route changes
  * Specifically optimized for mobile browsers and city pages
  */
-export const useScrollToTop = () => {
+export const useScrollToTop = (enabled: boolean = true) => {
   const location = useLocation();
+
+  // Skip if disabled
+  if (!enabled) return;
 
   useEffect(() => {
     // Disable automatic scroll restoration to prevent conflicts

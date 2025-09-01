@@ -13,8 +13,6 @@ import { Toaster } from "@/components/ui/sonner";
 import SEOOptimizations from "@/components/SEOOptimizations";
 import AccessibilityEnhancements from "@/components/AccessibilityEnhancements";
 import { AdminAccessButton } from "@/components/AdminAccessButton";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 
 const Index = () => {
   return (
@@ -45,27 +43,6 @@ const Index = () => {
             <FeaturedEventsToday />
           </ScrollAnimationWrapper>
           
-          {/* 5.5. PERFIS EM DESTAQUE */}
-          <ScrollAnimationWrapper>
-            <section className="py-16 bg-muted/30">
-              <div className="container mx-auto px-4">
-                <div className="text-center max-w-3xl mx-auto mb-12">
-                  <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                    Conheça os Perfis da Plataforma
-                  </h2>
-                  <p className="text-lg text-muted-foreground mb-8">
-                    Descubra artistas, locais e organizadores que fazem a diferença na cena cultural
-                  </p>
-                  <Button asChild size="lg" className="px-8">
-                    <Link to="/perfis">
-                      Explorar Perfis
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </section>
-          </ScrollAnimationWrapper>
-          
           {/* 6. ROLÊ EM NÚMEROS */}
           <ScrollAnimationWrapper>
             <RoleEmNumeros />
@@ -77,20 +54,11 @@ const Index = () => {
           </ScrollAnimationWrapper>
         </main>
         
-        {/* ADMIN ACCESS & LOGIN */}
-        <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-50">
-          <Link to="/auth">
-            <Button variant="outline" size="sm">
-              Login Admin
-            </Button>
-          </Link>
-          <AdminAccessButton />
-        </div>
-        
         {/* 8. FOOTER */}
         <Footer />
         
         <NotificationPermissionPrompt />
+        <AdminAccessButton />
         <BackToTop />
         <HeaderGlobalSearch />
         <Toaster />

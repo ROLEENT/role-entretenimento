@@ -61,12 +61,12 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Agentes */}
+        {/* Perfis */}
         <SidebarGroup>
-          <SidebarGroupLabel>Agentes</SidebarGroupLabel>
+          <SidebarGroupLabel>Perfis</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {MENUS.agentes.map((item) => (
+              {MENUS.perfis.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild

@@ -52,11 +52,11 @@ export default function ExampleFormStory() {
   };
 
   const categoryOptions = [
-    "Música",
-    "Arte",
-    "Teatro",
-    "Cinema",
-    "Dança"
+    { value: "musica", label: "Música" },
+    { value: "arte", label: "Arte" },
+    { value: "teatro", label: "Teatro" },
+    { value: "cinema", label: "Cinema" },
+    { value: "danca", label: "Dança" }
   ];
 
 

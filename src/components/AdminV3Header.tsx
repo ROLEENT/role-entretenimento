@@ -26,7 +26,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { User, Settings, LogOut } from 'lucide-react';
 import { QuickActions } from '@/components/admin/QuickActions';
-import { AdminTopNav } from '@/components/admin/AdminTopNav';
 
 interface UserProfile {
   email: string;
@@ -170,10 +169,10 @@ export function AdminV3Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-[50] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" style={{ overflow: 'visible' }}>
-        <div className="container flex h-14 items-center justify-between" style={{ overflow: 'visible' }}>
-          {/* Left side - Logo and Navigation */}
-          <div className="flex items-center gap-6" style={{ overflow: 'visible' }}>
+      <header className="sticky top-0 z-[50] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 items-center justify-between">
+          {/* Left side - Logo */}
+          <div className="flex items-center gap-6">
             <Button 
               variant="ghost" 
               onClick={() => navigate('/admin-v3')}
@@ -181,9 +180,6 @@ export function AdminV3Header() {
             >
               Admin v3
             </Button>
-            
-            {/* Navigation */}
-            <AdminTopNav />
           </div>
 
           {/* Right side */}

@@ -16,6 +16,7 @@ interface BlogPost {
   reading_time?: number;
   city?: string;
   slug: string;
+  slug_data?: string;
 }
 
 const BlocoRevista = () => {
@@ -31,8 +32,8 @@ const BlocoRevista = () => {
         setLoading(true);
         const { data, error } = await supabase
           .from('blog_posts')
-          .select('id, title, cover_image, published_at, reading_time, city, slug')
-          .eq('published', true)
+          .select('id, title, cover_image, published_at, reading_time, city, slug, slug_data')
+          .eq('status', 'published')
           .order('published_at', { ascending: false })
           .limit(3);
 
@@ -134,7 +135,7 @@ const BlocoRevista = () => {
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                   {posts.map((post, index) => (
-                    <Link key={post.id} to={`/revista/${post.slug}`} className="flex-shrink-0 w-80 snap-start">
+                    <Link key={post.id} to={`/revista/${post.slug_data || post.slug}`} className="flex-shrink-0 w-80 snap-start">
                       <Card className="h-full group hover:shadow-xl transition-all duration-500 overflow-hidden border hover:border-primary/30 bg-card/80 backdrop-blur-sm">
                         <div className="relative">
                           <LazyImage
@@ -217,7 +218,7 @@ const BlocoRevista = () => {
               /* Desktop Grid */
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 {posts.map((post, index) => (
-                  <Link key={post.id} to={`/revista/${post.slug}`} className="block group">
+                  <Link key={post.id} to={`/revista/${post.slug_data || post.slug}`} className="block group">
                     <Card className="h-full hover:shadow-xl transition-all duration-500 overflow-hidden border hover:border-primary/30 bg-card/80 backdrop-blur-sm">
                       <div className="relative">
                         <LazyImage
