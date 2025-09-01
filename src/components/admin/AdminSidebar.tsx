@@ -61,29 +61,6 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Agentes */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Agentes</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {MENUS.agentes.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.href)}
-                    tooltip={state === "collapsed" ? item.title : undefined}
-                  >
-                    <NavLink to={item.href}>
-                      {item.icon && <item.icon className="h-4 w-4" />}
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
         {/* Perfis */}
         <SidebarGroup>
           <SidebarGroupLabel>Perfis</SidebarGroupLabel>

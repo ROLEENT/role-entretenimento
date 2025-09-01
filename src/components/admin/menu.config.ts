@@ -15,7 +15,7 @@ export const MENUS = {
       icon: Plus
     },
   ],
-  agentes: [
+  perfis: [
     { 
       href: "/admin-v3/agentes/artistas", 
       title: "Artistas", 
@@ -39,20 +39,6 @@ export const MENUS = {
       title: "Novo artista", 
       description: "cadastro",
       icon: UserPlus
-    },
-  ],
-  perfis: [
-    { 
-      href: "/admin-v3/perfis", 
-      title: "Todos perfis", 
-      description: "listagem completa",
-      icon: Users
-    },
-    { 
-      href: "/admin-v3/perfis/criar", 
-      title: "Criar perfil", 
-      description: "novo cadastro",
-      icon: User
     },
   ],
   revista: [
