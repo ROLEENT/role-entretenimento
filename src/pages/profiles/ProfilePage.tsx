@@ -10,7 +10,7 @@ import { ProfileContent } from "@/features/profiles/components/ProfileContent";
 export default function ProfilePage() {
   const { handle } = useParams<{ handle: string }>();
   const cleanHandle = handle?.replace(/^@/, "").toLowerCase() || "";
-  const [activeTab, setActiveTab] = useState("sobre");
+  const [activeTab, setActiveTab] = useState("visao-geral");
 
   const { data: profile, isLoading, error } = useProfile(cleanHandle);
 

@@ -7,10 +7,12 @@ interface ProfileNavProps {
 }
 
 const tabs = [
-  { id: 'sobre', label: 'Sobre' },
-  { id: 'portfolio', label: 'Portfólio' },
-  { id: 'eventos', label: 'Eventos' },
+  { id: 'visao-geral', label: 'Visão geral' },
+  { id: 'agenda', label: 'Agenda' },
+  { id: 'conteudos', label: 'Conteúdos' },
+  { id: 'fotos-videos', label: 'Fotos e vídeos' },
   { id: 'avaliacoes', label: 'Avaliações' },
+  { id: 'sobre', label: 'Sobre' },
 ];
 
 export function ProfileNav({ activeTab = 'sobre', onTabChange }: ProfileNavProps) {
