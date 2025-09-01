@@ -60,15 +60,17 @@ export default function ProfileForm() {
   };
 
   const handleFileChange = async (file: File, type: 'avatar' | 'cover') => {
-    const validationError = validateImageFile(file, type);
-    if (validationError) {
-      toast({ variant: 'destructive', description: validationError });
-      return;
-    }
-
-    const dimensionError = await validateImageDimensions(file, type);
-    if (dimensionError) {
-      toast({ variant: 'destructive', description: dimensionError });
+    try {
+      // Validate file type and size
+      const maxSize = type === 'avatar' ? 5 * 1024 * 1024 : 8 * 1024 * 1024; // 5MB for avatar, 8MB for cover
+      validateImageFile(file, maxSize);
+      
+      // Validate dimensions
+      const minWidth = type === 'avatar' ? 320 : 1920;
+      const minHeight = type === 'avatar' ? 320 : 640;
+      await validateImageDimensions(file, minWidth, minHeight);
+    } catch (error) {
+      toast({ variant: 'destructive', description: error instanceof Error ? error.message : 'Erro ao validar arquivo' });
       return;
     }
 

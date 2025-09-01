@@ -2,9 +2,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { uploadAvatar, uploadCover } from "@/lib/storage";
 
 export interface CreateProfileData {
+  // Common fields
   type: 'artista' | 'local' | 'organizador';
-  handle: string;
   name: string;
+  handle: string;
   city: string;
   state: string;
   country: string;
@@ -15,19 +16,21 @@ export interface CreateProfileData {
   contact_email?: string;
   contact_phone?: string;
   visibility: 'public' | 'draft' | 'private';
+  
+  // Files
   avatar_file?: File;
   cover_file?: File;
   
-  // Campos específicos por tipo
+  // Type-specific data
   [key: string]: any;
 }
 
 export async function createProfile(data: CreateProfileData): Promise<string> {
   const { avatar_file, cover_file, ...profileData } = data;
-
-  // 1. Criar perfil base
-  const { data: profile, error: profileError } = await supabase
-    .from('entity_profiles')
+  
+  // Create main profile
+  const { data: created, error } = await supabase
+    .from("profiles")
     .insert({
       type: profileData.type,
       handle: profileData.handle.toLowerCase(),
@@ -43,41 +46,40 @@ export async function createProfile(data: CreateProfileData): Promise<string> {
       contact_phone: profileData.contact_phone || null,
       visibility: profileData.visibility
     })
-    .select('id')
+    .select("id")
     .single();
-
-  if (profileError) throw profileError;
-
-  const profileId = profile.id;
-
-  // 2. Upload de imagens
-  let avatar_url, cover_url;
-  try {
-    if (avatar_file) {
-      avatar_url = await uploadAvatar(profileId, avatar_file);
-    }
-    if (cover_file) {
-      cover_url = await uploadCover(profileId, cover_file);
-    }
     
-    // Atualizar URLs das imagens
-    if (avatar_url || cover_url) {
-      await supabase
-        .from('entity_profiles')
-        .update({ 
-          avatar_url: avatar_url || null, 
-          cover_url: cover_url || null 
-        })
-        .eq('id', profileId);
-    }
-  } catch (error) {
-    console.error('Error uploading images:', error);
-    // Continuar sem as imagens se houver erro
+  if (error) throw error;
+  
+  const profileId = created.id;
+  
+  // Upload images if provided
+  let avatar_url: string | undefined;
+  let cover_url: string | undefined;
+  
+  if (avatar_file) {
+    avatar_url = await uploadAvatar(profileId, avatar_file);
   }
-
-  // 3. Inserir dados específicos do tipo
+  
+  if (cover_file) {
+    cover_url = await uploadCover(profileId, cover_file);
+  }
+  
+  // Update profile with image URLs
+  if (avatar_url || cover_url) {
+    const updates: any = {};
+    if (avatar_url) updates.avatar_url = avatar_url;
+    if (cover_url) updates.cover_url = cover_url;
+    
+    await supabase
+      .from("profiles")
+      .update(updates)
+      .eq("id", profileId);
+  }
+  
+  // Insert type-specific data
   if (profileData.type === 'artista') {
-    await supabase.from('profile_artist').insert({
+    await supabase.from("profile_artist").insert({
       profile_id: profileId,
       genres: profileData.genres || [],
       agency: profileData.agency || null,
@@ -92,7 +94,7 @@ export async function createProfile(data: CreateProfileData): Promise<string> {
       pronoun: profileData.pronoun || null
     });
   } else if (profileData.type === 'local') {
-    await supabase.from('profile_venue').insert({
+    await supabase.from("profile_venue").insert({
       profile_id: profileId,
       address: profileData.address || null,
       lat: profileData.lat || null,
@@ -107,7 +109,7 @@ export async function createProfile(data: CreateProfileData): Promise<string> {
       cnpj: profileData.cnpj || null
     });
   } else if (profileData.type === 'organizador') {
-    await supabase.from('profile_org').insert({
+    await supabase.from("profile_org").insert({
       profile_id: profileId,
       brand_name: profileData.brand_name || null,
       cnpj: profileData.cnpj || null,
@@ -118,50 +120,53 @@ export async function createProfile(data: CreateProfileData): Promise<string> {
       about: profileData.about || null
     });
   }
-
+  
   return profileId;
 }
 
 export async function followProfile(profileId: string, userId: string): Promise<void> {
   const { error } = await supabase
-    .from('followers')
+    .from("followers")
     .insert({ profile_id: profileId, user_id: userId });
-  
+    
   if (error) throw error;
 }
 
 export async function unfollowProfile(profileId: string, userId: string): Promise<void> {
   const { error } = await supabase
-    .from('followers')
+    .from("followers")
     .delete()
-    .eq('profile_id', profileId)
-    .eq('user_id', userId);
-  
+    .eq("profile_id", profileId)
+    .eq("user_id", userId);
+    
   if (error) throw error;
 }
 
 export async function checkHandleAvailability(handle: string): Promise<boolean> {
-  const { data } = await supabase
-    .from('entity_profiles')
-    .select('id')
-    .eq('handle', handle.toLowerCase())
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("handle", handle.toLowerCase())
     .maybeSingle();
+    
+  if (error) throw error;
   
-  return !data; // true se disponível
+  return !data; // true if available (no data found)
 }
 
 export async function getProfileByHandle(handle: string) {
-  const { data: profile, error } = await supabase
-    .from('entity_profiles')
+  const { data, error } = await supabase
+    .from("profiles")
     .select(`
-      *,
+      id, user_id, type, handle, name, city, state, country, bio_short, bio, avatar_url, cover_url, tags, verified,
       profile_artist(*),
       profile_venue(*),
-      profile_org(*)
+      profile_org(*),
+      links, contact_email, contact_phone, visibility
     `)
-    .eq('handle', handle.toLowerCase())
-    .single();
-
+    .eq("handle", handle.toLowerCase())
+    .maybeSingle();
+    
   if (error) throw error;
-  return profile;
+  return data;
 }
