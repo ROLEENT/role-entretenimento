@@ -13,13 +13,12 @@ import Footer from '@/components/Footer';
 import { toast } from 'sonner';
 
 interface Profile {
-  id: string;
+  user_id: string;
   handle: string;
-  name: string;
+  display_name: string;
   bio?: string;
   avatar_url?: string;
-  user_id?: string;
-  entity_type: string;
+  type: string;
 }
 
 const ClaimProfilePage = () => {
@@ -44,7 +43,7 @@ const ClaimProfilePage = () => {
   const fetchProfile = async () => {
     try {
       const { data, error } = await supabase
-        .from('entity_profiles')
+        .from('profiles')
         .select('*')
         .eq('handle', handle)
         .is('user_id', null)
@@ -89,17 +88,18 @@ const ClaimProfilePage = () => {
     try {
       const { data, error } = await supabase.functions.invoke('link-profile', {
         body: {
-          profileId: profile!.id,
+          handle: profile!.handle,
           email: formData.email,
           password: formData.password,
-          claimCode: formData.claimCode
+          claimCode: formData.claimCode,
+          verificationMethod: 'email'
         }
       });
 
       if (error) throw error;
       if (data.error) throw new Error(data.error);
 
-      toast.success('Perfil reivindicado com sucesso!');
+      toast.success(data.message || 'Perfil reivindicado com sucesso!');
       navigate('/auth?message=claim-success');
       
     } catch (error: any) {
@@ -173,16 +173,16 @@ const ClaimProfilePage = () => {
           <Card className="mb-6 shadow-elevated border-0 bg-gradient-card backdrop-blur-sm">
             <CardHeader>
               <div className="flex items-center gap-4">
-                <Avatar className="w-16 h-16">
-                  <AvatarImage src={profile.avatar_url} alt={profile.name} />
-                  <AvatarFallback>{profile.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-                </Avatar>
+                 <Avatar className="w-16 h-16">
+                   <AvatarImage src={profile.avatar_url} alt={profile.display_name} />
+                   <AvatarFallback>{profile.display_name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                 </Avatar>
                 <div className="flex-1">
-                  <CardTitle className="text-xl">{profile.name}</CardTitle>
+                  <CardTitle className="text-xl">{profile.display_name}</CardTitle>
                   <CardDescription className="text-base">@{profile.handle}</CardDescription>
                   <Badge variant="secondary" className="mt-2">
-                    {profile.entity_type === 'artist' ? 'Artista' : 
-                     profile.entity_type === 'venue' ? 'Local' : 'Produtor'}
+                    {profile.type === 'artist' ? 'Artista' : 
+                     profile.type === 'venue' ? 'Local' : 'Produtor'}
                   </Badge>
                 </div>
               </div>

@@ -1,4 +1,5 @@
 import { Share2, Mail, Phone, MapPin, ExternalLink, Heart, Shield } from "lucide-react";
+import { VerificationBadge } from '@/components/VerificationBadge';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -71,20 +72,21 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
                     {profile.name.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                {profile.verified && (
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                )}
+                <VerificationBadge 
+                  verified={profile.verified} 
+                  size="md" 
+                  className="absolute -bottom-1 -right-1"
+                />
               </div>
 
               {/* Name and Handle */}
               <div className="text-center sm:text-left flex-1 min-w-0">
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-1 truncate">
-                  {profile.name}
-                </h1>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold truncate">
+                    {profile.name}
+                  </h1>
+                  <VerificationBadge verified={profile.verified} size="lg" />
+                </div>
                 <p className="text-muted-foreground text-sm md:text-base mb-2">
                   @{profile.handle}
                 </p>

@@ -86,6 +86,45 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_notifications: {
+        Row: {
+          admin_email: string | null
+          created_at: string | null
+          data: Json | null
+          id: string
+          is_read: boolean | null
+          message: string
+          priority: string | null
+          read_at: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          admin_email?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          priority?: string | null
+          read_at?: string | null
+          title: string
+          type: string
+        }
+        Update: {
+          admin_email?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          priority?: string | null
+          read_at?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       admin_push_subscriptions: {
         Row: {
           admin_email: string
@@ -3589,6 +3628,59 @@ export type Database = {
           },
         ]
       }
+      profile_claim_requests: {
+        Row: {
+          admin_notes: string | null
+          approved_by: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          profile_user_id: string
+          requester_email: string
+          status: string
+          updated_at: string | null
+          verification_code: string
+          verification_data: Json | null
+          verification_method: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          profile_user_id: string
+          requester_email: string
+          status?: string
+          updated_at?: string | null
+          verification_code: string
+          verification_data?: Json | null
+          verification_method?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          profile_user_id?: string
+          requester_email?: string
+          status?: string
+          updated_at?: string | null
+          verification_code?: string
+          verification_data?: Json | null
+          verification_method?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_claim_requests_profile_user_id_fkey"
+            columns: ["profile_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       profile_media: {
         Row: {
           alt_text: string | null
@@ -4699,6 +4791,62 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "venue_types"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      verification_requests: {
+        Row: {
+          admin_notes: string | null
+          business_info: Json | null
+          created_at: string | null
+          documents: Json | null
+          id: string
+          profile_user_id: string
+          requested_by: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          social_proof: Json | null
+          status: string
+          updated_at: string | null
+          verification_type: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          business_info?: Json | null
+          created_at?: string | null
+          documents?: Json | null
+          id?: string
+          profile_user_id: string
+          requested_by: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          social_proof?: Json | null
+          status?: string
+          updated_at?: string | null
+          verification_type?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          business_info?: Json | null
+          created_at?: string | null
+          documents?: Json | null
+          id?: string
+          profile_user_id?: string
+          requested_by?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          social_proof?: Json | null
+          status?: string
+          updated_at?: string | null
+          verification_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_requests_profile_user_id_fkey"
+            columns: ["profile_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }

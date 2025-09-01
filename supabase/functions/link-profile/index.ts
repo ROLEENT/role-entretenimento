@@ -12,10 +12,11 @@ const supabase = createClient(
 );
 
 interface LinkProfileRequest {
-  profileId: string;
+  handle: string;
   email: string;
   password: string;
   claimCode?: string;
+  verificationMethod?: 'email' | 'phone' | 'document';
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -24,15 +25,15 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { profileId, email, password, claimCode }: LinkProfileRequest = await req.json();
+    const { handle, email, password, claimCode, verificationMethod = 'email' }: LinkProfileRequest = await req.json();
 
-    console.log('Link profile request:', { profileId, email, claimCode });
+    console.log('Link profile request:', { handle, email, claimCode, verificationMethod });
 
-    // Verificar se o perfil existe e não está vinculado
+    // Find profile by handle
     const { data: profile, error: profileError } = await supabase
-      .from('entity_profiles')
+      .from('profiles')
       .select('*')
-      .eq('id', profileId)
+      .eq('handle', handle)
       .is('user_id', null)
       .single();
 
@@ -44,22 +45,47 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Se tem claim code, verificar se é válido (temporariamente aceitamos qualquer código)
-    if (claimCode && claimCode !== profile.handle) {
+    // Validate claim code
+    if (claimCode && claimCode !== handle) {
       return new Response(
         JSON.stringify({ error: 'Código de reivindicação inválido' }),
         { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       );
     }
 
-    // Criar usuário no Auth
+    // Generate verification code
+    const verificationCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    // Create claim request
+    const { data: claimRequest, error: claimError } = await supabase
+      .from('profile_claim_requests')
+      .insert({
+        profile_user_id: profile.user_id,
+        requester_email: email,
+        verification_code: verificationCode,
+        verification_method: verificationMethod,
+        verification_data: { handle, requested_at: new Date().toISOString() }
+      })
+      .select()
+      .single();
+
+    if (claimError) {
+      console.error('Error creating claim request:', claimError);
+      return new Response(
+        JSON.stringify({ error: 'Erro ao criar solicitação de reivindicação' }),
+        { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    // Create user account
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
       user_metadata: {
-        profile_id: profileId,
-        claimed_profile: true
+        profile_handle: handle,
+        claimed_profile: true,
+        verification_code: verificationCode
       }
     });
 
@@ -71,19 +97,19 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Vincular perfil ao usuário
+    // Update profile with new user_id
     const { error: updateError } = await supabase
-      .from('entity_profiles')
+      .from('profiles')
       .update({ 
         user_id: authData.user.id,
         email: email,
         updated_at: new Date().toISOString()
       })
-      .eq('id', profileId);
+      .eq('handle', handle);
 
     if (updateError) {
       console.error('Error linking profile:', updateError);
-      // Tentar deletar o usuário criado se falhou a vinculação
+      // Clean up user if profile update fails
       await supabase.auth.admin.deleteUser(authData.user.id);
       return new Response(
         JSON.stringify({ error: 'Erro ao vincular perfil' }),
@@ -91,13 +117,31 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log('Profile linked successfully:', profileId, 'to user:', authData.user.id);
+    // Create admin notification
+    await supabase
+      .from('admin_notifications')
+      .insert({
+        type: 'profile_claim',
+        title: 'Nova reivindicação de perfil',
+        message: `Usuário ${email} reivindicou o perfil @${handle}`,
+        data: {
+          profile_handle: handle,
+          user_email: email,
+          user_id: authData.user.id,
+          verification_code: verificationCode
+        },
+        priority: 'normal'
+      });
+
+    console.log('Profile claimed successfully:', handle, 'by user:', authData.user.id);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         user: authData.user,
-        profile: { ...profile, user_id: authData.user.id }
+        profile: { ...profile, user_id: authData.user.id },
+        verification_code: verificationCode,
+        message: 'Perfil reivindicado com sucesso! Aguarde aprovação dos administradores.'
       }),
       { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
     );

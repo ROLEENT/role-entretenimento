@@ -3,10 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface ClaimProfileData {
-  profileId: string;
+  handle: string;
   email: string;
   password: string;
   claimCode: string;
+  verificationMethod?: 'email' | 'phone' | 'document';
 }
 
 export const useClaimProfile = () => {
@@ -17,7 +18,13 @@ export const useClaimProfile = () => {
     
     try {
       const { data: result, error } = await supabase.functions.invoke('link-profile', {
-        body: data
+        body: {
+          handle: data.handle,
+          email: data.email,
+          password: data.password,
+          claimCode: data.claimCode,
+          verificationMethod: data.verificationMethod || 'email'
+        }
       });
 
       if (error) {
