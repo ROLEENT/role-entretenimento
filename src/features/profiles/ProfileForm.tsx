@@ -10,8 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, ArrowRight, Upload, User, Building, Users, Camera, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Upload, User, Building, Users, Camera, X, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { profileEvents } from "@/lib/telemetry";
 import { 
   commonSchema, 
   artistProfileSchema, 
@@ -41,6 +43,10 @@ export default function ProfileForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [isCheckingHandle, setIsCheckingHandle] = useState(false);
+  const [handleError, setHandleError] = useState<string | null>(null);
+  const [avatarAlt, setAvatarAlt] = useState('');
+  const [coverAlt, setCoverAlt] = useState('');
   
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
@@ -58,6 +64,11 @@ export default function ProfileForm() {
     }
   });
 
+  // Track form start
+  useState(() => {
+    profileEvents.createStart(form.getValues('type'));
+  });
+
   const type = form.watch('type');
   const currentStepIndex = STEPS.findIndex(step => step.id === currentStep);
 
@@ -71,27 +82,82 @@ export default function ProfileForm() {
     }
   };
 
+  const validateHandle = async (handle: string) => {
+    if (!handle || handle.length < 3) {
+      setHandleError(null);
+      return;
+    }
+
+    setIsCheckingHandle(true);
+    setHandleError(null);
+
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('handle', handle.toLowerCase())
+        .maybeSingle();
+      
+      if (data) {
+        setHandleError('Este handle já está em uso');
+        profileEvents.handleCheck(handle, false);
+      } else {
+        profileEvents.handleCheck(handle, true);
+      }
+    } catch (error) {
+      console.error('Erro ao validar handle:', error);
+      setHandleError('Erro ao verificar disponibilidade');
+    } finally {
+      setIsCheckingHandle(false);
+    }
+  };
+
   const handleImageUpload = (file: File, type: 'avatar' | 'cover') => {
     if (!file.type.startsWith('image/')) {
       toast.error('Arquivo deve ser uma imagem');
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Imagem deve ter menos de 5MB');
+    // Validações específicas por tipo
+    const maxSize = type === 'avatar' ? 5 * 1024 * 1024 : 8 * 1024 * 1024; // 5MB avatar, 8MB cover
+    if (file.size > maxSize) {
+      toast.error(`Imagem deve ter menos de ${type === 'avatar' ? '5MB' : '8MB'}`);
       return;
     }
+
+    // Verificar formato
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+      toast.error('Apenas arquivos JPG e PNG são aceitos');
+      return;
+    }
+
+    // Track upload
+    profileEvents.imageUpload(type, file.size);
 
     const reader = new FileReader();
     reader.onload = (e) => {
       const result = e.target?.result as string;
-      if (type === 'avatar') {
-        setAvatarPreview(result);
-        form.setValue('avatar_file', file);
-      } else {
-        setCoverPreview(result);
-        form.setValue('cover_file', file);
-      }
+      
+      // Verificar dimensões mínimas
+      const img = new Image();
+      img.onload = () => {
+        const minWidth = type === 'avatar' ? 320 : 1920;
+        const minHeight = type === 'avatar' ? 320 : 640;
+        
+        if (img.width < minWidth || img.height < minHeight) {
+          toast.error(`Imagem deve ter pelo menos ${minWidth}x${minHeight} pixels`);
+          return;
+        }
+        
+        if (type === 'avatar') {
+          setAvatarPreview(result);
+          form.setValue('avatar_file', file);
+        } else {
+          setCoverPreview(result);
+          form.setValue('cover_file', file);
+        }
+      };
+      img.src = result;
     };
     reader.readAsDataURL(file);
   };
@@ -130,7 +196,9 @@ export default function ProfileForm() {
     
     const nextIndex = currentStepIndex + 1;
     if (nextIndex < STEPS.length) {
-      setCurrentStep(STEPS[nextIndex].id);
+      const nextStepId = STEPS[nextIndex].id;
+      setCurrentStep(nextStepId);
+      profileEvents.stepProgress(nextStepId, form.getValues('type'));
     }
   };
 
@@ -148,9 +216,24 @@ export default function ProfileForm() {
       // Validação final
       getValidationSchema().parse(data);
       
-      // Criar perfil
-      const profileId = await createProfile(data);
+      // Validar alt text obrigatório para imagens
+      if (data.avatar_file && !avatarAlt.trim()) {
+        toast.error('Descrição do avatar é obrigatória para acessibilidade');
+        setIsSubmitting(false);
+        return;
+      }
       
+      if (data.cover_file && !coverAlt.trim()) {
+        toast.error('Descrição da capa é obrigatória para acessibilidade');
+        setIsSubmitting(false);
+        return;
+      }
+      
+      // Criar perfil (sem avatar_alt/cover_alt no data para evitar erro de tipo)
+      const profileData = { ...data };
+      const profileId = await createProfile(profileData);
+      
+      profileEvents.createSuccess(profileId, data.type);
       toast.success('Perfil criado com sucesso!');
       window.location.href = `/perfil/${data.handle}`;
     } catch (error: any) {
@@ -214,17 +297,38 @@ export default function ProfileForm() {
           name="handle"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Handle</FormLabel>
+              <FormLabel htmlFor="handle">Handle</FormLabel>
               <FormControl>
-                <Input 
-                  placeholder="username" 
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.value.toLowerCase())}
-                />
+                <div className="relative">
+                  <Input 
+                    id="handle"
+                    placeholder="username" 
+                    {...field}
+                    onChange={(e) => {
+                      const value = e.target.value.toLowerCase();
+                      field.onChange(value);
+                      setHandleError(null);
+                    }}
+                    onBlur={() => validateHandle(field.value)}
+                    className={handleError ? 'border-destructive' : ''}
+                    aria-describedby="handle-description handle-error"
+                  />
+                  {isCheckingHandle && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                    </div>
+                  )}
+                </div>
               </FormControl>
-              <FormDescription>
+              <FormDescription id="handle-description">
                 3-30 caracteres, apenas letras, números e pontos
               </FormDescription>
+              {handleError && (
+                <p id="handle-error" className="text-sm text-destructive flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  {handleError}
+                </p>
+              )}
               <FormMessage />
             </FormItem>
           )}
@@ -387,10 +491,10 @@ export default function ProfileForm() {
 
       {/* Avatar */}
       <div className="space-y-4">
-        <FormLabel>Avatar</FormLabel>
+        <FormLabel htmlFor="avatar-upload">Avatar</FormLabel>
         <div className="flex items-center gap-4">
           <Avatar className="w-20 h-20">
-            <AvatarImage src={avatarPreview || undefined} />
+            <AvatarImage src={avatarPreview || undefined} alt={avatarAlt || 'Avatar do perfil'} />
             <AvatarFallback>
               <User className="w-8 h-8" />
             </AvatarFallback>
@@ -400,6 +504,7 @@ export default function ProfileForm() {
               type="button"
               variant="outline"
               onClick={() => avatarInputRef.current?.click()}
+              aria-describedby="avatar-requirements"
             >
               <Upload className="w-4 h-4 mr-2" />
               Carregar Avatar
@@ -410,33 +515,51 @@ export default function ProfileForm() {
                 variant="outline"
                 size="icon"
                 onClick={() => removeImage('avatar')}
+                aria-label="Remover avatar"
               >
                 <X className="w-4 h-4" />
               </Button>
             )}
           </div>
         </div>
+        {avatarPreview && (
+          <div className="space-y-2">
+            <FormLabel htmlFor="avatar-alt">Descrição do Avatar (Acessibilidade)</FormLabel>
+            <Input
+              id="avatar-alt"
+              placeholder="Descrição do avatar para leitores de tela"
+              value={avatarAlt}
+              onChange={(e) => setAvatarAlt(e.target.value)}
+              required
+            />
+          </div>
+        )}
+        <p id="avatar-requirements" className="text-xs text-muted-foreground">
+          Mínimo 320x320px, JPG/PNG até 5MB
+        </p>
         <input
           ref={avatarInputRef}
+          id="avatar-upload"
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png"
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) handleImageUpload(file, 'avatar');
           }}
+          aria-describedby="avatar-requirements"
         />
       </div>
 
       {/* Cover */}
       <div className="space-y-4">
-        <FormLabel>Imagem de Capa</FormLabel>
+        <FormLabel htmlFor="cover-upload">Imagem de Capa</FormLabel>
         <div className="space-y-4">
           {coverPreview ? (
             <div className="relative">
               <img
                 src={coverPreview}
-                alt="Capa"
+                alt={coverAlt || 'Imagem de capa do perfil'}
                 className="w-full h-40 object-cover rounded-lg"
               />
               <Button
@@ -445,6 +568,7 @@ export default function ProfileForm() {
                 size="icon"
                 className="absolute top-2 right-2"
                 onClick={() => removeImage('cover')}
+                aria-label="Remover capa"
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -461,20 +585,38 @@ export default function ProfileForm() {
             type="button"
             variant="outline"
             onClick={() => coverInputRef.current?.click()}
+            aria-describedby="cover-requirements"
           >
             <Upload className="w-4 h-4 mr-2" />
             Carregar Capa
           </Button>
         </div>
+        {coverPreview && (
+          <div className="space-y-2">
+            <FormLabel htmlFor="cover-alt">Descrição da Capa (Acessibilidade)</FormLabel>
+            <Input
+              id="cover-alt"
+              placeholder="Descrição da capa para leitores de tela"
+              value={coverAlt}
+              onChange={(e) => setCoverAlt(e.target.value)}
+              required
+            />
+          </div>
+        )}
+        <p id="cover-requirements" className="text-xs text-muted-foreground">
+          Mínimo 1920x640px, JPG/PNG até 8MB
+        </p>
         <input
           ref={coverInputRef}
+          id="cover-upload"
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png"
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) handleImageUpload(file, 'cover');
           }}
+          aria-describedby="cover-requirements"
         />
       </div>
     </div>
