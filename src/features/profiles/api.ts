@@ -36,12 +36,21 @@ export type ListFilters = {
   order?: "trend" | "followers" | "az";
   limit?: number;
   offset?: number;
+  visibility?: "public" | "draft" | "private";
 };
 
 export async function listProfiles(f: ListFilters) {
   let q = supabase
     .from("entity_profiles")
     .select("id, type, handle, name, city, state, country, avatar_url, cover_url, tags", { count: "exact" });
+
+  // Filter by visibility if specified (defaults to public for public site)
+  if (f.visibility) {
+    q = q.eq("visibility", f.visibility);
+  } else {
+    // Default to public only for public site
+    q = q.eq("visibility", "public");
+  }
 
   if (f.type) q = q.eq("type", f.type);
   if (f.city) q = q.ilike("city", f.city);

@@ -1,18 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { publicUrlFor, setProfileVisibility } from "./adminApi";
+import { toast } from "sonner";
 
 type Props = {
   id: string;
   handle?: string;
   visibility: "public"|"draft"|"private";
   onVisibilityChange(next: "public"|"draft"|"private"): void;
+  // Required fields for publishing validation
+  avatar_url?: string;
+  cover_url?: string;
+  city?: string;
+  state?: string;
 };
 
-export default function ProfileEditorHeader({ id, handle, visibility, onVisibilityChange }: Props) {
+export default function ProfileEditorHeader({ id, handle, visibility, onVisibilityChange, avatar_url, cover_url, city, state }: Props) {
   const [busy, setBusy] = useState(false);
-  const publicUrl = publicUrlFor(handle, visibility);
+  const [publicUrl, setPublicUrl] = useState(publicUrlFor(handle, visibility));
+
+  // Update public URL when handle changes
+  useEffect(() => {
+    setPublicUrl(publicUrlFor(handle, visibility));
+  }, [handle, visibility]);
 
   async function change(v: "public"|"draft"|"private") {
+    // Validate required fields for publishing
+    if (v === "public") {
+      const missing = [];
+      if (!avatar_url) missing.push("avatar");
+      if (!city) missing.push("cidade");
+      if (!state) missing.push("estado");
+      
+      if (missing.length > 0) {
+        toast.error(`Complete os campos obrigatórios para publicar: ${missing.join(", ")}.`);
+        return;
+      }
+    }
+
     setBusy(true);
     try {
       await setProfileVisibility(id, v);

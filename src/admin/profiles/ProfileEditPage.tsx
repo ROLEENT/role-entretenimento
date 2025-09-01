@@ -88,6 +88,10 @@ export default function ProfileEditPage() {
         handle={profile.handle}
         visibility={visibility}
         onVisibilityChange={setVisibility}
+        avatar_url={profile.avatar_url}
+        cover_url={profile.cover_url}
+        city={profile.city}
+        state={profile.state}
       />
 
       {/* TODO: Criar formulário de edição que aceita initialValues */}
