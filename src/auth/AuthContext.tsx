@@ -1,9 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { createClient, Session } from "@supabase/supabase-js";
-
-const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const anon = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-export const supabase = createClient(url || "", anon || "", { auth: { persistSession: true } });
+import { Session } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 
 type AuthCtx = { session: Session | null; loading: boolean; role: string | null; };
 const Ctx = createContext<AuthCtx>({ session: null, loading: false, role: null });
