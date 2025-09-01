@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { FocusManagementProvider } from "@/components/FocusManagementProvider";
 import { queryClient } from "@/lib/queryClient";
+import { AuthProvider } from "@/auth/AuthContext";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { DevCacheButton } from "./components/DevCacheButton";
@@ -179,8 +180,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <ErrorBoundary>
-            <BrowserRouter>
+          <AuthProvider>
+            <ErrorBoundary>
+              <BrowserRouter>
               <FocusManagementProvider />
               <Suspense fallback={<PageLoadingFallback />}>
                 <ScrollToTop />
@@ -348,12 +350,13 @@ function App() {
               <PWAInstallPrompt />
             </BrowserRouter>
           </ErrorBoundary>
-          <Toaster />
-          <Sonner />
-          <ReactQueryDevtools initialIsOpen={false} />
-        </ThemeProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+        </AuthProvider>
+        <Toaster />
+        <Sonner />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </ThemeProvider>
+    </TooltipProvider>
+  </QueryClientProvider>
   );
 }
 
