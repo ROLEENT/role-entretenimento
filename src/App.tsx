@@ -139,6 +139,9 @@ const CreateProfilePage = lazy(() => import("./pages/CreateProfilePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ScrollToTop = lazy(() => import("./components/ScrollToTop"));
 const DebugCombo = lazy(() => import("./pages/DebugCombo"));
+const TestPage = lazy(() => import("./pages/TestPage"));
+const AdminPage = lazy(() => import("./pages/AdminPage"));
+const Fase5DemoPage = lazy(() => import("./pages/Fase5DemoPage"));
 
 // Profiles pages
 const DirectoryPage = lazy(() => import("./pages/profiles/DirectoryPage"));
@@ -185,7 +188,7 @@ function App() {
               
               <Routes>
                 {/* Root redirect */}
-                <Route path="/" element={<DashboardRedirect />} />
+                <Route path="/" element={<Fase5DemoPage />} />
                 
                 {/* Home route for public */}
                 <Route path="/home" element={<Index />} />
@@ -216,6 +219,8 @@ function App() {
                 
                 {/* Test Routes */}
                 <Route path="/test/checklist" element={<ChecklistTest />} />
+                <Route path="/test" element={<TestPage />} />
+                <Route path="/admin" element={<AdminPage />} />
                 <Route path="/debug/combo" element={<DebugCombo />} />
                 {/* Removed old test route */}
                 
@@ -243,7 +248,7 @@ function App() {
             } />
 
             {/* Admin Panel Routes (legacy) */}
-            <Route path="/admin" element={<AdminLayout />}>
+            <Route path="/admin-legacy" element={<AdminLayout />}>
               <Route index element={<NewAdminDashboard />} />
               <Route path="applications" element={<ApplicationsPage />} />
               <Route path="contact" element={<ContactPage />} />
