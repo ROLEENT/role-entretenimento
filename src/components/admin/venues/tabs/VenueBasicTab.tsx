@@ -2,11 +2,11 @@ import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RHFInput, RHFSlug, RHFTextarea } from '@/components/form';
-import { VenueFormData } from '@/schemas/venue';
+import { VenueFlexibleFormData } from '@/schemas/venue-flexible';
 import { Badge, MapPin } from 'lucide-react';
 
 interface VenueBasicTabProps {
-  form: UseFormReturn<VenueFormData>;
+  form: UseFormReturn<VenueFlexibleFormData>;
 }
 
 export const VenueBasicTab: React.FC<VenueBasicTabProps> = ({ form }) => {
@@ -23,7 +23,7 @@ export const VenueBasicTab: React.FC<VenueBasicTabProps> = ({ form }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <RHFInput
               name="name"
-              label="Nome do Local *"
+              label="Nome do Local"
               placeholder="Ex: Teatro Municipal"
             />
             

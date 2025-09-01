@@ -12,29 +12,9 @@ import { EventMediaTab } from "./tabs/EventMediaTab";
 import { EventLocationTab } from "./tabs/EventLocationTab";
 import { EventTicketsTab } from "./tabs/EventTicketsTab";
 import { useUpsertEvent } from "@/hooks/useUpsertEvent";
+import { eventFlexibleSchema, EventFlexibleForm } from "@/schemas/event-flexible";
 import { toast } from "sonner";
 import { Loader2, Save } from "lucide-react";
-
-const eventSchema = z.object({
-  title: z.string().min(3, "Título deve ter pelo menos 3 caracteres"),
-  slug: z.string().min(3, "Slug deve ter pelo menos 3 caracteres"),
-  status: z.enum(["draft", "published"]).default("draft"),
-  city: z.string().min(1, "Cidade é obrigatória"),
-  venue_id: z.string().uuid().optional().nullable(),
-  organizer_id: z.string().uuid().optional().nullable(),
-  starts_at: z.string().min(1, "Data de início é obrigatória"),
-  ends_at: z.string().optional().nullable(),
-  price_min: z.number().nonnegative().optional().nullable(),
-  price_max: z.number().nonnegative().optional().nullable(),
-  age_rating: z.string().optional().nullable(),
-  summary: z.string().optional().nullable(),
-  cover_url: z.string().url().optional().nullable(),
-  ticket_url: z.string().url().optional().nullable(),
-  tags: z.array(z.string()).default([]),
-  lineup_ids: z.array(z.string().uuid()).default([]),
-});
-
-type EventFormData = z.infer<typeof eventSchema>;
 
 interface AdminEventFormProps {
   event?: any;
@@ -45,13 +25,13 @@ export function AdminEventForm({ event }: AdminEventFormProps) {
   const [activeTab, setActiveTab] = useState("basic");
   const { mutate: upsertEvent, isPending } = useUpsertEvent();
 
-  const form = useForm<EventFormData>({
-    resolver: zodResolver(eventSchema),
+  const form = useForm<EventFlexibleForm>({
+    resolver: zodResolver(eventFlexibleSchema),
     defaultValues: {
       title: event?.title || "",
       slug: event?.slug || "",
       status: event?.status || "draft",
-      city: event?.city || "",
+      city_id: event?.city_id || "",
       venue_id: event?.venue_id || null,
       organizer_id: event?.organizer_id || null,
       starts_at: event?.starts_at ? new Date(event.starts_at).toISOString().slice(0, 16) : "",
@@ -59,15 +39,14 @@ export function AdminEventForm({ event }: AdminEventFormProps) {
       price_min: event?.price_min || null,
       price_max: event?.price_max || null,
       age_rating: event?.age_rating || null,
-      summary: event?.summary || null,
+      excerpt: event?.excerpt || null,
+      content: event?.content || null,
       cover_url: event?.cover_url || null,
-      ticket_url: event?.ticket_url || null,
-      tags: event?.tags || [],
-      lineup_ids: event?.lineup_ids || [],
+      lineup: event?.lineup || [],
     },
   });
 
-  const onSubmit = (data: EventFormData) => {
+  const onSubmit = (data: EventFlexibleForm) => {
     const formData = {
       ...data,
       id: event?.id,

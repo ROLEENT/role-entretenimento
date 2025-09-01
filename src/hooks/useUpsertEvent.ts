@@ -2,34 +2,16 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { EventFlexibleForm } from "@/schemas/event-flexible";
 import { toast } from "sonner";
 
-export interface EventFormData {
-  id?: string;
-  title?: string;
-  slug?: string;
-  status?: "draft" | "published";
-  city?: string;
-  city_id?: string;
-  venue_id?: string | null;
-  organizer_id?: string | null;
-  starts_at?: string;
-  ends_at?: string | null;
-  price_min?: number | null;
-  price_max?: number | null;
-  age_rating?: string | null;
-  summary?: string | null;
-  cover_url?: string | null;
-  ticket_url?: string | null;
-  tags?: string[];
-  lineup_ids?: string[];
-}
+// Use the EventFlexibleForm type from schema
 
 export const useUpsertEvent = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: EventFormData) => {
+    mutationFn: async (data: EventFlexibleForm) => {
       console.log("Upserting event:", data);
 
       // Transform data to match the agenda_itens table structure
@@ -38,7 +20,7 @@ export const useUpsertEvent = () => {
         title: data.title,
         slug: data.slug,
         status: data.status || "draft",
-        city: data.city || data.city_id,
+        city_id: data.city_id || null,
         venue_id: data.venue_id || null,
         organizer_id: data.organizer_id || null,
         starts_at: data.starts_at ? new Date(data.starts_at).toISOString() : null,
@@ -46,11 +28,12 @@ export const useUpsertEvent = () => {
         price_min: data.price_min || null,
         price_max: data.price_max || null,
         age_rating: data.age_rating || null,
-        summary: data.summary || null,
+        excerpt: data.excerpt || null,
+        content: data.content || null,
         cover_url: data.cover_url || null,
-        ticket_url: data.ticket_url || null,
-        tags: data.tags || [],
-        lineup_ids: data.lineup_ids || [],
+        links: data.links || [],
+        lineup: data.lineup || [],
+        gallery: data.gallery || [],
       };
 
       const { data: result, error } = await supabase

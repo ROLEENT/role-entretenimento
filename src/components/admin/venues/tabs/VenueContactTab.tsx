@@ -2,11 +2,11 @@ import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RHFInput } from '@/components/form';
-import { VenueFormData } from '@/schemas/venue';
+import { VenueFlexibleFormData } from '@/schemas/venue-flexible';
 import { Phone, Mail, Globe, Instagram } from 'lucide-react';
 
 interface VenueContactTabProps {
-  form: UseFormReturn<VenueFormData>;
+  form: UseFormReturn<VenueFlexibleFormData>;
 }
 
 export const VenueContactTab: React.FC<VenueContactTabProps> = ({ form }) => {

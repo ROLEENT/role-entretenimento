@@ -3,11 +3,11 @@ import { UseFormReturn } from 'react-hook-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RHFUpload, RHFInput } from '@/components/form';
 import { VenueGalleryField } from '@/components/agentes/VenueGalleryField';
-import { VenueFormData } from '@/schemas/venue';
+import { VenueFlexibleFormData } from '@/schemas/venue-flexible';
 import { Camera, Images } from 'lucide-react';
 
 interface VenueMediaTabProps {
-  form: UseFormReturn<VenueFormData>;
+  form: UseFormReturn<VenueFlexibleFormData>;
 }
 
 export const VenueMediaTab: React.FC<VenueMediaTabProps> = ({ form }) => {

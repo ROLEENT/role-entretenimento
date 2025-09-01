@@ -1,10 +1,10 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { VenueOpeningHoursFields } from '@/components/agentes/VenueOpeningHoursFields';
-import { VenueFormData } from '@/schemas/venue';
+import { VenueFlexibleFormData } from '@/schemas/venue-flexible';
 
 interface VenueHoursTabProps {
-  form: UseFormReturn<VenueFormData>;
+  form: UseFormReturn<VenueFlexibleFormData>;
 }
 
 export const VenueHoursTab: React.FC<VenueHoursTabProps> = ({ form }) => {

@@ -65,16 +65,15 @@ export function EventTicketsTab({ form }: EventTicketsTabProps) {
 
         <FormField
           control={form.control}
-          name="ticket_url"
+          name="links"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Link para Ingressos</FormLabel>
+              <FormLabel>Links do Evento</FormLabel>
               <FormControl>
                 <Input
-                  type="url"
-                  placeholder="https://exemplo.com/ingressos"
+                  placeholder="Links relacionados ao evento"
                   {...field}
-                  value={field.value || ""}
+                  value={Array.isArray(field.value) ? field.value.map(link => link.url).join(', ') : ""}
                 />
               </FormControl>
               <FormMessage />

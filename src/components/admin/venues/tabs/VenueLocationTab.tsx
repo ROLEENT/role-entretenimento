@@ -1,10 +1,10 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { VenueAddressFields } from '@/components/agentes/VenueAddressFields';
-import { VenueFormData } from '@/schemas/venue';
+import { VenueFlexibleFormData } from '@/schemas/venue-flexible';
 
 interface VenueLocationTabProps {
-  form: UseFormReturn<VenueFormData>;
+  form: UseFormReturn<VenueFlexibleFormData>;
 }
 
 export const VenueLocationTab: React.FC<VenueLocationTabProps> = ({ form }) => {

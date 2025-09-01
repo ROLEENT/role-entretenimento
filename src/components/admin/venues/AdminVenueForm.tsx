@@ -1,7 +1,7 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { VenueFormData } from '@/schemas/venue';
+import { VenueFlexibleFormData } from '@/schemas/venue-flexible';
 import { VenueBasicTab } from './tabs/VenueBasicTab';
 import { VenueLocationTab } from './tabs/VenueLocationTab';
 import { VenueContactTab } from './tabs/VenueContactTab';
@@ -10,7 +10,7 @@ import { VenueHoursTab } from './tabs/VenueHoursTab';
 import { VenueMediaTab } from './tabs/VenueMediaTab';
 
 interface AdminVenueFormProps {
-  form: UseFormReturn<VenueFormData>;
+  form: UseFormReturn<VenueFlexibleFormData>;
 }
 
 export const AdminVenueForm: React.FC<AdminVenueFormProps> = ({ form }) => {

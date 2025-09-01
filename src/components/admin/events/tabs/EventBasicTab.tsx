@@ -48,7 +48,7 @@ export function EventBasicTab({ form }: EventBasicTabProps) {
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Título do Evento *</FormLabel>
+                <FormLabel>Título do Evento</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="Ex: Festival de Música Eletrônica"
@@ -66,7 +66,7 @@ export function EventBasicTab({ form }: EventBasicTabProps) {
             name="slug"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Slug (URL) *</FormLabel>
+                <FormLabel>Slug (URL)</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="festival-musica-eletronica"
@@ -82,13 +82,13 @@ export function EventBasicTab({ form }: EventBasicTabProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="city"
+            name="city_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Cidade *</FormLabel>
+                <FormLabel>Cidade</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Ex: São Paulo"
+                    placeholder="Ex: UUID da cidade"
                     {...field}
                   />
                 </FormControl>
@@ -126,7 +126,7 @@ export function EventBasicTab({ form }: EventBasicTabProps) {
             name="starts_at"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Data e Hora de Início *</FormLabel>
+                <FormLabel>Data e Hora de Início</FormLabel>
                 <FormControl>
                   <Input
                     type="datetime-local"
@@ -159,7 +159,7 @@ export function EventBasicTab({ form }: EventBasicTabProps) {
 
         <FormField
           control={form.control}
-          name="summary"
+          name="excerpt"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Resumo</FormLabel>
