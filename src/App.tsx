@@ -188,10 +188,10 @@ function App() {
               
               <Routes>
                 {/* Root redirect */}
-                <Route path="/" element={<Fase5DemoPage />} />
+                <Route path="/" element={<Index />} />
                 
-                {/* Home route for public */}
-                <Route path="/home" element={<Index />} />
+                {/* Demo page route */}
+                <Route path="/fase5-demo" element={<Fase5DemoPage />} />
                 
                 {/* Static Pages */}
                 <Route path="/sobre" element={<About />} />
