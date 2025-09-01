@@ -5,6 +5,10 @@ import './index.css'
 import { preloadCriticalResources, registerServiceWorker } from "@/utils/serviceWorker";
 import { addResourceHints, optimizeForMobile } from "@/utils/performanceHelpers";
 import { initPerformanceMonitoring } from "./utils/performanceMonitor";
+import { initSecurity } from "@/utils/securityHeaders";
+
+// Initialize security (CSP, context checks)
+initSecurity();
 
 // Initialize performance optimizations
 preloadCriticalResources();

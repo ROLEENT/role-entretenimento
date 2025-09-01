@@ -4861,29 +4861,37 @@ export type Database = {
     Views: {
       agenda_public: {
         Row: {
+          address: string | null
+          age_rating: string | null
           alt_text: string | null
           anunciante: string | null
+          canonical_url: string | null
           city: string | null
           cover_url: string | null
           created_at: string | null
           created_by: string | null
           cupom: string | null
+          currency: string | null
           deleted_at: string | null
           end_at: string | null
           event_id: string | null
           focal_point_x: number | null
           focal_point_y: number | null
           id: string | null
+          location_name: string | null
           meta_description: string | null
           meta_title: string | null
+          neighborhood: string | null
           noindex: boolean | null
           organizer_id: string | null
           patrocinado: boolean | null
           preview_token: string | null
+          price_max: number | null
+          price_min: number | null
           priority: number | null
           publish_at: string | null
           slug: string | null
-          start_at: string | null
+          starts_at: string | null
           status: Database["public"]["Enums"]["agenda_status"] | null
           subtitle: string | null
           summary: string | null
@@ -4900,29 +4908,37 @@ export type Database = {
             | null
         }
         Insert: {
+          address?: string | null
+          age_rating?: string | null
           alt_text?: string | null
           anunciante?: string | null
+          canonical_url?: string | null
           city?: string | null
           cover_url?: string | null
           created_at?: string | null
           created_by?: string | null
           cupom?: string | null
+          currency?: string | null
           deleted_at?: string | null
           end_at?: string | null
           event_id?: string | null
           focal_point_x?: number | null
           focal_point_y?: number | null
           id?: string | null
+          location_name?: string | null
           meta_description?: string | null
           meta_title?: string | null
+          neighborhood?: string | null
           noindex?: boolean | null
           organizer_id?: string | null
           patrocinado?: boolean | null
           preview_token?: string | null
+          price_max?: number | null
+          price_min?: number | null
           priority?: number | null
           publish_at?: string | null
           slug?: string | null
-          start_at?: string | null
+          starts_at?: string | null
           status?: Database["public"]["Enums"]["agenda_status"] | null
           subtitle?: string | null
           summary?: string | null
@@ -4939,29 +4955,37 @@ export type Database = {
             | null
         }
         Update: {
+          address?: string | null
+          age_rating?: string | null
           alt_text?: string | null
           anunciante?: string | null
+          canonical_url?: string | null
           city?: string | null
           cover_url?: string | null
           created_at?: string | null
           created_by?: string | null
           cupom?: string | null
+          currency?: string | null
           deleted_at?: string | null
           end_at?: string | null
           event_id?: string | null
           focal_point_x?: number | null
           focal_point_y?: number | null
           id?: string | null
+          location_name?: string | null
           meta_description?: string | null
           meta_title?: string | null
+          neighborhood?: string | null
           noindex?: boolean | null
           organizer_id?: string | null
           patrocinado?: boolean | null
           preview_token?: string | null
+          price_max?: number | null
+          price_min?: number | null
           priority?: number | null
           publish_at?: string | null
           slug?: string | null
-          start_at?: string | null
+          starts_at?: string | null
           status?: Database["public"]["Enums"]["agenda_status"] | null
           subtitle?: string | null
           summary?: string | null
