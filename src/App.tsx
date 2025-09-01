@@ -118,6 +118,12 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const ScrollToTop = lazy(() => import("./components/ScrollToTop"));
 const DebugCombo = lazy(() => import("./pages/DebugCombo"));
 
+// Profile pages - lazy loaded
+const ProfilesListPage = lazy(() => import("./pages/profiles/ProfilesListPage"));
+const CreateProfilePage = lazy(() => import("./pages/profiles/CreateProfilePage"));
+const ProfileViewPage = lazy(() => import("./pages/profiles/ProfileViewPage"));
+const ProfileEditPage = lazy(() => import("./pages/profiles/ProfileEditPage"));
+
 // Optimized loading components
 const AdminLoadingFallback = () => (
   <div className="min-h-screen bg-background flex items-center justify-center">
@@ -269,6 +275,12 @@ function App() {
                 <Route path="/evento/:id" element={<EventDetailPage />} />
                 <Route path="/criar-evento" element={<CreateEventPage />} />
                 
+                {/* Profile Routes */}
+                <Route path="/perfis" element={<ProfilesListPage />} />
+                <Route path="/perfis/criar" element={<CreateProfilePage />} />
+                <Route path="/perfil/:handle" element={<ProfileViewPage />} />
+                <Route path="/perfil/:handle/editar" element={<ProfileEditPage />} />
+
                 {/* User Routes */}
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/login" element={<AuthPage />} /> {/* Alias for auth */}
