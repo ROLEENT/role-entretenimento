@@ -5572,12 +5572,14 @@ export type Database = {
         }[]
       }
       calculate_notification_metrics: {
-        Args: {
-          p_city?: string
-          p_end_date?: string
-          p_notification_type?: string
-          p_start_date?: string
-        }
+        Args:
+          | Record<PropertyKey, never>
+          | {
+              p_city?: string
+              p_end_date?: string
+              p_notification_type?: string
+              p_start_date?: string
+            }
         Returns: {
           avg_delivery_time_ms: number
           city: string
@@ -5598,7 +5600,7 @@ export type Database = {
         Returns: boolean
       }
       can_edit_highlight: {
-        Args: { highlight_id: string }
+        Args: Record<PropertyKey, never> | { highlight_id: string }
         Returns: boolean
       }
       can_publish_highlight: {
