@@ -11,7 +11,7 @@ import { AuthProvider } from "@/auth/AuthContext";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { DevCacheButton } from "./components/DevCacheButton";
-import { Suspense, lazy } from "react";
+import React, { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { RequireAuth } from "@/components/RequireAuth";
 
@@ -233,8 +233,12 @@ function App() {
                 {/* Profiles Routes */}
                 <Route path="/perfis" element={<Suspense fallback={<PageLoadingFallback />}><DirectoryPage /></Suspense>} />
                 <Route path="/perfil/:handle" element={<Suspense fallback={<PageLoadingFallback />}><ProfilePage /></Suspense>} />
+                <Route path="/perfil/@:handle" element={<Suspense fallback={<PageLoadingFallback />}><ProfilePage /></Suspense>} />
                 <Route path="/claim/:handle" element={<Suspense fallback={<PageLoadingFallback />}><ClaimProfilePage /></Suspense>} />
                 <Route path="/cidades/:slug/perfis" element={<Suspense fallback={<PageLoadingFallback />}><CityDirectoryPage /></Suspense>} />
+                
+                {/* Profile Creation Routes - Fixed URL */}
+                <Route path="/criar/perfil" element={<Suspense fallback={<PageLoadingFallback />}><CreateProfilePage /></Suspense>} />
                 
                 {/* Highlights Routes */}
                 <Route path="/highlights" element={<HighlightsPage />} />
@@ -328,6 +332,13 @@ function App() {
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/criar-perfil" element={<CreateProfilePage />} />
+                <Route path="/meus-perfis" element={
+                  <RequireAuth>
+                    <Suspense fallback={<PageLoadingFallback />}>
+                      {React.createElement(lazy(() => import('./pages/UserDashboard')))}
+                    </Suspense>
+                  </RequireAuth>
+                } />
                 <Route path="/feed" element={<FeedPage />} />
                 <Route path="/descobrir" element={<DiscoverUsers />} />
                 <Route path="/eventos/semana/:data" element={<WeeklyHighlights />} />

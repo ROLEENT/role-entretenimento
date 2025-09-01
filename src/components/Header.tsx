@@ -234,13 +234,13 @@ const Header = () => {
                         <User className="h-4 w-4" />
                         Perfil
                       </Link>
-                      <Link
-                        to="/criar-perfil"
+                       <Link
+                        to="/meus-perfis"
                         className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <User className="h-4 w-4" />
-                        Criar Perfil
+                        Meus Perfis
                       </Link>
                     <Link
                       to="/calendar"
@@ -434,9 +434,9 @@ const Header = () => {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to="/criar-perfil">
+                        <Link to="/meus-perfis">
                           <User className="mr-2 h-4 w-4" />
-                          Criar Perfil
+                          Meus Perfis
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>

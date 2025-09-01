@@ -9,10 +9,15 @@ export async function createProfile(payload: CreateProfile) {
   // Separar arquivos dos demais dados
   const { avatar_file, cover_file, ...data } = payload;
 
-  // Criar perfil base
+  // Obter usuário atual
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) throw new Error('Usuário não autenticado');
+
+  // Criar perfil base conectado ao usuário
   const { data: created, error } = await supabase
-    .from("profiles")
+    .from("entity_profiles")
     .insert({
+      user_id: user.id,
       type: data.type,
       handle: data.handle.toLowerCase(),
       name: data.name,
@@ -43,7 +48,7 @@ export async function createProfile(payload: CreateProfile) {
     
     if (avatar_url || cover_url) {
       await supabase
-        .from("profiles")
+        .from("entity_profiles")
         .update({ 
           avatar_url: avatar_url || null, 
           cover_url: cover_url || null 
@@ -121,7 +126,7 @@ export async function createProfile(payload: CreateProfile) {
  */
 export async function getProfileById(profileId: string) {
   const { data: profile, error } = await supabase
-    .from("profiles")
+    .from("entity_profiles")
     .select("*")
     .eq("id", profileId)
     .maybeSingle();
@@ -168,7 +173,7 @@ export async function getProfileById(profileId: string) {
  */
 export async function getProfileByHandle(handle: string) {
   const { data: profile, error } = await supabase
-    .from("profiles")
+    .from("entity_profiles")
     .select("*")
     .eq("handle", handle.toLowerCase())
     .maybeSingle();
@@ -196,7 +201,7 @@ export async function listProfiles({
   search?: string;
 }) {
   let query = supabase
-    .from("profiles")
+    .from("entity_profiles")
     .select("*")
     .eq("visibility", "public");
 
@@ -222,7 +227,7 @@ export async function updateProfile(profileId: string, payload: Partial<CreatePr
 
   // Atualizar dados básicos do perfil
   const { error } = await supabase
-    .from("profiles")
+    .from("entity_profiles")
     .update({
       ...(data.name && { name: data.name }),
       ...(data.handle && { handle: data.handle.toLowerCase() }),
@@ -249,7 +254,7 @@ export async function updateProfile(profileId: string, payload: Partial<CreatePr
     
     if (avatar_url || cover_url) {
       await supabase
-        .from("profiles")
+        .from("entity_profiles")
         .update({ 
           ...(avatar_url && { avatar_url }),
           ...(cover_url && { cover_url })
@@ -333,7 +338,7 @@ export async function updateProfile(profileId: string, payload: Partial<CreatePr
  */
 export async function deleteProfile(profileId: string) {
   const { error } = await supabase
-    .from("profiles")
+    .from("entity_profiles")
     .delete()
     .eq("id", profileId);
 

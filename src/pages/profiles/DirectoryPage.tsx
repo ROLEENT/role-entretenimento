@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Search } from "lucide-react";
 import { useProfiles } from "@/features/profiles/hooks/useProfiles";
@@ -209,12 +209,12 @@ export default function DirectoryPage() {
               >
                 Limpar tudo
               </button>
-              <a 
-                href="/criar/perfil" 
+              <Link 
+                to="/criar/perfil" 
                 className="px-4 py-2 rounded-md border bg-foreground text-background hover:bg-foreground/90"
               >
                 Criar perfil
-              </a>
+              </Link>
             </div>
           </div>
         </div>

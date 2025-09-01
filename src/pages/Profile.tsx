@@ -24,6 +24,7 @@ import PointsDisplay from '@/components/PointsDisplay';
 import BadgeDisplay from '@/components/BadgeDisplay';
 import { useGamification } from '@/hooks/useGamification';
 import { useUserEngagement } from '@/hooks/useUserEngagement';
+import { UserProfileDashboard } from '@/components/UserProfileDashboard';
 import { toast } from 'sonner';
 
 const Profile = () => {
