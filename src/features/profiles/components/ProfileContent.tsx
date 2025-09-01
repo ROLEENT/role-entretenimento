@@ -2,6 +2,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink } from "lucide-react";
 import { Profile } from "../api";
+import { ProfilePortfolio } from "./ProfilePortfolio";
+import { ProfileEvents } from "./ProfileEvents";
+import { ProfileReviews } from "./ProfileReviews";
 
 interface ProfileContentProps {
   profile: Profile;
@@ -141,7 +144,20 @@ export function ProfileContent({ profile, activeTab }: ProfileContentProps) {
     );
   }
 
-  // Placeholder content for other tabs
+  // Render content based on active tab
+  if (activeTab === 'portfolio') {
+    return <ProfilePortfolio profileUserId={profile.user_id || ''} />;
+  }
+
+  if (activeTab === 'eventos') {
+    return <ProfileEvents profileUserId={profile.user_id || ''} profileType={profile.type} />;
+  }
+
+  if (activeTab === 'avaliacoes') {
+    return <ProfileReviews profileUserId={profile.user_id || ''} />;
+  }
+
+  // Fallback for unknown tabs
   return (
     <Card>
       <CardContent className="p-6 text-center">

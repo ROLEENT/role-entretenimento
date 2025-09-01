@@ -3586,6 +3586,42 @@ export type Database = {
           },
         ]
       }
+      profile_media: {
+        Row: {
+          alt_text: string | null
+          caption: string | null
+          created_at: string
+          id: string
+          position: number | null
+          profile_user_id: string
+          type: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          id?: string
+          position?: number | null
+          profile_user_id: string
+          type: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          id?: string
+          position?: number | null
+          profile_user_id?: string
+          type?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       profile_org: {
         Row: {
           about: string | null
@@ -3626,6 +3662,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      profile_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          profile_user_id: string
+          rating: number
+          reviewer_id: string
+          updated_at: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          profile_user_id: string
+          rating: number
+          reviewer_id: string
+          updated_at?: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          profile_user_id?: string
+          rating?: number
+          reviewer_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       profile_roles: {
         Row: {

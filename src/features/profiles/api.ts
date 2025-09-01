@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 export type ProfileType = "artista" | "local" | "organizador";
 export type Profile = {
   id: string;
+  user_id: string;
   type: ProfileType;
   handle: string;
   name: string;
@@ -28,7 +29,7 @@ export async function getProfileByHandle(handle: string) {
   const { data, error } = await supabase
     .from("profiles")
     .select(`
-      id, type, handle, name, city, state, country, bio_short, bio, avatar_url, cover_url, tags, verified,
+      id, user_id, type, handle, name, city, state, country, bio_short, bio, avatar_url, cover_url, tags, verified,
       profile_artist(*),
       profile_venue(*),
       profile_org(*),
@@ -55,7 +56,7 @@ export type ListFilters = {
 export async function listProfiles(f: ListFilters) {
   let q = supabase
     .from("profiles")
-    .select("id, type, handle, name, city, state, country, avatar_url, cover_url, tags", { count: "exact" });
+    .select("id, user_id, type, handle, name, city, state, country, avatar_url, cover_url, tags", { count: "exact" });
 
   // Filter by visibility if specified (defaults to public for public site)
   if (f.visibility) {

@@ -1,0 +1,150 @@
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Star, MessageSquare } from "lucide-react";
+import { useProfileReviews, useProfileReviewsStats } from "../hooks/useProfileReviews";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
+interface ProfileReviewsProps {
+  profileUserId: string;
+}
+
+export function ProfileReviews({ profileUserId }: ProfileReviewsProps) {
+  const { data: reviews, isLoading: reviewsLoading } = useProfileReviews(profileUserId);
+  const { data: stats, isLoading: statsLoading } = useProfileReviewsStats(profileUserId);
+
+  if (reviewsLoading || statsLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (!reviews || reviews.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-medium mb-2">Nenhuma avaliação encontrada</h3>
+          <p className="text-muted-foreground">
+            Este perfil ainda não possui avaliações.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Estatísticas de Avaliações */}
+      {stats && stats.total > 0 && (
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Resumo das Avaliações</h3>
+              <Badge variant="secondary">
+                {stats.total} {stats.total === 1 ? 'avaliação' : 'avaliações'}
+              </Badge>
+            </div>
+            
+            <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-3xl font-bold">{stats.average}</span>
+                <div className="flex">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`w-5 h-5 ${
+                        star <= Math.round(stats.average)
+                          ? 'fill-yellow-400 text-yellow-400'
+                          : 'text-muted-foreground'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Distribuição de Estrelas */}
+            <div className="space-y-2">
+              {[5, 4, 3, 2, 1].map((rating) => (
+                <div key={rating} className="flex items-center gap-2 text-sm">
+                  <span className="w-8">{rating}★</span>
+                  <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-yellow-400 transition-all"
+                      style={{
+                        width: stats.total > 0 
+                          ? `${(stats.distribution[rating as keyof typeof stats.distribution] / stats.total) * 100}%`
+                          : '0%'
+                      }}
+                    />
+                  </div>
+                  <span className="w-8 text-right text-muted-foreground">
+                    {stats.distribution[rating as keyof typeof stats.distribution]}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Lista de Avaliações */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Avaliações</h3>
+        {reviews.map((review) => (
+          <Card key={review.id}>
+            <CardContent className="p-4">
+              <div className="flex gap-3">
+                <Avatar className="w-10 h-10">
+                  <AvatarImage 
+                    src={review.reviewer_profile?.avatar_url} 
+                    alt={review.reviewer_profile?.name}
+                  />
+                  <AvatarFallback>
+                    {review.reviewer_profile?.name?.charAt(0)?.toUpperCase() || '?'}
+                  </AvatarFallback>
+                </Avatar>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">
+                        {review.reviewer_profile?.name || 'Usuário'}
+                      </span>
+                      <div className="flex">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`w-4 h-4 ${
+                              star <= review.rating
+                                ? 'fill-yellow-400 text-yellow-400'
+                                : 'text-muted-foreground'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {format(new Date(review.created_at), "d 'de' MMM, yyyy", { locale: ptBR })}
+                    </span>
+                  </div>
+                  
+                  {review.comment && (
+                    <p className="text-sm text-foreground leading-relaxed">
+                      {review.comment}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
