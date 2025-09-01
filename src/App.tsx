@@ -99,7 +99,7 @@ const AdminV2Login = lazy(() => import("./pages/AdminV2Login"));
 const AdminV2Dashboard = lazy(() => import("./pages/AdminV2Dashboard"));
 
 // Admin V3 pages - simplified system
-const AdminV3Login = lazy(() => import("./pages/AdminV3Login"));
+const AdminV3Login = lazy(() => import("./pages/admin-v3/login"));
 const AdminV3Dashboard = lazy(() => import("./pages/AdminV3Dashboard"));
 const AdminV3Debug = lazy(() => import("./pages/AdminV3Debug"));
 const AdminV3EventsList = lazy(() => import("./pages/admin-v3/AdminV3EventsList"));
