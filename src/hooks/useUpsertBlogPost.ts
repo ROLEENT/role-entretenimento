@@ -12,13 +12,10 @@ function normalizeCity(input?: string | null): City | null {
 }
 
 function validateBlogPayload(p: any) {
-  const city = normalizeCity(p.city);
+  const city = normalizeCity(p.city) || 'sp'; // Default to São Paulo for magazine posts
   const hasCitiesArray = Array.isArray(p.cities) && p.cities.length > 0;
 
-  // Regra compatível com o CHECK típico
-  if (!city && !hasCitiesArray) {
-    throw new Error('Selecione uma cidade válida ou preencha o campo de cidades do post.');
-  }
+  // For magazine posts, we'll use a default city if none provided
   return { ...p, city };
 }
 
@@ -35,7 +32,8 @@ export interface BlogPostForm {
   seo_description?: string;
   author_name: string;
   author_id: string;
-  city: string;
+  city?: string;
+  cities?: string[];
   status: 'draft' | 'published' | 'scheduled';
   featured: boolean;
   category_ids: string[];

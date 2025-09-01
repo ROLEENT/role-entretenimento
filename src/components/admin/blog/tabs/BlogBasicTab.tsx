@@ -3,7 +3,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RHFInput, RHFTextarea, RHFSelect, RHFSelectAsync } from '@/components/form';
 import { BlogPostForm } from '@/hooks/useUpsertBlogPost';
-import { FileText, User, MapPin } from 'lucide-react';
+import { FileText, User } from 'lucide-react';
 
 interface BlogBasicTabProps {
   form: UseFormReturn<BlogPostForm>;
@@ -80,46 +80,31 @@ export const BlogBasicTab: React.FC<BlogBasicTabProps> = ({ form }) => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <MapPin className="h-5 w-5" />
-            Localização e Categoria
+            <FileText className="h-5 w-5" />
+            Seções da Revista
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <RHFSelect
-              name="city"
-              label="Cidade *"
-              placeholder="Selecione a cidade"
-              options={[
-                { value: 'poa', label: 'Porto Alegre' },
-                { value: 'sp', label: 'São Paulo' },
-                { value: 'rj', label: 'Rio de Janeiro' },
-                { value: 'curitiba', label: 'Curitiba' },
-                { value: 'floripa', label: 'Florianópolis' }
-              ]}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Categorias *</label>
+            <RHFSelectAsync
+              name="category_ids"
+              query={{ 
+                table: "categories", 
+                fields: "id,name,slug,kind,color", 
+                orderBy: "name",
+                filter: "kind=eq.revista,is_active=eq.true"
+              }}
+              mapRow={(r) => ({ 
+                value: r.id, 
+                label: r.name
+              })}
+              placeholder="Selecione as seções da revista (Editorial, Posfácio, ROLÊ.bpm, etc.)"
+              multiple={true}
             />
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Categorias</label>
-              <RHFSelectAsync
-                name="category_ids"
-                query={{ 
-                  table: "categories", 
-                  fields: "id,name,slug,kind,color", 
-                  orderBy: "name",
-                  filter: "kind=eq.revista,is_active=eq.true"
-                }}
-                mapRow={(r) => ({ 
-                  value: r.id, 
-                  label: r.name
-                })}
-                placeholder="Selecione as seções da revista"
-                multiple={true}
-              />
-              <p className="text-xs text-muted-foreground">
-                Categorias relacionadas ao conteúdo
-              </p>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              Escolha uma ou mais seções da revista onde o post será categorizado
+            </p>
           </div>
         </CardContent>
       </Card>
