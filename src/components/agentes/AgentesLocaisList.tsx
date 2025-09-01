@@ -174,7 +174,7 @@ export function AgentesLocaisList({ search }: AgentesLocaisListProps) {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link to={`/admin-v3/agentes/locais/${venue.id}/edit`}>
+                          <Link to={`/admin-v3/agentes/venues/${venue.id}/edit`}>
                             <Edit className="mr-2 h-4 w-4" />
                             Editar
                           </Link>

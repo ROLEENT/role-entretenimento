@@ -20,7 +20,7 @@ export const AdminVenueForm: React.FC<AdminVenueFormProps> = ({ form }) => {
         <TabsTrigger value="basic">Básico</TabsTrigger>
         <TabsTrigger value="location">Localização</TabsTrigger>
         <TabsTrigger value="contact">Contato</TabsTrigger>
-        <TabsTrigger value="amenities">Comodidades</TabsTrigger>
+        <TabsTrigger value="amenities">Características</TabsTrigger>
         <TabsTrigger value="hours">Horários</TabsTrigger>
         <TabsTrigger value="media">Mídia</TabsTrigger>
       </TabsList>
