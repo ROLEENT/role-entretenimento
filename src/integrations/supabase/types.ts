@@ -2184,13 +2184,6 @@ export type Database = {
             foreignKeyName: "followers_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
-            referencedRelation: "profile_stats"
-            referencedColumns: ["profile_id"]
-          },
-          {
-            foreignKeyName: "followers_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
             referencedRelation: "user_profiles"
             referencedColumns: ["id"]
           },
@@ -3573,13 +3566,6 @@ export type Database = {
             foreignKeyName: "profile_artist_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: true
-            referencedRelation: "profile_stats"
-            referencedColumns: ["profile_id"]
-          },
-          {
-            foreignKeyName: "profile_artist_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: true
             referencedRelation: "user_profiles"
             referencedColumns: ["id"]
           },
@@ -3621,13 +3607,6 @@ export type Database = {
             foreignKeyName: "profile_org_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: true
-            referencedRelation: "profile_stats"
-            referencedColumns: ["profile_id"]
-          },
-          {
-            foreignKeyName: "profile_org_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: true
             referencedRelation: "user_profiles"
             referencedColumns: ["id"]
           },
@@ -3653,13 +3632,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "profile_roles_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profile_stats"
-            referencedColumns: ["profile_id"]
-          },
           {
             foreignKeyName: "profile_roles_profile_id_fkey"
             columns: ["profile_id"]
@@ -3713,13 +3685,6 @@ export type Database = {
           sound_gear?: Json | null
         }
         Relationships: [
-          {
-            foreignKeyName: "profile_venue_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: true
-            referencedRelation: "profile_stats"
-            referencedColumns: ["profile_id"]
-          },
           {
             foreignKeyName: "profile_venue_profile_id_fkey"
             columns: ["profile_id"]
