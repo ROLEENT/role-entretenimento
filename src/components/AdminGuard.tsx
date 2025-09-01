@@ -9,7 +9,7 @@ interface AdminGuardProps {
 }
 
 export const AdminGuard = ({ children }: AdminGuardProps) => {
-  const { user, loading, isAdmin } = useAuth();
+  const { user, loading, isAdmin, role } = useAuth();
   const location = useLocation();
 
   // Show loading while checking authentication
@@ -38,7 +38,7 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
               Você precisa ter permissões de administrador para acessar esta área.
             </p>
             <p className="text-sm text-muted-foreground">
-              Role atual: <strong>{user.profile?.role || 'viewer'}</strong>
+              Role atual: <strong>{role || 'viewer'}</strong>
             </p>
           </CardContent>
         </Card>

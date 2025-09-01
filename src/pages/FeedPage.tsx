@@ -95,13 +95,13 @@ const FeedPage = () => {
                       <div className="grid grid-cols-2 gap-4 text-center">
                         <div>
                           <div className="text-xl font-bold text-primary">
-                            {user.profile?.following_count || 0}
+                            0
                           </div>
                           <div className="text-xs text-muted-foreground">Seguindo</div>
                         </div>
                         <div>
                           <div className="text-xl font-bold text-primary">
-                            {user.profile?.followers_count || 0}
+                            0
                           </div>
                           <div className="text-xs text-muted-foreground">Seguidores</div>
                         </div>

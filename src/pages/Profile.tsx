@@ -50,7 +50,7 @@ const Profile = () => {
   const [following, setFollowing] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('favorites');
 
-  const isOwnProfile = !username || username === user?.profile?.username;
+  const isOwnProfile = !username || username === user?.user_metadata?.username;
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -59,13 +59,13 @@ const Profile = () => {
     }
     
     if (user) {
-      const name = user.profile?.display_name || user.user_metadata?.full_name || '';
+      const name = user.user_metadata?.display_name || user.user_metadata?.full_name || '';
       setDisplayName(name);
       setTempDisplayName(name);
-      setTempUsername(user.profile?.username || '');
-      setTempBio(user.profile?.bio || '');
-      setTempLocation(user.profile?.location || '');
-      setTempWebsite(user.profile?.website || '');
+      setTempUsername(user.user_metadata?.username || '');
+      setTempBio(user.user_metadata?.bio || '');
+      setTempLocation(user.user_metadata?.location || '');
+      setTempWebsite(user.user_metadata?.website || '');
     }
   }, [user, authLoading, navigate]);
 
@@ -321,14 +321,14 @@ const Profile = () => {
               <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
                 {isOwnProfile ? (
                   <AvatarUpload
-                    currentAvatar={user.profile?.avatar_url}
+                    currentAvatar={user.user_metadata?.avatar_url}
                     onAvatarChange={handleAvatarChange}
                     size="lg"
                     userName={displayName || user.email || 'Usuário'}
                   />
                 ) : (
                   <Avatar className="h-24 w-24">
-                    <AvatarImage src={user.profile?.avatar_url} />
+                    <AvatarImage src={user.user_metadata?.avatar_url} />
                     <AvatarFallback className="text-2xl">{userInitials}</AvatarFallback>
                   </Avatar>
                 )}
@@ -358,7 +358,7 @@ const Profile = () => {
                           <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
                             {displayName || 'Usuário'}
                           </h2>
-                          {user.profile?.is_verified && (
+                          {user.user_metadata?.is_verified && (
                             <UserCheck className="h-6 w-6 text-primary" />
                           )}
                         </div>
@@ -398,7 +398,7 @@ const Profile = () => {
                         <div className="flex items-center gap-1">
                           <AtSign className="h-4 w-4 text-muted-foreground" />
                           <span className="text-muted-foreground">
-                            {user.profile?.username || 'Definir username'}
+                            {user.user_metadata?.username || 'Definir username'}
                           </span>
                         </div>
                         {isOwnProfile && (
@@ -433,7 +433,7 @@ const Profile = () => {
                     ) : (
                       <div className="flex items-start gap-2">
                         <p className="text-muted-foreground text-sm flex-1">
-                          {user.profile?.bio || (isOwnProfile ? 'Adicione uma bio...' : '')}
+                          {user.user_metadata?.bio || (isOwnProfile ? 'Adicione uma bio...' : '')}
                         </p>
                         {isOwnProfile && (
                           <Button size="sm" variant="ghost" onClick={() => setIsEditingBio(true)}>
@@ -454,17 +454,17 @@ const Profile = () => {
                       <span className="font-semibold">{stats.followers_count}</span>{' '}
                       <span className="text-muted-foreground">Seguidores</span>
                     </span>
-                    {user.profile?.location && (
+                    {user.user_metadata?.location && (
                       <div className="flex items-center gap-1 text-muted-foreground">
                         <MapPin className="h-3 w-3" />
-                        <span>{user.profile.location}</span>
+                        <span>{user.user_metadata.location}</span>
                       </div>
                     )}
-                    {user.profile?.website && (
+                    {user.user_metadata?.website && (
                       <div className="flex items-center gap-1 text-muted-foreground">
                         <ExternalLink className="h-3 w-3" />
                         <a 
-                          href={user.profile.website.startsWith('http') ? user.profile.website : `https://${user.profile.website}`}
+                          href={user.user_metadata.website.startsWith('http') ? user.user_metadata.website : `https://${user.user_metadata.website}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="hover:text-primary"
@@ -476,9 +476,9 @@ const Profile = () => {
                    </div>
                    
                    <div className="flex flex-wrap gap-2 items-center">
-                     {user.profile?.is_admin && (
-                       <Badge variant="secondary">Admin</Badge>
-                     )}
+                      {(user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'editor') && (
+                        <Badge variant="secondary">Admin</Badge>
+                      )}
                      
                      {/* Pontos de gamificação */}
                      {userPoints && (

@@ -44,7 +44,7 @@ const UserProfile = () => {
     }
     
     if (user) {
-      const name = user.profile?.display_name || user.user_metadata?.full_name || '';
+      const name = user.user_metadata?.display_name || user.user_metadata?.full_name || '';
       setDisplayName(name);
       setTempDisplayName(name);
       setEmail(user.email || '');
@@ -162,8 +162,8 @@ const UserProfile = () => {
           <Card className="mb-8">
             <CardContent className="pt-6">
               <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src={user.profile?.avatar_url} />
+                  <Avatar className="h-24 w-24">
+                  <AvatarImage src={user.user_metadata?.avatar_url} />
                   <AvatarFallback className="text-2xl">
                     {displayName?.slice(0, 2).toUpperCase() || user.email?.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
@@ -216,7 +216,7 @@ const UserProfile = () => {
                       <Heart className="h-3 w-3 mr-1" />
                       {favorites.length} favoritos
                     </Badge>
-                    {user.profile?.is_premium && (
+                    {user.user_metadata?.is_premium && (
                       <Badge variant="default">Premium</Badge>
                     )}
                   </div>
