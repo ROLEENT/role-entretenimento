@@ -1,16 +1,43 @@
 "use client";
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useRef } from "react";
 
 const Ctx = createContext<{open:boolean; setOpen:(v:boolean)=>void} | null>(null);
 
 export function DropdownMenu({ children, modal }: { children: React.ReactNode; modal?: boolean }) {
   const [open, setOpen] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Handle mouse enter/leave with debouncing
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    setOpen(true);
+  };
+  
+  const handleMouseLeave = () => {
+    // Delay closing to allow cursor to move to dropdown content
+    timeoutRef.current = setTimeout(() => {
+      setOpen(false);
+    }, 150);
+  };
+
+  // Clean up timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <Ctx.Provider value={{ open, setOpen }}>
       <div
-        className="relative inline-block group"
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
+        className="relative inline-block"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         {children}
       </div>
@@ -34,15 +61,20 @@ export function DropdownMenuTrigger({ children, className, ...rest }: any) {
   );
 }
 
-export function DropdownMenuContent({ children, align = "start", sideOffset = 8, className, position, ...rest }: any) {
+export function DropdownMenuContent({ children, align = "start", sideOffset = 4, className, position, ...rest }: any) {
   const ctx = useContext(Ctx)!;
   const alignClass = align === "end" ? "right-0" : "left-0";
+  
   return (
     <div
       role="menu"
-      className={`${alignClass} absolute mt-2 min-w-48 rounded-xl border bg-popover p-1 shadow-lg z-50
-        transition-opacity ${ctx.open ? "visible opacity-100" : "invisible opacity-0"} ${className ?? ""}`}
-      style={{ marginTop: sideOffset }}
+      className={`${alignClass} absolute min-w-48 rounded-xl border bg-popover p-1 shadow-lg z-[9999]
+        transition-all duration-200 ease-in-out ${ctx.open ? "visible opacity-100 translate-y-0" : "invisible opacity-0 -translate-y-2"} ${className ?? ""}`}
+      style={{ 
+        marginTop: sideOffset,
+        background: "hsl(var(--popover))",
+        border: "1px solid hsl(var(--border))"
+      }}
       {...rest}
     >
       <ul className="grid gap-1">{children}</ul>
