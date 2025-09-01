@@ -27,12 +27,16 @@ export function useProfileStats(profileId?: string) {
     setError(null);
 
     try {
-      // Buscar dados básicos do perfil (followers/following)
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('followers_count, following_count')
-        .eq('id', profileId)
-        .single();
+      // Buscar contadores de seguidores (calculated from followers table)
+      const { count: followersCount } = await supabase
+        .from('followers')
+        .select('*', { count: 'exact', head: true })
+        .eq('profile_id', profileId);
+
+      const { count: followingCount } = await supabase
+        .from('followers')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', profileId);
 
       // Buscar contagem de eventos (placeholder - ajustar quando tabela de eventos existir)
       const { count: eventsCount } = await supabase
@@ -41,11 +45,11 @@ export function useProfileStats(profileId?: string) {
         .eq('created_by', profileId)
         .eq('status', 'published');
 
-      // Buscar reviews/avaliações (placeholder - ajustar quando sistema de reviews existir)
+      // Buscar reviews/avaliações
       const { data: reviewsData } = await supabase
-        .from('reviews')
+        .from('profile_reviews')
         .select('rating')
-        .eq('profile_id', profileId);
+        .eq('profile_user_id', profileId);
 
       let averageRating = 0;
       let totalReviews = 0;
@@ -57,8 +61,8 @@ export function useProfileStats(profileId?: string) {
       }
 
       setStats({
-        followers_count: profileData?.followers_count || 0,
-        following_count: profileData?.following_count || 0,
+        followers_count: followersCount || 0,
+        following_count: followingCount || 0,
         events_count: eventsCount || 0,
         average_rating: averageRating,
         total_reviews: totalReviews,
@@ -86,7 +90,7 @@ export function useProfileStats(profileId?: string) {
         {
           event: 'UPDATE',
           schema: 'public',
-          table: 'profiles',
+          table: 'entity_profiles',
           filter: `id=eq.${profileId}`,
         },
         () => fetchStats()

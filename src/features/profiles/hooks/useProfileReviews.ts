@@ -23,7 +23,7 @@ export function useProfileReviews(profileUserId: string) {
         .from('profile_reviews')
         .select(`
           *,
-          reviewer_profile:profiles!reviewer_id(name, avatar_url)
+          reviewer_profile:entity_profiles!reviewer_id(name, avatar_url)
         `)
         .eq('profile_user_id', profileUserId)
         .order('created_at', { ascending: false });

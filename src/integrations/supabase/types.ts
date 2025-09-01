@@ -1729,6 +1729,7 @@ export type Database = {
           tags: string[] | null
           type: string
           updated_at: string
+          user_id: string | null
           verified: boolean | null
           visibility: string | null
         }
@@ -1751,6 +1752,7 @@ export type Database = {
           tags?: string[] | null
           type: string
           updated_at?: string
+          user_id?: string | null
           verified?: boolean | null
           visibility?: string | null
         }
@@ -1773,6 +1775,7 @@ export type Database = {
           tags?: string[] | null
           type?: string
           updated_at?: string
+          user_id?: string | null
           verified?: boolean | null
           visibility?: string | null
         }
@@ -2180,17 +2183,17 @@ export type Database = {
       }
       followers: {
         Row: {
-          created_at: string
+          created_at: string | null
           profile_id: string
           user_id: string
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           profile_id: string
           user_id: string
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           profile_id?: string
           user_id?: string
         }
@@ -2199,7 +2202,7 @@ export type Database = {
             foreignKeyName: "followers_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
-            referencedRelation: "user_profiles"
+            referencedRelation: "entity_profiles"
             referencedColumns: ["id"]
           },
         ]
