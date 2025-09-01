@@ -1709,6 +1709,60 @@ export type Database = {
         }
         Relationships: []
       }
+      entity_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          bio_short: string | null
+          city: string
+          country: string
+          cover_url: string | null
+          created_at: string
+          handle: string
+          id: string
+          name: string
+          state: string
+          tags: string[] | null
+          type: string
+          updated_at: string
+          verified: boolean | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          bio_short?: string | null
+          city: string
+          country?: string
+          cover_url?: string | null
+          created_at?: string
+          handle: string
+          id?: string
+          name: string
+          state: string
+          tags?: string[] | null
+          type: string
+          updated_at?: string
+          verified?: boolean | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          bio_short?: string | null
+          city?: string
+          country?: string
+          cover_url?: string | null
+          created_at?: string
+          handle?: string
+          id?: string
+          name?: string
+          state?: string
+          tags?: string[] | null
+          type?: string
+          updated_at?: string
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
       event_artists: {
         Row: {
           artist_spotify_data_id: string
