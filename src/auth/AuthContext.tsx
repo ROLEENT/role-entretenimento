@@ -33,10 +33,20 @@ const Ctx = createContext<AuthCtx>(defaultContext);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(false);
-  const role = (session?.user?.user_metadata as any)?.role ?? null;
+  
+  // Lista de emails autorizados para admin (mesmo do AdminLogin.tsx)
+  const AUTHORIZED_ADMIN_EMAILS = [
+    'pablohenrique.dev@gmail.com',
+    'admin@role.app',
+    'fiih@roleentretenimento.com' // Adicionar o email do usuário
+  ];
+  
   const user = session?.user ?? null;
   const isAuthenticated = !!session?.user;
-  const isAdmin = role === 'admin' || role === 'editor';
+  
+  // Admin baseado em email autorizado ao invés de user_metadata.role
+  const isAdmin = !!(user?.email && AUTHORIZED_ADMIN_EMAILS.includes(user.email));
+  const role = isAdmin ? 'admin' : 'viewer';
   const hasAdminAccess = isAdmin;
 
   useEffect(() => {
