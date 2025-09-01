@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 interface NavigationPost {
   title: string;
   slug: string;
+  slug_data?: string;
 }
 
 interface ArticleNavigationProps {
@@ -24,7 +25,7 @@ export function ArticleNavigation({ previousPost, nextPost, className = "" }: Ar
           <Card className="h-full hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <Link 
-                to={`/revista/${previousPost.slug}`}
+                to={`/revista/${previousPost.slug_data || previousPost.slug}`}
                 className="group block"
               >
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
@@ -48,7 +49,7 @@ export function ArticleNavigation({ previousPost, nextPost, className = "" }: Ar
           <Card className="h-full hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <Link 
-                to={`/revista/${nextPost.slug}`}
+                to={`/revista/${nextPost.slug_data || nextPost.slug}`}
                 className="group block"
               >
                 <div className="flex items-center justify-end gap-2 text-sm text-muted-foreground mb-2">

@@ -318,7 +318,7 @@ export default function RevistaPage() {
           }
         },
         "datePublished": post.published_at,
-        "url": `${window.location.origin}/revista/${post.slug}`
+        "url": `${window.location.origin}/revista/${post.slug_data || post.slug}`
       }
     }))
   } : undefined;

@@ -139,7 +139,7 @@ export const AdminBlogTable: React.FC<AdminBlogTableProps> = ({
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Ações</DropdownMenuLabel>
                       <DropdownMenuItem asChild>
-                        <Link to={`/revista/${post.slug}`} target="_blank">
+                        <Link to={`/revista/${post.slug_data || post.slug}`} target="_blank">
                           <Eye className="mr-2 h-4 w-4" />
                           Visualizar
                         </Link>
