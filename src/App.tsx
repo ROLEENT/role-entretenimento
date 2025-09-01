@@ -127,6 +127,7 @@ const EventsPage = lazy(() => import("./pages/EventsPage"));
 const EventDetailPage = lazy(() => import("./pages/EventDetailPage"));
 const CreateEventPage = lazy(() => import("./pages/CreateEventPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
+const PublicAuthPage = lazy(() => import("./pages/PublicAuthPage"));
 const Profile = lazy(() => import("./pages/Profile"));
 const WeeklyHighlights = lazy(() => import("./pages/WeeklyHighlights"));
 const FeedPage = lazy(() => import("./pages/FeedPage"));

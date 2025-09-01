@@ -1,5 +1,7 @@
 import { Search, Menu, User, Heart, LogOut, Calendar, Settings, ChevronDown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { usePublicAuth } from "@/hooks/usePublicAuth";
+import { PublicAuthDialog } from "@/components/auth/PublicAuthDialog";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -25,7 +27,8 @@ import { Avatar, AvatarFallback } from "./ui/avatar";
 const Header = () => {
   const location = useLocation();
   const { isMobile } = useResponsive();
-  const { user, hasAdminAccess } = useAuth();
+  const { hasAdminAccess } = useAuth(); // Admin auth
+  const { user: publicUser, signOut: publicSignOut, isAuthenticated } = usePublicAuth(); // Public auth
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [inlineSearchOpen, setInlineSearchOpen] = useState(false);
@@ -33,6 +36,7 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [events, setEvents] = useState([]);
   const [highlights, setHighlights] = useState([]);
+  const [showPublicAuth, setShowPublicAuth] = useState(false);
 
   const navLinks = [
     { href: '/', label: 'Home' },
@@ -208,17 +212,17 @@ const Header = () => {
 
               {/* User Section */}
               <div className="border-t pt-4 space-y-3">
-                  {user ? (
+                  {publicUser ? (
                     <>
                       <div className="flex items-center gap-3 px-4 py-2">
                         <Avatar className="h-8 w-8">
                           <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                            {user.email?.charAt(0).toUpperCase()}
+                            {publicUser.email?.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-foreground truncate">
-                            {user.email}
+                            {publicUser.email}
                           </p>
                         </div>
                       </div>
@@ -256,21 +260,24 @@ const Header = () => {
                         Painel Admin
                       </Link>
                     )}
-                    <button className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors w-full text-left">
+                    <button 
+                      onClick={publicSignOut}
+                      className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors w-full text-left"
+                    >
                       <LogOut className="h-4 w-4" />
                       Sair
                     </button>
                   </>
                 ) : (
                   <Button 
-                    asChild 
                     className="w-full h-12"
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      setShowPublicAuth(true);
+                    }}
                   >
-                    <Link to="/auth">
-                      <User className="mr-2 h-4 w-4" />
-                      Entrar
-                    </Link>
+                    <User className="mr-2 h-4 w-4" />
+                    Entrar
                   </Button>
                 )}
 
@@ -399,13 +406,13 @@ const Header = () => {
                 <NotificationTrigger />
                 <ThemeToggle />
 
-                {user ? (
+                {publicUser ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                         <Avatar className="h-8 w-8">
                           <AvatarFallback className="bg-primary text-primary-foreground">
-                            {user.email?.charAt(0).toUpperCase()}
+                            {publicUser.email?.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                       </Button>
@@ -415,7 +422,7 @@ const Header = () => {
                         <div className="flex flex-col space-y-1">
                           <p className="text-sm font-medium leading-none">Perfil</p>
                           <p className="text-xs leading-none text-muted-foreground">
-                            {user.email}
+                            {publicUser.email}
                           </p>
                         </div>
                       </DropdownMenuLabel>
@@ -447,15 +454,20 @@ const Header = () => {
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={publicSignOut}>
                         <LogOut className="mr-2 h-4 w-4" />
                         Sair
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  <Button variant="outline" size="sm" asChild>
-                    <Link to="/auth">Entrar</Link>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setShowPublicAuth(true)}
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    Entrar
                   </Button>
                 )}
 
@@ -476,12 +488,18 @@ const Header = () => {
         </div>
       </header>
 
-      <GlobalSearch
-        events={events}
-        highlights={highlights}
-        isOpen={searchOpen}
-        onClose={() => setSearchOpen(false)}
-      />
+        <GlobalSearch
+          events={events}
+          highlights={highlights}
+          isOpen={searchOpen}
+          onClose={() => setSearchOpen(false)}
+        />
+
+        <PublicAuthDialog
+          open={showPublicAuth}
+          onOpenChange={setShowPublicAuth}
+          defaultTab="signin"
+        />
     </>
   );
 };

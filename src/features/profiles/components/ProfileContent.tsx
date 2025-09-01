@@ -5,6 +5,8 @@ import { Profile } from "../api";
 import { ProfilePortfolio } from "./ProfilePortfolio";
 import { ProfileEvents } from "./ProfileEvents";
 import { ProfileReviews } from "./ProfileReviews";
+import { ReviewForm } from "@/components/profiles/ReviewForm";
+import { MediaUpload } from "@/components/profiles/MediaUpload";
 
 interface ProfileContentProps {
   profile: Profile;
@@ -146,7 +148,12 @@ export function ProfileContent({ profile, activeTab }: ProfileContentProps) {
 
   // Render content based on active tab
   if (activeTab === 'portfolio') {
-    return <ProfilePortfolio profileUserId={profile.user_id || ''} />;
+    return (
+      <div className="space-y-6">
+        <ProfilePortfolio profileUserId={profile.user_id || ''} />
+        <MediaUpload profileId={profile.id} />
+      </div>
+    );
   }
 
   if (activeTab === 'eventos') {
@@ -154,7 +161,12 @@ export function ProfileContent({ profile, activeTab }: ProfileContentProps) {
   }
 
   if (activeTab === 'avaliacoes') {
-    return <ProfileReviews profileUserId={profile.user_id || ''} />;
+    return (
+      <div className="space-y-6">
+        <ProfileReviews profileUserId={profile.user_id || ''} />
+        <ReviewForm profileId={profile.id} />
+      </div>
+    );
   }
 
   // Fallback for unknown tabs

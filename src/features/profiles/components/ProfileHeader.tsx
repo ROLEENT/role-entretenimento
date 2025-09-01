@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Profile } from "../api";
-import FollowButton from "../FollowButton";
+import { FollowButton } from "@/components/profiles/FollowButton";
 import { useProfileStats } from "../hooks/useProfileStats";
 
 interface ProfileHeaderProps {
