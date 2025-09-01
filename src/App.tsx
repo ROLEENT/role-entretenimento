@@ -137,6 +137,9 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const ScrollToTop = lazy(() => import("./components/ScrollToTop"));
 const DebugCombo = lazy(() => import("./pages/DebugCombo"));
 
+// Profiles pages
+const DirectoryPage = lazy(() => import("./pages/profiles/DirectoryPage"));
+
 // Optimized loading components
 const AdminLoadingFallback = () => (
   <div className="min-h-screen bg-background flex items-center justify-center">
@@ -208,8 +211,8 @@ function App() {
                 <Route path="/revista" element={<Suspense fallback={<PageLoadingFallback />}><RevistaPage /></Suspense>} />
                 <Route path="/revista/:slug" element={<Suspense fallback={<PageLoadingFallback />}><RevistaArticlePage /></Suspense>} />
                 
-                {/* Rotas antigas de destaques removidas */}
-                <Route path="/cidades" element={<CitiesPage />} />
+                {/* Profiles Routes */}
+                <Route path="/perfis" element={<Suspense fallback={<PageLoadingFallback />}><DirectoryPage /></Suspense>} />
                 
                 {/* Highlights Routes */}
                 <Route path="/highlights" element={<HighlightsPage />} />

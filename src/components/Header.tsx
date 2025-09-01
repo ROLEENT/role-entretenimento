@@ -38,6 +38,7 @@ const Header = () => {
     { href: '/', label: 'Home' },
     { href: '/agenda', label: 'Agenda' },
     { href: '/revista', label: 'Revista' },
+    { href: '/perfis', label: 'Perfis' },
     { href: '/cidades', label: 'Cidades' },
     { href: '/ajuda', label: 'Ajuda' }
   ];
