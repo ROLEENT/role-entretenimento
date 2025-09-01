@@ -5018,23 +5018,37 @@ export type Database = {
     }
     Functions: {
       add_blog_comment_secure: {
-        Args: {
-          p_author_email: string
-          p_author_name: string
-          p_content: string
-          p_parent_id?: string
-          p_post_id: string
-        }
+        Args:
+          | {
+              p_author_email: string
+              p_author_name: string
+              p_content: string
+              p_parent_id?: string
+              p_post_id: string
+            }
+          | {
+              p_author_name: string
+              p_content: string
+              p_email: string
+              p_post_id: string
+            }
         Returns: string
       }
       add_blog_comment_secure_hash: {
-        Args: {
-          p_author_name: string
-          p_content: string
-          p_email_hash: string
-          p_parent_id?: string
-          p_post_id: string
-        }
+        Args:
+          | {
+              p_author_name: string
+              p_content: string
+              p_email_hash: string
+              p_parent_id?: string
+              p_post_id: string
+            }
+          | {
+              p_author_name: string
+              p_content: string
+              p_email_hash: string
+              p_post_id: string
+            }
         Returns: string
       }
       add_favorite_to_calendar: {
