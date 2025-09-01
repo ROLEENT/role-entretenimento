@@ -40,15 +40,15 @@ const artistSchema = z.object({
   home_city: z.string().optional(),
   cities_active: z.array(z.string()).default([]),
   
-  // Social media
+  // Social media - flexible URL validation
   instagram: z.string().optional(),
-  website: z.string().url().optional().or(z.literal('')),
-  website_url: z.string().url().optional().or(z.literal('')),
-  spotify_url: z.string().url().optional().or(z.literal('')),
-  soundcloud_url: z.string().url().optional().or(z.literal('')),
-  youtube_url: z.string().url().optional().or(z.literal('')),
-  beatport_url: z.string().url().optional().or(z.literal('')),
-  audius_url: z.string().url().optional().or(z.literal('')),
+  website: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
+  website_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
+  spotify_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
+  soundcloud_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
+  youtube_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
+  beatport_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
+  audius_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
   links: z.record(z.string()).optional(),
   
   // Professional info
@@ -62,13 +62,13 @@ const artistSchema = z.object({
   tech_audio: z.string().optional(),
   tech_light: z.string().optional(),
   tech_stage: z.string().optional(),
-  tech_rider_url: z.string().url().optional().or(z.literal('')),
+  tech_rider_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
   
-  // Media
-  profile_image_url: z.string().url().optional().or(z.literal('')),
-  cover_image_url: z.string().url().optional().or(z.literal('')),
-  avatar_url: z.string().url().optional().or(z.literal('')),
-  presskit_url: z.string().url().optional().or(z.literal('')),
+  // Media - flexible URL validation  
+  profile_image_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
+  cover_image_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
+  avatar_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
+  presskit_url: z.union([z.string().url(), z.literal(''), z.undefined()]).optional(),
   
   // Management
   responsible_name: z.string().optional(),

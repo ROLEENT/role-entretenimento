@@ -13,9 +13,44 @@ export const useUpsertArtist = () => {
     mutationFn: async (data: ArtistForm) => {
       console.log("Upserting artist:", data);
 
+      // Transform data to match database schema exactly
+      const transformedData = {
+        ...data,
+        // Ensure required fields are present
+        name: data.name || data.stage_name,
+        stage_name: data.stage_name || data.name,
+        
+        // Clean URL fields - convert empty strings to null
+        website_url: data.website_url === '' ? null : data.website_url,
+        spotify_url: data.spotify_url === '' ? null : data.spotify_url,
+        soundcloud_url: data.soundcloud_url === '' ? null : data.soundcloud_url,
+        youtube_url: data.youtube_url === '' ? null : data.youtube_url,
+        beatport_url: data.beatport_url === '' ? null : data.beatport_url,
+        audius_url: data.audius_url === '' ? null : data.audius_url,
+        profile_image_url: data.profile_image_url === '' ? null : data.profile_image_url,
+        cover_image_url: data.cover_image_url === '' ? null : data.cover_image_url,
+        avatar_url: data.avatar_url === '' ? null : data.avatar_url,
+        presskit_url: data.presskit_url === '' ? null : data.presskit_url,
+        tech_rider_url: data.tech_rider_url === '' ? null : data.tech_rider_url,
+        website: data.website === '' ? null : data.website,
+        email: data.email === '' ? null : data.email,
+        booking_email: data.booking_email === '' ? null : data.booking_email,
+        
+        // Ensure arrays are properly initialized
+        cities_active: data.cities_active || [],
+        availability_days: data.availability_days || [],
+        tags: data.tags || [],
+        
+        // Ensure default values
+        country: data.country || 'BR',
+        status: data.status || 'active',
+        priority: data.priority || 0,
+        image_rights_authorized: data.image_rights_authorized || false,
+      };
+
       const { data: result, error } = await supabase
         .from("artists")
-        .upsert(data, { 
+        .upsert(transformedData, { 
           onConflict: "id",
           ignoreDuplicates: false 
         })
