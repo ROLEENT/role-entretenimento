@@ -12,7 +12,7 @@ import { AdminV3Breadcrumb } from "@/components/AdminV3Breadcrumb";
 import { FormShell, FormSection, FORM_SECTIONS } from "@/components/form";
 import { RHFInput, RHFSelect, RHFSelectAsync, RHFUpload } from "@/components/form";
 import RHFSlug from "@/components/form/RHFSlug";
-import { venueSchema, VenueForm } from "@/schemas/agents";
+import { venueSchema, VenueFormData } from "@/schemas/venue";
 import { useUpsertVenue } from "@/hooks/useUpsertAgents";
 
 export default function VenueEditPage() {
@@ -39,7 +39,7 @@ export default function VenueEditPage() {
     enabled: isEditing,
   });
 
-  const form = useForm<VenueForm>({
+  const form = useForm<VenueFormData>({
     resolver: zodResolver(venueSchema),
     defaultValues: {
       name: "",
@@ -62,7 +62,7 @@ export default function VenueEditPage() {
     }
   }, [venue, form]);
 
-  const handleSaveAndExit = async (data: VenueForm) => {
+  const handleSaveAndExit = async (data: VenueFormData) => {
     await upsertVenue.mutateAsync(data);
     navigate("/admin-v3/locais");
   };
