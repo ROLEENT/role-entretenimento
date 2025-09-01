@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { VenueFormData } from "@/schemas/venue";
+import { VenueFlexibleFormData } from "@/schemas/venue-flexible";
 import { ArtistForm, OrganizerForm } from "@/schemas/agents";
 import { toast } from "sonner";
 
@@ -80,7 +80,7 @@ export const useUpsertVenue = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: VenueFormData) => {
+    mutationFn: async (data: VenueFlexibleFormData) => {
       console.log("Upserting venue - raw data:", data);
 
       // Transform and clean data like in useUpsertPost

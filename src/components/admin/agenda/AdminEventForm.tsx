@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { eventSchema, type EventForm } from "@/schemas/event";
+import { eventFlexibleSchema, type EventFlexibleForm } from "@/schemas/event-flexible";
 import { useUpsertEvent } from "@/hooks/useUpsertEvent";
 import { useFormDirtyGuard } from "@/lib/forms";
 import RHFInput from "@/components/form/RHFInput";
@@ -22,9 +22,9 @@ import { Badge } from "@/components/ui/badge";
 import { Save, Send, Eye, AlertCircle } from "lucide-react";
 
 interface AdminEventFormProps {
-  initialData?: Partial<EventForm>;
+  initialData?: Partial<EventFlexibleForm>;
   eventId?: string;
-  onSave?: (data: EventForm) => void;
+  onSave?: (data: EventFlexibleForm) => void;
   onCancel?: () => void;
 }
 
@@ -34,8 +34,8 @@ export default function AdminEventForm({
   onSave,
   onCancel,
 }: AdminEventFormProps) {
-  const form = useForm<EventForm>({
-    resolver: zodResolver(eventSchema),
+  const form = useForm<EventFlexibleForm>({
+    resolver: zodResolver(eventFlexibleSchema),
     defaultValues: {
       status: "draft",
       lineup: [],
@@ -58,7 +58,7 @@ export default function AdminEventForm({
     }
   }, [initialData, form]);
 
-  const handleSubmit = async (data: EventForm, publish = false) => {
+  const handleSubmit = async (data: EventFlexibleForm, publish = false) => {
     try {
       const submitData = {
         ...data,
@@ -83,8 +83,8 @@ export default function AdminEventForm({
     }
   };
 
-  const onSubmit = (data: EventForm) => handleSubmit(data, false);
-  const onPublish = (data: EventForm) => handleSubmit(data, true);
+  const onSubmit = (data: EventFlexibleForm) => handleSubmit(data, false);
+  const onPublish = (data: EventFlexibleForm) => handleSubmit(data, true);
 
   const watchedTitle = form.watch("title");
   const watchedStatus = form.watch("status");
@@ -157,7 +157,6 @@ export default function AdminEventForm({
                   name="title"
                   label="Título do Evento"
                   placeholder="Ex: Festival de Música Eletrônica"
-                  required
                 />
                 
                 <SlugInput
@@ -208,12 +207,10 @@ export default function AdminEventForm({
                   <DateTimePicker
                     name="starts_at"
                     label="Data e Hora de Início"
-                    required
                   />
                   <DateTimePicker
                     name="ends_at"
                     label="Data e Hora de Fim"
-                    required
                   />
                 </div>
 
