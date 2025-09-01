@@ -3872,25 +3872,58 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
+          bio: string | null
+          cover_url: string | null
           created_at: string | null
+          display_name: string | null
           email: string | null
+          followers_count: number | null
+          following_count: number | null
+          is_private: boolean | null
+          is_verified: boolean | null
+          location: string | null
           role: string | null
           updated_at: string | null
           user_id: string
+          username: string | null
+          website: string | null
         }
         Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
           created_at?: string | null
+          display_name?: string | null
           email?: string | null
+          followers_count?: number | null
+          following_count?: number | null
+          is_private?: boolean | null
+          is_verified?: boolean | null
+          location?: string | null
           role?: string | null
           updated_at?: string | null
           user_id: string
+          username?: string | null
+          website?: string | null
         }
         Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
           created_at?: string | null
+          display_name?: string | null
           email?: string | null
+          followers_count?: number | null
+          following_count?: number | null
+          is_private?: boolean | null
+          is_verified?: boolean | null
+          location?: string | null
           role?: string | null
           updated_at?: string | null
           user_id?: string
+          username?: string | null
+          website?: string | null
         }
         Relationships: []
       }
