@@ -44,15 +44,100 @@ export default function VenueEditPage() {
     defaultValues: {
       name: "",
       slug: "",
-      city_id: "",
-      venue_type: "house",
-      address: null,
-      website: null,
-      capacity: null,
-      email: null,
-      phone: null,
-      cover_url: null,
+      address_line: "",
+      city: "",
+      state: "",
+      postal_code: "",
+      country: "BR",
+      email: "",
+      phone: "",
+      whatsapp: "",
+      instagram: "",
+      website: "",
+      about: "",
+      capacity: undefined,
+      cover_url: "",
+      cover_alt: "",
+      gallery_urls: [],
+      tags: [],
+      caracteristicas_estabelecimento: { descricao: "" },
+      estruturas: {
+        descricao: "",
+        ar_condicionado: false,
+        wifi: false,
+        aquecimento: false,
+        estacionamento: false,
+        aceita_pets: false,
+        area_fumantes: false,
+        pista_danca: false,
+        area_vip: false,
+        rooftop: false,
+        estacoes_carregamento: false,
+        lugares_sentados: false,
+      },
+      diferenciais: {
+        descricao: "",
+        dj: false,
+        happy_hour: false,
+        mesa_bilhar: false,
+        jogos_arcade: false,
+        karaoke: false,
+        narguile: false,
+        transmissao_eventos_esportivos: false,
+        shows_ao_vivo: false,
+        stand_up: false,
+        musica_ao_vivo: false,
+        amigavel_lgbtqia: false,
+      },
+      bebidas: {
+        descricao: "",
+        menu_cervejas: false,
+        cervejas_artesanais: false,
+        coqueteis_classicos: false,
+        coqueteis_autorais: false,
+        menu_vinhos: false,
+      },
+      cozinha: {
+        descricao: "",
+        serve_comida: false,
+        opcoes_veganas: false,
+        opcoes_vegetarianas: false,
+        opcoes_sem_gluten: false,
+        opcoes_sem_lactose: false,
+        menu_kids: false,
+      },
+      seguranca: {
+        descricao: "",
+        equipe_seguranca: false,
+        bombeiros_local: false,
+        saidas_emergencia_sinalizadas: false,
+      },
+      acessibilidade: {
+        descricao: "",
+        elevador_acesso: false,
+        rampa_cadeirantes: false,
+        banheiro_acessivel: false,
+        cardapio_braille: false,
+        audio_acessivel: false,
+        area_caes_guia: false,
+      },
+      banheiros: {
+        descricao: "",
+        masculinos: 0,
+        femininos: 0,
+        genero_neutro: 0,
+      },
+      opening_hours: {
+        monday: "",
+        tuesday: "",
+        wednesday: "",
+        thursday: "",
+        friday: "",
+        saturday: "",
+        sunday: "",
+      },
       status: "active",
+      priority: 0,
     },
   });
 
@@ -113,23 +198,10 @@ export default function VenueEditPage() {
                   currentId={venue?.id}
                   generateFrom="name"
                 />
-                <RHFSelectAsync
-                  name="city_id"
+                <RHFInput
+                  name="city"
                   label="Cidade"
-                  query={{ table: "cities", fields: "id,name,uf", orderBy: "name" }}
-                  mapRow={(r) => ({ value: String(r.id), label: `${r.name} - ${r.uf}` })}
-                  placeholder="Selecione a cidade"
-                />
-                <RHFSelect
-                  name="venue_type"
-                  label="Tipo de Local"
-                  options={[
-                    { value: "house", label: "Casa de Show" },
-                    { value: "theater", label: "Teatro" },
-                    { value: "club", label: "Clube" },
-                    { value: "arena", label: "Arena" },
-                    { value: "outro", label: "Outro" },
-                  ]}
+                  placeholder="São Paulo"
                 />
                 <RHFInput
                   name="capacity"
@@ -146,11 +218,22 @@ export default function VenueEditPage() {
               title={FORM_SECTIONS.LOCATION.title}
               description="Endereço e localização"
             >
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <RHFInput
-                  name="address"
+                  name="address_line"
                   label="Endereço"
                   placeholder="Rua, número, bairro"
+                  className="md:col-span-2"
+                />
+                <RHFInput
+                  name="postal_code"
+                  label="CEP"
+                  placeholder="01234-567"
+                />
+                <RHFInput
+                  name="state"
+                  label="Estado"
+                  placeholder="SP"
                 />
               </div>
             </FormSection>
