@@ -4911,7 +4911,9 @@ export type Database = {
           focal_point_x: number | null
           focal_point_y: number | null
           id: string | null
+          latitude: number | null
           location_name: string | null
+          longitude: number | null
           meta_description: string | null
           meta_title: string | null
           neighborhood: string | null
@@ -4958,7 +4960,9 @@ export type Database = {
           focal_point_x?: number | null
           focal_point_y?: number | null
           id?: string | null
+          latitude?: number | null
           location_name?: string | null
+          longitude?: number | null
           meta_description?: string | null
           meta_title?: string | null
           neighborhood?: string | null
@@ -5005,7 +5009,9 @@ export type Database = {
           focal_point_x?: number | null
           focal_point_y?: number | null
           id?: string | null
+          latitude?: number | null
           location_name?: string | null
+          longitude?: number | null
           meta_description?: string | null
           meta_title?: string | null
           neighborhood?: string | null
