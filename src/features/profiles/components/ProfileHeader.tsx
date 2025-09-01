@@ -4,12 +4,15 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Profile } from "../api";
 import FollowButton from "../FollowButton";
+import { useProfileStats } from "../hooks/useProfileStats";
 
 interface ProfileHeaderProps {
   profile: Profile;
 }
 
 export function ProfileHeader({ profile }: ProfileHeaderProps) {
+  const { stats, loading: statsLoading } = useProfileStats(profile.id);
+  
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
@@ -187,15 +190,35 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
             {/* Stats Row */}
             <div className="flex flex-wrap gap-6 pt-4 border-t border-border">
               <div className="text-center">
-                <div className="text-lg md:text-xl font-bold">150</div>
+                <div className="text-lg md:text-xl font-bold">
+                  {statsLoading ? (
+                    <div className="w-8 h-6 bg-muted animate-pulse rounded" />
+                  ) : (
+                    stats.followers_count.toLocaleString()
+                  )}
+                </div>
                 <div className="text-xs text-muted-foreground">Seguidores</div>
               </div>
               <div className="text-center">
-                <div className="text-lg md:text-xl font-bold">25</div>
+                <div className="text-lg md:text-xl font-bold">
+                  {statsLoading ? (
+                    <div className="w-8 h-6 bg-muted animate-pulse rounded" />
+                  ) : (
+                    stats.events_count.toLocaleString()
+                  )}
+                </div>
                 <div className="text-xs text-muted-foreground">Eventos</div>
               </div>
               <div className="text-center">
-                <div className="text-lg md:text-xl font-bold">4.8</div>
+                <div className="text-lg md:text-xl font-bold">
+                  {statsLoading ? (
+                    <div className="w-8 h-6 bg-muted animate-pulse rounded" />
+                  ) : stats.total_reviews > 0 ? (
+                    stats.average_rating.toFixed(1)
+                  ) : (
+                    '-'
+                  )}
+                </div>
                 <div className="text-xs text-muted-foreground">Avaliação</div>
               </div>
             </div>
