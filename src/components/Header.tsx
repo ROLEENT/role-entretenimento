@@ -242,12 +242,12 @@ const Header = () => {
                         <User className="h-4 w-4" />
                         Meus Perfis
                       </Link>
-                    <Link
-                      to="/calendar"
-                      className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <Calendar className="h-4 w-4" />
+                     <Link
+                       to="/meu-calendario"
+                       className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+                       onClick={() => setMobileMenuOpen(false)}
+                     >
+                       <Calendar className="h-4 w-4" />
                       Meu Calendário
                     </Link>
                     {hasAdminAccess && (
@@ -440,10 +440,10 @@ const Header = () => {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to="/calendar">
-                          <Calendar className="mr-2 h-4 w-4" />
-                          Meu Calendário
-                        </Link>
+                         <Link to="/meu-calendario">
+                           <Calendar className="mr-2 h-4 w-4" />
+                           Meu Calendário
+                         </Link>
                       </DropdownMenuItem>
                       {hasAdminAccess && (
                         <DropdownMenuItem asChild>
