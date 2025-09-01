@@ -924,24 +924,18 @@ export type Database = {
           active: boolean | null
           created_at: string | null
           id: string
-          name: string
-          slug: string | null
           updated_at: string | null
         }
         Insert: {
           active?: boolean | null
           created_at?: string | null
           id?: string
-          name: string
-          slug?: string | null
           updated_at?: string | null
         }
         Update: {
           active?: boolean | null
           created_at?: string | null
           id?: string
-          name?: string
-          slug?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -976,7 +970,6 @@ export type Database = {
           instagram: string | null
           internal_notes: string | null
           links: Json | null
-          name: string
           phone: string | null
           presskit_url: string | null
           priority: number | null
@@ -987,7 +980,6 @@ export type Database = {
           responsible_role: string | null
           set_time_minutes: number | null
           show_format: string | null
-          slug: string | null
           soundcloud_url: string | null
           spotify_url: string | null
           stage_name: string | null
@@ -1034,7 +1026,6 @@ export type Database = {
           instagram?: string | null
           internal_notes?: string | null
           links?: Json | null
-          name: string
           phone?: string | null
           presskit_url?: string | null
           priority?: number | null
@@ -1045,7 +1036,6 @@ export type Database = {
           responsible_role?: string | null
           set_time_minutes?: number | null
           show_format?: string | null
-          slug?: string | null
           soundcloud_url?: string | null
           spotify_url?: string | null
           stage_name?: string | null
@@ -1092,7 +1082,6 @@ export type Database = {
           instagram?: string | null
           internal_notes?: string | null
           links?: Json | null
-          name?: string
           phone?: string | null
           presskit_url?: string | null
           priority?: number | null
@@ -1103,7 +1092,6 @@ export type Database = {
           responsible_role?: string | null
           set_time_minutes?: number | null
           show_format?: string | null
-          slug?: string | null
           soundcloud_url?: string | null
           spotify_url?: string | null
           stage_name?: string | null
@@ -2294,24 +2282,18 @@ export type Database = {
           active: boolean | null
           created_at: string | null
           id: string
-          name: string
-          slug: string | null
           updated_at: string | null
         }
         Insert: {
           active?: boolean | null
           created_at?: string | null
           id?: string
-          name: string
-          slug?: string | null
           updated_at?: string | null
         }
         Update: {
           active?: boolean | null
           created_at?: string | null
           id?: string
-          name?: string
-          slug?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -4710,7 +4692,6 @@ export type Database = {
           gallery: Json | null
           gallery_urls: Json | null
           id: string
-          instagram: string | null
           lat: number | null
           latitude: number | null
           lng: number | null
@@ -4754,7 +4735,6 @@ export type Database = {
           gallery?: Json | null
           gallery_urls?: Json | null
           id?: string
-          instagram?: string | null
           lat?: number | null
           latitude?: number | null
           lng?: number | null
@@ -4798,7 +4778,6 @@ export type Database = {
           gallery?: Json | null
           gallery_urls?: Json | null
           id?: string
-          instagram?: string | null
           lat?: number | null
           latitude?: number | null
           lng?: number | null
@@ -5708,30 +5687,6 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
-      citext: {
-        Args: { "": boolean } | { "": string } | { "": unknown }
-        Returns: string
-      }
-      citext_hash: {
-        Args: { "": string }
-        Returns: number
-      }
-      citextin: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      citextout: {
-        Args: { "": string }
-        Returns: unknown
-      }
-      citextrecv: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      citextsend: {
-        Args: { "": string }
-        Returns: string
-      }
       cleanup_orphaned_profile_files: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -6204,26 +6159,6 @@ export type Database = {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
       }
-      gtrgm_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_decompress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_options: {
-        Args: { "": unknown }
-        Returns: undefined
-      }
-      gtrgm_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
       hash_email_for_client: {
         Args: { email_input: string }
         Returns: string
@@ -6353,10 +6288,6 @@ export type Database = {
         Args: { admin_email: string }
         Returns: boolean
       }
-      set_limit: {
-        Args: { "": number }
-        Returns: number
-      }
       setup_audit_triggers: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -6364,14 +6295,6 @@ export type Database = {
       setup_notification_cron_jobs: {
         Args: Record<PropertyKey, never>
         Returns: undefined
-      }
-      show_limit: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      show_trgm: {
-        Args: { "": string }
-        Returns: string[]
       }
       slugify: {
         Args: { inp: string }
@@ -6396,14 +6319,6 @@ export type Database = {
           p_source?: string
         }
         Returns: string
-      }
-      unaccent: {
-        Args: { "": string }
-        Returns: string
-      }
-      unaccent_init: {
-        Args: { "": unknown }
-        Returns: unknown
       }
       unsubscribe_newsletter: {
         Args: { p_token: string }
