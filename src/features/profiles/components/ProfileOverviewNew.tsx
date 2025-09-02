@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   CalendarIcon, 
   MapPinIcon, 
@@ -8,13 +11,17 @@ import {
   ExternalLinkIcon,
   ImageIcon,
   FileTextIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  PlayIcon
 } from "lucide-react";
 import { Profile } from "@/features/profiles/api";
 import { ProfileAboutSection } from "@/components/profiles/ProfileAboutSection";
 import { ProfileSimilarArtists } from "./ProfileSimilarArtists";
 import { useProfileEvents } from "@/features/profiles/hooks/useProfileEvents";
 import { useProfileReviews } from "@/features/profiles/hooks/useProfileReviews";
+import { useProfileContent } from "@/features/profiles/hooks/useProfileContent";
+import { useProfileMedia } from "@/features/profiles/hooks/useProfileMedia";
+import { MediaModal } from "@/components/profiles/MediaModal";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -26,12 +33,17 @@ interface ProfileOverviewNewProps {
 export function ProfileOverviewNew({ profile, onTabChange }: ProfileOverviewNewProps) {
   const { data: events = [] } = useProfileEvents(profile.handle, profile.type);
   const { data: reviews = [] } = useProfileReviews(profile.user_id || '');
+  const { data: contentItems = [], isLoading: isLoadingContent } = useProfileContent(profile.handle, profile.type);
+  const { data: mediaItems = [], isLoading: isLoadingMedia } = useProfileMedia(profile.user_id || '');
+  const [selectedMediaIndex, setSelectedMediaIndex] = useState<number | null>(null);
   
   const upcomingEvents = events.filter(event => 
     event.starts_at && new Date(event.starts_at) > new Date()
   ).slice(0, 3);
 
   const recentReviews = reviews.slice(0, 3);
+  const displayContent = contentItems.slice(0, 3);
+  const displayMedia = mediaItems.slice(0, 6);
 
   return (
     <div className="space-y-8">
@@ -136,13 +148,57 @@ export function ProfileOverviewNew({ profile, onTabChange }: ProfileOverviewNewP
           </Button>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8">
-            <FileTextIcon className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">Nenhum conteúdo publicado</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Matérias e conteúdos aparecerão aqui
-            </p>
-          </div>
+          {isLoadingContent ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex gap-3">
+                  <Skeleton className="w-16 h-16 rounded-lg" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : displayContent.length > 0 ? (
+            <div className="space-y-4">
+              {displayContent.map((item) => (
+                <div key={item.id} className="flex gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                  {item.cover_image && (
+                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                      <img 
+                        src={item.cover_image} 
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-sm leading-tight mb-1 truncate">{item.title}</h4>
+                    {item.summary && (
+                      <p className="text-xs text-muted-foreground line-clamp-2">{item.summary}</p>
+                    )}
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {item.type === 'article' ? 'Artigo' : 'Post'}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(item.created_at).toLocaleDateString('pt-BR')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <FileTextIcon className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground">Nenhum conteúdo publicado</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Matérias e conteúdos aparecerão aqui
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -237,18 +293,70 @@ export function ProfileOverviewNew({ profile, onTabChange }: ProfileOverviewNewP
           </Button>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8">
-            <ImageIcon className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">Nenhuma mídia publicada</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Fotos e vídeos aparecerão aqui
-            </p>
-          </div>
+          {isLoadingMedia ? (
+            <div className="grid grid-cols-3 gap-2">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Skeleton key={i} className="aspect-square rounded-lg" />
+              ))}
+            </div>
+          ) : displayMedia.length > 0 ? (
+            <div className="grid grid-cols-3 gap-2">
+              {displayMedia.map((media, index) => (
+                <div 
+                  key={media.id}
+                  className="group relative cursor-pointer overflow-hidden rounded-lg bg-muted"
+                  onClick={() => setSelectedMediaIndex(index)}
+                >
+                  <AspectRatio ratio={1}>
+                    {media.type === 'image' ? (
+                      <img
+                        src={media.url}
+                        alt={media.alt_text || 'Mídia do perfil'}
+                        className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className="relative w-full h-full">
+                        <video
+                          src={media.url}
+                          className="w-full h-full object-cover"
+                          muted
+                        />
+                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                          <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                            <PlayIcon className="w-4 h-4 text-black ml-0.5" />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </AspectRatio>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <ImageIcon className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground">Nenhuma mídia publicada</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Fotos e vídeos aparecerão aqui
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Similar Artists */}
       <ProfileSimilarArtists profile={profile} />
+
+      {/* Media Modal */}
+      {selectedMediaIndex !== null && (
+        <MediaModal
+          media={mediaItems}
+          initialIndex={selectedMediaIndex}
+          isOpen={selectedMediaIndex !== null}
+          onClose={() => setSelectedMediaIndex(null)}
+        />
+      )}
     </div>
   );
 }
