@@ -6376,7 +6376,15 @@ export type Database = {
           p_profile_user_id: string
           p_rating: number
         }
-        Returns: Json
+        Returns: {
+          comment: string
+          created_at: string
+          id: string
+          profile_user_id: string
+          rating: number
+          reviewer_id: string
+          updated_at: string
+        }[]
       }
       user_liked_highlight: {
         Args: { p_highlight_id: string }
