@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Heart, MessageCircle, Upload, UserPlus } from 'lucide-react';
 
@@ -51,9 +51,9 @@ export function AuthRequiredDialog({ open, onOpenChange, action, onSignIn }: Aut
           <DialogTitle className="text-xl font-semibold">
             {config.title}
           </DialogTitle>
-          <p className="text-muted-foreground">
+          <DialogDescription className="text-muted-foreground">
             {config.description}
-          </p>
+          </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-3 mt-6">
