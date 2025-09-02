@@ -106,10 +106,24 @@ export const useUpsertVenue = () => {
     mutationFn: async (data: VenueFlexibleFormData) => {
       console.log("Upserting venue - raw data:", data);
 
+      // Generate slug from name if not provided
+      const generateSlug = (text: string) => {
+        return text
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '') // Remove accents
+          .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
+          .trim()
+          .replace(/\s+/g, '-') // Replace spaces with hyphens
+          .replace(/-+/g, '-') // Replace multiple hyphens
+          .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
+          .slice(0, 80); // Limit to 80 chars
+      };
+
       // Transform and clean data like in useUpsertPost
       const venueData = {
         name: data.name,
-        slug: data.slug || null,
+        slug: data.slug || generateSlug(data.name),
         address_line: data.address_line || null,
         district: data.district || null,
         city: data.city || null,
@@ -128,11 +142,11 @@ export const useUpsertVenue = () => {
         seguranca: data.seguranca || {},
         acessibilidade: data.acessibilidade || {},
         banheiros: data.banheiros || {},
-        instagram: data.instagram || null,
-        email: data.email || null,
-        phone: data.phone || null,
-        whatsapp: data.whatsapp || null,
-        website: data.website || null,
+        instagram: data.instagram === '' ? null : data.instagram,
+        email: data.email === '' ? null : data.email,
+        phone: data.phone === '' ? null : data.phone,
+        whatsapp: data.whatsapp === '' ? null : data.whatsapp,
+        website: data.website === '' ? null : data.website,
         about: data.about || null,
         tags: data.tags || [],
         cover_url: data.cover_url || null,

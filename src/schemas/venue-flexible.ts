@@ -4,9 +4,9 @@ import { z } from "zod";
 export const venueFlexibleSchema = z.object({
   id: z.string().uuid().optional(),
   
-  // Basic info - only name is required
-  name: z.string().min(2, "Nome é obrigatório"),
-  slug: z.string().optional(), // Auto-generated
+// Basic info - only name is required
+  name: z.string().min(2, "Nome é obrigatório").max(100, "Nome muito longo"),
+  slug: z.string().min(2, "Slug deve ter pelo menos 2 caracteres").max(80, "Slug muito longo").optional(), // Auto-generated
   
   // Address info - all optional
   address_line: z.string().optional(),
@@ -20,8 +20,8 @@ export const venueFlexibleSchema = z.object({
   latitude: z.number().optional(),
   longitude: z.number().optional(),
   
-  // Venue details - optional
-  capacity: z.number().int().positive().optional(),
+  // Venue details - optional with limits
+  capacity: z.number().int().min(1, "Capacidade deve ser positiva").max(100000, "Capacidade muito alta").optional(),
   
   // Structured data - all optional with defaults
   opening_hours: z.object({
@@ -112,16 +112,16 @@ export const venueFlexibleSchema = z.object({
     genero_neutro: z.number().int().min(0).default(0),
   }).default({}),
   
-  // Contact info - all optional
-  instagram: z.string().optional(),
-  email: z.string().optional().or(z.literal('')),
-  phone: z.string().optional(),
-  whatsapp: z.string().optional(),
-  website: z.string().optional().or(z.literal('')),
+  // Contact info - all optional with validation
+  instagram: z.string().max(50, "Instagram muito longo").optional(),
+  email: z.string().email("Email inválido").max(100, "Email muito longo").optional().or(z.literal('')),
+  phone: z.string().max(20, "Telefone muito longo").optional(),
+  whatsapp: z.string().max(20, "WhatsApp muito longo").optional(),
+  website: z.string().url("URL inválida").max(200, "Website muito longo").optional().or(z.literal('')),
   
-  // Content - optional
-  about: z.string().optional(),
-  tags: z.array(z.string()).default([]),
+  // Content - optional with limits
+  about: z.string().max(2000, "Descrição muito longa").optional(),
+  tags: z.array(z.string().max(30, "Tag muito longa")).max(10, "Máximo 10 tags").default([]),
   
   // Media - all optional
   cover_url: z.string().optional(),

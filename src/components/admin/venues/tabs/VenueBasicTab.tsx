@@ -11,6 +11,34 @@ interface VenueBasicTabProps {
 }
 
 export const VenueBasicTab: React.FC<VenueBasicTabProps> = ({ form }) => {
+  const generateSlug = (text: string) => {
+    return text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove accents
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
+      .trim()
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens
+      .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
+      .slice(0, 80); // Limit to 80 chars
+  };
+
+  // Watch name field to auto-generate slug
+  React.useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'name' && value.name) {
+        const currentSlug = form.getValues('slug');
+        const generatedSlug = generateSlug(form.getValues('name') || '');
+        
+        if (!currentSlug || currentSlug === generatedSlug) {
+          form.setValue('slug', generateSlug(value.name));
+        }
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, generateSlug]);
+
   return (
     <div className="space-y-6">
       <Card>
@@ -26,12 +54,14 @@ export const VenueBasicTab: React.FC<VenueBasicTabProps> = ({ form }) => {
               name="name"
               label="Nome do Local"
               placeholder="Ex: Teatro Municipal"
+              required
             />
             
             <RHFInput
               name="slug"
               label="Slug (URL)"
               placeholder="teatro-municipal"
+              description="URL amigável gerada automaticamente. Pode ser editada."
             />
           </div>
 
@@ -40,6 +70,7 @@ export const VenueBasicTab: React.FC<VenueBasicTabProps> = ({ form }) => {
             label="Sobre o Local"
             placeholder="Descrição do espaço, história, características especiais..."
             rows={4}
+            description="Máximo 2000 caracteres"
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -48,6 +79,7 @@ export const VenueBasicTab: React.FC<VenueBasicTabProps> = ({ form }) => {
               label="Capacidade"
               type="number"
               placeholder="Ex: 500"
+              description="Número máximo de pessoas (1 a 100.000)"
             />
             
             <div className="space-y-2">
