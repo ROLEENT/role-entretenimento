@@ -191,7 +191,7 @@ function App() {
                 <ScrollToTop />
                 <DevCacheButton />
                 <RoleNoticePopup 
-                  whatsNumber={import.meta.env.VITE_ROLE_WHATS_NUMBER || "5551999999999"}
+                  whatsNumber={import.meta.env.VITE_ROLE_WHATS_NUMBER || "5551980704353"}
                   snoozeDays={7}
                 />
               

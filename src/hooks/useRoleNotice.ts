@@ -8,7 +8,7 @@ interface RoleNoticeConfig {
 }
 
 const DEFAULT_CONFIG: Required<RoleNoticeConfig> = {
-  whatsNumber: '5551999999999',
+  whatsNumber: '5551980704353',
   snoozeDays: 7,
   excludePaths: [
     '/politica-privacidade',
