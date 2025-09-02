@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Play, Image as ImageIcon } from "lucide-react";
 import { useProfileMedia } from "../hooks/useProfileMedia";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { ProfileContentSkeleton } from "@/components/skeletons/ProfileContentSkeleton";
 
 interface ProfilePortfolioProps {
   profileUserId: string;
@@ -13,11 +13,7 @@ export function ProfilePortfolio({ profileUserId }: ProfilePortfolioProps) {
   const { data: media, isLoading, error } = useProfileMedia(profileUserId);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <LoadingSpinner />
-      </div>
-    );
+    return <ProfileContentSkeleton type="portfolio" />;
   }
 
   if (error) {

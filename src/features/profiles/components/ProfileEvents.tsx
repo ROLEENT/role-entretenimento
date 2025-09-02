@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Clock } from "lucide-react";
 import { useProfileEvents } from "../hooks/useProfileEvents";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { ProfileContentSkeleton } from "@/components/skeletons/ProfileContentSkeleton";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -15,11 +15,7 @@ export function ProfileEvents({ profileUserId, profileType }: ProfileEventsProps
   const { data: events, isLoading, error } = useProfileEvents(profileUserId, profileType);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <LoadingSpinner />
-      </div>
-    );
+    return <ProfileContentSkeleton type="agenda" />;
   }
 
   if (error) {

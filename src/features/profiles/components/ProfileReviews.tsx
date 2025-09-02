@@ -4,7 +4,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Star, MessageSquare } from "lucide-react";
 import { useProfileReviews, useProfileReviewsStats } from "../hooks/useProfileReviews";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { ProfileContentSkeleton } from "@/components/skeletons/ProfileContentSkeleton";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -17,11 +17,7 @@ export function ProfileReviews({ profileUserId }: ProfileReviewsProps) {
   const { data: stats, isLoading: statsLoading } = useProfileReviewsStats(profileUserId);
 
   if (reviewsLoading || statsLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <LoadingSpinner />
-      </div>
-    );
+    return <ProfileContentSkeleton type="reviews" />;
   }
 
   if (!reviews || reviews.length === 0) {
