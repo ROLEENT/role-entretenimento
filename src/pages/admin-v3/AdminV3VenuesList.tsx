@@ -14,11 +14,13 @@ const AdminV3VenuesList: React.FC = () => {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
   const [city, setCity] = useState('all');
+  const [completion, setCompletion] = useState('all');
 
   const { venues, cities, isLoading, error } = useAdminVenuesData({
     search: search || undefined,
     status: status !== 'all' ? status : undefined,
     city: city !== 'all' ? city : undefined,
+    completion: completion !== 'all' ? completion : undefined,
   });
 
   const breadcrumbs = [
@@ -124,6 +126,8 @@ const AdminV3VenuesList: React.FC = () => {
               onStatusChange={setStatus}
               city={city}
               onCityChange={setCity}
+              completion={completion}
+              onCompletionChange={setCompletion}
               cities={cities || []}
             />
           </CardContent>

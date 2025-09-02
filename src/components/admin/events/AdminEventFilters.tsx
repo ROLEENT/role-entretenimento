@@ -20,6 +20,7 @@ interface EventFilters {
   dateEnd?: string;
   organizer?: string;
   venue?: string;
+  completion?: string;
 }
 
 interface AdminEventFiltersProps {
@@ -134,7 +135,7 @@ export function AdminEventFilters({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Date Start */}
         <div className="space-y-2">
           <Label htmlFor="dateStart">Data de Início</Label>
@@ -171,6 +172,37 @@ export function AdminEventFilters({
                   {venue.name}
                 </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Completion */}
+        <div className="space-y-2">
+          <Label>Completude</Label>
+          <Select value={filters.completion || ""} onValueChange={(value) => updateFilter("completion", value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Todos os níveis" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Todos</SelectItem>
+              <SelectItem value="complete">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  Completo
+                </div>
+              </SelectItem>
+              <SelectItem value="good">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                  Bom
+                </div>
+              </SelectItem>
+              <SelectItem value="incomplete">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                  Incompleto
+                </div>
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>

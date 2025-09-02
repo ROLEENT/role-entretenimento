@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useMemo } from 'react';
+import { useEventCompletionStatus } from './useCompletionStatus';
 
 interface EventFilters {
   search?: string;
@@ -9,6 +11,7 @@ interface EventFilters {
   dateEnd?: string;
   organizer?: string;
   venue?: string;
+  completion?: string;
 }
 
 export const useAdminEventsData = (filters: EventFilters = {}) => {
@@ -66,6 +69,18 @@ export const useAdminEventsData = (filters: EventFilters = {}) => {
     },
   });
 
+  // Apply completion filter client-side
+  const filteredEvents = useMemo(() => {
+    if (!events || !filters.completion || filters.completion === 'all') {
+      return events;
+    }
+
+    return events.filter(event => {
+      const { status: completionStatus } = useEventCompletionStatus(event);
+      return completionStatus === filters.completion;
+    });
+  }, [events, filters.completion]);
+
   // Fetch stats
   const { data: stats } = useQuery({
     queryKey: ["admin-events-stats"],
@@ -96,7 +111,7 @@ export const useAdminEventsData = (filters: EventFilters = {}) => {
   });
 
   return {
-    events,
+    events: filteredEvents,
     loading,
     error,
     refetch,

@@ -16,6 +16,8 @@ interface AdminVenueFiltersProps {
   onStatusChange: (value: string) => void;
   city: string;
   onCityChange: (value: string) => void;
+  completion: string;
+  onCompletionChange: (value: string) => void;
   cities: string[];
 }
 
@@ -26,6 +28,8 @@ export const AdminVenueFilters: React.FC<AdminVenueFiltersProps> = ({
   onStatusChange,
   city,
   onCityChange,
+  completion,
+  onCompletionChange,
   cities,
 }) => {
   return (
@@ -62,6 +66,33 @@ export const AdminVenueFilters: React.FC<AdminVenueFiltersProps> = ({
               {cityName}
             </SelectItem>
           ))}
+        </SelectContent>
+      </Select>
+
+      <Select value={completion} onValueChange={onCompletionChange}>
+        <SelectTrigger className="w-full sm:w-[180px]">
+          <SelectValue placeholder="Completude" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Todos os níveis</SelectItem>
+          <SelectItem value="complete">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              Completo
+            </div>
+          </SelectItem>
+          <SelectItem value="good">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+              Bom
+            </div>
+          </SelectItem>
+          <SelectItem value="incomplete">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+              Incompleto
+            </div>
+          </SelectItem>
         </SelectContent>
       </Select>
     </div>

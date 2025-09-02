@@ -1,15 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useMemo } from 'react';
+import { useVenueCompletionStatus } from './useCompletionStatus';
 
 interface UseAdminVenuesDataProps {
   search?: string;
   status?: string;
   city?: string;
+  completion?: string;
 }
 
-export const useAdminVenuesData = ({ search, status, city }: UseAdminVenuesDataProps = {}) => {
+export const useAdminVenuesData = ({ search, status, city, completion }: UseAdminVenuesDataProps = {}) => {
   const venuesQuery = useQuery({
-    queryKey: ['admin-venues', { search, status, city }],
+    queryKey: ['admin-venues', { search, status, city, completion }],
     queryFn: async () => {
       let query = supabase
         .from('venues')
@@ -42,6 +45,18 @@ export const useAdminVenuesData = ({ search, status, city }: UseAdminVenuesDataP
     },
   });
 
+  // Apply completion filter client-side
+  const filteredVenues = useMemo(() => {
+    if (!venuesQuery.data || !completion || completion === 'all') {
+      return venuesQuery.data;
+    }
+
+    return venuesQuery.data.filter(venue => {
+      const { status: completionStatus } = useVenueCompletionStatus(venue);
+      return completionStatus === completion;
+    });
+  }, [venuesQuery.data, completion]);
+
   const citiesQuery = useQuery({
     queryKey: ['venues-cities'],
     queryFn: async () => {
@@ -62,7 +77,7 @@ export const useAdminVenuesData = ({ search, status, city }: UseAdminVenuesDataP
   });
 
   return {
-    venues: venuesQuery.data,
+    venues: filteredVenues,
     cities: citiesQuery.data,
     isLoading: venuesQuery.isLoading || citiesQuery.isLoading,
     error: venuesQuery.error || citiesQuery.error,
