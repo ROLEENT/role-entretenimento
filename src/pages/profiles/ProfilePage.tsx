@@ -97,7 +97,7 @@ export default function ProfilePage() {
       <ProfileMobileActions profile={profile} />
       
       {/* Spacer para action bar fixa no mobile */}
-      <div className="h-20 md:hidden" />
+      <div className="h-16 md:hidden" />
     </PublicLayout>
   );
 }

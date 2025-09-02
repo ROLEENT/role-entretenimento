@@ -18,7 +18,7 @@ export function ProfileAboutSection({ bio, maxLines = 4 }: ProfileAboutSectionPr
     <div className="space-y-3">
       <div 
         className={cn(
-          "text-sm leading-6 text-muted-foreground",
+          "text-sm leading-6 text-muted-foreground bg-muted/30 rounded-lg p-4",
           !isExpanded && shouldShowToggle && `line-clamp-${maxLines}`
         )}
       >
@@ -34,9 +34,12 @@ export function ProfileAboutSection({ bio, maxLines = 4 }: ProfileAboutSectionPr
           variant="ghost"
           size="sm"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="text-xs text-primary hover:text-primary/80 p-0 h-auto"
+          className="text-xs text-primary hover:text-primary/80 p-0 h-auto inline-flex items-center gap-1 transition-colors"
         >
           {isExpanded ? 'ver menos' : 'ver mais'}
+          <span className={cn("transition-transform duration-200", isExpanded ? "rotate-180" : "")}>
+            ↓
+          </span>
         </Button>
       )}
     </div>

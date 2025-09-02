@@ -46,7 +46,7 @@ const mockTags = ['rock', 'indie', 'alternativo', 'nacional'];
 
 export function ProfileSidebar({ profile }: ProfileSidebarProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 sticky top-20">
       {/* Profile Info */}
       <Card>
         <CardHeader className="pb-3">
@@ -121,12 +121,12 @@ export function ProfileSidebar({ profile }: ProfileSidebarProps) {
           <CardTitle className="text-base">Tags</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2">
             {mockTags.map((tag) => (
               <a 
                 key={tag} 
                 href={`/tag/${tag}`} 
-                className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full hover:bg-primary/20 transition-colors"
+                className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full hover:bg-primary/20 hover:scale-105 transition-all duration-200"
               >
                 {tag}
               </a>
