@@ -507,6 +507,92 @@ body {
     }
   }
 
+  /* Enhanced interaction utilities */
+  .interactive-card {
+    @apply transition-all duration-300 ease-out;
+    @apply hover:-translate-y-1 hover:shadow-hover;
+    @apply focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2;
+  }
+
+  .tap-feedback {
+    @apply transition-transform duration-150 ease-out;
+    @apply active:scale-95 select-none;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-primary bg-clip-text text-transparent;
+  }
+
+  /* Loading state utilities */
+  .loading-shimmer {
+    @apply animate-pulse bg-gradient-to-r from-muted via-muted/50 to-muted;
+  }
+
+  .loading-dots::after {
+    content: '';
+    @apply animate-pulse;
+    animation: loading-dots 1.4s infinite;
+  }
+
+  @keyframes loading-dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60% { content: '...'; }
+    80%, 100% { content: ''; }
+  }
+
+  /* Accessibility improvements */
+  .focus-ring {
+    @apply focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
+  }
+
+  .skip-to-content {
+    @apply absolute top-4 left-4 z-50 px-4 py-2 bg-primary text-primary-foreground;
+    @apply -translate-y-full focus:translate-y-0 transition-transform;
+  }
+
+  /* Performance optimizations */
+  .gpu-accelerated {
+    @apply transform-gpu will-change-transform;
+  }
+
+  .smooth-scroll {
+    scroll-behavior: smooth;
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    .mobile-optimized {
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+    
+    .mobile-tap-highlight {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+  }
+
+  /* Dark mode enhancements */
+  .dark .enhanced-shadow {
+    box-shadow: 0 4px 20px hsl(0 0% 0% / 0.3);
+  }
+
+  .enhanced-shadow {
+    box-shadow: 0 4px 20px hsl(0 0% 0% / 0.08);
+  }
+}
+    font-size: 1.125rem;
+  }
+
+  @media (min-width: 768px) {
+    .responsive-text-lg {
+      font-size: 1.25rem;
+    }
+  }
+
   .responsive-text-xl {
     font-size: 1.25rem;
   }

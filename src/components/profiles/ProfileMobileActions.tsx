@@ -1,5 +1,5 @@
 import { Heart, Mail } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { EnhancedButton } from "@/components/enhanced/EnhancedButton";
 import { FollowButton } from "@/components/profiles/FollowButton";
 import { Profile } from "@/features/profiles/api";
 
@@ -16,12 +16,13 @@ export function ProfileMobileActions({ profile }: ProfileMobileActionsProps) {
         size="default"
       />
       
-      <Button 
+      <EnhancedButton 
         asChild
-        className="flex-1 bg-[hsl(280_100%_70%)] text-black hover:bg-[hsl(280_100%_70%_/_0.9)] font-semibold"
+        ripple
+        className="flex-1 bg-primary text-primary-foreground hover:bg-primary-hover font-semibold"
       >
         <a href="#contato">Contato</a>
-      </Button>
+      </EnhancedButton>
     </div>
   );
 }
