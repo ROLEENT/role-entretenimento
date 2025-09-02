@@ -7,6 +7,7 @@ import ProfileCard from "@/features/profiles/ProfileCard";
 import { ProfileType } from "@/features/profiles/api";
 import { SegmentedTabs } from "@/components/ui/segmented-tabs";
 import Chip from "@/components/ui/chip";
+import { PublicLayout } from "@/components/PublicLayout";
 
 export default function DirectoryPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -90,7 +91,7 @@ export default function DirectoryPage() {
 
   if (!isLoading && !items.length && offset === 0) {
     return (
-      <main className="min-h-screen bg-background">
+      <PublicLayout>
         <div className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
           <Helmet>
             <title>Perfis - ROLÊ</title>
@@ -218,12 +219,12 @@ export default function DirectoryPage() {
             </div>
           </div>
         </div>
-      </main>
+      </PublicLayout>
     );
   }
 
   return (
-    <main className="min-h-screen bg-background">
+    <PublicLayout>
       <div className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
         <Helmet>
           <title>Perfis - ROLÊ</title>
@@ -369,6 +370,6 @@ export default function DirectoryPage() {
           </>
         )}
       </div>
-    </main>
+    </PublicLayout>
   );
 }

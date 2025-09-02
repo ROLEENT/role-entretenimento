@@ -6,6 +6,7 @@ import { ProfileHeader } from "@/features/profiles/components/ProfileHeader";
 import { ProfileNav } from "@/features/profiles/components/ProfileNav";
 import { ProfileContent } from "@/features/profiles/components/ProfileContent";
 import { SEOHelmet } from '@/components/SEOHelmet';
+import { PublicLayout } from "@/components/PublicLayout";
 
 export default function ProfilePage() {
   const { handle } = useParams<{ handle: string }>();
@@ -16,9 +17,11 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
+      <PublicLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <LoadingSpinner />
+        </div>
+      </PublicLayout>
     );
   }
 
@@ -52,7 +55,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <PublicLayout>
       <SEOHelmet
         title={`${profile.name} (@${profile.handle}) - Revista Aplauso`}
         description={profile.bio || `Perfil de ${profile.name} na Revista Aplauso. ${profile.type === 'artista' ? 'Artista' : profile.type === 'local' ? 'Local' : 'Organizador'} em ${profile.city}.`}
@@ -77,6 +80,6 @@ export default function ProfilePage() {
       <div className="container mx-auto px-4 py-8">
         <ProfileContent profile={profile} activeTab={activeTab} />
       </div>
-    </div>
+    </PublicLayout>
   );
 }
