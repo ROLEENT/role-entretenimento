@@ -1208,7 +1208,6 @@ body {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
-}
 
 /* Hotfix para overlays invisíveis que capturam cliques */
 [data-overlay][aria-hidden="true"] { 
