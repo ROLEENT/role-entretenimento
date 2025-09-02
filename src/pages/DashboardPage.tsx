@@ -3,6 +3,7 @@ import { QuickActions } from '@/components/dashboard/QuickActions';
 import { EventsWeeklyChart } from '@/components/dashboard/EventsWeeklyChart';
 import { RecentActivityTable } from '@/components/dashboard/RecentActivityTable';
 import { HealthCard } from '@/components/dashboard/HealthCard';
+import { QualityHealthCard } from '@/components/dashboard/QualityHealthCard';
 import { Section } from '@/components/dashboard/Section';
 
 export default function DashboardPage() {
@@ -40,13 +41,22 @@ export default function DashboardPage() {
           </Section>
 
           <Section 
-            title="Monitoramento"
-            description="Atividades e logs recentes"
+            title="Qualidade Editorial"
+            description="Monitoramento da saúde dos dados"
             headingLevel="h3"
           >
-            <RecentActivityTable />
+            <QualityHealthCard />
           </Section>
         </div>
+
+        {/* Activity Monitoring */}
+        <Section 
+          title="Monitoramento"
+          description="Atividades e logs recentes"
+          headingLevel="h3"
+        >
+          <RecentActivityTable />
+        </Section>
 
         {/* Health Status */}
         <Section 

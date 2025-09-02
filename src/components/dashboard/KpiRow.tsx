@@ -1,12 +1,23 @@
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Calendar, FileText, TrendingUp, Users } from 'lucide-react';
 import { useAdminDashboardCounts } from '@/hooks/useAdminDashboardCounts';
+import { QualityKpiRow } from './QualityKpiRow';
 
 export function KpiRow() {
   const { counts, loading, error } = useAdminDashboardCounts();
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="region" aria-label="Indicadores principais">
+    <div className="space-y-6">
+      {/* Quality Metrics */}
+      <div>
+        <h3 className="text-lg font-semibold mb-3">Qualidade Editorial</h3>
+        <QualityKpiRow />
+      </div>
+
+      {/* General Metrics */}
+      <div>
+        <h3 className="text-lg font-semibold mb-3">Métricas Gerais</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="region" aria-label="Indicadores principais">
       <KpiCard
         title="Contatos"
         value={counts?.contacts.total ?? 0}
@@ -42,6 +53,8 @@ export function KpiRow() {
         isLoading={loading}
         aria-label="Status do sistema"
       />
+        </div>
+      </div>
     </div>
   );
 }
