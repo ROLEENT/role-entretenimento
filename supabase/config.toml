@@ -93,3 +93,6 @@ verify_jwt = false
 
 [functions.options]
 verify_jwt = false
+
+[functions.validate-instagram]
+verify_jwt = false
