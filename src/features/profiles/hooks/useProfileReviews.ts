@@ -22,14 +22,29 @@ export function useProfileReviews(profileUserId: string) {
       const { data, error } = await supabase
         .from('profile_reviews')
         .select(`
-          *,
-          reviewer_profile:entity_profiles!reviewer_id(name, avatar_url)
+          id,
+          profile_user_id,
+          reviewer_id,
+          rating,
+          comment,
+          created_at,
+          updated_at,
+          reviewer_profile:entity_profiles(name, avatar_url)
         `)
         .eq('profile_user_id', profileUserId)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as ProfileReview[];
+      
+      // Transform data to handle the join result
+      const transformedData = data?.map(review => ({
+        ...review,
+        reviewer_profile: Array.isArray(review.reviewer_profile) && review.reviewer_profile.length > 0 
+          ? review.reviewer_profile[0] 
+          : undefined
+      })) || [];
+      
+      return transformedData as ProfileReview[];
     },
     enabled: !!profileUserId,
     staleTime: 5 * 60 * 1000, // 5 minutes
