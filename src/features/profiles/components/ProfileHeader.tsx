@@ -92,86 +92,80 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
           </div>
         </div>
 
-        {/* Desktop Layout - Compact Cards */}
-        <div className="hidden md:flex h-full items-end justify-between pb-4">
+        {/* Desktop Layout - Minimal like Last.fm */}
+        <div className="hidden md:flex h-full items-end justify-between pb-3">
           
-          {/* Main Info Card - Left Side */}
-          <div className="flex-1 max-w-lg">
-            <div className="backdrop-blur-md bg-black/30 border border-white/30 rounded-lg p-4">
-              <h1 className="text-2xl font-bold text-white mb-1">
-                {profile.name}
-              </h1>
-              {profile.handle && (
-                <p className="text-sm text-white/70 mb-2">
-                  @{profile.handle}
-                </p>
+          {/* Main Info - Left Side (Last.fm style) */}
+          <div className="flex-1 space-y-2">
+            {/* Artist Name - Large and prominent */}
+            <h1 className="text-3xl font-bold text-white drop-shadow-lg leading-tight">
+              {profile.name}
+            </h1>
+            
+            {/* Handle - Subtle */}
+            {profile.handle && (
+              <p className="text-sm text-white/60 drop-shadow -mt-1">
+                @{profile.handle}
+              </p>
+            )}
+            
+            {/* Type Badge - Small like Last.fm's "EM TURNÊ" */}
+            <div className="flex items-center gap-3">
+              <span className="px-2 py-0.5 text-xs font-medium bg-black/40 text-white rounded border border-white/20 backdrop-blur-sm">
+                {profile.type === 'artista' ? (profile.artist_subtype || 'ARTISTA') : 
+                 profile.type === 'local' ? 'LOCAL' : 'ORGANIZADOR'}
+              </span>
+              
+              {/* Location - Inline */}
+              {profile.country && (
+                <span className="text-sm text-white/80 drop-shadow font-medium">
+                  {getCountryDisplay(profile.country)}
+                </span>
               )}
               
-              {/* Type and Location */}
-              <div className="flex items-center gap-2 mb-2">
-                <span className="px-2 py-1 rounded-full bg-primary/80 text-white text-sm font-medium">
-                  {profile.type === 'artista' ? (profile.artist_subtype || 'Artista') : 
-                   profile.type === 'local' ? 'Local' : 'Organizador'}
+              {/* Compact Stats - Like Last.fm's "7,3 mi ouvintes" */}
+              <div className="flex gap-4 text-sm text-white/70">
+                <span>
+                  <span className="font-semibold text-white">{stats?.followers_count || 0}</span> seguidores
                 </span>
-                {profile.country && (
-                  <span className="text-white/90 text-sm font-medium">
-                    {getCountryDisplay(profile.country)}
+                <span>
+                  <span className="font-semibold text-white">{stats?.events_count || 0}</span> eventos
+                </span>
+              </div>
+            </div>
+
+            {/* Genres - Small tags like Last.fm */}
+            {profile.type === 'artista' && genres.length > 0 && (
+              <div className="flex gap-1 flex-wrap">
+                {genres.slice(0, 4).map((genre) => (
+                  <span key={genre.id} className="px-2 py-0.5 text-xs bg-black/30 text-white/90 rounded border border-white/20 backdrop-blur-sm">
+                    {genre.name}
+                  </span>
+                ))}
+                {genres.length > 4 && (
+                  <span className="px-2 py-0.5 text-xs bg-black/30 text-white/70 rounded border border-white/20 backdrop-blur-sm">
+                    +{genres.length - 4}
                   </span>
                 )}
               </div>
-
-              {/* Genres for Artists */}
-              {profile.type === 'artista' && genres.length > 0 && (
-                <div className="flex gap-1 flex-wrap">
-                  {genres.map((genre) => (
-                    <Badge key={genre.id} variant="outline" className="text-xs px-2 py-1 bg-white/10 text-white border-white/20 hover:bg-white/20 transition-colors">
-                      {genre.name}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
+            )}
           </div>
 
-          {/* Right Side Cards */}
-          <div className="flex flex-col gap-2 ml-4">
-            
-            {/* Stats Card - Compact */}
-            <div className="backdrop-blur-md bg-black/30 border border-white/30 rounded-lg p-3 min-w-[180px]">
-              <div className="grid grid-cols-2 gap-3 text-center">
-                <div>
-                  <div className="text-lg font-bold text-white">
-                    {stats?.followers_count || 0}
-                  </div>
-                  <div className="text-xs text-white/70">seguidores</div>
-                </div>
-                <div>
-                  <div className="text-lg font-bold text-white">
-                    {stats?.events_count || 0}
-                  </div>
-                  <div className="text-xs text-white/70">eventos</div>
-                </div>
-              </div>
-            </div>
-
-            {/* CTAs Card - Compact */}
-            <div className="backdrop-blur-md bg-black/30 border border-white/30 rounded-lg p-3">
-              <div className="flex gap-2">
-                <FollowButton 
-                  profileId={profile.id} 
-                  size="sm"
-                  className="bg-primary/90 hover:bg-primary text-white border-white/20 text-xs px-3 py-1.5"
-                />
-                <Button 
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs px-3 py-1.5"
-                >
-                  <a href="#contato">Mensagem</a>
-                </Button>
-              </div>
-            </div>
+          {/* Action Buttons - Minimal */}
+          <div className="flex gap-2 items-center">
+            <FollowButton 
+              profileId={profile.id} 
+              size="sm"
+              className="bg-black/40 hover:bg-black/60 text-white border-white/30 backdrop-blur-sm"
+            />
+            <Button 
+              asChild
+              variant="outline"
+              size="sm"
+              className="bg-black/40 hover:bg-black/60 text-white border-white/30 backdrop-blur-sm"
+            >
+              <a href="#contato">Mensagem</a>
+            </Button>
           </div>
         </div>
       </div>
