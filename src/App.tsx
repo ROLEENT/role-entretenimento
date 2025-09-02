@@ -137,6 +137,7 @@ const CalendarPage = lazy(() => import("./pages/CalendarPage"));
 const GamificationPage = lazy(() => import("./pages/GamificationPage"));
 const DiscoverUsers = lazy(() => import("./pages/DiscoverUsers"));
 const CreateProfilePage = lazy(() => import("./pages/CreateProfilePage"));
+const FavoritosPage = lazy(() => import("./pages/FavoritosPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ScrollToTop = lazy(() => import("./components/ScrollToTop"));
 const DebugCombo = lazy(() => import("./pages/DebugCombo"));
@@ -345,6 +346,11 @@ function App() {
                 <Route path="/meu-calendario" element={
                   <RequireAuth>
                     <CalendarPage />
+                  </RequireAuth>
+                } />
+                <Route path="/favoritos" element={
+                  <RequireAuth>
+                    <FavoritosPage />
                   </RequireAuth>
                 } />
                 <Route path="/conquistas" element={<GamificationPage />} />

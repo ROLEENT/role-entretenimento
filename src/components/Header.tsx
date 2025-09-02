@@ -1,4 +1,4 @@
-import { Search, Menu, User, Heart, LogOut, Calendar, Settings, ChevronDown } from "lucide-react";
+import { Search, Menu, User, Heart, LogOut, Calendar, Settings, ChevronDown, Star } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePublicAuth } from "@/hooks/usePublicAuth";
 import { PublicAuthDialog } from "@/components/auth/PublicAuthDialog";
@@ -434,15 +434,15 @@ const Header = () => {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to="/meus-perfis">
-                          <User className="mr-2 h-4 w-4" />
-                          Meus Perfis
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
                          <Link to="/meu-calendario">
                            <Calendar className="mr-2 h-4 w-4" />
                            Meu Calendário
+                         </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                         <Link to="/favoritos">
+                           <Star className="mr-2 h-4 w-4" />
+                           Favoritos
                          </Link>
                       </DropdownMenuItem>
                       {hasAdminAccess && (

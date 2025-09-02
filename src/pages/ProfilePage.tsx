@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useUserAuth } from '@/hooks/useUserAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,15 +9,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { User, Mail, Globe, MapPin, Edit2, Save, X, Camera } from 'lucide-react';
+import { User, Mail, MapPin, Edit2, Save, X, Camera, Calendar, Star } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import UserPersonalCalendar from '@/components/UserPersonalCalendar';
+import FavoritesPanel from '@/components/FavoritesPanel';
 
 interface ProfileData {
   display_name: string;
   username: string;
   bio: string;
-  website: string;
   location: string;
   avatar_url: string;
   followers_count: number;
@@ -26,13 +28,13 @@ interface ProfileData {
 
 const ProfilePage = () => {
   const { user, updateProfile } = useUserAuth();
+  const [activeTab, setActiveTab] = useState('perfil');
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [profileData, setProfileData] = useState<ProfileData>({
     display_name: '',
     username: '',
     bio: '',
-    website: '',
     location: '',
     avatar_url: '',
     followers_count: 0,
@@ -67,7 +69,6 @@ const ProfilePage = () => {
           display_name: data.display_name || '',
           username: data.username || '',
           bio: data.bio || '',
-          website: data.website || '',
           location: data.location || '',
           avatar_url: data.avatar_url || '',
           followers_count: data.followers_count || 0,
@@ -85,7 +86,6 @@ const ProfilePage = () => {
       display_name: profileData.display_name,
       username: profileData.username,
       bio: profileData.bio,
-      website: profileData.website,
       location: profileData.location
     });
     setIsEditing(true);
@@ -139,196 +139,196 @@ const ProfilePage = () => {
     return null;
   }
 
-  return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
-      <div className="space-y-8">
-        {/* Profile Header */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Meu Perfil</CardTitle>
-              {!isEditing ? (
-                <Button onClick={handleEdit} variant="outline">
-                  <Edit2 className="w-4 h-4 mr-2" />
-                  Editar
-                </Button>
-              ) : (
-                <div className="flex gap-2">
-                  <Button onClick={handleSave} disabled={isLoading}>
-                    <Save className="w-4 h-4 mr-2" />
-                    {isLoading ? 'Salvando...' : 'Salvar'}
-                  </Button>
-                  <Button onClick={handleCancel} variant="outline" disabled={isLoading}>
-                    <X className="w-4 h-4 mr-2" />
-                    Cancelar
-                  </Button>
-                </div>
-              )}
-            </div>
+  const ProfileTab = () => (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Meu Perfil</CardTitle>
             <CardDescription>
-              Gerencie suas informações pessoais e configurações de perfil
+              Aqui você mostra quem é no ROLÊ. Atualize seu nome, cidade e uma bio rápida que conte sua vibe.
             </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Avatar Section */}
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={profileData.avatar_url} alt="Avatar" />
-                  <AvatarFallback className="text-lg">
-                    {getInitials()}
-                  </AvatarFallback>
-                </Avatar>
-                {isEditing && (
-                  <Button
-                    size="sm"
-                    className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full"
-                    disabled
-                  >
-                    <Camera className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-              <div>
+          </div>
+          {!isEditing ? (
+            <Button onClick={handleEdit} variant="outline">
+              <Edit2 className="w-4 h-4 mr-2" />
+              Editar
+            </Button>
+          ) : (
+            <div className="flex gap-2">
+              <Button onClick={handleSave} disabled={isLoading}>
+                <Save className="w-4 h-4 mr-2" />
+                {isLoading ? 'Salvando...' : 'Salvar'}
+              </Button>
+              <Button onClick={handleCancel} variant="outline" disabled={isLoading}>
+                <X className="w-4 h-4 mr-2" />
+                Cancelar
+              </Button>
+            </div>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Avatar Section */}
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <Avatar className="h-20 w-20">
+              <AvatarImage src={profileData.avatar_url} alt="Avatar" />
+              <AvatarFallback className="text-lg">
+                {getInitials()}
+              </AvatarFallback>
+            </Avatar>
+            {isEditing && (
+              <Button
+                size="sm"
+                className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full"
+                disabled
+              >
+                <Camera className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+          <div>
+            {profileData.avatar_url ? (
+              <>
                 <h3 className="text-lg font-semibold">
                   {profileData.display_name || 'Nome não definido'}
-                  {profileData.is_verified && (
-                    <span className="ml-2 text-blue-500">✓</span>
-                  )}
                 </h3>
                 <p className="text-muted-foreground">
-                  @{profileData.username || 'username-não-definido'}
+                  {profileData.location || 'Cidade não informada'}
                 </p>
-                <div className="flex gap-4 mt-2 text-sm text-muted-foreground">
-                  <span>{profileData.followers_count} seguidores</span>
-                  <span>{profileData.following_count} seguindo</span>
-                </div>
+              </>
+            ) : (
+              <p className="text-muted-foreground">
+                Adicione uma foto para o pessoal te reconhecer no ROLÊ ✨
+              </p>
+            )}
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Profile Information */}
+        <div className="grid gap-6">
+          {/* Display Name */}
+          <div className="space-y-2">
+            <Label htmlFor="display_name">Nome</Label>
+            {isEditing ? (
+              <Input
+                id="display_name"
+                placeholder="Como você quer ser chamado"
+                value={editData.display_name || ''}
+                onChange={(e) => setEditData({ ...editData, display_name: e.target.value })}
+              />
+            ) : (
+              <div className="flex items-center space-x-2">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span>{profileData.display_name || 'Não informado'}</span>
               </div>
+            )}
+          </div>
+
+          {/* Email (read-only) */}
+          <div className="space-y-2">
+            <Label>E-mail</Label>
+            <div className="flex items-center space-x-2">
+              <Mail className="h-4 w-4 text-muted-foreground" />
+              <span>{user.email}</span>
             </div>
+          </div>
 
-            <Separator />
-
-            {/* Profile Information */}
-            <div className="grid gap-6">
-              {/* Display Name */}
-              <div className="space-y-2">
-                <Label htmlFor="display_name">Nome de exibição</Label>
-                {isEditing ? (
-                  <Input
-                    id="display_name"
-                    placeholder="Como você quer ser chamado"
-                    value={editData.display_name || ''}
-                    onChange={(e) => setEditData({ ...editData, display_name: e.target.value })}
-                  />
-                ) : (
-                  <div className="flex items-center space-x-2">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <span>{profileData.display_name || 'Não informado'}</span>
-                  </div>
-                )}
+          {/* Location */}
+          <div className="space-y-2">
+            <Label htmlFor="location">Cidade</Label>
+            {isEditing ? (
+              <Input
+                id="location"
+                placeholder="Sua cidade"
+                value={editData.location || ''}
+                onChange={(e) => setEditData({ ...editData, location: e.target.value })}
+              />
+            ) : (
+              <div className="flex items-center space-x-2">
+                <MapPin className="h-4 w-4 text-muted-foreground" />
+                <span>{profileData.location || 'Não informado'}</span>
               </div>
+            )}
+          </div>
 
-              {/* Username */}
-              <div className="space-y-2">
-                <Label htmlFor="username">Nome de usuário</Label>
-                {isEditing ? (
-                  <Input
-                    id="username"
-                    placeholder="@seuusername"
-                    value={editData.username || ''}
-                    onChange={(e) => setEditData({ ...editData, username: e.target.value })}
-                  />
-                ) : (
-                  <div className="flex items-center space-x-2">
-                    <span className="text-muted-foreground">@</span>
-                    <span>{profileData.username || 'Não informado'}</span>
-                  </div>
-                )}
-              </div>
+          {/* Bio */}
+          <div className="space-y-2">
+            <Label htmlFor="bio">Bio curta</Label>
+            <p className="text-xs text-muted-foreground mb-2">
+              Fale de você em poucas palavras. Pode ser seu estilo de festa, o som que mais curte ou algo que te represente.
+            </p>
+            {isEditing ? (
+              <Textarea
+                id="bio"
+                placeholder="Conte sua vibe..."
+                value={editData.bio || ''}
+                onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
+                rows={3}
+                maxLength={200}
+              />
+            ) : (
+              <p className="text-sm">{profileData.bio || 'Não informado'}</p>
+            )}
+            {isEditing && (
+              <p className="text-xs text-muted-foreground">
+                {(editData.bio || '').length}/200 caracteres
+              </p>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
-              {/* Email (read-only) */}
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <div className="flex items-center space-x-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span>{user.email}</span>
-                  <span className="text-xs text-muted-foreground">(não pode ser alterado)</span>
-                </div>
-              </div>
-
-              {/* Bio */}
-              <div className="space-y-2">
-                <Label htmlFor="bio">Biografia</Label>
-                {isEditing ? (
-                  <Textarea
-                    id="bio"
-                    placeholder="Conte um pouco sobre você..."
-                    value={editData.bio || ''}
-                    onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
-                    rows={4}
-                  />
-                ) : (
-                  <p className="text-sm">{profileData.bio || 'Não informado'}</p>
-                )}
-              </div>
-
-              {/* Website */}
-              <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
-                {isEditing ? (
-                  <Input
-                    id="website"
-                    placeholder="https://seusite.com"
-                    value={editData.website || ''}
-                    onChange={(e) => setEditData({ ...editData, website: e.target.value })}
-                  />
-                ) : (
-                  <div className="flex items-center space-x-2">
-                    <Globe className="h-4 w-4 text-muted-foreground" />
-                    {profileData.website ? (
-                      <a 
-                        href={profileData.website} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline"
-                      >
-                        {profileData.website}
-                      </a>
-                    ) : (
-                      <span>Não informado</span>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Location */}
-              <div className="space-y-2">
-                <Label htmlFor="location">Localização</Label>
-                {isEditing ? (
-                  <Input
-                    id="location"
-                    placeholder="Cidade, País"
-                    value={editData.location || ''}
-                    onChange={(e) => setEditData({ ...editData, location: e.target.value })}
-                  />
-                ) : (
-                  <div className="flex items-center space-x-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span>{profileData.location || 'Não informado'}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Info Alert */}
-        <Alert>
-          <AlertDescription>
-            Seu perfil é público e pode ser visto por outros usuários da plataforma.
-          </AlertDescription>
-        </Alert>
+  const CalendarTab = () => (
+    <div className="space-y-4">
+      <div>
+        <h2 className="text-2xl font-bold">📅 Meu Calendário</h2>
+        <p className="text-muted-foreground">
+          Aqui ficam os eventos que você marcou como 'Quero ir' ou 'Interessado'. Acompanhe sua agenda e não perca nada.
+        </p>
       </div>
+      <UserPersonalCalendar />
+    </div>
+  );
+
+  const FavoritesTab = () => (
+    <div className="space-y-4">
+      <div>
+        <h2 className="text-2xl font-bold">⭐ Meus Favoritos</h2>
+        <p className="text-muted-foreground">
+          Artistas, festas e locais que você salvou ficam aqui. Uma lista pessoal pra acompanhar de perto tudo que você mais curte.
+        </p>
+      </div>
+      <FavoritesPanel />
+    </div>
+  );
+
+  return (
+    <div className="container mx-auto py-8 px-4 max-w-4xl">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="perfil">Perfil</TabsTrigger>
+          <TabsTrigger value="calendario">Meu Calendário</TabsTrigger>
+          <TabsTrigger value="favoritos">Favoritos</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="perfil">
+          <ProfileTab />
+        </TabsContent>
+
+        <TabsContent value="calendario">
+          <CalendarTab />
+        </TabsContent>
+
+        <TabsContent value="favoritos">
+          <FavoritesTab />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
