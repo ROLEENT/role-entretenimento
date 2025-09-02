@@ -21,7 +21,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
   const [showClaimDialog, setShowClaimDialog] = useState(false);
 
   return (
-    <header className="relative h-32 md:h-48 overflow-hidden">
+    <header className="relative h-52 md:h-72 overflow-hidden">
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -51,16 +51,39 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
               </p>
             )}
             
-            {/* Type Badge and Location */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-2 py-0.5 text-xs font-medium bg-primary/80 text-white rounded-md backdrop-blur-sm">
-                {profile.type === 'artista' ? (profile.artist_subtype || 'Artista') : 
-                 profile.type === 'local' ? 'Local' : 'Organizador'}
-              </span>
-              {profile.country && (
-                <span className="text-xs text-white/90 drop-shadow font-medium">
-                  {getCountryDisplay(profile.country)}
+            {/* Artist Info */}
+            <div className="space-y-1">
+              {/* Type */}
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-white/70 drop-shadow">Tipo:</span>
+                <span className="text-xs text-white font-medium drop-shadow">
+                  {profile.type === 'artista' ? 
+                    (profile.artist_type ? 
+                      profile.artist_type.charAt(0).toUpperCase() + profile.artist_type.slice(1) : 
+                      (profile.artist_subtype || 'Artista')
+                    ) : 
+                    profile.type === 'local' ? 'Local' : 'Organizador'}
                 </span>
+              </div>
+              
+              {/* Location */}
+              {profile.country && (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-white/70 drop-shadow">Localização:</span>
+                  <span className="text-xs text-white/90 drop-shadow font-medium">
+                    {getCountryDisplay(profile.country)}
+                  </span>
+                </div>
+              )}
+              
+              {/* Instagram */}
+              {profile.instagram && (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-white/70 drop-shadow">Instagram:</span>
+                  <span className="text-xs text-white/90 drop-shadow font-medium">
+                    @{profile.instagram}
+                  </span>
+                </div>
               )}
             </div>
 
@@ -109,21 +132,42 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
               </p>
             )}
             
-            {/* Type Badge - Small like Last.fm's "EM TURNÊ" */}
-            <div className="flex items-center gap-3">
-              <span className="px-2 py-0.5 text-xs font-medium bg-black/40 text-white rounded border border-white/20 backdrop-blur-sm">
-                {profile.type === 'artista' ? (profile.artist_subtype || 'ARTISTA') : 
-                 profile.type === 'local' ? 'LOCAL' : 'ORGANIZADOR'}
-              </span>
-              
-              {/* Location - Inline */}
-              {profile.country && (
-                <span className="text-sm text-white/80 drop-shadow font-medium">
-                  {getCountryDisplay(profile.country)}
+            {/* Artist Info - Vertical layout like Last.fm */}
+            <div className="space-y-2">
+              {/* Type */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-white/70 drop-shadow">Tipo:</span>
+                <span className="text-sm text-white font-medium drop-shadow">
+                  {profile.type === 'artista' ? 
+                    (profile.artist_type ? 
+                      profile.artist_type.charAt(0).toUpperCase() + profile.artist_type.slice(1) : 
+                      (profile.artist_subtype || 'Artista')
+                    ) : 
+                    profile.type === 'local' ? 'Local' : 'Organizador'}
                 </span>
+              </div>
+              
+              {/* Location */}
+              {profile.country && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-white/70 drop-shadow">Localização:</span>
+                  <span className="text-sm text-white/80 drop-shadow font-medium">
+                    {getCountryDisplay(profile.country)}
+                  </span>
+                </div>
               )}
               
-              {/* Compact Stats - Like Last.fm's "7,3 mi ouvintes" */}
+              {/* Instagram */}
+              {profile.instagram && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-white/70 drop-shadow">Instagram:</span>
+                  <span className="text-sm text-white/80 drop-shadow font-medium">
+                    @{profile.instagram}
+                  </span>
+                </div>
+              )}
+              
+              {/* Compact Stats */}
               <div className="flex gap-4 text-sm text-white/70">
                 <span>
                   <span className="font-semibold text-white">{stats?.followers_count || 0}</span> seguidores

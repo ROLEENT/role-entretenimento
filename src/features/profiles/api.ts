@@ -6,6 +6,8 @@ export type Profile = {
   user_id: string | null;
   type: ProfileType;
   artist_subtype?: string | null;
+  artist_type?: string | null;
+  instagram?: string | null;
   handle: string;
   name: string;
   city: string;
@@ -32,12 +34,20 @@ export async function getProfileByHandle(handle: string) {
     .from("entity_profiles")
     .select(`
       id, user_id, type, handle, name, city, state, country, bio_short, bio, avatar_url, cover_url, tags, verified,
-      links, contact_email, contact_phone, visibility
+      links, contact_email, contact_phone, visibility,
+      artists!entity_profiles_source_id_fkey(artist_type, instagram)
     `)
     .eq("handle", handle.toLowerCase())
     .limit(1)
     .maybeSingle();
   if (error) throw error;
+  
+  if (data && data.artists && data.artists.length > 0) {
+    // Flatten the artist data
+    (data as any).artist_type = data.artists[0].artist_type;
+    (data as any).instagram = data.artists[0].instagram;
+  }
+  
   return data as Profile | null;
 }
 
