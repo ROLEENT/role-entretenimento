@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ProfileContentSkeleton } from "@/components/skeletons/ProfileContentSkeleton";
 import { 
   CalendarIcon, 
   MapPinIcon, 
@@ -151,35 +151,42 @@ export function ProfileOverviewNew({ profile, onTabChange }: ProfileOverviewNewP
           {isLoadingContent ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="flex gap-3">
-                  <Skeleton className="w-16 h-16 rounded-lg" />
+                <div key={i} className="flex gap-3 p-3 rounded-lg animate-pulse">
+                  <div className="w-16 h-16 rounded-lg bg-muted" />
                   <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-3 w-1/2" />
+                    <div className="h-4 w-3/4 bg-muted rounded" />
+                    <div className="h-3 w-1/2 bg-muted rounded" />
                   </div>
                 </div>
               ))}
             </div>
           ) : displayContent.length > 0 ? (
             <div className="space-y-4">
-              {displayContent.map((item) => (
-                <div key={item.id} className="flex gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
+              {displayContent.map((item, index) => (
+                <div 
+                  key={item.id} 
+                  className="flex gap-3 p-3 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:shadow-sm hover:-translate-y-0.5 cursor-pointer animate-fade-in"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
                   {item.cover_image && (
                     <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
                       <img 
                         src={item.cover_image} 
                         alt={item.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-transform duration-200 hover:scale-105"
+                        loading="lazy"
                       />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-sm leading-tight mb-1 truncate">{item.title}</h4>
+                    <h4 className="font-medium text-sm leading-tight mb-1 truncate hover:text-primary transition-colors">
+                      {item.title}
+                    </h4>
                     {item.summary && (
                       <p className="text-xs text-muted-foreground line-clamp-2">{item.summary}</p>
                     )}
                     <div className="flex items-center gap-2 mt-2">
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs hover:bg-primary hover:text-white transition-colors">
                         {item.type === 'article' ? 'Artigo' : 'Post'}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
@@ -296,7 +303,7 @@ export function ProfileOverviewNew({ profile, onTabChange }: ProfileOverviewNewP
           {isLoadingMedia ? (
             <div className="grid grid-cols-3 gap-2">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <Skeleton key={i} className="aspect-square rounded-lg" />
+                <div key={i} className="aspect-square rounded-lg bg-muted animate-pulse" />
               ))}
             </div>
           ) : displayMedia.length > 0 ? (
@@ -304,7 +311,8 @@ export function ProfileOverviewNew({ profile, onTabChange }: ProfileOverviewNewP
               {displayMedia.map((media, index) => (
                 <div 
                   key={media.id}
-                  className="group relative cursor-pointer overflow-hidden rounded-lg bg-muted"
+                  className="group relative cursor-pointer overflow-hidden rounded-lg bg-muted hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-scale-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
                   onClick={() => setSelectedMediaIndex(index)}
                 >
                   <AspectRatio ratio={1}>
@@ -312,7 +320,8 @@ export function ProfileOverviewNew({ profile, onTabChange }: ProfileOverviewNewP
                       <img
                         src={media.url}
                         alt={media.alt_text || 'Mídia do perfil'}
-                        className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        loading="lazy"
                       />
                     ) : (
                       <div className="relative w-full h-full">
@@ -321,15 +330,15 @@ export function ProfileOverviewNew({ profile, onTabChange }: ProfileOverviewNewP
                           className="w-full h-full object-cover"
                           muted
                         />
-                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                          <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 flex items-center justify-center transition-colors">
+                          <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center transition-transform group-hover:scale-110">
                             <PlayIcon className="w-4 h-4 text-black ml-0.5" />
                           </div>
                         </div>
                       </div>
                     )}
                   </AspectRatio>
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                 </div>
               ))}
             </div>

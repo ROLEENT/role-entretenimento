@@ -11,11 +11,15 @@ import {
   BuildingIcon,
   UsersIcon,
   CalendarIcon,
-  MusicIcon
+  MusicIcon,
+  ShareIcon,
+  ExternalLinkIcon
 } from "lucide-react";
 import { Profile } from "@/features/profiles/api";
 import { useProfileGenres } from "@/features/profiles/hooks/useProfileGenres";
 import { useProfileStats } from "@/features/profiles/hooks/useProfileStats";
+import { FollowButton } from "@/components/profiles/FollowButton";
+import { ShareButton } from "@/components/profiles/ShareButton";
 
 interface ProfileSidebarNewProps {
   profile: Profile;
@@ -224,16 +228,25 @@ export function ProfileSidebarNew({ profile }: ProfileSidebarNewProps) {
         </Card>
       )}
 
-      {/* Call to Action Card */}
+      {/* Actions Card */}
       <Card className="shadow-card bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
         <CardContent className="p-6 text-center">
           <h3 className="font-semibold text-primary mb-2">Gostou do perfil?</h3>
           <p className="text-sm text-muted-foreground mb-4">
             Siga para receber notificações sobre novos eventos e conteúdos.
           </p>
-          <Button className="w-full bg-primary hover:bg-primary-hover">
-            Seguir {profile.name}
-          </Button>
+          <div className="space-y-3">
+            <FollowButton 
+              profileId={profile.id}
+              className="w-full"
+              size="default"
+            />
+            <ShareButton 
+              profile={profile}
+              className="w-full"
+              variant="outline"
+            />
+          </div>
         </CardContent>
       </Card>
     </div>
