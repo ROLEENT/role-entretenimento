@@ -1256,10 +1256,13 @@ html, body, #__next, #root { min-height: 100%; height: auto; overflow-y: auto; }
 
 /* matar scroll em wrappers comuns do form */
 .h-screen { height: auto !important; min-height: 100vh !important; }
-.max-h-screen, .overflow-y-auto, .overflow-auto { max-height: none !important; overflow: visible !important; }
+.max-h-screen, .overflow-y-auto:not(nav *):not([data-nav]):not(.nav-container), .overflow-auto:not(nav *):not([data-nav]):not(.nav-container) { max-height: none !important; overflow: visible !important; }
 
 /* cards e seções não criam scroll próprio */
-[class*="Card"] { overflow: visible !important; }
+[class*="Card"]:not(nav *):not([data-nav]) { overflow: visible !important; }
+
+/* garantir scroll horizontal em navegação */
+nav .overflow-x-auto, [data-nav] .overflow-x-auto, .nav-container .overflow-x-auto { overflow-x: auto !important; overflow-y: hidden !important; }
 textarea { overflow: auto; }
 
 /* Utility class for hidden scrollbars */
