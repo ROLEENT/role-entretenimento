@@ -144,10 +144,30 @@ export function ProfileAgenda({ profile }: ProfileAgendaProps) {
                     <EventCard key={event.id} event={event} />
                   ))
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>Nenhum evento encontrado para este período.</p>
-                  </div>
+                  <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
+                    <CardContent className="p-8 text-center">
+                      <CalendarIcon className="w-16 h-16 text-blue-600 dark:text-blue-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold mb-3 text-blue-800 dark:text-blue-200">
+                        {filterType === 'upcoming' ? 'Próximos Shows' : 
+                         filterType === 'past' ? 'Eventos Passados' : 'Agenda Completa'}
+                      </h3>
+                      <p className="text-muted-foreground mb-6 max-w-md mx-auto leading-relaxed">
+                        {filterType === 'upcoming' 
+                          ? 'Não há eventos programados no momento. Fique de olho para não perder os próximos shows!'
+                          : filterType === 'past'
+                          ? 'Este artista ainda não realizou eventos cadastrados na plataforma.'
+                          : 'Nenhum evento encontrado. A agenda será atualizada em breve.'}
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        <Button variant="outline" className="bg-background/50">
+                          Receber notificações
+                        </Button>
+                        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                          Seguir artista
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                 )}
               </div>
             </TabsContent>

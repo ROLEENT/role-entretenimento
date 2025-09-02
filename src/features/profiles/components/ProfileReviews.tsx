@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Star, MessageSquare } from "lucide-react";
@@ -25,15 +26,27 @@ export function ProfileReviews({ profileUserId }: ProfileReviewsProps) {
 
   if (!reviews || reviews.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium mb-2">Nenhuma avaliação encontrada</h3>
-          <p className="text-muted-foreground">
-            Este perfil ainda não possui avaliações.
-          </p>
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        <Card className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20 border-yellow-200 dark:border-yellow-800">
+          <CardContent className="p-8 text-center">
+            <MessageSquare className="w-16 h-16 text-yellow-600 dark:text-yellow-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-3 text-yellow-800 dark:text-yellow-200">Primeiras Impressões</h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto leading-relaxed">
+              Este artista ainda não recebeu avaliações. Seja o primeiro a compartilhar 
+              sua experiência e ajudar outros fãs a descobrirem este talento!
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button variant="outline" className="bg-background/50">
+                <Star className="w-4 h-4 mr-2" />
+                Deixar avaliação
+              </Button>
+              <Button className="bg-yellow-600 hover:bg-yellow-700 text-white">
+                Conhecer o trabalho
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 

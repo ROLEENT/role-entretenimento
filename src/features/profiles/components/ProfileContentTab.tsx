@@ -13,42 +13,47 @@ interface ProfileContentTabProps {
 
 export function ProfileContentTab({ profile }: ProfileContentTabProps) {
   // Mock content data - replace with real data
-  const contentItems = [
-    {
-      id: "1",
-      type: "post",
-      title: "Novo single disponível em todas as plataformas!",
-      content: "Estou muito feliz em compartilhar minha nova música com vocês. Foi um trabalho de meses e espero que gostem do resultado.",
-      date: new Date(2024, 8, 15),
-      likes: 234,
-      comments: 45,
-      image: "/placeholder.svg",
-      tags: ["música", "single", "lançamento"]
-    },
-    {
-      id: "2", 
-      type: "event-announcement",
-      title: "Festival de Verão 2024 - Lineup confirmado!",
-      content: "Muito animado para estar no lineup deste festival incrível. Nos vemos na praia!",
-      date: new Date(2024, 8, 10),
-      likes: 156,
-      comments: 28,
-      image: "/placeholder.svg",
-      tags: ["festival", "verão", "lineup"]
-    },
-    {
-      id: "3",
-      type: "release",
-      title: "Behind the scenes do novo videoclipe",
-      content: "Algumas fotos dos bastidores da gravação. Foi uma experiência incrível trabalhar com essa equipe talentosa.",
-      date: new Date(2024, 8, 5),
-      likes: 89,
-      comments: 12,
-      image: "/placeholder.svg",
-      tags: ["videoclipe", "bastidores", "produção"]
-    }
-  ];
+  const contentItems: any[] = []; // Temporarily empty to show empty state
 
+  if (contentItems.length === 0) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Timeline de Conteúdos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground text-sm">
+              Acompanhe as últimas novidades, lançamentos e atualizações do perfil.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-green-200 dark:border-green-800">
+          <CardContent className="p-8 text-center">
+            <FileTextIcon className="w-16 h-16 text-green-600 dark:text-green-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-3 text-green-800 dark:text-green-200">Conteúdo em Breve</h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto leading-relaxed">
+              Este artista ainda não publicou conteúdos em sua timeline. 
+              Acompanhe para ser notificado sobre novos lançamentos, eventos e atualizações!
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button variant="outline" className="bg-background/50">
+                <HeartIcon className="w-4 h-4 mr-2" />
+                Seguir atualizações
+              </Button>
+              <Button className="bg-green-600 hover:bg-green-700 text-white">
+                <ShareIcon className="w-4 h-4 mr-2" />
+                Compartilhar perfil
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // ... keep existing code (content rendering logic)
   const getContentIcon = (type: string) => {
     switch (type) {
       case 'event-announcement':

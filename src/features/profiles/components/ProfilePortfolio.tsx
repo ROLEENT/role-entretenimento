@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Play, Image as ImageIcon } from "lucide-react";
 import { useProfileMedia } from "../hooks/useProfileMedia";
@@ -31,15 +32,26 @@ export function ProfilePortfolio({ profileUserId }: ProfilePortfolioProps) {
 
   if (!media || media.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <ImageIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium mb-2">Nenhuma mídia encontrada</h3>
-          <p className="text-muted-foreground">
-            Este perfil ainda não possui fotos ou vídeos em seu portfólio.
-          </p>
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+          <CardContent className="p-8 text-center">
+            <ImageIcon className="w-16 h-16 text-primary mx-auto mb-4 opacity-80" />
+            <h3 className="text-xl font-semibold mb-3 text-primary">Portfólio Vazio</h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto leading-relaxed">
+              Este artista ainda não adicionou fotos ou vídeos ao seu portfólio. 
+              Que tal ser o primeiro a descobrir seu trabalho?
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button variant="outline" className="bg-background/50">
+                Sugerir conteúdo
+              </Button>
+              <Button className="bg-primary hover:bg-primary/90">
+                Entrar em contato
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
