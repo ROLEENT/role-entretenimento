@@ -16,87 +16,69 @@ interface ProfileHeaderProps {
 export function ProfileHeader({ profile }: ProfileHeaderProps) {
   const { stats, loading: statsLoading } = useProfileStats(profile.id);
   const [showClaimDialog, setShowClaimDialog] = useState(false);
-  
-  const handleShare = async () => {
-    const profileUrl = `${window.location.origin}/perfil/@${profile.handle}`;
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${profile.name} - Revista Aplauso`,
-          url: profileUrl,
-        });
-      } catch (error) {
-        console.log('Erro ao compartilhar:', error);
-      }
-    } else {
-      // Fallback para clipboard
-      try {
-        await navigator.clipboard.writeText(profileUrl);
-        // Aqui você pode adicionar um toast de sucesso
-      } catch (error) {
-        console.log('Erro ao copiar para clipboard:', error);
-      }
-    }
-  };
-
-  const coverImage = profile.avatar_url || "/placeholder.svg";
 
   return (
-    <header className="mb-4">
-      {/* Cover using avatar as blurred background */}
-      <div className="relative h-56 md:h-64 w-full overflow-hidden rounded-3xl">
-        <img 
-          src={coverImage} 
-          alt={`Foto de ${profile.name}`}
-          className="h-full w-full object-cover scale-110 blur-[6px] brightness-75"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-      </div>
+    <header className="border-b bg-background">
+      <div className="container mx-auto px-3 md:px-0 py-6">
+        <div className="flex items-start gap-6">
+          {/* Left side - Profile info */}
+          <div className="flex-1">
+            <h1 className="text-4xl md:text-5xl font-bold mb-2">
+              {profile.name}
+            </h1>
+            <p className="text-lg text-muted-foreground mb-4">
+              {profile.handle ? `@${profile.handle}` : ''}
+            </p>
 
-      {/* Profile Info - Positioned below cover */}
-      <div className="-mt-10 md:-mt-12 flex items-end gap-4 px-3 md:px-0">
-        {/* Avatar */}
-        <img
-          src={profile.avatar_url || "/placeholder.svg"}
-          alt={`Avatar de ${profile.name}`}
-          className="h-20 w-20 md:h-24 md:w-24 rounded-full ring-4 ring-background object-cover"
-        />
+            {/* Stats row */}
+            <div className="flex items-center gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">{stats?.followers_count || 0}</span>
+                <span className="text-muted-foreground">seguidores</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">{stats?.events_count || 0}</span>
+                <span className="text-muted-foreground">eventos</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">{stats?.total_reviews || 0}</span>
+                <span className="text-muted-foreground">avaliações</span>
+              </div>
+            </div>
 
-        {/* Info */}
-        <div className="flex-1">
-          <h1 className="text-2xl md:text-3xl font-extrabold leading-tight">
-            {profile.name}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {profile.handle ? `@${profile.handle}` : ''}
-          </p>
+            {/* Info tags */}
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+              <span className="px-2 py-1 rounded bg-primary/10 text-primary">
+                {profile.type === 'artista' ? 'Artista' : 
+                 profile.type === 'local' ? 'Local' : 'Organizador'}
+              </span>
+              {profile.city && (
+                <span className="text-muted-foreground">
+                  {profile.city}{profile.state ? `, ${profile.state}` : ''}
+                </span>
+              )}
+            </div>
 
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-            <span className="px-2 py-0.5 rounded-full bg-[hsl(280_100%_70%_/_0.1)] text-[hsl(280_100%_70%)]">
-              {profile.type === 'artista' ? 'Artista' : 
-               profile.type === 'local' ? 'Local' : 'Organizador'}
-            </span>
-            {profile.city && (
-              <span>• {profile.city}{profile.state ? `, ${profile.state}` : ''}</span>
-            )}
-            {profile.contact_email && (
-              <a href={`mailto:${profile.contact_email}`} className="underline">
-                • {profile.contact_email}
-              </a>
-            )}
+            {/* Desktop CTAs */}
+            <div className="hidden md:flex gap-3 mt-6">
+              <FollowButton profileId={profile.id} size="default" />
+              <Button 
+                asChild
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                <a href="#contato">Enviar mensagem</a>
+              </Button>
+            </div>
           </div>
-        </div>
 
-        {/* Desktop CTA */}
-        <div className="hidden md:flex gap-2">
-          <FollowButton profileId={profile.id} size="sm" />
-          <Button 
-            asChild
-            className="bg-[hsl(280_100%_70%)] text-black hover:bg-[hsl(280_100%_70%_/_0.9)] font-semibold"
-          >
-            <a href="#contato">Contato</a>
-          </Button>
+          {/* Right side - Avatar */}
+          <div className="flex-shrink-0">
+            <img
+              src={profile.avatar_url || "/placeholder.svg"}
+              alt={`Avatar de ${profile.name}`}
+              className="w-32 h-32 md:w-40 md:h-40 rounded object-cover"
+            />
+          </div>
         </div>
       </div>
 

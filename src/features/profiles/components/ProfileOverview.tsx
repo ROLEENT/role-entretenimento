@@ -73,65 +73,49 @@ export function ProfileOverview({ profile }: ProfileOverviewProps) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Sobre */}
-      <section id="visao" className="rounded-2xl border p-4">
-        <h2 className="font-semibold mb-2">Sobre</h2>
+    <div className="space-y-8">
+      {/* Bio section - clean, no card */}
+      <section id="visao" className="">
+        <h2 className="text-xl font-semibold mb-4">Sobre</h2>
         {profile.bio || profile.bio_short ? (
-          <div className="text-sm leading-6 text-muted-foreground line-clamp-6" id="bio">
-            {profile.bio || profile.bio_short}
+          <div className="prose prose-sm max-w-none">
+            <div className="text-sm leading-6 line-clamp-6" id="bio">
+              {(profile.bio || profile.bio_short)?.split('\n').map((paragraph, index) => (
+                <p key={index} className={index > 0 ? "mt-4" : ""}>
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+            <button
+              className="mt-3 text-sm text-primary hover:underline"
+              onClick={() => document.getElementById('bio')?.classList.toggle('line-clamp-6')}
+            >
+              ver mais
+            </button>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">Sem bio ainda.</p>
-        )}
-        {(profile.bio || profile.bio_short) && (
-          <button
-            className="mt-2 text-sm underline"
-            onClick={() => document.getElementById('bio')?.classList.toggle('line-clamp-6')}
-          >
-            ver mais
-          </button>
+          <p className="text-sm text-muted-foreground">Este perfil ainda não tem biografia.</p>
         )}
       </section>
 
-      {/* Ações Rápidas */}
-      <section className="rounded-2xl border p-4">
-        <h2 className="font-semibold mb-3">Ações Rápidas</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {renderTypeSpecificCTA()}
-        </div>
-      </section>
-
-      {/* Conteúdos */}
-      <section id="conteudos" className="rounded-2xl border p-4">
-        <h2 className="font-semibold mb-3">Conteúdos</h2>
-        <div className="flex flex-col items-center justify-center py-8 text-center">
-          <CalendarIcon className="h-10 w-10 text-muted-foreground/50 mb-3" />
-          <h3 className="font-medium text-muted-foreground mb-1">Sem conteúdos ainda</h3>
+      {/* Latest content */}
+      <section id="conteudos" className="">
+        <h2 className="text-xl font-semibold mb-4">Último conteúdo</h2>
+        <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-border rounded-lg">
+          <CalendarIcon className="h-12 w-12 text-muted-foreground/30 mb-4" />
+          <h3 className="font-medium text-muted-foreground mb-1">Nenhum conteúdo publicado</h3>
           <p className="text-sm text-muted-foreground/70">
             Este perfil ainda não publicou conteúdos.
           </p>
         </div>
       </section>
 
-      {/* Mídia */}
-      <section id="midia" className="rounded-2xl border p-4">
-        <h2 className="font-semibold mb-3">Fotos e vídeos</h2>
-        <div className="flex flex-col items-center justify-center py-8 text-center">
-          <CalendarIcon className="h-10 w-10 text-muted-foreground/50 mb-3" />
-          <h3 className="font-medium text-muted-foreground mb-1">Sem mídia ainda</h3>
-          <p className="text-sm text-muted-foreground/70">
-            Este perfil ainda não tem fotos ou vídeos.
-          </p>
-        </div>
-      </section>
-
-      {/* Avaliações */}
-      <section id="avaliacoes" className="rounded-2xl border p-4">
-        <h2 className="font-semibold mb-3">Avaliações</h2>
-        <div className="flex flex-col items-center justify-center py-8 text-center">
-          <StarIcon className="h-10 w-10 text-muted-foreground/50 mb-3" />
-          <h3 className="font-medium text-muted-foreground mb-1">Sem avaliações ainda</h3>
+      {/* Recent reviews */}
+      <section id="avaliacoes" className="">
+        <h2 className="text-xl font-semibold mb-4">Avaliações recentes</h2>
+        <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-border rounded-lg">
+          <StarIcon className="h-12 w-12 text-muted-foreground/30 mb-4" />
+          <h3 className="font-medium text-muted-foreground mb-1">Nenhuma avaliação</h3>
           <p className="text-sm text-muted-foreground/70">
             Este perfil ainda não recebeu avaliações.
           </p>

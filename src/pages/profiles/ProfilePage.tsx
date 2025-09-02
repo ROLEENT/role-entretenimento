@@ -79,15 +79,15 @@ export default function ProfilePage() {
       <ProfileNav activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* Profile Content - Last.fm Style Grid Layout */}
-      <section className="container mx-auto px-3 md:px-0">
-        <div className="grid grid-cols-12 gap-6">
+      <section className="container mx-auto px-3 md:px-0 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Content - 8 columns */}
-          <div className="col-span-12 lg:col-span-8 space-y-6">
+          <main className="lg:col-span-8">
             <ProfileContent profile={profile} activeTab={activeTab} />
-          </div>
+          </main>
           
           {/* Sidebar - 4 columns */}
-          <aside className="col-span-12 lg:col-span-4 space-y-6">
+          <aside className="lg:col-span-4">
             <ProfileSidebar profile={profile} />
           </aside>
         </div>

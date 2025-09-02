@@ -46,108 +46,137 @@ const mockTags = ['rock', 'indie', 'alternativo', 'nacional'];
 
 export function ProfileSidebar({ profile }: ProfileSidebarProps) {
   return (
-    <>
-      {/* Próximos Eventos */}
-      <section id="agenda" className="rounded-2xl border p-4">
-        <header className="flex items-center justify-between mb-2">
-          <h2 className="font-semibold">Próximos eventos</h2>
-          <a href={`/perfil/@${profile.handle}/agenda`} className="text-sm underline">
-            ver todos
-          </a>
-        </header>
-        
-        <ul className="space-y-3">
-          {mockEvents.length === 0 ? (
-            <li className="text-sm text-muted-foreground">
-              Sem eventos por enquanto.
-            </li>
-          ) : (
-            mockEvents.map((event) => (
-              <li key={event.id} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="text-center leading-none">
-                    <div className="text-2xl font-bold">{event.day}</div>
-                    <div className="text-xs uppercase">{event.month}</div>
-                  </div>
-                  <div>
-                    <p className="font-medium">{event.title}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {event.city} - {event.venue}
-                    </p>
-                  </div>
-                </div>
-                <a 
-                  href={event.ticketUrl} 
-                  className="rounded-lg px-3 py-1 border text-sm hover:bg-accent"
-                >
-                  Ingressos
-                </a>
-              </li>
-            ))
+    <div className="space-y-6">
+      {/* Profile Info */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Informações</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          <div>
+            <span className="text-muted-foreground">Tipo:</span>
+            <span className="ml-2 font-medium">
+              {profile.type === 'artista' ? 'Artista' : 
+               profile.type === 'local' ? 'Local' : 'Organizador'}
+            </span>
+          </div>
+          {profile.city && (
+            <div>
+              <span className="text-muted-foreground">Localização:</span>
+              <span className="ml-2 font-medium">
+                {profile.city}{profile.state ? `, ${profile.state}` : ''}
+              </span>
+            </div>
           )}
-        </ul>
-      </section>
-
-      {/* Tags */}
-      <section className="rounded-2xl border p-4">
-        <h2 className="font-semibold mb-2">Tags</h2>
-        <div className="flex flex-wrap gap-2">
-          {mockTags.map((tag) => (
-            <a 
-              key={tag} 
-              href={`/tag/${tag}`} 
-              className="px-2 py-1 rounded-full border text-sm hover:bg-accent"
-            >
-              {tag}
-            </a>
-          ))}
-        </div>
-      </section>
-
-      {/* Parecido com */}
-      <section className="rounded-2xl border p-4">
-        <h2 className="font-semibold mb-3">Parecido com</h2>
-        <ul className="space-y-3">
-          {mockSimilar.map((artist) => (
-            <li key={artist.slug} className="flex items-center gap-3">
-              <img 
-                src={artist.avatar_url} 
-                alt={artist.display_name} 
-                className="h-10 w-10 rounded-full object-cover" 
-              />
-              <a 
-                href={`/perfil/@${artist.slug}`} 
-                className="hover:underline"
-              >
-                {artist.display_name}
+          {profile.contact_email && (
+            <div>
+              <span className="text-muted-foreground">Email:</span>
+              <a href={`mailto:${profile.contact_email}`} className="ml-2 text-primary hover:underline">
+                {profile.contact_email}
               </a>
-            </li>
-          ))}
-        </ul>
-      </section>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* Contato */}
-      <section id="contato" className="rounded-2xl border p-4">
-        <h2 className="font-semibold mb-2">Contato</h2>
-        
-        {profile.contact_email && (
-          <div className="flex items-center gap-2 text-sm mb-3">
-            <Mail className="w-4 h-4" />
-            <a href={`mailto:${profile.contact_email}`} className="underline">
-              {profile.contact_email}
+      {/* Próximos Eventos */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">Próximos eventos</CardTitle>
+            <a href={`/perfil/@${profile.handle}/agenda`} className="text-xs text-primary hover:underline">
+              ver todos
             </a>
           </div>
-        )}
-        
-        <Button 
-          asChild
-          className="w-full bg-[hsl(280_100%_70%)] text-black hover:bg-[hsl(280_100%_70%_/_0.9)] font-semibold"
-        >
-          <a href={`mailto:${profile.contact_email || 'contato@example.com'}`}>
-            Enviar mensagem
-          </a>
-        </Button>
-      </section>
-    </>
+        </CardHeader>
+        <CardContent>
+          {mockEvents.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4 text-center">
+              Nenhum evento agendado
+            </p>
+          ) : (
+            <ul className="space-y-4">
+              {mockEvents.map((event) => (
+                <li key={event.id} className="flex items-start gap-3">
+                  <div className="text-center min-w-[40px]">
+                    <div className="text-lg font-bold leading-none">{event.day}</div>
+                    <div className="text-xs text-muted-foreground uppercase">{event.month}</div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{event.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {event.city} • {event.venue}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Tags */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Tags</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            {mockTags.map((tag) => (
+              <a 
+                key={tag} 
+                href={`/tag/${tag}`} 
+                className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full hover:bg-primary/20 transition-colors"
+              >
+                {tag}
+              </a>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Parecido com */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Artistas similares</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-3">
+            {mockSimilar.map((artist) => (
+              <li key={artist.slug} className="flex items-center gap-3">
+                <img 
+                  src={artist.avatar_url} 
+                  alt={artist.display_name} 
+                  className="w-8 h-8 rounded-full object-cover" 
+                />
+                <a 
+                  href={`/perfil/@${artist.slug}`} 
+                  className="text-sm hover:text-primary transition-colors"
+                >
+                  {artist.display_name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+
+      {/* Contato */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Contato</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Button 
+            asChild
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <a href={`mailto:${profile.contact_email || 'contato@example.com'}`}>
+              Enviar mensagem
+            </a>
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
