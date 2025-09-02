@@ -22,7 +22,7 @@ export const useGenresOptions = () => {
         return [];
       }
 
-      return (data || []).map(item => ({
+      return (data?.items || []).map(item => ({
         label: item.name,
         value: item.id
       }));

@@ -57,6 +57,7 @@ export default function ArtistEditPage() {
       cities_active: [],
       availability_days: [],
       tags: [],
+      genres: [],
       links: {},
       image_rights_authorized: false,
       priority: 0,

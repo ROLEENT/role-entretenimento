@@ -78,6 +78,7 @@ export const artistSchema = z.object({
   image_rights_authorized: z.boolean().default(false),
   priority: z.number().default(0),
   tags: z.array(z.string()).default([]),
+  genres: z.array(z.string()).default([]),
   
   // Timestamps (handled by database)
   created_at: z.string().optional(),
