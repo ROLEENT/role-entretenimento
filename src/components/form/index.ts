@@ -28,6 +28,7 @@ export { RHFRemoteCombobox } from './RHFRemoteCombobox';
 export { RHFAsyncSelect } from './RHFAsyncSelect';
 export { ArtistLocationFields } from './ArtistLocationFields';
 export { ArtistLocationFieldsRobust } from './ArtistLocationFieldsRobust';
+export { InstagramField } from './InstagramField';
 
 // Examples
 export { default as ExampleForm } from './ExampleForm';

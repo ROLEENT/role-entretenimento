@@ -1,7 +1,7 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RHFInput } from '@/components/form';
+import { RHFInput, InstagramField } from '@/components/form';
 import { VenueFlexibleFormData } from '@/schemas/venue-flexible';
 import { Phone, Mail, Globe, Instagram } from 'lucide-react';
 
@@ -57,10 +57,11 @@ export const VenueContactTab: React.FC<VenueContactTabProps> = ({ form }) => {
             placeholder="https://www.local.com"
           />
           
-          <RHFInput
+          <InstagramField
             name="instagram"
             label="Instagram"
             placeholder="@local"
+            agentType="venue"
           />
         </CardContent>
       </Card>
