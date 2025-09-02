@@ -8,14 +8,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Form } from "@/components/ui/form";
+import { IntelligentStatusField } from "@/components/form/IntelligentStatusField";
 
 interface EventBasicTabProps {
   form: UseFormReturn<any>;
@@ -97,27 +91,7 @@ export function EventBasicTab({ form }: EventBasicTabProps) {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o status" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="draft">Rascunho</SelectItem>
-                    <SelectItem value="published">Publicado</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* Status field is now handled by IntelligentStatusField */}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -174,6 +148,12 @@ export function EventBasicTab({ form }: EventBasicTabProps) {
               <FormMessage />
             </FormItem>
           )}
+        />
+
+        {/* Intelligent Status Field */}
+        <IntelligentStatusField 
+          form={form} 
+          type="event" 
         />
       </div>
     </Form>

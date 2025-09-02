@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RHFInput, RHFSlug, RHFTextarea } from '@/components/form';
 import { VenueFlexibleFormData } from '@/schemas/venue-flexible';
 import { Badge, MapPin } from 'lucide-react';
+import { IntelligentStatusField } from '@/components/form/IntelligentStatusField';
 
 interface VenueBasicTabProps {
   form: UseFormReturn<VenueFlexibleFormData>;
@@ -73,16 +74,7 @@ export const VenueBasicTab: React.FC<VenueBasicTabProps> = ({ form }) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Status</label>
-              <select 
-                className="w-full p-2 border rounded-md"
-                {...form.register('status')}
-              >
-                <option value="active">Ativo</option>
-                <option value="inactive">Inativo</option>
-              </select>
-            </div>
+            {/* Status is now handled by IntelligentStatusField */}
             
             <RHFInput
               name="priority"
@@ -91,6 +83,12 @@ export const VenueBasicTab: React.FC<VenueBasicTabProps> = ({ form }) => {
               placeholder="0"
             />
           </div>
+
+          {/* Intelligent Status Field */}
+          <IntelligentStatusField 
+            form={form} 
+            type="venue" 
+          />
         </CardContent>
       </Card>
     </div>
