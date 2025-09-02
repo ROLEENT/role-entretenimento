@@ -11,6 +11,7 @@ import { AuthProvider } from "@/auth/AuthContext";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { DevCacheButton } from "./components/DevCacheButton";
+import { RoleNoticePopup } from "@/components/RoleNoticePopup";
 import React, { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -186,9 +187,13 @@ function App() {
             <ErrorBoundary>
               <BrowserRouter>
               <FocusManagementProvider />
-              <Suspense fallback={<PageLoadingFallback />}>
+                <Suspense fallback={<PageLoadingFallback />}>
                 <ScrollToTop />
                 <DevCacheButton />
+                <RoleNoticePopup 
+                  whatsNumber={import.meta.env.VITE_ROLE_WHATS_NUMBER || "5551999999999"}
+                  snoozeDays={7}
+                />
               
               <Routes>
                 {/* Root redirect */}
