@@ -17,216 +17,86 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
   const { stats, loading: statsLoading } = useProfileStats(profile.id);
   const [showClaimDialog, setShowClaimDialog] = useState(false);
   
-  const handleShare = () => {
+  const handleShare = async () => {
+    const profileUrl = `${window.location.origin}/perfil/@${profile.handle}`;
+    
     if (navigator.share) {
-      navigator.share({
-        title: `${profile.name} - @${profile.handle}`,
-        text: profile.bio_short || `Confira o perfil de ${profile.name}`,
-        url: window.location.href,
-      });
+      try {
+        await navigator.share({
+          title: `${profile.name} - Revista Aplauso`,
+          url: profileUrl,
+        });
+      } catch (error) {
+        console.log('Erro ao compartilhar:', error);
+      }
     } else {
-      navigator.clipboard.writeText(window.location.href);
+      // Fallback para clipboard
+      try {
+        await navigator.clipboard.writeText(profileUrl);
+        // Aqui você pode adicionar um toast de sucesso
+      } catch (error) {
+        console.log('Erro ao copiar para clipboard:', error);
+      }
     }
   };
 
-  const getAvatarShape = () => {
-    switch (profile.type) {
-      case 'artista':
-        return 'rounded-full';
-      case 'local':
-      case 'organizador':
-        return 'rounded-xl';
-      default:
-        return 'rounded-full';
-    }
-  };
+  const coverImage = profile.avatar_url || "/placeholder.svg";
 
   return (
-    <div className="relative">
-      {/* Cover Image - Compacto */}
-      <div className="relative h-48 md:h-56 bg-gradient-to-br from-primary/20 to-accent/10 overflow-hidden rounded-b-2xl">
-        {profile.cover_url && (
-          <img 
-            src={profile.cover_url} 
-            alt={`Capa de ${profile.name}`}
-            className="w-full h-full object-cover"
-            width={1200}
-            height={400}
-            loading="eager"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/15 to-transparent" />
+    <header className="mb-4">
+      {/* Cover using avatar as blurred background */}
+      <div className="relative h-56 md:h-64 w-full overflow-hidden rounded-3xl">
+        <img 
+          src={coverImage} 
+          alt={`Foto de ${profile.name}`}
+          className="h-full w-full object-cover scale-110 blur-[6px] brightness-75"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
       </div>
 
-      {/* Profile Content */}
-      <div className="container mx-auto px-4">
-        <div className="relative -mt-12 md:-mt-16">
-          <div className="flex flex-col lg:flex-row lg:items-end gap-4">
-            {/* Avatar and Basic Info */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4">
-              {/* Avatar - Compacto */}
-              <div className="relative">
-                <Avatar className={`w-20 h-20 md:w-24 md:h-24 border-4 border-background shadow-card ${getAvatarShape()}`}>
-                  <AvatarImage 
-                    src={profile.avatar_url || undefined} 
-                    alt={`Avatar de ${profile.name}`}
-                    width={96}
-                    height={96}
-                  />
-                  <AvatarFallback className={`text-lg md:text-xl font-bold bg-primary/10 text-primary ${getAvatarShape()}`}>
-                    {profile.name.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <VerificationBadge 
-                  verified={profile.verified} 
-                  size="md" 
-                  className="absolute -bottom-1 -right-1"
-                />
-              </div>
+      {/* Profile Info - Positioned below cover */}
+      <div className="-mt-10 md:-mt-12 flex items-end gap-4 px-3 md:px-0">
+        {/* Avatar */}
+        <img
+          src={profile.avatar_url || "/placeholder.svg"}
+          alt={`Avatar de ${profile.name}`}
+          className="h-20 w-20 md:h-24 md:w-24 rounded-full ring-4 ring-background object-cover"
+        />
 
-              {/* Name and Handle - Compacto */}
-              <div className="text-center sm:text-left flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <h1 className="text-xl md:text-2xl font-bold truncate">
-                    {profile.name}
-                  </h1>
-                  <VerificationBadge verified={profile.verified} size="md" />
-                </div>
-                <p className="text-muted-foreground text-sm mb-2">
-                  @{profile.handle}
-                </p>
-                <Badge variant="secondary" className="text-xs">
-                  {profile.type === 'artista' ? 'Artista' :
-                   profile.type === 'local' ? 'Local' :
-                   profile.type === 'organizador' ? 'Organizador' : profile.type}
-                </Badge>
-              </div>
-            </div>
+        {/* Info */}
+        <div className="flex-1">
+          <h1 className="text-2xl md:text-3xl font-extrabold leading-tight">
+            {profile.name}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {profile.handle ? `@${profile.handle}` : ''}
+          </p>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-2 lg:flex-nowrap lg:gap-3">
-              <FollowButton profileId={profile.id} />
-              
-              {!profile.user_id && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setShowClaimDialog(true)}
-                  className="gap-2"
-                >
-                  <Shield className="w-4 h-4" />
-                  <span className="hidden sm:inline">É seu perfil?</span>
-                </Button>
-              )}
-              
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handleShare}
-                className="gap-2"
-              >
-                <Share2 className="w-4 h-4" />
-                <span className="hidden sm:inline">Compartilhar</span>
-              </Button>
-
-              {profile.contact_email && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  asChild
-                  className="gap-2"
-                >
-                  <a href={`mailto:${profile.contact_email}`}>
-                    <Mail className="w-4 h-4" />
-                    <span className="hidden sm:inline">Contato</span>
-                  </a>
-                </Button>
-              )}
-
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="gap-2 text-destructive hover:text-destructive"
-              >
-                <Heart className="w-4 h-4" />
-                <span className="hidden sm:inline">Apoiar</span>
-              </Button>
-            </div>
-          </div>
-
-          {/* Location and Stats - Compacto */}
-          <div className="mt-4 space-y-3">
-            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
-                <span>{profile.city}, {profile.state}</span>
-              </div>
-              {profile.contact_phone && (
-                <div className="flex items-center gap-1">
-                  <Phone className="w-4 h-4" />
-                  <span>{profile.contact_phone}</span>
-                </div>
-              )}
-            </div>
-
-            {profile.bio_short && (
-              <p className="text-sm leading-relaxed max-w-2xl text-muted-foreground">
-                {profile.bio_short}
-              </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+            <span className="px-2 py-0.5 rounded-full bg-[hsl(280_100%_70%_/_0.1)] text-[hsl(280_100%_70%)]">
+              {profile.type === 'artista' ? 'Artista' : 
+               profile.type === 'local' ? 'Local' : 'Organizador'}
+            </span>
+            {profile.city && (
+              <span>• {profile.city}{profile.state ? `, ${profile.state}` : ''}</span>
             )}
-
-            {/* Tags - Compacto */}
-            {profile.tags && profile.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {profile.tags.slice(0, 4).map((tag, index) => (
-                  <Badge key={index} variant="outline" className="text-xs">
-                    {tag}
-                  </Badge>
-                ))}
-                {profile.tags.length > 4 && (
-                  <Badge variant="outline" className="text-xs">
-                    +{profile.tags.length - 4}
-                  </Badge>
-                )}
-              </div>
+            {profile.contact_email && (
+              <a href={`mailto:${profile.contact_email}`} className="underline">
+                • {profile.contact_email}
+              </a>
             )}
-
-            {/* Stats Row - Compacto */}
-            <div className="flex gap-4 pt-3 border-t border-border">
-              <div className="text-center">
-                <div className="text-base font-bold">
-                  {statsLoading ? (
-                    <div className="w-6 h-5 bg-muted animate-pulse rounded" />
-                  ) : (
-                    stats.followers_count.toLocaleString()
-                  )}
-                </div>
-                <div className="text-xs text-muted-foreground">Seguidores</div>
-              </div>
-              <div className="text-center">
-                <div className="text-base font-bold">
-                  {statsLoading ? (
-                    <div className="w-6 h-5 bg-muted animate-pulse rounded" />
-                  ) : (
-                    stats.events_count.toLocaleString()
-                  )}
-                </div>
-                <div className="text-xs text-muted-foreground">Eventos</div>
-              </div>
-              <div className="text-center">
-                <div className="text-base font-bold">
-                  {statsLoading ? (
-                    <div className="w-6 h-5 bg-muted animate-pulse rounded" />
-                  ) : stats.total_reviews > 0 ? (
-                    stats.average_rating.toFixed(1)
-                  ) : (
-                    '-'
-                  )}
-                </div>
-                <div className="text-xs text-muted-foreground">Avaliação</div>
-              </div>
-            </div>
           </div>
+        </div>
+
+        {/* Desktop CTA */}
+        <div className="hidden md:flex gap-2">
+          <FollowButton profileId={profile.id} size="sm" />
+          <Button 
+            asChild
+            className="bg-[hsl(280_100%_70%)] text-black hover:bg-[hsl(280_100%_70%_/_0.9)] font-semibold"
+          >
+            <a href="#contato">Contato</a>
+          </Button>
         </div>
       </div>
 
@@ -241,6 +111,6 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
           avatar_url: profile.avatar_url
         }}
       />
-    </div>
+    </header>
   );
 }
