@@ -28,87 +28,118 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
       />
       
       {/* Overlay for better contrast */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/40" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40" />
       
       {/* Content */}
       <div className="relative h-full container mx-auto px-3 md:px-6">
-        <div className="h-full flex flex-col justify-end pb-6 md:pb-8">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
-            
-            {/* Main Info Card */}
-            <div className="md:col-span-6">
-              <div className="backdrop-blur-md bg-black/20 border border-white/10 rounded-lg p-4 md:p-6">
-                <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-                  {profile.name}
-                </h1>
-                {profile.handle && (
-                  <p className="text-lg text-white/80 mb-3">
-                    @{profile.handle}
-                  </p>
-                )}
-                
-                {/* Type and Location */}
-                <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="px-3 py-1 rounded-full bg-primary/80 text-white font-medium">
-                    {profile.type === 'artista' ? 'Artista' : 
-                     profile.type === 'local' ? 'Local' : 'Organizador'}
+        <div className="h-full flex items-end justify-between pb-6 md:pb-8">
+          
+          {/* Main Info Card - Left Side */}
+          <div className="flex-1 max-w-md">
+            <div className="backdrop-blur-md bg-black/20 border border-white/10 rounded-lg p-4 md:p-6">
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                {profile.name}
+              </h1>
+              {profile.handle && (
+                <p className="text-lg text-white/80 mb-3">
+                  @{profile.handle}
+                </p>
+              )}
+              
+              {/* Type and Location */}
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="px-3 py-1 rounded-full bg-primary/80 text-white font-medium">
+                  {profile.type === 'artista' ? 'Artista' : 
+                   profile.type === 'local' ? 'Local' : 'Organizador'}
+                </span>
+                {profile.city && (
+                  <span className="text-white/70">
+                    {profile.city}{profile.state ? `, ${profile.state}` : ''}
                   </span>
-                  {profile.city && (
-                    <span className="text-white/70">
-                      {profile.city}{profile.state ? `, ${profile.state}` : ''}
-                    </span>
-                  )}
-                </div>
+                )}
               </div>
             </div>
+          </div>
 
+          {/* Right Side Cards */}
+          <div className="hidden md:flex flex-col gap-3 ml-6">
+            
             {/* Stats Card */}
-            <div className="md:col-span-3">
-              <div className="backdrop-blur-md bg-black/20 border border-white/10 rounded-lg p-4">
-                <div className="grid grid-cols-3 md:grid-cols-1 gap-3 md:gap-4 text-center md:text-left">
-                  <div>
-                    <div className="text-xl md:text-2xl font-bold text-white">
-                      {stats?.followers_count || 0}
-                    </div>
-                    <div className="text-xs text-white/70">seguidores</div>
+            <div className="backdrop-blur-md bg-black/20 border border-white/10 rounded-lg p-4 min-w-[200px]">
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="text-xl font-bold text-white">
+                    {stats?.followers_count || 0}
                   </div>
-                  <div>
-                    <div className="text-xl md:text-2xl font-bold text-white">
-                      {stats?.events_count || 0}
-                    </div>
-                    <div className="text-xs text-white/70">eventos</div>
+                  <div className="text-xs text-white/70">seguidores</div>
+                </div>
+                <div>
+                  <div className="text-xl font-bold text-white">
+                    {stats?.events_count || 0}
                   </div>
-                  <div>
-                    <div className="text-xl md:text-2xl font-bold text-white">
-                      {stats?.total_reviews || 0}
-                    </div>
-                    <div className="text-xs text-white/70">avaliações</div>
+                  <div className="text-xs text-white/70">eventos</div>
+                </div>
+                <div>
+                  <div className="text-xl font-bold text-white">
+                    {stats?.total_reviews || 0}
                   </div>
+                  <div className="text-xs text-white/70">avaliações</div>
                 </div>
               </div>
             </div>
 
             {/* CTAs Card */}
-            <div className="md:col-span-3">
-              <div className="backdrop-blur-md bg-black/20 border border-white/10 rounded-lg p-4">
-                <div className="flex flex-col gap-2">
-                  <FollowButton 
-                    profileId={profile.id} 
-                    size="default"
-                    className="w-full bg-primary/90 hover:bg-primary text-white border-white/20"
-                  />
-                  <Button 
-                    asChild
-                    variant="outline"
-                    className="w-full bg-white/10 hover:bg-white/20 text-white border-white/20"
-                  >
-                    <a href="#contato">Enviar mensagem</a>
-                  </Button>
-                </div>
+            <div className="backdrop-blur-md bg-black/20 border border-white/10 rounded-lg p-4">
+              <div className="flex gap-2">
+                <FollowButton 
+                  profileId={profile.id} 
+                  size="default"
+                  className="bg-primary/90 hover:bg-primary text-white border-white/20"
+                />
+                <Button 
+                  asChild
+                  variant="outline"
+                  className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+                >
+                  <a href="#contato">Enviar mensagem</a>
+                </Button>
               </div>
             </div>
 
           </div>
+
+          {/* Mobile Stats - Bottom */}
+          <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-md border-t">
+            <div className="flex justify-between items-center mb-3 text-sm">
+              <div className="text-center">
+                <div className="font-bold text-lg">{stats?.followers_count || 0}</div>
+                <div className="text-muted-foreground">seguidores</div>
+              </div>
+              <div className="text-center">
+                <div className="font-bold text-lg">{stats?.events_count || 0}</div>
+                <div className="text-muted-foreground">eventos</div>
+              </div>
+              <div className="text-center">
+                <div className="font-bold text-lg">{stats?.total_reviews || 0}</div>
+                <div className="text-muted-foreground">avaliações</div>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <FollowButton 
+                profileId={profile.id} 
+                size="default"
+                className="flex-1"
+              />
+              <Button 
+                asChild
+                variant="outline"
+                className="flex-1"
+              >
+                <a href="#contato">Enviar mensagem</a>
+              </Button>
+            </div>
+          </div>
+
         </div>
       </div>
 
