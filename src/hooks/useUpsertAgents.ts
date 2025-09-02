@@ -13,9 +13,26 @@ export const useUpsertArtist = () => {
     mutationFn: async (data: ArtistForm) => {
       console.log("Upserting artist:", data);
 
+      // Generate slug from stage_name if not provided
+      const generateSlug = (text: string) => {
+        return text
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '') // Remove accents
+          .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
+          .trim()
+          .replace(/\s+/g, '-') // Replace spaces with hyphens
+          .replace(/-+/g, '-') // Replace multiple hyphens
+          .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
+          .slice(0, 80); // Limit to 80 chars
+      };
+
       // Transform data to match database schema exactly
       const transformedData = {
         ...data,
+        
+        // Generate slug from stage_name if not provided
+        slug: data.slug || generateSlug(data.stage_name),
         
         // Clean URL fields - convert empty strings to null
         website_url: data.website_url === '' ? null : data.website_url,
@@ -48,7 +65,7 @@ export const useUpsertArtist = () => {
       const { data: result, error } = await supabase
         .from("artists")
         .upsert(transformedData, { 
-          onConflict: "id",
+          onConflict: "slug",
           ignoreDuplicates: false 
         })
         .select("*")

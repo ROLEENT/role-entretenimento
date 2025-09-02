@@ -980,6 +980,7 @@ export type Database = {
           responsible_role: string | null
           set_time_minutes: number | null
           show_format: string | null
+          slug: string
           soundcloud_url: string | null
           spotify_url: string | null
           stage_name: string | null
@@ -1036,6 +1037,7 @@ export type Database = {
           responsible_role?: string | null
           set_time_minutes?: number | null
           show_format?: string | null
+          slug: string
           soundcloud_url?: string | null
           spotify_url?: string | null
           stage_name?: string | null
@@ -1092,6 +1094,7 @@ export type Database = {
           responsible_role?: string | null
           set_time_minutes?: number | null
           show_format?: string | null
+          slug?: string
           soundcloud_url?: string | null
           spotify_url?: string | null
           stage_name?: string | null
@@ -5067,6 +5070,15 @@ export type Database = {
         }
         Relationships: []
       }
+      v_admin_dashboard_counts: {
+        Row: {
+          artists_count: number | null
+          events_count: number | null
+          organizers_count: number | null
+          venues_count: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       add_blog_comment_secure: {
@@ -6096,11 +6108,9 @@ export type Database = {
       get_recent_activity: {
         Args: Record<PropertyKey, never>
         Returns: {
-          created_at: string
           id: string
-          status: string
-          title: string
-          type: string
+          kind: string
+          name: string
           updated_at: string
         }[]
       }

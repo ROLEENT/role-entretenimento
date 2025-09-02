@@ -4,6 +4,11 @@ import { z } from "zod";
 export const artistSchema = z.object({
   id: z.string().uuid().optional(),
   // Core fields that match database
+  slug: z.string()
+    .min(2, "Slug é obrigatório")
+    .max(80, "Slug deve ter no máximo 80 caracteres")
+    .regex(/^[a-z0-9-._]+$/i, "Use apenas letras, números, hífen, ponto e underscore")
+    .optional().nullable(),
   stage_name: z.string().min(1, "Nome artístico é obrigatório"),
   artist_type: z.string().min(1, "Tipo de artista é obrigatório"),
   status: z.enum(["active", "inactive"]).default("active"),
