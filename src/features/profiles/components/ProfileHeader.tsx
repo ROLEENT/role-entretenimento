@@ -18,7 +18,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
   const [showClaimDialog, setShowClaimDialog] = useState(false);
 
   return (
-    <header className="relative h-64 md:h-80 overflow-hidden">
+    <header className="relative h-48 md:h-72 overflow-hidden">
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -32,31 +32,57 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
       
       {/* Content */}
       <div className="relative h-full container mx-auto px-3 md:px-6">
-        <div className="h-full flex items-end justify-between pb-6 md:pb-8">
+        <div className="h-full flex flex-col md:flex-row md:items-end md:justify-between pb-4 md:pb-8">
           
           {/* Main Info Card - Left Side */}
-          <div className="flex-1 max-w-md">
-            <div className="backdrop-blur-md bg-black/30 border-2 border-white/40 rounded-lg p-4 md:p-6">
-              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+          <div className="flex-1 max-w-sm md:max-w-md">
+            <div className="backdrop-blur-md bg-black/30 border md:border-2 border-white/40 rounded-lg p-3 md:p-6">
+              <h1 className="text-2xl md:text-4xl font-bold text-white mb-1 md:mb-2">
                 {profile.name}
               </h1>
               {profile.handle && (
-                <p className="text-lg text-white/80 mb-3">
+                <p className="text-base md:text-lg text-white/80 mb-2 md:mb-3">
                   @{profile.handle}
                 </p>
               )}
               
               {/* Type and Location */}
-              <div className="flex flex-wrap items-center gap-2 text-sm">
-                <span className="px-3 py-1 rounded-full bg-primary/80 text-white font-medium">
+              <div className="flex flex-wrap items-center gap-1.5 md:gap-2 text-xs md:text-sm">
+                <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-primary/80 text-white font-medium">
                   {profile.type === 'artista' ? 'Artista' : 
                    profile.type === 'local' ? 'Local' : 'Organizador'}
                 </span>
                 {profile.city && (
-                  <span className="text-white/70">
+                  <span className="text-white/70 text-xs md:text-sm">
                     {profile.city}{profile.state ? `, ${profile.state}` : ''}
                   </span>
                 )}
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Stats - Compact Version */}
+          <div className="md:hidden mt-3">
+            <div className="backdrop-blur-md bg-black/30 border border-white/40 rounded-lg p-2">
+              <div className="flex justify-center gap-4 text-center">
+                <div>
+                  <div className="text-sm font-bold text-white">
+                    {stats?.followers_count || 0}
+                  </div>
+                  <div className="text-xs text-white/70">seguidores</div>
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-white">
+                    {stats?.events_count || 0}
+                  </div>
+                  <div className="text-xs text-white/70">eventos</div>
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-white">
+                    {stats?.total_reviews || 0}
+                  </div>
+                  <div className="text-xs text-white/70">avaliações</div>
+                </div>
               </div>
             </div>
           </div>
