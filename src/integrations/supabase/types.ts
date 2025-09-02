@@ -2284,19 +2284,28 @@ export type Database = {
         Row: {
           active: boolean | null
           created_at: string | null
+          description: string | null
           id: string
+          name: string
+          slug: string | null
           updated_at: string | null
         }
         Insert: {
           active?: boolean | null
           created_at?: string | null
+          description?: string | null
           id?: string
+          name?: string
+          slug?: string | null
           updated_at?: string | null
         }
         Update: {
           active?: boolean | null
           created_at?: string | null
+          description?: string | null
           id?: string
+          name?: string
+          slug?: string | null
           updated_at?: string | null
         }
         Relationships: []
