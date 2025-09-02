@@ -24,7 +24,7 @@ export const useSubmitReview = () => {
     setLoading(true);
     try {
       // Usar função RPC para upsert atômico e seguro
-      const { data: reviewData, error } = await supabase.rpc('upsert_profile_review', {
+      const { data: reviewData, error } = await supabase.rpc('upsert_artist_review', {
         p_profile_user_id: profileId,
         p_rating: data.rating,
         p_comment: data.comment || null
