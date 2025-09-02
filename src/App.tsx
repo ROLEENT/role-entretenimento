@@ -137,7 +137,7 @@ const FeedPage = lazy(() => import("./pages/FeedPage"));
 const CalendarPage = lazy(() => import("./pages/CalendarPage"));
 const GamificationPage = lazy(() => import("./pages/GamificationPage"));
 const DiscoverUsers = lazy(() => import("./pages/DiscoverUsers"));
-const CreateProfilePage = lazy(() => import("./pages/CreateProfilePage"));
+const CreateProfileComingSoon = lazy(() => import("./pages/CreateProfileComingSoon"));
 const FavoritosPage = lazy(() => import("./pages/FavoritosPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ScrollToTop = lazy(() => import("./components/ScrollToTop"));
@@ -240,8 +240,8 @@ function App() {
                 <Route path="/claim/:handle" element={<Suspense fallback={<PageLoadingFallback />}><ClaimProfilePage /></Suspense>} />
                 <Route path="/cidades/:slug/perfis" element={<Suspense fallback={<PageLoadingFallback />}><CityDirectoryPage /></Suspense>} />
                 
-                {/* Profile Creation Routes - Fixed URL */}
-                <Route path="/criar/perfil" element={<Suspense fallback={<PageLoadingFallback />}><CreateProfilePage /></Suspense>} />
+                {/* Profile Creation Routes - Coming Soon */}
+                <Route path="/criar/perfil" element={<Suspense fallback={<PageLoadingFallback />}><CreateProfileComingSoon /></Suspense>} />
                 
                 {/* Highlights Routes */}
                 <Route path="/highlights" element={<HighlightsPage />} />
@@ -334,7 +334,7 @@ function App() {
                 {/* User Routes */}
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/criar-perfil" element={<CreateProfilePage />} />
+                <Route path="/criar-perfil" element={<CreateProfileComingSoon />} />
                 <Route path="/meus-perfis" element={
                   <RequireAuth>
                     <Suspense fallback={<PageLoadingFallback />}>
