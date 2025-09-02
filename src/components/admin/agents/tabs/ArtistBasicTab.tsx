@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArtistFlexibleForm } from '@/schemas/agents-flexible';
+import { RHFSlug } from '../RHFSlug';
 
 interface ArtistBasicTabProps {
   form: UseFormReturn<ArtistFlexibleForm>;
@@ -55,29 +56,12 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
         )}
       />
 
-      <FormField
-        control={form.control}
-        name="artist_type"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Tipo de Artista</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o tipo" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {ARTIST_TYPE_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
+      <RHFSlug
+        name="slug"
+        label="Slug (URL)"
+        sourceField="stage_name"
+        table="artists"
+        excludeId={form.getValues("id")}
       />
 
       <FormField
