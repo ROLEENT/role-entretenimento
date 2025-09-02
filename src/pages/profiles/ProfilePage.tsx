@@ -2,11 +2,11 @@ import { useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useProfile } from "@/features/profiles/hooks/useProfiles";
-import { ProfileHeader } from "@/features/profiles/components/ProfileHeader";
-import { ProfileNav } from "@/features/profiles/components/ProfileNav";
-import { ProfileContent } from "@/features/profiles/components/ProfileContent";
+import { NewProfileHeader } from "@/features/profiles/components/NewProfileHeader";
+import { ProfileNavNew } from "@/features/profiles/components/ProfileNavNew";
+import { ProfileContentNew } from "@/features/profiles/components/ProfileContentNew";
 import { ProfileMobileActions } from "@/components/profiles/ProfileMobileActions";
-import { ProfileSidebar } from "@/components/profiles/ProfileSidebar";
+import { ProfileSidebarNew } from "@/features/profiles/components/ProfileSidebarNew";
 import { SEOHelmet } from '@/components/SEOHelmet';
 import { PublicLayout } from "@/components/PublicLayout";
 import { ProfileHeaderSkeleton } from "@/components/skeletons/ProfileHeaderSkeleton";
@@ -97,23 +97,27 @@ export default function ProfilePage() {
         
         <PullToRefresh onRefresh={handleRefresh}>
           <main id="main-content" role="main" tabIndex={-1}>
-            {/* Profile Header */}
-            <ProfileHeader profile={profile} />
+            {/* New Profile Header */}
+            <NewProfileHeader profile={profile} />
 
             {/* Profile Navigation */}
-            <ProfileNav activeTab={activeTab} onTabChange={setActiveTab} />
+            <ProfileNavNew activeTab={activeTab} onTabChange={setActiveTab} />
 
-            {/* Profile Content - Last.fm Style Grid Layout */}
+            {/* Profile Content - Two Column Layout */}
             <section className="container mx-auto px-3 md:px-0 py-6">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Main Content - 8 columns */}
-                <div className="lg:col-span-8">
-                  <ProfileContent profile={profile} activeTab={activeTab} />
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Main Content - 2 columns */}
+                <div className="lg:col-span-2">
+                  <ProfileContentNew 
+                    profile={profile} 
+                    activeTab={activeTab} 
+                    onTabChange={setActiveTab}
+                  />
                 </div>
                 
-                {/* Sidebar - 4 columns */}
-                <aside className="lg:col-span-4">
-                  <ProfileSidebar profile={profile} />
+                {/* Sidebar - 1 column */}
+                <aside className="lg:col-span-1">
+                  <ProfileSidebarNew profile={profile} />
                 </aside>
               </div>
             </section>
