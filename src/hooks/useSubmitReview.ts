@@ -11,7 +11,7 @@ export const useSubmitReview = () => {
     rating: number;
     comment?: string;
   }) => {
-    if (!user || !user.id) {
+    if (!user?.id) {
       toast.error('Você precisa estar logado para deixar uma avaliação');
       return { error: { message: 'Não autenticado' } };
     }
@@ -23,61 +23,38 @@ export const useSubmitReview = () => {
 
     setLoading(true);
     try {
-      // Usar estratégia de upsert com ON CONFLICT
-      const { error } = await supabase
-        .from('profile_reviews')
-        .upsert({
-          reviewer_id: user.id,
-          profile_user_id: profileId,
-          rating: data.rating,
-          comment: data.comment,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'reviewer_id,profile_user_id'
-        });
+      // Usar função RPC para upsert atômico e seguro
+      const { data: reviewData, error } = await supabase.rpc('upsert_profile_review', {
+        p_profile_user_id: profileId,
+        p_rating: data.rating,
+        p_comment: data.comment || null
+      });
 
       if (error) {
-        console.error('Erro detalhado:', error);
+        console.error('Erro na RPC:', error);
         throw error;
       }
 
-      toast.success('Sua avaliação foi salva!');
+      // Determinar se foi criação ou atualização baseado no timestamp
+      const wasUpdate = reviewData?.updated_at !== reviewData?.created_at;
+      const message = wasUpdate ? 'Sua avaliação foi atualizada!' : 'Sua avaliação foi salva!';
+      
+      toast.success(message);
       return { error: null };
     } catch (error: any) {
       console.error('Erro ao enviar avaliação:', error);
       
-      // Tentar detectar se é um erro de constraint e fazer fallback
-      if (error.code === '23505' || error.message?.includes('duplicate key') || error.message?.includes('unique constraint')) {
-        try {
-          // Fallback: buscar review existente e atualizar
-          const { data: existingReview } = await supabase
-            .from('profile_reviews')
-            .select('id')
-            .eq('reviewer_id', user.id)
-            .eq('profile_user_id', profileId)
-            .maybeSingle();
-
-          if (existingReview) {
-            const { error: updateError } = await supabase
-              .from('profile_reviews')
-              .update({
-                rating: data.rating,
-                comment: data.comment,
-                updated_at: new Date().toISOString()
-              })
-              .eq('id', existingReview.id);
-
-            if (!updateError) {
-              toast.success('Sua avaliação foi atualizada!');
-              return { error: null };
-            }
-          }
-        } catch (fallbackError) {
-          console.error('Erro no fallback:', fallbackError);
-        }
+      // Tratar erros específicos da RPC
+      if (error.message?.includes('não autenticado')) {
+        toast.error('Você precisa estar logado para avaliar');
+      } else if (error.message?.includes('Rating deve estar entre')) {
+        toast.error('Avaliação deve ser entre 1 e 5 estrelas');
+      } else if (error.message?.includes('ID do perfil')) {
+        toast.error('Perfil inválido');
+      } else {
+        toast.error('Erro ao enviar avaliação. Tente novamente.');
       }
       
-      toast.error('Erro ao enviar avaliação. Tente novamente.');
       return { error };
     } finally {
       setLoading(false);
