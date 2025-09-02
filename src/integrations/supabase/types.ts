@@ -6370,21 +6370,13 @@ export type Database = {
         Args: { p_file_data: string; p_file_name: string; p_profile_id: string }
         Returns: string
       }
-      upsert_profile_review: {
+      upsert_artist_review: {
         Args: {
           p_comment?: string
           p_profile_user_id: string
           p_rating: number
         }
-        Returns: {
-          comment: string | null
-          created_at: string
-          id: string
-          profile_user_id: string
-          rating: number
-          reviewer_id: string
-          updated_at: string
-        }
+        Returns: Json
       }
       user_liked_highlight: {
         Args: { p_highlight_id: string }
