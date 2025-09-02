@@ -108,7 +108,7 @@ async function handleGenres(req: Request, supabase: any, query: string) {
     let dbQuery = supabase
       .from('genres')
       .select('id, name')
-      .eq('is_active', true)
+      .eq('active', true)
       .order('name');
 
     if (query) {
@@ -117,7 +117,12 @@ async function handleGenres(req: Request, supabase: any, query: string) {
 
     const { data, error } = await dbQuery.limit(20);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching genres:', error);
+      throw error;
+    }
+
+    console.log('Genres fetched:', data?.length || 0, 'items');
 
     const items = (data || []).map((item: any) => ({
       id: item.id,
@@ -141,13 +146,26 @@ async function handleGenres(req: Request, supabase: any, query: string) {
       );
     }
 
+    // Generate slug from name
+    const slug = name
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
     const { data, error } = await supabase
       .from('genres')
-      .insert([{ name: name.trim(), is_active: true }])
+      .insert([{ name: name.trim(), slug, active: true }])
       .select('id, name')
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error creating genre:', error);
+      throw error;
+    }
+
+    console.log('Genre created:', data);
 
     return new Response(
       JSON.stringify({ id: data.id, name: data.name }),
