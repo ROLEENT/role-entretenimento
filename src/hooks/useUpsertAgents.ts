@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { VenueFlexibleFormData } from "@/schemas/venue-flexible";
 import { ArtistForm, OrganizerForm } from "@/schemas/agents";
 import { toast } from "sonner";
+import { syncArtistGenres } from "@/utils/artistPivotSync";
 
 export const useUpsertArtist = () => {
   const queryClient = useQueryClient();
@@ -27,9 +28,12 @@ export const useUpsertArtist = () => {
           .slice(0, 80); // Limit to 80 chars
       };
 
+      // Extract genres for separate handling
+      const { genres, ...dataWithoutGenres } = data;
+
       // Transform data to match database schema exactly
       const transformedData = {
-        ...data,
+        ...dataWithoutGenres,
         
         // Generate slug from stage_name if not provided
         slug: data.slug || generateSlug(data.stage_name),
@@ -74,6 +78,11 @@ export const useUpsertArtist = () => {
       if (error) {
         console.error("Artist upsert error:", error);
         throw new Error(`Erro ao salvar artista: ${error.message}`);
+      }
+
+      // Sync genres if provided
+      if (genres && genres.length > 0 && result.id) {
+        await syncArtistGenres(result.id, genres);
       }
 
       return result;
