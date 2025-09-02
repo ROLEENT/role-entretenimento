@@ -104,64 +104,6 @@ export const ArtistContactTab: React.FC<ArtistContactTabProps> = ({ form }) => {
           />
         </div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <FormField
-          control={form.control}
-          name="city"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Cidade</FormLabel>
-              <FormControl>
-                <Input placeholder="São Paulo" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="state"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Estado</FormLabel>
-              <FormControl>
-                <Input placeholder="SP" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="country"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>País</FormLabel>
-              <FormControl>
-                <Input placeholder="BR" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
-      <FormField
-        control={form.control}
-        name="home_city"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Cidade Base</FormLabel>
-            <FormControl>
-              <Input placeholder="Cidade onde o artista reside" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
     </div>
   );
 };

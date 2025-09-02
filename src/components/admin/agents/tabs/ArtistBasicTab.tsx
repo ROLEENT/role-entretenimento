@@ -6,6 +6,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArtistFlexibleForm } from '@/schemas/agents-flexible';
 import { RHFSlug } from '../RHFSlug';
+import { CountrySelect } from '@/components/form/CountrySelect';
+import { RHFGenreSelect } from '@/components/form/RHFGenreSelect';
+import { AgentesTagsInput } from '@/components/agentes/AgentesTagsInput';
 
 interface ArtistBasicTabProps {
   form: UseFormReturn<ArtistFlexibleForm>;
@@ -70,11 +73,36 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
 
       <FormField
         control={form.control}
+        name="artist_type"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Tipo de Artista</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value || ""}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o tipo" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {ARTIST_TYPE_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
         name="status"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Status</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <Select onValueChange={field.onChange} value={field.value || ""}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue />
@@ -120,6 +148,58 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
                   className="min-h-[80px]"
                   maxLength={500}
                   {...field} 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FormField
+          control={form.control}
+          name="country"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>País</FormLabel>
+              <FormControl>
+                <CountrySelect
+                  name="country"
+                  placeholder="Selecione o país"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="genres"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Gêneros Musicais</FormLabel>
+              <FormControl>
+                <RHFGenreSelect name="genres" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      <div className="md:col-span-2">
+        <FormField
+          control={form.control}
+          name="tags"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tags</FormLabel>
+              <FormControl>
+                <AgentesTagsInput
+                  name="tags"
+                  placeholder="Digite uma tag e pressione Enter"
+                  maxTags={10}
                 />
               </FormControl>
               <FormMessage />
