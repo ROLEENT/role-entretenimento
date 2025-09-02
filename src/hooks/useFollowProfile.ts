@@ -17,10 +17,10 @@ export const useFollowProfile = (profileId?: string) => {
       try {
         const { data: followData } = await supabase
           .from('followers')
-          .select('id')
+          .select('user_id')
           .eq('user_id', user.id)
           .eq('profile_id', profileId)
-          .single();
+          .maybeSingle();
 
         setIsFollowing(!!followData);
 
@@ -66,8 +66,7 @@ export const useFollowProfile = (profileId?: string) => {
           .from('followers')
           .insert({
             user_id: user.id,
-            profile_id: profileId,
-            followed_at: new Date().toISOString()
+            profile_id: profileId
           });
 
         if (error) throw error;
