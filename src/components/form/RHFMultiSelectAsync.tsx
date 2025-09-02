@@ -2,7 +2,7 @@
 
 import { useFormContext, Controller } from "react-hook-form";
 import { Label } from "@/components/ui/label";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -57,37 +57,37 @@ export default function RHFMultiSelectAsync({
 
   const fieldError = errors[name];
 
-  useEffect(() => {
-    const fetchOptions = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const fetchOptions = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        let queryBuilder = supabase
-          .from(query.table)
-          .select(query.fields);
+      let queryBuilder = supabase
+        .from(query.table)
+        .select(query.fields);
 
-        if (query.orderBy) {
-          queryBuilder = queryBuilder.order(query.orderBy);
-        }
-
-        const { data, error } = await queryBuilder;
-
-        if (error) throw error;
-
-        const mappedOptions = (data || []).map(mapRow);
-        setOptions(mappedOptions);
-      } catch (err: any) {
-        console.error('Error fetching options:', err);
-        setError(err.message || 'Erro ao carregar opções');
-        setOptions([]);
-      } finally {
-        setLoading(false);
+      if (query.orderBy) {
+        queryBuilder = queryBuilder.order(query.orderBy);
       }
-    };
 
-    fetchOptions();
+      const { data, error } = await queryBuilder;
+
+      if (error) throw error;
+
+      const mappedOptions = (data || []).map(mapRow);
+      setOptions(mappedOptions);
+    } catch (err: any) {
+      console.error('Error fetching options:', err);
+      setError(err.message || 'Erro ao carregar opções');
+      setOptions([]);
+    } finally {
+      setLoading(false);
+    }
   }, [query.table, query.fields, query.orderBy, mapRow]);
+
+  useEffect(() => {
+    fetchOptions();
+  }, [fetchOptions]);
 
   return (
     <div className="space-y-2">
@@ -100,24 +100,36 @@ export default function RHFMultiSelectAsync({
         name={name}
         control={control}
         render={({ field }) => {
-          const selectedValues = field.value || [];
-          const selectedOptions = options.filter(option => 
-            selectedValues.includes(parseValue(serializeValue(option.value)))
-          );
+          const selectedValues = Array.isArray(field.value) ? field.value : [];
+          
+          const selectedOptions = useMemo(() => 
+            options.filter(option => {
+              const optionValue = parseValue(serializeValue(option.value));
+              return selectedValues.some((selectedValue: any) => 
+                String(selectedValue) === String(optionValue)
+              );
+            })
+          , [options, selectedValues, parseValue, serializeValue]);
 
-          const handleSelect = (option: MultiSelectOption) => {
+          const handleSelect = useCallback((option: MultiSelectOption) => {
             const value = parseValue(serializeValue(option.value));
-            const newValues = selectedValues.includes(value)
-              ? selectedValues.filter((v: any) => v !== value)
+            const isAlreadySelected = selectedValues.some((v: any) => 
+              String(v) === String(value)
+            );
+            
+            const newValues = isAlreadySelected
+              ? selectedValues.filter((v: any) => String(v) !== String(value))
               : [...selectedValues, value];
             
             field.onChange(newValues);
-          };
+          }, [selectedValues, field.onChange, parseValue, serializeValue]);
 
-          const handleRemove = (valueToRemove: any) => {
-            const newValues = selectedValues.filter((v: any) => v !== valueToRemove);
+          const handleRemove = useCallback((valueToRemove: any) => {
+            const newValues = selectedValues.filter((v: any) => 
+              String(v) !== String(valueToRemove)
+            );
             field.onChange(newValues);
-          };
+          }, [selectedValues, field.onChange]);
 
           return (
             <div className="space-y-2">
@@ -150,7 +162,9 @@ export default function RHFMultiSelectAsync({
                       <CommandGroup>
                         {options.map((option) => {
                           const value = parseValue(serializeValue(option.value));
-                          const isSelected = selectedValues.includes(value);
+                          const isSelected = selectedValues.some((v: any) => 
+                            String(v) === String(value)
+                          );
                           
                           return (
                             <CommandItem

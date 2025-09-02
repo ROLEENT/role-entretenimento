@@ -15,10 +15,10 @@ export const artistSchema = z.object({
   about: z.string().optional().nullable(),
   
   // Contact info - allowing empty strings for optional URLs
-  email: z.string().email().optional().or(z.literal('')).nullable(),
+  email: z.string().email("Email inválido").optional().or(z.literal('')).nullable(),
   phone: z.string().optional().nullable(),
   whatsapp: z.string().optional().nullable(),
-  booking_email: z.string().email().optional().or(z.literal('')).nullable(),
+  booking_email: z.string().email("Email inválido").optional().or(z.literal('')).nullable(),
   booking_whatsapp: z.string().optional().nullable(),
   booking_phone: z.string().optional().nullable(),
   
@@ -31,13 +31,13 @@ export const artistSchema = z.object({
   
   // Social media & URLs - flexible URL validation
   instagram: z.string().optional().nullable(),
-  website: z.string().optional().or(z.literal('')).nullable(),
-  website_url: z.string().optional().or(z.literal('')).nullable(),
-  spotify_url: z.string().optional().or(z.literal('')).nullable(),
-  soundcloud_url: z.string().optional().or(z.literal('')).nullable(), 
-  youtube_url: z.string().optional().or(z.literal('')).nullable(),
-  beatport_url: z.string().optional().or(z.literal('')).nullable(),
-  audius_url: z.string().optional().or(z.literal('')).nullable(),
+  website: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  website_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  spotify_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  soundcloud_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(), 
+  youtube_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  beatport_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  audius_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
   links: z.record(z.string()).optional(),
   
   // Professional info
@@ -51,13 +51,13 @@ export const artistSchema = z.object({
   tech_audio: z.string().optional().nullable(),
   tech_light: z.string().optional().nullable(),
   tech_stage: z.string().optional().nullable(),
-  tech_rider_url: z.string().optional().or(z.literal('')).nullable(),
+  tech_rider_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
   
   // Media - flexible URL validation
-  profile_image_url: z.string().optional().or(z.literal('')).nullable(),
-  cover_image_url: z.string().optional().or(z.literal('')).nullable(),
-  avatar_url: z.string().optional().or(z.literal('')).nullable(),
-  presskit_url: z.string().optional().or(z.literal('')).nullable(),
+  profile_image_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  cover_image_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  avatar_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  presskit_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
   
   // Management
   responsible_name: z.string().optional().nullable(),
@@ -79,11 +79,11 @@ export const artistSchema = z.object({
 export const organizerSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().min(3, "Nome deve ter pelo menos 3 caracteres"),
-  slug: z.string().min(3, "Slug deve ter pelo menos 3 caracteres"),
-  site: z.string().url().optional().nullable(),
-  email: z.string().email().optional().nullable(),
+  slug: z.string().min(3, "Slug deve ter pelo menos 3 caracteres").optional().nullable(),
+  site: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  email: z.string().email("Email inválido").optional().or(z.literal('')).nullable(),
   phone: z.string().optional().nullable(),
-  logo_url: z.string().url().optional().nullable(),
+  logo_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
   status: z.enum(["active", "inactive"]).default("active"),
 });
 

@@ -100,7 +100,7 @@ export const BlogBasicTab: React.FC<BlogBasicTabProps> = ({ form }) => {
                 label: r.name
               })}
               placeholder="Selecione as seções da revista (Editorial, Posfácio, ROLÊ.bpm, etc.)"
-              multiple={true}
+              
             />
             <p className="text-xs text-muted-foreground">
               Escolha uma ou mais seções da revista onde o post será categorizado

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import {
   FormControl,
@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AsyncOption {
   value: string;
@@ -43,7 +44,6 @@ interface RHFSelectAsyncProps {
   mapRow?: (row: any) => { value: string; label: string };
   parseValue?: (value: any) => any;
   serializeValue?: (value: any) => string;
-  multiple?: boolean;
 }
 
 export function RHFSelectAsync({
@@ -55,17 +55,54 @@ export function RHFSelectAsync({
   required = false,
   className,
   defaultOptions = [],
+  // Legacy API support
+  query,
+  mapRow,
+  parseValue = (v) => v,
+  serializeValue = (v) => String(v ?? ""),
 }: RHFSelectAsyncProps) {
   const { control } = useFormContext();
   const [options, setOptions] = useState<AsyncOption[]>(defaultOptions);
   const [isLoading, setIsLoading] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(defaultOptions.length > 0);
 
+  // Create loadOptions from legacy query API if needed
+  const queryLoadOptions = useCallback(async (): Promise<AsyncOption[]> => {
+    if (!query || !mapRow) return [];
+    
+    try {
+      let queryBuilder = supabase
+        .from(query.table)
+        .select(query.fields);
+
+      if (query.orderBy) {
+        queryBuilder = queryBuilder.order(query.orderBy);
+      }
+
+      if (query.filter) {
+        // Simple filter support - can be extended
+        queryBuilder = queryBuilder.eq(query.filter.split('=')[0], query.filter.split('=')[1]);
+      }
+
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
+
+      return (data || []).map(mapRow);
+    } catch (error) {
+      console.error("Error loading query options:", error);
+      return [];
+    }
+  }, [query, mapRow]);
+
+  const finalLoadOptions = useMemo(() => {
+    return loadOptions || queryLoadOptions;
+  }, [loadOptions, queryLoadOptions]);
+
   const handleOpenChange = async (open: boolean) => {
-    if (open && !hasLoaded && !isLoading) {
+    if (open && !hasLoaded && !isLoading && finalLoadOptions) {
       setIsLoading(true);
       try {
-        const newOptions = await loadOptions();
+        const newOptions = await finalLoadOptions();
         setOptions(newOptions);
         setHasLoaded(true);
       } catch (error) {
@@ -88,12 +125,12 @@ export function RHFSelectAsync({
               {required && <span className="text-destructive ml-1">*</span>}
             </FormLabel>
           )}
-          <Select
-            onValueChange={field.onChange}
-            value={field.value}
-            disabled={disabled || isLoading}
-            onOpenChange={handleOpenChange}
-          >
+            <Select
+              onValueChange={(value) => field.onChange(parseValue(value))}
+              value={serializeValue(field.value)}
+              disabled={disabled || isLoading}
+              onOpenChange={handleOpenChange}
+            >
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder={placeholder} />

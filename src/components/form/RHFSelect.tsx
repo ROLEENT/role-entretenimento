@@ -43,6 +43,8 @@ export function RHFSelect({
   disabled = false,
   required = false,
   className,
+  parseValue = (v) => v,
+  serializeValue = (v) => String(v ?? ""),
 }: RHFSelectProps) {
   const { control } = useFormContext();
 
@@ -58,11 +60,11 @@ export function RHFSelect({
               {required && <span className="text-destructive ml-1">*</span>}
             </FormLabel>
           )}
-          <Select
-            onValueChange={field.onChange}
-            value={field.value}
-            disabled={disabled}
-          >
+            <Select
+              onValueChange={(value) => field.onChange(parseValue(value))}
+              value={serializeValue(field.value)}
+              disabled={disabled}
+            >
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder={placeholder} />

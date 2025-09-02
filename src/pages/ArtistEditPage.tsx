@@ -10,10 +10,11 @@ import { AdminV3Guard } from "@/components/AdminV3Guard";
 import { AdminV3Header } from "@/components/AdminV3Header";
 import { AdminV3Breadcrumb } from "@/components/AdminV3Breadcrumb";
 import { FormShell, FormSection, FORM_SECTIONS } from "@/components/form";
-import { RHFInput, RHFTextarea, RHFSelectAsync, RHFUpload, ArtistLocationFields } from "@/components/form";
+import { RHFInput, RHFTextarea, RHFSelect, RHFUpload, ArtistLocationFields } from "@/components/form";
 import RHFSlug from "@/components/form/RHFSlug";
 import { artistSchema, ArtistForm } from "@/schemas/agents";
 import { useUpsertArtist } from "@/hooks/useUpsertAgents";
+import { ARTIST_TYPES, ARTIST_STATUS_OPTIONS, FEE_RANGES, SHOW_FORMATS } from "@/lib/form-constants";
 
 export default function ArtistEditPage() {
   const { id } = useParams();
@@ -108,6 +109,14 @@ export default function ArtistEditPage() {
                   name="stage_name"
                   label="Nome Artístico"
                   placeholder="Nome do artista"
+                  required
+                />
+                <RHFSelect
+                  name="artist_type"
+                  label="Tipo de Artista"
+                  placeholder="Selecione o tipo"
+                  options={ARTIST_TYPES}
+                  required
                 />
                 <RHFInput
                   name="email"
@@ -125,10 +134,16 @@ export default function ArtistEditPage() {
                   label="WhatsApp"
                   placeholder="(11) 99999-9999"
                 />
+                <RHFSelect
+                  name="status"
+                  label="Status"
+                  placeholder="Selecione o status"
+                  options={ARTIST_STATUS_OPTIONS}
+                />
               </div>
               
               <RHFTextarea
-                name="short_bio"
+                name="bio_short"
                 label="Bio Curta"
                 placeholder="Descrição breve do artista..."
                 rows={4}
@@ -137,18 +152,111 @@ export default function ArtistEditPage() {
               <ArtistLocationFields />
             </FormSection>
 
+            {/* Informações Profissionais */}
+            <FormSection
+              id="professional_info"
+              title="Informações Profissionais"
+              description="Dados sobre apresentações e cachê"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <RHFSelect
+                  name="fee_range"
+                  label="Faixa de Cachê"
+                  placeholder="Selecione a faixa"
+                  options={FEE_RANGES}
+                />
+                <RHFSelect
+                  name="show_format"
+                  label="Formato do Show"
+                  placeholder="Selecione o formato"
+                  options={SHOW_FORMATS}
+                />
+                <RHFInput
+                  name="team_size"
+                  label="Tamanho da Equipe"
+                  type="number"
+                  placeholder="Ex: 3"
+                />
+                <RHFInput
+                  name="set_time_minutes"
+                  label="Tempo de Set (minutos)"
+                  type="number"
+                  placeholder="Ex: 60"
+                />
+              </div>
+            </FormSection>
+
+            {/* Contato e Booking */}
+            <FormSection
+              id="contact_info"
+              title="Contato e Booking"
+              description="Informações para contratação"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <RHFInput
+                  name="booking_email"
+                  label="Email para Booking"
+                  type="email"
+                  placeholder="booking@exemplo.com"
+                />
+                <RHFInput
+                  name="booking_whatsapp"
+                  label="WhatsApp para Booking"
+                  placeholder="(11) 99999-9999"
+                />
+              </div>
+            </FormSection>
+
+            {/* Links e Redes Sociais */}
+            <FormSection
+              id="social_links"
+              title="Links e Redes Sociais"
+              description="Perfis e plataformas do artista"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <RHFInput
+                  name="website_url"
+                  label="Website"
+                  placeholder="https://..."
+                />
+                <RHFInput
+                  name="spotify_url"
+                  label="Spotify"
+                  placeholder="https://spotify.com/..."
+                />
+                <RHFInput
+                  name="soundcloud_url"
+                  label="SoundCloud"
+                  placeholder="https://soundcloud.com/..."
+                />
+                <RHFInput
+                  name="youtube_url"
+                  label="YouTube"
+                  placeholder="https://youtube.com/..."
+                />
+              </div>
+            </FormSection>
+
             {/* Mídia */}
             <FormSection
               id={FORM_SECTIONS.MEDIA.id}
               title={FORM_SECTIONS.MEDIA.title}
               description="Fotos e imagens do artista"
             >
-              <RHFUpload
-                name="avatar_url"
-                bucket="artists"
-                label="Foto do Artista"
-                accept="image/*"
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <RHFUpload
+                  name="avatar_url"
+                  bucket="artists"
+                  label="Foto do Artista"
+                  accept="image/*"
+                />
+                <RHFUpload
+                  name="cover_image_url"
+                  bucket="artists"
+                  label="Imagem de Capa"
+                  accept="image/*"
+                />
+              </div>
             </FormSection>
           </div>
         </FormShell>
