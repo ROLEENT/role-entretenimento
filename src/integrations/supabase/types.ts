@@ -1180,6 +1180,13 @@ export type Database = {
             referencedRelation: "genres"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "artists_genres_genre_id_fkey"
+            columns: ["genre_id"]
+            isOneToOne: false
+            referencedRelation: "genres_with_hierarchy"
+            referencedColumns: ["id"]
+          },
         ]
       }
       backup_metadata: {
@@ -2286,8 +2293,11 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
+          is_active: boolean | null
           name: string
+          parent_genre_id: string | null
           slug: string | null
+          source: string | null
           updated_at: string | null
         }
         Insert: {
@@ -2295,8 +2305,11 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_active?: boolean | null
           name?: string
+          parent_genre_id?: string | null
           slug?: string | null
+          source?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -2304,11 +2317,29 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_active?: boolean | null
           name?: string
+          parent_genre_id?: string | null
           slug?: string | null
+          source?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "genres_parent_genre_id_fkey"
+            columns: ["parent_genre_id"]
+            isOneToOne: false
+            referencedRelation: "genres"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "genres_parent_genre_id_fkey"
+            columns: ["parent_genre_id"]
+            isOneToOne: false
+            referencedRelation: "genres_with_hierarchy"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       group_event_participants: {
         Row: {
@@ -5052,6 +5083,37 @@ export type Database = {
         }
         Relationships: []
       }
+      genres_with_hierarchy: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          id: string | null
+          is_active: boolean | null
+          name: string | null
+          parent_genre_id: string | null
+          parent_name: string | null
+          parent_slug: string | null
+          slug: string | null
+          source: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "genres_parent_genre_id_fkey"
+            columns: ["parent_genre_id"]
+            isOneToOne: false
+            referencedRelation: "genres"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "genres_parent_genre_id_fkey"
+            columns: ["parent_genre_id"]
+            isOneToOne: false
+            referencedRelation: "genres_with_hierarchy"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles_with_stats: {
         Row: {
           avatar_url: string | null
@@ -5090,6 +5152,10 @@ export type Database = {
       }
     }
     Functions: {
+      activate_genre_and_parents: {
+        Args: { genre_id: string }
+        Returns: undefined
+      }
       add_blog_comment_secure: {
         Args:
           | {
@@ -6326,6 +6392,10 @@ export type Database = {
       test_basic_operations: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      to_slug: {
+        Args: { input_text: string }
+        Returns: string
       }
       track_analytics_event: {
         Args: {
