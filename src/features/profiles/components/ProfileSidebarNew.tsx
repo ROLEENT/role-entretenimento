@@ -71,10 +71,7 @@ export function ProfileSidebarNew({ profile }: ProfileSidebarNewProps) {
           {/* Location */}
           <div className="flex items-center gap-3">
             <MapPinIcon className="w-4 h-4 text-muted-foreground" />
-            <div>
-              <p className="text-sm font-medium">{profile.city}</p>
-              <p className="text-xs text-muted-foreground">Localização</p>
-            </div>
+            <p className="text-sm font-medium">{profile.city}</p>
           </div>
 
           {/* Contact Email */}

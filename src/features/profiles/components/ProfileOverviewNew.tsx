@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Profile } from "@/features/profiles/api";
 import { ProfileAboutSection } from "@/components/profiles/ProfileAboutSection";
+import { ProfileSimilarArtists } from "./ProfileSimilarArtists";
 import { useProfileEvents } from "@/features/profiles/hooks/useProfileEvents";
 import { useProfileReviews } from "@/features/profiles/hooks/useProfileReviews";
 import { format } from "date-fns";
@@ -245,6 +246,9 @@ export function ProfileOverviewNew({ profile, onTabChange }: ProfileOverviewNewP
           </div>
         </CardContent>
       </Card>
+
+      {/* Similar Artists */}
+      <ProfileSimilarArtists profile={profile} />
     </div>
   );
 }
