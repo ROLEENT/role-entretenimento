@@ -43,26 +43,12 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
 
       <FormField
         control={form.control}
-        name="name"
+        name="real_name"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Nome Real</FormLabel>
             <FormControl>
               <Input placeholder="Ex: João Silva" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="slug"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Slug</FormLabel>
-            <FormControl>
-              <Input placeholder="Ex: joao-silva-band" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

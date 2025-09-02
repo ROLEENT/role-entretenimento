@@ -34,9 +34,7 @@ export const AdminArtistForm: React.FC<AdminArtistFormProps> = ({
   const form = useForm<ArtistFlexibleForm>({
     resolver: zodResolver(artistFlexibleSchema),
     defaultValues: {
-      name: '',
       stage_name: '',
-      slug: '',
       artist_type: '',
       status: 'active',
       country: 'BR',
@@ -50,26 +48,6 @@ export const AdminArtistForm: React.FC<AdminArtistFormProps> = ({
     },
   });
 
-  // Auto-generate slug from stage_name
-  const stageName = form.watch('stage_name');
-  useEffect(() => {
-    if (stageName && !artist?.slug) {
-      const slug = stageName
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
-      form.setValue('slug', slug);
-    }
-  }, [stageName, form, artist?.slug]);
-
-  // Auto-fill name from stage_name if empty
-  useEffect(() => {
-    if (stageName && !form.getValues('name') && !artist?.name) {
-      form.setValue('name', stageName);
-    }
-  }, [stageName, form, artist?.name]);
 
   const handleSubmit = (data: ArtistFlexibleForm) => {
     onSubmit(data);

@@ -4,9 +4,7 @@ import { z } from "zod";
 export const artistSchema = z.object({
   id: z.string().uuid().optional(),
   // Core fields that match database
-  name: z.string().min(1, "Nome é obrigatório"),
-  stage_name: z.string().min(1, "Nome artístico é obrigatório"), 
-  slug: z.string().min(1, "Slug é obrigatório"),
+  stage_name: z.string().min(1, "Nome artístico é obrigatório"),
   artist_type: z.string().min(1, "Tipo de artista é obrigatório"),
   status: z.enum(["active", "inactive"]).default("active"),
   

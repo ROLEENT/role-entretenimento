@@ -4,10 +4,8 @@ import { z } from "zod";
 export const artistFlexibleSchema = z.object({
   id: z.string().uuid().optional(),
   
-  // Core fields - only name and stage_name are required
-  name: z.string().min(1, "Nome é obrigatório").optional(),
-  stage_name: z.string().min(1, "Nome artístico é obrigatório"), 
-  slug: z.string().optional(), // Auto-generated
+  // Core fields - only stage_name is required
+  stage_name: z.string().min(1, "Nome artístico é obrigatório"),
   artist_type: z.string().optional(),
   status: z.enum(["active", "inactive"]).default("active"),
   
