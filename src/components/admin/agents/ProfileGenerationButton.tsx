@@ -80,12 +80,12 @@ export const ProfileGenerationButton: React.FC<ProfileGenerationButtonProps> = (
         {isGenerating ? (
           <>
             <div className="h-3 w-3 animate-spin rounded-full border-2 border-background border-t-transparent" />
-            Gerando...
+            {hasProfile ? 'Atualizando...' : 'Gerando...'}
           </>
         ) : (
           <>
             <Plus className="h-3 w-3" />
-            Gerar Perfil
+            {hasProfile ? 'Atualizar Perfil' : 'Gerar Perfil'}
           </>
         )}
       </Button>

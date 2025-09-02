@@ -94,14 +94,17 @@ export const useProfileGeneration = (agentId: string, agentType: ProfileType) =>
     };
   };
 
-  // Mutation para gerar perfil
+  // Mutation para gerar/atualizar perfil
   const generateProfileMutation = useMutation({
     mutationFn: async (agentData: AgentData) => {
       const profileData = await mapAgentToProfile(agentData);
       
       const { data, error } = await supabase
         .from('entity_profiles')
-        .insert(profileData)
+        .upsert(profileData, {
+          onConflict: 'source_id,type',
+          ignoreDuplicates: false
+        })
         .select()
         .single();
 
@@ -110,7 +113,8 @@ export const useProfileGeneration = (agentId: string, agentType: ProfileType) =>
     },
     onSuccess: (profile) => {
       queryClient.invalidateQueries({ queryKey: ['profile-exists', agentId, agentType] });
-      toast.success('Perfil público gerado com sucesso!');
+      const message = existingProfile ? 'Perfil público atualizado com sucesso!' : 'Perfil público criado com sucesso!';
+      toast.success(message);
       return profile;
     },
     onError: (error) => {
