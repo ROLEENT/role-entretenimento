@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { VenueCompletionBadge } from '@/components/admin/common/CompletionBadgeList';
 
 interface AdminVenueTableProps {
   venues: any[];
@@ -41,6 +42,7 @@ export const AdminVenueTable: React.FC<AdminVenueTableProps> = ({
             <TableHead>Cidade</TableHead>
             <TableHead>Capacidade</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Progresso</TableHead>
             <TableHead>Última Atualização</TableHead>
             <TableHead className="text-right">Ações</TableHead>
           </TableRow>
@@ -48,7 +50,7 @@ export const AdminVenueTable: React.FC<AdminVenueTableProps> = ({
         <TableBody>
           {venues?.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-8">
+              <TableCell colSpan={7} className="text-center py-8">
                 <div className="flex flex-col items-center gap-2">
                   <MapPin className="h-8 w-8 text-muted-foreground" />
                   <p className="text-muted-foreground">Nenhum local encontrado</p>
@@ -90,6 +92,9 @@ export const AdminVenueTable: React.FC<AdminVenueTableProps> = ({
                   <Badge variant={venue.status === 'active' ? 'default' : 'secondary'}>
                     {venue.status === 'active' ? 'Ativo' : 'Inativo'}
                   </Badge>
+                </TableCell>
+                <TableCell>
+                  <VenueCompletionBadge venue={venue} />
                 </TableCell>
                 <TableCell>
                   {venue.updated_at 

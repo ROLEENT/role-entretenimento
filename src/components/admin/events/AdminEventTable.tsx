@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { EventCompletionBadge } from '@/components/admin/common/CompletionBadgeList';
 
 interface Event {
   id: string;
@@ -158,6 +159,7 @@ export function AdminEventTable({
               </TableHead>
               <TableHead>Evento</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Progresso</TableHead>
               <TableHead>Data</TableHead>
               <TableHead>Local</TableHead>
               <TableHead>Organizador</TableHead>
@@ -191,6 +193,9 @@ export function AdminEventTable({
                   <Badge className={getStatusColor(event.status)}>
                     {getStatusLabel(event.status)}
                   </Badge>
+                </TableCell>
+                <TableCell>
+                  <EventCompletionBadge event={event as any} />
                 </TableCell>
                 <TableCell>
                   {event.starts_at ? (
