@@ -119,6 +119,7 @@ const RevistaPage = lazy(() => import("./pages/RevistaPage"));
 const RevistaArticlePage = lazy(() => import("./pages/RevistaArticlePage"));
 
 // Institutional pages
+const InstitucionalIndex = lazy(() => import("./pages/institucional/InstitucionalIndex"));
 const Parcerias = lazy(() => import("./pages/institucional/Parcerias"));
 const TrabalheConosco = lazy(() => import("./pages/institucional/TrabalheConosco"));
 const Imprensa = lazy(() => import("./pages/institucional/Imprensa"));
@@ -206,6 +207,7 @@ function App() {
                 <Route path="/ajuda" element={<Help />} />
                 
                 {/* Institutional Pages */}
+                <Route path="/institucional" element={<InstitucionalIndex />} />
                 <Route path="/institucional/parcerias" element={<Parcerias />} />
                 <Route path="/institucional/trabalhe-conosco" element={<TrabalheConosco />} />
                 <Route path="/institucional/imprensa" element={<Imprensa />} />
