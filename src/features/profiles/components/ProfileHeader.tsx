@@ -44,7 +44,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
             {/* Type Badge - Subtle */}
             <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 text-xs font-medium bg-white/20 text-white rounded-md backdrop-blur-sm">
-                {profile.type === 'artista' ? 'Artista' : 
+                {profile.type === 'artista' ? (profile.artist_subtype || 'Artista') : 
                  profile.type === 'local' ? 'Local' : 'Organizador'}
               </span>
               {profile.city && (
@@ -94,7 +94,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
               {/* Type and Location */}
               <div className="flex flex-wrap items-center gap-2 text-sm">
                 <span className="px-3 py-1 rounded-full bg-primary/80 text-white font-medium">
-                  {profile.type === 'artista' ? 'Artista' : 
+                  {profile.type === 'artista' ? (profile.artist_subtype || 'Artista') : 
                    profile.type === 'local' ? 'Local' : 'Organizador'}
                 </span>
                 {profile.city && (

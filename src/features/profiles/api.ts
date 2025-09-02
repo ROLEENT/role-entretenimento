@@ -5,6 +5,7 @@ export type Profile = {
   id: string;
   user_id: string | null;
   type: ProfileType;
+  artist_subtype?: string | null;
   handle: string;
   name: string;
   city: string;

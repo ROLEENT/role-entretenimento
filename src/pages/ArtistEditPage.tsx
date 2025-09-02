@@ -10,11 +10,13 @@ import { AdminV3Guard } from "@/components/AdminV3Guard";
 import { AdminV3Header } from "@/components/AdminV3Header";
 import { AdminV3Breadcrumb } from "@/components/AdminV3Breadcrumb";
 import { FormShell, FormSection, FORM_SECTIONS } from "@/components/form";
-import { RHFInput, RHFTextarea, RHFSelect, RHFUpload, ArtistLocationFields } from "@/components/form";
+import { RHFInput, RHFTextarea, RHFSelect, RHFUpload, CountrySelect, RHFGenreSelect, InstagramField } from "@/components/form";
+import ArtistSubtypeSelect from "@/components/fields/ArtistSubtypeSelect";
+import { AgentesTagsInput } from "@/components/agentes/AgentesTagsInput";
 import RHFSlug from "@/components/form/RHFSlug";
 import { artistSchema, ArtistForm } from "@/schemas/agents";
 import { useUpsertArtist } from "@/hooks/useUpsertAgents";
-import { ARTIST_TYPES, ARTIST_STATUS_OPTIONS, FEE_RANGES, SHOW_FORMATS } from "@/lib/form-constants";
+import { ARTIST_STATUS_OPTIONS, FEE_RANGES, SHOW_FORMATS } from "@/lib/form-constants";
 
 export default function ArtistEditPage() {
   const { id } = useParams();
@@ -111,12 +113,9 @@ export default function ArtistEditPage() {
                   placeholder="Nome do artista"
                   required
                 />
-                <RHFSelect
-                  name="artist_type"
-                  label="Tipo de Artista"
+                <ArtistSubtypeSelect
+                  name="artist_subtype"
                   placeholder="Selecione o tipo"
-                  options={ARTIST_TYPES}
-                  required
                 />
                 <RHFInput
                   name="email"
@@ -124,10 +123,11 @@ export default function ArtistEditPage() {
                   type="email"
                   placeholder="email@exemplo.com"
                 />
-                <RHFInput
+                <InstagramField
                   name="instagram"
                   label="Instagram"
                   placeholder="@usuario"
+                  agentType="artist"
                 />
                 <RHFInput
                   name="whatsapp"
@@ -149,7 +149,21 @@ export default function ArtistEditPage() {
                 rows={4}
               />
               
-              <ArtistLocationFields />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CountrySelect
+                  name="country"
+                  label="País"
+                  placeholder="Selecione o país"
+                />
+                <RHFGenreSelect name="genres" />
+              </div>
+              
+              <AgentesTagsInput
+                name="tags"
+                label="Tags"
+                placeholder="Digite uma tag e pressione Enter"
+                maxTags={10}
+              />
             </FormSection>
 
             {/* Informações Profissionais */}

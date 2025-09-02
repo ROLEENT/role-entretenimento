@@ -29,6 +29,9 @@ export { RHFAsyncSelect } from './RHFAsyncSelect';
 export { ArtistLocationFields } from './ArtistLocationFields';
 export { ArtistLocationFieldsRobust } from './ArtistLocationFieldsRobust';
 export { InstagramField } from './InstagramField';
+export { CountrySelect } from './CountrySelect';
+export { GenreSelect } from './GenreSelect';
+export { RHFGenreSelect } from './RHFGenreSelect';
 
 // Examples
 export { default as ExampleForm } from './ExampleForm';

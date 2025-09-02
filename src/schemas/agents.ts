@@ -10,7 +10,8 @@ export const artistSchema = z.object({
     .regex(/^[a-z0-9-._]+$/i, "Use apenas letras, números, hífen, ponto e underscore")
     .optional().nullable(),
   stage_name: z.string().min(1, "Nome artístico é obrigatório"),
-  artist_type: z.string().min(1, "Tipo de artista é obrigatório"),
+  artist_type: z.string().optional().nullable(),
+  artist_subtype: z.string().optional().nullable(),
   status: z.enum(["active", "inactive"]).default("active"),
   
   // Bio fields
@@ -27,10 +28,12 @@ export const artistSchema = z.object({
   booking_whatsapp: z.string().optional().nullable(),
   booking_phone: z.string().optional().nullable(),
   
-  // Location
+  // Location - simplified to just country
+  country: z.string().default('BR'),
+  
+  // Legacy fields (optional for backward compatibility)
   city: z.string().optional().nullable(),
   state: z.string().optional().nullable(),
-  country: z.string().default('BR'),
   home_city: z.string().optional().nullable(),
   cities_active: z.array(z.string()).default([]),
   
