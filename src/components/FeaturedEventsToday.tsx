@@ -64,15 +64,16 @@ const FeaturedEventsToday = () => {
         // Fetch curated events from agenda
         const { data: agendaData, error: agendaError } = await supabase
           .from('agenda_itens')
-          .select('id, title, city, cover_url, start_at, location_name, tags')
+          .select('id, title, city, cover_url, starts_at, location_name, tags')
           .eq('status', 'published')
-          .gte('start_at', new Date().toISOString())
-          .order('start_at', { ascending: true })
+          .gte('starts_at', new Date().toISOString())
+          .order('starts_at', { ascending: true })
           .limit(2);
 
         if (agendaData && !agendaError) {
           const curatedEvents = agendaData.map(event => ({
             ...event,
+            start_at: event.starts_at, // Map starts_at to start_at for interface compatibility
             venue_name: event.location_name,
             event_type: 'curadoria' as const
           }));
