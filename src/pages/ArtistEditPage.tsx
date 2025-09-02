@@ -42,9 +42,7 @@ export default function ArtistEditPage() {
   const form = useForm<ArtistForm>({
     resolver: zodResolver(artistSchema),
     defaultValues: {
-      name: "",
       stage_name: "",
-      slug: "",
       artist_type: "",
       instagram: null,
       whatsapp: null,
@@ -107,17 +105,9 @@ export default function ArtistEditPage() {
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <RHFInput
-                  name="name"
-                  label="Nome"
+                  name="stage_name"
+                  label="Nome Artístico"
                   placeholder="Nome do artista"
-                />
-                <RHFSlug
-                  name="slug"
-                  label="Slug"
-                  placeholder="nome-do-artista"
-                  table="artists"
-                  currentId={artist?.id}
-                  generateFrom="name"
                 />
                 <RHFInput
                   name="email"

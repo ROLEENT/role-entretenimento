@@ -16,9 +16,6 @@ export const useUpsertArtist = () => {
       // Transform data to match database schema exactly
       const transformedData = {
         ...data,
-        // Ensure required fields are present
-        name: data.name || data.stage_name,
-        stage_name: data.stage_name || data.name,
         
         // Clean URL fields - convert empty strings to null
         website_url: data.website_url === '' ? null : data.website_url,
