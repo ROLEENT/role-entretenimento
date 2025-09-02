@@ -10,7 +10,6 @@ export const useSubmitReview = () => {
   const submitReview = async (profileId: string, data: {
     rating: number;
     comment?: string;
-    experience_type?: string;
   }) => {
     if (!user) {
       toast.error('Você precisa estar logado para deixar uma avaliação');
@@ -23,9 +22,9 @@ export const useSubmitReview = () => {
       const { data: existingReview } = await supabase
         .from('profile_reviews')
         .select('id')
-        .eq('user_id', user.id)
-        .eq('profile_id', profileId)
-        .single();
+        .eq('reviewer_id', user.id)
+        .eq('profile_user_id', profileId)
+        .maybeSingle();
 
       if (existingReview) {
         // Atualizar review existente
@@ -34,7 +33,6 @@ export const useSubmitReview = () => {
           .update({
             rating: data.rating,
             comment: data.comment,
-            experience_type: data.experience_type,
             updated_at: new Date().toISOString()
           })
           .eq('id', existingReview.id);
@@ -46,12 +44,10 @@ export const useSubmitReview = () => {
         const { error } = await supabase
           .from('profile_reviews')
           .insert({
-            user_id: user.id,
-            profile_id: profileId,
+            reviewer_id: user.id,
+            profile_user_id: profileId,
             rating: data.rating,
-            comment: data.comment,
-            experience_type: data.experience_type,
-            created_at: new Date().toISOString()
+            comment: data.comment
           });
 
         if (error) throw error;
@@ -75,9 +71,9 @@ export const useSubmitReview = () => {
       const { data } = await supabase
         .from('profile_reviews')
         .select('*')
-        .eq('user_id', user.id)
-        .eq('profile_id', profileId)
-        .single();
+        .eq('reviewer_id', user.id)
+        .eq('profile_user_id', profileId)
+        .maybeSingle();
 
       return data;
     } catch (error) {

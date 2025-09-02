@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import { Star, Loader2 } from 'lucide-react';
 import { useSubmitReview } from '@/hooks/useSubmitReview';
 import { PublicAuthDialog } from '@/components/auth/PublicAuthDialog';
@@ -18,7 +18,7 @@ export function ReviewForm({ profileId }: ReviewFormProps) {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
-  const [experienceType, setExperienceType] = useState('');
+  
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [showAuthRequired, setShowAuthRequired] = useState(false);
   const [existingReview, setExistingReview] = useState<any>(null);
@@ -30,7 +30,6 @@ export function ReviewForm({ profileId }: ReviewFormProps) {
           setExistingReview(review);
           setRating(review.rating);
           setComment(review.comment || '');
-          setExperienceType(review.experience_type || '');
         }
       });
     }
@@ -48,8 +47,7 @@ export function ReviewForm({ profileId }: ReviewFormProps) {
 
     const { error } = await submitReview(profileId, {
       rating,
-      comment: comment.trim() || undefined,
-      experience_type: experienceType || undefined
+      comment: comment.trim() || undefined
     });
 
     if (!error) {
@@ -130,21 +128,6 @@ export function ReviewForm({ profileId }: ReviewFormProps) {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="experience-type">Tipo de Experiência</Label>
-            <Select value={experienceType} onValueChange={setExperienceType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o tipo de experiência" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="show">Show/Evento</SelectItem>
-                <SelectItem value="venue">Local/Venue</SelectItem>
-                <SelectItem value="organization">Organização</SelectItem>
-                <SelectItem value="collaboration">Colaboração</SelectItem>
-                <SelectItem value="other">Outro</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
 
           <div className="space-y-2">
             <Label htmlFor="comment">Comentário (opcional)</Label>
