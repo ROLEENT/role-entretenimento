@@ -1,3 +1,4 @@
+import React, { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,7 +13,6 @@ import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { DevCacheButton } from "./components/DevCacheButton";
 import { RoleNoticePopup } from "@/components/RoleNoticePopup";
-import React, { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { RequireAuth } from "@/components/RequireAuth";
 
