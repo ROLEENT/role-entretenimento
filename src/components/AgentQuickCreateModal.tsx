@@ -210,7 +210,10 @@ export function AgentQuickCreateModal({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome *</FormLabel>
+                    <FormLabel>
+                      Nome
+                      <span className="text-destructive ml-1">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="Nome do agente" {...field} />
                     </FormControl>
@@ -224,7 +227,10 @@ export function AgentQuickCreateModal({
                 name="slug"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Slug *</FormLabel>
+                    <FormLabel>
+                      Slug
+                      <span className="text-destructive ml-1">*</span>
+                    </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input placeholder="slug-do-agente" {...field} />
@@ -251,7 +257,10 @@ export function AgentQuickCreateModal({
                 name="city_id"
                 render={({ field }) => (
                   <FormItem>
-                     <FormLabel>Cidade *</FormLabel>
+                     <FormLabel>
+                       Cidade
+                       <span className="text-destructive ml-1">*</span>
+                     </FormLabel>
                      <Select 
                        onValueChange={(value) => field.onChange(Number(value))} 
                        value={field.value ? String(field.value) : undefined}
@@ -335,7 +344,10 @@ export function AgentQuickCreateModal({
               name="bio_short"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Bio Curta *</FormLabel>
+                  <FormLabel>
+                    Bio Curta
+                    <span className="text-destructive ml-1">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="Descrição breve..."
@@ -357,7 +369,10 @@ export function AgentQuickCreateModal({
                   name="artist_subtype"
                   render={({ field }) => (
                     <FormItem>
-                     <FormLabel>Subtipo *</FormLabel>
+                     <FormLabel>
+                       Subtipo
+                       <span className="text-destructive ml-1">*</span>
+                     </FormLabel>
                      <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                        <FormControl>
                          <SelectTrigger>
@@ -382,7 +397,10 @@ export function AgentQuickCreateModal({
                   name="profile_image_url"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>URL da Foto *</FormLabel>
+                      <FormLabel>
+                        URL da Foto
+                        <span className="text-destructive ml-1">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="https://exemplo.com/foto.jpg" {...field} />
                       </FormControl>
@@ -401,7 +419,10 @@ export function AgentQuickCreateModal({
                     name="venue_type_id"
                     render={({ field }) => (
                       <FormItem>
-                         <FormLabel>Tipo do Local *</FormLabel>
+                         <FormLabel>
+                           Tipo do Local
+                           <span className="text-destructive ml-1">*</span>
+                         </FormLabel>
                          <Select 
                            onValueChange={(value) => field.onChange(Number(value))} 
                            value={field.value ? String(field.value) : undefined}
@@ -449,7 +470,10 @@ export function AgentQuickCreateModal({
                   name="address"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Endereço *</FormLabel>
+                      <FormLabel>
+                        Endereço
+                        <span className="text-destructive ml-1">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="Rua, número - bairro" {...field} />
                       </FormControl>
@@ -466,7 +490,10 @@ export function AgentQuickCreateModal({
                 name="organizer_subtype"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Subtipo *</FormLabel>
+                    <FormLabel>
+                      Subtipo
+                      <span className="text-destructive ml-1">*</span>
+                    </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                       <FormControl>
                         <SelectTrigger>

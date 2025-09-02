@@ -7,9 +7,10 @@ interface RHFCheckboxProps {
   label: string;
   description?: string;
   disabled?: boolean;
+  required?: boolean;
 }
 
-export function RHFCheckbox({ name, label, description, disabled }: RHFCheckboxProps) {
+export function RHFCheckbox({ name, label, description, disabled, required }: RHFCheckboxProps) {
   const { control } = useFormContext();
 
   return (
@@ -28,6 +29,7 @@ export function RHFCheckbox({ name, label, description, disabled }: RHFCheckboxP
           <div className="space-y-1 leading-none">
             <FormLabel>
               {label}
+              {required && <span className="text-destructive ml-1">*</span>}
             </FormLabel>
             {description && (
               <p className="text-sm text-muted-foreground">

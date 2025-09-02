@@ -9,6 +9,7 @@ interface RHFSwitchProps {
   label?: string;
   description?: string;
   disabled?: boolean;
+  required?: boolean;
   className?: string;
 }
 
@@ -17,6 +18,7 @@ export default function RHFSwitch({
   label,
   description,
   disabled,
+  required,
   className,
 }: RHFSwitchProps) {
   const {
@@ -43,6 +45,7 @@ export default function RHFSwitch({
             {label && (
               <Label htmlFor={name} className={fieldError ? "text-destructive" : ""}>
                 {label}
+                {required && <span className="text-destructive ml-1">*</span>}
               </Label>
             )}
           </div>

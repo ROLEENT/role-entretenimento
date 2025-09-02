@@ -33,7 +33,10 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
         name="stage_name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Nome Artístico</FormLabel>
+            <FormLabel>
+              Nome Artístico
+              <span className="text-destructive ml-1">*</span>
+            </FormLabel>
             <FormControl>
               <Input placeholder="Ex: João Silva Band" {...field} />
             </FormControl>
@@ -62,6 +65,7 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
         sourceField="stage_name"
         table="artists"
         excludeId={form.getValues("id")}
+        required={true}
       />
 
       <FormField

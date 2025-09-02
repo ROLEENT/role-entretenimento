@@ -12,6 +12,7 @@ interface RHFSlugProps {
   sourceField: string;
   table: 'artists' | 'organizers' | 'venues';
   excludeId?: string;
+  required?: boolean;
 }
 
 export const RHFSlug: React.FC<RHFSlugProps> = ({
@@ -19,7 +20,8 @@ export const RHFSlug: React.FC<RHFSlugProps> = ({
   label,
   sourceField,
   table,
-  excludeId
+  excludeId,
+  required
 }) => {
   const { control, setValue, getValues } = useFormContext();
   const { generateSlug, checkSlug, available, loading } = useSlugValidation(table);
@@ -56,7 +58,10 @@ export const RHFSlug: React.FC<RHFSlugProps> = ({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel>
+            {label}
+            {required && <span className="text-destructive ml-1">*</span>}
+          </FormLabel>
           <FormControl>
             <div className="relative">
               <Input
