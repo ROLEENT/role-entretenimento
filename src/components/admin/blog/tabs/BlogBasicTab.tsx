@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RHFInput, RHFTextarea, RHFSelect, RHFSelectAsync } from '@/components/form';
+import { RHFInput, RHFTextarea, RHFSelect, RHFMultiSelectAsync } from '@/components/form';
 import { BlogPostForm } from '@/hooks/useUpsertBlogPost';
 import { FileText, User } from 'lucide-react';
 
@@ -87,20 +87,18 @@ export const BlogBasicTab: React.FC<BlogBasicTabProps> = ({ form }) => {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">Categorias *</label>
-            <RHFSelectAsync
+            <RHFMultiSelectAsync
               name="category_ids"
               query={{ 
                 table: "categories", 
                 fields: "id,name,slug,kind,color", 
-                orderBy: "name",
-                filter: "kind=eq.revista,is_active=eq.true"
+                orderBy: "name"
               }}
               mapRow={(r) => ({ 
                 value: r.id, 
                 label: r.name
               })}
               placeholder="Selecione as seções da revista (Editorial, Posfácio, ROLÊ.bpm, etc.)"
-              multiple={true}
             />
             <p className="text-xs text-muted-foreground">
               Escolha uma ou mais seções da revista onde o post será categorizado
