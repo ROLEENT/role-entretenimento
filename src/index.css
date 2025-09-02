@@ -583,15 +583,6 @@ body {
   .enhanced-shadow {
     box-shadow: 0 4px 20px hsl(0 0% 0% / 0.08);
   }
-}
-    font-size: 1.125rem;
-  }
-
-  @media (min-width: 768px) {
-    .responsive-text-lg {
-      font-size: 1.25rem;
-    }
-  }
 
   .responsive-text-xl {
     font-size: 1.25rem;
@@ -602,6 +593,7 @@ body {
       font-size: 1.5rem;
     }
   }
+}
 
   /* Mobile safe areas and responsive design */
   :root {
