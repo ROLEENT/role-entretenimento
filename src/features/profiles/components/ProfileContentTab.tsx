@@ -4,16 +4,54 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { HeartIcon, MessageCircleIcon, ShareIcon, CalendarIcon, ImageIcon, FileTextIcon } from "lucide-react";
 import { Profile } from "@/features/profiles/api";
+import { useProfileContent } from "@/features/profiles/hooks/useProfileContent";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProfileContentTabProps {
   profile: Profile;
 }
 
 export function ProfileContentTab({ profile }: ProfileContentTabProps) {
-  // Mock content data - replace with real data
-  const contentItems: any[] = []; // Temporarily empty to show empty state
+  const { data: contentItems = [], isLoading } = useProfileContent(profile.handle, profile.type);
+  
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Timeline de Conteúdos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-4 w-3/4" />
+          </CardContent>
+        </Card>
+        
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <Card key={i}>
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <Skeleton className="w-10 h-10 rounded-full" />
+                  <div className="flex-1 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-4 w-16" />
+                      <Skeleton className="h-5 w-20" />
+                    </div>
+                    <Skeleton className="h-6 w-2/3" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-32 w-full rounded-lg" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (contentItems.length === 0) {
     return (
@@ -77,7 +115,7 @@ export function ProfileContentTab({ profile }: ProfileContentTabProps) {
   };
 
   const ContentCard = ({ item }: { item: any }) => (
-    <Card>
+    <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
         <div className="flex items-start gap-4">
           <Avatar className="w-10 h-10">
@@ -88,54 +126,64 @@ export function ProfileContentTab({ profile }: ProfileContentTabProps) {
           </Avatar>
           
           <div className="flex-1 space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="font-medium">{profile.name}</span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-medium">{item.author_name || profile.name}</span>
               <span className="text-sm text-muted-foreground">@{profile.handle}</span>
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs bg-[hsl(var(--primary))] text-primary-foreground">
                 {getContentIcon(item.type)}
                 <span className="ml-1">{getContentLabel(item.type)}</span>
               </Badge>
               <span className="text-sm text-muted-foreground">
-                {format(item.date, "dd 'de' MMM", { locale: ptBR })}
+                {format(new Date(item.created_at), "dd 'de' MMM", { locale: ptBR })}
               </span>
             </div>
             
             <div>
-              <h3 className="font-semibold mb-2">{item.title}</h3>
-              <p className="text-muted-foreground">{item.content}</p>
+              <h3 className="font-semibold mb-2 text-lg leading-tight">{item.title}</h3>
+              {item.summary && (
+                <p className="text-muted-foreground mb-3">{item.summary}</p>
+              )}
             </div>
             
-            {item.image && (
+            {item.cover_image && (
               <div className="rounded-lg overflow-hidden bg-muted">
                 <img 
-                  src={item.image} 
+                  src={item.cover_image} 
                   alt={item.title}
-                  className="w-full h-48 object-cover"
+                  className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
                 />
               </div>
             )}
             
-            <div className="flex flex-wrap gap-1">
-              {item.tags.map((tag: string) => (
-                <Badge key={tag} variant="outline" className="text-xs">
-                  #{tag}
-                </Badge>
-              ))}
-            </div>
+            {item.tags && item.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {item.tags.slice(0, 5).map((tag: string) => (
+                  <Badge key={tag} variant="outline" className="text-xs hover:bg-accent cursor-pointer">
+                    #{tag}
+                  </Badge>
+                ))}
+                {item.tags.length > 5 && (
+                  <Badge variant="outline" className="text-xs">
+                    +{item.tags.length - 5}
+                  </Badge>
+                )}
+              </div>
+            )}
             
             <div className="flex items-center justify-between pt-2 border-t">
               <div className="flex items-center gap-4">
-                <Button variant="ghost" size="sm" className="text-muted-foreground">
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-red-500">
                   <HeartIcon className="h-4 w-4 mr-1" />
-                  {item.likes}
+                  <span className="sr-only">Curtir</span>
                 </Button>
                 <Button variant="ghost" size="sm" className="text-muted-foreground">
                   <MessageCircleIcon className="h-4 w-4 mr-1" />
-                  {item.comments}
+                  <span className="sr-only">Comentar</span>
                 </Button>
               </div>
               <Button variant="ghost" size="sm" className="text-muted-foreground">
                 <ShareIcon className="h-4 w-4" />
+                <span className="sr-only">Compartilhar</span>
               </Button>
             </div>
           </div>
@@ -157,7 +205,7 @@ export function ProfileContentTab({ profile }: ProfileContentTabProps) {
         </CardContent>
       </Card>
       
-      <div className="space-y-4">
+    <div className="space-y-4">
         {contentItems.map((item) => (
           <ContentCard key={item.id} item={item} />
         ))}

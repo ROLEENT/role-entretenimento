@@ -16,39 +16,43 @@ export type ProfileEvent = {
   tags?: string[];
 };
 
-export function useProfileEvents(profileUserId: string, profileType: string) {
+export function useProfileEvents(profileHandle: string, profileType: string) {
   return useQuery({
-    queryKey: ['profile-events', profileUserId, profileType],
+    queryKey: ['profile-events', profileHandle, profileType],
     queryFn: async () => {
       let query = supabase
         .from('agenda_itens')
         .select(`
           id, title, slug, subtitle, cover_url, starts_at, end_at,
-          city, location_name, status, type, tags
+          city, location_name, status, type, tags, artists_names
         `)
         .eq('status', 'published')
-        .not('deleted_at', 'is', null);
+        .is('deleted_at', null);
 
-      // Filtrar eventos baseado no tipo de perfil
+      // Filtrar eventos baseado no tipo de perfil e handle
       if (profileType === 'artista') {
-        // Para artistas, buscar eventos onde eles participam (via lineup ou artistas)
-        query = query.contains('artists_names', [profileUserId]);
+        // Para artistas, buscar eventos onde eles participam
+        query = query.or(`artists_names.cs.{${profileHandle}},title.ilike.%${profileHandle}%`);
       } else if (profileType === 'local') {
         // Para locais, buscar eventos que acontecem neste local
-        query = query.eq('venue_id', profileUserId);
+        query = query.ilike('location_name', `%${profileHandle}%`);
       } else if (profileType === 'organizador') {
         // Para organizadores, buscar eventos que eles organizam
-        query = query.eq('organizer_id', profileUserId);
+        query = query.ilike('title', `%${profileHandle}%`);
       }
 
       const { data, error } = await query
-        .order('starts_at', { ascending: false })
+        .order('starts_at', { ascending: true })
+        .gte('starts_at', new Date().toISOString())
         .limit(20);
       
-      if (error) throw error;
-      return data as ProfileEvent[];
+      if (error) {
+        console.error('Error fetching profile events:', error);
+        return [];
+      }
+      return (data || []) as ProfileEvent[];
     },
-    enabled: !!profileUserId && !!profileType,
+    enabled: !!profileHandle && !!profileType,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }

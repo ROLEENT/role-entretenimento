@@ -23,7 +23,7 @@ interface ProfileOverviewNewProps {
 }
 
 export function ProfileOverviewNew({ profile, onTabChange }: ProfileOverviewNewProps) {
-  const { data: events = [] } = useProfileEvents(profile.user_id || '', profile.type);
+  const { data: events = [] } = useProfileEvents(profile.handle, profile.type);
   const { data: reviews = [] } = useProfileReviews(profile.user_id || '');
   
   const upcomingEvents = events.filter(event => 
