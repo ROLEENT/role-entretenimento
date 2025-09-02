@@ -43,32 +43,37 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
 
   return (
     <div className="relative">
-      {/* Cover Image */}
-      <div className="relative h-48 md:h-64 lg:h-80 bg-gradient-to-br from-primary/20 to-accent/10 overflow-hidden">
+      {/* Cover Image - Compacto */}
+      <div className="relative h-48 md:h-56 bg-gradient-to-br from-primary/20 to-accent/10 overflow-hidden rounded-b-2xl">
         {profile.cover_url && (
           <img 
             src={profile.cover_url} 
             alt={`Capa de ${profile.name}`}
             className="w-full h-full object-cover"
+            width={1200}
+            height={400}
+            loading="eager"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/15 to-transparent" />
       </div>
 
       {/* Profile Content */}
       <div className="container mx-auto px-4">
-        <div className="relative -mt-16 md:-mt-20">
-          <div className="flex flex-col lg:flex-row lg:items-end gap-6">
+        <div className="relative -mt-12 md:-mt-16">
+          <div className="flex flex-col lg:flex-row lg:items-end gap-4">
             {/* Avatar and Basic Info */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 lg:gap-6">
-              {/* Avatar */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4">
+              {/* Avatar - Compacto */}
               <div className="relative">
-                <Avatar className={`w-24 h-24 md:w-32 md:h-32 border-4 border-background shadow-card ${getAvatarShape()}`}>
+                <Avatar className={`w-20 h-20 md:w-24 md:h-24 border-4 border-background shadow-card ${getAvatarShape()}`}>
                   <AvatarImage 
                     src={profile.avatar_url || undefined} 
                     alt={`Avatar de ${profile.name}`}
+                    width={96}
+                    height={96}
                   />
-                  <AvatarFallback className={`text-2xl md:text-3xl font-bold bg-primary/10 text-primary ${getAvatarShape()}`}>
+                  <AvatarFallback className={`text-lg md:text-xl font-bold bg-primary/10 text-primary ${getAvatarShape()}`}>
                     {profile.name.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -79,18 +84,18 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
                 />
               </div>
 
-              {/* Name and Handle */}
+              {/* Name and Handle - Compacto */}
               <div className="text-center sm:text-left flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold truncate">
+                  <h1 className="text-xl md:text-2xl font-bold truncate">
                     {profile.name}
                   </h1>
-                  <VerificationBadge verified={profile.verified} size="lg" />
+                  <VerificationBadge verified={profile.verified} size="md" />
                 </div>
-                <p className="text-muted-foreground text-sm md:text-base mb-2">
+                <p className="text-muted-foreground text-sm mb-2">
                   @{profile.handle}
                 </p>
-                <Badge variant="secondary" className="mb-2">
+                <Badge variant="secondary" className="text-xs">
                   {profile.type === 'artista' ? 'Artista' :
                    profile.type === 'local' ? 'Local' :
                    profile.type === 'organizador' ? 'Organizador' : profile.type}
@@ -149,12 +154,12 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
             </div>
           </div>
 
-          {/* Location and Short Bio */}
-          <div className="mt-6 space-y-4">
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+          {/* Location and Stats - Compacto */}
+          <div className="mt-4 space-y-3">
+            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />
-                <span>{profile.city}, {profile.state}, {profile.country}</span>
+                <span>{profile.city}, {profile.state}</span>
               </div>
               {profile.contact_phone && (
                 <div className="flex items-center gap-1">
@@ -165,51 +170,33 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
             </div>
 
             {profile.bio_short && (
-              <p className="text-sm md:text-base leading-relaxed max-w-2xl">
+              <p className="text-sm leading-relaxed max-w-2xl text-muted-foreground">
                 {profile.bio_short}
               </p>
             )}
 
-            {/* Tags */}
+            {/* Tags - Compacto */}
             {profile.tags && profile.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {profile.tags.slice(0, 5).map((tag, index) => (
+              <div className="flex flex-wrap gap-1">
+                {profile.tags.slice(0, 4).map((tag, index) => (
                   <Badge key={index} variant="outline" className="text-xs">
                     {tag}
                   </Badge>
                 ))}
-                {profile.tags.length > 5 && (
+                {profile.tags.length > 4 && (
                   <Badge variant="outline" className="text-xs">
-                    +{profile.tags.length - 5} mais
+                    +{profile.tags.length - 4}
                   </Badge>
                 )}
               </div>
             )}
 
-            {/* Quick Links */}
-            {profile.links && profile.links.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {profile.links.slice(0, 3).map((link: any, index: number) => (
-                  <a 
-                    key={index}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
-                  >
-                    <ExternalLink className="w-3 h-3" />
-                    {link.type}
-                  </a>
-                ))}
-              </div>
-            )}
-
-            {/* Stats Row */}
-            <div className="flex flex-wrap gap-6 pt-4 border-t border-border">
+            {/* Stats Row - Compacto */}
+            <div className="flex gap-4 pt-3 border-t border-border">
               <div className="text-center">
-                <div className="text-lg md:text-xl font-bold">
+                <div className="text-base font-bold">
                   {statsLoading ? (
-                    <div className="w-8 h-6 bg-muted animate-pulse rounded" />
+                    <div className="w-6 h-5 bg-muted animate-pulse rounded" />
                   ) : (
                     stats.followers_count.toLocaleString()
                   )}
@@ -217,9 +204,9 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
                 <div className="text-xs text-muted-foreground">Seguidores</div>
               </div>
               <div className="text-center">
-                <div className="text-lg md:text-xl font-bold">
+                <div className="text-base font-bold">
                   {statsLoading ? (
-                    <div className="w-8 h-6 bg-muted animate-pulse rounded" />
+                    <div className="w-6 h-5 bg-muted animate-pulse rounded" />
                   ) : (
                     stats.events_count.toLocaleString()
                   )}
@@ -227,9 +214,9 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
                 <div className="text-xs text-muted-foreground">Eventos</div>
               </div>
               <div className="text-center">
-                <div className="text-lg md:text-xl font-bold">
+                <div className="text-base font-bold">
                   {statsLoading ? (
-                    <div className="w-8 h-6 bg-muted animate-pulse rounded" />
+                    <div className="w-6 h-5 bg-muted animate-pulse rounded" />
                   ) : stats.total_reviews > 0 ? (
                     stats.average_rating.toFixed(1)
                   ) : (

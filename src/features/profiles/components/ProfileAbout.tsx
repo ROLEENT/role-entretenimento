@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPinIcon, CalendarIcon, LinkIcon, InstagramIcon, GlobeIcon, MailIcon, PhoneIcon } from "lucide-react";
 import { Profile } from "@/features/profiles/api";
+import { ProfileAboutSection } from "@/components/profiles/ProfileAboutSection";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -155,20 +156,14 @@ export function ProfileAbout({ profile }: ProfileAboutProps) {
 
   return (
     <div className="space-y-6">
-      {/* Biography */}
+      {/* Biography - Com clamp */}
       {profile.bio && (
         <Card>
-          <CardHeader>
-            <CardTitle>Biografia</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Biografia</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="prose prose-sm max-w-none text-muted-foreground">
-              {profile.bio.split('\n').map((paragraph, index) => (
-                <p key={index} className="mb-4 leading-relaxed">
-                  {paragraph}
-                </p>
-              ))}
-            </div>
+          <CardContent className="pt-0">
+            <ProfileAboutSection bio={profile.bio} />
           </CardContent>
         </Card>
       )}

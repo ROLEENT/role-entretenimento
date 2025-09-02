@@ -5,6 +5,7 @@ import { useProfile } from "@/features/profiles/hooks/useProfiles";
 import { ProfileHeader } from "@/features/profiles/components/ProfileHeader";
 import { ProfileNav } from "@/features/profiles/components/ProfileNav";
 import { ProfileContent } from "@/features/profiles/components/ProfileContent";
+import { ProfileMobileActions } from "@/components/profiles/ProfileMobileActions";
 import { SEOHelmet } from '@/components/SEOHelmet';
 import { PublicLayout } from "@/components/PublicLayout";
 
@@ -76,10 +77,35 @@ export default function ProfilePage() {
       {/* Profile Navigation */}
       <ProfileNav activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Profile Content */}
-      <div className="container mx-auto px-4 py-8">
-        <ProfileContent profile={profile} activeTab={activeTab} />
+      {/* Profile Content - Grid Layout */}
+      <div className="container mx-auto px-4 py-6">
+        <div className="grid grid-cols-12 gap-6">
+          {/* Main Content */}
+          <div className="col-span-12 lg:col-span-8 space-y-6">
+            <ProfileContent profile={profile} activeTab={activeTab} />
+          </div>
+          
+          {/* Sidebar */}
+          <aside className="col-span-12 lg:col-span-4 space-y-6">
+            {activeTab === 'visao-geral' && (
+              <>
+                {/* Próximos Eventos */}
+                <div className="lg:sticky lg:top-24">
+                  <div className="space-y-4">
+                    {/* Eventos em sidebar serão mostrados aqui */}
+                  </div>
+                </div>
+              </>
+            )}
+          </aside>
+        </div>
       </div>
+
+      {/* Mobile Action Bar */}
+      <ProfileMobileActions profile={profile} />
+      
+      {/* Spacer para action bar fixa no mobile */}
+      <div className="h-20 md:hidden" />
     </PublicLayout>
   );
 }

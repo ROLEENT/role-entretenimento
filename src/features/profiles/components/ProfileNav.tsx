@@ -26,21 +26,21 @@ export function ProfileNav({ activeTab = 'sobre', onTabChange }: ProfileNavProps
   const currentTab = onTabChange ? activeTab : internalActiveTab;
 
   return (
-    <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+    <div className="sticky top-0 z-40 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
       <div className="container mx-auto px-4">
-        <nav className="flex">
+        <nav className="flex overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => handleTabClick(tab.id)}
               className={cn(
-                "relative px-4 py-3 text-sm font-medium transition-colors",
-                "hover:text-foreground border-b-2 border-transparent",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                "relative px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap",
+                "hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                 currentTab === tab.id
-                  ? "text-primary border-primary"
+                  ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
               )}
+              aria-current={currentTab === tab.id ? 'page' : undefined}
             >
               {tab.label}
               {currentTab === tab.id && (

@@ -73,60 +73,78 @@ export function ProfileOverview({ profile }: ProfileOverviewProps) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Quick Actions */}
+    <div className="space-y-4">
+      {/* Quick Actions - Compacto */}
       <Card>
-        <CardHeader>
-          <CardTitle>Ações Rápidas</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">Ações Rápidas</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           {renderTypeSpecificCTA()}
         </CardContent>
       </Card>
 
-      {/* Bio Preview */}
+      {/* Bio Preview - Com clamp */}
       {profile.bio_short && (
         <Card>
-          <CardContent className="pt-6">
-            <p className="text-muted-foreground leading-relaxed">
+          <CardContent className="pt-4">
+            <div className="text-sm leading-6 text-muted-foreground line-clamp-3">
               {profile.bio_short}
-            </p>
+            </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Upcoming Events */}
-      {upcomingEvents.length > 0 && (
+      {/* Upcoming Events - Formato scanável */}
+      {upcomingEvents.length > 0 ? (
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CalendarIcon className="h-5 w-5" />
-              Próximos Eventos
-            </CardTitle>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <CalendarIcon className="h-5 w-5" />
+                Próximos Eventos
+              </CardTitle>
+              <Button variant="ghost" size="sm" className="text-xs">
+                ver todos
+              </Button>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {upcomingEvents.slice(0, 3).map((event) => (
-              <div key={event.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                <div className="space-y-1">
-                  <h4 className="font-medium">{event.title}</h4>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <CalendarIcon className="h-4 w-4" />
-                      {format(event.date, "dd 'de' MMMM", { locale: ptBR })}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MapPinIcon className="h-4 w-4" />
+          <CardContent className="pt-0 space-y-3">
+            {upcomingEvents.slice(0, 2).map((event) => (
+              <div key={event.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border">
+                <div className="flex items-center gap-3">
+                  <div className="text-center min-w-[3rem]">
+                    <div className="text-xl font-bold leading-none">
+                      {format(event.date, "dd")}
+                    </div>
+                    <div className="text-xs uppercase text-muted-foreground">
+                      {format(event.date, "MMM", { locale: ptBR })}
+                    </div>
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="font-medium truncate">{event.title}</h4>
+                    <p className="text-sm text-muted-foreground truncate">
                       {event.location}
-                    </span>
+                    </p>
                   </div>
                 </div>
-                <Badge variant={event.type === 'festival' ? 'default' : 'secondary'}>
-                  {event.type}
-                </Badge>
+                <Button size="sm" variant="outline" className="text-xs">
+                  Ver
+                </Button>
               </div>
             ))}
-            <Button variant="outline" className="w-full">
-              Ver todos os eventos
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-8 text-center">
+            <CalendarIcon className="h-10 w-10 text-muted-foreground/50 mb-3" />
+            <h3 className="font-medium text-muted-foreground mb-1">Sem eventos por enquanto</h3>
+            <p className="text-sm text-muted-foreground/70 mb-3">
+              Siga para ser avisado de novos eventos
+            </p>
+            <Button variant="outline" size="sm">
+              Seguir perfil
             </Button>
           </CardContent>
         </Card>
