@@ -11,53 +11,73 @@ export const useSubmitReview = () => {
     rating: number;
     comment?: string;
   }) => {
-    if (!user) {
+    if (!user || !user.id) {
       toast.error('Você precisa estar logado para deixar uma avaliação');
       return { error: { message: 'Não autenticado' } };
     }
 
+    if (!profileId) {
+      toast.error('Perfil inválido');
+      return { error: { message: 'Perfil inválido' } };
+    }
+
     setLoading(true);
     try {
-      // Verificar se já existe uma review deste usuário para este perfil
-      const { data: existingReview } = await supabase
+      // Usar estratégia de upsert com ON CONFLICT
+      const { error } = await supabase
         .from('profile_reviews')
-        .select('id')
-        .eq('reviewer_id', user.id)
-        .eq('profile_user_id', profileId)
-        .maybeSingle();
+        .upsert({
+          reviewer_id: user.id,
+          profile_user_id: profileId,
+          rating: data.rating,
+          comment: data.comment,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'reviewer_id,profile_user_id'
+        });
 
-      if (existingReview) {
-        // Atualizar review existente
-        const { error } = await supabase
-          .from('profile_reviews')
-          .update({
-            rating: data.rating,
-            comment: data.comment,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existingReview.id);
-
-        if (error) throw error;
-        toast.success('Sua avaliação foi atualizada!');
-      } else {
-        // Criar nova review
-        const { error } = await supabase
-          .from('profile_reviews')
-          .insert({
-            reviewer_id: user.id,
-            profile_user_id: profileId,
-            rating: data.rating,
-            comment: data.comment
-          });
-
-        if (error) throw error;
-        toast.success('Sua avaliação foi enviada!');
+      if (error) {
+        console.error('Erro detalhado:', error);
+        throw error;
       }
 
+      toast.success('Sua avaliação foi salva!');
       return { error: null };
     } catch (error: any) {
       console.error('Erro ao enviar avaliação:', error);
-      toast.error('Erro ao enviar avaliação');
+      
+      // Tentar detectar se é um erro de constraint e fazer fallback
+      if (error.code === '23505' || error.message?.includes('duplicate key') || error.message?.includes('unique constraint')) {
+        try {
+          // Fallback: buscar review existente e atualizar
+          const { data: existingReview } = await supabase
+            .from('profile_reviews')
+            .select('id')
+            .eq('reviewer_id', user.id)
+            .eq('profile_user_id', profileId)
+            .maybeSingle();
+
+          if (existingReview) {
+            const { error: updateError } = await supabase
+              .from('profile_reviews')
+              .update({
+                rating: data.rating,
+                comment: data.comment,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', existingReview.id);
+
+            if (!updateError) {
+              toast.success('Sua avaliação foi atualizada!');
+              return { error: null };
+            }
+          }
+        } catch (fallbackError) {
+          console.error('Erro no fallback:', fallbackError);
+        }
+      }
+      
+      toast.error('Erro ao enviar avaliação. Tente novamente.');
       return { error };
     } finally {
       setLoading(false);
