@@ -104,18 +104,18 @@ async function handleArtistTypes(req: Request, supabase: any, query: string) {
 
 async function handleGenres(req: Request, supabase: any, query: string) {
   if (req.method === 'GET') {
-    // Search genres
+    // Search genres with hierarchical support
     let dbQuery = supabase
-      .from('genres')
-      .select('id, name')
-      .eq('active', true)
+      .from('genres_with_hierarchy')
+      .select('id, name, parent_name, source')
+      .eq('is_active', true)
       .order('name');
 
     if (query) {
-      dbQuery = dbQuery.ilike('name', `%${query}%`);
+      dbQuery = dbQuery.or(`name.ilike.%${query}%, parent_name.ilike.%${query}%`);
     }
 
-    const { data, error } = await dbQuery.limit(20);
+    const { data, error } = await dbQuery.limit(30);
 
     if (error) {
       console.error('Error fetching genres:', error);
@@ -126,7 +126,11 @@ async function handleGenres(req: Request, supabase: any, query: string) {
 
     const items = (data || []).map((item: any) => ({
       id: item.id,
-      name: item.name
+      name: item.name,
+      parent_name: item.parent_name,
+      source: item.source,
+      // Display format: "Deep House (House)" ou "House"
+      display_name: item.parent_name ? `${item.name} (${item.parent_name})` : item.name
     }));
 
     return new Response(
@@ -135,28 +139,48 @@ async function handleGenres(req: Request, supabase: any, query: string) {
     );
 
   } else if (req.method === 'POST') {
-    // Create new genre
+    // Create new genre with auto-activation
     const body = await req.json();
     const { name } = body;
 
     if (!name || typeof name !== 'string') {
       return new Response(
-        JSON.stringify({ error: 'Name is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Nome é obrigatório' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
 
-    // Generate slug from name
-    const slug = name
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
+    // Check if genre already exists (case insensitive)
+    const { data: existing } = await supabase
+      .from('genres')
+      .select('id, name, is_active')
+      .ilike('name', name)
+      .single();
 
+    if (existing) {
+      // If exists but inactive, activate it
+      if (!existing.is_active) {
+        await supabase.rpc('activate_genre_and_parents', { genre_id: existing.id });
+      }
+      
+      return new Response(
+        JSON.stringify({ id: existing.id, name: existing.name }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Create new genre
     const { data, error } = await supabase
       .from('genres')
-      .insert([{ name: name.trim(), slug, active: true }])
+      .insert([{ 
+        name: name.trim(), 
+        source: 'manual',
+        is_active: true,
+        active: true // manter compatibilidade
+      }])
       .select('id, name')
       .single();
 
@@ -175,6 +199,9 @@ async function handleGenres(req: Request, supabase: any, query: string) {
 
   return new Response(
     JSON.stringify({ error: 'Method not allowed' }),
-    { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    { 
+      status: 405, 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    }
   );
 }
