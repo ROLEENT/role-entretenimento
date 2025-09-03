@@ -20,6 +20,8 @@ import { SlugInput } from "@/components/ui/slug-input";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { Badge } from "@/components/ui/badge";
 import { Save, Send, Eye, AlertCircle } from "lucide-react";
+import { MultipleOrganizerSelector } from "@/components/agenda/MultipleOrganizerSelector";
+import { Separator } from "@/components/ui/separator";
 
 interface AdminEventFormProps {
   initialData?: Partial<EventFlexibleForm>;
@@ -41,6 +43,7 @@ export default function AdminEventForm({
       lineup: [],
       links: [],
       gallery: [],
+      organizer_ids: [],
       ...initialData,
     },
   });
@@ -246,7 +249,7 @@ export default function AdminEventForm({
 
                 <RHFSelectAsync
                   name="organizer_id"
-                  label="Organizador"
+                  label="Organizador (Legado)"
                   placeholder="Selecione o organizador (opcional)..."
                   query={{
                     table: "organizers",
@@ -258,6 +261,19 @@ export default function AdminEventForm({
                     label: row.name,
                   })}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Use o sistema de múltiplos organizadores abaixo (recomendado)
+                </p>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <h4 className="font-medium">Organizadores do Evento</h4>
+                  <MultipleOrganizerSelector 
+                    agendaId={eventId} 
+                    disabled={isPending}
+                  />
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
