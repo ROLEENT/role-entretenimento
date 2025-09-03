@@ -15,13 +15,14 @@ export const useVenuesOptions = () => {
     setLoading(true);
     try {
       const queryParams = query ? `?q=${encodeURIComponent(query)}` : '';
-      const response = await fetch(`/api/options/venues${queryParams}`);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const { data, error } = await supabase.functions.invoke(`options/venues${queryParams}`, {
+        method: 'GET',
+      });
+
+      if (error) {
+        console.error('Error searching venues:', error);
+        return [];
       }
-      
-      const data = await response.json();
 
       return (data?.items || []).map(item => ({
         label: `${item.name}${item.city ? ` - ${item.city}` : ''}`,
@@ -40,7 +41,7 @@ export const useVenuesOptions = () => {
   const createVenue = async (name: string): Promise<SelectOption> => {
     setLoading(true);
     try {
-      const response = await fetch('/api/options/venues', {
+      const { data, error } = await supabase.functions.invoke('options/venues', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -48,11 +49,10 @@ export const useVenuesOptions = () => {
         body: JSON.stringify({ name })
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (error) {
+        console.error('Error creating venue:', error);
+        throw error;
       }
-
-      const data = await response.json();
 
       return {
         label: `${data.name}${data.city ? ` - ${data.city}` : ''}`,
