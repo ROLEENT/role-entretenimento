@@ -286,9 +286,8 @@ export const BasicInfoStep: React.FC = () => {
               <FormControl>
                 <ComboboxAsync
                   placeholder="Buscar venue..."
-                  emptyMessage="Nenhum venue encontrado"
-                  searchFunction={searchVenues}
-                  getOptionById={getVenueById}
+                  emptyText="Nenhum venue encontrado"
+                  onSearch={searchVenues}
                   value={field.value || ''}
                   onValueChange={field.onChange}
                 />

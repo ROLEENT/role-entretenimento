@@ -71,7 +71,7 @@ export const LinksStep: React.FC = () => {
     });
   };
 
-  const updateAccessibility = (feature: string, enabled: boolean) => {
+  const updateAccessibility = (feature: string, enabled: boolean | string) => {
     const currentAccessibility = watchedAccessibility;
     setValue('accessibility', {
       ...currentAccessibility,
@@ -311,8 +311,8 @@ export const LinksStep: React.FC = () => {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Plataforma de Venda</label>
                 <Select
-                  value={watchedTicketing.platform || ''}
-                  onValueChange={(value) => updateTicketing('platform', value)}
+                  value={watchedTicketing.site || ''}
+                  onValueChange={(value) => updateTicketing('site', value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione a plataforma" />
@@ -329,21 +329,12 @@ export const LinksStep: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Status da Venda</label>
-                <Select
-                  value={watchedTicketing.status || 'available'}
-                  onValueChange={(value) => updateTicketing('status', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="available">Disponível</SelectItem>
-                    <SelectItem value="coming_soon">Em breve</SelectItem>
-                    <SelectItem value="sold_out">Esgotado</SelectItem>
-                    <SelectItem value="closed">Vendas encerradas</SelectItem>
-                  </SelectContent>
-                </Select>
+                <label className="text-sm font-medium">URL do Site</label>
+                <Input
+                  placeholder="https://eventbrite.com/meu-evento"
+                  value={watchedTicketing.url || ''}
+                  onChange={(e) => updateTicketing('url', e.target.value)}
+                />
               </div>
             </div>
 
@@ -373,61 +364,46 @@ export const LinksStep: React.FC = () => {
                     <div className="flex gap-4">
                       <div className="flex-1 space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                            control={control}
-                            name={`ticket_rules.${index}.title`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Título da Regra</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Ex: Política de Cancelamento"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <div className="flex items-center space-x-2">
-                            <FormField
-                              control={control}
-                              name={`ticket_rules.${index}.required`}
-                              render={({ field }) => (
-                                <FormItem className="flex items-center space-x-2">
-                                  <FormControl>
-                                    <Checkbox
-                                      checked={field.value}
-                                      onCheckedChange={field.onChange}
-                                    />
-                                  </FormControl>
-                                  <FormLabel className="text-sm">
-                                    Regra obrigatória
-                                  </FormLabel>
-                                </FormItem>
-                              )}
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Título da Regra</label>
+                            <Input
+                              placeholder="Ex: Política de Cancelamento"
+                              value={rule.rule || ''}
+                              onChange={(e) => {
+                                const updatedRules = [...ticketRules];
+                                updatedRules[index] = { ...rule, rule: e.target.value };
+                                setValue('ticket_rules', updatedRules);
+                              }}
                             />
+                          </div>
+
+                          <div className="flex items-center space-x-2 pt-6">
+                            <input
+                              type="checkbox"
+                              checked={false}
+                              onChange={() => {}}
+                              className="w-4 h-4"
+                              disabled
+                            />
+                            <label className="text-sm text-muted-foreground">
+                              Funcionalidade não disponível
+                            </label>
                           </div>
                         </div>
 
-                        <FormField
-                          control={control}
-                          name={`ticket_rules.${index}.description`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Descrição</FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  placeholder="Descrição detalhada da regra..."
-                                  {...field}
-                                  rows={3}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Descrição</label>
+                          <Textarea
+                            placeholder="Descrição detalhada da regra..."
+                            value={rule.description || ''}
+                            onChange={(e) => {
+                              const updatedRules = [...ticketRules];
+                              updatedRules[index] = { ...rule, description: e.target.value };
+                              setValue('ticket_rules', updatedRules);
+                            }}
+                            rows={3}
+                          />
+                        </div>
                       </div>
 
                       <Button
@@ -486,21 +462,12 @@ export const LinksStep: React.FC = () => {
             {/* Additional Accessibility Info */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Informações Adicionais de Acessibilidade</label>
+                <label className="text-sm font-medium">Observações de Acessibilidade</label>
                 <Textarea
                   placeholder="Descreva outros recursos de acessibilidade ou instruções especiais..."
-                  value={watchedAccessibility.additional_info || ''}
-                  onChange={(e) => updateAccessibility('additional_info', e.target.value)}
+                  value={watchedAccessibility.notes || ''}
+                  onChange={(e) => updateAccessibility('notes', e.target.value)}
                   rows={4}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Contato para Acessibilidade</label>
-                <Input
-                  placeholder="Email ou telefone para dúvidas sobre acessibilidade"
-                  value={watchedAccessibility.contact || ''}
-                  onChange={(e) => updateAccessibility('contact', e.target.value)}
                 />
               </div>
             </div>
