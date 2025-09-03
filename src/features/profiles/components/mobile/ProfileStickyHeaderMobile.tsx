@@ -32,47 +32,37 @@ export function ProfileStickyHeaderMobile({ profile }: ProfileStickyHeaderMobile
   if (!isVisible) return null;
 
   return (
-    <div 
-      className="fixed top-0 left-0 right-0 z-50 md:hidden bg-background/95 backdrop-blur-sm border-b transition-all duration-300"
-      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    <header 
+      className="sticky top-0 z-40 backdrop-blur bg-black/50 md:hidden"
+      style={{ paddingTop: 'calc(8px + env(safe-area-inset-top))' }}
     >
-      <div className="flex items-center justify-between px-4 py-3">
+      <div className="mx-auto max-w-screen-sm px-4 py-2 flex items-center gap-2">
         {/* Back button */}
         <Button 
           variant="ghost" 
           size="sm"
           onClick={() => navigate(-1)}
-          className="p-2 -ml-2"
+          className="p-2 rounded-full"
           aria-label="Voltar"
         >
           <ChevronLeft className="w-5 h-5" />
         </Button>
 
         {/* Profile name (truncated) */}
-        <div className="flex-1 px-3 min-w-0">
-          <h2 className="text-base font-semibold text-foreground truncate">
-            {profile.name}
-          </h2>
+        <div className="text-base font-semibold truncate flex-1">
+          {profile.name}
         </div>
 
-        {/* Action buttons */}
-        <div className="flex items-center gap-2">
-          <FollowButton 
-            profileId={profile.id} 
-            size="sm"
-            className="bg-[#c77dff] hover:bg-[#b968f5] text-black border-0"
-          />
-          
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="p-2"
-            aria-label="Mais opções"
-          >
-            <MoreHorizontal className="w-4 h-4" />
-          </Button>
-        </div>
+        {/* More options button only */}
+        <Button 
+          variant="outline" 
+          size="sm"
+          className="p-2 rounded-full"
+          aria-label="Mais opções"
+        >
+          <MoreHorizontal className="w-4 h-4" />
+        </Button>
       </div>
-    </div>
+    </header>
   );
 }

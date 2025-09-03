@@ -9,18 +9,18 @@ interface ProfileActionsMobileProps {
 
 export function ProfileActionsMobile({ profile }: ProfileActionsMobileProps) {
   return (
-    <div className="px-4 py-3 md:hidden">
-      <div className="flex gap-3">
+    <div className="mx-auto max-w-screen-sm px-4 mt-3 md:hidden">
+      <div className="flex gap-2">
         {/* Follow button with primary color */}
         <FollowButton 
           profileId={profile.id} 
-          className="flex-1 bg-[#c77dff] hover:bg-[#b968f5] text-black border-0 font-medium h-10"
+          className="h-10 px-4 rounded-xl bg-[#c77dff] hover:bg-[#b968f5] text-black border-0 font-medium"
         />
         
         {/* Message button */}
         <Button 
           variant="outline" 
-          className="flex-1 h-10"
+          className="h-10 px-4 rounded-xl border-white/20"
         >
           <MessageSquare className="w-4 h-4 mr-2" />
           Mensagem
@@ -30,7 +30,7 @@ export function ProfileActionsMobile({ profile }: ProfileActionsMobileProps) {
         <Button 
           variant="outline" 
           size="icon"
-          className="h-10 w-10 flex-shrink-0"
+          className="h-10 w-10 rounded-xl border-white/20"
           aria-label="Mais opções"
         >
           <MoreHorizontal className="w-4 h-4" />

@@ -5,7 +5,7 @@ import { useProfile } from "@/features/profiles/hooks/useProfiles";
 import { NewProfileHeader } from "@/features/profiles/components/NewProfileHeader";
 import { ProfileNavNew } from "@/features/profiles/components/ProfileNavNew";
 import { ProfileContentNew } from "@/features/profiles/components/ProfileContentNew";
-import { ProfileMobileActions } from "@/components/profiles/ProfileMobileActions";
+
 import { ProfileSidebarNew } from "@/features/profiles/components/ProfileSidebarNew";
 import { SEOHelmet } from '@/components/SEOHelmet';
 import { PublicLayout } from "@/components/PublicLayout";

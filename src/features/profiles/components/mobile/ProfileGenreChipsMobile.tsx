@@ -12,13 +12,13 @@ export function ProfileGenreChipsMobile({ profile }: ProfileGenreChipsMobileProp
   if (genres.length === 0) return null;
 
   return (
-    <div className="px-4 py-3 md:hidden">
-      <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+    <div className="mx-auto max-w-screen-sm px-4 mt-3 overflow-x-auto no-scrollbar md:hidden">
+      <div className="flex gap-2">
         {genres.map((genre) => (
           <Badge 
             key={genre.id}
             variant="secondary"
-            className="shrink-0 h-8 px-3 bg-muted text-muted-foreground hover:bg-muted/80 font-medium"
+            className="shrink-0 px-3 h-8 rounded-full bg-[#c77dff]/20 border border-[#c77dff]/30 text-sm font-medium flex items-center"
           >
             {genre.name}
           </Badge>

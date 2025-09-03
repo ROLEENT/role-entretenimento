@@ -40,32 +40,27 @@ export function ProfileTabsMobile({
   ];
 
   return (
-    <div className="px-4 py-3 md:hidden border-b">
-      <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 h-12 bg-muted/30">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            
-            return (
-              <TabsTrigger
-                key={tab.id}
-                value={tab.id}
-                className="flex flex-col gap-1 py-2 text-xs data-[state=active]:bg-[#c77dff] data-[state=active]:text-black font-medium transition-all min-h-[44px]"
-              >
-                <Icon className="w-4 h-4" />
-                <span className="leading-tight">
-                  {tab.label}
-                  {tab.count !== undefined && (
-                    <span className="ml-1 text-[10px] opacity-75">
-                      ({tab.count})
-                    </span>
-                  )}
-                </span>
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
-      </Tabs>
+    <div className="mx-auto max-w-screen-sm mt-4 md:hidden">
+      <div className="flex border-b border-white/10 px-4">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => onTabChange(tab.id)}
+            className={`px-3 py-3 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === tab.id 
+                ? 'border-[#c77dff] text-foreground' 
+                : 'border-transparent text-white/70 hover:text-foreground'
+            }`}
+          >
+            {tab.label}
+            {tab.count !== undefined && (
+              <span className="ml-1 text-xs opacity-75">
+                ({tab.count})
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
