@@ -95,6 +95,47 @@ header, header *, nav, nav * {
   }
 }
 
+/* Nada deve bloquear o clique do select ou dropdown */
+select,
+.select-trigger,
+[role="combobox"],
+.dropdown-trigger {
+  position: relative;
+  z-index: 30;
+  pointer-events: auto;
+}
+
+/* Ícones e enfeites não recebem clique */
+.select-trigger svg,
+.dropdown-trigger svg,
+.input-icon,
+.field-decoration,
+.chevron,
+button .icon {
+  pointer-events: none;
+}
+
+/* Menus precisam ficar por cima de tudo */
+[role="listbox"],
+.select-content,
+.dropdown-menu {
+  position: absolute;
+  z-index: 9999;
+}
+
+/* Evita que o container corte o menu */
+header, nav, .filters, .form, .page-header {
+  overflow: visible;
+}
+
+/* Patch comum: pseudo-elementos de banner/containers não capturam clique */
+.banner::before,
+.banner::after,
+.header::before,
+.header::after {
+  pointer-events: none;
+}
+
 [data-radix-popper-content-wrapper], 
 [data-radix-select-content],
 [data-radix-dropdown-menu-content] { 
