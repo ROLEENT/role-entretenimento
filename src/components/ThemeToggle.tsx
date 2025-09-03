@@ -19,38 +19,46 @@ export function ThemeToggle() {
         <span className="sr-only">Alternar tema</span>
       </Button>
     }>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon" className="relative">
+      <div className="dd" data-dd>
+        <button 
+          className="dd-trigger" 
+          data-dd-trigger 
+          aria-expanded="false"
+          aria-label="Alternar tema"
+        >
+          <div className="relative h-9 w-9 inline-flex items-center justify-center rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground">
             <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">Alternar tema</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem 
+          </div>
+        </button>
+        
+        <div className="dd-menu" data-dd-menu role="menu" data-dd-align="right">
+          <button 
+            role="menuitem" 
             onClick={() => setTheme("light")}
             className={theme === "light" ? "bg-accent" : ""}
           >
-            <Sun className="mr-2 h-4 w-4" />
-            <span>Claro</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem 
+            <Sun className="h-4 w-4" />
+            Claro
+          </button>
+          <button 
+            role="menuitem" 
             onClick={() => setTheme("dark")}
             className={theme === "dark" ? "bg-accent" : ""}
           >
-            <Moon className="mr-2 h-4 w-4" />
-            <span>Escuro</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem 
+            <Moon className="h-4 w-4" />
+            Escuro
+          </button>
+          <button 
+            role="menuitem" 
             onClick={() => setTheme("system")}
             className={theme === "system" ? "bg-accent" : ""}
           >
-            <Monitor className="mr-2 h-4 w-4" />
-            <span>Sistema</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            <Monitor className="h-4 w-4" />
+            Sistema
+          </button>
+        </div>
+      </div>
     </ClientOnly>
   );
 }

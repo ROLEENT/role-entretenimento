@@ -197,43 +197,51 @@ export function AdminV3Header() {
           {loading ? (
             <Skeleton className="h-8 w-8 rounded-full" />
           ) : (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="text-xs">
-                      {user ? getUserInitials(user.email) : '?'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="sr-only" aria-label={`Menu do usuário ${user?.email || ''}`}>
-                    Abrir menu do usuário
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
+            <div className="dd" data-dd data-dd-align="right">
+              <button 
+                className="dd-trigger relative h-8 w-8 rounded-full p-0 hover:bg-accent"
+                data-dd-trigger 
+                aria-expanded="false"
+                aria-label={`Menu do usuário ${user?.email || ''}`}
+              >
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="text-xs">
+                    {user ? getUserInitials(user.email) : '?'}
+                  </AvatarFallback>
+                </Avatar>
+              </button>
+              
+              <div className="dd-menu w-56" data-dd-menu role="menu">
+                <div className="px-3 py-2 border-b border-border">
                   <div className="flex flex-col space-y-2">
                     <p className="text-sm leading-none">{user?.email}</p>
                     <Badge variant={getRoleBadgeVariant(user?.role)} className="w-fit text-xs">
                       {getRoleText(user?.role)}
                     </Badge>
                   </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  onClick={() => setPasswordModalOpen(true)} 
-                  className="cursor-pointer"
+                </div>
+                
+                <button 
+                  role="menuitem"
+                  onClick={() => setPasswordModalOpen(true)}
+                  className="flex items-center gap-3 w-full"
                 >
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Alterar senha</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sair</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <Settings className="h-4 w-4" />
+                  Alterar senha
+                </button>
+                
+                <div className="border-t border-border"></div>
+                
+                <button 
+                  role="menuitem"
+                  onClick={handleSignOut}
+                  className="flex items-center gap-3 w-full"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sair
+                </button>
+              </div>
+            </div>
           )}
           </div>
         </div>

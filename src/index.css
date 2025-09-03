@@ -30,133 +30,38 @@ header, header *, nav, nav * {
   transform: none !important;
 }
 
-/* CSS para dropdowns simples */
-.dropdown {
-  position: relative;
-}
-
-.dropdown-trigger {
-  background: transparent;
-  border: 0;
-  padding: 0.5rem 0.25rem;
-  font: inherit;
-  cursor: pointer;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  min-width: 220px;
-  display: none;
-  padding: 0.5rem;
-  border: 1px solid hsl(var(--border));
-  background: hsl(var(--popover));
-  color: hsl(var(--popover-foreground));
-  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
-  border-radius: calc(var(--radius) - 2px);
-  z-index: 50;
-}
-
-.dropdown-menu a,
-.dropdown-menu button {
-  display: block;
-  padding: 0.5rem 0.75rem;
-  text-decoration: none;
-  background: transparent;
-  border: 0;
-  width: 100%;
-  text-align: left;
-  color: hsl(var(--foreground));
-  border-radius: calc(var(--radius) - 4px);
-  cursor: pointer;
-  font: inherit;
-}
-
-.dropdown-menu a:hover,
-.dropdown-menu button:hover {
-  background: hsl(var(--accent));
-  color: hsl(var(--accent-foreground));
-}
-
-.dropdown.is-open > .dropdown-menu { 
-  display: block; 
-}
-
-/* Acessível por teclado */
-.dropdown:focus-within > .dropdown-menu { 
-  display: block; 
-}
-
-/* Hover no desktop */
-@media (hover: hover) and (pointer: fine) {
-  .dropdown:hover > .dropdown-menu { 
-    display: block; 
-  }
-}
-
-/* Native details dropdown system */
-.menu { display: flex; gap: 16px; align-items: center; }
+/* Universal Dropdown System */
 .dd { position: relative; }
-.dd-trigger,
-.dd-icon { list-style: none; cursor: pointer; }
-
-/* remove marcadores padrões do summary */
-details > summary {
-  list-style: none;
-}
-details > summary::-webkit-details-marker { display: none; }
-
-/* botão do gatilho */
-.dd-trigger, .dd-icon {
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  padding: .5rem .25rem;
-  border-radius: 8px;
-  transition: colors 0.2s;
-}
-.dd-trigger:hover, .dd-icon:hover {
-  background: hsl(var(--muted));
-}
-
-/* painel do menu */
+.dd-trigger { display:inline-flex; align-items:center; gap:.5rem; cursor:pointer; }
 .dd-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  min-width: 240px;
-  padding: 8px;
-  border-radius: 12px;
-  border: 1px solid hsl(var(--border));
-  background: hsl(var(--background));
-  box-shadow: 0 12px 32px hsl(var(--shadow) / 0.14);
-  z-index: 9999;
-  display: none;
+  position:absolute; top:calc(100% + 8px); left:0; min-width:240px;
+  padding:8px; border-radius:12px; border:1px solid hsl(var(--border));
+  background:hsl(var(--background)); box-shadow:0 12px 32px hsl(var(--shadow) / 0.14);
+  z-index:9999; display:none; color: hsl(var(--foreground));
 }
 
-/* abre quando details está aberto */
-.dd details[open] > .dd-menu,
-.dd details[open] .dd-menu { display: block; }
+/* abre quando o container está aberto */
+.dd[data-dd-open="true"] > [data-dd-menu] { display:block; }
+
+/* alinhamento à direita */
+.dd[data-dd-align="right"] > .dd-menu { right:0; left:auto; }
 
 /* itens */
-.dd-item {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  width: 100%;
-  text-decoration: none;
-  border: 0;
-  background: none;
-  padding: 10px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  color: hsl(var(--foreground));
-  transition: background-color 0.2s;
+.dd-menu a, .dd-menu button {
+  display:flex; align-items:center; gap:12px; width:100%;
+  padding:10px 12px; border:0; background:none; text-decoration:none; border-radius:10px; cursor:pointer;
+  color: hsl(var(--foreground)); font: inherit;
 }
-.dd-item:hover { 
-  background: hsl(var(--muted)); 
-}
+.dd-menu a:hover, .dd-menu button:hover { background:hsl(var(--muted)); }
+
+/* nada bloqueia clique do menu */
+header, nav, .page-header, .toolbar, .filters { overflow:visible; }
+.dd, .dd-menu, .dd-trigger { pointer-events:auto; }
+.dd-trigger svg, [data-dd-icon] { pointer-events:none; }
+
+/* rotação do ícone "v" / "><" quando aberto */
+.dd[data-dd-open="true"] [data-dd-icon] { transform: rotate(180deg); transition: transform 0.2s; }
+[data-dd-icon] { transition: transform 0.2s; }
 
 /* garante que nada bloqueie o clique */
 .nav, .menu, .dd { overflow: visible; }
