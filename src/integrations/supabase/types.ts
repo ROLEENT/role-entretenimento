@@ -5132,6 +5132,7 @@ export type Database = {
           cover_url: string | null
           created_at: string | null
           favorite_count: number | null
+          followers_count: number | null
           handle: string | null
           id: string | null
           links: Json | null
@@ -5157,6 +5158,7 @@ export type Database = {
           cover_url?: string | null
           created_at?: string | null
           favorite_count?: never
+          followers_count?: never
           handle?: string | null
           id?: string | null
           links?: Json | null
@@ -5182,6 +5184,7 @@ export type Database = {
           cover_url?: string | null
           created_at?: string | null
           favorite_count?: never
+          followers_count?: never
           handle?: string | null
           id?: string | null
           links?: Json | null
