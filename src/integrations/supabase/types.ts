@@ -1816,15 +1816,7 @@ export type Database = {
           verified?: boolean | null
           visibility?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "entity_profiles_source_id_fkey"
-            columns: ["source_id"]
-            isOneToOne: false
-            referencedRelation: "artists"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       event_artists: {
         Row: {
@@ -5153,15 +5145,7 @@ export type Database = {
           verified: boolean | null
           visibility: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "entity_profiles_source_id_fkey"
-            columns: ["source_id"]
-            isOneToOne: false
-            referencedRelation: "artists"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       v_admin_dashboard_counts: {
         Row: {
