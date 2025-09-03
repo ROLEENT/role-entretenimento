@@ -4,7 +4,7 @@ import { Edit, Copy, UserX, MoreHorizontal, Eye, ExternalLink } from 'lucide-rea
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+// Removido: usando sistema unificado de dropdowns
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -150,71 +150,68 @@ export const AdminArtistTable: React.FC<AdminArtistTableProps> = ({
                 })}
               </TableCell>
               
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link to={`/admin-v3/agentes/artistas/${artist.id}/edit`}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Editar
-                      </Link>
-                    </DropdownMenuItem>
+               <TableCell>
+                <div className="dd" data-dd data-dd-align="right">
+                  <Button variant="ghost" size="sm" className="dd-trigger" data-dd-trigger aria-label="Ações">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                  <div className="dd-menu" data-dd-menu role="menu">
+                    <Link to={`/admin-v3/agentes/artistas/${artist.id}/edit`} role="menuitem">
+                      <Edit className="h-4 w-4" />
+                      Editar
+                    </Link>
                     
-                    <DropdownMenuItem asChild>
-                      <Link to={`/admin-v3/agentes/artistas/${artist.id}`}>
-                        <Eye className="mr-2 h-4 w-4" />
-                        Visualizar
-                      </Link>
-                    </DropdownMenuItem>
+                    <Link to={`/admin-v3/agentes/artistas/${artist.id}`} role="menuitem">
+                      <Eye className="h-4 w-4" />
+                      Visualizar
+                    </Link>
                     
-                    <DropdownMenuSeparator />
+                    <hr />
                     
-                    <DropdownMenuItem onClick={() => onDuplicate(artist.id)}>
-                      <Copy className="mr-2 h-4 w-4" />
+                    <button role="menuitem" type="button" onClick={() => onDuplicate(artist.id)}>
+                      <Copy className="h-4 w-4" />
                       Duplicar
-                    </DropdownMenuItem>
+                    </button>
                     
-                    <DropdownMenuItem 
+                    <button 
+                      role="menuitem"
+                      type="button"
                       onClick={() => onStatusChange(
                         artist.id, 
                         artist.status === 'active' ? 'inactive' : 'active'
                       )}
                     >
-                      <UserX className="mr-2 h-4 w-4" />
+                      <UserX className="h-4 w-4" />
                       {artist.status === 'active' ? 'Inativar' : 'Ativar'}
-                    </DropdownMenuItem>
+                    </button>
                     
                     {artist.instagram && (
                       <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                          <a 
-                            href={`https://instagram.com/${artist.instagram.replace('@', '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <ExternalLink className="mr-2 h-4 w-4" />
-                            Ver Instagram
-                          </a>
-                        </DropdownMenuItem>
+                        <hr />
+                        <a 
+                          href={`https://instagram.com/${artist.instagram.replace('@', '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          role="menuitem"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Ver Instagram
+                        </a>
                       </>
                     )}
                     
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
+                    <hr />
+                    <button 
+                      role="menuitem"
+                      type="button"
                       onClick={() => onDelete(artist.id)}
-                      className="text-destructive"
+                      style={{ color: 'hsl(var(--destructive))' }}
                     >
-                      <UserX className="mr-2 h-4 w-4" />
+                      <UserX className="h-4 w-4" />
                       Excluir
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    </button>
+                  </div>
+                </div>
               </TableCell>
             </TableRow>
           ))}
