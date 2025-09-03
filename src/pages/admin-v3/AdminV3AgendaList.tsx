@@ -106,7 +106,7 @@ export default function AdminV3AgendaList() {
             Exportar
           </Button>
           <Button asChild className="gap-2">
-            <Link to="/admin-v3/agenda/criar">
+            <Link to="/admin-v3/eventos/criar">
               <Plus className="h-4 w-4" />
               Novo Evento
             </Link>

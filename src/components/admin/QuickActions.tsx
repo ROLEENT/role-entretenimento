@@ -22,9 +22,9 @@ interface QuickAction {
 const quickActions: QuickAction[] = [
   {
     label: 'Novo Evento',
-    url: '/admin-v3/agenda/criar',
+    url: '/admin-v3/eventos/criar',
     icon: Calendar,
-    description: 'Criar evento na agenda',
+    description: 'Formulário wizard v3',
     category: 'Agenda'
   },
   {

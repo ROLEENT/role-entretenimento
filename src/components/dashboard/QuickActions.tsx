@@ -13,7 +13,7 @@ const quickActions: QuickAction[] = [
   {
     label: 'Novo Evento',
     icon: Plus,
-    path: '/admin-v3/agenda/criar'
+    path: '/admin-v3/eventos/criar'
   },
   {
     label: 'Ver Agenda',
