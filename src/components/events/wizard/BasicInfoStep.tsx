@@ -14,6 +14,7 @@ import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { ComboboxAsync } from '@/components/ui/combobox-async';
 import { useVenueSearch } from '@/hooks/useVenueSearch';
+import { supabase } from '@/integrations/supabase/client';
 
 const CITIES = [
   'São Paulo',
@@ -44,6 +45,7 @@ export const BasicInfoStep: React.FC = () => {
   
   const watchedTitle = watch('title');
   const watchedSlug = watch('slug');
+  const watchedVenueId = watch('venue_id');
 
   // Auto-generate slug preview
   React.useEffect(() => {
@@ -61,6 +63,38 @@ export const BasicInfoStep: React.FC = () => {
       setValue('slug', autoSlug);
     }
   }, [watchedTitle, watchedSlug, setValue]);
+
+  // Auto-fill address when venue is selected
+  React.useEffect(() => {
+    const fillVenueAddress = async () => {
+      if (watchedVenueId) {
+        try {
+          const { data: venue, error } = await supabase
+            .from('venues')
+            .select('address, city, state, address_line, district')
+            .eq('id', watchedVenueId)
+            .single();
+
+          if (venue && !error) {
+            // Build full address from venue data
+            let fullAddress = '';
+            if (venue.address_line) fullAddress += venue.address_line;
+            if (venue.district) fullAddress += (fullAddress ? ', ' : '') + venue.district;
+            if (venue.address) fullAddress += (fullAddress ? ', ' : '') + venue.address;
+
+            // Fill form fields
+            if (fullAddress) setValue('address', fullAddress);
+            if (venue.city) setValue('city', venue.city);
+            if (venue.state) setValue('state', venue.state);
+          }
+        } catch (error) {
+          console.error('Error fetching venue details:', error);
+        }
+      }
+    };
+
+    fillVenueAddress();
+  }, [watchedVenueId, setValue]);
 
   return (
     <div className="space-y-6">
@@ -239,7 +273,7 @@ export const BasicInfoStep: React.FC = () => {
                     onSelect={(date) => field.onChange(date?.toISOString())}
                     disabled={(date) => date < new Date()}
                     initialFocus
-                    className="pointer-events-auto"
+                    className="p-3 pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
@@ -286,7 +320,7 @@ export const BasicInfoStep: React.FC = () => {
                     onSelect={(date) => field.onChange(date?.toISOString())}
                     disabled={(date) => date < new Date()}
                     initialFocus
-                    className="pointer-events-auto"
+                    className="p-3 pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
