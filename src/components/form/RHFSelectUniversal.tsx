@@ -8,14 +8,16 @@ import { BaseFormFieldProps } from "@/lib/forms";
 interface SelectOption {
   value: string;
   label: string;
+  disabled?: boolean;
 }
 
-interface RHFSelectProps extends BaseFormFieldProps {
+interface RHFSelectUniversalProps extends BaseFormFieldProps {
   options: string[] | SelectOption[];
   onValueChange?: (value: string) => void;
+  align?: 'left' | 'right';
 }
 
-export default function RHFSelect({
+export default function RHFSelectUniversal({
   name,
   label,
   placeholder = "Selecione uma opção",
@@ -25,7 +27,8 @@ export default function RHFSelect({
   className,
   options,
   onValueChange,
-}: RHFSelectProps) {
+  align = 'left'
+}: RHFSelectUniversalProps) {
   const {
     control,
     formState: { errors },
@@ -64,6 +67,7 @@ export default function RHFSelect({
             placeholder={placeholder}
             disabled={disabled}
             className={className}
+            align={align}
           />
         )}
       />
