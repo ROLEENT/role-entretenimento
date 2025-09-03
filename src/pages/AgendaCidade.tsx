@@ -14,6 +14,7 @@ import { useSearchDebounce } from '@/hooks/useSearchDebounce';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { slugToCityName, isCapitalSlug, capitalSlugToCode } from '@/lib/cityToSlug';
+import { EventCardV3 } from '@/components/events/EventCardV3';
 
 
 const PERIOD_OPTIONS = [
@@ -25,24 +26,29 @@ const PERIOD_OPTIONS = [
 
 const EventCard = ({ item, cityName }: { item: any; cityName: string }) => {
   const navigate = useNavigate();
-  const itemTags = item.tags || [];
-  const displayTags = itemTags.slice(0, 2);
-  const extraTagsCount = Math.max(0, itemTags.length - 2);
-
-  const formatDateRange = (startDate: string, endDate?: string) => {
-    const start = new Date(startDate);
-    const end = endDate ? new Date(endDate) : null;
-    
-    if (!end || start.toDateString() === end.toDateString()) {
-      return start.toLocaleDateString('pt-BR', { 
-        day: 'numeric', 
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit'
-      }).replace('.', '');
-    }
-    
-    return `${start.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}`.replace(/\./g, '');
+  
+  // Convert legacy agenda item to new event format
+  const eventData = {
+    id: item.id,
+    title: item.title,
+    subtitle: item.subtitle,
+    summary: item.summary,
+    city: item.city || cityName,
+    location_name: item.location_name,
+    date_start: item.starts_at,
+    date_end: item.end_at,
+    doors_open_utc: item.doors_open_utc,
+    image_url: item.cover_url,
+    price_min: item.price_min,
+    price_max: item.price_max,
+    currency: item.currency || 'BRL',
+    highlight_type: item.highlight_type || 'none',
+    is_sponsored: item.is_sponsored || false,
+    age_rating: item.age_rating,
+    genres: item.tags || [],
+    slug: item.slug,
+    ticket_url: item.ticket_url,
+    lineup: [] // Legacy items don't have structured lineup
   };
 
   const handleClick = () => {
@@ -50,65 +56,12 @@ const EventCard = ({ item, cityName }: { item: any; cityName: string }) => {
   };
 
   return (
-    <Card 
-      className="overflow-hidden cursor-pointer transition-all hover:shadow-lg group"
+    <EventCardV3
+      event={eventData}
+      variant="default"
       onClick={handleClick}
-    >
-      <div className="aspect-[3/2] relative overflow-hidden">
-        {item.cover_url ? (
-          <picture>
-            <source 
-              media="(min-width: 1024px)"
-              srcSet={`${item.cover_url}?w=400&h=300&fit=crop 400w, ${item.cover_url}?w=600&h=400&fit=crop 600w`}
-              sizes="(min-width: 1200px) 400px, (min-width: 1024px) 350px, (min-width: 768px) 50vw, 100vw"
-            />
-            <img
-              src={`${item.cover_url}?w=300&h=200&fit=crop`}
-              alt={item.alt_text || item.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              loading="lazy"
-              decoding="async"
-            />
-          </picture>
-        ) : (
-          <div className="w-full h-full bg-muted flex items-center justify-center">
-            <Calendar className="w-12 h-12 text-muted-foreground" />
-          </div>
-        )}
-      </div>
-      
-      <CardContent className="p-4">
-        <h3 className="font-semibold text-lg line-clamp-2 mb-2 group-hover:text-primary transition-colors">
-          {item.title}
-        </h3>
-        
-        <p className="text-sm text-muted-foreground mb-3">
-          {cityName} · {item.start_at ? formatDateRange(item.start_at, item.end_at || undefined) : 'Data a definir'}
-        </p>
-        
-        {itemTags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {displayTags.map(tag => (
-              <Badge 
-                key={tag} 
-                variant="secondary"
-                className="text-xs"
-              >
-                {tag}
-              </Badge>
-            ))}
-            {extraTagsCount > 0 && (
-              <Badge 
-                variant="secondary"
-                className="text-xs"
-              >
-                +{extraTagsCount}
-              </Badge>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      className="w-full"
+    />
   );
 };
 
