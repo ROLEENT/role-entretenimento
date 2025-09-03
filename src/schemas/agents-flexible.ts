@@ -92,7 +92,6 @@ export const organizerFlexibleSchema = z.object({
   site: z.string().optional().or(z.literal('')).nullable(),
   email: z.string().optional().or(z.literal('')).nullable(),
   phone: z.string().optional().nullable(),
-  logo_url: z.string().optional().or(z.literal('')).nullable(), // Legacy field for compatibility
   status: z.enum(["active", "inactive"]).default("active"),
   
   // Contact info - all optional
@@ -134,7 +133,6 @@ export const organizerFlexibleSchema = z.object({
   // Media - all optional
   avatar_url: z.string().optional().or(z.literal('')).nullable(),
   avatar_alt: z.string().optional(),
-  logo_alt: z.string().optional(),
   cover_url: z.string().optional().or(z.literal('')).nullable(),
   cover_alt: z.string().optional(),
   

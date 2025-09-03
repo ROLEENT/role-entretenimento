@@ -148,8 +148,6 @@ export const useUpsertVenue = () => {
         whatsapp: data.whatsapp || null,
         website: data.website || null,
         about: data.about || null,
-        logo_url: data.logo_url || null,
-        logo_alt: data.logo_alt || null,
         category_id: data.category_id || null,
         tags: (() => {
           const tagsValue = data.tags as any; // Type assertion to handle potential string input
@@ -218,8 +216,8 @@ export const useUpsertOrganizer = () => {
         email: data.email || null,
         phone: data.phone || null,
         whatsapp: data.whatsapp || null,
-        avatar_url: data.avatar_url || data.logo_url || null,
-        avatar_alt: data.avatar_alt || data.logo_alt || null,
+        avatar_url: data.avatar_url || null,
+        avatar_alt: data.avatar_alt || null,
         cover_url: data.cover_url || null,
         cover_alt: data.cover_alt || null,
         instagram: data.instagram || null,
