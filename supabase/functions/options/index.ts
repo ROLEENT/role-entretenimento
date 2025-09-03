@@ -213,7 +213,7 @@ async function handleVenues(req: Request, supabase: any, query: string) {
     // Search venues
     let dbQuery = supabase
       .from('venues')
-      .select('id, name, city, address, type')
+      .select('id, name, city, address')
       .eq('status', 'active')
       .order('name');
 
@@ -223,14 +223,18 @@ async function handleVenues(req: Request, supabase: any, query: string) {
 
     const { data, error } = await dbQuery.limit(20);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching venues:', error);
+      throw error;
+    }
+
+    console.log('Venues fetched:', data?.length || 0, 'items');
 
     const items = (data || []).map((item: any) => ({
       id: item.id,
       name: item.name,
       city: item.city,
-      address: item.address,
-      type: item.type
+      address: item.address
     }));
 
     return new Response(
@@ -254,21 +258,24 @@ async function handleVenues(req: Request, supabase: any, query: string) {
       .from('venues')
       .insert([{ 
         name: name.trim(), 
-        status: 'active',
-        type: 'other'
+        status: 'active'
       }])
-      .select('id, name, city, address, type')
+      .select('id, name, city, address')
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error creating venue:', error);
+      throw error;
+    }
+
+    console.log('Venue created:', data);
 
     return new Response(
       JSON.stringify({ 
         id: data.id, 
         name: data.name, 
         city: data.city, 
-        address: data.address, 
-        type: data.type 
+        address: data.address
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
