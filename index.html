@@ -137,5 +137,25 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Simple Dropdown Script -->
+    <script>
+    (function () {
+      const isPointerFine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+      document.addEventListener('click', (e) => {
+        const inside = e.target.closest('[data-dropdown]');
+        if (!inside) closeAll();
+      });
+
+      function closeAll() {
+        document.querySelectorAll('[data-dropdown].is-open').forEach(d => {
+          d.classList.remove('is-open');
+          const t = d.querySelector('[data-dropdown-trigger]');
+          if (t) t.setAttribute('aria-expanded', 'false');
+        });
+      }
+    })();
+    </script>
   </body>
 </html>

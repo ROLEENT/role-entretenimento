@@ -4,7 +4,7 @@ import { EventFormData } from '@/schemas/eventSchema';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { RHFSelect } from '@/components/form/RHFSelect';
+import { RHFDropdownSelect } from '@/components/form/RHFDropdownSelect';
 import RHFDateTime from '@/components/form/RHFDateTime';
 import { RHFSelectAsync } from '@/components/form/RHFSelectAsync';
 import { useVenueSearch } from '@/hooks/useVenueSearch';
@@ -162,7 +162,7 @@ export const BasicInfoStep: React.FC = () => {
 
         {/* City */}
         <div>
-          <RHFSelect
+          <RHFDropdownSelect
             name="city"
             label="Cidade *"
             placeholder="Selecione a cidade"
