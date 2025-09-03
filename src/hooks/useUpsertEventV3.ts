@@ -40,7 +40,21 @@ export function useUpsertEventV3() {
 
   return useMutation({
     mutationFn: async (eventData: any) => {
-      throw new Error("Event V3 upsert not implemented yet");
+      const { eventsApi } = await import("@/api/eventsApi");
+      
+      if (eventData.id) {
+        // Update existing event
+        return await eventsApi.updateEvent(eventData.id, eventData);
+      } else {
+        // Create new event using the cascade RPC
+        return await eventsApi.createEvent({
+          event_data: eventData,
+          partners: eventData.partners || [],
+          lineup_slots: eventData.lineup_slots || [],
+          performances: eventData.performances || [],
+          visual_artists: eventData.visual_artists || []
+        });
+      }
     },
     onSuccess: () => {
       toast.success("Evento salvo com sucesso!");
