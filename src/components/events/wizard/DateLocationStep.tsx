@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { CalendarIcon, Clock, MapPin, Globe } from 'lucide-react';
+import { CalendarIcon, Clock, MapPin, Globe, Users } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -327,26 +327,55 @@ export const DateLocationStep: React.FC = () => {
           )}
         />
 
-        {/* Age Notes */}
-        <FormField
-          control={control}
-          name="age_notes"
-          render={({ field }) => (
-            <FormItem className="lg:col-span-2">
-              <FormLabel>Observações sobre Idade</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Ex: Menores de 18 anos acompanhados dos pais"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                Informações adicionais sobre restrições etárias
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Organizers Section */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="border rounded-lg p-4">
+            <h4 className="font-medium mb-2 flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Organizadores do Evento
+            </h4>
+            <p className="text-sm text-muted-foreground mb-4">
+              Adicione os organizadores responsáveis pelo evento
+            </p>
+            
+            {/* Placeholder for organizers multiselect */}
+            <div className="text-sm text-muted-foreground border-2 border-dashed rounded-lg p-8 text-center">
+              <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <p>Sistema de múltiplos organizadores</p>
+              <p>Será implementado em versão futura</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Supporters Section */}
+        <div className="space-y-4">
+          <div className="border rounded-lg p-4">
+            <h4 className="font-medium mb-2">Apoiadores</h4>
+            <p className="text-sm text-muted-foreground mb-4">
+              Adicione os apoiadores do evento
+            </p>
+            
+            <div className="text-sm text-muted-foreground border-2 border-dashed rounded-lg p-4 text-center">
+              <p>Multiselect de apoiadores</p>
+              <p>Em desenvolvimento</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Sponsors Section */}
+        <div className="space-y-4">
+          <div className="border rounded-lg p-4">
+            <h4 className="font-medium mb-2">Patrocinadores</h4>
+            <p className="text-sm text-muted-foreground mb-4">
+              Adicione os patrocinadores do evento
+            </p>
+            
+            <div className="text-sm text-muted-foreground border-2 border-dashed rounded-lg p-4 text-center">
+              <p>Multiselect de patrocinadores</p>
+              <p>Em desenvolvimento</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

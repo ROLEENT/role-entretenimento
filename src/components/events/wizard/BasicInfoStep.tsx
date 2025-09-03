@@ -322,6 +322,130 @@ export const BasicInfoStep: React.FC = () => {
         />
       </div>
 
+      {/* Highlight Type */}
+      <FormField
+        control={control}
+        name="highlight_type"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Categoria de Destaque</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o tipo de destaque" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="none">Sem destaque</SelectItem>
+                <SelectItem value="editorial">Destaque Editorial</SelectItem>
+                <SelectItem value="vitrine">Vitrine Cultural</SelectItem>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Tags */}
+      <FormField
+        control={control}
+        name="tags"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Tags (máx. 12)</FormLabel>
+            <FormControl>
+              <Input 
+                placeholder="festa, eletrônica, techno, house (separadas por vírgula)"
+                value={field.value?.join(', ') || ''}
+                onChange={(e) => {
+                  const tags = e.target.value.split(',').map(tag => tag.trim()).filter(Boolean).slice(0, 12);
+                  field.onChange(tags);
+                }}
+              />
+            </FormControl>
+            <FormDescription>
+              Palavras-chave para classificar o evento, separadas por vírgula
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Genres */}
+      <FormField
+        control={control}
+        name="genres"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Gêneros Musicais (máx. 12)</FormLabel>
+            <FormControl>
+              <Input 
+                placeholder="techno, house, trance, progressive (separados por vírgula)"
+                value={field.value?.join(', ') || ''}
+                onChange={(e) => {
+                  const genres = e.target.value.split(',').map(genre => genre.trim()).filter(Boolean).slice(0, 12);
+                  field.onChange(genres);
+                }}
+              />
+            </FormControl>
+            <FormDescription>
+              Gêneros musicais do evento, separados por vírgula
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Age Rating */}
+      <FormField
+        control={control}
+        name="age_rating"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Classificação Etária</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a classificação" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="L">Livre</SelectItem>
+                <SelectItem value="10">10 anos</SelectItem>
+                <SelectItem value="12">12 anos</SelectItem>
+                <SelectItem value="14">14 anos</SelectItem>
+                <SelectItem value="16">16 anos</SelectItem>
+                <SelectItem value="18">18 anos</SelectItem>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Age Notes */}
+      <FormField
+        control={control}
+        name="age_notes"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Observações sobre Classificação</FormLabel>
+            <FormControl>
+              <Input 
+                placeholder="Ex: Menores de 18 anos acompanhados dos pais"
+                {...field}
+              />
+            </FormControl>
+            <FormDescription>
+              Informações adicionais sobre restrições etárias
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+
+
       {/* Description */}
       <FormField
         control={control}

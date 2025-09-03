@@ -195,26 +195,27 @@ export const MediaStep: React.FC = () => {
             </div>
           </div>
 
-          {/* Cover Alt Text */}
-          <FormField
-            control={control}
-            name="cover_alt"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Texto Alternativo da Capa</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Descrição da imagem para acessibilidade"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Descrição da imagem para leitores de tela e SEO
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            {/* Cover Alt Text - REQUIRED */}
+            <FormField
+              control={control}
+              name="cover_alt"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Texto Alternativo da Capa *</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Descrição da imagem para acessibilidade"
+                      {...field}
+                      required
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    <strong>Obrigatório:</strong> Descrição da imagem para leitores de tela e SEO
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
         </TabsContent>
 
         {/* Gallery */}

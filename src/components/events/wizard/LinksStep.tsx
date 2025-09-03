@@ -269,7 +269,7 @@ export const LinksStep: React.FC = () => {
           </div>
         </TabsContent>
 
-        {/* Tickets */}
+          {/* Tickets */}
         <TabsContent value="tickets" className="space-y-6">
           <div>
             <h3 className="text-lg font-semibold mb-2">Informações de Ingressos</h3>
@@ -279,33 +279,6 @@ export const LinksStep: React.FC = () => {
           </div>
 
           <div className="space-y-6">
-            {/* Ticket URL */}
-            <FormField
-              control={control}
-              name="ticket_url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Link para Compra de Ingressos</FormLabel>
-                  <FormControl>
-                    <div className="flex gap-2">
-                      <div className="flex-1 relative">
-                        <Ticket className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          placeholder="https://eventbrite.com/evento"
-                          className="pl-10"
-                          {...field}
-                        />
-                      </div>
-                    </div>
-                  </FormControl>
-                  <FormDescription>
-                    Link direto para a plataforma de venda de ingressos
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             {/* Ticketing Platform */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -318,25 +291,96 @@ export const LinksStep: React.FC = () => {
                     <SelectValue placeholder="Selecione a plataforma" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="eventbrite">Eventbrite</SelectItem>
+                    <SelectItem value="shotgun">Shotgun</SelectItem>
                     <SelectItem value="sympla">Sympla</SelectItem>
-                    <SelectItem value="blueticket">Blue Ticket</SelectItem>
                     <SelectItem value="ingresse">Ingresse</SelectItem>
-                    <SelectItem value="bilheteria_digital">Bilheteria Digital</SelectItem>
-                    <SelectItem value="outro">Outro</SelectItem>
+                    <SelectItem value="other">Outra</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">URL do Site</label>
+                <label className="text-sm font-medium">URL de Compra</label>
                 <Input
-                  placeholder="https://eventbrite.com/meu-evento"
+                  placeholder="https://shotgun.live/meu-evento"
                   value={watchedTicketing.url || ''}
                   onChange={(e) => updateTicketing('url', e.target.value)}
                 />
               </div>
             </div>
+
+            {/* Links for various types */}
+            <div className="space-y-4">
+              <h4 className="font-medium">Links Importantes</h4>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Site Oficial</label>
+                  <Input
+                    placeholder="https://meuevento.com"
+                    value={watchedLinks.site || ''}
+                    onChange={(e) => updateLinks('site', e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Instagram</label>
+                  <Input
+                    placeholder="https://instagram.com/evento"
+                    value={watchedLinks.instagram || ''}
+                    onChange={(e) => updateLinks('instagram', e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">YouTube</label>
+                  <Input
+                    placeholder="https://youtube.com/evento"
+                    value={watchedLinks.youtube || ''}
+                    onChange={(e) => updateLinks('youtube', e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Spotify</label>
+                  <Input
+                    placeholder="https://spotify.com/playlist/..."
+                    value={watchedLinks.spotify || ''}
+                    onChange={(e) => updateLinks('spotify', e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">SoundCloud</label>
+                  <Input
+                    placeholder="https://soundcloud.com/evento"
+                    value={watchedLinks.soundcloud || ''}
+                    onChange={(e) => updateLinks('soundcloud', e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* OG Image */}
+            <FormField
+              control={control}
+              name="og_image_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Imagem Open Graph</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="https://exemplo.com/og-image.jpg"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Imagem que aparece ao compartilhar nas redes sociais (1200x630px)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Ticket Rules */}
             <div className="space-y-4">

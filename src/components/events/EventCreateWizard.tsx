@@ -18,6 +18,7 @@ import { LineupStep } from './wizard/LineupStep';
 import { MediaStep } from './wizard/MediaStep';
 import { LinksStep } from './wizard/LinksStep';
 import { ReviewStep } from './wizard/ReviewStep';
+import { PublishStep } from './wizard/PublishStep';
 
 interface WizardStep {
   id: string;
@@ -69,6 +70,13 @@ const WIZARD_STEPS: WizardStep[] = [
     description: 'Conferir todos os dados antes de salvar',
     component: ReviewStep,
     fields: []
+  },
+  {
+    id: 'publish',
+    title: 'Publicar',
+    description: 'Status e checklist de publicação',
+    component: PublishStep,
+    fields: ['status', 'highlight_type']
   }
 ];
 
