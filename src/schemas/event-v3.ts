@@ -1,122 +1,128 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-export const EventHighlight = z.enum(['none','curatorial','vitrine']);
-export const PublicationStatus = z.enum(['draft','review','scheduled','published','archived']);
+// Performance schema
+const performanceSchema = z.object({
+  name: z.string().optional(),
+  kind: z.enum(['live', 'performance', 'instalacao', 'intervencao', 'teatro', 'outro']).optional(),
+  starts_at: z.string().optional(),
+  stage: z.string().optional(),
+  notes: z.string().optional(),
+});
 
-export const zEvent = z.object({
-  // Identidade
-  title: z.string().min(3, "Título deve ter pelo menos 3 caracteres"),
-  slug: z.string().min(3, "Slug deve ter pelo menos 3 caracteres"),
-  city: z.string().min(2, "Cidade é obrigatória"),
+// Visual art schema
+const visualArtSchema = z.object({
+  name: z.string().optional(),
+  artist: z.string().optional(),
+  technique: z.string().optional(),
+  description: z.string().optional(),
+  portfolio_url: z.string().url().optional().or(z.literal('')),
+});
 
-  // Local e organizadores
-  venue_id: z.string().uuid().nullable(),
-  organizer_ids: z.array(z.string().uuid()).default([]),
+// Supporter/Sponsor schema
+const supporterSchema = z.object({
+  name: z.string().min(1, 'Nome é obrigatório'),
+  logo_url: z.string().optional(),
+  website_url: z.string().url().optional().or(z.literal('')),
+  description: z.string().optional(),
+  tier: z.enum(['bronze', 'prata', 'ouro', 'diamante']).optional(),
+});
 
-  // Apoiadores e patrocinadores
-  supporters: z.array(z.object({
-    agent_id: z.string().uuid().optional(),
-    name: z.string().min(2).optional(),
-    tier: z.string().optional()
-  })).default([]),
+// Links schema
+const linksSchema = z.object({
+  tickets: z.string().url().optional().or(z.literal('')),
+  site: z.string().url().optional().or(z.literal('')),
+  instagram: z.string().url().optional().or(z.literal('')),
+  map: z.string().url().optional().or(z.literal('')),
+  playlist: z.string().url().optional().or(z.literal('')),
+  video: z.string().url().optional().or(z.literal('')),
+  previous_edition: z.string().url().optional().or(z.literal('')),
+});
 
-  sponsors: z.array(z.object({
-    agent_id: z.string().uuid().optional(),
-    name: z.string().min(2).optional(),
-    tier: z.string().optional()
-  })).default([]),
-
-  // Mídia
-  cover_url: z.string().url("URL da capa é obrigatória"),
-  cover_alt: z.string().min(3, "Texto alternativo da capa é obrigatório"),
-
-  // Datas
-  start_utc: z.string().datetime("Data de início deve ser válida"),
-  end_utc: z.string().datetime("Data de fim deve ser válida"),
-
-  // Música
-  artists_names: z.array(z.string()).max(12, "Máximo 12 artistas").default([]),
-
-  // Performances cênicas
-  performances: z.array(z.object({
-    name: z.string().min(1, "Nome da performance é obrigatório"),
-    kind: z.enum(['live','performance','instalacao','intervencao','teatro','outro']).default('performance'),
-    starts_at: z.string().datetime().optional(),
-    stage: z.string().optional(),
-    notes: z.string().optional()
-  })).default([]),
-
-  // Artes visuais
-  visual_art: z.array(z.object({
-    name: z.string().min(1, "Nome do artista visual é obrigatório"),
-    work: z.string().optional(),
-    portfolio_url: z.string().url("URL do portfólio deve ser válida").optional()
-  })).default([]),
-
-  // Destaque
-  highlight_type: EventHighlight.default('none'),
-  is_sponsored: z.boolean().default(false),
-
-  // Ingressos e links
-  ticketing: z.object({
-    platform: z.enum(['shotgun','sympla','ingresse','other']).optional(),
-    url: z.string().url("URL de ingressos deve ser válida").optional(),
-    min_price: z.number().nonnegative("Preço mínimo deve ser positivo").nullable(),
-    max_price: z.number().nonnegative("Preço máximo deve ser positivo").nullable(),
-    free_until: z.string().datetime().optional(),
+// Ticketing schema
+const ticketingSchema = z.object({
+  platform: z.string().optional(),
+  url: z.string().url().optional().or(z.literal('')),
+  price_rules: z.object({
+    free: z.boolean().default(false),
+    friend_list: z.boolean().default(false),
+    half_price: z.boolean().default(false),
+    min_price: z.number().min(0).optional(),
+    max_price: z.number().min(0).optional(),
   }).optional(),
+  age_rating: z.enum(['L', '10', '12', '14', '16', '18']).optional(),
+});
 
-  links: z.object({
-    site: z.string().url("URL do site deve ser válida").optional(),
-    instagram: z.string().url("URL do Instagram deve ser válida").optional(),
-    map: z.string().url("URL do mapa deve ser válida").optional(),
-    playlist: z.string().url("URL da playlist deve ser válida").optional(),
-    video: z.string().url("URL do vídeo deve ser válida").optional(),
-    previous_edition: z.string().url("URL da edição anterior deve ser válida").optional()
-  }).partial().default({}),
-
-  // Conteúdo e metadados
-  description: z.string().min(10, "Descrição deve ter pelo menos 10 caracteres"),
+// Main event schema
+export const zEvent = z.object({
+  // Basic identity
+  title: z.string().min(1, 'Título é obrigatório').max(200, 'Título muito longo'),
+  slug: z.string().min(1, 'Slug é obrigatório'),
+  city: z.string().min(1, 'Cidade é obrigatória'),
+  description: z.string().optional(),
+  
+  // Dates and location
+  start_utc: z.string().optional(),
+  end_utc: z.string().optional(),
+  doors_open_utc: z.string().optional(),
+  venue_id: z.string().uuid().optional().or(z.literal('')),
+  free_address: z.string().optional(),
+  
+  // Organization
+  organizer_ids: z.array(z.string().uuid()).default([]),
+  supporters: z.array(supporterSchema).default([]),
+  sponsors: z.array(supporterSchema).default([]),
+  
+  // Content and lineup
+  artists_names: z.array(z.string()).default([]),
+  performances: z.array(performanceSchema).default([]),
+  visual_art: z.array(visualArtSchema).default([]),
   tags: z.array(z.string()).default([]),
   genres: z.array(z.string()).default([]),
+  
+  // Media
+  cover_url: z.string().optional(),
+  cover_alt: z.string().optional(),
+  og_image_url: z.string().optional(),
+  video_url: z.string().url().optional().or(z.literal('')),
+  
+  // Publication and visibility
+  status: z.enum(['draft', 'review', 'scheduled', 'published', 'archived']).default('draft'),
+  highlight_type: z.enum(['none', 'featured', 'vitrine']).default('none'),
+  is_sponsored: z.boolean().default(false),
+  publish_at: z.string().optional(),
+  published_at: z.string().optional(),
+  
+  // Series
+  series_id: z.string().uuid().optional(),
+  edition_number: z.number().optional(),
+  
+  // SEO
   seo_title: z.string().optional(),
   seo_description: z.string().optional(),
-  og_image_url: z.string().url("URL da imagem OG deve ser válida").optional(),
-
-  // Publicação
-  status: PublicationStatus.default('draft'),
-  publish_at: z.string().datetime().optional(),
-  published_at: z.string().datetime().optional(),
-
-  // Série
-  series_id: z.string().uuid().optional(),
-  edition_number: z.number().int().positive().optional(),
-})
-.refine(d => new Date(d.start_utc) < new Date(d.end_utc), {
-  path: ['end_utc'],
-  message: 'Data de fim precisa ser depois da data de início'
-})
-.refine(d => {
-  if (d.ticketing?.min_price && d.ticketing?.max_price) {
-    return d.ticketing.min_price <= d.ticketing.max_price;
-  }
-  return true;
-}, {
-  path: ['ticketing', 'max_price'],
-  message: 'Preço máximo deve ser maior ou igual ao preço mínimo'
+  
+  // External links and ticketing
+  links: linksSchema.optional(),
+  ticketing: ticketingSchema.optional(),
 });
 
 export type EventFormV3 = z.infer<typeof zEvent>;
 
-// Validação de publicação
-export const validateEventForPublish = (data: EventFormV3): string[] => {
+// Validation function for publishing
+export function validateEventForPublish(data: EventFormV3): string[] {
   const errors: string[] = [];
   
-  if (!data.venue_id) errors.push("Local é obrigatório para publicação");
-  if (!data.cover_url) errors.push("Capa é obrigatória para publicação");
-  if (!data.cover_alt || data.cover_alt.length < 3) errors.push("Texto alternativo da capa é obrigatório para publicação");
-  if (!data.description || data.description.length < 10) errors.push("Descrição é obrigatória para publicação");
-  if (!data.ticketing?.url && !data.links?.site) errors.push("Pelo menos um link de ingresso ou site é obrigatório para publicação");
+  if (!data.title?.trim()) errors.push('Título é obrigatório');
+  if (!data.slug?.trim()) errors.push('Slug é obrigatório');
+  if (!data.city?.trim()) errors.push('Cidade é obrigatória');
+  if (!data.start_utc) errors.push('Data de início é obrigatória');
+  if (!data.venue_id && !data.free_address?.trim()) {
+    errors.push('Local ou endereço é obrigatório');
+  }
+  if (!data.cover_url?.trim()) errors.push('Imagem de capa é obrigatória');
+  if (data.cover_url && !data.cover_alt?.trim()) {
+    errors.push('Texto alternativo da capa é obrigatório');
+  }
+  if (!data.organizer_ids?.length) errors.push('Pelo menos um organizador é obrigatório');
   
   return errors;
-};
+}

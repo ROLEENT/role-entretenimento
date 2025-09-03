@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Save, Send, Eye, Clock, AlertTriangle } from 'lucide-react';
+import { Save, Send, Eye, Clock, AlertTriangle, Wand2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Schema e tipos
@@ -37,6 +37,9 @@ import { RHFImageUpload } from '@/components/rhf/RHFImageUpload';
 
 // Components especializados
 import { ChipInput } from '@/components/form/ChipInput';
+import { ChipInputDragDrop } from '@/components/form/ChipInputDragDrop';
+import { CharacterCounter } from '@/components/form/CharacterCounter';
+import { SlugGenerator } from '@/components/form/SlugGenerator';
 import { PerformanceEditorV3 } from '@/components/form/PerformanceEditorV3';
 import { VisualArtEditorV3 } from '@/components/form/VisualArtEditorV3';
 import { NavigationGuardV3 } from '@/components/highlights/NavigationGuardV3';
@@ -68,7 +71,7 @@ export function AdminEventFormV3({
   const navigate = useNavigate();
   
   // State
-  const [activeTab, setActiveTab] = useState('identity');
+  const [activeTab, setActiveTab] = useState('basic');
   const [venueModalOpen, setVenueModalOpen] = useState(false);
   
   // Hooks
@@ -90,15 +93,19 @@ export function AdminEventFormV3({
       cover_alt: '',
       start_utc: undefined,
       end_utc: undefined,
+      doors_open_utc: undefined,
+      free_address: '',
       artists_names: [],
       performances: [],
       visual_art: [],
+      tags: [],
+      genres: [],
       highlight_type: 'none',
       is_sponsored: false,
       ticketing: {},
       links: {},
       description: '',
-      tags: [],
+      video_url: '',
       seo_title: '',
       seo_description: '',
       og_image_url: '',
@@ -232,19 +239,17 @@ export function AdminEventFormV3({
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-3">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
-                  <TabsTrigger value="identity">Identidade</TabsTrigger>
-                  <TabsTrigger value="location">Local</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
+                  <TabsTrigger value="basic">Básico</TabsTrigger>
+                  <TabsTrigger value="datetime">Data & Local</TabsTrigger>
+                  <TabsTrigger value="lineup">Artistas & Preços</TabsTrigger>
                   <TabsTrigger value="media">Mídia</TabsTrigger>
-                  <TabsTrigger value="dates">Datas</TabsTrigger>
-                  <TabsTrigger value="content">Conteúdo</TabsTrigger>
-                  <TabsTrigger value="tickets">Ingressos</TabsTrigger>
-                  <TabsTrigger value="series">Série</TabsTrigger>
-                  <TabsTrigger value="seo">SEO</TabsTrigger>
+                  <TabsTrigger value="seo">SEO & Links</TabsTrigger>
+                  <TabsTrigger value="publication">Publicação</TabsTrigger>
                 </TabsList>
 
-                {/* Aba 1: Identidade */}
-                <TabsContent value="identity" className="space-y-6">
+                {/* Aba 1: Básico */}
+                <TabsContent value="basic" className="space-y-6">
                   <Card>
                     <CardHeader>
                       <CardTitle>Informações Básicas</CardTitle>
@@ -258,27 +263,36 @@ export function AdminEventFormV3({
                       />
 
                       <div className="space-y-2">
-                      <RHFSlugInput
-                        name="slug"
-                        label="Slug (URL)"
-                        placeholder="nome-do-evento"
-                        disabled={isPending}
-                      />
-                      {slugStatus && (
-                        <div className="flex items-center gap-2 text-sm">
-                          {isCheckingSlug ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : slugStatus === 'available' ? (
-                              <CheckCircle className="h-4 w-4 text-green-500" />
-                            ) : (
-                              <XCircle className="h-4 w-4 text-red-500" />
-                            )}
-                            <span className={slugStatus === 'available' ? 'text-green-600' : 'text-red-600'}>
-                              {slugStatus === 'available' ? 'Slug disponível' : 'Slug já está em uso'}
-                            </span>
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1">
+                            <RHFSlugInput
+                              name="slug"
+                              label="Slug (URL)"
+                              placeholder="nome-do-evento"
+                              disabled={isPending}
+                            />
                           </div>
-                        )}
-                      </div>
+                          <SlugGenerator
+                            title={formData.title}
+                            onGenerate={(slug) => setValue('slug', slug)}
+                            disabled={isPending}
+                          />
+                        </div>
+                        {slugStatus && (
+                          <div className="flex items-center gap-2 text-sm">
+                            {isCheckingSlug ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : slugStatus === 'available' ? (
+                                <CheckCircle className="h-4 w-4 text-green-500" />
+                              ) : (
+                                <XCircle className="h-4 w-4 text-red-500" />
+                              )}
+                              <span className={slugStatus === 'available' ? 'text-green-600' : 'text-red-600'}>
+                                {slugStatus === 'available' ? 'Slug disponível' : 'Slug já está em uso'}
+                              </span>
+                            </div>
+                          )}
+                        </div>
 
                       <RHFInput
                         name="city"
@@ -286,115 +300,15 @@ export function AdminEventFormV3({
                         placeholder="São Paulo"
                         disabled={isPending}
                       />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
 
-                {/* Aba 2: Local */}
-                <TabsContent value="location" className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Local e Organizadores</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <RHFComboboxAsync
-                        name="venue_id"
-                        control={form.control}
-                        label="Local"
-                        placeholder="Buscar locais..."
-                        emptyText="Nenhum local encontrado"
-                        createNewText="Cadastrar novo local"
-                        onSearch={searchVenues}
-                        onCreateNew={() => setVenueModalOpen(true)}
-                      />
-
-                      <RHFOrganizerMultiSelect
-                        name="organizer_ids"
-                        control={form.control}
-                        label="Organizadores"
-                        description="Selecione os organizadores do evento"
-                        maxItems={5}
-                      />
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Apoiadores e Patrocinadores</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <SupportersEditor
-                        title="Apoiadores"
-                        addButtonText="Adicionar Apoiador"
-                        value={formData.supporters}
-                        onChange={(value) => form.setValue('supporters', value)}
-                        disabled={isPending}
-                      />
-
-                      <SupportersEditor
-                        title="Patrocinadores"
-                        addButtonText="Adicionar Patrocinador"
-                        value={formData.sponsors}
-                        onChange={(value) => form.setValue('sponsors', value)}
-                        disabled={isPending}
-                      />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                {/* Aba 3: Mídia */}
-                <TabsContent value="media" className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Imagem de Capa</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <RHFImageUpload
-                        urlControl={{ name: "cover_url", control: form.control }}
-                        altControl={{ name: "cover_alt", control: form.control }}
-                        label="Imagem de Capa"
-                        description="Imagem principal que será exibida no card do evento"
-                        showPreview={true}
-                        showAltText={true}
-                        maxSize={5}
-                      />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                {/* Aba 4: Datas */}
-                <TabsContent value="dates" className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Horários do Evento</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <DateTimePicker
-                        name="start_utc"
-                        label="Data/Hora de Início"
-                        disabled={isPending}
-                      />
-                      
-                      <DateTimePicker
-                        name="end_utc"
-                        label="Data/Hora de Fim"
-                        disabled={isPending}
-                      />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                {/* Aba 5: Conteúdo */}
-                <TabsContent value="content" className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Descrição e Tags</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <RHFTextarea
-                        name="description"
-                        label="Descrição"
-                        placeholder="Descreva o evento"
+                      <RHFSelect
+                        name="highlight_type"
+                        label="Tipo de Destaque"
+                        options={[
+                          { value: 'none', label: 'Nenhum' },
+                          { value: 'featured', label: 'Curatorial' },
+                          { value: 'vitrine', label: 'Vitrine' }
+                        ]}
                         disabled={isPending}
                       />
 
@@ -410,13 +324,167 @@ export function AdminEventFormV3({
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-sm font-medium">Artistas</label>
+                        <label className="text-sm font-medium">Gêneros Musicais</label>
                         <ChipInput
+                          name="genres"
+                          value={formData.genres}
+                          onChange={(value) => setValue('genres', value)}
+                          placeholder="Adicionar gênero"
+                          disabled={isPending}
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Resumo</label>
+                          <RHFTextarea
+                            name="description"
+                            placeholder="Descreva o evento"
+                            disabled={isPending}
+                          />
+                          <CharacterCounter 
+                            current={formData.description?.length || 0} 
+                            max={500} 
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Série e Edições</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <RHFEventSeriesSelect
+                        seriesControl={{ name: "series_id", control: form.control }}
+                        editionControl={{ name: "edition_number", control: form.control }}
+                        description="Séries facilitam a organização de eventos recorrentes como festivais anuais"
+                      />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Aba 2: Data & Local */}
+                <TabsContent value="datetime" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Horários do Evento</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <DateTimePicker
+                          name="start_utc"
+                          label="Data/Hora de Início (UTC)"
+                          disabled={isPending}
+                        />
+                        
+                        <DateTimePicker
+                          name="end_utc"
+                          label="Data/Hora de Fim (UTC)"
+                          disabled={isPending}
+                        />
+                      </div>
+
+                      <DateTimePicker
+                        name="doors_open_utc"
+                        label="Portas Abrem (UTC)"
+                        disabled={isPending}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Local</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <RHFComboboxAsync
+                        name="venue_id"
+                        control={form.control}
+                        label="Local Cadastrado"
+                        placeholder="Buscar locais..."
+                        emptyText="Nenhum local encontrado"
+                        createNewText="Cadastrar novo local"
+                        onSearch={searchVenues}
+                        onCreateNew={() => setVenueModalOpen(true)}
+                      />
+
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">
+                            OU
+                          </span>
+                        </div>
+                      </div>
+
+                      <RHFInput
+                        name="free_address"
+                        label="Endereço Livre"
+                        placeholder="Rua, número, bairro, cidade"
+                        disabled={isPending}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Organizadores</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <RHFOrganizerMultiSelect
+                        name="organizer_ids"
+                        control={form.control}
+                        label="Organizadores"
+                        description="Selecione os organizadores do evento. O primeiro será marcado como principal."
+                        maxItems={5}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Apoiadores e Patrocinadores</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <SupportersEditor
+                        title="Apoiadores"
+                        addButtonText="Adicionar Apoiador"
+                        value={formData.supporters || []}
+                        onChange={(value) => form.setValue('supporters', value as any)}
+                        disabled={isPending}
+                      />
+
+                      <SupportersEditor
+                        title="Patrocinadores"
+                        addButtonText="Adicionar Patrocinador"
+                        value={formData.sponsors || []}
+                        onChange={(value) => form.setValue('sponsors', value as any)}
+                        disabled={isPending}
+                      />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Aba 3: Artistas & Preços */}
+                <TabsContent value="lineup" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Lineup Musical</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Artistas (Lineup)</label>
+                        <ChipInputDragDrop
                           name="artists_names"
-                          value={formData.artists_names}
+                          value={formData.artists_names || []}
                           onChange={(value) => setValue('artists_names', value)}
                           placeholder="Nome do artista"
                           disabled={isPending}
+                          allowDragDrop={true}
                         />
                       </div>
                     </CardContent>
@@ -424,7 +492,7 @@ export function AdminEventFormV3({
 
                   <Card>
                     <CardHeader>
-                      <CardTitle>Apresentações</CardTitle>
+                      <CardTitle>Performances Cênicas</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <PerformanceEditorV3
@@ -452,86 +520,75 @@ export function AdminEventFormV3({
 
                   <Card>
                     <CardHeader>
+                      <CardTitle>Ingressos e Preços</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <TicketingForm
+                        value={formData.ticketing || {}}
+                        onChange={(value) => setValue('ticketing', value as any)}
+                        disabled={isPending}
+                      />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Aba 4: Mídia */}
+                <TabsContent value="media" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Imagem de Capa</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <RHFImageUpload
+                        urlControl={{ name: "cover_url", control: form.control }}
+                        altControl={{ name: "cover_alt", control: form.control }}
+                        label="Imagem de Capa"
+                        description="Imagem principal que será exibida no card do evento (Alt obrigatório)"
+                        showPreview={true}
+                        showAltText={true}
+                        maxSize={5}
+                        
+                      />
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Imagens Adicionais</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <RHFInput
+                        name="og_image_url"
+                        label="Imagem Open Graph"
+                        placeholder="URL da imagem para redes sociais (se diferente da capa)"
+                        disabled={isPending}
+                      />
+
+                      <RHFInput
+                        name="video_url"
+                        label="Vídeo Principal"
+                        placeholder="URL do vídeo/teaser do evento"
+                        disabled={isPending}
+                      />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Aba 5: SEO & Links */}
+                <TabsContent value="seo" className="space-y-6">
+                  <Card>
+                    <CardHeader>
                       <CardTitle>Links Externos</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <LinksEditor
-                        value={formData.links}
+                        value={formData.links || {}}
                         onChange={(value) => setValue('links', value)}
                         disabled={isPending}
                       />
                     </CardContent>
                   </Card>
-                </TabsContent>
 
-                {/* Aba 6: Ingressos */}
-                <TabsContent value="tickets" className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Ingressos e Preços</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <TicketingForm
-                        value={formData.ticketing}
-                        onChange={(value) => setValue('ticketing', value)}
-                        disabled={isPending}
-                      />
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Destaque</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <RHFSelect
-                        name="highlight_type"
-                        label="Tipo de Destaque"
-                        options={[
-                          { value: 'none', label: 'Sem destaque' },
-                          { value: 'featured', label: 'Destaque normal' },
-                          { value: 'vitrine', label: 'Vitrine Cultural' }
-                        ]}
-                        disabled={isPending}
-                      />
-
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id="is_sponsored"
-                          checked={formData.is_sponsored}
-                          onChange={(e) => setValue('is_sponsored', e.target.checked)}
-                          disabled={isPending}
-                        />
-                        <label htmlFor="is_sponsored" className="text-sm font-medium">
-                          Evento patrocinado
-                        </label>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                {/* Aba 7: Série */}
-                <TabsContent value="series" className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Série de Eventos</CardTitle>
-                      <p className="text-sm text-muted-foreground">
-                        Vincula este evento a uma série existente ou cria uma nova
-                      </p>
-                    </CardHeader>
-                    <CardContent>
-                      <RHFEventSeriesSelect
-                        seriesControl={{ name: "series_id", control: form.control }}
-                        editionControl={{ name: "edition_number", control: form.control }}
-                        description="Séries facilitam a organização de eventos recorrentes como festivais anuais"
-                      />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                {/* Aba 8: SEO */}
-                <TabsContent value="seo" className="space-y-6">
                   <Card>
                     <CardHeader>
                       <CardTitle>Otimização para Buscadores</CardTitle>
@@ -550,13 +607,48 @@ export function AdminEventFormV3({
                         placeholder="Descrição otimizada para buscadores"
                         disabled={isPending}
                       />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
 
-                      <RHFInput
-                        name="og_image_url"
-                        label="Imagem Open Graph"
-                        placeholder="URL da imagem para redes sociais"
+                {/* Aba 6: Publicação */}
+                <TabsContent value="publication" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Controle de Publicação</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <RHFSelect
+                        name="status"
+                        label="Status"
+                        options={[
+                          { value: 'draft', label: 'Rascunho' },
+                          { value: 'review', label: 'Revisão' },
+                          { value: 'scheduled', label: 'Agendado' },
+                          { value: 'published', label: 'Publicado' },
+                          { value: 'archived', label: 'Arquivado' }
+                        ]}
                         disabled={isPending}
                       />
+
+                      <DateTimePicker
+                        name="publish_at"
+                        label="Publicar em"
+                        disabled={isPending}
+                      />
+
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="is_sponsored"
+                          checked={formData.is_sponsored}
+                          onChange={(e) => setValue('is_sponsored', e.target.checked)}
+                          disabled={isPending}
+                        />
+                        <label htmlFor="is_sponsored" className="text-sm font-medium">
+                          Evento patrocinado
+                        </label>
+                      </div>
                     </CardContent>
                   </Card>
                 </TabsContent>
