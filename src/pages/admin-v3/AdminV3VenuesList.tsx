@@ -5,13 +5,9 @@ import { Button } from '@/components/ui/button';
 import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { VenueTableSkeleton } from '@/components/skeletons/VenueTableSkeleton';
 import { AdminVenueFilters } from '@/components/admin/venues/AdminVenueFilters';
 import { AdminVenueTable } from '@/components/admin/venues/AdminVenueTable';
-import { VenueActionDialog } from '@/components/admin/venues/VenueActionDialog';
 import { useAdminVenuesData } from '@/hooks/useAdminVenuesData';
-import { useUpsertVenue } from '@/hooks/useUpsertAgents';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const AdminV3VenuesList: React.FC = () => {
@@ -19,20 +15,13 @@ const AdminV3VenuesList: React.FC = () => {
   const [status, setStatus] = useState('all');
   const [city, setCity] = useState('all');
   const [completion, setCompletion] = useState('all');
-  const [actionDialog, setActionDialog] = useState<{
-    open: boolean;
-    action: 'duplicate' | 'deactivate';
-    venue: any;
-  }>({ open: false, action: 'duplicate', venue: null });
 
-  const { venues, cities, isLoading, error, refetch } = useAdminVenuesData({
+  const { venues, cities, isLoading, error } = useAdminVenuesData({
     search: search || undefined,
     status: status !== 'all' ? status : undefined,
     city: city !== 'all' ? city : undefined,
     completion: completion !== 'all' ? completion : undefined,
   });
-
-  const upsertVenue = useUpsertVenue();
 
   const breadcrumbs = [
     { label: 'Admin', path: '/admin-v3' },
@@ -49,50 +38,12 @@ const AdminV3VenuesList: React.FC = () => {
     </Button>
   );
 
-  const handleDuplicate = (venue: any) => {
-    setActionDialog({ open: true, action: 'duplicate', venue });
+  const handleDuplicate = async (venue: any) => {
+    toast.info('Funcionalidade de duplicar será implementada em breve');
   };
 
-  const handleDeactivate = (venue: any) => {
-    setActionDialog({ open: true, action: 'deactivate', venue });
-  };
-
-  const executeAction = async () => {
-    if (!actionDialog.venue) return;
-
-    try {
-      if (actionDialog.action === 'duplicate') {
-        // Create a duplicate with modified name and slug
-        const duplicateData = {
-          ...actionDialog.venue,
-          id: undefined, // Remove ID to create new record
-          name: `${actionDialog.venue.name} (Cópia)`,
-          slug: undefined, // Let the system generate a new slug
-          created_at: undefined,
-          updated_at: undefined,
-        };
-        
-        await upsertVenue.mutateAsync(duplicateData);
-        toast.success("Local duplicado com sucesso!");
-      } else {
-        // Deactivate/activate venue
-        const newStatus = actionDialog.venue.status === 'active' ? 'inactive' : 'active';
-        const { error } = await supabase
-          .from('venues')
-          .update({ status: newStatus })
-          .eq('id', actionDialog.venue.id);
-
-        if (error) throw error;
-        
-        toast.success(`Local ${newStatus === 'inactive' ? 'desativado' : 'ativado'} com sucesso!`);
-      }
-      
-      refetch(); // Refresh the data
-      setActionDialog({ open: false, action: 'duplicate', venue: null });
-    } catch (error) {
-      console.error("Error executing action:", error);
-      toast.error(`Erro ao ${actionDialog.action === 'duplicate' ? 'duplicar' : 'alterar status do'} local`);
-    }
+  const handleDeactivate = async (venue: any) => {
+    toast.info('Funcionalidade de desativar será implementada em breve');
   };
 
   const statsCards = [
@@ -184,7 +135,9 @@ const AdminV3VenuesList: React.FC = () => {
 
         {/* Content */}
         {isLoading ? (
-          <VenueTableSkeleton />
+          <div className="flex justify-center items-center py-12">
+            <LoadingSpinner />
+          </div>
         ) : (
           <Card>
             <CardContent className="p-0">
@@ -203,17 +156,6 @@ const AdminV3VenuesList: React.FC = () => {
           </div>
         )}
       </div>
-
-      <VenueActionDialog
-        open={actionDialog.open}
-        onOpenChange={(open) => 
-          setActionDialog(prev => ({ ...prev, open }))
-        }
-        action={actionDialog.action}
-        venueName={actionDialog.venue?.name || ''}
-        isActive={actionDialog.venue?.status === 'active'}
-        onConfirm={executeAction}
-      />
     </AdminPageWrapper>
   );
 };

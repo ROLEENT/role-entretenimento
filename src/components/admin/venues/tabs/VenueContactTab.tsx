@@ -26,14 +26,12 @@ export const VenueContactTab: React.FC<VenueContactTabProps> = ({ form }) => {
               label="Email"
               type="email"
               placeholder="contato@local.com"
-              description="Email principal do estabelecimento"
             />
             
             <RHFInput
               name="phone"
               label="Telefone"
               placeholder="(11) 99999-9999"
-              description="Telefone principal para contato"
             />
           </div>
 
@@ -41,7 +39,6 @@ export const VenueContactTab: React.FC<VenueContactTabProps> = ({ form }) => {
             name="whatsapp"
             label="WhatsApp"
             placeholder="(11) 99999-9999"
-            description="Número do WhatsApp Business para contato direto"
           />
         </CardContent>
       </Card>
@@ -58,7 +55,6 @@ export const VenueContactTab: React.FC<VenueContactTabProps> = ({ form }) => {
             name="website"
             label="Website"
             placeholder="https://www.local.com"
-            description="Site oficial do estabelecimento"
           />
           
           <InstagramField

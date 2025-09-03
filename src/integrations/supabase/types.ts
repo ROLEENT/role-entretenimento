@@ -4743,7 +4743,6 @@ export type Database = {
           gallery: Json | null
           gallery_urls: Json | null
           id: string
-          instagram: string | null
           lat: number | null
           latitude: number | null
           lng: number | null
@@ -4757,7 +4756,6 @@ export type Database = {
           slug: string | null
           state: string | null
           status: Database["public"]["Enums"]["agent_status"] | null
-          tags: string[] | null
           updated_at: string | null
           venue_type_id: number | null
           website: string | null
@@ -4788,7 +4786,6 @@ export type Database = {
           gallery?: Json | null
           gallery_urls?: Json | null
           id?: string
-          instagram?: string | null
           lat?: number | null
           latitude?: number | null
           lng?: number | null
@@ -4802,7 +4799,6 @@ export type Database = {
           slug?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["agent_status"] | null
-          tags?: string[] | null
           updated_at?: string | null
           venue_type_id?: number | null
           website?: string | null
@@ -4833,7 +4829,6 @@ export type Database = {
           gallery?: Json | null
           gallery_urls?: Json | null
           id?: string
-          instagram?: string | null
           lat?: number | null
           latitude?: number | null
           lng?: number | null
@@ -4847,7 +4842,6 @@ export type Database = {
           slug?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["agent_status"] | null
-          tags?: string[] | null
           updated_at?: string | null
           venue_type_id?: number | null
           website?: string | null
