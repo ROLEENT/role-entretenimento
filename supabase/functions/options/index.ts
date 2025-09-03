@@ -210,15 +210,47 @@ async function handleGenres(req: Request, supabase: any, query: string) {
 
 async function handleVenues(req: Request, supabase: any, query: string) {
   if (req.method === 'GET') {
-    // Search venues
+    const url = new URL(req.url);
+    const venueId = url.searchParams.get('id');
+    
+    // If ID is provided, fetch specific venue details
+    if (venueId) {
+      console.log(`Fetching venue details for ID: ${venueId}`);
+      
+      const { data: venue, error } = await supabase
+        .from('venues')
+        .select(`
+          id, name, address_line, district, city, state, postal_code, country,
+          latitude, longitude, capacity, about, tags, cover_url, cover_alt
+        `)
+        .eq('id', venueId)
+        .eq('status', 'active')
+        .single();
+      
+      if (error || !venue) {
+        console.error('Error fetching venue details:', error);
+        return new Response(JSON.stringify({ error: 'Venue not found' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      
+      console.log(`Venue details fetched for: ${venue.name}`);
+      
+      return new Response(JSON.stringify({ venue }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    // Search venues for autocomplete
     let dbQuery = supabase
       .from('venues')
-      .select('id, name, city, address')
+      .select('id, name, city, address_line')
       .eq('status', 'active')
       .order('name');
 
     if (query) {
-      dbQuery = dbQuery.or(`name.ilike.%${query}%, city.ilike.%${query}%, address.ilike.%${query}%`);
+      dbQuery = dbQuery.or(`name.ilike.%${query}%, city.ilike.%${query}%, address_line.ilike.%${query}%`);
     }
 
     const { data, error } = await dbQuery.limit(20);
@@ -234,7 +266,7 @@ async function handleVenues(req: Request, supabase: any, query: string) {
       id: item.id,
       name: item.name,
       city: item.city,
-      address: item.address
+      address: item.address_line
     }));
 
     return new Response(

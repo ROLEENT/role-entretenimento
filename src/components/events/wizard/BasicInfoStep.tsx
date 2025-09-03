@@ -35,7 +35,7 @@ const CITIES = [
 
 export const BasicInfoStep: React.FC = () => {
   const { control, watch, setValue } = useFormContext<EventFormData>();
-  const { searchVenues } = useVenuesOptions();
+  const { searchVenues, getVenueDetails } = useVenuesOptions();
   
   const watchedTitle = watch('title');
   const watchedSlug = watch('slug');
@@ -71,6 +71,42 @@ export const BasicInfoStep: React.FC = () => {
       setValue('slug', autoSlug);
     }
   }, [watchedTitle, watchedSlug, setValue]);
+
+  // Watch venue_id to auto-populate address fields
+  const venueId = watch("venue_id");
+  React.useEffect(() => {
+    if (venueId && venueId !== '') {
+      const populateVenueAddress = async () => {
+        const venueDetails = await getVenueDetails(venueId);
+        if (venueDetails) {
+          // Build complete address
+          const addressParts = [
+            venueDetails.address_line,
+            venueDetails.district,
+            venueDetails.city,
+            venueDetails.state,
+            venueDetails.postal_code
+          ].filter(Boolean);
+          
+          const completeAddress = addressParts.join(', ');
+          
+          // Only set fields if they're currently empty to avoid overwriting user input
+          const currentAddress = watch("address");
+          const currentCity = watch("city");
+          
+          if (!currentAddress && completeAddress) {
+            setValue("address", completeAddress);
+          }
+          
+          if (!currentCity && venueDetails.city) {
+            setValue("city", venueDetails.city);
+          }
+        }
+      };
+      
+      populateVenueAddress();
+    }
+  }, [venueId, setValue, watch, getVenueDetails]);
 
   return (
     <div className="space-y-6">
@@ -201,6 +237,32 @@ export const BasicInfoStep: React.FC = () => {
             Busque por venues cadastrados ou deixe em branco para usar local personalizado
           </FormDescription>
         </div>
+
+        {/* Address */}
+        <FormField
+          control={control}
+          name="address"
+          render={({ field }) => (
+            <FormItem className="lg:col-span-2">
+              <FormLabel>
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  Endereço Completo
+                </div>
+              </FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="Endereço completo do evento"
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>
+                Endereço será preenchido automaticamente ao selecionar um venue
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         {/* Custom Location */}
         <FormField

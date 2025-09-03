@@ -8,6 +8,24 @@ interface SelectOption {
   name: string;
 }
 
+interface VenueDetails {
+  id: string;
+  name: string;
+  address_line?: string;
+  district?: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  country?: string;
+  latitude?: number;
+  longitude?: number;
+  capacity?: number;
+  about?: string;
+  tags?: string[];
+  cover_url?: string;
+  cover_alt?: string;
+}
+
 export const useVenuesOptions = () => {
   const [loading, setLoading] = useState(false);
 
@@ -33,6 +51,27 @@ export const useVenuesOptions = () => {
     } catch (error) {
       console.error('Error searching venues:', error);
       return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getVenueDetails = async (venueId: string): Promise<VenueDetails | null> => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke(`options/venues?id=${venueId}`, {
+        method: 'GET',
+      });
+
+      if (error) {
+        console.error('Error fetching venue details:', error);
+        return null;
+      }
+
+      return data?.venue || null;
+    } catch (error) {
+      console.error('Error fetching venue details:', error);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -71,6 +110,7 @@ export const useVenuesOptions = () => {
   return {
     searchVenues,
     createVenue,
+    getVenueDetails,
     loading,
   };
 };
