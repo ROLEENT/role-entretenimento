@@ -198,5 +198,38 @@
       }
     })();
     </script>
+    
+    <script>
+(() => {
+  // Encaminha clique do wrapper para o trigger real
+  const wrappers = document.querySelectorAll(
+    '.select, .dropdown, [data-dropdown], .select-wrapper, .field'
+  );
+  wrappers.forEach(w => {
+    w.addEventListener('mousedown', e => {
+      const trigger =
+        w.querySelector('select, [data-dropdown-trigger], .dropdown-trigger, [data-radix-select-trigger]');
+      if (!trigger) return;
+      // Se clicou em algo que não é o trigger, dispare nele
+      if (!trigger.contains(e.target) && e.button === 0) {
+        e.preventDefault();
+        trigger.focus();
+        trigger.click();
+      }
+    }, true); // capturing pra vencer camadas
+  });
+
+  // Fecha dropdowns ao clicar fora
+  document.addEventListener('click', e => {
+    if (!e.target.closest('[data-dropdown]')) {
+      document.querySelectorAll('[data-dropdown].is-open').forEach(d => {
+        d.classList.remove('is-open');
+        const t = d.querySelector('[data-dropdown-trigger]');
+        if (t) t.setAttribute('aria-expanded', 'false');
+      });
+    }
+  }, true);
+})();
+    </script>
   </body>
 </html>
