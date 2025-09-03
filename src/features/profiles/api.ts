@@ -75,8 +75,11 @@ export type ListFilters = {
 
 export async function listProfiles(f: ListFilters) {
   let q = supabase
-    .from("profiles_with_stats")
-    .select("id, user_id, type, handle, name, city, state, country, avatar_url, cover_url, tags, verified, followers_count, category_name", { count: "exact" });
+    .from("entity_profiles")
+    .select("id, user_id, type, handle, name, city, state, country, avatar_url, cover_url, tags, verified, category_name", { count: "exact" });
+
+  // Filter by visibility - only show public profiles
+  q = q.in("visibility", ["public", "published"]);
 
   if (f.type) q = q.eq("type", f.type);
   if (f.city) q = q.ilike("city", `%${f.city}%`);
@@ -87,7 +90,7 @@ export async function listProfiles(f: ListFilters) {
   if (f.order === "az") {
     q = q.order("name", { ascending: true });
   } else if (f.order === "followers") {
-    q = q.order("followers_count", { ascending: false });
+    q = q.order("created_at", { ascending: false }); // Fallback to created_at since followers_count may not be available
   } else {
     // Default: trend (created_at desc)
     q = q.order("created_at", { ascending: false });
