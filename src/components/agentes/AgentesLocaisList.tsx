@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+// Removido: usando sistema unificado de dropdowns
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -166,32 +166,32 @@ export function AgentesLocaisList({ search }: AgentesLocaisListProps) {
                     })}
                   </TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link to={`/admin-v3/agentes/venues/${venue.id}/edit`}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Editar
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDuplicate(venue)}>
-                          <Copy className="mr-2 h-4 w-4" />
+                    <div className="dd" data-dd data-dd-align="right">
+                      <Button variant="ghost" size="sm" className="dd-trigger h-8 w-8 p-0" data-dd-trigger aria-label="Ações do local">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                      <div className="dd-menu" data-dd-menu role="menu">
+                        <div className="px-3 py-2 text-sm font-medium text-muted-foreground border-b border-border">Ações</div>
+                        <Link to={`/admin-v3/agentes/venues/${venue.id}/edit`} role="menuitem">
+                          <Edit className="h-4 w-4" />
+                          Editar
+                        </Link>
+                        <button role="menuitem" type="button" onClick={() => handleDuplicate(venue)}>
+                          <Copy className="h-4 w-4" />
                           Duplicar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
+                        </button>
+                        <hr />
+                        <button 
+                          role="menuitem" 
+                          type="button"
                           onClick={() => handleDeactivate(venue)}
-                          className="text-destructive"
+                          style={{ color: 'hsl(var(--destructive))' }}
                         >
-                          <UserX className="mr-2 h-4 w-4" />
+                          <UserX className="h-4 w-4" />
                           Inativar
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                        </button>
+                      </div>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

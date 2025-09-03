@@ -1,11 +1,6 @@
 import { Moon, Sun, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+// Removido: usando sistema unificado de dropdowns
 import { useTheme } from "@/components/ThemeProvider";
 import { ClientOnly } from "@/components/ClientOnly";
 

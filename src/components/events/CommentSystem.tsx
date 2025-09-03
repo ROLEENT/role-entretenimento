@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+// Removido: usando sistema unificado de dropdowns
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -303,31 +303,34 @@ export const CommentSystem: React.FC<CommentSystemProps> = ({
               </div>
               
               {isOwner && editingId !== comment.id && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem
+                <div className="dd" data-dd data-dd-align="right">
+                  <Button variant="ghost" size="sm" className="dd-trigger h-8 w-8 p-0" data-dd-trigger aria-label="Ações do comentário">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                  <div className="dd-menu" data-dd-menu role="menu">
+                    <button
+                      role="menuitem"
+                      type="button"
                       onClick={() => {
                         setEditingId(comment.id);
                         setEditingContent(comment.content);
                       }}
                     >
-                      <Edit className="h-4 w-4 mr-2" />
+                      <Edit className="h-4 w-4" />
                       Editar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
+                    </button>
+                    <hr />
+                    <button
+                      role="menuitem"
+                      type="button"
                       onClick={() => handleDeleteComment(comment.id)}
-                      className="text-red-600"
+                      style={{ color: 'hsl(var(--destructive))' }}
                     >
-                      <Trash className="h-4 w-4 mr-2" />
+                      <Trash className="h-4 w-4" />
                       Excluir
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
             
