@@ -37,8 +37,9 @@ import { RHFImageUpload } from '@/components/rhf/RHFImageUpload';
 
 // Components especializados
 import { ChipInput } from '@/components/form/ChipInput';
-import { PerformanceEditor } from '@/components/form/PerformanceEditor';
-import { VisualArtEditor } from '@/components/form/VisualArtEditor';
+import { PerformanceEditorV3 } from '@/components/form/PerformanceEditorV3';
+import { VisualArtEditorV3 } from '@/components/form/VisualArtEditorV3';
+import { NavigationGuardV3 } from '@/components/highlights/NavigationGuardV3';
 import { SupportersEditor } from '@/components/form/SupportersEditor';
 import { TicketingForm } from '@/components/form/TicketingForm';
 import { LinksEditor } from '@/components/form/LinksEditor';
@@ -47,6 +48,7 @@ import { PublicationChecklist } from '@/components/form/PublicationChecklist';
 // Components de destaque
 import { AutosaveIndicator } from '@/components/highlights/AutosaveIndicator';
 import { NavigationGuard } from '@/components/highlights/NavigationGuard';
+import { EventPreviewCard } from '@/components/highlights/EventPreviewCard';
 import { AgentQuickCreateModal } from '@/components/AgentQuickCreateModal';
 import { ComboboxAsyncOption } from '@/components/ui/combobox-async';
 
@@ -420,33 +422,33 @@ export function AdminEventFormV3({
                     </CardContent>
                   </Card>
 
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Apresentações</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-sm text-muted-foreground">
-                          {formData.performances && formData.performances.length > 0 
-                            ? `${formData.performances.length} performance(s) configurada(s)`
-                            : 'Nenhuma performance configurada'
-                          }
-                        </div>
-                      </CardContent>
-                    </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Apresentações</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <PerformanceEditorV3
+                        value={formData.performances || []}
+                        onChange={(performances) => setValue('performances', performances)}
+                        disabled={form.formState.isSubmitting || upsertMutation.isPending}
+                        eventStartTime={formData.start_utc}
+                        eventEndTime={formData.end_utc}
+                      />
+                    </CardContent>
+                  </Card>
 
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Artes Visuais</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-sm text-muted-foreground">
-                          {formData.visual_art && formData.visual_art.length > 0 
-                            ? `${formData.visual_art.length} artista(s) visual(is) configurado(s)`
-                            : 'Nenhum artista visual configurado'
-                          }
-                        </div>
-                      </CardContent>
-                    </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Artes Visuais</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <VisualArtEditorV3
+                        value={formData.visual_art || []}
+                        onChange={(visual_art) => setValue('visual_art', visual_art)}
+                        disabled={form.formState.isSubmitting || upsertMutation.isPending}
+                      />
+                    </CardContent>
+                  </Card>
 
                   <Card>
                     <CardHeader>
@@ -634,6 +636,20 @@ export function AdminEventFormV3({
                 </CardContent>
               </Card>
 
+              {/* Event Preview */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Preview do Card</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <EventPreviewCard 
+                    data={formData}
+                    variant="mobile"
+                    className="scale-90 origin-top"
+                  />
+                </CardContent>
+              </Card>
+
               {/* Status Info */}
               <Card>
                 <CardHeader>
@@ -671,6 +687,17 @@ export function AdminEventFormV3({
           </div>
         </div>
       </FormProvider>
+
+      {/* Navigation Guard */}
+      <NavigationGuardV3
+        hasUnsavedChanges={isDirty}
+        onSave={handleSave}
+        isOpen={false}
+        onOpenChange={() => {}}
+        onConfirmNavigation={() => {
+          console.log('Navigation confirmed');
+        }}
+      />
 
       {/* Modal de criação rápida de venue */}
       <AgentQuickCreateModal
