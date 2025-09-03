@@ -48,7 +48,7 @@ export function ProfileTabsMobile({
             onClick={() => onTabChange(tab.id)}
             className={`flex-1 min-h-[48px] px-4 py-3 text-sm font-medium border-b-2 transition-all duration-200 hover:bg-accent/50 active:scale-95 ${
               activeTab === tab.id 
-                ? 'border-primary text-foreground bg-accent/30' 
+                ? 'border-primary text-primary bg-primary/10' 
                 : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >

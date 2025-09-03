@@ -9,16 +9,16 @@ interface ProfileBioMobileProps {
 export function ProfileBioMobile({ profile }: ProfileBioMobileProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   
-  if (!profile.bio && !profile.bio_short) return null;
-
   const bioText = profile.bio || profile.bio_short || "";
   const shouldShowExpand = bioText.length > 150;
+  
+  if (!bioText.trim()) return null;
 
   return (
     <section className="mx-auto max-w-screen-sm px-4 mt-4 md:hidden">
       <h3 className="text-lg font-semibold mb-2">Bio</h3>
       <p 
-        className={`text-sm text-white/80 leading-relaxed ${
+        className={`text-sm text-muted-foreground leading-relaxed ${
           !isExpanded && shouldShowExpand ? 'line-clamp-3' : ''
         }`}
       >

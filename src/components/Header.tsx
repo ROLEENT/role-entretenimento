@@ -148,7 +148,11 @@ const Header = () => {
 
         {/* Mobile Menu Drawer */}
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-          <SheetContent side="right" className="w-[300px] sm:w-[350px] bg-background overflow-y-auto">
+          <SheetContent 
+            side="right" 
+            className="w-[300px] sm:w-[350px] bg-background overflow-y-auto z-50"
+            style={{ paddingTop: 'calc(16px + env(safe-area-inset-top))' }}
+          >
             <SheetHeader>
               <SheetTitle className="text-left">Menu</SheetTitle>
             </SheetHeader>
