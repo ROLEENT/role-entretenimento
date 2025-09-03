@@ -15,6 +15,10 @@ import { EventFormV3, zEvent, validateEventForPublish } from '@/schemas/event-v3
 // Hooks
 import { useUpsertEventV3 } from '@/hooks/useUpsertEventV3';
 import { useFormDirtyGuard } from '@/hooks/useFormDirtyGuard';
+import { useAutosave } from '@/hooks/useAutosave';
+import { useEventSlugCheck } from '@/hooks/useEventSlugCheck';
+import { generateSlug } from '@/utils/slugUtils';
+import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
 // Components básicos
 import RHFInput from '@/components/form/RHFInput';
@@ -55,6 +59,7 @@ export const AdminEventFormV3 = ({
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [showNavigationGuard, setShowNavigationGuard] = useState(false);
+  const [slugLocked, setSlugLocked] = useState(false);
 
   // Form setup
   const form = useForm<EventFormV3>({
@@ -87,6 +92,8 @@ export const AdminEventFormV3 = ({
 
   const { handleSubmit, watch, formState: { isDirty, isValid } } = form;
   const formData = watch();
+  const titleValue = watch('title');
+  const slugValue = watch('slug');
 
   // Mutations
   const { mutate: upsertEvent, isPending } = useUpsertEventV3({
@@ -100,24 +107,39 @@ export const AdminEventFormV3 = ({
     },
   });
 
-  // Guards e autosave
+  // Hook para autosave
+  const { isAutosaving, handleFieldBlur } = useAutosave(formData, {
+    enabled: isDirty && isValid,
+    delay: 3000,
+    onSave: async () => {
+      await new Promise((resolve, reject) => {
+        upsertEvent({ ...formData, status: 'draft' }, {
+          onSuccess: resolve,
+          onError: reject
+        });
+      });
+    }
+  });
+
+  // Hook para validação de slug
+  const { isCheckingSlug, slugStatus } = useEventSlugCheck({
+    slug: slugValue,
+    eventId,
+    enabled: !!slugValue && slugValue.length > 0
+  });
+
+  // Guards
   useFormDirtyGuard(isDirty, () => setShowNavigationGuard(true));
 
-  // Autosave
+  // Auto-geração de slug baseado no título
   useEffect(() => {
-    if (!isDirty) return;
-
-    const timer = setTimeout(() => {
-      if (isValid) {
-        handleSubmit((data) => {
-          setIsSaving(true);
-          upsertEvent(data);
-        })();
-      }
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [formData, isDirty, isValid, handleSubmit, upsertEvent]);
+    if (!titleValue || slugLocked || eventId) return;
+    
+    const newSlug = generateSlug(titleValue);
+    if (newSlug !== slugValue) {
+      form.setValue('slug', newSlug);
+    }
+  }, [titleValue, slugLocked, slugValue, eventId, form]);
 
   // Validação para publicação
   const validationErrors = validateEventForPublish(formData);
@@ -146,6 +168,34 @@ export const AdminEventFormV3 = ({
     setShowNavigationGuard(false);
   };
 
+  // Função para regenerar slug
+  const handleRegenerateSlug = () => {
+    if (titleValue) {
+      const newSlug = generateSlug(titleValue);
+      form.setValue('slug', newSlug);
+      setSlugLocked(false);
+    }
+  };
+
+  // Função para editar slug manualmente
+  const handleEditSlug = () => {
+    setSlugLocked(true);
+  };
+
+  // Status icon para o slug
+  const getSlugStatusIcon = () => {
+    if (isCheckingSlug) {
+      return <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />;
+    }
+    if (slugStatus === 'available') {
+      return <CheckCircle className="w-4 h-4 text-green-500" />;
+    }
+    if (slugStatus === 'taken') {
+      return <XCircle className="w-4 h-4 text-red-500" />;
+    }
+    return null;
+  };
+
   return (
     <FormProvider {...form}>
       <div className="space-y-6">
@@ -158,7 +208,7 @@ export const AdminEventFormV3 = ({
             <AutosaveIndicator
               lastSaved={lastSaved}
               hasUnsavedChanges={isDirty}
-              isSaving={isSaving}
+              isSaving={isSaving || isAutosaving}
             />
           </div>
 
@@ -208,6 +258,11 @@ export const AdminEventFormV3 = ({
                       name="slug"
                       label="Slug"
                       required
+                      locked={slugLocked}
+                      statusIcon={getSlugStatusIcon()}
+                      onRegenerate={handleRegenerateSlug}
+                      onEdit={handleEditSlug}
+                      regenerateDisabled={!titleValue}
                     />
 
                     <RHFInput
