@@ -32,7 +32,7 @@ import { useDeepLinking } from "@/hooks/useDeepLinking";
 export default function ProfilePage() {
   const { handle } = useParams<{ handle: string }>();
   const cleanHandle = handle?.replace(/^@/, "").toLowerCase() || "";
-  const [activeTab, setActiveTab] = useState("visao");
+  const [activeTab, setActiveTab] = useState("visao-geral");
 
   const { data: profile, isLoading, error, refetch } = useProfile(cleanHandle);
   const stats = useProfileStats(
@@ -47,7 +47,7 @@ export default function ProfilePage() {
   useDeepLinking({
     activeTab,
     onTabChange: setActiveTab,
-    validTabs: ['visao', 'agenda', 'midia', 'sobre']
+    validTabs: ['visao-geral', 'agenda', 'conteudos', 'fotos-videos', 'avaliacoes', 'sobre']
   });
 
   const handleRefresh = async () => {

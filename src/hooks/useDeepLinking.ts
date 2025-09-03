@@ -26,12 +26,12 @@ export function useDeepLinking({ activeTab, onTabChange, validTabs }: DeepLinkin
   useEffect(() => {
     try {
       const currentTab = searchParams.get('tab');
-      if (activeTab !== 'visao' && currentTab !== activeTab) {
+      if (activeTab !== 'visao-geral' && currentTab !== activeTab) {
         setSearchParams(params => {
           params.set('tab', activeTab);
           return params;
         });
-      } else if (activeTab === 'visao' && currentTab) {
+      } else if (activeTab === 'visao-geral' && currentTab) {
         setSearchParams(params => {
           params.delete('tab');
           return params;
