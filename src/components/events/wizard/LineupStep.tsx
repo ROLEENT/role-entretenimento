@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { ComboboxAsync } from '@/components/ui/combobox-async';
 import { useEntityLookup } from '@/hooks/useEntityLookup';
+import { TicketRulesSection } from './TicketRulesSection';
 import { cn } from '@/lib/utils';
 
 // Drag and drop functionality (simplified)

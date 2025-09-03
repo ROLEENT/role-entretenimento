@@ -52,12 +52,13 @@ export const ticketRuleSchema = z.object({
 // Partner schemas for related tables
 export const eventPartnerSchema = z.object({
   id: z.string().uuid().optional(),
-  partner_id: z.string().uuid(),
-  partner_type: z.enum(['organizer', 'venue', 'artist']),
-  role: partnerRoleSchema.default('organizer'),
+  partner_id: z.string().uuid().optional(),
+  partner_type: z.enum(['organizer', 'venue', 'artist', 'supporter', 'sponsor']),
+  role: z.enum(['organizer', 'supporter', 'sponsor']).default('organizer'),
   display_name: z.string().optional(),
   position: z.number().int().min(0).default(0),
-  is_main: z.boolean().default(false)
+  is_main: z.boolean().default(false),
+  tier: z.string().optional()
 });
 
 export const lineupSlotArtistSchema = z.object({

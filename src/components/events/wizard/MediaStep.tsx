@@ -268,15 +268,61 @@ export const MediaStep: React.FC = () => {
 
           {/* Gallery Grid */}
           {galleryImages.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="space-y-4">
               {galleryImages.map((image, index) => (
-                <ImagePreview
-                  key={`${image.id}-${index}`}
-                  src={image.url || ''}
-                  alt={`Galeria ${index + 1}`}
-                  className="aspect-square"
-                  onRemove={() => removeGalleryImage(index)}
-                />
+                <Card key={`${image.id}-${index}`}>
+                  <CardContent className="pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                      <div className="aspect-square">
+                        <ImagePreview
+                          src={image.url || ''}
+                          alt={image.alt || `Galeria ${index + 1}`}
+                          className="w-full h-full"
+                          onRemove={() => removeGalleryImage(index)}
+                        />
+                      </div>
+                      
+                      <div className="md:col-span-2 space-y-4">
+                        <FormField
+                          control={control}
+                          name={`gallery.${index}.url`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>URL da Imagem</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="https://exemplo.com/imagem.jpg"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={control}
+                          name={`gallery.${index}.alt`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Texto Alternativo</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="Descrição da imagem para acessibilidade"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Descreva o que aparece na imagem para acessibilidade
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           ) : (

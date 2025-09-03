@@ -102,30 +102,52 @@ export const BasicInfoStep: React.FC = () => {
           )}
         />
 
-        {/* Slug */}
-        <FormField
-          control={control}
-          name="slug"
-          render={({ field }) => (
-            <FormItem className="lg:col-span-2">
-              <FormLabel>URL do Evento</FormLabel>
-              <FormControl>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-muted-foreground">meuevent.com/eventos/</span>
-                  <Input 
-                    placeholder="url-do-evento"
-                    {...field}
-                    className="font-mono"
-                  />
-                </div>
-              </FormControl>
-              <FormDescription>
-                URL amigável gerada automaticamente a partir do título
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      {/* Slug */}
+      <FormField
+        control={control}
+        name="slug"
+        render={({ field }) => (
+          <FormItem className="lg:col-span-2">
+            <FormLabel>URL do Evento</FormLabel>
+            <FormControl>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-muted-foreground">meuevent.com/eventos/</span>
+                <Input 
+                  placeholder="url-do-evento"
+                  {...field}
+                  className="font-mono flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (watchedTitle) {
+                      const newSlug = watchedTitle
+                        .toLowerCase()
+                        .normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')
+                        .replace(/[^a-z0-9\s-]/g, '')
+                        .replace(/\s+/g, '-')
+                        .replace(/-+/g, '-')
+                        .trim()
+                        .replace(/^-|-$/g, '');
+                      setValue('slug', newSlug);
+                    }
+                  }}
+                  disabled={!watchedTitle}
+                >
+                  Gerar
+                </Button>
+              </div>
+            </FormControl>
+            <FormDescription>
+              URL amigável - clique em "Gerar" para criar automaticamente a partir do título
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
         {/* Summary */}
         <FormField
@@ -445,6 +467,53 @@ export const BasicInfoStep: React.FC = () => {
       />
 
 
+
+      {/* Series and Edition */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <FormField
+          control={control}
+          name="series_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Série do Evento</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Ex: Festival de Verão, Noites Eletrônicas..."
+                  value={field.value || ''}
+                  onChange={field.onChange}
+                />
+              </FormControl>
+              <FormDescription>
+                Deixe em branco se for evento único
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="edition_number"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Número da Edição</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  min="1"
+                  placeholder="1"
+                  {...field}
+                  onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                />
+              </FormControl>
+              <FormDescription>
+                Número da edição (obrigatório se for série)
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
 
       {/* Description */}
       <FormField
