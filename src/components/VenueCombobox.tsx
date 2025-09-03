@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ComboboxAsync, ComboboxAsyncOption } from '@/components/ui/combobox-async';
 import { AgentQuickCreateModal } from '@/components/AgentQuickCreateModal';
-import { useVenueSearch } from '@/hooks/useVenueSearch';
+import { useVenuesOptions } from '@/hooks/useVenuesOptions';
 
 interface VenueComboboxProps {
   value?: string;
@@ -17,7 +17,7 @@ export function VenueCombobox({
   disabled = false,
 }: VenueComboboxProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const { searchVenues } = useVenueSearch();
+  const { searchVenues } = useVenuesOptions();
 
   const handleCreateNew = () => {
     setModalOpen(true);
