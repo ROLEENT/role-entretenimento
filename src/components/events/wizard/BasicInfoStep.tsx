@@ -12,7 +12,7 @@ import { CalendarIcon, MapPin, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { ComboboxAsync } from '@/components/ui/combobox-async';
+import { ComboboxSimple } from '@/components/ui/combobox-simple';
 import { useVenueSearch } from '@/hooks/useVenueSearch';
 
 const CITIES = [
@@ -210,14 +210,14 @@ export const BasicInfoStep: React.FC = () => {
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0 z-[9999] bg-popover border shadow-lg" align="start">
                   <Calendar
                     mode="single"
                     selected={field.value ? new Date(field.value) : undefined}
                     onSelect={(date) => field.onChange(date?.toISOString())}
                     disabled={(date) => date < new Date()}
                     initialFocus
-                    className="pointer-events-auto"
+                    className="pointer-events-auto bg-background"
                   />
                 </PopoverContent>
               </Popover>
@@ -257,14 +257,14 @@ export const BasicInfoStep: React.FC = () => {
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0 z-[9999] bg-popover border shadow-lg" align="start">
                   <Calendar
                     mode="single"
                     selected={field.value ? new Date(field.value) : undefined}
                     onSelect={(date) => field.onChange(date?.toISOString())}
                     disabled={(date) => date < new Date()}
                     initialFocus
-                    className="pointer-events-auto"
+                    className="pointer-events-auto bg-background"
                   />
                 </PopoverContent>
               </Popover>
@@ -284,7 +284,7 @@ export const BasicInfoStep: React.FC = () => {
             <FormItem>
               <FormLabel>Local/Venue</FormLabel>
               <FormControl>
-                <ComboboxAsync
+                <ComboboxSimple
                   placeholder="Buscar venue..."
                   emptyText="Nenhum venue encontrado"
                   onSearch={searchVenues}
