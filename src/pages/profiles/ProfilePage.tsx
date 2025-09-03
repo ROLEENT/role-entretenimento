@@ -16,10 +16,19 @@ import { ConnectionStatus } from "@/components/ui/connection-status";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 
+// Mobile components
+import { ProfileHeroMobile } from "@/features/profiles/components/mobile/ProfileHeroMobile";
+import { ProfileStickyHeaderMobile } from "@/features/profiles/components/mobile/ProfileStickyHeaderMobile";
+import { ProfileActionsMobile } from "@/features/profiles/components/mobile/ProfileActionsMobile";
+import { ProfileGenreChipsMobile } from "@/features/profiles/components/mobile/ProfileGenreChipsMobile";
+import { ProfileTabsMobile } from "@/features/profiles/components/mobile/ProfileTabsMobile";
+import { ProfileContentMobile } from "@/features/profiles/components/mobile/ProfileContentMobile";
+import { ProfileSkeletonMobile } from "@/features/profiles/components/mobile/ProfileSkeletonMobile";
+
 export default function ProfilePage() {
   const { handle } = useParams<{ handle: string }>();
   const cleanHandle = handle?.replace(/^@/, "").toLowerCase() || "";
-  const [activeTab, setActiveTab] = useState("visao-geral");
+  const [activeTab, setActiveTab] = useState("visao");
 
   const { data: profile, isLoading, error, refetch } = useProfile(cleanHandle);
 
@@ -30,7 +39,8 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <PublicLayout>
-        <div className="space-y-6">
+        {/* Desktop skeleton */}
+        <div className="hidden md:block space-y-6">
           <ProfileHeaderSkeleton />
           <div className="container mx-auto px-3 md:px-0">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -43,6 +53,9 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+        
+        {/* Mobile skeleton */}
+        <ProfileSkeletonMobile />
       </PublicLayout>
     );
   }
@@ -97,38 +110,59 @@ export default function ProfilePage() {
         
         <PullToRefresh onRefresh={handleRefresh}>
           <main id="main-content" role="main" tabIndex={-1}>
-            {/* New Profile Header */}
-            <NewProfileHeader profile={profile} />
+            {/* Sentinel for intersection observer (mobile only) */}
+            <div id="hero-sentinel" className="md:hidden" />
+            
+            {/* Mobile Profile Layout */}
+            <div className="md:hidden">
+              <ProfileHeroMobile profile={profile} />
+              <ProfileActionsMobile profile={profile} />
+              <ProfileGenreChipsMobile profile={profile} />
+              <ProfileTabsMobile 
+                activeTab={activeTab} 
+                onTabChange={setActiveTab}
+                eventCount={0} // TODO: Get real count
+                mediaCount={0} // TODO: Get real count
+              />
+              <ProfileContentMobile 
+                profile={profile} 
+                activeTab={activeTab} 
+              />
+            </div>
 
-            {/* Profile Navigation */}
-            <ProfileNavNew activeTab={activeTab} onTabChange={setActiveTab} />
+            {/* Desktop Profile Layout */}
+            <div className="hidden md:block">
+              {/* Desktop Profile Header */}
+              <NewProfileHeader profile={profile} />
 
-            {/* Profile Content - Two Column Layout */}
-            <section className="container mx-auto px-3 md:px-0 py-6">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Main Content - 2 columns */}
-                <div className="lg:col-span-2">
-                  <ProfileContentNew 
-                    profile={profile} 
-                    activeTab={activeTab} 
-                    onTabChange={setActiveTab}
-                  />
+              {/* Profile Navigation */}
+              <ProfileNavNew activeTab={activeTab} onTabChange={setActiveTab} />
+
+              {/* Profile Content - Two Column Layout */}
+              <section className="container mx-auto px-3 md:px-0 py-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Main Content - 2 columns */}
+                  <div className="lg:col-span-2">
+                    <ProfileContentNew 
+                      profile={profile} 
+                      activeTab={activeTab} 
+                      onTabChange={setActiveTab}
+                    />
+                  </div>
+                  
+                  {/* Sidebar - 1 column */}
+                  <aside className="lg:col-span-1">
+                    <ProfileSidebarNew profile={profile} />
+                  </aside>
                 </div>
-                
-                {/* Sidebar - 1 column */}
-                <aside className="lg:col-span-1">
-                  <ProfileSidebarNew profile={profile} />
-                </aside>
-              </div>
-            </section>
+              </section>
+            </div>
           </main>
         </PullToRefresh>
 
-        {/* Mobile Action Bar */}
-        <ProfileMobileActions profile={profile} />
+        {/* Mobile Sticky Header (appears on scroll) */}
+        <ProfileStickyHeaderMobile profile={profile} />
         
-        {/* Spacer para action bar fixa no mobile */}
-        <div className="h-16 md:hidden" />
       </PublicLayout>
     </ErrorBoundary>
   );
