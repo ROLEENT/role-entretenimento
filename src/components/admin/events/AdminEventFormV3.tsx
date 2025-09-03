@@ -19,7 +19,7 @@ import { useFormDirtyGuard } from '@/hooks/useFormDirtyGuard';
 // Components básicos
 import RHFInput from '@/components/form/RHFInput';
 import { RHFSlugInput } from '@/components/form/RHFSlugInput';
-import RHFSelect from '@/components/form/RHFSelect';
+import { RHFSelect } from '@/components/form/RHFSelect';
 import RHFTextarea from '@/components/form/RHFTextarea';
 import RHFImageUploader from '@/components/form/RHFImageUploader';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
@@ -207,9 +207,6 @@ export const AdminEventFormV3 = ({
                     <RHFSlugInput
                       name="slug"
                       label="Slug"
-                      table="agenda_itens"
-                      currentId={eventId}
-                      generateFrom="title"
                       required
                     />
 
@@ -224,15 +221,7 @@ export const AdminEventFormV3 = ({
                       name="venue_id"
                       label="Local"
                       placeholder="Selecione o local..."
-                      query={{
-                        table: "venues",
-                        columns: "id, name, address",
-                        filter: {},
-                      }}
-                      transform={(row) => ({
-                        value: row.id,
-                        label: `${row.name} - ${row.address}`,
-                      })}
+                      options={[]}
                     />
                   </CardContent>
                 </Card>
@@ -301,13 +290,13 @@ export const AdminEventFormV3 = ({
                     />
 
                     <PerformanceEditor
-                      value={formData.performances}
+                      value={formData.performances as any}
                       onChange={(value) => form.setValue('performances', value)}
                       disabled={isPending}
                     />
 
                     <VisualArtEditor
-                      value={formData.visual_art}
+                      value={formData.visual_art as any}
                       onChange={(value) => form.setValue('visual_art', value)}
                       disabled={isPending}
                     />
