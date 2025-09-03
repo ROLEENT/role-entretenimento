@@ -40,6 +40,7 @@ export default function RHFInput({
         render={({ field }) => (
           <Input
             {...field}
+            value={field.value || ""}
             id={name}
             type={type}
             placeholder={placeholder}
