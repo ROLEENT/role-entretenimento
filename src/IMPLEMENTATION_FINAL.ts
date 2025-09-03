@@ -19,13 +19,13 @@ export { LazyEventCreateWizard } from './components/events/LazyEventCreateWizard
 export { eventService, favoriteService, reviewService } from './services/eventService';
 export { EventMigrationService, runMigration } from './scripts/migrateEvents';
 export { SearchCache, createSearchQueries } from './lib/cache';
-export { PerformanceMonitor, usePerformanceMonitor, measurePerformance } from './utils/performanceMonitor';
+export { initPerformanceMonitoring, sessionId } from './utils/performanceMonitor';
 
-// ============= IMPORTS DOS SCHEMAS =============
-export { eventFormSchema } from './components/events/schemas';
+// ============= SCHEMAS E ADAPTADORES =============
+// Schemas and adapters are internal to components and services
 
-// ============= IMPORTS DOS ADAPTADORES =============
-export { adaptAgendaItemToEvent } from './components/events/adapters';
+// ============= ADAPTADORES =============
+// Adapters are internal utilities for data transformation
 
 // ============= PÁGINAS ADMIN IMPLEMENTADAS =============
 export { default as AdminV3EventsDashboard } from './pages/admin-v3/AdminV3EventsDashboard';
