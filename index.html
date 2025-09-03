@@ -201,34 +201,27 @@
     
     <script>
 (() => {
-  // Encaminha clique do wrapper para o trigger real
-  const wrappers = document.querySelectorAll(
-    '.select, .dropdown, [data-dropdown], .select-wrapper, .field'
-  );
-  wrappers.forEach(w => {
-    w.addEventListener('mousedown', e => {
-      const trigger =
-        w.querySelector('select, [data-dropdown-trigger], .dropdown-trigger, [data-radix-select-trigger]');
-      if (!trigger) return;
-      // Se clicou em algo que não é o trigger, dispare nele
-      if (!trigger.contains(e.target) && e.button === 0) {
-        e.preventDefault();
-        trigger.focus();
-        trigger.click();
-      }
-    }, true); // capturing pra vencer camadas
-  });
-
-  // Fecha dropdowns ao clicar fora
-  document.addEventListener('click', e => {
-    if (!e.target.closest('[data-dropdown]')) {
-      document.querySelectorAll('[data-dropdown].is-open').forEach(d => {
-        d.classList.remove('is-open');
-        const t = d.querySelector('[data-dropdown-trigger]');
-        if (t) t.setAttribute('aria-expanded', 'false');
-      });
-    }
+  // fecha outros quando um abre
+  document.addEventListener('toggle', e => {
+    const d = e.target;
+    if (d.tagName !== 'DETAILS' || !d.open) return;
+    document.querySelectorAll('details[open]').forEach(o => {
+      if (o !== d) o.removeAttribute('open');
+    });
   }, true);
+
+  // fecha ao clicar fora
+  document.addEventListener('click', e => {
+    if (e.target.closest('details')) return;
+    document.querySelectorAll('details[open]').forEach(d => d.removeAttribute('open'));
+  }, true);
+
+  // fecha com Esc
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    const open = document.querySelectorAll('details[open]');
+    open.forEach(d => d.removeAttribute('open'));
+  });
 })();
     </script>
   </body>
