@@ -27,8 +27,6 @@ Deno.serve(async (req) => {
       return await handleArtistTypes(req, supabase, query);
     } else if (path.includes('/genres')) {
       return await handleGenres(req, supabase, query);
-    } else if (path.includes('/venues')) {
-      return await handleVenues(req, supabase, query);
     }
 
     return new Response(
@@ -195,81 +193,6 @@ async function handleGenres(req: Request, supabase: any, query: string) {
 
     return new Response(
       JSON.stringify({ id: data.id, name: data.name }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  }
-
-  return new Response(
-    JSON.stringify({ error: 'Method not allowed' }),
-    { 
-      status: 405, 
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-    }
-  );
-}
-
-async function handleVenues(req: Request, supabase: any, query: string) {
-  if (req.method === 'GET') {
-    // Search venues
-    let dbQuery = supabase
-      .from('venues')
-      .select('id, name, city, address, type')
-      .eq('status', 'active')
-      .order('name');
-
-    if (query) {
-      dbQuery = dbQuery.or(`name.ilike.%${query}%, city.ilike.%${query}%, address.ilike.%${query}%`);
-    }
-
-    const { data, error } = await dbQuery.limit(20);
-
-    if (error) throw error;
-
-    const items = (data || []).map((item: any) => ({
-      id: item.id,
-      name: item.name,
-      city: item.city,
-      address: item.address,
-      type: item.type
-    }));
-
-    return new Response(
-      JSON.stringify({ items }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
-  } else if (req.method === 'POST') {
-    // Create new venue
-    const body = await req.json();
-    const { name } = body;
-
-    if (!name || typeof name !== 'string') {
-      return new Response(
-        JSON.stringify({ error: 'Name is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const { data, error } = await supabase
-      .from('venues')
-      .insert([{ 
-        name: name.trim(), 
-        status: 'active',
-        type: 'other'
-      }])
-      .select('id, name, city, address, type')
-      .single();
-
-    if (error) throw error;
-
-    return new Response(
-      JSON.stringify({ 
-        id: data.id, 
-        name: data.name, 
-        city: data.city, 
-        address: data.address, 
-        type: data.type 
-      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
