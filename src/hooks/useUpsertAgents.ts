@@ -148,7 +148,16 @@ export const useUpsertVenue = () => {
         whatsapp: data.whatsapp || null,
         website: data.website || null,
         about: data.about || null,
-        tags: data.tags || [],
+        tags: (() => {
+          const tagsValue = data.tags as any; // Type assertion to handle potential string input
+          if (Array.isArray(tagsValue)) {
+            return tagsValue;
+          }
+          if (typeof tagsValue === 'string' && tagsValue.trim()) {
+            return tagsValue.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag.length > 0);
+          }
+          return [];
+        })(),
         cover_url: data.cover_url || null,
         cover_alt: data.cover_alt || null,
         // Convert gallery_urls array to gallery object for database
