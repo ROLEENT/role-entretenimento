@@ -19,7 +19,7 @@ interface Organizer {
   status: string;
   bio_short?: string;
   updated_at: string;
-  logo_url?: string;
+  avatar_url?: string;
 }
 
 interface AdminOrganizerTableProps {
@@ -111,7 +111,7 @@ export const AdminOrganizerTable: React.FC<AdminOrganizerTableProps> = ({
               <TableCell>
                 <div className="flex items-center gap-3">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={organizer.logo_url || ''} />
+                    <AvatarImage src={organizer.avatar_url || ''} />
                     <AvatarFallback className="text-xs">
                       {getInitials(organizer.name)}
                     </AvatarFallback>

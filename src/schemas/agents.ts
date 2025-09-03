@@ -92,7 +92,7 @@ export const organizerSchema = z.object({
   site: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
   email: z.string().email("Email inválido").optional().or(z.literal('')).nullable(),
   phone: z.string().optional().nullable(),
-  logo_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  avatar_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
   status: z.enum(["active", "inactive"]).default("active"),
 });
 

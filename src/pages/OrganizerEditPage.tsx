@@ -12,7 +12,7 @@ import { AdminV3Breadcrumb } from "@/components/AdminV3Breadcrumb";
 import { FormShell, FormSection, FORM_SECTIONS } from "@/components/form";
 import { RHFInput, RHFUpload } from "@/components/form";
 import RHFSlug from "@/components/form/RHFSlug";
-import { organizerSchema, OrganizerForm } from "@/schemas/agents";
+import { organizerFlexibleSchema, OrganizerFlexibleForm } from "@/schemas/agents-flexible";
 import { useUpsertOrganizer } from "@/hooks/useUpsertAgents";
 
 export default function OrganizerEditPage() {
@@ -39,15 +39,15 @@ export default function OrganizerEditPage() {
     enabled: isEditing,
   });
 
-  const form = useForm<OrganizerForm>({
-    resolver: zodResolver(organizerSchema),
+  const form = useForm<OrganizerFlexibleForm>({
+    resolver: zodResolver(organizerFlexibleSchema),
     defaultValues: {
       name: "",
       slug: "",
       site: null,
       email: null,
       phone: null,
-      logo_url: null,
+      avatar_url: null,
       status: "active",
     },
   });
@@ -58,7 +58,7 @@ export default function OrganizerEditPage() {
     }
   }, [organizer, form]);
 
-  const handleSaveAndExit = async (data: OrganizerForm) => {
+  const handleSaveAndExit = async (data: OrganizerFlexibleForm) => {
     await upsertOrganizer.mutateAsync(data);
     navigate("/admin-v3/organizadores");
   };
@@ -136,7 +136,7 @@ export default function OrganizerEditPage() {
               description="Logo e imagens do organizador"
             >
               <RHFUpload
-                name="logo_url"
+                name="avatar_url"
                 bucket="organizers"
                 label="Logo do Organizador"
                 accept="image/*"

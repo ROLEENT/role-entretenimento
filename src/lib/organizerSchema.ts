@@ -7,7 +7,7 @@ export const organizerSchema = z.object({
   contact_email: z.string().email('Email inválido'),
   contact_whatsapp: z.string().min(1, 'WhatsApp é obrigatório'),
   instagram: z.string().min(1, 'Instagram é obrigatório'),
-  logo_url: z.string().optional(),
+  avatar_url: z.string().optional(),
   bio_short: z.string().max(300, 'Bio curta muito longa').optional(),
   bio_long: z.string().max(1500, 'Bio longa muito longa').optional(),
   website_url: z.string().url('URL inválida').optional().or(z.literal('')),

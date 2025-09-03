@@ -102,7 +102,7 @@ export const organizerSchema = z.object({
   // Media
   avatar_url: z.string().url("URL inválida").optional(),
   avatar_alt: z.string().optional(),
-  logo_url: z.string().url("URL inválida").optional(),
+  // Removed logo_url - using avatar_url instead
   cover_url: z.string().url("URL inválida").optional(),
   
   // Metadata
