@@ -50,10 +50,9 @@ export const useUpsertEvent = () => {
         throw new Error(`Erro ao salvar evento: ${error.message}`);
       }
 
-      // Sync organizers if organizer_ids is provided
-      if (data.organizer_ids && data.organizer_ids.length > 0 && result) {
-        await syncEventOrganizers(result.id, data.organizer_ids);
-      }
+      // Note: Multiple organizers are managed separately by useEventOrganizers hook
+      // The agenda_item_organizers table is handled directly by MultipleOrganizerSelector
+      // Legacy organizer_id field is still supported for backwards compatibility
 
       return result;
     },

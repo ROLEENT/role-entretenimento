@@ -36,6 +36,7 @@ export function AdminEventForm({ event }: AdminEventFormProps) {
       city_id: event?.city_id || "",
       venue_id: event?.venue_id || null,
       organizer_id: event?.organizer_id || null,
+      organizer_ids: event?.organizer_ids || [],
       starts_at: event?.starts_at ? new Date(event.starts_at).toISOString().slice(0, 16) : "",
       ends_at: event?.ends_at ? new Date(event.ends_at).toISOString().slice(0, 16) : "",
       price_min: event?.price_min || null,
