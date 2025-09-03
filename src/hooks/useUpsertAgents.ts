@@ -206,12 +206,32 @@ export const useUpsertOrganizer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: OrganizerForm) => {
+    mutationFn: async (data: any) => {
       console.log("Upserting organizer:", data);
+
+      // Transform data to match organizers table structure
+      const organizerData = {
+        id: data.id || undefined,
+        name: data.name,
+        slug: data.slug || null,
+        site: data.site || data.website || null,
+        email: data.email || null,
+        phone: data.phone || null,
+        logo_url: data.logo_url || data.avatar_url || null,
+        instagram: data.instagram || null,
+        status: data.status || 'active',
+        // Map bio field to an existing column (using site for now, or we can add bio column)
+        contact_email: data.email || null,
+        contact_whatsapp: data.whatsapp || data.phone || null,
+        // Add other fields that exist in organizers table
+        country: data.country || 'BR',
+        city: data.city || null,
+        state: data.state || null,
+      };
 
       const { data: result, error } = await supabase
         .from("organizers")
-        .upsert(data, { 
+        .upsert(organizerData, { 
           onConflict: "id",
           ignoreDuplicates: false 
         })
