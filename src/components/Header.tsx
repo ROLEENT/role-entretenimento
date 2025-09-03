@@ -13,14 +13,7 @@ import roleIcon from "@/assets/role-logo.png";
 import { useResponsive } from "@/hooks/useResponsive";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger 
-} from "./ui/dropdown-menu";
+// Dropdowns agora usam sistema universal data-dd
 import { Avatar, AvatarFallback } from "./ui/avatar";
 
 // Header mobile 2 linhas com carrossel de cidades
@@ -345,29 +338,30 @@ const Header = () => {
                 ))}
                 
                 {/* Perfis Dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className={cn(
-                      "flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary relative",
+                <div className="dd" data-dd>
+                  <button 
+                    className={cn(
+                      "dd-trigger flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary relative",
                       isPerfisActive() 
                         ? "text-primary" 
                         : "text-muted-foreground"
-                    )}>
-                      Perfis
-                      <ChevronDown className="h-3 w-3" />
-                      {isPerfisActive() && (
-                        <div className="absolute -bottom-6 left-0 right-0 h-0.5 bg-primary rounded-full" />
-                      )}
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
+                    )}
+                    data-dd-trigger
+                  >
+                    Perfis
+                    <ChevronDown className="h-3 w-3" data-dd-icon />
+                    {isPerfisActive() && (
+                      <div className="absolute -bottom-6 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                    )}
+                  </button>
+                  <div className="dd-menu" data-dd-menu role="menu">
                     {perfisDropdownItems.map((item) => (
-                      <DropdownMenuItem key={item.href} asChild>
-                        <Link to={item.href}>{item.label}</Link>
-                      </DropdownMenuItem>
+                      <Link key={item.href} to={item.href} role="menuitem">
+                        {item.label}
+                      </Link>
                     ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  </div>
+                </div>
               </nav>
             </div>
 
@@ -410,59 +404,48 @@ const Header = () => {
                 <ThemeToggle />
 
                 {publicUser ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-primary text-primary-foreground">
-                            {publicUser.email?.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56" align="end" forceMount>
-                      <DropdownMenuLabel className="font-normal">
+                  <div className="dd" data-dd data-dd-align="right">
+                    <button className="dd-trigger relative h-8 w-8 rounded-full hover:bg-accent" data-dd-trigger>
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-primary text-primary-foreground">
+                          {publicUser.email?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </button>
+                    <div className="dd-menu w-56" data-dd-menu role="menu">
+                      <div className="px-3 py-2 text-sm font-medium text-muted-foreground border-b border-border">
                         <div className="flex flex-col space-y-1">
                           <p className="text-sm font-medium leading-none">Perfil</p>
                           <p className="text-xs leading-none text-muted-foreground">
                             {publicUser.email}
                           </p>
                         </div>
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link to="/profile">
-                          <User className="mr-2 h-4 w-4" />
-                          Perfil
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                         <Link to="/meu-calendario">
-                           <Calendar className="mr-2 h-4 w-4" />
-                           Meu Calendário
-                         </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                         <Link to="/favoritos">
-                           <Star className="mr-2 h-4 w-4" />
-                           Favoritos
-                         </Link>
-                      </DropdownMenuItem>
+                      </div>
+                      <Link to="/profile" role="menuitem" className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        <span>Perfil</span>
+                      </Link>
+                      <Link to="/meu-calendario" role="menuitem" className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        <span>Meu Calendário</span>
+                      </Link>
+                      <Link to="/favoritos" role="menuitem" className="flex items-center gap-2">
+                        <Star className="h-4 w-4" />
+                        <span>Favoritos</span>
+                      </Link>
                       {hasAdminAccess && (
-                        <DropdownMenuItem asChild>
-                          <Link to="/admin-v3">
-                            <Settings className="mr-2 h-4 w-4" />
-                            Painel Admin
-                          </Link>
-                        </DropdownMenuItem>
+                        <Link to="/admin-v3" role="menuitem" className="flex items-center gap-2">
+                          <Settings className="h-4 w-4" />
+                          <span>Painel Admin</span>
+                        </Link>
                       )}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={publicSignOut}>
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Sair
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                      <div className="border-t border-border my-1"></div>
+                      <button type="button" onClick={publicSignOut} role="menuitem" className="flex items-center gap-2 w-full text-left">
+                        <LogOut className="h-4 w-4" />
+                        <span>Sair</span>
+                      </button>
+                    </div>
+                  </div>
                 ) : (
                   <Button 
                     variant="outline" 
