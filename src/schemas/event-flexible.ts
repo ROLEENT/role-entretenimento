@@ -12,7 +12,8 @@ export const eventFlexibleSchema = z.object({
   // Optional fields
   city_id: z.string().uuid().optional().nullable(),
   venue_id: z.string().uuid().optional().nullable(),
-  organizer_id: z.string().uuid().optional().nullable(),
+  organizer_id: z.string().uuid().optional().nullable(), // Deprecated, use organizer_ids
+  organizer_ids: z.array(z.string().uuid()).default([]), // New field for multiple organizers
   starts_at: z.string().optional().nullable(), // ISO
   ends_at: z.string().optional().nullable(),   // ISO
   price_min: z.number().nonnegative().optional().nullable(),

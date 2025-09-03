@@ -377,6 +377,36 @@ export type Database = {
           },
         ]
       }
+      agenda_item_organizers: {
+        Row: {
+          agenda_id: string
+          created_at: string | null
+          id: string
+          main_organizer: boolean | null
+          organizer_id: string
+          position: number | null
+          role: string | null
+        }
+        Insert: {
+          agenda_id: string
+          created_at?: string | null
+          id?: string
+          main_organizer?: boolean | null
+          organizer_id: string
+          position?: number | null
+          role?: string | null
+        }
+        Update: {
+          agenda_id?: string
+          created_at?: string | null
+          id?: string
+          main_organizer?: boolean | null
+          organizer_id?: string
+          position?: number | null
+          role?: string | null
+        }
+        Relationships: []
+      }
       agenda_itens: {
         Row: {
           accessibility: Json | null

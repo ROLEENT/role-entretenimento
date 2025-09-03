@@ -50,6 +50,11 @@ export const useUpsertEvent = () => {
         throw new Error(`Erro ao salvar evento: ${error.message}`);
       }
 
+      // Sync organizers if organizer_ids is provided
+      if (data.organizer_ids && data.organizer_ids.length > 0 && result) {
+        await syncEventOrganizers(result.id, data.organizer_ids);
+      }
+
       return result;
     },
     onSuccess: (data) => {
@@ -63,3 +68,42 @@ export const useUpsertEvent = () => {
     },
   });
 };
+
+// Helper function to sync event organizers
+async function syncEventOrganizers(agendaId: string, organizerIds: string[]) {
+  try {
+    // Remove existing organizers
+    const { error: deleteError } = await supabase
+      .from("agenda_item_organizers")
+      .delete()
+      .eq("agenda_id", agendaId);
+
+    if (deleteError) {
+      console.error("Error removing existing organizers:", deleteError);
+      throw deleteError;
+    }
+
+    // Add new organizers
+    if (organizerIds.length > 0) {
+      const organizerData = organizerIds.map((organizerId, index) => ({
+        agenda_id: agendaId,
+        organizer_id: organizerId,
+        role: index === 0 ? "organizer" : "co-organizer",
+        main_organizer: index === 0,
+        position: index,
+      }));
+
+      const { error: insertError } = await supabase
+        .from("agenda_item_organizers")
+        .insert(organizerData);
+
+      if (insertError) {
+        console.error("Error inserting organizers:", insertError);
+        throw insertError;
+      }
+    }
+  } catch (error) {
+    console.error("Error syncing organizers:", error);
+    toast.error("Erro ao sincronizar organizadores");
+  }
+}
