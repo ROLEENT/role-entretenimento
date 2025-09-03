@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { cn } from '@/lib/utils';
 
 interface DropdownItem {
@@ -32,78 +32,16 @@ export function SimpleDropdown({
   disabled = false,
   'aria-label': ariaLabel,
 }: SimpleDropdownProps) {
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    // Initialize dropdown functionality
-    const dropdown = dropdownRef.current;
-    const triggerEl = triggerRef.current;
-    
-    if (!dropdown || !triggerEl) return;
-
-    const isPointerFine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-    
-    const handleClick = (e: MouseEvent) => {
-      e.preventDefault();
-      const isOpen = dropdown.classList.toggle('is-open');
-      triggerEl.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-      
-      if (isOpen) {
-        // Close other dropdowns
-        document.querySelectorAll('[data-dropdown].is-open').forEach(d => {
-          if (d !== dropdown) {
-            d.classList.remove('is-open');
-            const t = d.querySelector('[data-dropdown-trigger]') as HTMLButtonElement;
-            if (t) t.setAttribute('aria-expanded', 'false');
-          }
-        });
-      }
-    };
-
-    const handleKeydown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        dropdown.classList.remove('is-open');
-        triggerEl.setAttribute('aria-expanded', 'false');
-        triggerEl.focus();
-      }
-    };
-
-    const handleMouseLeave = () => {
-      if (isPointerFine) {
-        dropdown.classList.remove('is-open');
-        triggerEl.setAttribute('aria-expanded', 'false');
-      }
-    };
-
-    triggerEl.addEventListener('click', handleClick);
-    dropdown.addEventListener('keydown', handleKeydown);
-    
-    if (isPointerFine) {
-      dropdown.addEventListener('mouseleave', handleMouseLeave);
-    }
-
-    return () => {
-      triggerEl.removeEventListener('click', handleClick);
-      dropdown.removeEventListener('keydown', handleKeydown);
-      if (isPointerFine) {
-        dropdown.removeEventListener('mouseleave', handleMouseLeave);
-      }
-    };
-  }, []);
-
   const menuId = `dropdown-menu-${Math.random().toString(36).substr(2, 9)}`;
 
   return (
     <div 
-      ref={dropdownRef}
-      className={cn("relative", className)} 
+      className={cn("dropdown", className)} 
       data-dropdown
     >
       <button
-        ref={triggerRef}
         className={cn(
-          "bg-transparent border-0 p-2 font-inherit cursor-pointer",
+          "dropdown-trigger",
           "hover:bg-accent hover:text-accent-foreground",
           "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
           "disabled:cursor-not-allowed disabled:opacity-50",
@@ -121,12 +59,8 @@ export function SimpleDropdown({
       <div
         id={menuId}
         className={cn(
-          "absolute top-full min-w-[220px] hidden p-2",
-          "border border-border bg-popover text-popover-foreground shadow-lg rounded-md z-50",
+          "dropdown-menu",
           align === 'end' ? 'right-0' : 'left-0',
-          "[.is-open>&]:block",
-          "[@media(hover:hover)and(pointer:fine)]:group-hover:block",
-          "group-focus-within:block",
           menuClassName
         )}
         data-dropdown-menu
@@ -139,9 +73,7 @@ export function SimpleDropdown({
               href={item.href}
               role="menuitem"
               className={cn(
-                "block p-2 text-sm text-foreground no-underline rounded-sm",
-                "hover:bg-accent hover:text-accent-foreground",
-                "focus:bg-accent focus:text-accent-foreground focus:outline-none",
+                "block p-2 text-sm no-underline rounded-sm",
                 item.disabled && "opacity-50 pointer-events-none"
               )}
             >
@@ -154,9 +86,7 @@ export function SimpleDropdown({
               onClick={item.onClick}
               disabled={item.disabled}
               className={cn(
-                "w-full text-left block p-2 text-sm text-foreground rounded-sm border-0 bg-transparent cursor-pointer",
-                "hover:bg-accent hover:text-accent-foreground",
-                "focus:bg-accent focus:text-accent-foreground focus:outline-none",
+                "w-full text-left block p-2 text-sm rounded-sm",
                 "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >

@@ -138,11 +138,43 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     
-    <!-- Simple Dropdown Script -->
+    <!-- Simple Dropdown Script Completo -->
     <script>
     (function () {
       const isPointerFine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
+      document.querySelectorAll('[data-dropdown]').forEach(drop => {
+        const trigger = drop.querySelector('[data-dropdown-trigger]');
+        const menu = drop.querySelector('[data-dropdown-menu]');
+        if (!trigger || !menu) return;
+
+        // Abrir/fechar por clique
+        trigger.addEventListener('click', (e) => {
+          e.preventDefault();
+          const open = drop.classList.toggle('is-open');
+          trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+          if (open) closeOthers(drop);
+        });
+
+        // Acessível por teclado: Esc fecha
+        drop.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            drop.classList.remove('is-open');
+            trigger.setAttribute('aria-expanded', 'false');
+            trigger.focus();
+          }
+        });
+
+        // Fechar quando sair com o mouse no desktop
+        if (isPointerFine) {
+          drop.addEventListener('mouseleave', () => {
+            drop.classList.remove('is-open');
+            trigger.setAttribute('aria-expanded', 'false');
+          });
+        }
+      });
+
+      // Fecha ao clicar fora
       document.addEventListener('click', (e) => {
         const inside = e.target.closest('[data-dropdown]');
         if (!inside) closeAll();
@@ -150,6 +182,15 @@
 
       function closeAll() {
         document.querySelectorAll('[data-dropdown].is-open').forEach(d => {
+          d.classList.remove('is-open');
+          const t = d.querySelector('[data-dropdown-trigger]');
+          if (t) t.setAttribute('aria-expanded', 'false');
+        });
+      }
+
+      function closeOthers(current) {
+        document.querySelectorAll('[data-dropdown].is-open').forEach(d => {
+          if (d === current) return;
           d.classList.remove('is-open');
           const t = d.querySelector('[data-dropdown-trigger]');
           if (t) t.setAttribute('aria-expanded', 'false');

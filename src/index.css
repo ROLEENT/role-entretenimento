@@ -30,6 +30,71 @@ header, header *, nav, nav * {
   transform: none !important;
 }
 
+/* CSS para dropdowns simples */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-trigger {
+  background: transparent;
+  border: 0;
+  padding: 0.5rem 0.25rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 220px;
+  display: none;
+  padding: 0.5rem;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+  border-radius: calc(var(--radius) - 2px);
+  z-index: 50;
+}
+
+.dropdown-menu a,
+.dropdown-menu button {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  width: 100%;
+  text-align: left;
+  color: hsl(var(--foreground));
+  border-radius: calc(var(--radius) - 4px);
+  cursor: pointer;
+  font: inherit;
+}
+
+.dropdown-menu a:hover,
+.dropdown-menu button:hover {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.dropdown.is-open > .dropdown-menu { 
+  display: block; 
+}
+
+/* Acessível por teclado */
+.dropdown:focus-within > .dropdown-menu { 
+  display: block; 
+}
+
+/* Hover no desktop */
+@media (hover: hover) and (pointer: fine) {
+  .dropdown:hover > .dropdown-menu { 
+    display: block; 
+  }
+}
+
 [data-radix-popper-content-wrapper], 
 [data-radix-select-content],
 [data-radix-dropdown-menu-content] { 
