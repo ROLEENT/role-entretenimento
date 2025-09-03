@@ -25,6 +25,7 @@ export const OrganizerMediaTab: React.FC<OrganizerMediaTabProps> = ({ form }) =>
                   value={field.value || ''}
                   onChange={field.onChange}
                   label="Logo do Organizador"
+                  bucket="organizers"
                   maxSizeMB={5}
                 />
               </FormControl>
@@ -64,6 +65,7 @@ export const OrganizerMediaTab: React.FC<OrganizerMediaTabProps> = ({ form }) =>
                   value={field.value || ''}
                   onChange={field.onChange}
                   label="Imagem de Capa do Organizador"
+                  bucket="organizers"
                   maxSizeMB={5}
                 />
               </FormControl>
