@@ -106,10 +106,24 @@ export const useUpsertVenue = () => {
     mutationFn: async (data: VenueFlexibleFormData) => {
       console.log("Upserting venue - raw data:", data);
 
-      // Transform and clean data like in useUpsertPost
+      // Generate slug if not provided
+      const generateSlug = (text: string) => {
+        return text
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '') // Remove accents
+          .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
+          .trim()
+          .replace(/\s+/g, '-') // Replace spaces with hyphens
+          .replace(/-+/g, '-') // Replace multiple hyphens
+          .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
+          .slice(0, 80); // Limit to 80 chars
+      };
+
+      // Transform and clean data to match database schema exactly
       const venueData = {
         name: data.name,
-        slug: data.slug || null,
+        slug: data.slug || generateSlug(data.name),
         address_line: data.address_line || null,
         district: data.district || null,
         city: data.city || null,
@@ -137,36 +151,28 @@ export const useUpsertVenue = () => {
         tags: data.tags || [],
         cover_url: data.cover_url || null,
         cover_alt: data.cover_alt || null,
-        gallery_urls: data.gallery_urls || [],
+        // Convert gallery_urls array to gallery object for database
+        gallery: data.gallery_urls && data.gallery_urls.length > 0 ? { urls: data.gallery_urls } : null,
         status: data.status || 'active',
-        priority: data.priority || 0,
-        updated_at: new Date().toISOString(),
+        // Removed priority and updated_at - not in database schema
       };
 
       console.log("Upserting venue - transformed data:", venueData);
 
-      let result;
-      if (data.id) {
-        // Update existing venue
-        const { data: updateResult, error } = await supabase
-          .from("venues")
-          .update(venueData)
-          .eq("id", data.id)
-          .select("*")
-          .single();
-        
-        if (error) throw error;
-        result = updateResult;
-      } else {
-        // Create new venue
-        const { data: insertResult, error } = await supabase
-          .from("venues")
-          .insert(venueData)
-          .select("*")
-          .single();
-        
-        if (error) throw error;
-        result = insertResult;
+      // Use upsert with onConflict for both insert and update
+      const { data: result, error } = await supabase
+        .from("venues")
+        .upsert(venueData, { 
+          onConflict: "slug",
+          ignoreDuplicates: false 
+        })
+        .select("*")
+        .single();
+
+      if (error) {
+        console.error("Venue upsert error:", error);
+        console.error("Error details:", { hint: error.hint, details: error.details });
+        throw new Error(`Erro ao salvar local: ${error.message}`);
       }
 
       console.log("Venue upsert successful:", result);
@@ -179,7 +185,8 @@ export const useUpsertVenue = () => {
     },
     onError: (error) => {
       console.error("Venue save error:", error);
-      toast.error(error.message || "Erro ao salvar local");
+      const errorMessage = error.message || "Erro ao salvar local";
+      toast.error(errorMessage);
     },
   });
 };
