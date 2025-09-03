@@ -25,6 +25,9 @@ import { ProfileTabsMobile } from "@/features/profiles/components/mobile/Profile
 import { ProfileContentMobile } from "@/features/profiles/components/mobile/ProfileContentMobile";
 import { ProfileSkeletonMobile } from "@/features/profiles/components/mobile/ProfileSkeletonMobile";
 import { useProfileStats } from "@/features/profiles/hooks/useProfileStats";
+import { useTabPrefetch } from "@/hooks/useTabPrefetch";
+import { useProfileAnalytics } from "@/hooks/useProfileAnalytics";
+import { useDeepLinking } from "@/hooks/useDeepLinking";
 
 export default function ProfilePage() {
   const { handle } = useParams<{ handle: string }>();
@@ -37,6 +40,15 @@ export default function ProfilePage() {
     profile?.type || '', 
     profile?.user_id || ''
   );
+
+  // Apply final refinements
+  useTabPrefetch(profile, activeTab);
+  useProfileAnalytics(profile, activeTab);
+  useDeepLinking({
+    activeTab,
+    onTabChange: setActiveTab,
+    validTabs: ['visao', 'agenda', 'midia', 'sobre']
+  });
 
   const handleRefresh = async () => {
     await refetch();

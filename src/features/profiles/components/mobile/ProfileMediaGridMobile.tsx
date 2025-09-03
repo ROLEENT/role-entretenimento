@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Profile } from "@/features/profiles/api";
 import { useProfileMedia } from "@/features/profiles/hooks/useProfileMedia";
 import { useAnimatedToast } from "@/hooks/useAnimatedToast";
+import { LazyImage } from "@/components/ui/lazy-image";
 
 interface ProfileMediaGridMobileProps {
   profile: Profile;
@@ -132,7 +133,7 @@ export const ProfileMediaGridMobile = memo(function ProfileMediaGridMobile({ pro
             role="button"
             aria-label={`Ver ${item.type === 'video' ? 'vídeo' : 'imagem'}: ${item.alt}`}
           >
-            <img
+            <LazyImage
               src={item.url}
               alt={item.alt || "Mídia"}
               className="w-full h-full object-cover"

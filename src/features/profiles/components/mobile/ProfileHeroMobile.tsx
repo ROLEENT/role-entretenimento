@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { VerifiedIcon } from "lucide-react";
 import { Profile } from "@/features/profiles/api";
+import { LazyImage } from "@/components/ui/lazy-image";
 
 interface ProfileHeroMobileProps {
   profile: Profile;
@@ -14,14 +15,16 @@ export function ProfileHeroMobile({ profile }: ProfileHeroMobileProps) {
       
       {/* Cover Image with Gradient Overlay */}
       <div className="relative h-44 w-full overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: profile.cover_url 
-              ? `url(${profile.cover_url})` 
-              : 'linear-gradient(135deg, #c77dff 0%, #9d4edd 100%)'
-          }}
-        />
+        {profile.cover_url ? (
+          <LazyImage 
+            src={profile.cover_url}
+            alt={`${profile.name} cover`}
+            className="absolute inset-0"
+            loading="eager"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/80 to-primary/60" />
+        )}
         
         {/* Gradient for legibility */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />

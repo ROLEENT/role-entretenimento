@@ -1,13 +1,16 @@
-import { MessageSquare, MoreHorizontal } from "lucide-react";
+import { MessageSquare, MoreHorizontal, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FollowButton } from "@/components/profiles/FollowButton";
 import { Profile } from "@/features/profiles/api";
+import { useProfileShare } from "@/hooks/useProfileShare";
 
 interface ProfileActionsMobileProps {
   profile: Profile;
 }
 
 export function ProfileActionsMobile({ profile }: ProfileActionsMobileProps) {
+  const { shareProfile } = useProfileShare();
+
   return (
     <div className="mx-auto max-w-screen-sm px-4 mt-3 md:hidden">
       <div className="flex gap-2">
@@ -26,14 +29,15 @@ export function ProfileActionsMobile({ profile }: ProfileActionsMobileProps) {
           Mensagem
         </Button>
         
-        {/* More options */}
+        {/* Share button */}
         <Button 
           variant="outline" 
           size="icon"
-          className="min-h-[44px] min-w-[44px] rounded-xl border-border active:scale-95 transition-all"
-          aria-label="Mais opções"
+          onClick={() => shareProfile(profile)}
+          className="min-h-[44px] min-w-[44px] rounded-xl border-border active:scale-95 transition-all hover:bg-accent"
+          aria-label="Compartilhar perfil"
         >
-          <MoreHorizontal className="w-4 h-4" />
+          <Share className="w-4 h-4" />
         </Button>
       </div>
     </div>
