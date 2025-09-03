@@ -5131,7 +5131,7 @@ export type Database = {
           country: string | null
           cover_url: string | null
           created_at: string | null
-          followers_count: number | null
+          favorite_count: number | null
           handle: string | null
           id: string | null
           links: Json | null
@@ -5143,7 +5143,58 @@ export type Database = {
           updated_at: string | null
           user_id: string | null
           verified: boolean | null
+          view_count: number | null
           visibility: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          bio_short?: string | null
+          city?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          favorite_count?: never
+          handle?: string | null
+          id?: string | null
+          links?: Json | null
+          name?: string | null
+          source_id?: string | null
+          state?: string | null
+          tags?: string[] | null
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          verified?: boolean | null
+          view_count?: never
+          visibility?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          bio_short?: string | null
+          city?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          favorite_count?: never
+          handle?: string | null
+          id?: string | null
+          links?: Json | null
+          name?: string | null
+          source_id?: string | null
+          state?: string | null
+          tags?: string[] | null
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          verified?: boolean | null
+          view_count?: never
+          visibility?: string | null
         }
         Relationships: []
       }
