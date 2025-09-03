@@ -21,14 +21,7 @@ export default function AdminV3EventCreate() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Dados do Evento</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <AdminEventFormV3 />
-        </CardContent>
-      </Card>
+      <AdminEventFormV3 />
     </div>
   );
 }

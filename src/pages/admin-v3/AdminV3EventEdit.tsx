@@ -68,14 +68,7 @@ export default function AdminV3EventEdit() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Dados do Evento</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <AdminEventForm event={event} />
-        </CardContent>
-      </Card>
+      <AdminEventForm event={event} />
     </div>
   );
 }

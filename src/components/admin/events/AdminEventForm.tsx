@@ -1,20 +1,29 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
+import { EventCreateWizard } from "@/components/events/EventCreateWizard";
+import { toast } from "sonner";
 
 interface AdminEventFormProps {
   event?: any;
 }
 
 export function AdminEventForm({ event }: AdminEventFormProps) {
+  const navigate = useNavigate();
+
+  const handleSave = (eventData: any) => {
+    console.log("Event updated:", eventData);
+    toast.success("Evento atualizado com sucesso!");
+    navigate("/admin-v3/eventos");
+  };
+
+  const handleCancel = () => {
+    navigate("/admin-v3/eventos");
+  };
+
   return (
-    <Card>
-      <CardContent className="p-6">
-        <div className="text-center text-muted-foreground">
-          <p>Formulário de evento em desenvolvimento</p>
-          <p className="text-sm mt-2">
-            Este componente será implementado com a nova estrutura do banco de dados.
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+    <EventCreateWizard 
+      initialData={event}
+      onSave={handleSave}
+      onCancel={handleCancel}
+    />
   );
 }
