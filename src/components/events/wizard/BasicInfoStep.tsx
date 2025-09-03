@@ -1,5 +1,5 @@
 import React from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, Controller } from 'react-hook-form';
 import { EventFormData } from '@/schemas/eventSchema';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -39,8 +39,15 @@ const CITIES = [
   'Cuiabá'
 ];
 
+// helpers
+const toISO = (v?: Date | string | null) =>
+  v ? new Date(v).toISOString() : '';
+
+const fromISO = (iso?: string | null) =>
+  iso ? new Date(iso) : undefined;
+
 export const BasicInfoStep: React.FC = () => {
-  const { control, watch, setValue } = useFormContext<EventFormData>();
+  const { control, watch, setValue, setError, clearErrors, getValues } = useFormContext<EventFormData>();
   const { searchVenues, getVenueById } = useVenueSearch();
   
   const watchedTitle = watch('title');
@@ -95,6 +102,17 @@ export const BasicInfoStep: React.FC = () => {
 
     fillVenueAddress();
   }, [watchedVenueId, setValue]);
+
+  // Date validation rule
+  React.useEffect(() => {
+    const s = getValues('date_start');
+    const e = getValues('date_end');
+    if (s && e && new Date(e) <= new Date(s)) {
+      setError('date_end', { message: 'Data fim precisa ser depois do início' });
+    } else {
+      clearErrors('date_end');
+    }
+  }, [watch('date_start'), watch('date_end'), getValues, setError, clearErrors]);
 
   return (
     <div className="space-y-6">
@@ -236,44 +254,38 @@ export const BasicInfoStep: React.FC = () => {
         />
 
         {/* Start Date */}
-        <FormField
-          control={control}
+        <Controller
           name="date_start"
+          control={control}
+          defaultValue=""
           render={({ field }) => (
             <FormItem>
               <FormLabel>Data de Início *</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? (
-                        <div className="flex items-center gap-2">
-                          <CalendarIcon className="w-4 h-4" />
-                          {format(new Date(field.value), "PPP", { locale: ptBR })}
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <CalendarIcon className="w-4 h-4" />
-                          <span>Selecione a data</span>
-                        </div>
-                      )}
-                    </Button>
-                  </FormControl>
+                  <Button variant="outline" className="w-full justify-start">
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {field.value ? format(new Date(field.value), 'dd/MM/yyyy HH:mm', { locale: ptBR }) : 'Selecione a data'}
+                  </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="p-3 space-y-3" align="start">
                   <Calendar
                     mode="single"
-                    selected={field.value ? new Date(field.value) : undefined}
-                    onSelect={(date) => field.onChange(date?.toISOString())}
-                    disabled={(date) => date < new Date()}
+                    selected={fromISO(field.value)}
+                    onSelect={(d) => field.onChange(toISO(d))}
                     initialFocus
-                    className="p-3 pointer-events-auto"
+                    className="pointer-events-auto"
+                  />
+                  <Input
+                    type="time"
+                    step={900}
+                    placeholder="Horário"
+                    onChange={(e) => {
+                      const d = fromISO(field.value) ?? new Date();
+                      const [hh, mm] = e.target.value.split(':').map(Number);
+                      d.setHours(hh || 0, mm || 0, 0, 0);
+                      field.onChange(d.toISOString());
+                    }}
                   />
                 </PopoverContent>
               </Popover>
@@ -283,47 +295,20 @@ export const BasicInfoStep: React.FC = () => {
         />
 
         {/* End Date */}
-        <FormField
-          control={control}
+        <Controller
           name="date_end"
+          control={control}
+          defaultValue=""
           render={({ field }) => (
             <FormItem>
               <FormLabel>Data de Fim</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? (
-                        <div className="flex items-center gap-2">
-                          <CalendarIcon className="w-4 h-4" />
-                          {format(new Date(field.value), "PPP", { locale: ptBR })}
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <CalendarIcon className="w-4 h-4" />
-                          <span>Mesmo dia</span>
-                        </div>
-                      )}
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value ? new Date(field.value) : undefined}
-                    onSelect={(date) => field.onChange(date?.toISOString())}
-                    disabled={(date) => date < new Date()}
-                    initialFocus
-                    className="p-3 pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
+              <Input
+                type="datetime-local"
+                step={900}
+                value={field.value ? field.value.slice(0,16) : ''}
+                onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value).toISOString() : '')}
+                placeholder="Mesmo dia"
+              />
               <FormDescription>
                 Deixe em branco se for evento de um dia
               </FormDescription>
@@ -333,9 +318,10 @@ export const BasicInfoStep: React.FC = () => {
         />
 
         {/* Venue */}
-        <FormField
-          control={control}
+        <Controller
           name="venue_id"
+          control={control}
+          defaultValue=""
           render={({ field }) => (
             <FormItem>
               <FormLabel>Local/Venue</FormLabel>
@@ -349,33 +335,35 @@ export const BasicInfoStep: React.FC = () => {
                 />
               </FormControl>
               <FormDescription>
-                Busque por venues cadastrados ou deixe em branco para usar local personalizado
+                Busque por venues cadastrados
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Custom Location */}
-        <FormField
-          control={control}
-          name="location_name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nome do Local</FormLabel>
-              <FormControl>
-                <Input 
-                  placeholder="Nome personalizado do local"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                Use este campo se não encontrou o venue na busca
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Custom Location - só aparece se venue não for selecionado */}
+        {!watchedVenueId && (
+          <FormField
+            control={control}
+            name="location_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nome do Local</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="Nome e endereço do local"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Use este campo se não encontrou o venue na busca
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
       </div>
 
       {/* Highlight Type */}

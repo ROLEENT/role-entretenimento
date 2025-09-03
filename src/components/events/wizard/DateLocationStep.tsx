@@ -1,5 +1,5 @@
 import React from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, Controller } from 'react-hook-form';
 import { EventFormData } from '@/schemas/eventSchema';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -57,6 +57,13 @@ const COUNTRIES = [
   'Equador'
 ];
 
+// helpers
+const toISO = (v?: Date | string | null) =>
+  v ? new Date(v).toISOString() : '';
+
+const fromISO = (iso?: string | null) =>
+  iso ? new Date(iso) : undefined;
+
 export const DateLocationStep: React.FC = () => {
   const { control, watch } = useFormContext<EventFormData>();
   
@@ -95,24 +102,32 @@ export const DateLocationStep: React.FC = () => {
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Doors Open Time */}
-        <FormField
-          control={control}
+        <Controller
           name="doors_open_utc"
+          control={control}
+          defaultValue=""
           render={({ field }) => (
             <FormItem>
               <FormLabel>Horário de Abertura</FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="time"
-                    className="pl-10"
-                    value={formatTimeForInput(field.value)}
-                    onChange={(e) => handleTimeChange(e.target.value, 'doors_open_utc', field.onChange)}
-                    disabled={!dateStart}
-                  />
-                </div>
-              </FormControl>
+              <div className="relative">
+                <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="time"
+                  step={900}
+                  className="pl-10"
+                  onChange={(e) => {
+                    if (!dateStart || !e.target.value) {
+                      field.onChange('');
+                      return;
+                    }
+                    const d = new Date(dateStart);
+                    const [hh, mm] = e.target.value.split(':').map(Number);
+                    d.setHours(hh || 0, mm || 0, 0, 0);
+                    field.onChange(d.toISOString());
+                  }}
+                  disabled={!dateStart}
+                />
+              </div>
               <FormDescription>
                 {!dateStart ? 'Defina primeiro a data de início' : 'Horário que o público pode entrar'}
               </FormDescription>
@@ -122,24 +137,32 @@ export const DateLocationStep: React.FC = () => {
         />
 
         {/* Headliner Start Time */}
-        <FormField
-          control={control}
+        <Controller
           name="headliner_starts_utc"
+          control={control}
+          defaultValue=""
           render={({ field }) => (
             <FormItem>
               <FormLabel>Início do Show Principal</FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="time"
-                    className="pl-10"
-                    value={formatTimeForInput(field.value)}
-                    onChange={(e) => handleTimeChange(e.target.value, 'headliner_starts_utc', field.onChange)}
-                    disabled={!dateStart}
-                  />
-                </div>
-              </FormControl>
+              <div className="relative">
+                <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="time"
+                  step={900}
+                  className="pl-10"
+                  onChange={(e) => {
+                    if (!dateStart || !e.target.value) {
+                      field.onChange('');
+                      return;
+                    }
+                    const d = new Date(dateStart);
+                    const [hh, mm] = e.target.value.split(':').map(Number);
+                    d.setHours(hh || 0, mm || 0, 0, 0);
+                    field.onChange(d.toISOString());
+                  }}
+                  disabled={!dateStart}
+                />
+              </div>
               <FormDescription>
                 {!dateStart ? 'Defina primeiro a data de início' : 'Horário do artista principal'}
               </FormDescription>
