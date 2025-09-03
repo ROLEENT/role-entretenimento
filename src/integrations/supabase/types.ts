@@ -430,9 +430,12 @@ export type Database = {
           focal_point_x: number | null
           focal_point_y: number | null
           gallery_urls: string[] | null
+          highlight_type: Database["public"]["Enums"]["highlight_type"]
           id: string
+          is_sponsored: boolean
           latitude: number | null
           lineup_ids: string[] | null
+          links: Json | null
           location_name: string | null
           longitude: number | null
           meta_description: string | null
@@ -440,23 +443,32 @@ export type Database = {
           meta_title: string | null
           neighborhood: string | null
           noindex: boolean | null
+          og_image_url: string | null
           organizer_id: string | null
+          organizer_ids: string[] | null
           patrocinado: boolean | null
+          performances: Json | null
           preview_token: string | null
           price_max: number | null
           price_min: number | null
           priority: number | null
           publish_at: string | null
+          published_at: string | null
+          seo_description: string | null
+          seo_title: string | null
           share_text: string | null
           slug: string
           source_url: string | null
+          sponsors: Json | null
           starts_at: string | null
           status: Database["public"]["Enums"]["agenda_status"]
           subtitle: string | null
           summary: string | null
+          supporters: Json | null
           tags: string[] | null
           ticket_status: string | null
           ticket_url: string | null
+          ticketing: Json | null
           title: string
           type: string | null
           unpublish_at: string | null
@@ -464,6 +476,7 @@ export type Database = {
           updated_by: string | null
           venue_id: string | null
           visibility_type: Database["public"]["Enums"]["agenda_visibility"]
+          visual_art: Json | null
         }
         Insert: {
           accessibility?: Json | null
@@ -487,9 +500,12 @@ export type Database = {
           focal_point_x?: number | null
           focal_point_y?: number | null
           gallery_urls?: string[] | null
+          highlight_type?: Database["public"]["Enums"]["highlight_type"]
           id?: string
+          is_sponsored?: boolean
           latitude?: number | null
           lineup_ids?: string[] | null
+          links?: Json | null
           location_name?: string | null
           longitude?: number | null
           meta_description?: string | null
@@ -497,23 +513,32 @@ export type Database = {
           meta_title?: string | null
           neighborhood?: string | null
           noindex?: boolean | null
+          og_image_url?: string | null
           organizer_id?: string | null
+          organizer_ids?: string[] | null
           patrocinado?: boolean | null
+          performances?: Json | null
           preview_token?: string | null
           price_max?: number | null
           price_min?: number | null
           priority?: number | null
           publish_at?: string | null
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           share_text?: string | null
           slug: string
           source_url?: string | null
+          sponsors?: Json | null
           starts_at?: string | null
           status?: Database["public"]["Enums"]["agenda_status"]
           subtitle?: string | null
           summary?: string | null
+          supporters?: Json | null
           tags?: string[] | null
           ticket_status?: string | null
           ticket_url?: string | null
+          ticketing?: Json | null
           title: string
           type?: string | null
           unpublish_at?: string | null
@@ -521,6 +546,7 @@ export type Database = {
           updated_by?: string | null
           venue_id?: string | null
           visibility_type?: Database["public"]["Enums"]["agenda_visibility"]
+          visual_art?: Json | null
         }
         Update: {
           accessibility?: Json | null
@@ -544,9 +570,12 @@ export type Database = {
           focal_point_x?: number | null
           focal_point_y?: number | null
           gallery_urls?: string[] | null
+          highlight_type?: Database["public"]["Enums"]["highlight_type"]
           id?: string
+          is_sponsored?: boolean
           latitude?: number | null
           lineup_ids?: string[] | null
+          links?: Json | null
           location_name?: string | null
           longitude?: number | null
           meta_description?: string | null
@@ -554,23 +583,32 @@ export type Database = {
           meta_title?: string | null
           neighborhood?: string | null
           noindex?: boolean | null
+          og_image_url?: string | null
           organizer_id?: string | null
+          organizer_ids?: string[] | null
           patrocinado?: boolean | null
+          performances?: Json | null
           preview_token?: string | null
           price_max?: number | null
           price_min?: number | null
           priority?: number | null
           publish_at?: string | null
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           share_text?: string | null
           slug?: string
           source_url?: string | null
+          sponsors?: Json | null
           starts_at?: string | null
           status?: Database["public"]["Enums"]["agenda_status"]
           subtitle?: string | null
           summary?: string | null
+          supporters?: Json | null
           tags?: string[] | null
           ticket_status?: string | null
           ticket_url?: string | null
+          ticketing?: Json | null
           title?: string
           type?: string | null
           unpublish_at?: string | null
@@ -578,6 +616,7 @@ export type Database = {
           updated_by?: string | null
           venue_id?: string | null
           visibility_type?: Database["public"]["Enums"]["agenda_visibility"]
+          visual_art?: Json | null
         }
         Relationships: []
       }
@@ -2191,6 +2230,73 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_series: {
+        Row: {
+          cover_url: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      event_series_items: {
+        Row: {
+          edition_number: number | null
+          event_id: string
+          series_id: string
+        }
+        Insert: {
+          edition_number?: number | null
+          event_id: string
+          series_id: string
+        }
+        Update: {
+          edition_number?: number | null
+          event_id?: string
+          series_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_series_items_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "agenda_itens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_series_items_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "agenda_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_series_items_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "event_series"
             referencedColumns: ["id"]
           },
         ]
@@ -6735,6 +6841,13 @@ export type Database = {
         | "rio_de_janeiro"
       event_status: "draft" | "published"
       highlight_status: "draft" | "published"
+      highlight_type: "none" | "curatorial" | "vitrine"
+      publication_status:
+        | "draft"
+        | "review"
+        | "scheduled"
+        | "published"
+        | "archived"
       user_level: "bronze" | "silver" | "gold" | "platinum" | "diamond"
       user_role: "admin" | "editor" | "moderator" | "viewer"
     }
@@ -6888,6 +7001,14 @@ export const Constants = {
       ],
       event_status: ["draft", "published"],
       highlight_status: ["draft", "published"],
+      highlight_type: ["none", "curatorial", "vitrine"],
+      publication_status: [
+        "draft",
+        "review",
+        "scheduled",
+        "published",
+        "archived",
+      ],
       user_level: ["bronze", "silver", "gold", "platinum", "diamond"],
       user_role: ["admin", "editor", "moderator", "viewer"],
     },

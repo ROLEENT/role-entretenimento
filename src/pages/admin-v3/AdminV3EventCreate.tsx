@@ -1,5 +1,5 @@
 import { AdminV3Breadcrumb } from "@/components/admin/common/AdminV3Breadcrumb";
-import { AdminEventForm } from "@/components/admin/events/AdminEventForm";
+import { AdminEventFormV3 } from "@/components/admin/events/AdminEventFormV3";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AdminV3EventCreate() {
@@ -26,7 +26,7 @@ export default function AdminV3EventCreate() {
           <CardTitle>Dados do Evento</CardTitle>
         </CardHeader>
         <CardContent>
-          <AdminEventForm />
+          <AdminEventFormV3 />
         </CardContent>
       </Card>
     </div>
