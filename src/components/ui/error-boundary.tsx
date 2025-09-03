@@ -1,12 +1,10 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Button } from './button';
-import { Card, CardContent, CardHeader, CardTitle } from './card';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }
 
 interface State {
@@ -15,71 +13,59 @@ interface State {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { hasError: false };
-  }
+  public state: State = {
+    hasError: false
+  };
 
-  static getDerivedStateFromError(error: Error): State {
+  public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
-    this.props.onError?.(error, errorInfo);
   }
 
-  render() {
+  private handleRetry = () => {
+    this.setState({ hasError: false, error: undefined });
+  };
+
+  public render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
       return (
-        <Card className="m-4">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-destructive">
-              <AlertTriangle className="w-5 h-5" />
-              Ops! Algo deu errado
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground">
-              Ocorreu um erro inesperado. Tente recarregar a página ou entre em contato conosco se o problema persistir.
-            </p>
-            
-            {process.env.NODE_ENV === 'development' && (
-              <details className="mt-4">
-                <summary className="cursor-pointer text-sm font-medium">
-                  Detalhes do erro (desenvolvimento)
-                </summary>
-                <pre className="mt-2 p-2 bg-muted rounded text-xs overflow-auto">
-                  {this.state.error?.stack}
-                </pre>
-              </details>
-            )}
-            
-            <div className="flex gap-2">
-              <Button 
-                onClick={() => window.location.reload()}
-                className="gap-2"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Recarregar página
-              </Button>
-              
-              <Button 
-                variant="outline"
-                onClick={() => this.setState({ hasError: false })}
-              >
-                Tentar novamente
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center justify-center min-h-[200px] p-6 text-center">
+          <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            Algo deu errado
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4 max-w-md">
+            Ocorreu um erro inesperado. Tente recarregar a página ou entre em contato com o suporte.
+          </p>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={this.handleRetry}
+              className="min-h-[44px]"
+            >
+              Tentar novamente
+            </Button>
+            <Button 
+              variant="default"
+              onClick={() => window.location.reload()}
+              className="min-h-[44px]"
+            >
+              Recarregar página
+            </Button>
+          </div>
+        </div>
       );
     }
 
     return this.props.children;
   }
 }
+
+export default ErrorBoundary;

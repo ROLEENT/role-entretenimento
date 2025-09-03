@@ -3,16 +3,41 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Profile } from "@/features/profiles/api";
 import { useProfileEvents } from "@/features/profiles/hooks/useProfileEvents";
+import { memo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAnimatedToast } from "@/hooks/useAnimatedToast";
 
 interface ProfileEventListMobileProps {
   profile: Profile;
   limit?: number;
 }
 
-export function ProfileEventListMobile({ profile, limit }: ProfileEventListMobileProps) {
+export const ProfileEventListMobile = memo(function ProfileEventListMobile({ profile, limit }: ProfileEventListMobileProps) {
   const { data: events = [], isLoading } = useProfileEvents(profile.handle, profile.type);
+  const navigate = useNavigate();
+  const { showAnimatedToast } = useAnimatedToast();
 
   const displayEvents = limit ? events.slice(0, limit) : events;
+
+  const handleEventClick = useCallback((eventId: string, eventTitle: string) => {
+    // Haptic feedback
+    if ('vibrate' in navigator) {
+      navigator.vibrate(30);
+    }
+    
+    // Navigate to event details
+    navigate(`/eventos/${eventId}`);
+    
+    showAnimatedToast({
+      title: "Navegando para evento",
+      description: eventTitle,
+      duration: 2000
+    });
+  }, [navigate, showAnimatedToast]);
+
+  const handleViewAllEvents = useCallback(() => {
+    navigate(`/perfil/${profile.handle}/agenda`);
+  }, [navigate, profile.handle]);
 
   if (isLoading) {
     return (
@@ -53,7 +78,20 @@ export function ProfileEventListMobile({ profile, limit }: ProfileEventListMobil
   return (
     <div className="space-y-3">
       {displayEvents.map((event) => (
-        <Card key={event.id} className="hover:shadow-md transition-shadow cursor-pointer">
+        <Card 
+          key={event.id} 
+          className="hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          onClick={() => handleEventClick(event.id, event.title)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleEventClick(event.id, event.title);
+            }
+          }}
+          tabIndex={0}
+          role="button"
+          aria-label={`Ver detalhes do evento ${event.title}`}
+        >
           <CardContent className="p-4">
             <div className="space-y-2">
               <h4 className="font-medium text-foreground line-clamp-1">
@@ -90,12 +128,13 @@ export function ProfileEventListMobile({ profile, limit }: ProfileEventListMobil
       {limit && events.length > limit && (
         <Button 
           variant="outline" 
-          className="w-full mt-4"
-          onClick={() => {/* navigate to full agenda */}}
+          className="w-full mt-4 min-h-[44px] active:scale-95 transition-all focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          onClick={handleViewAllEvents}
+          aria-label={`Ver todos os ${events.length} eventos`}
         >
           Ver todos os eventos ({events.length})
         </Button>
       )}
     </div>
   );
-}
+});
