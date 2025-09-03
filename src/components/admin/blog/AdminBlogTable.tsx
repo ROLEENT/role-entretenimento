@@ -2,14 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MoreHorizontal, Edit, Eye, Copy, Trash2, Calendar, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+// Removido: usando sistema unificado de dropdowns
 import {
   Table,
   TableBody,
@@ -129,41 +122,36 @@ export const AdminBlogTable: React.FC<AdminBlogTableProps> = ({
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Abrir menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                      <DropdownMenuItem asChild>
-                        <Link to={`/revista/${post.slug_data || post.slug}`} target="_blank">
-                          <Eye className="mr-2 h-4 w-4" />
-                          Visualizar
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to={`/admin-v3/revista/${post.id}/edit`}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Editar
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onDuplicate(post)}>
-                        <Copy className="mr-2 h-4 w-4" />
+                  <div className="dd" data-dd data-dd-align="right">
+                    <Button variant="ghost" className="h-8 w-8 p-0 dd-trigger" data-dd-trigger aria-label="Ações do post">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                    <div className="dd-menu" data-dd-menu role="menu">
+                      <div className="px-3 py-2 text-sm font-medium text-muted-foreground border-b border-border">Ações</div>
+                      <Link to={`/revista/${post.slug_data || post.slug}`} target="_blank" role="menuitem">
+                        <Eye className="h-4 w-4" />
+                        Visualizar
+                      </Link>
+                      <Link to={`/admin-v3/revista/${post.id}/edit`} role="menuitem">
+                        <Edit className="h-4 w-4" />
+                        Editar
+                      </Link>
+                      <button role="menuitem" type="button" onClick={() => onDuplicate(post)}>
+                        <Copy className="h-4 w-4" />
                         Duplicar
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem 
+                      </button>
+                      <hr />
+                      <button 
+                        role="menuitem" 
+                        type="button"
                         onClick={() => onDelete(post)}
-                        className="text-destructive"
+                        style={{ color: 'hsl(var(--destructive))' }}
                       >
-                        <Trash2 className="mr-2 h-4 w-4" />
+                        <Trash2 className="h-4 w-4" />
                         Excluir
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                      </button>
+                    </div>
+                  </div>
                 </TableCell>
               </TableRow>
             ))

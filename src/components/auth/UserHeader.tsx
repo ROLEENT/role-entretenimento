@@ -1,14 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+// Removido: usando sistema unificado de dropdowns
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, Settings, LogOut, UserPlus } from 'lucide-react';
 import { useUserAuth } from '@/hooks/useUserAuth';
@@ -59,19 +52,17 @@ export const UserHeader = () => {
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={undefined} alt="Avatar" />
-            <AvatarFallback className="bg-primary/10">
-              {getInitials(user.email || '')}
-            </AvatarFallback>
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuLabel className="font-normal">
+    <div className="dd" data-dd>
+      <Button variant="ghost" className="relative h-10 w-10 rounded-full dd-trigger" data-dd-trigger aria-label="Menu do usuário">
+        <Avatar className="h-10 w-10">
+          <AvatarImage src={undefined} alt="Avatar" />
+          <AvatarFallback className="bg-primary/10">
+            {getInitials(user.email || '')}
+          </AvatarFallback>
+        </Avatar>
+      </Button>
+      <div className="dd-menu w-56" data-dd-menu role="menu">
+        <div className="px-3 py-2 text-sm font-medium text-muted-foreground border-b border-border">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
               {user.user_metadata?.display_name || 'Usuário'}
@@ -80,26 +71,22 @@ export const UserHeader = () => {
               {user.email}
             </p>
           </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link to="/profile" className="cursor-pointer">
-            <User className="mr-2 h-4 w-4" />
-            <span>Meu perfil</span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/settings" className="cursor-pointer">
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Configurações</span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Sair</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </div>
+        <hr />
+        <Link to="/profile" role="menuitem">
+          <User className="h-4 w-4" />
+          Meu perfil
+        </Link>
+        <Link to="/settings" role="menuitem">
+          <Settings className="h-4 w-4" />
+          Configurações
+        </Link>
+        <hr />
+        <button role="menuitem" type="button" onClick={handleSignOut}>
+          <LogOut className="h-4 w-4" />
+          Sair
+        </button>
+      </div>
+    </div>
   );
 };

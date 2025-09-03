@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+// Removido: usando sistema unificado de dropdowns
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -167,32 +167,30 @@ export function AgentesArtistsList({ search }: AgentesArtistsListProps) {
                     })}
                   </TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link to={`/admin-v3/agentes/artistas/${artist.id}/edit`}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Editar
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDuplicate(artist)}>
-                          <Copy className="mr-2 h-4 w-4" />
+                    <div className="dd" data-dd data-dd-align="right">
+                      <Button variant="ghost" size="sm" className="dd-trigger" data-dd-trigger aria-label="Ações do artista">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                      <div className="dd-menu" data-dd-menu role="menu">
+                        <Link to={`/admin-v3/agentes/artistas/${artist.id}/edit`} role="menuitem">
+                          <Edit className="h-4 w-4" />
+                          Editar
+                        </Link>
+                        <button role="menuitem" type="button" onClick={() => handleDuplicate(artist)}>
+                          <Copy className="h-4 w-4" />
                           Duplicar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
+                        </button>
+                        <button 
+                          role="menuitem" 
+                          type="button"
                           onClick={() => handleDeactivate(artist)}
-                          className="text-destructive"
+                          style={{ color: 'hsl(var(--destructive))' }}
                         >
-                          <UserX className="mr-2 h-4 w-4" />
+                          <UserX className="h-4 w-4" />
                           Inativar
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                        </button>
+                      </div>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
