@@ -12,25 +12,33 @@ export function useDeepLinking({ activeTab, onTabChange, validTabs }: DeepLinkin
 
   // Read tab from URL on mount
   useEffect(() => {
-    const urlTab = searchParams.get('tab');
-    if (urlTab && validTabs.includes(urlTab) && urlTab !== activeTab) {
-      onTabChange(urlTab);
+    try {
+      const urlTab = searchParams.get('tab');
+      if (urlTab && validTabs.includes(urlTab) && urlTab !== activeTab && onTabChange) {
+        onTabChange(urlTab);
+      }
+    } catch (error) {
+      console.debug('Deep linking error:', error);
     }
   }, [searchParams, onTabChange, validTabs, activeTab]);
 
   // Update URL when tab changes
   useEffect(() => {
-    const currentTab = searchParams.get('tab');
-    if (activeTab !== 'visao' && currentTab !== activeTab) {
-      setSearchParams(params => {
-        params.set('tab', activeTab);
-        return params;
-      });
-    } else if (activeTab === 'visao' && currentTab) {
-      setSearchParams(params => {
-        params.delete('tab');
-        return params;
-      });
+    try {
+      const currentTab = searchParams.get('tab');
+      if (activeTab !== 'visao' && currentTab !== activeTab) {
+        setSearchParams(params => {
+          params.set('tab', activeTab);
+          return params;
+        });
+      } else if (activeTab === 'visao' && currentTab) {
+        setSearchParams(params => {
+          params.delete('tab');
+          return params;
+        });
+      }
+    } catch (error) {
+      console.debug('URL update error:', error);
     }
   }, [activeTab, searchParams, setSearchParams]);
 }

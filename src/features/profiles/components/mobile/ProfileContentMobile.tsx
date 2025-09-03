@@ -21,6 +21,14 @@ const TabContentLoader = () => (
 );
 
 export const ProfileContentMobile = memo(function ProfileContentMobile({ profile, activeTab }: ProfileContentMobileProps) {
+  if (!profile) {
+    return (
+      <div className="md:hidden">
+        <TabContentLoader />
+      </div>
+    );
+  }
+
   return (
     <div className="md:hidden">
       {/* Visão Tab Content */}
@@ -30,10 +38,12 @@ export const ProfileContentMobile = memo(function ProfileContentMobile({ profile
             <ProfileBioMobile profile={profile} />
             
             {/* Quick upcoming events preview */}
-            <div className="px-4 py-3 border-t border-border">
-              <h3 className="text-sm font-semibold text-foreground mb-3">Próximos eventos</h3>
-              <ProfileEventListMobile profile={profile} limit={3} />
-            </div>
+            {profile.handle && (
+              <div className="px-4 py-3 border-t border-border">
+                <h3 className="text-sm font-semibold text-foreground mb-3">Próximos eventos</h3>
+                <ProfileEventListMobile profile={profile} limit={3} />
+              </div>
+            )}
           </Suspense>
         </div>
       )}
@@ -42,7 +52,13 @@ export const ProfileContentMobile = memo(function ProfileContentMobile({ profile
       {activeTab === "agenda" && (
         <div className="mx-auto max-w-screen-sm px-4 py-3 animate-fade-in">
           <Suspense fallback={<TabContentLoader />}>
-            <ProfileEventListMobile profile={profile} />
+            {profile.handle ? (
+              <ProfileEventListMobile profile={profile} />
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>Agenda não disponível</p>
+              </div>
+            )}
           </Suspense>
         </div>
       )}
@@ -51,7 +67,13 @@ export const ProfileContentMobile = memo(function ProfileContentMobile({ profile
       {activeTab === "midia" && (
         <div className="mx-auto max-w-screen-sm px-4 py-3 animate-fade-in">
           <Suspense fallback={<TabContentLoader />}>
-            <ProfileMediaGridMobile profile={profile} />
+            {profile.user_id ? (
+              <ProfileMediaGridMobile profile={profile} />
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>Mídia não disponível</p>
+              </div>
+            )}
           </Suspense>
         </div>
       )}

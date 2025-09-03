@@ -31,35 +31,63 @@ export type Profile = {
 };
 
 export async function getProfileByHandle(handle: string) {
-  // First, get the basic profile data
-  const { data, error } = await supabase
-    .from("entity_profiles")
-    .select(`
-      id, user_id, type, handle, name, city, state, country, bio_short, bio, avatar_url, cover_url, tags, verified,
-      links, contact_email, contact_phone, visibility, source_id, category_name
-    `)
-    .eq("handle", handle.toLowerCase())
-    .limit(1)
-    .maybeSingle();
-  
-  if (error) throw error;
-  if (!data) return null;
-  
-  // If it's an artist and has source_id, get additional artist data
-  if (data.type === 'artista' && data.source_id) {
-    const { data: artistData } = await supabase
-      .from("artists")
-      .select("artist_type, instagram")
-      .eq("id", data.source_id)
+  try {
+    if (!handle?.trim()) {
+      throw new Error('Handle is required');
+    }
+
+    // First, get the basic profile data
+    const { data, error } = await supabase
+      .from("entity_profiles")
+      .select(`
+        id, user_id, type, handle, name, city, state, country, bio_short, bio, avatar_url, cover_url, tags, verified,
+        links, contact_email, contact_phone, visibility, source_id, category_name
+      `)
+      .eq("handle", handle.toLowerCase().trim())
+      .limit(1)
       .maybeSingle();
     
-    if (artistData) {
-      (data as any).artist_type = artistData.artist_type;
-      (data as any).instagram = artistData.instagram;
+    if (error) {
+      console.error('Profile fetch error:', error);
+      throw error;
     }
+    
+    if (!data) return null;
+    
+    // Ensure required fields have default values
+    const profileData = {
+      ...data,
+      bio: data.bio || '',
+      bio_short: data.bio_short || data.bio || '',
+      city: data.city || '',
+      state: data.state || '',
+      country: data.country || '',
+    };
+    
+    // If it's an artist and has source_id, get additional artist data
+    if (data.type === 'artista' && data.source_id) {
+      try {
+        const { data: artistData } = await supabase
+          .from("artists")
+          .select("artist_type, instagram")
+          .eq("id", data.source_id)
+          .maybeSingle();
+        
+        if (artistData) {
+          (profileData as any).artist_type = artistData.artist_type;
+          (profileData as any).instagram = artistData.instagram;
+        }
+      } catch (artistError) {
+        console.debug('Could not fetch artist data:', artistError);
+        // Continue without artist data
+      }
+    }
+    
+    return profileData as Profile;
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    throw error;
   }
-  
-  return data as Profile | null;
 }
 
 export type ListFilters = {
