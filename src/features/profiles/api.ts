@@ -24,6 +24,7 @@ export type Profile = {
   contact_phone?: string | null;
   visibility?: string;
   followers_count?: number;
+  category_name?: string | null;
   profile_artist?: any;
   profile_venue?: any;
   profile_org?: any;
@@ -35,7 +36,7 @@ export async function getProfileByHandle(handle: string) {
     .from("entity_profiles")
     .select(`
       id, user_id, type, handle, name, city, state, country, bio_short, bio, avatar_url, cover_url, tags, verified,
-      links, contact_email, contact_phone, visibility, source_id
+      links, contact_email, contact_phone, visibility, source_id, category_name
     `)
     .eq("handle", handle.toLowerCase())
     .limit(1)
@@ -75,7 +76,7 @@ export type ListFilters = {
 export async function listProfiles(f: ListFilters) {
   let q = supabase
     .from("profiles_with_stats")
-    .select("id, user_id, type, handle, name, city, state, country, avatar_url, cover_url, tags, verified, followers_count", { count: "exact" });
+    .select("id, user_id, type, handle, name, city, state, country, avatar_url, cover_url, tags, verified, followers_count, category_name", { count: "exact" });
 
   if (f.type) q = q.eq("type", f.type);
   if (f.city) q = q.ilike("city", `%${f.city}%`);

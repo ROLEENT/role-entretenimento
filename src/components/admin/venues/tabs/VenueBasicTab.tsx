@@ -5,6 +5,7 @@ import { RHFInput, RHFSlug, RHFTextarea } from '@/components/form';
 import { VenueFlexibleFormData } from '@/schemas/venue-flexible';
 import { Badge, MapPin } from 'lucide-react';
 import { IntelligentStatusField } from '@/components/form/IntelligentStatusField';
+import VenueCategorySelect from '@/components/fields/VenueCategorySelect';
 
 interface VenueBasicTabProps {
   form: UseFormReturn<VenueFlexibleFormData>;
@@ -33,6 +34,13 @@ export const VenueBasicTab: React.FC<VenueBasicTabProps> = ({ form }) => {
               label="Slug (URL)"
               placeholder="teatro-municipal"
             />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Categoria</label>
+              <VenueCategorySelect name="category_id" placeholder="Selecione a categoria" />
+            </div>
           </div>
 
           <RHFTextarea

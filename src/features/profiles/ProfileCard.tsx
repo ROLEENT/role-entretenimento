@@ -17,6 +17,9 @@ export default function ProfileCard({ p }: { p: Profile }) {
           ) : null}
           <span className="absolute left-3 top-3 text-xs px-2 py-1 rounded-full bg-black/70 text-white capitalize">
             {p.type}
+            {p.category_name && (
+              <span className="opacity-80"> • {p.category_name}</span>
+            )}
           </span>
         </div>
       </Link>

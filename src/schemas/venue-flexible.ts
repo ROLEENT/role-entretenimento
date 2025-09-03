@@ -7,6 +7,7 @@ export const venueFlexibleSchema = z.object({
   // Basic info - only name is required
   name: z.string().min(2, "Nome é obrigatório"),
   slug: z.string().optional(), // Auto-generated
+  category_id: z.string().uuid().optional().or(z.literal("")),
   
   // Address info - all optional
   address_line: z.string().optional(),

@@ -842,6 +842,33 @@ export type Database = {
         }
         Relationships: []
       }
+      artist_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       artist_discovery_log: {
         Row: {
           artist_spotify_data_id: string
@@ -955,6 +982,7 @@ export type Database = {
           booking_email: string | null
           booking_phone: string | null
           booking_whatsapp: string | null
+          category_id: string | null
           cities_active: string[] | null
           city: string | null
           city_id: number | null
@@ -1012,6 +1040,7 @@ export type Database = {
           booking_email?: string | null
           booking_phone?: string | null
           booking_whatsapp?: string | null
+          category_id?: string | null
           cities_active?: string[] | null
           city?: string | null
           city_id?: number | null
@@ -1069,6 +1098,7 @@ export type Database = {
           booking_email?: string | null
           booking_phone?: string | null
           booking_whatsapp?: string | null
+          category_id?: string | null
           cities_active?: string[] | null
           city?: string | null
           city_id?: number | null
@@ -1113,6 +1143,13 @@ export type Database = {
           youtube_url?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "artists_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "artist_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "artists_city_id_fkey"
             columns: ["city_id"]
@@ -1751,6 +1788,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           bio_short: string | null
+          category_name: string | null
           city: string
           contact_email: string | null
           contact_phone: string | null
@@ -1774,6 +1812,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           bio_short?: string | null
+          category_name?: string | null
           city: string
           contact_email?: string | null
           contact_phone?: string | null
@@ -1797,6 +1836,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           bio_short?: string | null
+          category_name?: string | null
           city?: string
           contact_email?: string | null
           contact_phone?: string | null
@@ -4685,6 +4725,33 @@ export type Database = {
         }
         Relationships: []
       }
+      venue_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       venue_types: {
         Row: {
           created_at: string
@@ -4720,6 +4787,7 @@ export type Database = {
           bebidas: Json | null
           capacity: number | null
           caracteristicas_estabelecimento: Json | null
+          category_id: string | null
           city: string | null
           city_id: number | null
           contacts_json: Json | null
@@ -4767,6 +4835,7 @@ export type Database = {
           bebidas?: Json | null
           capacity?: number | null
           caracteristicas_estabelecimento?: Json | null
+          category_id?: string | null
           city?: string | null
           city_id?: number | null
           contacts_json?: Json | null
@@ -4814,6 +4883,7 @@ export type Database = {
           bebidas?: Json | null
           capacity?: number | null
           caracteristicas_estabelecimento?: Json | null
+          category_id?: string | null
           city?: string | null
           city_id?: number | null
           contacts_json?: Json | null
@@ -4852,6 +4922,13 @@ export type Database = {
           whatsapp?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "venues_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "venue_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "venues_city_id_fkey"
             columns: ["city_id"]
