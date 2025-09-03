@@ -148,6 +148,9 @@ export const useUpsertVenue = () => {
         whatsapp: data.whatsapp || null,
         website: data.website || null,
         about: data.about || null,
+        logo_url: data.logo_url || null,
+        logo_alt: data.logo_alt || null,
+        category_id: data.category_id || null,
         tags: (() => {
           const tagsValue = data.tags as any; // Type assertion to handle potential string input
           if (Array.isArray(tagsValue)) {
