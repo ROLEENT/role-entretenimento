@@ -15,7 +15,7 @@ export function ProfileEvents({ profileUserId, profileType }: ProfileEventsProps
   const { data: events, isLoading, error } = useProfileEvents(profileUserId, profileType);
 
   if (isLoading) {
-    return <ProfileContentSkeleton type="events" />;
+    return <ProfileContentSkeleton type="agenda" />;
   }
 
   if (error) {
