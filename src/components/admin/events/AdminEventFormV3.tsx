@@ -17,6 +17,7 @@ import { useUpsertEventV3 } from '@/hooks/useUpsertEventV3';
 import { useFormDirtyGuard } from '@/hooks/useFormDirtyGuard';
 import { useAutosave } from '@/hooks/useAutosave';
 import { useEventSlugCheck } from '@/hooks/useEventSlugCheck';
+import { useVenueSearch } from '@/hooks/useVenueSearch';
 import { generateSlug } from '@/utils/slugUtils';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
@@ -27,6 +28,12 @@ import { RHFSelect } from '@/components/form/RHFSelect';
 import RHFTextarea from '@/components/form/RHFTextarea';
 import RHFImageUploader from '@/components/form/RHFImageUploader';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
+
+// New RHF Components
+import { RHFComboboxAsync } from '@/components/rhf/RHFComboboxAsync';
+import { RHFOrganizerMultiSelect } from '@/components/rhf/RHFOrganizerMultiSelect';
+import { RHFEventSeriesSelect } from '@/components/rhf/RHFEventSeriesSelect';
+import { RHFImageUpload } from '@/components/rhf/RHFImageUpload';
 
 // Components especializados
 import { ChipInput } from '@/components/form/ChipInput';
@@ -40,6 +47,8 @@ import { PublicationChecklist } from '@/components/form/PublicationChecklist';
 // Components de destaque
 import { AutosaveIndicator } from '@/components/highlights/AutosaveIndicator';
 import { NavigationGuard } from '@/components/highlights/NavigationGuard';
+import { AgentQuickCreateModal } from '@/components/AgentQuickCreateModal';
+import { ComboboxAsyncOption } from '@/components/ui/combobox-async';
 
 interface AdminEventFormV3Props {
   initialData?: Partial<EventFormV3>;
@@ -48,518 +57,611 @@ interface AdminEventFormV3Props {
   onCancel?: () => void;
 }
 
-export const AdminEventFormV3 = ({
-  initialData,
-  eventId,
-  onSave,
-  onCancel,
-}: AdminEventFormV3Props) => {
+export function AdminEventFormV3({ 
+  initialData = {}, 
+  eventId, 
+  onSave, 
+  onCancel 
+}: AdminEventFormV3Props) {
   const navigate = useNavigate();
+  
+  // State
   const [activeTab, setActiveTab] = useState('identity');
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [showNavigationGuard, setShowNavigationGuard] = useState(false);
-  const [slugLocked, setSlugLocked] = useState(false);
-
-  // Form setup
+  const [venueModalOpen, setVenueModalOpen] = useState(false);
+  
+  // Hooks
+  const { searchVenues } = useVenueSearch();
+  
+  // Form
   const form = useForm<EventFormV3>({
     resolver: zodResolver(zEvent),
+    mode: 'onChange',
     defaultValues: {
       title: '',
       slug: '',
       city: '',
-      venue_id: null,
+      venue_id: '',
       organizer_ids: [],
       supporters: [],
       sponsors: [],
       cover_url: '',
       cover_alt: '',
-      start_utc: '',
-      end_utc: '',
+      start_utc: undefined,
+      end_utc: undefined,
       artists_names: [],
       performances: [],
       visual_art: [],
       highlight_type: 'none',
       is_sponsored: false,
+      ticketing: [],
+      links: [],
       description: '',
       tags: [],
-      genres: [],
+      seo_title: '',
+      seo_description: '',
+      og_image_url: '',
       status: 'draft',
-      links: {},
-      ...initialData,
-    },
+      publish_at: undefined,
+      published_at: undefined,
+      series_id: undefined,
+      edition_number: undefined,
+      ...initialData
+    }
   });
 
-  const { handleSubmit, watch, formState: { isDirty, isValid } } = form;
+  const { formState: { isDirty }, watch, setValue, getValues } = form;
   const formData = watch();
-  const titleValue = watch('title');
-  const slugValue = watch('slug');
 
   // Mutations
-  const { mutate: upsertEvent, isPending } = useUpsertEventV3({
+  const upsertMutation = useUpsertEventV3({
     onSuccess: (data) => {
-      setLastSaved(new Date());
-      setIsSaving(false);
+      toast.success('Evento salvo com sucesso!');
       onSave?.(data);
     },
-    onError: () => {
-      setIsSaving(false);
-    },
-  });
-
-  // Hook para autosave
-  const { isAutosaving, handleFieldBlur } = useAutosave(formData, {
-    enabled: isDirty && isValid,
-    delay: 3000,
-    onSave: async () => {
-      await new Promise((resolve, reject) => {
-        upsertEvent({ ...formData, status: 'draft' }, {
-          onSuccess: resolve,
-          onError: reject
-        });
-      });
+    onError: (error) => {
+      console.error('Error saving event:', error);
+      toast.error('Erro ao salvar evento');
     }
   });
 
-  // Hook para validação de slug
-  const { isCheckingSlug, slugStatus } = useEventSlugCheck({
-    slug: slugValue,
-    eventId,
-    enabled: !!slugValue && slugValue.length > 0
+  const isPending = upsertMutation.isPending;
+
+  // Slug management
+  const { isCheckingSlug, slugStatus } = useEventSlugCheck();
+  
+  // Guard contra navegação sem salvar
+  useFormDirtyGuard(isDirty && !isPending, 'Você tem alterações não salvas. Deseja sair mesmo assim?');
+
+  // Autosave
+  const { isAutosaving, lastSavedAt } = useAutosave(formData, async (data) => {
+    await upsertMutation.mutateAsync(data);
+  }, {
+    enabled: isDirty && !isPending,
+    debounceMs: 3000
   });
 
-  // Guards
-  useFormDirtyGuard(isDirty, () => setShowNavigationGuard(true));
-
-  // Auto-geração de slug baseado no título
+  // Auto-generate slug from title
   useEffect(() => {
-    if (!titleValue || slugLocked || eventId) return;
-    
-    const newSlug = generateSlug(titleValue);
-    if (newSlug !== slugValue) {
-      form.setValue('slug', newSlug);
-    }
-  }, [titleValue, slugLocked, slugValue, eventId, form]);
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'title' && value.title && !value.slug) {
+        const newSlug = generateSlug(value.title);
+        setValue('slug', newSlug);
+        checkSlug(newSlug);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, setValue, checkSlug]);
 
-  // Validação para publicação
+  // Validate form for publication
   const validationErrors = validateEventForPublish(formData);
   const canPublish = validationErrors.length === 0;
 
   // Handlers
-  const onSubmit = (data: EventFormV3) => {
-    setIsSaving(true);
-    upsertEvent({ ...data, status: 'draft' });
+  const handleSave = async () => {
+    try {
+      const data = getValues();
+      await upsertMutation.mutateAsync(data);
+    } catch (error) {
+      console.error('Save error:', error);
+    }
   };
 
-  const onPublish = () => {
+  const handlePublish = async () => {
     if (!canPublish) {
-      toast.error('Complete todos os campos obrigatórios antes de publicar');
+      toast.error('Preencha todos os campos obrigatórios antes de publicar');
       return;
     }
-    
-    handleSubmit((data) => {
-      setIsSaving(true);
-      upsertEvent({ ...data, status: 'published', published_at: new Date().toISOString() });
-    })();
-  };
 
-  const handleSaveAndContinue = async () => {
-    await handleSubmit(onSubmit)();
-    setShowNavigationGuard(false);
-  };
-
-  // Função para regenerar slug
-  const handleRegenerateSlug = () => {
-    if (titleValue) {
-      const newSlug = generateSlug(titleValue);
-      form.setValue('slug', newSlug);
-      setSlugLocked(false);
+    try {
+      const data = { 
+        ...getValues(), 
+        status: 'published' as const,
+        published_at: new Date().toISOString()
+      };
+      await upsertMutation.mutateAsync(data);
+      toast.success('Evento publicado com sucesso!');
+    } catch (error) {
+      console.error('Publish error:', error);
     }
   };
 
-  // Função para editar slug manualmente
-  const handleEditSlug = () => {
-    setSlugLocked(true);
-  };
-
-  // Status icon para o slug
-  const getSlugStatusIcon = () => {
-    if (isCheckingSlug) {
-      return <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />;
-    }
-    if (slugStatus === 'available') {
-      return <CheckCircle className="w-4 h-4 text-green-500" />;
-    }
-    if (slugStatus === 'taken') {
-      return <XCircle className="w-4 h-4 text-red-500" />;
-    }
-    return null;
+  const handleVenueCreated = (newVenue: ComboboxAsyncOption) => {
+    form.setValue('venue_id', newVenue.value);
+    setVenueModalOpen(false);
   };
 
   return (
-    <FormProvider {...form}>
-      <div className="space-y-6">
-        {/* Header com status e ações */}
-        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h2 className="text-2xl font-bold">
-              {eventId ? 'Editar Evento' : 'Criar Evento'}
-            </h2>
-            <AutosaveIndicator
-              lastSaved={lastSaved}
-              hasUnsavedChanges={isDirty}
-              isSaving={isSaving || isAutosaving}
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Badge variant={formData.status === 'published' ? 'default' : 'secondary'}>
-              {formData.status === 'published' ? 'Publicado' : 'Rascunho'}
-            </Badge>
-            
-            {formData.highlight_type === 'vitrine' && (
-              <Badge className="bg-[#c77dff] text-black">
-                Vitrine Cultural
-              </Badge>
-            )}
-          </div>
-        </div>
-
-        {/* Formulário principal */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-3">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
-                <TabsTrigger value="identity">Identidade</TabsTrigger>
-                <TabsTrigger value="media">Mídia</TabsTrigger>
-                <TabsTrigger value="dates">Datas</TabsTrigger>
-                <TabsTrigger value="content">Conteúdo</TabsTrigger>
-                <TabsTrigger value="tickets">Ingressos</TabsTrigger>
-                <TabsTrigger value="highlight">Destaque</TabsTrigger>
-                <TabsTrigger value="series">Série</TabsTrigger>
-                <TabsTrigger value="seo">SEO</TabsTrigger>
-              </TabsList>
-
-              {/* Aba 1: Identidade */}
-              <TabsContent value="identity" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Informações Básicas</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <RHFInput
-                      name="title"
-                      label="Título"
-                      placeholder="Nome do evento..."
-                      required
-                    />
-
-                    <RHFSlugInput
-                      name="slug"
-                      label="Slug"
-                      required
-                      locked={slugLocked}
-                      statusIcon={getSlugStatusIcon()}
-                      onRegenerate={handleRegenerateSlug}
-                      onEdit={handleEditSlug}
-                      regenerateDisabled={!titleValue}
-                    />
-
-                    <RHFInput
-                      name="city"
-                      label="Cidade"
-                      placeholder="São Paulo"
-                      required
-                    />
-
-                    <RHFSelect
-                      name="venue_id"
-                      label="Local"
-                      placeholder="Selecione o local..."
-                      options={[]}
-                    />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Aba 2: Mídia */}
-              <TabsContent value="media" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Capa do Evento</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <RHFImageUploader
-                      name="cover_url"
-                      label="Capa"
-                      accept="image/*"
-                      required
-                    />
-
-                    <RHFInput
-                      name="cover_alt"
-                      label="Texto Alternativo"
-                      placeholder="Descreva a imagem para acessibilidade..."
-                      required
-                    />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Aba 3: Datas */}
-              <TabsContent value="dates" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Horários do Evento</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <DateTimePicker
-                      name="start_utc"
-                      label="Data e Hora de Início"
-                      required
-                    />
-
-                    <DateTimePicker
-                      name="end_utc"
-                      label="Data e Hora de Fim"
-                      required
-                    />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Aba 4: Conteúdo */}
-              <TabsContent value="content" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Música e Performance</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <ChipInput
-                      name="artists_names"
-                      label="Artistas Musicais"
-                      value={formData.artists_names}
-                      onChange={(value) => form.setValue('artists_names', value)}
-                      maxItems={12}
-                      placeholder="Digite o nome do artista e pressione Enter..."
-                    />
-
-                    <PerformanceEditor
-                      value={formData.performances as any}
-                      onChange={(value) => form.setValue('performances', value)}
-                      disabled={isPending}
-                    />
-
-                    <VisualArtEditor
-                      value={formData.visual_art as any}
-                      onChange={(value) => form.setValue('visual_art', value)}
-                      disabled={isPending}
-                    />
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Apoiadores e Patrocinadores</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <SupportersEditor
-                      title="Apoiadores"
-                      addButtonText="Adicionar Apoiador"
-                      value={formData.supporters}
-                      onChange={(value) => form.setValue('supporters', value)}
-                      disabled={isPending}
-                    />
-
-                    <SupportersEditor
-                      title="Patrocinadores"
-                      addButtonText="Adicionar Patrocinador"
-                      value={formData.sponsors}
-                      onChange={(value) => form.setValue('sponsors', value)}
-                      disabled={isPending}
-                    />
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Descrição e Tags</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <RHFTextarea
-                      name="description"
-                      label="Descrição"
-                      placeholder="Descreva o evento..."
-                      rows={6}
-                      required
-                    />
-
-                    <ChipInput
-                      name="tags"
-                      label="Tags"
-                      value={formData.tags}
-                      onChange={(value) => form.setValue('tags', value)}
-                      placeholder="Digite uma tag e pressione Enter..."
-                    />
-
-                    <ChipInput
-                      name="genres"
-                      label="Gêneros Musicais"
-                      value={formData.genres}
-                      onChange={(value) => form.setValue('genres', value)}
-                      placeholder="Digite um gênero e pressione Enter..."
-                    />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Aba 5: Ingressos */}
-              <TabsContent value="tickets" className="space-y-6">
-                <TicketingForm
-                  value={formData.ticketing}
-                  onChange={(value) => form.setValue('ticketing', value)}
-                  disabled={isPending}
-                />
-
-                <LinksEditor
-                  value={formData.links || {}}
-                  onChange={(value) => form.setValue('links', value)}
-                  disabled={isPending}
-                />
-              </TabsContent>
-
-              {/* Aba 6: Destaque */}
-              <TabsContent value="highlight" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Tipo de Destaque</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <RHFSelect
-                      name="highlight_type"
-                      label="Destaque"
-                      options={[
-                        { value: 'none', label: 'Sem destaque' },
-                        { value: 'curatorial', label: 'Destaque curatorial' },
-                        { value: 'vitrine', label: 'Vitrine Cultural (Patrocinado)' },
-                      ]}
-                    />
-
-                    {formData.highlight_type === 'vitrine' && (
-                      <div className="p-4 bg-[#c77dff]/10 border border-[#c77dff]/20 rounded-md">
-                        <div className="flex items-center gap-2 mb-2">
-                          <AlertTriangle className="h-4 w-4 text-[#c77dff]" />
-                          <span className="font-medium text-[#c77dff]">Vitrine Cultural</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          Este evento será marcado automaticamente como patrocinado e exibido 
-                          com destaque visual no site com a tag "Publi, Vitrine Cultural".
-                        </p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Aba 7: Série */}
-              <TabsContent value="series" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Série de Eventos</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                      Funcionalidade de séries em desenvolvimento...
-                    </p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Aba 8: SEO */}
-              <TabsContent value="seo" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>SEO e Metadados</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <RHFInput
-                      name="seo_title"
-                      label="Título SEO"
-                      placeholder="Título otimizado para SEO..."
-                    />
-
-                    <RHFTextarea
-                      name="seo_description"
-                      label="Descrição SEO"
-                      placeholder="Descrição para motores de busca..."
-                      rows={3}
-                    />
-
-                    <RHFInput
-                      name="og_image_url"
-                      label="Imagem OG (Open Graph)"
-                      placeholder="https://..."
-                      type="url"
-                    />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
-
-          {/* Sidebar com checklist */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-6 space-y-4">
-              <PublicationChecklist
-                data={formData}
-                onPublish={onPublish}
-                isPublishing={isPending}
+    <>
+      <NavigationGuard when={isDirty && !isPending} />
+      
+      <FormProvider {...form}>
+        <div className="max-w-6xl mx-auto p-6 space-y-6">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+            <div className="flex items-center gap-4">
+              <h1 className="text-3xl font-bold">
+                {eventId ? 'Editar Evento' : 'Criar Evento'}
+              </h1>
+              <AutosaveIndicator
+                lastSaved={lastSaved}
+                hasUnsavedChanges={isDirty}
+                isSaving={isPending || isAutosaving}
               />
+            </div>
 
-              {/* Ações */}
-              <div className="space-y-2">
-                <Button
-                  onClick={handleSubmit(onSubmit)}
-                  disabled={isPending}
-                  className="w-full"
-                  variant="outline"
-                >
-                  {isPending ? (
-                    <>
-                      <Clock className="h-4 w-4 mr-2 animate-spin" />
-                      Salvando...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Salvar Rascunho
-                    </>
-                  )}
-                </Button>
+            <div className="flex items-center gap-2">
+              <Badge variant={formData.status === 'published' ? 'default' : 'secondary'}>
+                {formData.status === 'published' ? 'Publicado' : 'Rascunho'}
+              </Badge>
+              
+              {formData.highlight_type === 'vitrine' && (
+                <Badge className="bg-[#c77dff] text-black">
+                  Vitrine Cultural
+                </Badge>
+              )}
+            </div>
+          </div>
 
-                {onCancel && (
+          {/* Formulário */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="lg:col-span-3">
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
+                  <TabsTrigger value="identity">Identidade</TabsTrigger>
+                  <TabsTrigger value="location">Local</TabsTrigger>
+                  <TabsTrigger value="media">Mídia</TabsTrigger>
+                  <TabsTrigger value="dates">Datas</TabsTrigger>
+                  <TabsTrigger value="content">Conteúdo</TabsTrigger>
+                  <TabsTrigger value="tickets">Ingressos</TabsTrigger>
+                  <TabsTrigger value="series">Série</TabsTrigger>
+                  <TabsTrigger value="seo">SEO</TabsTrigger>
+                </TabsList>
+
+                {/* Aba 1: Identidade */}
+                <TabsContent value="identity" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Informações Básicas</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <RHFInput
+                        name="title"
+                        label="Título do Evento"
+                        placeholder="Nome do evento"
+                        disabled={isPending}
+                      />
+
+                      <div className="space-y-2">
+                        <RHFSlugInput
+                          name="slug"
+                          label="Slug (URL)"
+                          placeholder="nome-do-evento"
+                          disabled={isPending}
+                          onBlur={(value) => checkSlug(value)}
+                        />
+                        {slugStatus && (
+                          <div className="flex items-center gap-2 text-sm">
+                            {isChecking ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : slugStatus === 'available' ? (
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <XCircle className="h-4 w-4 text-red-500" />
+                            )}
+                            <span className={slugStatus === 'available' ? 'text-green-600' : 'text-red-600'}>
+                              {slugStatus === 'available' ? 'Slug disponível' : 'Slug já está em uso'}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      <RHFInput
+                        name="city"
+                        label="Cidade"
+                        placeholder="São Paulo"
+                        disabled={isPending}
+                      />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Aba 2: Local */}
+                <TabsContent value="location" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Local e Organizadores</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <RHFComboboxAsync
+                        name="venue_id"
+                        control={form.control}
+                        label="Local"
+                        placeholder="Buscar locais..."
+                        emptyText="Nenhum local encontrado"
+                        createNewText="Cadastrar novo local"
+                        onSearch={searchVenues}
+                        onCreateNew={() => setVenueModalOpen(true)}
+                      />
+
+                      <RHFOrganizerMultiSelect
+                        name="organizer_ids"
+                        control={form.control}
+                        label="Organizadores"
+                        description="Selecione os organizadores do evento"
+                        maxItems={5}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Apoiadores e Patrocinadores</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <SupportersEditor
+                        title="Apoiadores"
+                        addButtonText="Adicionar Apoiador"
+                        value={formData.supporters}
+                        onChange={(value) => form.setValue('supporters', value)}
+                        disabled={isPending}
+                      />
+
+                      <SupportersEditor
+                        title="Patrocinadores"
+                        addButtonText="Adicionar Patrocinador"
+                        value={formData.sponsors}
+                        onChange={(value) => form.setValue('sponsors', value)}
+                        disabled={isPending}
+                      />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Aba 3: Mídia */}
+                <TabsContent value="media" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Imagem de Capa</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <RHFImageUpload
+                        urlControl={{ name: "cover_url", control: form.control }}
+                        altControl={{ name: "cover_alt", control: form.control }}
+                        label="Imagem de Capa"
+                        description="Imagem principal que será exibida no card do evento"
+                        showPreview={true}
+                        showAltText={true}
+                        maxSize={5}
+                      />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Aba 4: Datas */}
+                <TabsContent value="dates" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Horários do Evento</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Data/Hora de Início</label>
+                        <DateTimePicker
+                          value={formData.start_utc ? new Date(formData.start_utc) : undefined}
+                          onChange={(date) => setValue('start_utc', date?.toISOString())}
+                          disabled={isPending}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Data/Hora de Fim</label>
+                        <DateTimePicker
+                          value={formData.end_utc ? new Date(formData.end_utc) : undefined}
+                          onChange={(date) => setValue('end_utc', date?.toISOString())}
+                          disabled={isPending}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Aba 5: Conteúdo */}
+                <TabsContent value="content" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Descrição e Tags</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <RHFTextarea
+                        name="description"
+                        label="Descrição"
+                        placeholder="Descreva o evento"
+                        disabled={isPending}
+                      />
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Tags</label>
+                        <ChipInput
+                          value={formData.tags}
+                          onChange={(value) => setValue('tags', value)}
+                          placeholder="Adicionar tag"
+                          disabled={isPending}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Artistas</label>
+                        <ChipInput
+                          value={formData.artists_names}
+                          onChange={(value) => setValue('artists_names', value)}
+                          placeholder="Nome do artista"
+                          disabled={isPending}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Apresentações</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <PerformanceEditor
+                        value={formData.performances}
+                        onChange={(value) => setValue('performances', value)}
+                        disabled={isPending}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Artes Visuais</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <VisualArtEditor
+                        value={formData.visual_art}
+                        onChange={(value) => setValue('visual_art', value)}
+                        disabled={isPending}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Links Externos</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <LinksEditor
+                        value={formData.links}
+                        onChange={(value) => setValue('links', value)}
+                        disabled={isPending}
+                      />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Aba 6: Ingressos */}
+                <TabsContent value="tickets" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Ingressos e Preços</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <TicketingForm
+                        value={formData.ticketing}
+                        onChange={(value) => setValue('ticketing', value)}
+                        disabled={isPending}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Destaque</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <RHFSelect
+                        name="highlight_type"
+                        label="Tipo de Destaque"
+                        options={[
+                          { value: 'none', label: 'Sem destaque' },
+                          { value: 'featured', label: 'Destaque normal' },
+                          { value: 'vitrine', label: 'Vitrine Cultural' }
+                        ]}
+                        disabled={isPending}
+                      />
+
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="is_sponsored"
+                          checked={formData.is_sponsored}
+                          onChange={(e) => setValue('is_sponsored', e.target.checked)}
+                          disabled={isPending}
+                        />
+                        <label htmlFor="is_sponsored" className="text-sm font-medium">
+                          Evento patrocinado
+                        </label>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Aba 7: Série */}
+                <TabsContent value="series" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Série de Eventos</CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        Vincula este evento a uma série existente ou cria uma nova
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <RHFEventSeriesSelect
+                        seriesControl={{ name: "series_id", control: form.control }}
+                        editionControl={{ name: "edition_number", control: form.control }}
+                        description="Séries facilitam a organização de eventos recorrentes como festivais anuais"
+                      />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Aba 8: SEO */}
+                <TabsContent value="seo" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Otimização para Buscadores</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <RHFInput
+                        name="seo_title"
+                        label="Título SEO"
+                        placeholder="Título otimizado para buscadores"
+                        disabled={isPending}
+                      />
+
+                      <RHFTextarea
+                        name="seo_description"
+                        label="Descrição SEO"
+                        placeholder="Descrição otimizada para buscadores"
+                        disabled={isPending}
+                      />
+
+                      <RHFInput
+                        name="og_image_url"
+                        label="Imagem Open Graph"
+                        placeholder="URL da imagem para redes sociais"
+                        disabled={isPending}
+                      />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-4">
+              {/* Actions */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Save className="h-4 w-4" />
+                    Ações
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
                   <Button
-                    onClick={onCancel}
+                    onClick={handleSave}
+                    disabled={isPending || !isDirty}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    {isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Salvando...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-2" />
+                        Salvar Rascunho
+                      </>
+                    )}
+                  </Button>
+
+                  <Button
+                    onClick={handlePublish}
+                    disabled={isPending || !canPublish}
+                    className="w-full"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    {formData.status === 'published' ? 'Atualizar' : 'Publicar'}
+                  </Button>
+
+                  <Button
                     variant="ghost"
+                    onClick={() => navigate('/admin/events')}
                     className="w-full"
                     disabled={isPending}
                   >
+                    <Eye className="h-4 w-4 mr-2" />
                     Cancelar
                   </Button>
-                )}
-              </div>
+                </CardContent>
+              </Card>
+
+              {/* Publication Checklist */}
+              <PublicationChecklist
+                errors={validationErrors}
+                canPublish={canPublish}
+              />
+
+              {/* Status Info */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    Status
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>Status:</span>
+                    <Badge variant={formData.status === 'published' ? 'default' : 'secondary'}>
+                      {formData.status === 'published' ? 'Publicado' : 'Rascunho'}
+                    </Badge>
+                  </div>
+                  
+                  {lastSaved && (
+                    <div className="flex justify-between">
+                      <span>Último save:</span>
+                      <span className="text-muted-foreground">
+                        {lastSaved.toLocaleTimeString()}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {isDirty && (
+                    <div className="flex items-center gap-2 text-orange-600">
+                      <AlertTriangle className="h-4 w-4" />
+                      <span>Alterações não salvas</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
+      </FormProvider>
 
-        {/* Navigation Guard */}
-        <NavigationGuard
-          hasUnsavedChanges={isDirty}
-          isOpen={showNavigationGuard}
-          onOpenChange={setShowNavigationGuard}
-          onSave={handleSaveAndContinue}
-        />
-      </div>
-    </FormProvider>
+      {/* Modal de criação rápida de venue */}
+      <AgentQuickCreateModal
+        open={venueModalOpen}
+        onOpenChange={setVenueModalOpen}
+        agentType="venue"
+        onCreated={handleVenueCreated}
+      />
+    </>
   );
-};
+}
