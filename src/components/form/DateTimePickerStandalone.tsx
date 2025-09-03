@@ -90,7 +90,7 @@ export function DateTimePickerStandalone({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 z-[9999] bg-popover border shadow-lg" align="start">
           <Calendar
             mode="single"
             selected={value}

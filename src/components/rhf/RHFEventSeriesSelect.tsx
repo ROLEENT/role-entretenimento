@@ -260,7 +260,7 @@ export function RHFEventSeriesSelect({
                   Selecionar série de eventos...
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0" align="start">
+              <PopoverContent className="w-full p-0 z-[9999] bg-popover border shadow-lg" align="start">
                 <Command shouldFilter={false}>
                   <CommandInput
                     placeholder="Buscar séries..."
