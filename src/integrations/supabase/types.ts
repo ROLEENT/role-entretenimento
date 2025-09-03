@@ -951,18 +951,21 @@ export type Database = {
           active: boolean | null
           created_at: string | null
           id: string
+          name: string
           updated_at: string | null
         }
         Insert: {
           active?: boolean | null
           created_at?: string | null
           id?: string
+          name?: string
           updated_at?: string | null
         }
         Update: {
           active?: boolean | null
           created_at?: string | null
           id?: string
+          name?: string
           updated_at?: string | null
         }
         Relationships: []
@@ -3345,6 +3348,7 @@ export type Database = {
           avatar_alt: string | null
           avatar_url: string | null
           bank: Json | null
+          bio: string | null
           bio_short: string | null
           booking_email: string | null
           booking_whatsapp: string | null
@@ -3353,6 +3357,8 @@ export type Database = {
           contact_email: string | null
           contact_whatsapp: string | null
           country: string | null
+          cover_alt: string | null
+          cover_url: string | null
           created_at: string | null
           email: string | null
           id: string
@@ -3360,6 +3366,7 @@ export type Database = {
           invoice_email: string | null
           invoice_name: string | null
           links: Json | null
+          logo_alt: string | null
           name: string
           phone: string | null
           pix_key: string | null
@@ -3379,6 +3386,7 @@ export type Database = {
           avatar_alt?: string | null
           avatar_url?: string | null
           bank?: Json | null
+          bio?: string | null
           bio_short?: string | null
           booking_email?: string | null
           booking_whatsapp?: string | null
@@ -3387,6 +3395,8 @@ export type Database = {
           contact_email?: string | null
           contact_whatsapp?: string | null
           country?: string | null
+          cover_alt?: string | null
+          cover_url?: string | null
           created_at?: string | null
           email?: string | null
           id?: string
@@ -3394,6 +3404,7 @@ export type Database = {
           invoice_email?: string | null
           invoice_name?: string | null
           links?: Json | null
+          logo_alt?: string | null
           name: string
           phone?: string | null
           pix_key?: string | null
@@ -3413,6 +3424,7 @@ export type Database = {
           avatar_alt?: string | null
           avatar_url?: string | null
           bank?: Json | null
+          bio?: string | null
           bio_short?: string | null
           booking_email?: string | null
           booking_whatsapp?: string | null
@@ -3421,6 +3433,8 @@ export type Database = {
           contact_email?: string | null
           contact_whatsapp?: string | null
           country?: string | null
+          cover_alt?: string | null
+          cover_url?: string | null
           created_at?: string | null
           email?: string | null
           id?: string
@@ -3428,6 +3442,7 @@ export type Database = {
           invoice_email?: string | null
           invoice_name?: string | null
           links?: Json | null
+          logo_alt?: string | null
           name?: string
           phone?: string | null
           pix_key?: string | null

@@ -209,7 +209,7 @@ export const useUpsertOrganizer = () => {
     mutationFn: async (data: any) => {
       console.log("Upserting organizer:", data);
 
-      // Transform data to match organizers table structure
+      // Transform data to match organizers table structure with new columns
       const organizerData = {
         id: data.id || undefined,
         name: data.name,
@@ -217,13 +217,16 @@ export const useUpsertOrganizer = () => {
         site: data.site || data.website || null,
         email: data.email || null,
         phone: data.phone || null,
+        whatsapp: data.whatsapp || null,
         logo_url: data.logo_url || data.avatar_url || null,
+        logo_alt: data.logo_alt || null,
+        cover_url: data.cover_url || null,
+        cover_alt: data.cover_alt || null,
         instagram: data.instagram || null,
+        bio: data.bio || null, // Now using the actual bio column
         status: data.status || 'active',
-        // Map bio field to an existing column (using site for now, or we can add bio column)
-        contact_email: data.email || null,
-        contact_whatsapp: data.whatsapp || data.phone || null,
-        // Add other fields that exist in organizers table
+        contact_email: data.contact_email || data.email || null,
+        contact_whatsapp: data.contact_whatsapp || data.whatsapp || data.phone || null,
         country: data.country || 'BR',
         city: data.city || null,
         state: data.state || null,

@@ -134,7 +134,9 @@ export const organizerFlexibleSchema = z.object({
   // Media - all optional
   avatar_url: z.string().optional().or(z.literal('')).nullable(),
   avatar_alt: z.string().optional(),
+  logo_alt: z.string().optional(),
   cover_url: z.string().optional().or(z.literal('')).nullable(),
+  cover_alt: z.string().optional(),
   
   // Metadata
   priority: z.number().int().default(0),
