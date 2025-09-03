@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RHFDropdownSelect } from '@/components/form/RHFDropdownSelect';
 import RHFDateTime from '@/components/form/RHFDateTime';
 import { RHFSelectAsync } from '@/components/form/RHFSelectAsync';
-import { useVenueSearch } from '@/hooks/useVenueSearch';
+import { useVenuesOptions } from '@/hooks/useVenuesOptions';
 import { MapPin } from 'lucide-react';
 
 const CITIES = [
@@ -35,7 +35,7 @@ const CITIES = [
 
 export const BasicInfoStep: React.FC = () => {
   const { control, watch, setValue } = useFormContext<EventFormData>();
-  const { searchVenues } = useVenueSearch();
+  const { searchVenues } = useVenuesOptions();
   
   const watchedTitle = watch('title');
   const watchedSlug = watch('slug');
