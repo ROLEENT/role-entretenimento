@@ -24,7 +24,7 @@ export default function RHFDateTime({
 
   const fieldError = errors[name];
 
-  // Convert Date to datetime-local string format
+  // Convert Date/string to datetime-local string format for input
   const dateToLocalString = (date: Date | string | null): string => {
     if (!date) return "";
     
@@ -41,11 +41,11 @@ export default function RHFDateTime({
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
-  // Convert datetime-local string to Date
-  const localStringToDate = (value: string): Date | null => {
-    if (!value) return null;
+  // Convert datetime-local string to ISO string for schema validation
+  const localStringToISOString = (value: string): string => {
+    if (!value) return "";
     const date = new Date(value);
-    return isNaN(date.getTime()) ? null : date;
+    return isNaN(date.getTime()) ? "" : date.toISOString();
   };
 
   return (
@@ -64,8 +64,8 @@ export default function RHFDateTime({
             type="datetime-local"
             value={dateToLocalString(field.value)}
             onChange={(e) => {
-              const date = localStringToDate(e.target.value);
-              field.onChange(date);
+              const isoString = localStringToISOString(e.target.value);
+              field.onChange(isoString);
             }}
             disabled={disabled}
             className={className}
