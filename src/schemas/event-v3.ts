@@ -38,18 +38,13 @@ const linksSchema = z.object({
   previous_edition: z.string().url().optional().or(z.literal('')),
 });
 
-// Ticketing schema
+// Ticketing schema - matching existing TicketingData interface
 const ticketingSchema = z.object({
-  platform: z.string().optional(),
+  platform: z.enum(['shotgun', 'sympla', 'ingresse', 'other']).optional(),
   url: z.string().url().optional().or(z.literal('')),
-  price_rules: z.object({
-    free: z.boolean().default(false),
-    friend_list: z.boolean().default(false),
-    half_price: z.boolean().default(false),
-    min_price: z.number().min(0).optional(),
-    max_price: z.number().min(0).optional(),
-  }).optional(),
-  age_rating: z.enum(['L', '10', '12', '14', '16', '18']).optional(),
+  min_price: z.number().min(0).optional().nullable(),
+  max_price: z.number().min(0).optional().nullable(),
+  free_until: z.string().optional(),
 });
 
 // Main event schema

@@ -157,11 +157,11 @@ export const EventPreviewCard = ({
             <div className="pt-2 border-t">
               <div className="flex items-center justify-between">
                 <div className="text-sm">
-                  {data.ticketing.min_price && data.ticketing.max_price ? (
+                  {data.ticketing?.min_price && data.ticketing?.max_price ? (
                     <span className="font-medium">
                       R$ {data.ticketing.min_price} - R$ {data.ticketing.max_price}
                     </span>
-                  ) : data.ticketing.min_price ? (
+                  ) : data.ticketing?.min_price ? (
                     <span className="font-medium">
                       A partir de R$ {data.ticketing.min_price}
                     </span>

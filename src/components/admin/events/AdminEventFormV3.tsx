@@ -525,7 +525,7 @@ export function AdminEventFormV3({
                     <CardContent>
                       <TicketingForm
                         value={formData.ticketing || {}}
-                        onChange={(value) => setValue('ticketing', value as any)}
+                        onChange={(value) => setValue('ticketing', value)}
                         disabled={isPending}
                       />
                     </CardContent>
