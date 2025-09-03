@@ -2199,6 +2199,201 @@ export type Database = {
           },
         ]
       }
+      event_lineup_slot_artists: {
+        Row: {
+          artist_id: string
+          artist_name: string
+          created_at: string | null
+          id: string
+          position: number | null
+          role: string | null
+          slot_id: string
+        }
+        Insert: {
+          artist_id: string
+          artist_name: string
+          created_at?: string | null
+          id?: string
+          position?: number | null
+          role?: string | null
+          slot_id: string
+        }
+        Update: {
+          artist_id?: string
+          artist_name?: string
+          created_at?: string | null
+          id?: string
+          position?: number | null
+          role?: string | null
+          slot_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_lineup_slot_artists_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_lineup_slot_artists_slot_id_fkey"
+            columns: ["slot_id"]
+            isOneToOne: false
+            referencedRelation: "event_lineup_slots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_lineup_slots: {
+        Row: {
+          created_at: string | null
+          end_time: string | null
+          event_id: string
+          id: string
+          is_headliner: boolean | null
+          notes: string | null
+          position: number | null
+          slot_name: string
+          stage: string | null
+          start_time: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_time?: string | null
+          event_id: string
+          id?: string
+          is_headliner?: boolean | null
+          notes?: string | null
+          position?: number | null
+          slot_name: string
+          stage?: string | null
+          start_time?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_time?: string | null
+          event_id?: string
+          id?: string
+          is_headliner?: boolean | null
+          notes?: string | null
+          position?: number | null
+          slot_name?: string
+          stage?: string | null
+          start_time?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_lineup_slots_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_partners: {
+        Row: {
+          created_at: string | null
+          display_name: string | null
+          event_id: string
+          id: string
+          is_main: boolean | null
+          partner_id: string
+          partner_type: string
+          position: number | null
+          role: Database["public"]["Enums"]["partner_role"]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          display_name?: string | null
+          event_id: string
+          id?: string
+          is_main?: boolean | null
+          partner_id: string
+          partner_type: string
+          position?: number | null
+          role?: Database["public"]["Enums"]["partner_role"]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          display_name?: string | null
+          event_id?: string
+          id?: string
+          is_main?: boolean | null
+          partner_id?: string
+          partner_type?: string
+          position?: number | null
+          role?: Database["public"]["Enums"]["partner_role"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_partners_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_performances: {
+        Row: {
+          contact_info: Json | null
+          created_at: string | null
+          description: string | null
+          duration_minutes: number | null
+          event_id: string
+          id: string
+          performance_type: string
+          performer_name: string
+          position: number | null
+          stage: string | null
+          start_time: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          contact_info?: Json | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          event_id: string
+          id?: string
+          performance_type: string
+          performer_name: string
+          position?: number | null
+          stage?: string | null
+          start_time?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          contact_info?: Json | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          event_id?: string
+          id?: string
+          performance_type?: string
+          performer_name?: string
+          position?: number | null
+          stage?: string | null
+          start_time?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_performances_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_reviews: {
         Row: {
           comment: string | null
@@ -2301,84 +2496,194 @@ export type Database = {
           },
         ]
       }
+      event_visual_artists: {
+        Row: {
+          art_type: string
+          artist_name: string
+          artwork_images: Json | null
+          contact_info: Json | null
+          created_at: string | null
+          description: string | null
+          event_id: string
+          id: string
+          installation_location: string | null
+          position: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          art_type: string
+          artist_name: string
+          artwork_images?: Json | null
+          contact_info?: Json | null
+          created_at?: string | null
+          description?: string | null
+          event_id: string
+          id?: string
+          installation_location?: string | null
+          position?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          art_type?: string
+          artist_name?: string
+          artwork_images?: Json | null
+          contact_info?: Json | null
+          created_at?: string | null
+          description?: string | null
+          event_id?: string
+          id?: string
+          installation_location?: string | null
+          position?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_visual_artists_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
+          accessibility: Json | null
+          age_notes: string | null
+          age_rating: Database["public"]["Enums"]["age_rating"] | null
           city: string
+          cover_alt: string | null
           cover_url: string | null
           created_at: string
           created_by: string | null
           date_end: string | null
           date_start: string
           description: string | null
+          doors_open_utc: string | null
+          edition_number: number | null
           end_at: string | null
           external_url: string | null
+          gallery: Json | null
+          genres: string[] | null
+          headliner_starts_utc: string | null
+          highlight_type: Database["public"]["Enums"]["highlight_type"] | null
           id: string
           image_url: string | null
+          is_sponsored: boolean | null
+          links: Json | null
+          og_image_url: string | null
           organizer_id: string | null
           price_max: number | null
           price_min: number | null
+          seo_description: string | null
+          seo_title: string | null
+          series_id: string | null
           slug: string | null
           source: string | null
           start_at: string | null
           state: string
           status: string | null
+          summary: string | null
           tags: string[] | null
+          ticket_rules: Json | null
+          ticketing: Json | null
           title: string
           updated_at: string
           updated_by: string | null
           venue_id: string | null
+          visibility: string | null
         }
         Insert: {
+          accessibility?: Json | null
+          age_notes?: string | null
+          age_rating?: Database["public"]["Enums"]["age_rating"] | null
           city: string
+          cover_alt?: string | null
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
           date_end?: string | null
           date_start: string
           description?: string | null
+          doors_open_utc?: string | null
+          edition_number?: number | null
           end_at?: string | null
           external_url?: string | null
+          gallery?: Json | null
+          genres?: string[] | null
+          headliner_starts_utc?: string | null
+          highlight_type?: Database["public"]["Enums"]["highlight_type"] | null
           id?: string
           image_url?: string | null
+          is_sponsored?: boolean | null
+          links?: Json | null
+          og_image_url?: string | null
           organizer_id?: string | null
           price_max?: number | null
           price_min?: number | null
+          seo_description?: string | null
+          seo_title?: string | null
+          series_id?: string | null
           slug?: string | null
           source?: string | null
           start_at?: string | null
           state: string
           status?: string | null
+          summary?: string | null
           tags?: string[] | null
+          ticket_rules?: Json | null
+          ticketing?: Json | null
           title: string
           updated_at?: string
           updated_by?: string | null
           venue_id?: string | null
+          visibility?: string | null
         }
         Update: {
+          accessibility?: Json | null
+          age_notes?: string | null
+          age_rating?: Database["public"]["Enums"]["age_rating"] | null
           city?: string
+          cover_alt?: string | null
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
           date_end?: string | null
           date_start?: string
           description?: string | null
+          doors_open_utc?: string | null
+          edition_number?: number | null
           end_at?: string | null
           external_url?: string | null
+          gallery?: Json | null
+          genres?: string[] | null
+          headliner_starts_utc?: string | null
+          highlight_type?: Database["public"]["Enums"]["highlight_type"] | null
           id?: string
           image_url?: string | null
+          is_sponsored?: boolean | null
+          links?: Json | null
+          og_image_url?: string | null
           organizer_id?: string | null
           price_max?: number | null
           price_min?: number | null
+          seo_description?: string | null
+          seo_title?: string | null
+          series_id?: string | null
           slug?: string | null
           source?: string | null
           start_at?: string | null
           state?: string
           status?: string | null
+          summary?: string | null
           tags?: string[] | null
+          ticket_rules?: Json | null
+          ticketing?: Json | null
           title?: string
           updated_at?: string
           updated_by?: string | null
           venue_id?: string | null
+          visibility?: string | null
         }
         Relationships: [
           {
@@ -2386,6 +2691,13 @@ export type Database = {
             columns: ["organizer_id"]
             isOneToOne: false
             referencedRelation: "organizers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "event_series"
             referencedColumns: ["id"]
           },
           {
@@ -6103,6 +6415,16 @@ export type Database = {
         Args: { p_admin_id: string }
         Returns: string
       }
+      create_event_cascade: {
+        Args: {
+          event_data: Json
+          lineup_slots?: Json
+          partners?: Json
+          performances?: Json
+          visual_artists?: Json
+        }
+        Returns: string
+      }
       create_event_secure: {
         Args: {
           p_city: string
@@ -6175,6 +6497,10 @@ export type Database = {
           total: number
           week_start: string
         }[]
+      }
+      fn_slugify: {
+        Args: { input_text: string }
+        Returns: string
       }
       generate_category_slug: {
         Args: { category_name: string }
@@ -6819,6 +7145,7 @@ export type Database = {
       }
     }
     Enums: {
+      age_rating: "L" | "10" | "12" | "14" | "16" | "18"
       agenda_status: "draft" | "published" | "scheduled"
       agenda_visibility: "curadoria" | "vitrine"
       agent_status: "active" | "inactive"
@@ -6842,6 +7169,7 @@ export type Database = {
       event_status: "draft" | "published"
       highlight_status: "draft" | "published"
       highlight_type: "none" | "curatorial" | "vitrine"
+      partner_role: "organizer" | "supporter" | "sponsor"
       publication_status:
         | "draft"
         | "review"
@@ -6977,6 +7305,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      age_rating: ["L", "10", "12", "14", "16", "18"],
       agenda_status: ["draft", "published", "scheduled"],
       agenda_visibility: ["curadoria", "vitrine"],
       agent_status: ["active", "inactive"],
@@ -7002,6 +7331,7 @@ export const Constants = {
       event_status: ["draft", "published"],
       highlight_status: ["draft", "published"],
       highlight_type: ["none", "curatorial", "vitrine"],
+      partner_role: ["organizer", "supporter", "sponsor"],
       publication_status: [
         "draft",
         "review",
