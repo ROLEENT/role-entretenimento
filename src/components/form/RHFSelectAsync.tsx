@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import {
   FormControl,
@@ -98,19 +98,26 @@ export function RHFSelectAsync({
     return loadOptions || queryLoadOptions;
   }, [loadOptions, queryLoadOptions]);
 
-  const handleOpenChange = async (open: boolean) => {
-    if (open && !hasLoaded && !isLoading && finalLoadOptions) {
+  // Load options on component mount
+  useEffect(() => {
+    if (!hasLoaded && !isLoading && finalLoadOptions) {
       setIsLoading(true);
-      try {
-        const newOptions = await finalLoadOptions();
-        setOptions(newOptions);
-        setHasLoaded(true);
-      } catch (error) {
-        console.error("Error loading options:", error);
-      } finally {
-        setIsLoading(false);
-      }
+      finalLoadOptions()
+        .then((newOptions) => {
+          setOptions(newOptions);
+          setHasLoaded(true);
+        })
+        .catch((error) => {
+          console.error("Error loading options:", error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
+  }, [finalLoadOptions, hasLoaded, isLoading]);
+
+  const handleOpenChange = async (open: boolean) => {
+    // Options are now loaded on mount, no need to load on open
   };
 
   return (
