@@ -17,7 +17,7 @@ export const OrganizerMediaTab: React.FC<OrganizerMediaTabProps> = ({ form }) =>
         
         <FormField
           control={form.control}
-          name="logo_url"
+          name="avatar_url"
           render={({ field }) => (
             <FormItem>
               <FormControl>
@@ -36,7 +36,7 @@ export const OrganizerMediaTab: React.FC<OrganizerMediaTabProps> = ({ form }) =>
 
         <FormField
           control={form.control}
-          name="logo_alt"
+          name="avatar_alt"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Texto alternativo do logo</FormLabel>
