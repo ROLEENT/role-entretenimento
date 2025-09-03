@@ -52,47 +52,39 @@ export function RHFDropdownSelect({
             </FormLabel>
           )}
           <FormControl>
-            <div className="dd" data-dd>
-              <button 
-                className={cn(
-                  "dd-trigger flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm",
+            <SimpleDropdown
+              disabled={disabled}
+              aria-label={label || placeholder}
+              trigger={
+                <div className={cn(
+                  "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm",
                   "ring-offset-background placeholder:text-muted-foreground",
                   "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
                   "disabled:cursor-not-allowed disabled:opacity-50",
                   !field.value && "text-muted-foreground"
-                )}
-                data-dd-trigger
-                aria-expanded="false"
-                aria-label={label || placeholder}
-                disabled={disabled}
-              >
-                <span className="line-clamp-1">
-                  {field.value 
-                    ? options.find(opt => opt.value === field.value)?.label || placeholder
-                    : placeholder
+                )}>
+                  <span className="line-clamp-1">
+                    {field.value 
+                      ? options.find(opt => opt.value === field.value)?.label || placeholder
+                      : placeholder
+                    }
+                  </span>
+                  <ChevronDown className="h-4 w-4 opacity-50" />
+                </div>
+              }
+              items={options.map(option => ({
+                label: option.label,
+                value: option.value,
+                disabled: option.disabled,
+                onClick: () => {
+                  if (!option.disabled) {
+                    field.onChange(option.value);
                   }
-                </span>
-                <ChevronDown className="h-4 w-4 opacity-50" data-dd-icon />
-              </button>
-              
-              <div className="dd-menu w-full" data-dd-menu role="menu">
-                {options.map(option => (
-                  <button
-                    key={option.value}
-                    role="menuitem"
-                    onClick={() => {
-                      if (!option.disabled) {
-                        field.onChange(option.value);
-                      }
-                    }}
-                    disabled={option.disabled}
-                    className="w-full text-left"
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+                }
+              }))}
+              className="w-full"
+              menuClassName="w-full"
+            />
           </FormControl>
           <FormMessage />
         </FormItem>

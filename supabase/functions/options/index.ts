@@ -210,63 +210,27 @@ async function handleGenres(req: Request, supabase: any, query: string) {
 
 async function handleVenues(req: Request, supabase: any, query: string) {
   if (req.method === 'GET') {
-    const url = new URL(req.url);
-    const venueId = url.searchParams.get('id');
-    
-    // If ID is provided, fetch specific venue details
-    if (venueId) {
-      console.log(`Fetching venue details for ID: ${venueId}`);
-      
-      const { data: venue, error } = await supabase
-        .from('venues')
-        .select(`
-          id, name, address_line, district, city, state, postal_code, country,
-          latitude, longitude, capacity, about, tags, cover_url, cover_alt
-        `)
-        .eq('id', venueId)
-        .eq('status', 'active')
-        .single();
-      
-      if (error || !venue) {
-        console.error('Error fetching venue details:', error);
-        return new Response(JSON.stringify({ error: 'Venue not found' }), {
-          status: 404,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      }
-      
-      console.log(`Venue details fetched for: ${venue.name}`);
-      
-      return new Response(JSON.stringify({ venue }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
-    
-    // Search venues for autocomplete
+    // Search venues
     let dbQuery = supabase
       .from('venues')
-      .select('id, name, city, address_line')
+      .select('id, name, city, address, type')
       .eq('status', 'active')
       .order('name');
 
     if (query) {
-      dbQuery = dbQuery.or(`name.ilike.%${query}%, city.ilike.%${query}%, address_line.ilike.%${query}%`);
+      dbQuery = dbQuery.or(`name.ilike.%${query}%, city.ilike.%${query}%, address.ilike.%${query}%`);
     }
 
     const { data, error } = await dbQuery.limit(20);
 
-    if (error) {
-      console.error('Error fetching venues:', error);
-      throw error;
-    }
-
-    console.log('Venues fetched:', data?.length || 0, 'items');
+    if (error) throw error;
 
     const items = (data || []).map((item: any) => ({
       id: item.id,
       name: item.name,
       city: item.city,
-      address: item.address_line
+      address: item.address,
+      type: item.type
     }));
 
     return new Response(
@@ -290,24 +254,21 @@ async function handleVenues(req: Request, supabase: any, query: string) {
       .from('venues')
       .insert([{ 
         name: name.trim(), 
-        status: 'active'
+        status: 'active',
+        type: 'other'
       }])
-      .select('id, name, city, address')
+      .select('id, name, city, address, type')
       .single();
 
-    if (error) {
-      console.error('Error creating venue:', error);
-      throw error;
-    }
-
-    console.log('Venue created:', data);
+    if (error) throw error;
 
     return new Response(
       JSON.stringify({ 
         id: data.id, 
         name: data.name, 
         city: data.city, 
-        address: data.address
+        address: data.address, 
+        type: data.type 
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

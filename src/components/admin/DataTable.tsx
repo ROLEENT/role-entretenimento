@@ -29,7 +29,12 @@ import {
   Trash2,
   Archive
 } from "lucide-react";
-// Removido: usando sistema unificado de dropdowns
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 
 interface Column<T> {
@@ -224,25 +229,24 @@ export function DataTable<T>({
                 </Button>
                 
                 {statusOptions.length > 0 && (
-                  <div className="dd" data-dd>
-                    <Button variant="outline" size="sm" className="dd-trigger gap-2" data-dd-trigger>
-                      <Archive className="h-4 w-4" />
-                      Alterar Status
-                      <span data-dd-icon>⌄</span>
-                    </Button>
-                    <div className="dd-menu" data-dd-menu role="menu">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <Archive className="h-4 w-4" />
+                        Alterar Status
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
                       {statusOptions.map((option) => (
-                        <button
+                        <DropdownMenuItem
                           key={option.value}
-                          role="menuitem"
-                          type="button"
                           onClick={() => handleBatchStatusChange(option.value)}
                         >
                           {option.label}
-                        </button>
+                        </DropdownMenuItem>
                       ))}
-                    </div>
-                  </div>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
 
                 <Button
@@ -365,17 +369,19 @@ export function DataTable<T>({
                     ))}
                     {showActions && (
                       <TableCell>
-                        <div className="dd" data-dd data-dd-align="right">
-                          <Button variant="ghost" size="sm" className="dd-trigger" data-dd-trigger aria-label="Ações">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                          <div className="dd-menu" data-dd-menu role="menu">
-                            <button role="menuitem" type="button" onClick={() => onView?.(item)}>
-                              <Eye className="h-4 w-4" />
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem onClick={() => onView?.(item)}>
+                              <Eye className="h-4 w-4 mr-2" />
                               Visualizar
-                            </button>
-                          </div>
-                        </div>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     )}
                   </TableRow>

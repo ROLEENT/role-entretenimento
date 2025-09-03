@@ -138,159 +138,90 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     
+    <!-- Simple Dropdown Script Completo -->
+    <script>
+    (function () {
+      const isPointerFine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+      document.querySelectorAll('[data-dropdown]').forEach(drop => {
+        const trigger = drop.querySelector('[data-dropdown-trigger]');
+        const menu = drop.querySelector('[data-dropdown-menu]');
+        if (!trigger || !menu) return;
+
+        // Abrir/fechar por clique
+        trigger.addEventListener('click', (e) => {
+          e.preventDefault();
+          const open = drop.classList.toggle('is-open');
+          trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+          if (open) closeOthers(drop);
+        });
+
+        // Acessível por teclado: Esc fecha
+        drop.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            drop.classList.remove('is-open');
+            trigger.setAttribute('aria-expanded', 'false');
+            trigger.focus();
+          }
+        });
+
+        // Fechar quando sair com o mouse no desktop
+        if (isPointerFine) {
+          drop.addEventListener('mouseleave', () => {
+            drop.classList.remove('is-open');
+            trigger.setAttribute('aria-expanded', 'false');
+          });
+        }
+      });
+
+      // Fecha ao clicar fora
+      document.addEventListener('click', (e) => {
+        const inside = e.target.closest('[data-dropdown]');
+        if (!inside) closeAll();
+      });
+
+      function closeAll() {
+        document.querySelectorAll('[data-dropdown].is-open').forEach(d => {
+          d.classList.remove('is-open');
+          const t = d.querySelector('[data-dropdown-trigger]');
+          if (t) t.setAttribute('aria-expanded', 'false');
+        });
+      }
+
+      function closeOthers(current) {
+        document.querySelectorAll('[data-dropdown].is-open').forEach(d => {
+          if (d === current) return;
+          d.classList.remove('is-open');
+          const t = d.querySelector('[data-dropdown-trigger]');
+          if (t) t.setAttribute('aria-expanded', 'false');
+        });
+      }
+    })();
+    </script>
+    
     <script>
 (() => {
-  const $all = (sel, root=document) => Array.from(root.querySelectorAll(sel));
-
-  // Estado
-  function open(dd){
-    if (dd.dataset.ddOpen === "true") return;
-    dd.dataset.ddOpen = "true";
-    const trigger = dd.querySelector('[data-dd-trigger]');
-    const menu = dd.querySelector('[data-dd-menu]');
-    trigger?.setAttribute('aria-expanded','true');
-
-    // Porta o menu pro body para evitar overflow/transform
-    dd.__ph = dd.__ph || document.createComment('dd-portal');
-    if (menu && !menu.__ported){
-      dd.insertBefore(dd.__ph, menu);
-      document.body.appendChild(menu);
-      menu.__ported = true;
-    }
-
-    place(dd);
-    window.addEventListener('scroll', dd.__place = () => place(dd), true);
-    window.addEventListener('resize', dd.__place, true);
-  }
-
-  function close(dd){
-    if (dd.dataset.ddOpen !== "true") return;
-    dd.dataset.ddOpen = "false";
-    const trigger = dd.querySelector('[data-dd-trigger]');
-    const menu = dd.querySelector('[data-dd-menu]');
-    trigger?.setAttribute('aria-expanded','false');
-
-    // devolve o menu pro lugar
-    if (menu?.__ported && dd.__ph){
-      dd.__ph.replaceWith(menu);
-      menu.__ported = false;
-      menu.style.cssText = ""; // limpa posicionamento inline
-    }
-
-    window.removeEventListener('scroll', dd.__place, true);
-    window.removeEventListener('resize', dd.__place, true);
-  }
-
-  function closeAll(){
-    $all('[data-dd][data-dd-open="true"]').forEach(close);
-  }
-
-  // Posiciona o menu quando está portado no body
-  function place(dd){
-    const trigger = dd.querySelector('[data-dd-trigger]');
-    const menu = dd.querySelector('[data-dd-menu]');
-    if (!trigger || !menu) return;
-    const r = trigger.getBoundingClientRect();
-
-    // mede menu escondido
-    menu.style.visibility = 'hidden';
-    menu.style.display = 'block';
-    const mw = Math.max(menu.offsetWidth || 220, r.width);
-    const mh = menu.offsetHeight || 0;
-
-    let left = r.left;
-    if (dd.dataset.ddAlign === 'right') left = r.right - mw;
-
-    // mantém dentro da viewport
-    const pad = 8;
-    left = Math.max(pad, Math.min(left, window.innerWidth - mw - pad));
-    let top = Math.min(r.bottom + 8, window.innerHeight - mh - pad);
-
-    // aplica
-    Object.assign(menu.style, {
-      position: 'fixed',
-      top: `${top}px`,
-      left: `${left}px`,
-      minWidth: `${mw}px`,
-      zIndex: '2147483647',
-      display: 'block',
-      visibility: 'visible'
+  // fecha outros quando um abre
+  document.addEventListener('toggle', e => {
+    const d = e.target;
+    if (d.tagName !== 'DETAILS' || !d.open) return;
+    document.querySelectorAll('details[open]').forEach(o => {
+      if (o !== d) o.removeAttribute('open');
     });
-  }
-
-  // Corrige clique bloqueado por overlay: reencaminha para o trigger usando elementsFromPoint
-  function clickThrough(e, targetEl){
-    const x = e.clientX, y = e.clientY;
-    const stack = document.elementsFromPoint(x, y);
-    if (stack.includes(targetEl)) return true;
-    const toDisable = stack.filter(el => el !== targetEl && !targetEl.contains(el));
-    toDisable.forEach(el => el.__pe = el.style.pointerEvents, el.style.pointerEvents = 'none');
-    const ok = document.elementsFromPoint(x, y).includes(targetEl);
-    requestAnimationFrame(() => toDisable.forEach(el => el.style.pointerEvents = el.__pe || ""));
-    return ok;
-  }
-
-  // Bind em todos os dropdowns
-  function bind(dd){
-    if (dd.__bound) return; dd.__bound = true;
-    const trigger = dd.querySelector('[data-dd-trigger]');
-    const menu = dd.querySelector('[data-dd-menu]');
-    if (!trigger || !menu) return;
-
-    // toggle por clique
-    trigger.addEventListener('mousedown', e => {
-      // garante que o clique chegue no trigger mesmo com overlay
-      clickThrough(e, trigger);
-    }, true);
-
-    trigger.addEventListener('click', e => {
-      e.preventDefault();
-      const isOpen = dd.dataset.ddOpen === "true";
-      closeAll();
-      if (!isOpen) open(dd);
-    });
-
-    // navegação por teclado dentro do menu
-    menu.addEventListener('keydown', e => {
-      const items = $all('[role="menuitem"], a, button', menu).filter(el => !el.disabled);
-      if (!items.length) return;
-      const i = items.indexOf(document.activeElement);
-      if (e.key === 'ArrowDown'){ e.preventDefault(); (items[i+1] || items[0]).focus(); }
-      if (e.key === 'ArrowUp'){ e.preventDefault(); (items[i-1] || items[items.length-1]).focus(); }
-      if (e.key === 'Home'){ e.preventDefault(); items[0].focus(); }
-      if (e.key === 'End'){ e.preventDefault(); items[items.length-1].focus(); }
-    });
-  }
-
-  // Clique fora fecha
-  document.addEventListener('click', e => {
-    const dd = e.target.closest?.('[data-dd]');
-    if (!dd) closeAll();
-  });
-
-  // Esc fecha
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(); });
-
-  // Liga nos existentes
-  $all('[data-dd]').forEach(bind);
-
-  // Observa menus que entrarem depois
-  new MutationObserver(muts => {
-    muts.forEach(m => m.addedNodes.forEach(n => {
-      if (n.nodeType === 1) {
-        if (n.matches?.('[data-dd]')) bind(n);
-        n.querySelectorAll?.('[data-dd]').forEach(bind);
-      }
-    }));
-  }).observe(document.body, { childList:true, subtree:true });
-
-  // Also: selects nativos abrirem mesmo com overlay
-  document.addEventListener('mousedown', e => {
-    const sel = e.target.closest?.('select');
-    if (!sel) return;
-    clickThrough(e, sel);
-    if (sel.showPicker) { e.preventDefault(); sel.showPicker(); }
   }, true);
+
+  // fecha ao clicar fora
+  document.addEventListener('click', e => {
+    if (e.target.closest('details')) return;
+    document.querySelectorAll('details[open]').forEach(d => d.removeAttribute('open'));
+  }, true);
+
+  // fecha com Esc
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    const open = document.querySelectorAll('details[open]');
+    open.forEach(d => d.removeAttribute('open'));
+  });
 })();
     </script>
   </body>

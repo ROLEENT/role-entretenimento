@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { DataTable } from '@/components/admin/DataTable';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-// Removido: usando sistema unificado de dropdowns
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Edit, Copy, Eye, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -87,34 +87,38 @@ export function AdminAgendaTable({
   };
 
   const renderActions = (item: AgendaTableItem) => (
-    <div className="dd" data-dd data-dd-align="right">
-      <Button variant="ghost" className="h-8 w-8 p-0 dd-trigger" data-dd-trigger aria-label="Ações">
-        <MoreHorizontal className="h-4 w-4" />
-      </Button>
-      <div className="dd-menu" data-dd-menu role="menu">
-        <Link to={`/admin-v3/agenda/${item.id}/editar`} role="menuitem">
-          <Edit className="h-4 w-4" />
-          Editar
-        </Link>
-        <button role="menuitem" type="button" onClick={() => handleDuplicate(item.id)}>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem asChild>
+          <Link to={`/admin-v3/agenda/${item.id}/editar`} className="flex items-center gap-2">
+            <Edit className="h-4 w-4" />
+            Editar
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleDuplicate(item.id)} className="flex items-center gap-2">
           <Copy className="h-4 w-4" />
           Duplicar
-        </button>
-        <Link to={`/preview/agenda/${item.slug}`} target="_blank" role="menuitem">
-          <Eye className="h-4 w-4" />
-          Visualizar
-        </Link>
-        <button 
-          role="menuitem" 
-          type="button"
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to={`/preview/agenda/${item.slug}`} target="_blank" className="flex items-center gap-2">
+            <Eye className="h-4 w-4" />
+            Visualizar
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem 
           onClick={() => handleDelete(item.id)} 
-          style={{ color: 'hsl(var(--destructive))' }}
+          className="flex items-center gap-2 text-destructive"
         >
           <Trash2 className="h-4 w-4" />
           Excluir
-        </button>
-      </div>
-    </div>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 
   const handleDuplicate = (id: string) => {

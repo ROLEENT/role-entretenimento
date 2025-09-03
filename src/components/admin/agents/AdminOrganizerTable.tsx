@@ -4,7 +4,7 @@ import { Edit, Copy, UserX, MoreHorizontal, Eye, ExternalLink } from 'lucide-rea
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-// Removido: usando sistema unificado de dropdowns
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -159,67 +159,70 @@ export const AdminOrganizerTable: React.FC<AdminOrganizerTableProps> = ({
               </TableCell>
               
               <TableCell>
-                <div className="dd" data-dd data-dd-align="right">
-                  <Button variant="ghost" size="sm" className="dd-trigger" data-dd-trigger aria-label="Ações">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                  <div className="dd-menu" data-dd-menu role="menu">
-                    <Link to={`/admin-v3/agentes/organizadores/${organizer.id}/edit`} role="menuitem">
-                      <Edit className="h-4 w-4" />
-                      Editar
-                    </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link to={`/admin-v3/agentes/organizadores/${organizer.id}/edit`}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Editar
+                      </Link>
+                    </DropdownMenuItem>
                     
-                    <Link to={`/admin-v3/agentes/organizadores/${organizer.id}`} role="menuitem">
-                      <Eye className="h-4 w-4" />
-                      Visualizar
-                    </Link>
+                    <DropdownMenuItem asChild>
+                      <Link to={`/admin-v3/agentes/organizadores/${organizer.id}`}>
+                        <Eye className="mr-2 h-4 w-4" />
+                        Visualizar
+                      </Link>
+                    </DropdownMenuItem>
                     
-                    <hr />
+                    <DropdownMenuSeparator />
                     
-                    <button role="menuitem" type="button" onClick={() => onDuplicate(organizer.id)}>
-                      <Copy className="h-4 w-4" />
+                    <DropdownMenuItem onClick={() => onDuplicate(organizer.id)}>
+                      <Copy className="mr-2 h-4 w-4" />
                       Duplicar
-                    </button>
+                    </DropdownMenuItem>
                     
-                    <button 
-                      role="menuitem"
-                      type="button"
+                    <DropdownMenuItem 
                       onClick={() => onStatusChange(
                         organizer.id, 
                         organizer.status === 'active' ? 'inactive' : 'active'
                       )}
                     >
-                      <UserX className="h-4 w-4" />
+                      <UserX className="mr-2 h-4 w-4" />
                       {organizer.status === 'active' ? 'Inativar' : 'Ativar'}
-                    </button>
+                    </DropdownMenuItem>
                     
                     {organizer.instagram && (
                       <>
-                        <hr />
-                        <a 
-                          href={`https://instagram.com/${organizer.instagram.replace('@', '')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          role="menuitem"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                          Ver Instagram
-                        </a>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <a 
+                            href={`https://instagram.com/${organizer.instagram.replace('@', '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <ExternalLink className="mr-2 h-4 w-4" />
+                            Ver Instagram
+                          </a>
+                        </DropdownMenuItem>
                       </>
                     )}
                     
-                    <hr />
-                    <button 
-                      role="menuitem"
-                      type="button"
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
                       onClick={() => onDelete(organizer.id)}
-                      style={{ color: 'hsl(var(--destructive))' }}
+                      className="text-destructive"
                     >
-                      <UserX className="h-4 w-4" />
+                      <UserX className="mr-2 h-4 w-4" />
                       Excluir
-                    </button>
-                  </div>
-                </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </TableCell>
             </TableRow>
           ))}

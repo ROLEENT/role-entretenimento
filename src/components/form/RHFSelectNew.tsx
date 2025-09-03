@@ -2,7 +2,13 @@
 
 import { useFormContext, Controller } from "react-hook-form";
 import { Label } from "@/components/ui/label";
-import { SelectUniversal } from "@/components/ui/select-universal";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { BaseFormFieldProps } from "@/lib/forms";
 
 interface SelectOption {
@@ -54,17 +60,30 @@ export default function RHFSelect({
         name={name}
         control={control}
         render={({ field }) => (
-          <SelectUniversal
+          <Select
             value={field.value || ""}
             onValueChange={(value) => {
               field.onChange(value);
               onValueChange?.(value);
             }}
-            options={normalizedOptions}
-            placeholder={placeholder}
             disabled={disabled}
-            className={className}
-          />
+          >
+            <SelectTrigger
+              className={className}
+              aria-invalid={!!fieldError}
+              aria-describedby={description ? `${name}-description` : undefined}
+              aria-required={required}
+            >
+              <SelectValue placeholder={placeholder} />
+            </SelectTrigger>
+            <SelectContent className="z-[9999] bg-popover border shadow-lg" position="popper">
+              {normalizedOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         )}
       />
       

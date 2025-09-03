@@ -8,7 +8,13 @@ import {
   FormLabel,
   FormMessage,
  } from "@/components/ui/form";
-import { SelectUniversal } from "@/components/ui/select-universal";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select-fixed";
 
 interface Option {
   value: string;
@@ -55,14 +61,26 @@ export function RHFSelect({
             </FormLabel>
           )}
           <FormControl>
-            <SelectUniversal
+            <Select
               onValueChange={(value) => field.onChange(parseValue(value))}
               value={serializeValue(field.value)}
-              options={options}
-              placeholder={placeholder}
               disabled={disabled}
-              className={className}
-            />
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={placeholder} />
+              </SelectTrigger>
+              <SelectContent position="popper" className="z-[9999] bg-popover border shadow-lg">
+                {options.map((option) => (
+                  <SelectItem
+                    key={option.value}
+                    value={option.value}
+                    disabled={option.disabled}
+                  >
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </FormControl>
           <FormMessage />
         </FormItem>

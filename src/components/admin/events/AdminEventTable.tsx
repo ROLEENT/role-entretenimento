@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-// Dropdown agora usa sistema universal data-dd
+import { SimpleDropdown } from "@/components/ui/dropdown-simple";
 import { 
   MoreHorizontal, 
   Edit, 
@@ -228,44 +228,28 @@ export function AdminEventTable({
                   {format(new Date(event.created_at), "dd/MM/yyyy", { locale: ptBR })}
                 </TableCell>
                 <TableCell>
-                  <div className="dd" data-dd data-dd-align="right">
-                    <button 
-                      className="dd-trigger h-8 w-8 flex items-center justify-center hover:bg-accent rounded-md"
-                      data-dd-trigger
-                      aria-label="Ações do evento"
-                    >
-                      <MoreHorizontal className="h-4 w-4" />
-                    </button>
-                    <div className="dd-menu" data-dd-menu role="menu">
-                      <button 
-                        type="button" 
-                        onClick={() => navigate(`/evento/${event.id}`)}
-                        role="menuitem"
-                        className="flex items-center gap-2"
-                      >
-                        <Eye className="h-4 w-4" />
-                        Visualizar
-                      </button>
-                      <button 
-                        type="button" 
-                        onClick={() => navigate(`/admin-v3/eventos/${event.id}/editar`)}
-                        role="menuitem"
-                        className="flex items-center gap-2"
-                      >
-                        <Edit className="h-4 w-4" />
-                        Editar
-                      </button>
-                      <button 
-                        type="button" 
-                        onClick={() => onBulkAction("delete", [event.id])}
-                        role="menuitem"
-                        className="flex items-center gap-2 text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        Excluir
-                      </button>
-                    </div>
-                  </div>
+                  <SimpleDropdown
+                    trigger={<MoreHorizontal className="h-4 w-4" />}
+                    align="end"
+                    aria-label="Ações do evento"
+                    items={[
+                      {
+                        label: "Visualizar",
+                        value: "view",
+                        onClick: () => navigate(`/evento/${event.id}`)
+                      },
+                      {
+                        label: "Editar", 
+                        value: "edit",
+                        onClick: () => navigate(`/admin-v3/eventos/${event.id}/editar`)
+                      },
+                      {
+                        label: "Excluir",
+                        value: "delete", 
+                        onClick: () => onBulkAction("delete", [event.id])
+                      }
+                    ]}
+                  />
                 </TableCell>
               </TableRow>
             ))}

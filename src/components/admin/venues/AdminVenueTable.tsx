@@ -2,7 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MoreHorizontal, Edit, Copy, Trash2, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-// Removido: usando sistema unificado de dropdowns
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Table,
   TableBody,
@@ -96,32 +103,35 @@ export const AdminVenueTable: React.FC<AdminVenueTableProps> = ({
                   }
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="dd" data-dd data-dd-align="right">
-                    <Button variant="ghost" className="h-8 w-8 p-0 dd-trigger" data-dd-trigger aria-label="Ações do local">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                    <div className="dd-menu" data-dd-menu role="menu">
-                      <div className="px-3 py-2 text-sm font-medium text-muted-foreground border-b border-border">Ações</div>
-                      <Link to={`/admin-v3/agentes/venues/${venue.id}/edit`} role="menuitem">
-                        <Edit className="h-4 w-4" />
-                        Editar
-                      </Link>
-                      <button role="menuitem" type="button" onClick={() => onDuplicate(venue)}>
-                        <Copy className="h-4 w-4" />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Abrir menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                      <DropdownMenuItem asChild>
+                        <Link to={`/admin-v3/agentes/venues/${venue.id}/edit`}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Editar
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onDuplicate(venue)}>
+                        <Copy className="mr-2 h-4 w-4" />
                         Duplicar
-                      </button>
-                      <hr />
-                      <button 
-                        role="menuitem" 
-                        type="button"
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
                         onClick={() => onDeactivate(venue)}
-                        style={{ color: 'hsl(var(--destructive))' }}
+                        className="text-destructive"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="mr-2 h-4 w-4" />
                         Desativar
-                      </button>
-                    </div>
-                  </div>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
               </TableRow>
             ))
