@@ -45,22 +45,25 @@ export default function EventEditPage() {
       title: "",
       slug: "",
       status: "draft",
-      city_id: "",
-      venue_id: null,
-      organizer_id: null,
-      starts_at: "",
-      ends_at: "",
-      price_min: null,
-      price_max: null,
-      age_rating: null,
-      lineup: [],
-      excerpt: null,
-      content: null,
-      links: [],
-      cover_url: null,
+      date_start: "",
+      date_end: "",
+      price_min: undefined,
+      price_max: undefined,
+      description: "",
+      links: {},
+      cover_url: "",
+      seo_title: "",
+      seo_description: "",
+      city: "",
+      venue_id: undefined,
+      country: "Brasil",
+      currency: "BRL",
+      visibility: "public",
+      highlight_type: "none",
+      is_sponsored: false,
+      genres: [],
+      tags: [],
       gallery: [],
-      seo_title: null,
-      seo_description: null,
     },
   });
 
@@ -68,8 +71,11 @@ export default function EventEditPage() {
     if (event) {
       form.reset({
         ...event,
-        starts_at: event.starts_at ? new Date(event.starts_at).toISOString().slice(0, 16) : "",
-        ends_at: event.ends_at ? new Date(event.ends_at).toISOString().slice(0, 16) : "",
+        date_start: event.starts_at ? new Date(event.starts_at).toISOString().slice(0, 16) : "",
+        date_end: event.ends_at ? new Date(event.ends_at).toISOString().slice(0, 16) : "",
+        // Map legacy field names to new schema
+        start_utc: event.starts_at,
+        end_utc: event.ends_at,
       });
     }
   }, [event, form]);
@@ -161,11 +167,11 @@ export default function EventEditPage() {
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <RHFDateTime
-                  name="starts_at"
+                  name="date_start"
                   label="Data e Hora de Início"
                 />
                 <RHFDateTime
-                  name="ends_at"
+                  name="date_end"
                   label="Data e Hora de Fim"
                 />
                 <RHFInput
