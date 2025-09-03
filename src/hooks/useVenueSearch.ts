@@ -6,7 +6,7 @@ export const useVenueSearch = () => {
     try {
       const { data, error } = await supabase
         .from('venues')
-        .select('id, name, city, address, type')
+        .select('id, name, city, address')
         .or(`name.ilike.%${query}%`)
         .eq('status', 'active')
         .order('name')
@@ -34,7 +34,7 @@ export const useVenueSearch = () => {
     try {
       const { data, error } = await supabase
         .from('venues')
-        .select('id, name, city, address, type')
+        .select('id, name, city, address')
         .eq('id', id)
         .single();
 
