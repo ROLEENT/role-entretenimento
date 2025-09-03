@@ -160,8 +160,7 @@ export const useUpsertVenue = () => {
         })(),
         cover_url: data.cover_url || null,
         cover_alt: data.cover_alt || null,
-        // Convert gallery_urls array to gallery object for database
-        gallery: data.gallery_urls && data.gallery_urls.length > 0 ? { urls: data.gallery_urls } : null,
+        gallery_urls: data.gallery_urls || [],
         status: data.status || 'active',
         // Removed priority and updated_at - not in database schema
       };

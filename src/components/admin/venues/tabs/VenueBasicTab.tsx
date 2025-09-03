@@ -74,14 +74,7 @@ export const VenueBasicTab: React.FC<VenueBasicTabProps> = ({ form }) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Status is now handled by IntelligentStatusField */}
-            
-            <RHFInput
-              name="priority"
-              label="Prioridade"
-              type="number"
-              placeholder="0"
-            />
+            {/* Removed priority field - doesn't exist in database */}
           </div>
 
           {/* Intelligent Status Field */}

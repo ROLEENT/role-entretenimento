@@ -116,7 +116,7 @@ const AdminV3VenueEdit: React.FC = () => {
         sunday: "",
       },
       caracteristicas_estabelecimento: {},
-      tags: [],
+      tags: "",
       gallery_urls: [],
     },
   });
