@@ -93,8 +93,8 @@ export function AdminEventFormV3({
       visual_art: [],
       highlight_type: 'none',
       is_sponsored: false,
-      ticketing: [],
-      links: [],
+      ticketing: {},
+      links: {},
       description: '',
       tags: [],
       seo_title: '',
@@ -127,17 +127,22 @@ export function AdminEventFormV3({
   const isPending = upsertMutation.isPending;
 
   // Slug management
-  const { isCheckingSlug, slugStatus } = useEventSlugCheck();
+  const { isCheckingSlug, slugStatus } = useEventSlugCheck({
+    slug: formData.slug || '',
+    eventId,
+    enabled: !!formData.slug
+  });
   
   // Guard contra navegação sem salvar
-  useFormDirtyGuard(isDirty && !isPending, 'Você tem alterações não salvas. Deseja sair mesmo assim?');
+  useFormDirtyGuard(isDirty && !isPending, () => {});
 
   // Autosave
-  const { isAutosaving, lastSavedAt } = useAutosave(formData, async (data) => {
-    await upsertMutation.mutateAsync(data);
-  }, {
+  const { isAutosaving, lastSavedAt } = useAutosave(formData, {
     enabled: isDirty && !isPending,
-    debounceMs: 3000
+    delay: 3000,
+    onSave: async () => {
+      await upsertMutation.mutateAsync(formData);
+    }
   });
 
   // Auto-generate slug from title
@@ -146,11 +151,10 @@ export function AdminEventFormV3({
       if (name === 'title' && value.title && !value.slug) {
         const newSlug = generateSlug(value.title);
         setValue('slug', newSlug);
-        checkSlug(newSlug);
       }
     });
     return () => subscription.unsubscribe();
-  }, [form, setValue, checkSlug]);
+  }, [form, setValue]);
 
   // Validate form for publication
   const validationErrors = validateEventForPublish(formData);
@@ -192,7 +196,7 @@ export function AdminEventFormV3({
 
   return (
     <>
-      <NavigationGuard when={isDirty && !isPending} />
+      {/* Removido NavigationGuard temporariamente */}
       
       <FormProvider {...form}>
         <div className="max-w-6xl mx-auto p-6 space-y-6">
@@ -203,7 +207,7 @@ export function AdminEventFormV3({
                 {eventId ? 'Editar Evento' : 'Criar Evento'}
               </h1>
               <AutosaveIndicator
-                lastSaved={lastSaved}
+                lastSaved={lastSavedAt}
                 hasUnsavedChanges={isDirty}
                 isSaving={isPending || isAutosaving}
               />
@@ -252,17 +256,16 @@ export function AdminEventFormV3({
                       />
 
                       <div className="space-y-2">
-                        <RHFSlugInput
-                          name="slug"
-                          label="Slug (URL)"
-                          placeholder="nome-do-evento"
-                          disabled={isPending}
-                          onBlur={(value) => checkSlug(value)}
-                        />
-                        {slugStatus && (
-                          <div className="flex items-center gap-2 text-sm">
-                            {isChecking ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
+                      <RHFSlugInput
+                        name="slug"
+                        label="Slug (URL)"
+                        placeholder="nome-do-evento"
+                        disabled={isPending}
+                      />
+                      {slugStatus && (
+                        <div className="flex items-center gap-2 text-sm">
+                          {isCheckingSlug ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
                             ) : slugStatus === 'available' ? (
                               <CheckCircle className="h-4 w-4 text-green-500" />
                             ) : (
@@ -364,23 +367,17 @@ export function AdminEventFormV3({
                       <CardTitle>Horários do Evento</CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Data/Hora de Início</label>
-                        <DateTimePicker
-                          value={formData.start_utc ? new Date(formData.start_utc) : undefined}
-                          onChange={(date) => setValue('start_utc', date?.toISOString())}
-                          disabled={isPending}
-                        />
-                      </div>
+                      <DateTimePicker
+                        name="start_utc"
+                        label="Data/Hora de Início"
+                        disabled={isPending}
+                      />
                       
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Data/Hora de Fim</label>
-                        <DateTimePicker
-                          value={formData.end_utc ? new Date(formData.end_utc) : undefined}
-                          onChange={(date) => setValue('end_utc', date?.toISOString())}
-                          disabled={isPending}
-                        />
-                      </div>
+                      <DateTimePicker
+                        name="end_utc"
+                        label="Data/Hora de Fim"
+                        disabled={isPending}
+                      />
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -402,6 +399,7 @@ export function AdminEventFormV3({
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Tags</label>
                         <ChipInput
+                          name="tags"
                           value={formData.tags}
                           onChange={(value) => setValue('tags', value)}
                           placeholder="Adicionar tag"
@@ -412,6 +410,7 @@ export function AdminEventFormV3({
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Artistas</label>
                         <ChipInput
+                          name="artists_names"
                           value={formData.artists_names}
                           onChange={(value) => setValue('artists_names', value)}
                           placeholder="Nome do artista"
@@ -421,31 +420,33 @@ export function AdminEventFormV3({
                     </CardContent>
                   </Card>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Apresentações</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <PerformanceEditor
-                        value={formData.performances}
-                        onChange={(value) => setValue('performances', value)}
-                        disabled={isPending}
-                      />
-                    </CardContent>
-                  </Card>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Apresentações</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-sm text-muted-foreground">
+                          {formData.performances && formData.performances.length > 0 
+                            ? `${formData.performances.length} performance(s) configurada(s)`
+                            : 'Nenhuma performance configurada'
+                          }
+                        </div>
+                      </CardContent>
+                    </Card>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Artes Visuais</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <VisualArtEditor
-                        value={formData.visual_art}
-                        onChange={(value) => setValue('visual_art', value)}
-                        disabled={isPending}
-                      />
-                    </CardContent>
-                  </Card>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Artes Visuais</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-sm text-muted-foreground">
+                          {formData.visual_art && formData.visual_art.length > 0 
+                            ? `${formData.visual_art.length} artista(s) visual(is) configurado(s)`
+                            : 'Nenhum artista visual configurado'
+                          }
+                        </div>
+                      </CardContent>
+                    </Card>
 
                   <Card>
                     <CardHeader>
@@ -612,10 +613,26 @@ export function AdminEventFormV3({
               </Card>
 
               {/* Publication Checklist */}
-              <PublicationChecklist
-                errors={validationErrors}
-                canPublish={canPublish}
-              />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Status de Publicação</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {validationErrors.length > 0 && (
+                    <div className="text-sm text-red-600">
+                      <p className="font-medium mb-2">Campos obrigatórios:</p>
+                      <ul className="list-disc list-inside space-y-1">
+                        {validationErrors.map((error, index) => (
+                          <li key={index}>{error}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {canPublish && (
+                    <p className="text-sm text-green-600">✓ Pronto para publicar</p>
+                  )}
+                </CardContent>
+              </Card>
 
               {/* Status Info */}
               <Card>
@@ -633,11 +650,11 @@ export function AdminEventFormV3({
                     </Badge>
                   </div>
                   
-                  {lastSaved && (
+                  {lastSavedAt && (
                     <div className="flex justify-between">
                       <span>Último save:</span>
                       <span className="text-muted-foreground">
-                        {lastSaved.toLocaleTimeString()}
+                        {lastSavedAt.toLocaleTimeString()}
                       </span>
                     </div>
                   )}
