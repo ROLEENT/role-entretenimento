@@ -2,6 +2,7 @@ import { Calendar, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Profile } from "@/features/profiles/api";
+import { useProfileEvents } from "@/features/profiles/hooks/useProfileEvents";
 
 interface ProfileEventListMobileProps {
   profile: Profile;
@@ -9,27 +10,27 @@ interface ProfileEventListMobileProps {
 }
 
 export function ProfileEventListMobile({ profile, limit }: ProfileEventListMobileProps) {
-  // Mock data - replace with actual events data
-  const events = [
-    {
-      id: "1",
-      title: "Show de Rock na Cidade",
-      date: "2024-01-15",
-      time: "20:00",
-      venue: "Casa de Shows",
-      city: "São Paulo",
-    },
-    {
-      id: "2", 
-      title: "Festival de Música",
-      date: "2024-01-22",
-      time: "19:00",
-      venue: "Parque da Cidade",
-      city: "Rio de Janeiro",
-    },
-  ];
+  const { data: events = [], isLoading } = useProfileEvents(profile.handle, profile.type);
 
   const displayEvents = limit ? events.slice(0, limit) : events;
+
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        {Array.from({ length: limit || 3 }).map((_, i) => (
+          <Card key={i} className="animate-pulse">
+            <CardContent className="p-4">
+              <div className="space-y-2">
+                <div className="h-4 bg-muted rounded w-3/4" />
+                <div className="h-3 bg-muted rounded w-1/2" />
+                <div className="h-3 bg-muted rounded w-2/3" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
   if (displayEvents.length === 0) {
     return (
@@ -62,13 +63,24 @@ export function ProfileEventListMobile({ profile, limit }: ProfileEventListMobil
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-3 h-3" />
-                  <span>{new Date(event.date).toLocaleDateString('pt-BR')} • {event.time}</span>
+                  <span>
+                    {event.starts_at 
+                      ? new Date(event.starts_at).toLocaleDateString('pt-BR') 
+                      : 'Data a definir'
+                    }
+                    {event.starts_at && (
+                      <> • {new Date(event.starts_at).toLocaleTimeString('pt-BR', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}</>
+                    )}
+                  </span>
                 </div>
               </div>
               
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <MapPin className="w-3 h-3" />
-                <span>{event.venue} • {event.city}</span>
+                <span>{event.location_name || 'Local a definir'} • {event.city || 'Cidade a definir'}</span>
               </div>
             </div>
           </CardContent>

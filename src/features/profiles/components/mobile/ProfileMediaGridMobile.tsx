@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Image as ImageIcon, Play } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Profile } from "@/features/profiles/api";
+import { useProfileMedia } from "@/features/profiles/hooks/useProfileMedia";
 
 interface ProfileMediaGridMobileProps {
   profile: Profile;
@@ -17,24 +18,25 @@ interface MediaItem {
 
 export function ProfileMediaGridMobile({ profile }: ProfileMediaGridMobileProps) {
   const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
+  const { data: mediaData = [], isLoading } = useProfileMedia(profile.user_id);
   
-  // Mock data - replace with actual media data
-  const mediaItems: MediaItem[] = [
-    {
-      id: "1",
-      url: "/placeholder.svg",
-      type: "image",
-      alt: "Foto do perfil"
-    },
-    {
-      id: "2", 
-      url: "/placeholder.svg",
-      type: "video",
-      thumbnail: "/placeholder.svg",
-      alt: "Vídeo do show"
-    },
-    // Add more items as needed
-  ];
+  // Convert media data to MediaItem format
+  const mediaItems: MediaItem[] = mediaData.map(item => ({
+    id: item.id,
+    url: item.url,
+    type: item.type,
+    alt: item.alt_text || item.caption || "Mídia",
+  }));
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-3 gap-1">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="aspect-square bg-muted rounded-lg animate-pulse" />
+        ))}
+      </div>
+    );
+  }
 
   if (mediaItems.length === 0) {
     return (
@@ -57,7 +59,7 @@ export function ProfileMediaGridMobile({ profile }: ProfileMediaGridMobileProps)
             onClick={() => setSelectedMedia(item)}
           >
             <img
-              src={item.thumbnail || item.url}
+              src={item.url}
               alt={item.alt || "Mídia"}
               className="w-full h-full object-cover"
             />

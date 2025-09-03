@@ -23,7 +23,7 @@ interface ProfileSidebarNewProps {
 
 export function ProfileSidebarNew({ profile }: ProfileSidebarNewProps) {
   const { data: genres = [] } = useProfileGenres(profile.id, profile.type);
-  const { stats } = useProfileStats(profile.id);
+  const stats = useProfileStats(profile.handle, profile.type, profile.user_id);
 
   const getTypeIcon = () => {
     switch (profile.type) {
@@ -148,26 +148,18 @@ export function ProfileSidebarNew({ profile }: ProfileSidebarNewProps) {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center">
-                <p className="text-2xl font-bold text-primary">{stats.followers_count}</p>
+                <p className="text-2xl font-bold text-primary">0</p>
                 <p className="text-xs text-muted-foreground">Seguidores</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-primary">{stats.events_count}</p>
+                <p className="text-2xl font-bold text-primary">{stats.eventCount}</p>
                 <p className="text-xs text-muted-foreground">Eventos</p>
               </div>
-            </div>
-            
-            {stats.average_rating > 0 && (
-              <div className="text-center pt-2 border-t">
-                <p className="text-2xl font-bold text-primary">
-                  {stats.average_rating.toFixed(1)}
-                  <span className="text-sm text-muted-foreground ml-1">★</span>
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {stats.total_reviews} {stats.total_reviews === 1 ? 'avaliação' : 'avaliações'}
-                </p>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-primary">{stats.mediaCount}</p>
+                <p className="text-xs text-muted-foreground">Mídia</p>
               </div>
-            )}
+            </div>
           </CardContent>
         </Card>
       )}

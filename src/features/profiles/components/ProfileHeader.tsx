@@ -16,7 +16,7 @@ interface ProfileHeaderProps {
 }
 
 export function ProfileHeader({ profile }: ProfileHeaderProps) {
-  const { stats, loading: statsLoading } = useProfileStats(profile.id);
+  const stats = useProfileStats(profile.handle, profile.type, profile.user_id);
   const { data: genres = [], isLoading: genresLoading } = useProfileGenres(profile.id, profile.type);
   const [showClaimDialog, setShowClaimDialog] = useState(false);
 
@@ -106,10 +106,10 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
             {/* Stats - Inline */}
             <div className="flex gap-3 text-xs text-white/80 mt-1.5">
               <span className="drop-shadow">
-                <span className="font-semibold text-white">{stats?.followers_count || 0}</span> seguidores
-              </span>
-              <span className="drop-shadow">
-                <span className="font-semibold text-white">{stats?.events_count || 0}</span> eventos
+                 <span className="font-semibold text-white">0</span> seguidores
+               </span>
+               <span className="drop-shadow">
+                 <span className="font-semibold text-white">{stats.eventCount}</span> eventos
               </span>
             </div>
           </div>
@@ -170,10 +170,10 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
               {/* Compact Stats */}
               <div className="flex gap-4 text-sm text-white/70">
                 <span>
-                  <span className="font-semibold text-white">{stats?.followers_count || 0}</span> seguidores
-                </span>
-                <span>
-                  <span className="font-semibold text-white">{stats?.events_count || 0}</span> eventos
+                   <span className="font-semibold text-white">0</span> seguidores
+                 </span>
+                 <span>
+                   <span className="font-semibold text-white">{stats.eventCount}</span> eventos
                 </span>
               </div>
             </div>

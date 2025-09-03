@@ -24,6 +24,7 @@ import { ProfileGenreChipsMobile } from "@/features/profiles/components/mobile/P
 import { ProfileTabsMobile } from "@/features/profiles/components/mobile/ProfileTabsMobile";
 import { ProfileContentMobile } from "@/features/profiles/components/mobile/ProfileContentMobile";
 import { ProfileSkeletonMobile } from "@/features/profiles/components/mobile/ProfileSkeletonMobile";
+import { useProfileStats } from "@/features/profiles/hooks/useProfileStats";
 
 export default function ProfilePage() {
   const { handle } = useParams<{ handle: string }>();
@@ -31,6 +32,11 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("visao");
 
   const { data: profile, isLoading, error, refetch } = useProfile(cleanHandle);
+  const stats = useProfileStats(
+    cleanHandle, 
+    profile?.type || '', 
+    profile?.user_id || ''
+  );
 
   const handleRefresh = async () => {
     await refetch();
@@ -110,9 +116,6 @@ export default function ProfilePage() {
         
         <PullToRefresh onRefresh={handleRefresh}>
           <main id="main-content" role="main" tabIndex={-1}>
-            {/* Sentinel for intersection observer (mobile only) */}
-            <div id="hero-sentinel" className="md:hidden" />
-            
             {/* Mobile Profile Layout */}
             <div className="md:hidden">
               <ProfileHeroMobile profile={profile} />
@@ -121,8 +124,8 @@ export default function ProfilePage() {
               <ProfileTabsMobile 
                 activeTab={activeTab} 
                 onTabChange={setActiveTab}
-                eventCount={0} // TODO: Get real count
-                mediaCount={0} // TODO: Get real count
+                eventCount={stats.eventCount}
+                mediaCount={stats.mediaCount}
               />
               <ProfileContentMobile 
                 profile={profile} 
