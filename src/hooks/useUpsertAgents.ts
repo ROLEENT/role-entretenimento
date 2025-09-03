@@ -159,6 +159,8 @@ export const useUpsertVenue = () => {
           }
           return [];
         })(),
+        logo_url: data.logo_url || null,
+        logo_alt: data.logo_alt || null,
         cover_url: data.cover_url || null,
         cover_alt: data.cover_alt || null,
         gallery_urls: data.gallery_urls || [],
