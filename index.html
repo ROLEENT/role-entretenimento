@@ -138,20 +138,110 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     
-    <!-- Universal Dropdown System -->
     <script>
 (() => {
-  const qs = s => Array.from(document.querySelectorAll(s));
+  const $all = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
-  // abre/fecha por clique
+  // Estado
+  function open(dd){
+    if (dd.dataset.ddOpen === "true") return;
+    dd.dataset.ddOpen = "true";
+    const trigger = dd.querySelector('[data-dd-trigger]');
+    const menu = dd.querySelector('[data-dd-menu]');
+    trigger?.setAttribute('aria-expanded','true');
+
+    // Porta o menu pro body para evitar overflow/transform
+    dd.__ph = dd.__ph || document.createComment('dd-portal');
+    if (menu && !menu.__ported){
+      dd.insertBefore(dd.__ph, menu);
+      document.body.appendChild(menu);
+      menu.__ported = true;
+    }
+
+    place(dd);
+    window.addEventListener('scroll', dd.__place = () => place(dd), true);
+    window.addEventListener('resize', dd.__place, true);
+  }
+
+  function close(dd){
+    if (dd.dataset.ddOpen !== "true") return;
+    dd.dataset.ddOpen = "false";
+    const trigger = dd.querySelector('[data-dd-trigger]');
+    const menu = dd.querySelector('[data-dd-menu]');
+    trigger?.setAttribute('aria-expanded','false');
+
+    // devolve o menu pro lugar
+    if (menu?.__ported && dd.__ph){
+      dd.__ph.replaceWith(menu);
+      menu.__ported = false;
+      menu.style.cssText = ""; // limpa posicionamento inline
+    }
+
+    window.removeEventListener('scroll', dd.__place, true);
+    window.removeEventListener('resize', dd.__place, true);
+  }
+
+  function closeAll(){
+    $all('[data-dd][data-dd-open="true"]').forEach(close);
+  }
+
+  // Posiciona o menu quando está portado no body
+  function place(dd){
+    const trigger = dd.querySelector('[data-dd-trigger]');
+    const menu = dd.querySelector('[data-dd-menu]');
+    if (!trigger || !menu) return;
+    const r = trigger.getBoundingClientRect();
+
+    // mede menu escondido
+    menu.style.visibility = 'hidden';
+    menu.style.display = 'block';
+    const mw = Math.max(menu.offsetWidth || 220, r.width);
+    const mh = menu.offsetHeight || 0;
+
+    let left = r.left;
+    if (dd.dataset.ddAlign === 'right') left = r.right - mw;
+
+    // mantém dentro da viewport
+    const pad = 8;
+    left = Math.max(pad, Math.min(left, window.innerWidth - mw - pad));
+    let top = Math.min(r.bottom + 8, window.innerHeight - mh - pad);
+
+    // aplica
+    Object.assign(menu.style, {
+      position: 'fixed',
+      top: `${top}px`,
+      left: `${left}px`,
+      minWidth: `${mw}px`,
+      zIndex: '2147483647',
+      display: 'block',
+      visibility: 'visible'
+    });
+  }
+
+  // Corrige clique bloqueado por overlay: reencaminha para o trigger usando elementsFromPoint
+  function clickThrough(e, targetEl){
+    const x = e.clientX, y = e.clientY;
+    const stack = document.elementsFromPoint(x, y);
+    if (stack.includes(targetEl)) return true;
+    const toDisable = stack.filter(el => el !== targetEl && !targetEl.contains(el));
+    toDisable.forEach(el => el.__pe = el.style.pointerEvents, el.style.pointerEvents = 'none');
+    const ok = document.elementsFromPoint(x, y).includes(targetEl);
+    requestAnimationFrame(() => toDisable.forEach(el => el.style.pointerEvents = el.__pe || ""));
+    return ok;
+  }
+
+  // Bind em todos os dropdowns
   function bind(dd){
+    if (dd.__bound) return; dd.__bound = true;
     const trigger = dd.querySelector('[data-dd-trigger]');
     const menu = dd.querySelector('[data-dd-menu]');
     if (!trigger || !menu) return;
 
-    // estado inicial
-    dd.dataset.ddOpen = "false";
-    trigger.setAttribute('aria-expanded', 'false');
+    // toggle por clique
+    trigger.addEventListener('mousedown', e => {
+      // garante que o clique chegue no trigger mesmo com overlay
+      clickThrough(e, trigger);
+    }, true);
 
     trigger.addEventListener('click', e => {
       e.preventDefault();
@@ -160,10 +250,9 @@
       if (!isOpen) open(dd);
     });
 
-    // navegação por teclado no painel
+    // navegação por teclado dentro do menu
     menu.addEventListener('keydown', e => {
-      const items = Array.from(menu.querySelectorAll('[role="menuitem"], a, button'))
-        .filter(el => !el.hasAttribute('disabled'));
+      const items = $all('[role="menuitem"], a, button', menu).filter(el => !el.disabled);
       if (!items.length) return;
       const i = items.indexOf(document.activeElement);
       if (e.key === 'ArrowDown'){ e.preventDefault(); (items[i+1] || items[0]).focus(); }
@@ -173,43 +262,35 @@
     });
   }
 
-  function open(dd){
-    dd.dataset.ddOpen = "true";
-    dd.querySelector('[data-dd-trigger]')?.setAttribute('aria-expanded','true');
-    // foco no primeiro item, se existir
-    const first = dd.querySelector('[data-dd-menu] [role="menuitem"], [data-dd-menu] a, [data-dd-menu] button');
-    if (first) setTimeout(()=> first.focus(), 0);
-  }
-
-  function close(dd){
-    dd.dataset.ddOpen = "false";
-    dd.querySelector('[data-dd-trigger]')?.setAttribute('aria-expanded','false');
-  }
-
-  function closeAll(){
-    qs('[data-dd][data-dd-open="true"]').forEach(close);
-  }
-
-  // fecha ao clicar fora
+  // Clique fora fecha
   document.addEventListener('click', e => {
-    if (!e.target.closest('[data-dd]')) closeAll();
+    const dd = e.target.closest?.('[data-dd]');
+    if (!dd) closeAll();
   });
 
-  // fecha com Esc
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeAll();
-  });
+  // Esc fecha
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(); });
 
-  // liga em todos os menus existentes
-  qs('[data-dd]').forEach(bind);
+  // Liga nos existentes
+  $all('[data-dd]').forEach(bind);
 
-  // opcional: observar novos menus adicionados dinamicamente
+  // Observa menus que entrarem depois
   new MutationObserver(muts => {
     muts.forEach(m => m.addedNodes.forEach(n => {
-      if (n.nodeType === 1 && n.matches?.('[data-dd]')) bind(n);
-      if (n.nodeType === 1) n.querySelectorAll?.('[data-dd]').forEach(bind);
+      if (n.nodeType === 1) {
+        if (n.matches?.('[data-dd]')) bind(n);
+        n.querySelectorAll?.('[data-dd]').forEach(bind);
+      }
     }));
   }).observe(document.body, { childList:true, subtree:true });
+
+  // Also: selects nativos abrirem mesmo com overlay
+  document.addEventListener('mousedown', e => {
+    const sel = e.target.closest?.('select');
+    if (!sel) return;
+    clickThrough(e, sel);
+    if (sel.showPicker) { e.preventDefault(); sel.showPicker(); }
+  }, true);
 })();
     </script>
   </body>

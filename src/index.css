@@ -31,37 +31,35 @@ header, header *, nav, nav * {
 }
 
 /* Universal Dropdown System */
-.dd { position: relative; }
-.dd-trigger { display:inline-flex; align-items:center; gap:.5rem; cursor:pointer; }
-.dd-menu {
-  position:absolute; top:calc(100% + 8px); left:0; min-width:240px;
-  padding:8px; border-radius:12px; border:1px solid hsl(var(--border));
-  background:hsl(var(--background)); box-shadow:0 12px 32px hsl(var(--shadow) / 0.14);
-  z-index:9999; display:none; color: hsl(var(--foreground));
+[data-dd] { position: relative; }
+[data-dd-trigger] { display:inline-flex; align-items:center; gap:.5rem; cursor:pointer; pointer-events:auto; }
+[data-dd-icon] { transition: transform .15s ease; pointer-events:none; }
+
+/* painel padrão quando estiver dentro do container; ao abrir vamos portar pro body */
+[data-dd-menu] {
+  position:absolute; top:calc(100% + 8px); left:0;
+  min-width: 220px; padding:8px; border-radius:12px;
+  border:1px solid hsl(var(--border)); background:hsl(var(--background));
+  box-shadow:0 12px 32px hsl(var(--shadow) / 0.14); display:none;
+  color: hsl(var(--foreground));
 }
 
-/* abre quando o container está aberto */
-.dd[data-dd-open="true"] > [data-dd-menu] { display:block; }
-
-/* alinhamento à direita */
-.dd[data-dd-align="right"] > .dd-menu { right:0; left:auto; }
+/* abre estado visual no container */
+[data-dd][data-dd-open="true"] > [data-dd-menu] { display:block; }
 
 /* itens */
-.dd-menu a, .dd-menu button {
+[data-dd-menu] a, [data-dd-menu] button {
   display:flex; align-items:center; gap:12px; width:100%;
-  padding:10px 12px; border:0; background:none; text-decoration:none; border-radius:10px; cursor:pointer;
-  color: hsl(var(--foreground)); font: inherit;
+  padding:10px 12px; border:0; background:none; text-decoration:none;
+  border-radius:10px; cursor:pointer; color: hsl(var(--foreground)); font: inherit;
 }
-.dd-menu a:hover, .dd-menu button:hover { background:hsl(var(--muted)); }
+[data-dd-menu] a:hover, [data-dd-menu] button:hover { background:hsl(var(--muted)); }
 
-/* nada bloqueia clique do menu */
-header, nav, .page-header, .toolbar, .filters { overflow:visible; }
-.dd, .dd-menu, .dd-trigger { pointer-events:auto; }
-.dd-trigger svg, [data-dd-icon] { pointer-events:none; }
+/* giro do ícone ao abrir */
+[data-dd][data-dd-open="true"] [data-dd-icon] { transform: rotate(180deg); }
 
-/* rotação do ícone "v" / "><" quando aberto */
-.dd[data-dd-open="true"] [data-dd-icon] { transform: rotate(180deg); transition: transform 0.2s; }
-[data-dd-icon] { transition: transform 0.2s; }
+/* nada corta nem bloqueia clique do menu */
+header, nav, .toolbar, .filters, .page-header { overflow: visible; }
 
 /* garante que nada bloqueie o clique */
 .nav, .menu, .dd { overflow: visible; }
