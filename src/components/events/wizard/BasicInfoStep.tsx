@@ -4,11 +4,16 @@ import { EventFormData } from '@/schemas/eventSchema';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { RHFDropdownSelect } from '@/components/form/RHFDropdownSelect';
-import RHFDateTime from '@/components/form/RHFDateTime';
-import { RHFSelectAsync } from '@/components/form/RHFSelectAsync';
-import { useVenuesOptions } from '@/hooks/useVenuesOptions';
-import { MapPin } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { CalendarIcon, MapPin, Clock } from 'lucide-react';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
+import { ComboboxAsync } from '@/components/ui/combobox-async';
+import { useVenueSearch } from '@/hooks/useVenueSearch';
 
 const CITIES = [
   'São Paulo',
@@ -35,25 +40,10 @@ const CITIES = [
 
 export const BasicInfoStep: React.FC = () => {
   const { control, watch, setValue } = useFormContext<EventFormData>();
-  const { searchVenues } = useVenuesOptions();
+  const { searchVenues, getVenueById } = useVenueSearch();
   
   const watchedTitle = watch('title');
   const watchedSlug = watch('slug');
-
-  // Preparar options para cidades
-  const cityOptions = CITIES.map(city => ({
-    label: city,
-    value: city
-  }));
-
-  // Função para carregar venues
-  const loadVenues = async () => {
-    const venues = await searchVenues('');
-    return venues.map(venue => ({
-      label: venue.name,
-      value: venue.id
-    }));
-  };
 
   // Auto-generate slug preview
   React.useEffect(() => {
@@ -161,46 +151,154 @@ export const BasicInfoStep: React.FC = () => {
         />
 
         {/* City */}
-        <div>
-          <RHFDropdownSelect
-            name="city"
-            label="Cidade *"
-            placeholder="Selecione a cidade"
-            options={cityOptions}
-          />
-        </div>
+        <FormField
+          control={control}
+          name="city"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Cidade *</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a cidade" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {CITIES.map((city) => (
+                    <SelectItem key={city} value={city}>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4" />
+                        {city}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         {/* Start Date */}
-        <div>
-          <RHFDateTime
-            name="date_start"
-            label="Data de Início *"
-          />
-        </div>
+        <FormField
+          control={control}
+          name="date_start"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Data de Início *</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      {field.value ? (
+                        <div className="flex items-center gap-2">
+                          <CalendarIcon className="w-4 h-4" />
+                          {format(new Date(field.value), "PPP", { locale: ptBR })}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <CalendarIcon className="w-4 h-4" />
+                          <span>Selecione a data</span>
+                        </div>
+                      )}
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={field.value ? new Date(field.value) : undefined}
+                    onSelect={(date) => field.onChange(date?.toISOString())}
+                    disabled={(date) => date < new Date()}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         {/* End Date */}
-        <div>
-          <RHFDateTime
-            name="date_end"
-            label="Data de Fim"
-          />
-          <FormDescription>
-            Deixe em branco se for evento de um dia
-          </FormDescription>
-        </div>
+        <FormField
+          control={control}
+          name="date_end"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Data de Fim</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      {field.value ? (
+                        <div className="flex items-center gap-2">
+                          <CalendarIcon className="w-4 h-4" />
+                          {format(new Date(field.value), "PPP", { locale: ptBR })}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <CalendarIcon className="w-4 h-4" />
+                          <span>Mesmo dia</span>
+                        </div>
+                      )}
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={field.value ? new Date(field.value) : undefined}
+                    onSelect={(date) => field.onChange(date?.toISOString())}
+                    disabled={(date) => date < new Date()}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+              <FormDescription>
+                Deixe em branco se for evento de um dia
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         {/* Venue */}
-        <div>
-          <RHFSelectAsync
-            name="venue_id"
-            label="Local/Venue"
-            placeholder="Buscar venue..."
-            loadOptions={loadVenues}
-          />
-          <FormDescription>
-            Busque por venues cadastrados ou deixe em branco para usar local personalizado
-          </FormDescription>
-        </div>
+        <FormField
+          control={control}
+          name="venue_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Local/Venue</FormLabel>
+              <FormControl>
+                <ComboboxAsync
+                  placeholder="Buscar venue..."
+                  emptyText="Nenhum venue encontrado"
+                  onSearch={searchVenues}
+                  value={field.value || ''}
+                  onValueChange={field.onChange}
+                />
+              </FormControl>
+              <FormDescription>
+                Busque por venues cadastrados ou deixe em branco para usar local personalizado
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         {/* Custom Location */}
         <FormField

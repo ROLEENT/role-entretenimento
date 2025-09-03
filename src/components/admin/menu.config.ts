@@ -9,9 +9,9 @@ export const MENUS = {
       icon: Calendar
     },
     { 
-      href: "/admin-v3/eventos/criar", 
+      href: "/admin-v3/agenda/criar", 
       title: "Criar evento", 
-      description: "formulário wizard v3",
+      description: "novo cadastro",
       icon: Plus
     },
   ],

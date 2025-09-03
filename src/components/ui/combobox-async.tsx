@@ -56,20 +56,24 @@ export function ComboboxAsync({
   const [loading, setLoading] = useState(false);
   const [selectedOption, setSelectedOption] = useState<ComboboxAsyncOption | null>(null);
 
-  // Debounce search and load initial options
+  // Debounce search
   useEffect(() => {
     const timer = setTimeout(async () => {
-      setLoading(true);
-      try {
-        const results = await onSearch(search);
-        setOptions(results);
-      } catch (error) {
-        console.error('Erro na busca:', error);
+      if (search.length >= 2) {
+        setLoading(true);
+        try {
+          const results = await onSearch(search);
+          setOptions(results);
+        } catch (error) {
+          console.error('Erro na busca:', error);
+          setOptions([]);
+        } finally {
+          setLoading(false);
+        }
+      } else {
         setOptions([]);
-      } finally {
-        setLoading(false);
       }
-    }, search.length === 0 ? 0 : 300);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [search, onSearch]);
@@ -153,8 +157,14 @@ export function ComboboxAsync({
               </div>
             )}
             
-            {!loading && options.length === 0 && (
+            {!loading && search.length >= 2 && options.length === 0 && (
               <CommandEmpty>{emptyText}</CommandEmpty>
+            )}
+            
+            {!loading && search.length < 2 && (
+              <div className="p-4 text-center text-sm text-muted-foreground">
+                Digite pelo menos 2 caracteres para buscar
+              </div>
             )}
 
             {!loading && options.length > 0 && (
@@ -190,7 +200,7 @@ export function ComboboxAsync({
               </CommandGroup>
             )}
 
-            {onCreateNew && (
+            {onCreateNew && search.length >= 2 && (
               <>
                 <Separator />
                 <CommandGroup>

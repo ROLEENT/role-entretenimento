@@ -42,9 +42,39 @@ export function LazyEventCreateWizard(props: LazyEventCreateWizardProps) {
   );
 }
 
-// Componentes de step individuais para lazy loading (quando implementados)
-// export const LazyBasicInfoStep = (props: any) => (
-//   <Suspense fallback={<StepLoadingFallback />}>
-//     <BasicInfoStep {...props} />
-//   </Suspense>
-// );
+// Componentes de step individuais para lazy loading
+export const LazyBasicInfoStep = (props: any) => (
+  <Suspense fallback={<StepLoadingFallback />}>
+    <BasicInfoStep {...props} />
+  </Suspense>
+);
+
+export const LazyLocationStep = (props: any) => (
+  <Suspense fallback={<StepLoadingFallback />}>
+    <LocationStep {...props} />
+  </Suspense>
+);
+
+export const LazyLineupStep = (props: any) => (
+  <Suspense fallback={<StepLoadingFallback />}>
+    <LineupStep {...props} />
+  </Suspense>
+);
+
+export const LazyPartnersStep = (props: any) => (
+  <Suspense fallback={<StepLoadingFallback />}>
+    <PartnersStep {...props} />
+  </Suspense>
+);
+
+export const LazyDetailsStep = (props: any) => (
+  <Suspense fallback={<StepLoadingFallback />}>
+    <DetailsStep {...props} />
+  </Suspense>
+);
+
+export const LazyReviewStep = (props: any) => (
+  <Suspense fallback={<StepLoadingFallback />}>
+    <ReviewStep {...props} />
+  </Suspense>
+);

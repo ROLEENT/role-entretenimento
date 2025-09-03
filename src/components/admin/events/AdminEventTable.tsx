@@ -11,7 +11,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { SimpleDropdown } from "@/components/ui/dropdown-simple";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { 
   MoreHorizontal, 
   Edit, 
@@ -228,28 +233,32 @@ export function AdminEventTable({
                   {format(new Date(event.created_at), "dd/MM/yyyy", { locale: ptBR })}
                 </TableCell>
                 <TableCell>
-                  <SimpleDropdown
-                    trigger={<MoreHorizontal className="h-4 w-4" />}
-                    align="end"
-                    aria-label="Ações do evento"
-                    items={[
-                      {
-                        label: "Visualizar",
-                        value: "view",
-                        onClick: () => navigate(`/evento/${event.id}`)
-                      },
-                      {
-                        label: "Editar", 
-                        value: "edit",
-                        onClick: () => navigate(`/admin-v3/eventos/${event.id}/editar`)
-                      },
-                      {
-                        label: "Excluir",
-                        value: "delete", 
-                        onClick: () => onBulkAction("delete", [event.id])
-                      }
-                    ]}
-                  />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => navigate(`/evento/${event.id}`)}>
+                        <Eye className="h-4 w-4 mr-2" />
+                        Visualizar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => navigate(`/admin-v3/eventos/${event.id}/editar`)}
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => onBulkAction("delete", [event.id])}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Excluir
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
               </TableRow>
             ))}

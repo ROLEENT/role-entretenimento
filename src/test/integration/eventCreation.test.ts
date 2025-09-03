@@ -138,13 +138,13 @@ test.describe('Event Creation Flow', () => {
     // Adicionar organizador
     await page.click('[data-testid="add-partner"]');
     await page.fill('[data-testid="partner-search-0"]', 'Organizadora Test');
-    await page.selectOption('[data-testid="partner-role-0"]', 'organizer');
+    await page.select('[data-testid="partner-role-0"]', 'organizer');
     await page.check('[data-testid="partner-main-0"]');
     
     // Adicionar patrocinador
     await page.click('[data-testid="add-partner"]');
     await page.fill('[data-testid="partner-search-1"]', 'Patrocinador Test');
-    await page.selectOption('[data-testid="partner-role-1"]', 'sponsor');
+    await page.select('[data-testid="partner-role-1"]', 'sponsor');
     
     // Verificar badges aparecem corretamente
     await expect(page.locator('[data-testid="partner-badge-0"]')).toContainText('Organizador Principal');
@@ -178,11 +178,11 @@ test.describe('Event Management', () => {
     await page.goto('/admin-v3/eventos');
     
     // Filtrar por cidade
-    await page.selectOption('[data-testid="city-filter"]', 'sao-paulo');
+    await page.select('[data-testid="city-filter"]', 'sao-paulo');
     await expect(page.locator('[data-testid="event-card"]')).toContainText('São Paulo');
     
     // Filtrar por status
-    await page.selectOption('[data-testid="status-filter"]', 'published');
+    await page.select('[data-testid="status-filter"]', 'published');
     await expect(page.locator('[data-testid="status-badge"]')).toContainText('Publicado');
     
     // Busca por texto
@@ -215,7 +215,7 @@ test.describe('Event Management', () => {
     await page.click('[data-testid="event-card-0"] [data-testid="duplicate-button"]');
     
     // Verificar se abre formulário com dados copiados
-    await expect(page.locator('[data-testid="title-input"]')).toHaveValue(/Cópia de/);
+    await expect(page.locator('[data-testid="title-input"]')).toContainValue('Cópia de');
     
     // Verificar se está em modo de criação
     await expect(page).toHaveURL(/\/criar$/);
