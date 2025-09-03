@@ -34,8 +34,8 @@ export function VenueCombobox({
         onValueChange={onValueChange}
         onSearch={searchVenues}
         onCreateNew={handleCreateNew}
-        placeholder="Busque ou crie um local..."
-        emptyText="Nenhum local encontrado"
+        placeholder="Busque por nome, cidade ou endereço..."
+        emptyText="Nenhum local encontrado. Tente outros termos ou cadastre um novo."
         createNewText="Cadastrar novo local"
         className={className}
         disabled={disabled}

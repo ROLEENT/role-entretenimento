@@ -4,11 +4,17 @@ import { ComboboxAsyncOption } from '@/components/ui/combobox-async';
 export const useVenueSearch = () => {
   const searchVenues = async (query: string): Promise<ComboboxAsyncOption[]> => {
     try {
-      const { data, error } = await supabase
+      let supabaseQuery = supabase
         .from('venues')
         .select('id, name, city, address, type')
-        .or(`name.ilike.%${query}%`)
-        .eq('status', 'active')
+        .eq('status', 'active');
+
+      if (query.trim()) {
+        // Busca por nome, cidade ou endereço
+        supabaseQuery = supabaseQuery.or(`name.ilike.%${query}%,city.ilike.%${query}%,address.ilike.%${query}%`);
+      }
+
+      const { data, error } = await supabaseQuery
         .order('name')
         .limit(20);
 
