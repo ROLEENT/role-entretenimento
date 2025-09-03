@@ -4739,6 +4739,8 @@ export type Database = {
           lat: number | null
           latitude: number | null
           lng: number | null
+          logo_alt: string | null
+          logo_url: string | null
           longitude: number | null
           map_url: string | null
           name: string
@@ -4784,6 +4786,8 @@ export type Database = {
           lat?: number | null
           latitude?: number | null
           lng?: number | null
+          logo_alt?: string | null
+          logo_url?: string | null
           longitude?: number | null
           map_url?: string | null
           name: string
@@ -4829,6 +4833,8 @@ export type Database = {
           lat?: number | null
           latitude?: number | null
           lng?: number | null
+          logo_alt?: string | null
+          logo_url?: string | null
           longitude?: number | null
           map_url?: string | null
           name?: string

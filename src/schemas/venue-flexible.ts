@@ -124,6 +124,8 @@ export const venueFlexibleSchema = z.object({
   tags: z.string().optional(),
   
   // Media - all optional
+  logo_url: z.string().optional(),
+  logo_alt: z.string().optional(),
   cover_url: z.string().optional(),
   cover_alt: z.string().optional(),
   gallery_urls: z.array(z.string()).default([]),

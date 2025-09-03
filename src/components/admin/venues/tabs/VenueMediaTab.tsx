@@ -17,6 +17,28 @@ export const VenueMediaTab: React.FC<VenueMediaTabProps> = ({ form }) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Camera className="h-5 w-5" />
+            Logo/Foto de Perfil
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <RHFUpload
+            name="logo_url"
+            label="Logo/Foto de Perfil"
+            bucket="venues"
+          />
+          
+          <RHFInput
+            name="logo_alt"
+            label="Texto Alternativo"
+            placeholder="Descrição do logo para acessibilidade"
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Camera className="h-5 w-5" />
             Imagem de Capa
           </CardTitle>
         </CardHeader>
