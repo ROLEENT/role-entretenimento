@@ -130,7 +130,6 @@ export const venueFlexibleSchema = z.object({
   
   // Metadata
   status: z.enum(['active', 'inactive']).default('active'),
-  priority: z.number().int().default(0),
   
   // Timestamps
   created_at: z.string().datetime().optional(),

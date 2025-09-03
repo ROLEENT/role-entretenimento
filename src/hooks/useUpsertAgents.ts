@@ -212,7 +212,6 @@ export const useUpsertVenue = () => {
         cover_alt: data.cover_alt || null,
         gallery_urls: data.gallery_urls || [],
         status: data.status || 'active',
-        priority: data.priority || 0,
         updated_at: new Date().toISOString(),
       };
 

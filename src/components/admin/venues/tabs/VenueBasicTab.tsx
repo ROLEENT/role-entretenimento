@@ -105,16 +105,7 @@ export const VenueBasicTab: React.FC<VenueBasicTabProps> = ({ form }) => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Status is now handled by IntelligentStatusField */}
-            
-            <RHFInput
-              name="priority"
-              label="Prioridade"
-              type="number"
-              placeholder="0"
-            />
-          </div>
+          {/* Status is now handled by IntelligentStatusField */}
 
           {/* Intelligent Status Field */}
           <IntelligentStatusField 
