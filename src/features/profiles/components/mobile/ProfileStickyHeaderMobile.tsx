@@ -33,7 +33,7 @@ export function ProfileStickyHeaderMobile({ profile }: ProfileStickyHeaderMobile
 
   return (
     <header 
-      className="sticky top-0 z-40 backdrop-blur bg-black/50 md:hidden"
+      className="sticky top-0 z-40 backdrop-blur bg-background/95 border-b border-border md:hidden"
       style={{ paddingTop: 'calc(8px + env(safe-area-inset-top))' }}
     >
       <div className="mx-auto max-w-screen-sm px-4 py-2 flex items-center gap-2">
@@ -42,7 +42,7 @@ export function ProfileStickyHeaderMobile({ profile }: ProfileStickyHeaderMobile
           variant="ghost" 
           size="sm"
           onClick={() => navigate(-1)}
-          className="p-2 rounded-full"
+          className="min-h-[44px] min-w-[44px] rounded-full active:scale-95 transition-all"
           aria-label="Voltar"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -57,7 +57,7 @@ export function ProfileStickyHeaderMobile({ profile }: ProfileStickyHeaderMobile
         <Button 
           variant="outline" 
           size="sm"
-          className="p-2 rounded-full"
+          className="min-h-[44px] min-w-[44px] rounded-full active:scale-95 transition-all"
           aria-label="Mais opções"
         >
           <MoreHorizontal className="w-4 h-4" />

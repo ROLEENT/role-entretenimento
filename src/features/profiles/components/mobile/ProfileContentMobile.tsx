@@ -15,11 +15,11 @@ export function ProfileContentMobile({ profile, activeTab }: ProfileContentMobil
     <div className="md:hidden">
       {/* Visão Tab Content */}
       {activeTab === "visao" && (
-        <div className="space-y-0">
+        <div className="mx-auto max-w-screen-sm space-y-0">
           <ProfileBioMobile profile={profile} />
           
           {/* Quick upcoming events preview */}
-          <div className="px-4 py-3 border-t">
+          <div className="px-4 py-3 border-t border-border">
             <h3 className="text-sm font-semibold text-foreground mb-3">Próximos eventos</h3>
             <ProfileEventListMobile profile={profile} limit={3} />
           </div>
@@ -28,21 +28,23 @@ export function ProfileContentMobile({ profile, activeTab }: ProfileContentMobil
 
       {/* Agenda Tab Content */}
       {activeTab === "agenda" && (
-        <div className="px-4 py-3">
+        <div className="mx-auto max-w-screen-sm px-4 py-3">
           <ProfileEventListMobile profile={profile} />
         </div>
       )}
 
       {/* Mídia Tab Content */}
       {activeTab === "midia" && (
-        <div className="px-4 py-3">
+        <div className="mx-auto max-w-screen-sm px-4 py-3">
           <ProfileMediaGridMobile profile={profile} />
         </div>
       )}
 
       {/* Sobre Tab Content */}
       {activeTab === "sobre" && (
-        <ProfileAboutMobile profile={profile} />
+        <div className="mx-auto max-w-screen-sm">
+          <ProfileAboutMobile profile={profile} />
+        </div>
       )}
     </div>
   );

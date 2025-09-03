@@ -27,7 +27,7 @@ export function ProfileBioMobile({ profile }: ProfileBioMobileProps) {
       {shouldShowExpand && (
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="mt-2 text-sm text-[#c77dff] hover:text-[#b968f5] font-medium"
+          className="mt-2 min-h-[44px] text-sm text-primary hover:text-primary/80 font-medium active:scale-95 transition-all px-2 py-2 rounded-md hover:bg-accent"
         >
           {isExpanded ? "Ver menos" : "Ver mais"}
         </button>

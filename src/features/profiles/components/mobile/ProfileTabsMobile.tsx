@@ -40,24 +40,26 @@ export function ProfileTabsMobile({
   ];
 
   return (
-    <div className="mx-auto max-w-screen-sm mt-4 md:hidden">
-      <div className="flex border-b border-white/10 px-4">
+    <div className="mx-auto max-w-screen-sm mt-4 px-4 md:hidden">
+      <div className="flex border-b border-border">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`px-3 py-3 text-sm font-medium border-b-2 transition-colors ${
+            className={`flex-1 min-h-[48px] px-4 py-3 text-sm font-medium border-b-2 transition-all duration-200 hover:bg-accent/50 active:scale-95 ${
               activeTab === tab.id 
-                ? 'border-[#c77dff] text-foreground' 
-                : 'border-transparent text-white/70 hover:text-foreground'
+                ? 'border-primary text-foreground bg-accent/30' 
+                : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
-            {tab.label}
-            {tab.count !== undefined && (
-              <span className="ml-1 text-xs opacity-75">
-                ({tab.count})
-              </span>
-            )}
+            <div className="flex flex-col items-center gap-1">
+              <span>{tab.label}</span>
+              {tab.count !== undefined && (
+                <span className="text-xs opacity-75">
+                  ({tab.count})
+                </span>
+              )}
+            </div>
           </button>
         ))}
       </div>

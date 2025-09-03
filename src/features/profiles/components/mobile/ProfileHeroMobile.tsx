@@ -9,6 +9,9 @@ interface ProfileHeroMobileProps {
 export function ProfileHeroMobile({ profile }: ProfileHeroMobileProps) {
   return (
     <div className="relative w-full md:hidden">
+      {/* Hero Sentinel for sticky header */}
+      <div id="hero-sentinel" className="absolute top-0 left-0 w-full h-4 pointer-events-none" />
+      
       {/* Cover Image with Gradient Overlay */}
       <div className="relative h-44 w-full overflow-hidden">
         <div 

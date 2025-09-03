@@ -14,13 +14,13 @@ export function ProfileActionsMobile({ profile }: ProfileActionsMobileProps) {
         {/* Follow button with primary color */}
         <FollowButton 
           profileId={profile.id} 
-          className="h-10 px-4 rounded-xl bg-[#c77dff] hover:bg-[#b968f5] text-black border-0 font-medium"
+          className="min-h-[44px] px-4 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground border-0 font-medium active:scale-95 transition-all"
         />
         
         {/* Message button */}
         <Button 
           variant="outline" 
-          className="h-10 px-4 rounded-xl border-white/20"
+          className="min-h-[44px] px-4 rounded-xl border-border active:scale-95 transition-all"
         >
           <MessageSquare className="w-4 h-4 mr-2" />
           Mensagem
@@ -30,7 +30,7 @@ export function ProfileActionsMobile({ profile }: ProfileActionsMobileProps) {
         <Button 
           variant="outline" 
           size="icon"
-          className="h-10 w-10 rounded-xl border-white/20"
+          className="min-h-[44px] min-w-[44px] rounded-xl border-border active:scale-95 transition-all"
           aria-label="Mais opções"
         >
           <MoreHorizontal className="w-4 h-4" />
