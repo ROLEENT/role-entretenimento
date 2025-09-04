@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, MapPin, Calendar, Clock, Share2, ExternalLink, User, Building, Music } from 'lucide-react';
+import { getEventFallbackUrl } from '@/utils/eventRouting';
 import BackToTop from '@/components/BackToTop';
 import SEOHead from '@/components/SEOHead';
 import { MobileSafeImage } from '@/components/ui/mobile-safe-image';
@@ -84,6 +85,16 @@ const AgendaDetailPage = () => {
 
       if (fetchError) {
         if (fetchError.code === 'PGRST116') {
+          // Tentar fallback para a tabela events
+          console.log('Evento não encontrado em agenda_public, tentando fallback para events...');
+          const fallbackUrl = getEventFallbackUrl(itemSlug, window.location.pathname);
+          
+          if (fallbackUrl !== window.location.pathname) {
+            console.log(`Redirecionando para: ${fallbackUrl}`);
+            navigate(fallbackUrl, { replace: true });
+            return;
+          }
+          
           setError('Evento não encontrado');
         } else {
           throw fetchError;

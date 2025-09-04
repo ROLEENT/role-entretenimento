@@ -9,6 +9,7 @@ import { format, isAfter, isBefore, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useProfileEvents, ProfileEvent } from "@/features/profiles/hooks/useProfileEvents";
 import { useNavigate } from "react-router-dom";
+import { getEventDetailUrl } from "@/utils/eventRouting";
 
 interface ProfileAgendaProps {
   profile: Profile;
@@ -40,7 +41,7 @@ export function ProfileAgenda({ profile }: ProfileAgendaProps) {
   const EventCard = ({ event }: { event: ProfileEvent }) => (
     <Card 
       className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
-      onClick={() => navigate(`/agenda/${event.slug}`)}
+      onClick={() => navigate(getEventDetailUrl(event))}
     >
       <div className="flex">
         <div className="w-24 h-24 bg-muted flex-shrink-0">

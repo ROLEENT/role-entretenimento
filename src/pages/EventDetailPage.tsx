@@ -104,6 +104,16 @@ const EventDetailPage = () => {
       }
       
       if (!data) {
+        // Tentar fallback para agenda_public
+        console.log('Evento não encontrado em events, tentando fallback para agenda...');
+        const fallbackUrl = `/agenda/${eventSlug}`;
+        
+        if (fallbackUrl !== window.location.pathname) {
+          console.log(`Redirecionando para: ${fallbackUrl}`);
+          window.location.replace(fallbackUrl);
+          return;
+        }
+        
         setError('Evento não encontrado');
         return;
       }

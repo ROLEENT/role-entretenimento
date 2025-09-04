@@ -6,6 +6,7 @@ import { useProfileEvents } from "@/features/profiles/hooks/useProfileEvents";
 import { memo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAnimatedToast } from "@/hooks/useAnimatedToast";
+import { getEventDetailUrl } from "@/utils/eventRouting";
 
 interface ProfileEventListMobileProps {
   profile: Profile;
@@ -24,18 +25,18 @@ export const ProfileEventListMobile = memo(function ProfileEventListMobile({ pro
 
   const displayEvents = limit ? events.slice(0, limit) : events;
 
-  const handleEventClick = useCallback((eventSlug: string, eventTitle: string) => {
+  const handleEventClick = useCallback((event: any) => {
     // Haptic feedback
     if ('vibrate' in navigator) {
       navigator.vibrate(30);
     }
     
-    // Navigate to event details using slug
-    navigate(`/agenda/${eventSlug}`);
+    // Navigate to event details using correct URL
+    navigate(getEventDetailUrl(event));
     
     showAnimatedToast({
       title: "Navegando para evento",
-      description: eventTitle,
+      description: event.title,
       duration: 2000
     });
   }, [navigate, showAnimatedToast]);
@@ -97,11 +98,11 @@ export const ProfileEventListMobile = memo(function ProfileEventListMobile({ pro
         <Card 
           key={event.id} 
           className="hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-          onClick={() => handleEventClick(event.slug, event.title)}
+          onClick={() => handleEventClick(event)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
-              handleEventClick(event.slug, event.title);
+              handleEventClick(event);
             }
           }}
           tabIndex={0}

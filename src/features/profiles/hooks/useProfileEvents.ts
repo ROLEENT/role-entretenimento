@@ -14,6 +14,9 @@ export type ProfileEvent = {
   status: string;
   type?: string;
   tags?: string[];
+  // Novos campos para identificar origem dos dados
+  source?: 'events' | 'agenda_itens';
+  event_id?: string;
 };
 
 export function useProfileEvents(profileHandle: string, profileType: string) {
@@ -78,7 +81,7 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
               // Combinar todos os resultados
               let allEvents: any[] = [];
               
-              // Adicionar eventos da tabela events (venue_id)
+               // Adicionar eventos da tabela events (venue_id)
               if (eventsByVenue && !error1) {
                 const mappedEvents = eventsByVenue.map((event: any) => ({
                   id: event.id,
@@ -93,7 +96,8 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
                   status: event.status,
                   type: event.visibility,
                   tags: [],
-                  source: 'events_by_venue'
+                  source: 'events' as const,
+                  event_id: event.id
                 }));
                 allEvents = [...allEvents, ...mappedEvents];
                 console.log(`Encontrados ${mappedEvents.length} eventos por venue_id`);
@@ -114,7 +118,8 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
                   status: event.status,
                   type: event.visibility,
                   tags: [],
-                  source: 'events_by_location'
+                  source: 'events' as const,
+                  event_id: event.id
                 }));
                 allEvents = [...allEvents, ...mappedEvents];
                 console.log(`Encontrados ${mappedEvents.length} eventos por location_name`);
@@ -135,7 +140,7 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
                   status: event.status,
                   type: event.type,
                   tags: event.tags || [],
-                  source: 'agenda_itens'
+                  source: 'agenda_itens' as const
                 }));
                 allEvents = [...allEvents, ...mappedEvents];
                 console.log(`Encontrados ${mappedEvents.length} eventos da agenda_itens`);
@@ -179,7 +184,7 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
                 cover_url: event.cover_url,
                 starts_at: event.starts_at,
                 end_at: event.end_at,
-                source: 'fallback'
+                source: 'agenda_itens' as const
               }));
               console.log(`Fallback encontrou ${eventsData.length} eventos`);
             }
@@ -211,7 +216,10 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
           if (error) {
             console.error('Error fetching profile events:', error);
           } else {
-            eventsData = (data || []) as ProfileEvent[];
+            eventsData = (data || []).map((event: any) => ({
+              ...event,
+              source: 'agenda_itens' as const
+            })) as ProfileEvent[];
           }
         }
 
