@@ -134,7 +134,9 @@ export default function Agenda() {
             
             <div className="accessible-grid grid-cols-1 md:grid-cols-3" role="list" aria-label="Cidades disponíveis">
               {CITIES.map((city) => {
-                const stats = cityStats.find(s => s.city === city.key);
+                // Map city stats using full city name instead of key
+                const fullCityName = city.fullName;
+                const stats = cityStats.find(s => s.city === fullCityName);
                 const count = stats?.count || 0;
                 
                 return (
