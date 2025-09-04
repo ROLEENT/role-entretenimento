@@ -1,41 +1,77 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Profile } from '@/features/profiles/api';
 
 export function useTabPrefetch(profile: Profile, activeTab: string) {
   const queryClient = useQueryClient();
+  const prefetchedRef = useRef<Set<string>>(new Set());
+  const timersRef = useRef<Set<NodeJS.Timeout>>(new Set());
 
   useEffect(() => {
     if (!profile?.handle || !profile?.user_id) return;
 
+    // Clear existing timers
+    timersRef.current.forEach(timer => clearTimeout(timer));
+    timersRef.current.clear();
+
     try {
-      const prefetchDelay = 2000; // Increased delay to prevent errors
+      const prefetchDelay = 1500; // Reduced delay for better UX
 
-      const timer = setTimeout(() => {
-        // Only prefetch if profile is valid and handle exists
-        if (activeTab !== 'agenda' && profile.handle) {
-          queryClient.prefetchQuery({
-            queryKey: ['profile-events', profile.handle, profile.type],
-            staleTime: 10 * 60 * 1000, // Increased to 10 minutes
-          }).catch(() => {
-            // Silently fail to prevent errors
-          });
+      // Prefetch events if not on agenda tab and not already prefetched
+      if (activeTab !== 'agenda' && profile.handle) {
+        const eventsKey = `events-${profile.handle}-${profile.type}`;
+        
+        if (!prefetchedRef.current.has(eventsKey)) {
+          const timer = setTimeout(() => {
+            queryClient.prefetchQuery({
+              queryKey: ['profile-events', profile.handle, profile.type],
+              staleTime: 15 * 60 * 1000, // 15 minutes cache
+            }).then(() => {
+              prefetchedRef.current.add(eventsKey);
+            }).catch(() => {
+              // Silently fail to prevent errors
+            });
+          }, prefetchDelay);
+          
+          timersRef.current.add(timer);
         }
+      }
 
-        if (activeTab !== 'midia' && profile.user_id) {
-          queryClient.prefetchQuery({
-            queryKey: ['profile-media', profile.user_id],
-            staleTime: 10 * 60 * 1000, // Increased to 10 minutes
-          }).catch(() => {
-            // Silently fail to prevent errors
-          });
+      // Prefetch media if not on media tab and not already prefetched
+      if (activeTab !== 'fotos-videos' && profile.user_id) {
+        const mediaKey = `media-${profile.user_id}`;
+        
+        if (!prefetchedRef.current.has(mediaKey)) {
+          const timer = setTimeout(() => {
+            queryClient.prefetchQuery({
+              queryKey: ['profile-media', profile.user_id],
+              staleTime: 15 * 60 * 1000, // 15 minutes cache
+            }).then(() => {
+              prefetchedRef.current.add(mediaKey);
+            }).catch(() => {
+              // Silently fail to prevent errors
+            });
+          }, prefetchDelay + 500); // Stagger prefetch to avoid overwhelming
+          
+          timersRef.current.add(timer);
         }
-      }, prefetchDelay);
+      }
 
-      return () => clearTimeout(timer);
+      return () => {
+        timersRef.current.forEach(timer => clearTimeout(timer));
+        timersRef.current.clear();
+      };
     } catch (error) {
       // Silently handle any errors to prevent crashes
       console.debug('Prefetch error:', error);
     }
   }, [activeTab, profile?.handle, profile?.user_id, profile?.type, queryClient]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(timer => clearTimeout(timer));
+      timersRef.current.clear();
+    };
+  }, []);
 }

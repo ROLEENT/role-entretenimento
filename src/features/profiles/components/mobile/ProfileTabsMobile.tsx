@@ -1,6 +1,6 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Eye, Calendar, Image, Info, FileText, Star } from "lucide-react";
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useRef } from "react";
 import { useDebounce } from "use-debounce";
 
 interface ProfileTabsMobileProps {
@@ -16,8 +16,11 @@ export function ProfileTabsMobile({
   eventCount = 0, 
   mediaCount = 0 
 }: ProfileTabsMobileProps) {
-  // Debounce tab changes for better performance
-  const [debouncedActiveTab] = useDebounce(activeTab, 100);
+  // Use ref to prevent unnecessary re-renders during debounce
+  const lastClickedTabRef = useRef<string>(activeTab);
+  
+  // Debounce only for UI updates, not for the actual tab change
+  const [debouncedActiveTab] = useDebounce(activeTab, 50);
   
   const tabs = useMemo(() => [
     {
@@ -60,12 +63,26 @@ export function ProfileTabsMobile({
     },
   ], [eventCount, mediaCount]);
 
+  // Immediate tab change with debounced UI feedback
   const handleTabChange = useCallback((tabId: string) => {
-    // Haptic feedback for mobile
-    if ('vibrate' in navigator) {
-      navigator.vibrate(50);
+    // Prevent duplicate calls
+    if (lastClickedTabRef.current === tabId) {
+      return;
     }
+    
+    lastClickedTabRef.current = tabId;
+    
+    // Immediate change for better UX
     onTabChange(tabId);
+    
+    // Haptic feedback for mobile (non-blocking)
+    if ('vibrate' in navigator) {
+      try {
+        navigator.vibrate(50);
+      } catch (e) {
+        // Silently fail for unsupported devices
+      }
+    }
   }, [onTabChange]);
 
   return (
@@ -83,9 +100,9 @@ export function ProfileTabsMobile({
             }}
             aria-label={tab.ariaLabel}
             role="tab"
-            aria-selected={debouncedActiveTab === tab.id}
-            className={`flex-1 min-h-[56px] px-4 py-3 text-sm font-medium border-b-2 transition-colors duration-200 hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-              debouncedActiveTab === tab.id 
+            aria-selected={activeTab === tab.id}
+            className={`flex-1 min-h-[56px] px-4 py-3 text-sm font-medium border-b-2 transition-colors duration-150 hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+              activeTab === tab.id 
                 ? 'border-primary text-primary bg-primary/10' 
                 : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
