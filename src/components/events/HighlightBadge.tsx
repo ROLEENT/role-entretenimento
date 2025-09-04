@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Star, Megaphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type HighlightType = 'curatorial' | 'vitrine' | 'none';
+type HighlightType = 'curatorial' | 'vitrine' | 'editorial' | 'sponsored' | 'none';
 
 interface HighlightBadgeProps {
   type: HighlightType;
@@ -11,12 +11,20 @@ interface HighlightBadgeProps {
   className?: string;
 }
 
+// Mapeamento para compatibilidade com dados existentes
+const normalizeType = (type: HighlightType): 'curatorial' | 'vitrine' | 'none' => {
+  if (type === 'editorial') return 'curatorial';
+  if (type === 'sponsored') return 'vitrine';
+  if (type === 'curatorial' || type === 'vitrine') return type;
+  return 'none';
+};
+
 const HIGHLIGHT_CONFIG = {
   curatorial: {
     label: 'Destaque Curatorial',
     icon: Star,
     variant: 'outline' as const,
-    className: 'border-primary text-primary bg-transparent',
+    className: 'border-[#c77dff] text-[#c77dff] bg-transparent hover:bg-[#c77dff]/5',
     ariaLabel: 'Destaque curatorial',
     tooltip: 'Selecionado pela curadoria do ROLÊ'
   },
@@ -25,7 +33,7 @@ const HIGHLIGHT_CONFIG = {
     sublabel: 'patrocinado',
     icon: Megaphone,
     variant: 'default' as const,
-    className: 'bg-primary text-primary-foreground',
+    className: 'bg-[#c77dff] text-black border-[#c77dff] hover:bg-[#c77dff]/90',
     ariaLabel: 'Vitrine Cultural, conteúdo publicitário',
     tooltip: 'Conteúdo publicitário contratado pelo produtor'
   }
@@ -34,7 +42,10 @@ const HIGHLIGHT_CONFIG = {
 export function HighlightBadge({ type, isSponsored, className }: HighlightBadgeProps) {
   if (type === 'none' || !type) return null;
 
-  const config = HIGHLIGHT_CONFIG[type];
+  const normalizedType = normalizeType(type);
+  if (normalizedType === 'none') return null;
+
+  const config = HIGHLIGHT_CONFIG[normalizedType];
   const Icon = config.icon;
 
   return (
@@ -46,8 +57,8 @@ export function HighlightBadge({ type, isSponsored, className }: HighlightBadgeP
     >
       <Icon className="w-3 h-3" />
       <span>{config.label}</span>
-      {type === 'vitrine' && (
-        <span className="text-[10px] uppercase tracking-wider opacity-80">
+      {(normalizedType === 'vitrine' || type === 'sponsored') && (
+        <span className="text-[10px] uppercase tracking-wider font-semibold">
           • {HIGHLIGHT_CONFIG.vitrine.sublabel}
         </span>
       )}

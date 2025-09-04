@@ -4,19 +4,31 @@ import { Info, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CurationInfoBarProps {
-  type: 'curatorial' | 'vitrine';
+  type: 'curatorial' | 'vitrine' | 'editorial' | 'sponsored';
   onShowCriteria?: () => void;
   className?: string;
 }
 
+// Mapeamento para compatibilidade com dados existentes
+const normalizeType = (type: CurationInfoBarProps['type']): 'curatorial' | 'vitrine' => {
+  if (type === 'editorial') return 'curatorial';
+  if (type === 'sponsored') return 'vitrine';
+  return type as 'curatorial' | 'vitrine';
+};
+
 export function CurationInfoBar({ type, onShowCriteria, className }: CurationInfoBarProps) {
-  if (type === 'curatorial') {
+  const normalizedType = normalizeType(type);
+
+  if (normalizedType === 'curatorial') {
     return (
-      <div className={cn(
-        'bg-primary/5 border border-primary/20 rounded-lg p-3 flex items-center justify-between gap-3',
-        className
-      )}>
-        <div className="flex items-center gap-2 text-sm text-primary">
+      <div 
+        className={cn(
+          'bg-[#c77dff]/5 border border-[#c77dff]/20 rounded-lg p-3 flex items-center justify-between gap-3',
+          className
+        )}
+        data-curation-type="curatorial"
+      >
+        <div className="flex items-center gap-2 text-sm text-[#c77dff]">
           <Info className="w-4 h-4" />
           <span>Este evento foi selecionado pela curadoria do ROLÊ</span>
         </div>
@@ -25,7 +37,7 @@ export function CurationInfoBar({ type, onShowCriteria, className }: CurationInf
             variant="ghost"
             size="sm"
             onClick={onShowCriteria}
-            className="text-primary hover:bg-primary/10 h-auto py-1 px-2"
+            className="text-[#c77dff] hover:bg-[#c77dff]/10 h-auto py-1 px-2"
           >
             Por que é destaque?
           </Button>
@@ -34,12 +46,16 @@ export function CurationInfoBar({ type, onShowCriteria, className }: CurationInf
     );
   }
 
-  if (type === 'vitrine') {
+  if (normalizedType === 'vitrine') {
     return (
-      <div className={cn(
-        'bg-muted border rounded-lg p-3 flex items-center justify-between gap-3',
-        className
-      )}>
+      <div 
+        className={cn(
+          'bg-muted border rounded-lg p-3 flex items-center justify-between gap-3',
+          className
+        )}
+        data-curation-type="vitrine"
+        data-sponsor="true"
+      >
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ExternalLink className="w-4 h-4" />
           <span>

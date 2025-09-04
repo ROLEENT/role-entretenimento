@@ -9,11 +9,16 @@ interface EventCurationSectionProps {
   className?: string;
 }
 
+// Mapeamento para compatibilidade com dados existentes
+const isCuratorialType = (type?: string): boolean => {
+  return type === 'curatorial' || type === 'editorial';
+};
+
 export function EventCurationSection({ eventId, highlightType, className }: EventCurationSectionProps) {
   const { data: curationData, isLoading } = useCurationData(eventId);
 
   // Só exibe para eventos curatoriais com chips
-  if (highlightType !== 'curatorial' && highlightType !== 'editorial') return null;
+  if (!isCuratorialType(highlightType)) return null;
   if (isLoading || !curationData?.chips?.length) return null;
 
   return (
@@ -37,7 +42,7 @@ export function EventCurationSection({ eventId, highlightType, className }: Even
         />
         
         {curationData.notes && (
-          <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg border-l-2 border-primary">
+          <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg border-l-2 border-[#c77dff]">
             {curationData.notes}
           </p>
         )}

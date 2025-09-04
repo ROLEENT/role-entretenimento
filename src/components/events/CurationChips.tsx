@@ -14,11 +14,11 @@ interface CurationChipsProps {
 const CHIP_LABELS: Record<string, string> = {
   relevancia: 'Relevância Cultural',
   qualidade: 'Qualidade Artística', 
-  diversidade: 'Diversidade',
+  diversidade: 'Diversidade e Inclusão',
   impacto: 'Impacto Local',
-  coerencia: 'Coerência',
-  experiencia: 'Experiência',
-  tecnica: 'Produção',
+  coerencia: 'Coerência Curatorial',
+  experiencia: 'Experiência do Público',
+  tecnica: 'Técnica e Produção',
   acessibilidade: 'Acessibilidade'
 };
 

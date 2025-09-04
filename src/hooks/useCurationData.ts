@@ -35,23 +35,38 @@ export function useCurationData(eventId: string) {
         return null;
       }
 
-      // Buscar chips e dados do evento
-      const { data: chipData, error: chipError } = await supabase
-        .from('event_curation_chips')
-        .select('chips, curation_score, curation_notes')
-        .eq('event_id', eventId)
+      // Buscar dados do evento (score e notes)
+      const { data: eventData, error: eventError } = await supabase
+        .from('events')
+        .select('curation_score, curation_notes')
+        .eq('id', eventId)
         .single();
 
-      if (chipError) {
-        console.error('Error fetching curation chips:', chipError);
+      if (eventError) {
+        console.error('Error fetching event curation data:', eventError);
+      }
+
+      // Gerar chips dos critérios principais (até 3)
+      const chips = (criteria || [])
+        .filter(c => c.is_primary && (c.status === 'met' || c.status === 'partial'))
+        .slice(0, 3)
+        .map(c => c.key);
+
+      // Se não há chips primários suficientes, pegar os primeiro com status 'met'
+      if (chips.length < 3) {
+        const additionalChips = (criteria || [])
+          .filter(c => !c.is_primary && c.status === 'met')
+          .slice(0, 3 - chips.length)
+          .map(c => c.key);
+        chips.push(...additionalChips);
       }
 
       return {
         eventId,
         criteria: criteria || [],
-        chips: chipData?.chips || [],
-        score: chipData?.curation_score || 0,
-        notes: chipData?.curation_notes || undefined
+        chips,
+        score: eventData?.curation_score || 0,
+        notes: eventData?.curation_notes || undefined
       };
     },
     enabled: !!eventId,
