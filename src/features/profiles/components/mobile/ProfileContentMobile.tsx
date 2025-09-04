@@ -31,8 +31,8 @@ export const ProfileContentMobile = memo(function ProfileContentMobile({ profile
 
   return (
     <div className="md:hidden">
-      {/* Visão Tab Content */}
-      {activeTab === "visao" && (
+      {/* Visão Geral Tab Content */}
+      {activeTab === "visao-geral" && (
         <div className="mx-auto max-w-screen-sm space-y-0 animate-fade-in">
           <Suspense fallback={<TabContentLoader />}>
             <ProfileBioMobile profile={profile} />
@@ -63,8 +63,19 @@ export const ProfileContentMobile = memo(function ProfileContentMobile({ profile
         </div>
       )}
 
-      {/* Mídia Tab Content */}
-      {activeTab === "midia" && (
+      {/* Conteúdos Tab Content */}
+      {activeTab === "conteudos" && (
+        <div className="mx-auto max-w-screen-sm px-4 py-3 animate-fade-in">
+          <Suspense fallback={<TabContentLoader />}>
+            <div className="text-center py-8 text-muted-foreground">
+              <p>Conteúdos em breve</p>
+            </div>
+          </Suspense>
+        </div>
+      )}
+
+      {/* Fotos e Vídeos Tab Content */}
+      {activeTab === "fotos-videos" && (
         <div className="mx-auto max-w-screen-sm px-4 py-3 animate-fade-in">
           <Suspense fallback={<TabContentLoader />}>
             {profile.user_id ? (
@@ -74,6 +85,17 @@ export const ProfileContentMobile = memo(function ProfileContentMobile({ profile
                 <p>Mídia não disponível</p>
               </div>
             )}
+          </Suspense>
+        </div>
+      )}
+
+      {/* Avaliações Tab Content */}
+      {activeTab === "avaliacoes" && (
+        <div className="mx-auto max-w-screen-sm px-4 py-3 animate-fade-in">
+          <Suspense fallback={<TabContentLoader />}>
+            <div className="text-center py-8 text-muted-foreground">
+              <p>Avaliações em breve</p>
+            </div>
           </Suspense>
         </div>
       )}

@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, Calendar, Image, Info } from "lucide-react";
+import { Eye, Calendar, Image, Info, FileText, Star } from "lucide-react";
 import { useMemo, useCallback } from "react";
 import { useDebounce } from "use-debounce";
 
@@ -21,7 +21,7 @@ export function ProfileTabsMobile({
   
   const tabs = useMemo(() => [
     {
-      id: "visao",
+      id: "visao-geral",
       label: "Visão",
       icon: Eye,
       ariaLabel: "Ver visão geral do perfil"
@@ -34,11 +34,23 @@ export function ProfileTabsMobile({
       ariaLabel: `Ver agenda ${eventCount > 0 ? `com ${eventCount} eventos` : ''}`
     },
     {
-      id: "midia",
+      id: "conteudos",
+      label: "Conteúdos",
+      icon: FileText,
+      ariaLabel: "Ver conteúdos do perfil"
+    },
+    {
+      id: "fotos-videos",
       label: "Mídia", 
       icon: Image,
       count: mediaCount > 0 ? mediaCount : undefined,
       ariaLabel: `Ver mídia ${mediaCount > 0 ? `com ${mediaCount} itens` : ''}`
+    },
+    {
+      id: "avaliacoes",
+      label: "Avaliações",
+      icon: Star,
+      ariaLabel: "Ver avaliações do perfil"
     },
     {
       id: "sobre",
