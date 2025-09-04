@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { CalendarIcon, Clock, MapPin, Globe, Users, Heart, Star, ChevronDown } from 'lucide-react';
-import { VenueSelector } from '@/components/ui/venue-selector';
+import { VenueAutocomplete } from '@/components/ui/venue-autocomplete';
 import { OrganizersManager } from './OrganizersManager';
 import { SupportersSponsorsManager } from './SupportersSponsorsManager';
 import { format, parseISO } from 'date-fns';
@@ -78,7 +78,7 @@ function VenueSection() {
       <FormItem>
         <FormLabel>Local do Evento</FormLabel>
         <FormControl>
-          <VenueSelector
+          <VenueAutocomplete
             value={selectedId}
             onSelect={handleVenueSelect}
             placeholder="Buscar e selecionar venue..."
