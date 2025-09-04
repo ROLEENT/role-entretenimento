@@ -132,7 +132,7 @@ const Imprensa = lazy(() => import("./pages/institucional/Imprensa"));
 
 // User pages - lazy loaded
 // const EventsPage = lazy(() => import("./pages/EventsPage")); // Removed as requested
-const EventDetailPage = lazy(() => import("./pages/EventDetailPage"));
+const EventDetailPageV2 = lazy(() => import("./pages/EventDetailPageV2"));
 const CreateEventPage = lazy(() => import("./pages/CreateEventPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const PublicAuthPage = lazy(() => import("./pages/PublicAuthPage"));
@@ -343,7 +343,7 @@ function App() {
                 {/* Redirect old /eventos routes to /agenda */}
                 <Route path="/eventos" element={<Navigate to="/agenda" replace />} />
                 <Route path="/eventos/*" element={<Navigate to="/agenda" replace />} />
-                <Route path="/evento/:slug" element={<EventDetailPage />} />
+                <Route path="/evento/:slug" element={<EventDetailPageV2 />} />
                 <Route path="/criar-evento" element={<CreateEventPage />} />
                 
                 {/* User Routes */}
