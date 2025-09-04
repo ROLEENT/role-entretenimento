@@ -32,16 +32,16 @@ const WIZARD_STEPS: WizardStep[] = [
   {
     id: 'basic',
     title: 'Informações Básicas',
-    description: 'Título, cidade, datas e local do evento',
+    description: 'Título, subtítulo, resumo e cidade',
     component: BasicInfoStep,
-    fields: ['title', 'subtitle', 'summary', 'city', 'date_start', 'date_end', 'venue_id', 'location_name']
+    fields: ['title', 'subtitle', 'summary', 'city']
   },
   {
     id: 'datetime',
     title: 'Data & Local',
     description: 'Horários específicos e endereço completo',
     component: DateLocationStep,
-    fields: ['doors_open_utc', 'headliner_starts_utc', 'address', 'state', 'country']
+    fields: ['start_utc', 'end_utc', 'doors_open_utc', 'headliner_starts_utc', 'venue_id', 'location_name', 'address', 'state', 'country']
   },
   {
     id: 'lineup',

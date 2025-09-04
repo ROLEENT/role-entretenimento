@@ -12,9 +12,6 @@ import { CalendarIcon, MapPin, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { ComboboxAsync } from '@/components/ui/combobox-async';
-import { useVenueSearch } from '@/hooks/useVenueSearch';
-import { supabase } from '@/integrations/supabase/client';
 
 const CITIES = [
   'São Paulo',
@@ -47,12 +44,10 @@ const fromISO = (iso?: string | null) =>
   iso ? new Date(iso) : undefined;
 
 export const BasicInfoStep: React.FC = () => {
-  const { control, watch, setValue, setError, clearErrors, getValues } = useFormContext<EventFormData>();
-  const { searchVenues, getVenueById } = useVenueSearch();
+  const { control, watch, setValue } = useFormContext<EventFormData>();
   
   const watchedTitle = watch('title');
   const watchedSlug = watch('slug');
-  const watchedVenueId = watch('venue_id');
 
   // Auto-generate slug preview
   React.useEffect(() => {
@@ -71,48 +66,7 @@ export const BasicInfoStep: React.FC = () => {
     }
   }, [watchedTitle, watchedSlug, setValue]);
 
-  // Auto-fill address when venue is selected
-  React.useEffect(() => {
-    const fillVenueAddress = async () => {
-      if (watchedVenueId) {
-        try {
-          const { data: venue, error } = await supabase
-            .from('venues')
-            .select('address, city, state, address_line, district')
-            .eq('id', watchedVenueId)
-            .single();
 
-          if (venue && !error) {
-            // Build full address from venue data
-            let fullAddress = '';
-            if (venue.address_line) fullAddress += venue.address_line;
-            if (venue.district) fullAddress += (fullAddress ? ', ' : '') + venue.district;
-            if (venue.address) fullAddress += (fullAddress ? ', ' : '') + venue.address;
-
-            // Fill form fields
-            if (fullAddress) setValue('address', fullAddress);
-            if (venue.city) setValue('city', venue.city);
-            if (venue.state) setValue('state', venue.state);
-          }
-        } catch (error) {
-          console.error('Error fetching venue details:', error);
-        }
-      }
-    };
-
-    fillVenueAddress();
-  }, [watchedVenueId, setValue]);
-
-  // Date validation rule
-  React.useEffect(() => {
-    const s = getValues('date_start');
-    const e = getValues('date_end');
-    if (s && e && new Date(e) <= new Date(s)) {
-      setError('date_end', { message: 'Data fim precisa ser depois do início' });
-    } else {
-      clearErrors('date_end');
-    }
-  }, [watch('date_start'), watch('date_end'), getValues, setError, clearErrors]);
 
   return (
     <div className="space-y-6">
@@ -253,117 +207,6 @@ export const BasicInfoStep: React.FC = () => {
           )}
         />
 
-        {/* Start Date */}
-        <Controller
-          name="date_start"
-          control={control}
-          defaultValue=""
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Data de Início *</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {field.value ? format(new Date(field.value), 'dd/MM/yyyy HH:mm', { locale: ptBR }) : 'Selecione a data'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="p-3 space-y-3" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={fromISO(field.value)}
-                    onSelect={(d) => field.onChange(toISO(d))}
-                    initialFocus
-                    className="pointer-events-auto"
-                  />
-                  <Input
-                    type="time"
-                    step={900}
-                    placeholder="Horário"
-                    onChange={(e) => {
-                      const d = fromISO(field.value) ?? new Date();
-                      const [hh, mm] = e.target.value.split(':').map(Number);
-                      d.setHours(hh || 0, mm || 0, 0, 0);
-                      field.onChange(d.toISOString());
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* End Date */}
-        <Controller
-          name="date_end"
-          control={control}
-          defaultValue=""
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Data de Fim</FormLabel>
-              <Input
-                type="datetime-local"
-                step={900}
-                value={field.value ? field.value.slice(0,16) : ''}
-                onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value).toISOString() : '')}
-                placeholder="Mesmo dia"
-              />
-              <FormDescription>
-                Deixe em branco se for evento de um dia
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Venue */}
-        <Controller
-          name="venue_id"
-          control={control}
-          defaultValue=""
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Local/Venue</FormLabel>
-              <FormControl>
-                <ComboboxAsync
-                  placeholder="Buscar venue..."
-                  emptyText="Nenhum venue encontrado"
-                  onSearch={searchVenues}
-                  value={field.value || ''}
-                  onValueChange={field.onChange}
-                />
-              </FormControl>
-              <FormDescription>
-                Busque por venues cadastrados
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Custom Location - só aparece se venue não for selecionado */}
-        {!watchedVenueId && (
-          <FormField
-            control={control}
-            name="location_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome do Local</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="Nome e endereço do local"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Use este campo se não encontrou o venue na busca
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
       </div>
 
       {/* Highlight Type */}
