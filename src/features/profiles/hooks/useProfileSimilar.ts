@@ -21,7 +21,7 @@ export function useProfileSimilar(profileId: string, profileTags: string[] = [],
 
       // Buscar perfis similares baseado em tags comuns
       const { data, error } = await supabase
-        .from('profiles')
+        .from('entity_profiles')
         .select(`
           id, name, handle, avatar_url, city, type, tags
         `)
