@@ -66,7 +66,7 @@ const FeaturedEventsToday = () => {
           .from('events')
           .select(`
             id, title, city, image_url, date_start, tags, price_min, price_max,
-            venue:venues(name, location)
+            venue:venues(name, address, city)
           `)
           .eq('status', 'published')
           .eq('highlight_type', 'curatorial')
@@ -95,7 +95,7 @@ const FeaturedEventsToday = () => {
           .from('events')
           .select(`
             id, title, city, image_url, date_start, tags, price_min, price_max,
-            venue:venues(name, location)
+            venue:venues(name, address, city)
           `)
           .eq('status', 'published')
           .eq('highlight_type', 'showcase')

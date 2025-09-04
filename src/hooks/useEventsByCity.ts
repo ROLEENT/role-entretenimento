@@ -9,7 +9,7 @@ export function useEventsByCity(cityName: string) {
         .from("events")
         .select(`
           *,
-          venue:venues(id, name, location),
+          venue:venues(id, name, address, city),
           organizer:organizers(id, name)
         `)
         .eq("status", "published")
