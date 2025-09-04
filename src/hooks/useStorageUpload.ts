@@ -33,7 +33,7 @@ export const useStorageUpload = (defaultBucket: string = 'agenda-images') => {
 
     try {
       const bucketName = bucket || defaultBucket;
-      const maxSizeMB = options?.maxSizeMB || 10;
+      const maxSizeMB = options?.maxSizeMB || 25;
       const allowedTypes = options?.allowedTypes || [
         'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'
       ];

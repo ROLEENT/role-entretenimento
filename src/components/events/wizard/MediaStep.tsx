@@ -150,7 +150,7 @@ export const MediaStep: React.FC = () => {
                     description="Imagem principal do evento. Recomendado: 1920x1080px (16:9)"
                     bucket="agenda-images"
                     folder="events/main-images"
-                    maxSizeMB={10}
+                    maxSizeMB={25}
                     allowedTypes={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
                     variant="banner"
                     aspectRatio="16/9"
@@ -174,7 +174,7 @@ export const MediaStep: React.FC = () => {
                     description="Imagem de capa para destaque. Recomendado: 2100x900px (21:9)"
                     bucket="agenda-images"
                     folder="events/cover-images"
-                    maxSizeMB={10}
+                    maxSizeMB={25}
                     allowedTypes={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
                     variant="banner"
                     aspectRatio="21/9"
@@ -237,7 +237,7 @@ export const MediaStep: React.FC = () => {
                 description="Arraste e solte ou clique para selecionar imagens. Recomendado: 1000x1000px (1:1)"
                 bucket="agenda-images"
                 folder="events/gallery"
-                maxSizeMB={5}
+                maxSizeMB={15}
                 allowedTypes={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
                 variant="thumbnail"
                 aspectRatio="1/1"
@@ -342,7 +342,7 @@ export const MediaStep: React.FC = () => {
                     description="Imagem para compartilhamento social. Recomendado: 1200x630px (1.91:1)"
                     bucket="agenda-images"
                     folder="events/og-images"
-                    maxSizeMB={2}
+                    maxSizeMB={10}
                     allowedTypes={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
                     variant="banner"
                     aspectRatio="1.91/1"
