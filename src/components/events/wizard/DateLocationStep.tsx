@@ -64,72 +64,60 @@ const toISO = (v?: Date | string | null) =>
 const fromISO = (iso?: string | null) =>
   iso ? new Date(iso) : undefined;
 
-function VenueSelect() {
+// helper simples de busca
+async function fetchVenues(q: string) {
+  if (!q) return [];
+  const url =
+    `https://nutlcbnruabjsxecqpnd.supabase.co/rest/v1/venues?select=id,name,city`
+    + `&or=(name.ilike.*${encodeURIComponent(q)}*,city.ilike.*${encodeURIComponent(q)}*)`
+    + `&order=name.asc&limit=10`;
+  const res = await fetch(url, { 
+    headers: { 
+      apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51dGxjYm5ydWFianN4ZWNxcG5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MTcwOTgsImV4cCI6MjA3MTA5MzA5OH0.K_rfijLK9e3EbDxU4uddtY0sUMUvtH-yHNEbW8Ohp5c' 
+    } 
+  });
+  if (!res.ok) return [];
+  return res.json() as Promise<Array<{id:string;name:string;city?:string}>>;
+}
+
+function VenueDatalist() {
   const { setValue, watch, register } = useFormContext();
-  const current = watch("venue_id");
-  const [open, setOpen] = useState(false);
-  const [q, setQ] = useState("");
-  const [items, setItems] = useState<{id:string; name:string; city?:string}[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [q, setQ] = useState('');
+  const [opts, setOpts] = useState<Array<{id:string;name:string;city?:string}>>([]);
+  const selectedId = watch('venue_id') || '';
 
   useEffect(() => {
-    let active = true;
-    if (!open) return;
-    setLoading(true);
-    const fetcher = async () => {
-      const url =
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/venues` +
-        `?select=id,name,city&or=(name.ilike.*${encodeURIComponent(q)}*,city.ilike.*${encodeURIComponent(q)}*)&order=name.asc&limit=10`;
-      const res = await fetch(url, {
-        headers: {
-          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY as string,
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        },
-      });
-      const data = res.ok ? await res.json() : [];
-      if (active) setItems(data);
-      setLoading(false);
-    };
-    fetcher();
-    return () => { active = false; };
-  }, [q, open]);
+    let alive = true;
+    fetchVenues(q).then(r => { if (alive) setOpts(r); });
+    return () => { alive = false; };
+  }, [q]);
 
   return (
     <div className="space-y-4">
       <FormItem>
         <FormLabel>Local do Evento</FormLabel>
-        <Popover open={open} onOpenChange={setOpen} modal>
-          <PopoverTrigger asChild>
-            <Button type="button" variant="outline" className="w-full justify-between">
-              {current ? (items.find(i => i.id === current)?.name || "Selecionado") : "Buscar venue..."}
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </PopoverTrigger>
-
-          <PopoverContent className="z-[1000] w-[var(--radix-popover-trigger-width)] p-0" align="start" side="bottom">
-            <div className="p-2">
-              <Input autoFocus placeholder="Digite para buscar..." value={q} onChange={e => setQ(e.target.value)} />
-            </div>
-            <div className="max-h-60 overflow-auto">
-              {loading && <div className="px-3 py-2 text-sm text-muted-foreground">Carregando...</div>}
-              {!loading && items.length === 0 && <div className="px-3 py-2 text-sm">Nenhum venue</div>}
-              {items.map(v => (
-                <button
-                  key={v.id}
-                  type="button"
-                  className="w-full px-3 py-2 text-left hover:bg-muted"
-                  onClick={() => { setValue("venue_id", v.id, { shouldValidate: true }); setOpen(false); }}
-                >
-                  {v.name}{v.city ? ` • ${v.city}` : ""}
-                </button>
-              ))}
-            </div>
-          </PopoverContent>
-        </Popover>
+        <FormControl>
+          <input
+            list="venues"
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            placeholder="Buscar venue..."
+            onChange={(e) => {
+              const val = e.target.value.trim();
+              setQ(val);
+              const hit = opts.find(o => `${o.name}${o.city ? ' • ' + o.city : ''}`.toLowerCase() === val.toLowerCase());
+              setValue('venue_id', hit ? hit.id : '', { shouldValidate: true });
+            }}
+          />
+        </FormControl>
+        <datalist id="venues">
+          {opts.map(o => (
+            <option key={o.id} value={`${o.name}${o.city ? ' • ' + o.city : ''}`} />
+          ))}
+        </datalist>
         <FormMessage />
       </FormItem>
       
-      {!current && (
+      {!selectedId && (
         <FormItem>
           <FormLabel>Nome do Local</FormLabel>
           <FormControl>
@@ -294,7 +282,7 @@ export const DateLocationStep: React.FC = () => {
 
         {/* Venue Selector */}
         <div className="lg:col-span-2">
-          <VenueSelect />
+          <VenueDatalist />
         </div>
 
         {/* State */}
