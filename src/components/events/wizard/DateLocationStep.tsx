@@ -139,10 +139,9 @@ export const DateLocationStep: React.FC = () => {
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Start Date */}
-        <Controller
-          name="start_utc"
+        <FormField
           control={control}
-          defaultValue=""
+          name="start_utc"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Data e Hora de Início</FormLabel>
@@ -166,10 +165,9 @@ export const DateLocationStep: React.FC = () => {
         />
 
         {/* End Date */}
-        <Controller
-          name="end_utc"
+        <FormField
           control={control}
-          defaultValue=""
+          name="end_utc"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Data e Hora de Fim</FormLabel>
