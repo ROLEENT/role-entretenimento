@@ -62,7 +62,10 @@ const EventDetailPage = () => {
       
       const { data, error } = await supabase
         .from('events')
-        .select(`*, venue:venues(*), organizer:organizers(*), categories:event_categories(category:categories(*)), tickets(*)`)
+        .select(`
+          *, 
+          venues(id, name, address, city, state, lat, lng)
+        `)
         .eq(isUUID ? 'id' : 'slug', eventSlug)
         .eq('status', 'published')
         .single();
@@ -169,10 +172,10 @@ const EventDetailPage = () => {
                     <Clock className="h-5 w-5 text-primary" />
                     <span>{format(new Date(event.date_start), 'HH:mm', { locale: ptBR })}</span>
                   </div>
-                  {event.venue && (
+                  {event.venues && (
                     <div className="flex items-center gap-2">
                       <MapPin className="h-5 w-5 text-primary" />
-                      <span>{event.venue.name}, {event.city}</span>
+                      <span>{event.venues.name}, {event.city}</span>
                     </div>
                   )}
                   <div className="flex items-center gap-2">
@@ -221,29 +224,29 @@ const EventDetailPage = () => {
               city={event.city}
               categories={event.categories?.map((cat: any) => cat.category.name) || []}
             />
-            {event.venue && (
+            {event.venues && (
               <Card>
                 <CardHeader><CardTitle>Local do Evento</CardTitle></CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <div>
-                      <h4 className="font-medium">{event.venue.name}</h4>
-                      <p className="text-sm text-muted-foreground">{event.venue.address}</p>
-                      <p className="text-sm text-muted-foreground">{event.city}, {event.state}</p>
+                      <h4 className="font-medium">{event.venues.name}</h4>
+                      <p className="text-sm text-muted-foreground">{event.venues.address}</p>
+                      <p className="text-sm text-muted-foreground">{event.city}, {event.venues.state}</p>
                     </div>
                     <div className="bg-muted/50 p-4 rounded-lg">
                       <p className="text-sm">🎵 Integração musical disponível</p>
                       <p className="text-sm">🗺️ Mapas e direções integrados</p> 
                       <p className="text-sm">📱 Compartilhamento social otimizado</p>
                     </div>
-                    {event.venue.lat && event.venue.lng && (
+                    {event.venues.lat && event.venues.lng && (
                       <div className="h-48 rounded-lg overflow-hidden">
                         <CityMap 
                           events={[{
                             id: event.id,
                             title: event.title,
-                            venue: event.venue.name,
-                            location: event.venue.address,
+                            venue: event.venues.name,
+                            location: event.venues.address,
                             city: event.city,
                             time: format(new Date(event.date_start), 'HH:mm'),
                             date: event.date_start,
@@ -255,11 +258,11 @@ const EventDetailPage = () => {
                             image: event.image_url || '',
                             featured: false,
                             coordinates: {
-                              lat: event.venue.lat,
-                              lng: event.venue.lng
+                              lat: event.venues.lat,
+                              lng: event.venues.lng
                             }
                           }]}
-                          center={[event.venue.lng, event.venue.lat]}
+                          center={[event.venues.lng, event.venues.lat]}
                         />
                       </div>
                     )}
