@@ -28,8 +28,7 @@ export const eventService = {
       .select(`
         *,
         venue:venues(*),
-        organizer:organizers(*),
-        categories:event_categories(category:categories(*))
+        organizer:organizers(*)
       `)
       .eq('status', 'published')
       .order('date_start', { ascending: true })
@@ -71,8 +70,7 @@ export const eventService = {
       .select(`
         *,
         venue:venues(*),
-        organizer:organizers(*),
-        categories:event_categories(category:categories(*))
+        organizer:organizers(*)
       `)
       .eq('id', id)
       .eq('status', 'published')
@@ -99,8 +97,7 @@ export const eventService = {
       .select(`
         *,
         venue:venues(*),
-        organizer:organizers(*),
-        categories:event_categories(category:categories(*))
+        organizer:organizers(*)
       `)
       .eq('status', 'published')
       .gte('date_start', new Date().toISOString())
@@ -135,8 +132,7 @@ export const favoriteService = {
         event:events(
           *,
           venue:venues(*),
-          organizer:organizers(*),
-          categories:event_categories(category:categories(*))
+          organizer:organizers(*)
         )
       `)
       .eq('user_id', userId);
