@@ -2,6 +2,7 @@
 /vitrine-cultural /agenda 301
 /destaques /agenda 301
 /eventos /agenda 301
+/eventos/* /evento/:splat 301
 /highlights /agenda 301
 
 # Netlify SPA redirect

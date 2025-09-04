@@ -16,6 +16,11 @@
       "permanent": true
     },
     {
+      "source": "/eventos/(.*)",
+      "destination": "/evento/$1",
+      "permanent": true
+    },
+    {
       "source": "/highlights",
       "destination": "/agenda",
       "permanent": true
