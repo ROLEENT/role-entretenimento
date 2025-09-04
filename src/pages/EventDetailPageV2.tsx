@@ -41,6 +41,7 @@ import { EventMoodTagsCard } from '@/components/events/EventMoodTagsCard';
 import { EventLocationCard } from '@/components/events/EventLocationCard';
 import { StickyTicketCTA } from '@/components/events/StickyTicketCTA';
 import { EventCurationSection } from '@/components/events/EventCurationSection';
+import { EventSEO } from '@/components/events/EventSEO';
 
 const EventDetailPageV2 = () => {
   const { slug } = useParams();
@@ -304,6 +305,11 @@ const EventDetailPageV2 = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <EventSEO 
+        event={event} 
+        highlightType={event.highlight_type} 
+        isSponsored={event.is_sponsored} 
+      />
       <SEOHead 
         title={`${event.title} | ROLÊ`} 
         description={event.seo_description || event.summary || event.description?.substring(0, 160) || `${event.title} em ${event.city}`}
