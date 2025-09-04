@@ -18,7 +18,7 @@ interface EventGridProps {
     price_min?: number;
     price_max?: number;
     currency?: string;
-    highlight_type?: 'none' | 'curatorial' | 'vitrine';
+    highlight_type?: 'none' | 'curatorial' | 'vitrine' | 'editorial' | 'sponsored';
     is_sponsored?: boolean;
     age_rating?: string;
     genres?: string[];

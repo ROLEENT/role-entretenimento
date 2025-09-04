@@ -27,7 +27,7 @@ const PERIOD_OPTIONS = [
 const EventCard = ({ item, cityName }: { item: any; cityName: string }) => {
   const navigate = useNavigate();
   
-  // Convert event to display format
+  // Convert event to display format with proper type mapping
   const eventData = {
     id: item.id,
     title: item.title,

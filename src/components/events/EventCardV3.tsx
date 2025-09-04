@@ -23,7 +23,7 @@ interface EventCardV3Props {
     price_min?: number;
     price_max?: number;
     currency?: string;
-    highlight_type?: 'none' | 'curatorial' | 'vitrine';
+    highlight_type?: 'none' | 'curatorial' | 'vitrine' | 'editorial' | 'sponsored';
     is_sponsored?: boolean;
     age_rating?: string;
     genres?: string[];
@@ -66,8 +66,16 @@ export function EventCardV3({
   className,
   onClick 
 }: EventCardV3Props) {
-  const config = highlightConfig[event.highlight_type || 'none'];
-  const IconComponent = config.icon;
+  // Normalize highlight_type for backward compatibility
+  const normalizedHighlightType = (() => {
+    const type = event.highlight_type || 'none';
+    if (type === 'editorial') return 'curatorial';
+    if (type === 'sponsored') return 'vitrine';
+    return type;
+  })();
+  
+  const config = highlightConfig[normalizedHighlightType] || highlightConfig.none;
+  const IconComponent = config?.icon;
   
   const formatEventDate = (dateStart?: string, dateEnd?: string) => {
     if (!dateStart) return '';
