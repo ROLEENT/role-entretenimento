@@ -17,6 +17,8 @@ import RelatedEvents from '@/components/events/RelatedEvents';
 import { ChipsList } from '@/components/ui/chips-list';
 import { SmallLoginCta } from '@/components/events/SmallLoginCta';
 import { useComments } from '@/hooks/useComments';
+import { useEventViews } from '@/hooks/useEventViews';
+import { CompactEngagementSystem } from '@/components/CompactEngagementSystem';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -64,6 +66,9 @@ const EventDetailPage = () => {
   
   // Hook para comentários condicionais
   const commentsResult = useComments(event?.id, session);
+  
+  // Hook para visualizações
+  const { viewCount, loading: viewsLoading } = useEventViews(event?.id);
 
   useEffect(() => {
     if (slug) {
@@ -717,6 +722,32 @@ const EventDetailPage = () => {
           <div className="space-y-6">
             <EventCheckIn eventId={event.id} eventTitle={event.title} />
             <PushNotifications eventId={event.id} />
+            
+            {/* Sistema de Engajamento Compacto */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Interações</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <CompactEngagementSystem 
+                  entityId={event.id}
+                  entityType="event"
+                  showCounts={true}
+                />
+              </CardContent>
+            </Card>
+            
+            {/* Contador de Visualizações */}
+            {!viewsLoading && (
+              <Card>
+                <CardContent className="py-3">
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <span>Visualizações</span>
+                    <span className="font-medium">{viewCount.toLocaleString()}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
             
             {/* Local do Evento - card compacto com link correto */}
             {(venue || event.location_name) && (
