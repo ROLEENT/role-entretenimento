@@ -1,6 +1,6 @@
 // lib/city-to-slug.ts
 
-// Mapping from capital slugs to city codes used in database
+// Mapping from capital slugs to city codes (used for internal identification only)
 export const capitalSlugToCode: Record<string, string> = {
   porto_alegre: 'POA',
   sao_paulo: 'SP', 
@@ -40,11 +40,20 @@ export function slugToCityName(slug: string): string {
     .join(' ');
 }
 
-// Get the city code/name to use in database queries
+// Get the city name to use in database queries
 export function getCityQueryValue(slug: string): string {
-  // If it's a capital, return the code
-  if (capitalSlugToCode[slug]) {
-    return capitalSlugToCode[slug];
+  // For capitals, return the full city name (not the code)
+  // because the events table stores full city names
+  const capitalNames: Record<string, string> = {
+    porto_alegre: 'Porto Alegre',
+    sao_paulo: 'São Paulo',
+    rio_de_janeiro: 'Rio de Janeiro',
+    florianopolis: 'Florianópolis',
+    curitiba: 'Curitiba'
+  };
+  
+  if (capitalNames[slug]) {
+    return capitalNames[slug];
   }
   
   // For other cities, convert slug back to name
