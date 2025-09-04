@@ -15,6 +15,17 @@ export const useStorageUpload = (defaultBucket: string = 'agenda-images') => {
   ): Promise<string | null> => {
     if (!file) return null;
 
+    // Check authentication first
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({
+        title: "Erro de autenticação",
+        description: "Você precisa estar logado para fazer upload",
+        variant: "destructive"
+      });
+      return null;
+    }
+
     setUploading(true);
     setUploadProgress(0);
 
@@ -35,11 +46,11 @@ export const useStorageUpload = (defaultBucket: string = 'agenda-images') => {
         throw new Error(`Arquivo muito grande. Tamanho máximo: ${maxSizeMB}MB.`);
       }
 
-      // Generate unique filename with timestamp
+      // Generate unique filename with user ID and timestamp for better organization
       const fileExt = file.name.split('.').pop();
       const timestamp = Date.now();
       const randomId = Math.random().toString(36).substring(2, 9);
-      const fileName = `${timestamp}-${randomId}.${fileExt}`;
+      const fileName = `${user.id}/${timestamp}-${randomId}.${fileExt}`;
       const filePath = folder ? `${folder}/${fileName}` : fileName;
 
       // Simulate progress for better UX
@@ -47,7 +58,7 @@ export const useStorageUpload = (defaultBucket: string = 'agenda-images') => {
         setUploadProgress(prev => Math.min(prev + 20, 90));
       }, 200);
 
-      // Always use Supabase client for upload - it handles RLS properly
+      // Use Supabase client with user context for proper RLS handling
       const { data, error } = await supabase.storage
         .from(bucketName)
         .upload(filePath, file, {
@@ -56,7 +67,10 @@ export const useStorageUpload = (defaultBucket: string = 'agenda-images') => {
 
       clearInterval(progressInterval);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Storage upload error:', error);
+        throw error;
+      }
 
       setUploadProgress(100);
 
@@ -88,6 +102,17 @@ export const useStorageUpload = (defaultBucket: string = 'agenda-images') => {
 
   const deleteFile = useCallback(async (url: string, bucket?: string): Promise<boolean> => {
     try {
+      // Check authentication first
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Erro de autenticação",
+          description: "Você precisa estar logado para deletar arquivos",
+          variant: "destructive"
+        });
+        return false;
+      }
+
       const bucketName = bucket || defaultBucket;
       
       // Extract path from URL - handle both public URLs and direct paths
