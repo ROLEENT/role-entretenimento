@@ -1993,6 +1993,13 @@ export type Database = {
             foreignKeyName: "event_categories_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_categories_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -2021,6 +2028,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "event_checkins_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_checkins_event_id_fkey"
             columns: ["event_id"]
@@ -2059,6 +2073,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "event_comments_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_comments_event_id_fkey"
             columns: ["event_id"]
@@ -2117,6 +2138,55 @@ export type Database = {
             foreignKeyName: "event_companions_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_companions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_curation_criteria: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          id: string
+          is_primary: boolean
+          key: Database["public"]["Enums"]["criterion_key"]
+          status: Database["public"]["Enums"]["criterion_status"]
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          id?: string
+          is_primary?: boolean
+          key: Database["public"]["Enums"]["criterion_key"]
+          status?: Database["public"]["Enums"]["criterion_status"]
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          is_primary?: boolean
+          key?: Database["public"]["Enums"]["criterion_key"]
+          status?: Database["public"]["Enums"]["criterion_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_curation_criteria_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_curation_criteria_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -2158,6 +2228,13 @@ export type Database = {
             foreignKeyName: "event_engagement_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_engagement_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -2190,6 +2267,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "event_favorites_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_favorites_event_id_fkey"
             columns: ["event_id"]
@@ -2289,6 +2373,13 @@ export type Database = {
             foreignKeyName: "event_lineup_slots_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_lineup_slots_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -2332,6 +2423,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "event_partners_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_partners_event_id_fkey"
             columns: ["event_id"]
@@ -2389,6 +2487,13 @@ export type Database = {
             foreignKeyName: "event_performances_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_performances_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -2420,6 +2525,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "event_reviews_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "event_reviews_event_id_fkey"
             columns: ["event_id"]
@@ -2541,6 +2653,13 @@ export type Database = {
             foreignKeyName: "event_visual_artists_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_visual_artists_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -2558,6 +2677,8 @@ export type Database = {
           cover_url: string | null
           created_at: string
           created_by: string | null
+          curation_notes: string | null
+          curation_score: number | null
           currency: string | null
           date_end: string | null
           date_start: string
@@ -2610,6 +2731,8 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
+          curation_notes?: string | null
+          curation_score?: number | null
           currency?: string | null
           date_end?: string | null
           date_start: string
@@ -2662,6 +2785,8 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
+          curation_notes?: string | null
+          curation_score?: number | null
           currency?: string | null
           date_end?: string | null
           date_start?: string
@@ -2929,6 +3054,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "group_events_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "group_events_event_id_fkey"
             columns: ["event_id"]
@@ -3278,6 +3410,13 @@ export type Database = {
           venue_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "highlights_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "highlights_event_id_fkey"
             columns: ["event_id"]
@@ -4510,6 +4649,13 @@ export type Database = {
             foreignKeyName: "push_subscriptions_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "push_subscriptions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -4544,6 +4690,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "reviews_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "reviews_event_id_fkey"
             columns: ["event_id"]
@@ -4726,6 +4879,13 @@ export type Database = {
             foreignKeyName: "tickets_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "tickets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -4819,6 +4979,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "user_calendar_events_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_curation_chips"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "user_calendar_events_event_id_fkey"
             columns: ["event_id"]
@@ -5650,6 +5817,27 @@ export type Database = {
         Row: {
           city_name: string | null
           events_count: number | null
+        }
+        Relationships: []
+      }
+      event_curation_chips: {
+        Row: {
+          chips: string[] | null
+          curation_notes: string | null
+          curation_score: number | null
+          event_id: string | null
+        }
+        Insert: {
+          chips?: never
+          curation_notes?: string | null
+          curation_score?: number | null
+          event_id?: string | null
+        }
+        Update: {
+          chips?: never
+          curation_notes?: string | null
+          curation_score?: number | null
+          event_id?: string | null
         }
         Relationships: []
       }
@@ -6984,6 +7172,10 @@ export type Database = {
           | { p_email: string; p_user_id: string }
         Returns: Json
       }
+      recalc_event_curation_score: {
+        Args: { p_event_id: string }
+        Returns: undefined
+      }
       reject_blog_comment: {
         Args: { p_comment_id: string }
         Returns: undefined
@@ -7103,6 +7295,10 @@ export type Database = {
           updated_at: string
         }[]
       }
+      upsert_event_criteria: {
+        Args: { p_event_id: string; p_items: Json; p_notes: string }
+        Returns: undefined
+      }
       user_liked_highlight: {
         Args: { p_highlight_id: string }
         Returns: boolean
@@ -7184,6 +7380,16 @@ export type Database = {
         | "curitiba"
         | "sao_paulo"
         | "rio_de_janeiro"
+      criterion_key:
+        | "relevancia"
+        | "qualidade"
+        | "diversidade"
+        | "impacto"
+        | "coerencia"
+        | "experiencia"
+        | "tecnica"
+        | "acessibilidade"
+      criterion_status: "met" | "partial" | "na"
       event_status: "draft" | "published"
       highlight_status: "draft" | "published"
       highlight_type: "none" | "curatorial" | "vitrine"
@@ -7346,6 +7552,17 @@ export const Constants = {
         "sao_paulo",
         "rio_de_janeiro",
       ],
+      criterion_key: [
+        "relevancia",
+        "qualidade",
+        "diversidade",
+        "impacto",
+        "coerencia",
+        "experiencia",
+        "tecnica",
+        "acessibilidade",
+      ],
+      criterion_status: ["met", "partial", "na"],
       event_status: ["draft", "published"],
       highlight_status: ["draft", "published"],
       highlight_type: ["none", "curatorial", "vitrine"],

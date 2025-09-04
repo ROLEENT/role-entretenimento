@@ -40,6 +40,7 @@ import { EventLinksCard } from '@/components/events/EventLinksCard';
 import { EventMoodTagsCard } from '@/components/events/EventMoodTagsCard';
 import { EventLocationCard } from '@/components/events/EventLocationCard';
 import { StickyTicketCTA } from '@/components/events/StickyTicketCTA';
+import { EventCurationSection } from '@/components/events/EventCurationSection';
 
 const EventDetailPageV2 = () => {
   const { slug } = useParams();
@@ -348,6 +349,12 @@ const EventDetailPageV2 = () => {
           <div className="lg:col-span-2 space-y-8">
             {/* Tickets Section */}
             <EventTicketsSection event={event} formatPrice={formatPrice} />
+            
+            {/* Curation Section */}
+            <EventCurationSection 
+              eventId={event.id}
+              highlightType={event.highlight_type}
+            />
             
             {/* Description Section */}
             {event.description && (

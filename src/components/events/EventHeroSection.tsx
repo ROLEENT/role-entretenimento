@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import LazyImage from '@/components/LazyImage';
@@ -6,6 +6,10 @@ import { Ticket, Calendar, Clock, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { HighlightBadge } from './HighlightBadge';
+import { CurationInfoBar } from './CurationInfoBar';
+import { CurationCriteriaDrawer } from './CurationCriteriaDrawer';
+import { useCurationData } from '@/hooks/useCurationData';
 
 interface EventHeroSectionProps {
   event: any;
@@ -15,6 +19,8 @@ interface EventHeroSectionProps {
 }
 
 export function EventHeroSection({ event, venue, formatPrice, formatTime }: EventHeroSectionProps) {
+  const [showCriteriaDrawer, setShowCriteriaDrawer] = useState(false);
+  const { data: curationData } = useCurationData(event.id);
   return (
     <section className="relative w-full">
       {/* Hero Image - 16:9 */}
@@ -28,23 +34,13 @@ export function EventHeroSection({ event, venue, formatPrice, formatTime }: Even
         {/* Gradient Overlay for better text contrast */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         
-        {/* Badge de tipo de destaque */}
-        {(event.highlight_type && event.highlight_type !== 'none') && (
-          <div className="absolute top-4 left-4">
-            <Badge 
-              className={cn(
-                "font-medium text-xs px-3 py-1",
-                event.highlight_type === 'editorial' && "bg-primary text-primary-foreground",
-                event.highlight_type === 'showcase' && "bg-blue-500 text-white",
-                event.highlight_type === 'sponsored' && "bg-green-500 text-white"
-              )}
-            >
-              {event.highlight_type === 'editorial' && '✨ Destaque Curatorial'}
-              {event.highlight_type === 'showcase' && '🎭 Vitrine Cultural'}
-              {event.highlight_type === 'sponsored' && '📢 Patrocinado'}
-            </Badge>
-          </div>
-        )}
+        {/* Badge de destaque */}
+        <div className="absolute top-4 left-4 z-10">
+          <HighlightBadge 
+            type={event.highlight_type === 'sponsored' ? 'vitrine' : 'curatorial'}
+            isSponsored={event.is_sponsored}
+          />
+        </div>
         
         {/* CTA de ingressos - sempre visível */}
         <div className="absolute bottom-4 right-4">
@@ -97,6 +93,25 @@ export function EventHeroSection({ event, venue, formatPrice, formatTime }: Even
           </div>
         </div>
       </div>
+
+      {/* Faixa contextual */}
+      {event.highlight_type && event.highlight_type !== 'none' && (
+        <div className="container mx-auto px-4 py-3">
+          <CurationInfoBar
+            type={event.highlight_type === 'sponsored' ? 'vitrine' : 'curatorial'}
+            onShowCriteria={() => setShowCriteriaDrawer(true)}
+          />
+        </div>
+      )}
+
+      {/* Drawer de critérios */}
+      <CurationCriteriaDrawer
+        open={showCriteriaDrawer}
+        onOpenChange={setShowCriteriaDrawer}
+        criteria={curationData?.criteria || []}
+        notes={curationData?.notes}
+        eventTitle={event.title}
+      />
     </section>
   );
 }
