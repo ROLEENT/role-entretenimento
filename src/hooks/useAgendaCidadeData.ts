@@ -14,7 +14,7 @@ export interface AgendaCidadeItem {
   date_end?: string;
   image_url?: string;
   alt_text?: string;
-  highlight_type?: 'curatorial' | 'showcase' | 'none';
+  highlight_type?: 'curatorial' | 'vitrine' | 'none';
   status?: string;
   created_at?: string;
   ticket_url?: string;

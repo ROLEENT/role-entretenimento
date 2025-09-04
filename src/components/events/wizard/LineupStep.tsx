@@ -577,7 +577,7 @@ export const LineupStep: React.FC = () => {
                           <SelectContent>
                             <SelectItem value="dj-set">DJ Set</SelectItem>
                             <SelectItem value="live">Live</SelectItem>
-                            <SelectItem value="showcase">Showcase</SelectItem>
+                            <SelectItem value="vitrine">Vitrine</SelectItem>
                             <SelectItem value="b2b">B2B</SelectItem>
                             <SelectItem value="teatro">Teatro</SelectItem>
                             <SelectItem value="danca">Dança</SelectItem>

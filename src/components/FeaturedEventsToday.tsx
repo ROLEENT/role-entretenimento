@@ -90,7 +90,7 @@ const FeaturedEventsToday = () => {
           mixedEvents.push(...curatedEvents);
         }
 
-        // Fetch showcase events from events table
+        // Fetch vitrine events from events table
         const { data: showcaseData, error: showcaseError } = await supabase
           .from('events')
           .select(`
@@ -98,7 +98,7 @@ const FeaturedEventsToday = () => {
             venue:venues(name, address, city)
           `)
           .eq('status', 'published')
-          .eq('highlight_type', 'showcase')
+          .eq('highlight_type', 'vitrine')
           .gte('date_start', new Date().toISOString())
           .order('date_start', { ascending: true })
           .limit(1);
