@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { CalendarIcon, Clock, MapPin, Globe, Users, Heart, Star, ChevronDown } from 'lucide-react';
+import { VenueSelector } from '@/components/ui/venue-selector';
 import { OrganizersManager } from './OrganizersManager';
 import { SupportersSponsorsManager } from './SupportersSponsorsManager';
 import { format, parseISO } from 'date-fns';
@@ -64,62 +65,34 @@ const toISO = (v?: Date | string | null) =>
 const fromISO = (iso?: string | null) =>
   iso ? new Date(iso) : undefined;
 
-// helper simples de busca
-async function fetchVenues(q: string) {
-  if (!q) return [];
-  const url =
-    `https://nutlcbnruabjsxecqpnd.supabase.co/rest/v1/venues?select=id,name,city`
-    + `&or=(name.ilike.*${encodeURIComponent(q)}*,city.ilike.*${encodeURIComponent(q)}*)`
-    + `&order=name.asc&limit=10`;
-  const res = await fetch(url, { 
-    headers: { 
-      apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51dGxjYm5ydWFianN4ZWNxcG5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MTcwOTgsImV4cCI6MjA3MTA5MzA5OH0.K_rfijLK9e3EbDxU4uddtY0sUMUvtH-yHNEbW8Ohp5c' 
-    } 
-  });
-  if (!res.ok) return [];
-  return res.json() as Promise<Array<{id:string;name:string;city?:string}>>;
-}
-
-function VenueDatalist() {
+function VenueSection() {
   const { setValue, watch, register } = useFormContext();
-  const [q, setQ] = useState('');
-  const [opts, setOpts] = useState<Array<{id:string;name:string;city?:string}>>([]);
   const selectedId = watch('venue_id') || '';
 
-  useEffect(() => {
-    let alive = true;
-    fetchVenues(q).then(r => { if (alive) setOpts(r); });
-    return () => { alive = false; };
-  }, [q]);
+  const handleVenueSelect = (venue: any) => {
+    setValue('venue_id', venue ? venue.id : '', { shouldValidate: true });
+  };
 
   return (
     <div className="space-y-4">
       <FormItem>
         <FormLabel>Local do Evento</FormLabel>
         <FormControl>
-          <input
-            list="venues"
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            placeholder="Buscar venue..."
-            onChange={(e) => {
-              const val = e.target.value.trim();
-              setQ(val);
-              const hit = opts.find(o => `${o.name}${o.city ? ' • ' + o.city : ''}`.toLowerCase() === val.toLowerCase());
-              setValue('venue_id', hit ? hit.id : '', { shouldValidate: true });
-            }}
+          <VenueSelector
+            value={selectedId}
+            onSelect={handleVenueSelect}
+            placeholder="Buscar e selecionar venue..."
           />
         </FormControl>
-        <datalist id="venues">
-          {opts.map(o => (
-            <option key={o.id} value={`${o.name}${o.city ? ' • ' + o.city : ''}`} />
-          ))}
-        </datalist>
+        <FormDescription>
+          Busque por venues cadastrados ou informe um endereço manual
+        </FormDescription>
         <FormMessage />
       </FormItem>
       
       {!selectedId && (
         <FormItem>
-          <FormLabel>Nome do Local</FormLabel>
+          <FormLabel>Endereço Manual</FormLabel>
           <FormControl>
             <div className="relative">
               <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -282,7 +255,7 @@ export const DateLocationStep: React.FC = () => {
 
         {/* Venue Selector */}
         <div className="lg:col-span-2">
-          <VenueDatalist />
+          <VenueSection />
         </div>
 
         {/* State */}
