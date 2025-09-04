@@ -109,6 +109,13 @@ const PUBLICATION_CHECKLIST: ChecklistItem[] = [
       return true; // Placeholder - will be implemented with organizers field
     },
     description: 'Informações do organizador'
+  },
+  {
+    id: 'selection_reasons',
+    label: 'Motivos da escolha (para destaque curatorial)',
+    required: false,
+    check: (data) => data.highlight_type !== 'destaque' || (data.selection_reasons && data.selection_reasons.length > 0),
+    description: 'Motivos para eventos de destaque curatorial'
   }
 ];
 

@@ -533,6 +533,20 @@ export const ReviewStep: React.FC = () => {
                   </div>
                 )}
 
+                {/* Selection Reasons Preview */}
+                {formData.highlight_type === 'destaque' && formData.selection_reasons && formData.selection_reasons.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold mb-2">Motivos da Seleção</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.selection_reasons.map((reason, index) => (
+                        <Badge key={index} variant="secondary">
+                          {reason}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Placeholder for other sections */}
                 <div className="text-center py-8 text-muted-foreground">
                   <p>Preview completo estará disponível após a publicação</p>

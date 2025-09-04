@@ -12,6 +12,7 @@ import { CalendarIcon, MapPin, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { SelectionReasonsManager } from './SelectionReasonsManager';
 
 const CITIES = [
   'São Paulo',
@@ -232,6 +233,9 @@ export const BasicInfoStep: React.FC = () => {
           </FormItem>
         )}
       />
+
+      {/* Selection Reasons - Only for curatorial highlights */}
+      <SelectionReasonsManager />
 
       {/* Tags */}
       <FormField

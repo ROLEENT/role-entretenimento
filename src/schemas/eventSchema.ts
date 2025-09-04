@@ -162,6 +162,7 @@ export const eventSchema = z.object({
   // Promotion & Visibility
   highlight_type: highlightTypeSchema.default('none'),
   is_sponsored: z.boolean().default(false),
+  selection_reasons: z.array(z.string().min(1)).optional(),
   
   // Structure & Accessibility
   links: linksSchema,
@@ -277,6 +278,15 @@ export const eventSchema = z.object({
       code: z.ZodIssueCode.custom,
       message: "Eventos em vitrine devem ser patrocinados",
       path: ['is_sponsored']
+    });
+  }
+  
+  // Selection reasons validation for curatorial highlights
+  if (data.highlight_type === 'destaque' && (!data.selection_reasons || data.selection_reasons.length === 0)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Motivos da escolha são obrigatórios para Destaque Curatorial",
+      path: ['selection_reasons']
     });
   }
   
