@@ -7392,7 +7392,13 @@ export type Database = {
       criterion_status: "met" | "partial" | "na"
       event_status: "draft" | "published"
       highlight_status: "draft" | "published"
-      highlight_type: "none" | "curatorial" | "vitrine"
+      highlight_type:
+        | "none"
+        | "curatorial"
+        | "vitrine"
+        | "editorial"
+        | "showcase"
+        | "sponsored"
       partner_role: "organizer" | "supporter" | "sponsor"
       publication_status:
         | "draft"
@@ -7565,7 +7571,14 @@ export const Constants = {
       criterion_status: ["met", "partial", "na"],
       event_status: ["draft", "published"],
       highlight_status: ["draft", "published"],
-      highlight_type: ["none", "curatorial", "vitrine"],
+      highlight_type: [
+        "none",
+        "curatorial",
+        "vitrine",
+        "editorial",
+        "showcase",
+        "sponsored",
+      ],
       partner_role: ["organizer", "supporter", "sponsor"],
       publication_status: [
         "draft",
