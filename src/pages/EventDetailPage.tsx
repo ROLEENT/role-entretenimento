@@ -135,7 +135,7 @@ const EventDetailPage = () => {
         <Header />
         <main className="container mx-auto px-4 py-8 text-center">
           <h1 className="text-2xl font-bold mb-4">Evento não encontrado</h1>
-          <Button asChild><Link to="/eventos">Ver Todos os Eventos</Link></Button>
+          <Button asChild><Link to="/agenda">Ver Todos os Eventos</Link></Button>
         </main>
         <Footer />
       </div>
@@ -285,7 +285,7 @@ const EventDetailPage = () => {
                             />
                           )}
                           <p className="text-sm font-medium">
-                            {partner.display_name || partner.partners?.name}
+                            {partner.display_name || partner.partners?.name || 'Organizador'}
                           </p>
                           {partner.role && (
                             <p className="text-xs text-muted-foreground capitalize">

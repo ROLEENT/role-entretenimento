@@ -131,7 +131,7 @@ const TrabalheConosco = lazy(() => import("./pages/institucional/TrabalheConosco
 const Imprensa = lazy(() => import("./pages/institucional/Imprensa"));
 
 // User pages - lazy loaded
-const EventsPage = lazy(() => import("./pages/EventsPage"));
+// const EventsPage = lazy(() => import("./pages/EventsPage")); // Removed as requested
 const EventDetailPage = lazy(() => import("./pages/EventDetailPage"));
 const CreateEventPage = lazy(() => import("./pages/CreateEventPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
