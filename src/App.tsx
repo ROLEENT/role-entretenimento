@@ -19,6 +19,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 // Preview component
 const PreviewAgenda = lazy(() => import("./pages/PreviewAgenda"));
 const ChecklistTest = lazy(() => import("./pages/ChecklistTest"));
+const CurationTestPage = lazy(() => import("./pages/test/curation"));
 // Dashboard components
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const DashboardLayout = lazy(() => import("./components/DashboardLayout"));
@@ -234,6 +235,7 @@ function App() {
                 
                 {/* Test Routes */}
                 <Route path="/test/checklist" element={<ChecklistTest />} />
+                <Route path="/test/curation" element={<CurationTestPage />} />
                 <Route path="/test" element={<TestPage />} />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/debug/combo" element={<DebugCombo />} />
