@@ -235,17 +235,18 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 220 27% 8%;
-    --foreground: 210 40% 98%;
+    /* Dark theme for event page wireframe */
+    --background: 0 0% 0%; /* Pure black #000000 */
+    --foreground: 240 5% 95%; /* #f3f3f7 */
 
-    --card: 220 27% 12%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 5%; /* Dark cards for dark theme */
+    --card-foreground: 240 5% 95%; /* #f3f3f7 */
 
     --popover: 220 27% 12%;
     --popover-foreground: 210 40% 98%;
 
     /* ROLÊ Brand Colors - Dark Mode */
-    --primary: 275 100% 80%; /* Lighter for dark mode */
+    --primary: 275 100% 75%; /* #c77dff - exact wireframe color */
     --primary-foreground: 0 0% 0%;
     --primary-hover: 275 100% 85%;
 
