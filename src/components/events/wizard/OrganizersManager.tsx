@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Plus, X, Crown, Users, Building } from 'lucide-react';
+import { Plus, X, Crown, Users, Building, MapPin, Mail } from 'lucide-react';
 import { ComboboxAsync } from '@/components/ui/combobox-async';
+import { useOrganizerSearch } from '@/hooks/useOrganizerSearch';
 
 interface Organizer {
   id?: string;
@@ -20,23 +21,36 @@ interface Organizer {
 export const OrganizersManager: React.FC = () => {
   const { control, watch, setValue } = useFormContext<EventFormData>();
   const [newOrganizerName, setNewOrganizerName] = useState('');
+  const { searchOrganizers, getOrganizerById } = useOrganizerSearch();
   
   // Use partners field from schema instead of non-existent organizers field
   const organizers = (watch('partners') || []).filter(p => p.role === 'organizer');
 
-  const addOrganizer = () => {
-    if (newOrganizerName.trim()) {
+  const addOrganizerById = (organizerId: string) => {
+    const currentPartners = watch('partners') || [];
+    const newPartner = {
+      partner_id: organizerId,
+      partner_type: 'organizer' as const,
+      role: 'organizer' as const,
+      display_name: '', // Will be filled from organizer data
+      position: currentPartners.length,
+      is_main: organizers.length === 0
+    };
+    setValue('partners', [...currentPartners, newPartner]);
+  };
+
+  const addOrganizerByName = (name: string) => {
+    if (name.trim()) {
       const currentPartners = watch('partners') || [];
       const newPartner = {
         partner_id: '',
         partner_type: 'organizer' as const,
         role: 'organizer' as const,
-        display_name: newOrganizerName.trim(),
+        display_name: name.trim(),
         position: currentPartners.length,
         is_main: organizers.length === 0
       };
       setValue('partners', [...currentPartners, newPartner]);
-      setNewOrganizerName('');
     }
   };
 
@@ -70,25 +84,40 @@ export const OrganizersManager: React.FC = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Add new organizer */}
-        <div className="flex gap-2">
-          <Input
-            placeholder="Nome do organizador"
-            value={newOrganizerName}
-            onChange={(e) => setNewOrganizerName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                addOrganizer();
-              }
-            }}
-          />
-          <Button
-            type="button"
-            onClick={addOrganizer}
-            disabled={!newOrganizerName.trim()}
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
+        <div className="space-y-2">
+          <FormLabel>Buscar ou adicionar organizador</FormLabel>
+          <div className="space-y-2">
+            <ComboboxAsync
+              placeholder="Digite para buscar organizadores cadastrados..."
+              onSearch={searchOrganizers}
+              onValueChange={addOrganizerById}
+            />
+            <div className="text-center text-muted-foreground text-sm">ou</div>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Digite o nome de um novo organizador"
+                value={newOrganizerName}
+                onChange={(e) => setNewOrganizerName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addOrganizerByName(newOrganizerName);
+                    setNewOrganizerName('');
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                onClick={() => {
+                  addOrganizerByName(newOrganizerName);
+                  setNewOrganizerName('');
+                }}
+                disabled={!newOrganizerName.trim()}
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
         </div>
 
         {/* List of organizers */}
@@ -102,13 +131,25 @@ export const OrganizersManager: React.FC = () => {
               >
                 <div className="flex items-center gap-3">
                   <Building className="w-4 h-4 text-muted-foreground" />
-                  <span className="font-medium">{organizer.display_name}</span>
-                  {organizer.is_main && (
-                    <Badge variant="default" className="flex items-center gap-1">
-                      <Crown className="w-3 h-3" />
-                      Principal
-                    </Badge>
-                  )}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{organizer.display_name}</span>
+                      {organizer.is_main && (
+                        <Badge variant="default" className="flex items-center gap-1">
+                          <Crown className="w-3 h-3" />
+                          Principal
+                        </Badge>
+                      )}
+                      {organizer.partner_id && (
+                        <Badge variant="outline" className="text-xs">
+                          Cadastrado
+                        </Badge>
+                      )}
+                    </div>
+                    {organizer.partner_id && (
+                      <OrganizerDetails organizerId={organizer.partner_id} />
+                    )}
+                  </div>
                 </div>
                 
                 <div className="flex items-center gap-2">
@@ -146,5 +187,41 @@ export const OrganizersManager: React.FC = () => {
         )}
       </CardContent>
     </Card>
+  );
+};
+
+// Componente para mostrar detalhes do organizador cadastrado
+const OrganizerDetails: React.FC<{ organizerId: string }> = ({ organizerId }) => {
+  const { getOrganizerById } = useOrganizerSearch();
+  const [organizer, setOrganizer] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    const loadOrganizer = async () => {
+      const data = await getOrganizerById(organizerId);
+      setOrganizer(data);
+    };
+    
+    if (organizerId) {
+      loadOrganizer();
+    }
+  }, [organizerId, getOrganizerById]);
+
+  if (!organizer) return null;
+
+  return (
+    <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
+      {organizer.city && (
+        <div className="flex items-center gap-1">
+          <MapPin className="w-3 h-3" />
+          <span>{organizer.city}</span>
+        </div>
+      )}
+      {organizer.subtitle && (
+        <div className="flex items-center gap-1">
+          <Mail className="w-3 h-3" />
+          <span>{organizer.subtitle}</span>
+        </div>
+      )}
+    </div>
   );
 };
