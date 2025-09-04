@@ -95,7 +95,7 @@ serve(async (req) => {
     }
 
     const { data, error } = await queryBuilder
-      .order('name')
+      .order(type === 'artists' ? 'stage_name' : 'name')
       .limit(Math.min(limit, 50)) // Max 50 results
 
     if (error) {
