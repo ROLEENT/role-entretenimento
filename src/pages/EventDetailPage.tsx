@@ -11,10 +11,12 @@ import { SafeHTML } from '@/components/ui/safe-html';
 import { ReviewSystem } from '@/components/reviews/ReviewSystem';
 import { reviewService } from '@/services/eventService';
 import { LikeSystem } from '@/components/events/LikeSystem';
-import { CommentSystem } from '@/components/events/CommentSystem';
 import EventCheckIn from '@/components/events/EventCheckIn';
 import PushNotifications from '@/components/events/PushNotifications';
 import RelatedEvents from '@/components/events/RelatedEvents';
+import { ChipsList } from '@/components/ui/chips-list';
+import { SmallLoginCta } from '@/components/events/SmallLoginCta';
+import { useComments } from '@/hooks/useComments';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -41,7 +43,7 @@ import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useCommentNotifications } from '@/hooks/useCommentNotifications';
+import dayjs from 'dayjs';
 
 const EventDetailPage = () => {
   const { slug } = useParams();
@@ -56,11 +58,12 @@ const EventDetailPage = () => {
   const [shareOpen, setShareOpen] = useState(false);
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
   
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   
-  // Enable comment notifications for this event (will use event.id once loaded)
-  useCommentNotifications(event?.id, 'event');
+  // Hook para comentários condicionais
+  const commentsResult = useComments(event?.id, session);
 
   useEffect(() => {
     if (slug) {
@@ -116,7 +119,7 @@ const EventDetailPage = () => {
           .from('event_partners')
           .select(`
             *,
-            partners(id, name, image_url, website, instagram)
+            partners(id, name, image_url, website, instagram, slug)
           `)
           .eq('event_id', data.id)
           .order('position'),
@@ -182,6 +185,73 @@ const EventDetailPage = () => {
     await reviewService.addReview(event.id, rating, comment);
   };
 
+  // Botões funcionais do cabeçalho
+  const handleShare = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: event.title,
+          text: event.summary || `${event.title} em ${event.city}`,
+          url
+        });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success("Link copiado para a área de transferência!");
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      toast.error("Erro ao compartilhar");
+    }
+  };
+
+  const handleBookmark = async () => {
+    if (!user) {
+      window.location.href = '/auth';
+      return;
+    }
+
+    try {
+      if (isBookmarked) {
+        // Remove bookmark
+        const { error } = await supabase
+          .from('user_bookmarks')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('event_id', event.id);
+        
+        if (error) throw error;
+        setIsBookmarked(false);
+        toast.success("Evento removido dos salvos");
+      } else {
+        // Add bookmark
+        const { error } = await supabase
+          .from('user_bookmarks')
+          .insert({
+            user_id: user.id,
+            event_id: event.id
+          });
+        
+        if (error) throw error;
+        setIsBookmarked(true);
+        toast.success("Evento salvo!");
+      }
+    } catch (error) {
+      console.error('Error bookmarking:', error);
+      toast.error("Erro ao salvar evento");
+    }
+  };
+
+  const handleReport = () => {
+    const reportUrl = `/ajuda/denunciar?eventId=${event.id}`;
+    // Tentar abrir página de denúncia, fallback para email
+    const newWindow = window.open(reportUrl, '_blank');
+    if (!newWindow) {
+      // Fallback para email se página não existir
+      const mailtoUrl = `mailto:contato@roleentretenimento.com?subject=Denúncia evento ${event.slug}&body=Gostaria de reportar o evento: ${window.location.href}`;
+      window.location.href = mailtoUrl;
+    }
+  };
 
   if (loading) {
     return (
@@ -212,16 +282,6 @@ const EventDetailPage = () => {
   }
 
   // Helper functions
-  const getHighlightBadge = () => {
-    if (event.highlight_type === 'editorial') {
-      return <Badge className="bg-blue-100 text-blue-800 border-blue-300">✨ Destaque Editorial</Badge>;
-    }
-    if (event.highlight_type === 'vitrine') {
-      return <Badge className="bg-purple-100 text-purple-800 border-purple-300">💎 Vitrine Cultural</Badge>;
-    }
-    return null;
-  };
-
   const formatPrice = () => {
     if (!event.price_min && !event.price_max) return 'Preço a consultar';
     if (event.price_min === 0) return 'Gratuito';
@@ -247,7 +307,7 @@ const EventDetailPage = () => {
           {/* Conteúdo Principal - 2 colunas em desktop */}
           <div className="lg:col-span-2 space-y-8">
             {/* Cabeçalho Forte do Evento */}
-            <Card className="overflow-hidden">
+            <Card className={`overflow-hidden ${event.highlight_type === 'editorial' ? 'border-purple-500 border-2' : ''}`}>
               <CardContent className="p-0">
                 {/* Capa 16:9 */}
                 <div className="relative aspect-video w-full">
@@ -256,16 +316,18 @@ const EventDetailPage = () => {
                     alt={event.cover_alt || event.title} 
                     className="w-full h-full object-cover" 
                   />
-                  {/* Badge de destaque sobre a imagem */}
-                  {getHighlightBadge() && (
+                  {/* Badge de destaque editorial sobre a imagem */}
+                  {event.highlight_type === 'editorial' && (
                     <div className="absolute top-4 left-4">
-                      {getHighlightBadge()}
+                      <Badge className="bg-purple-100 text-purple-800 border-purple-300">
+                        ✨ Destaque Editorial
+                      </Badge>
                     </div>
                   )}
                   {/* Botão de ingressos sobre a imagem */}
                   {(event.ticket_url || event.ticketing?.url) && (
                     <div className="absolute bottom-4 right-4">
-                      <Button asChild size="lg" className="bg-green-600 hover:bg-green-700 text-white font-semibold">
+                      <Button asChild size="lg" className="bg-green-600 hover:bg-green-700 text-white font-semibold min-h-[44px]">
                         <a href={event.ticket_url || event.ticketing?.url} target="_blank" rel="noopener noreferrer">
                           <Ticket className="h-5 w-5 mr-2" />
                           Comprar Ingressos
@@ -285,15 +347,15 @@ const EventDetailPage = () => {
                       )}
                     </div>
                     
-                    {/* Acessos rápidos */}
+                    {/* Acessos rápidos funcionais */}
                     <div className="flex items-center gap-2 ml-4">
-                      <Button variant="outline" size="sm" onClick={() => setShareOpen(true)}>
+                      <Button variant="outline" size="sm" onClick={handleShare} className="min-h-[44px] min-w-[44px]">
                         <Share2 className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm">
-                        <Bookmark className="h-4 w-4" />
+                      <Button variant="outline" size="sm" onClick={handleBookmark} className="min-h-[44px] min-w-[44px]">
+                        <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-current' : ''}`} />
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" onClick={handleReport} className="min-h-[44px] min-w-[44px]">
                         <Flag className="h-4 w-4" />
                       </Button>
                     </div>
@@ -331,156 +393,114 @@ const EventDetailPage = () => {
                     )}
                   </div>
 
-                  {/* Metadados clicáveis */}
-                  <div className="space-y-4 mb-6">
-                    {/* Local */}
-                    {venue ? (
-                      <Link 
-                        to={`/locais/${venue.slug}`} 
-                        className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded-lg transition-colors min-h-[44px]"
-                      >
-                        <MapPin className="h-4 w-4" />
-                        <span>{venue.name}, {event.city}</span>
-                        <ChevronRight className="h-4 w-4" />
-                      </Link>
-                    ) : event.location_name ? (
-                      <div className="inline-flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg min-h-[44px]">
-                        <MapPin className="h-4 w-4" />
-                        <span>{event.location_name}, {event.city}</span>
-                      </div>
-                    ) : null}
+                  {/* Razões do destaque editorial */}
+                  {event.highlight_type === 'editorial' && Array.isArray(event.highlight_notes) && event.highlight_notes.length > 0 && (
+                    <div className="mt-4 rounded-lg border border-purple-200 bg-purple-50 p-3 text-sm">
+                      <div className="font-semibold mb-1 text-purple-900">Por que é destaque</div>
+                      <ul className="list-disc ml-5 text-purple-800">
+                        {event.highlight_notes.slice(0, 3).map((reason, i) => (
+                          <li key={i}>{reason}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
-                    {/* Link do mapa */}
-                    {event.links?.map && (
-                      <a
-                        href={event.links.map}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-3 py-2 bg-green-50 hover:bg-green-100 text-green-800 rounded-lg transition-colors ml-2 min-h-[44px]"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                        <span>Ver no mapa</span>
-                      </a>
-                    )}
-
-                    {/* Organizadores */}
-                    {partners && partners.length > 0 && (
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-medium text-muted-foreground">Organização</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {partners.map((partner) => (
-                            <Link
-                              key={partner.id}
-                              to={`/organizadores/${partner.partners?.name?.toLowerCase().replace(/\s+/g, '-')}`}
-                              className="inline-flex items-center gap-2 px-3 py-2 bg-purple-50 hover:bg-purple-100 text-purple-800 rounded-lg transition-colors min-h-[44px]"
-                            >
-                              <Users className="h-4 w-4" />
-                              <span>{partner.display_name || partner.partners?.name}</span>
-                              {partner.is_main && <span className="text-xs">• principal</span>}
-                              <ChevronRight className="h-4 w-4" />
-                            </Link>
-                          ))}
+                  {/* Gêneros e Tags limitados com "ver todos" */}
+                  {(event.genres || event.tags) && (
+                    <div className="space-y-4 mt-6">
+                      {event.genres && event.genres.length > 0 && (
+                        <div>
+                          <h4 className="text-sm font-medium text-muted-foreground mb-2">Gêneros</h4>
+                          <ChipsList
+                            items={event.genres}
+                            hrefBase="/agenda?genre="
+                            max={6}
+                            chipClassName="inline-flex items-center gap-1 px-3 py-2 bg-pink-50 hover:bg-pink-100 text-pink-800 rounded-lg transition-colors text-sm min-h-[44px]"
+                          />
                         </div>
-                      </div>
-                    )}
-
-                    {/* Gêneros e Tags */}
-                    {(event.genres || event.tags) && (
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-medium text-muted-foreground">Gêneros e Tags</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {event.genres?.map(genre => (
-                            <Link
-                              key={genre}
-                              to={`/agenda?genre=${encodeURIComponent(genre)}`}
-                              className="inline-flex items-center gap-1 px-3 py-2 bg-pink-50 hover:bg-pink-100 text-pink-800 rounded-lg transition-colors text-sm min-h-[44px]"
-                            >
-                              <Music2 className="h-3 w-3" />
-                              {genre}
-                            </Link>
-                          ))}
-                          {event.tags?.map(tag => (
-                            <Link
-                              key={tag}
-                              to={`/agenda?tag=${encodeURIComponent(tag)}`}
-                              className="inline-flex items-center gap-1 px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-lg transition-colors text-sm min-h-[44px]"
-                            >
-                              #{tag}
-                            </Link>
-                          ))}
+                      )}
+                      
+                      {event.tags && event.tags.length > 0 && (
+                        <div>
+                          <h4 className="text-sm font-medium text-muted-foreground mb-2">Tags</h4>
+                          <ChipsList
+                            items={event.tags}
+                            hrefBase="/agenda?tag="
+                            max={6}
+                            chipClassName="inline-flex items-center gap-1 px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-lg transition-colors text-sm min-h-[44px]"
+                          />
                         </div>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Lineup de Verdade */}
+            {/* Line up - Seção clicável */}
             {lineup && lineup.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Music2 className="h-5 w-5" />
-                    Lineup
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {lineup.map((slot) => (
-                      <div key={slot.id} className="border-l-4 border-primary pl-4 py-2">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-3">
-                            {/* Horário */}
-                            {slot.start_time && (
-                              <div className="text-sm font-mono bg-muted px-2 py-1 rounded">
-                                {formatTime(slot.start_time)}
-                                {slot.end_time && `–${formatTime(slot.end_time)}`}
-                              </div>
-                            )}
-                            {/* Palco */}
-                            {slot.stage && (
-                              <Badge variant="outline">{slot.stage}</Badge>
-                            )}
-                          </div>
-                          {slot.is_headliner && (
-                            <Badge className="bg-yellow-100 text-yellow-800">
-                              <Star className="h-3 w-3 mr-1" />
-                              Headliner
-                            </Badge>
-                          )}
-                        </div>
-
-                        {/* Artistas com B2B */}
-                        <div className="flex flex-wrap items-center gap-2 mb-2">
-                          {slot.event_lineup_slot_artists?.map((artistData, index) => (
-                            <React.Fragment key={artistData.id || index}>
-                              {index > 0 && <span className="text-muted-foreground font-bold mx-1"> x </span>}
+              <section className="mt-8">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <Music2 className="h-6 w-6" />
+                  Line up
+                </h2>
+                <div className="divide-y border rounded-xl overflow-hidden">
+                  {lineup
+                    .sort((a, b) => new Date(a.start_time || 0).getTime() - new Date(b.start_time || 0).getTime())
+                    .map(slot => (
+                    <div key={slot.id} className="grid md:grid-cols-[120px_1fr] gap-3 p-4">
+                      <div className="text-sm text-muted-foreground">
+                        {slot.start_time && dayjs(slot.start_time).format("HH:mm")}
+                        {slot.end_time && ` – ${dayjs(slot.end_time).format("HH:mm")}`}
+                        {slot.stage && <div className="mt-1">{slot.stage}</div>}
+                      </div>
+                      <div>
+                        <div className="text-base font-medium">
+                          {slot.event_lineup_slot_artists?.sort((a, b) => a.position - b.position).map((artistData, i) => (
+                            <React.Fragment key={artistData.id || artistData.artist_name || i}>
+                              {i > 0 && <span className="mx-1 text-muted-foreground"> x </span>}
                               {artistData.artists?.slug ? (
-                                <Link
-                                  to={`/artistas/${artistData.artists.slug}`}
-                                  className="font-medium text-primary hover:underline"
+                                <Link 
+                                  to={`/perfil/${artistData.artists.slug}`} 
+                                  className="text-primary hover:underline"
                                 >
                                   {artistData.artists.stage_name || artistData.artist_name}
                                 </Link>
                               ) : (
-                                <span className="font-medium">
-                                  {artistData.artist_name}
-                                </span>
+                                <span>{artistData.artist_name}</span>
                               )}
                             </React.Fragment>
                           ))}
                         </div>
-
-                        {/* Notas do slot */}
-                        {slot.notes && (
-                          <p className="text-sm text-muted-foreground italic">{slot.notes}</p>
-                        )}
+                        {slot.notes && <div className="text-sm text-muted-foreground mt-1">{slot.notes}</div>}
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Organizadores - Seção clicável */}
+            {partners && partners.length > 0 && (
+              <section className="mt-8">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <Users className="h-6 w-6" />
+                  Organizadores
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {partners.map(partner => (
+                    <Link
+                      key={partner.id}
+                      to={`/perfil/${partner.partners?.slug || partner.display_name?.toLowerCase().replace(/\s+/g, '-')}`}
+                      className="inline-flex items-center gap-2 px-3 py-2 bg-purple-50 hover:bg-purple-100 text-purple-800 rounded-lg transition-colors min-h-[44px]"
+                    >
+                      <Users className="h-4 w-4" />
+                      <span>{partner.display_name || partner.partners?.name}</span>
+                      {partner.is_main && <span className="text-xs">• principal</span>}
+                    </Link>
+                  ))}
+                </div>
+              </section>
             )}
 
             {/* Outras Sessões - Performances */}
@@ -582,7 +602,7 @@ const EventDetailPage = () => {
                 <CardContent>
                   <div className="flex flex-wrap gap-3">
                     {event.links.site && (
-                      <Button variant="outline" asChild>
+                      <Button variant="outline" asChild className="min-h-[44px]">
                         <a href={event.links.site} target="_blank" rel="noopener noreferrer">
                           <Globe className="h-4 w-4 mr-2" />
                           Site
@@ -590,7 +610,7 @@ const EventDetailPage = () => {
                       </Button>
                     )}
                     {event.links.instagram && (
-                      <Button variant="outline" asChild>
+                      <Button variant="outline" asChild className="min-h-[44px]">
                         <a href={event.links.instagram} target="_blank" rel="noopener noreferrer">
                           <Instagram className="h-4 w-4 mr-2" />
                           Instagram
@@ -598,7 +618,7 @@ const EventDetailPage = () => {
                       </Button>
                     )}
                     {event.links.playlist && (
-                      <Button variant="outline" asChild>
+                      <Button variant="outline" asChild className="min-h-[44px]">
                         <a href={event.links.playlist} target="_blank" rel="noopener noreferrer">
                           <Music2 className="h-4 w-4 mr-2" />
                           Playlist
@@ -606,18 +626,10 @@ const EventDetailPage = () => {
                       </Button>
                     )}
                     {event.links.video && (
-                      <Button variant="outline" asChild>
+                      <Button variant="outline" asChild className="min-h-[44px]">
                         <a href={event.links.video} target="_blank" rel="noopener noreferrer">
                           <PlayCircle className="h-4 w-4 mr-2" />
                           Vídeo
-                        </a>
-                      </Button>
-                    )}
-                    {event.links.previous_edition && (
-                      <Button variant="outline" asChild>
-                        <a href={event.links.previous_edition} target="_blank" rel="noopener noreferrer">
-                          <ChevronRight className="h-4 w-4 mr-2" />
-                          Edição Anterior
                         </a>
                       </Button>
                     )}
@@ -655,16 +667,50 @@ const EventDetailPage = () => {
               </Card>
             )}
 
-            {/* Sistema de reviews e comentários */}
-            <ReviewSystem
-              itemId={event.id}
-              itemType="event"
-              reviews={reviews}
-              onReviewAdded={fetchReviews}
-              loading={reviewsLoading}
-              onAddReview={handleAddReview}
-            />
-            <CommentSystem entityId={event.id} entityType="event" />
+            {/* Sistema de reviews - espaço compacto quando vazio */}
+            {reviews.length > 0 ? (
+              <ReviewSystem
+                itemId={event.id}
+                itemType="event"
+                reviews={reviews}
+                onReviewAdded={fetchReviews}
+                loading={reviewsLoading}
+                onAddReview={handleAddReview}
+              />
+            ) : (
+              <div className="flex items-center justify-center p-4 bg-muted/30 rounded-lg border border-dashed max-h-[120px]">
+                <div className="text-center">
+                  <Star className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Seja o primeiro a avaliar este evento
+                  </p>
+                  {user ? (
+                    <Button size="sm" variant="outline">
+                      Avaliar evento
+                    </Button>
+                  ) : (
+                    <Link to="/auth" className="text-sm text-primary hover:underline">
+                      Entrar para avaliar
+                    </Link>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Comentários condicionais - sem toast vermelho */}
+            {commentsResult.showComments ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Comentários</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {/* Implementar CommentsList aqui quando a API estiver pronta */}
+                  <p className="text-sm text-muted-foreground">Sistema de comentários em desenvolvimento</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <SmallLoginCta />
+            )}
           </div>
 
           {/* Sidebar - 1 coluna */}
@@ -672,24 +718,40 @@ const EventDetailPage = () => {
             <EventCheckIn eventId={event.id} eventTitle={event.title} />
             <PushNotifications eventId={event.id} />
             
-            {/* Local do Evento */}
-            {venue && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Local do Evento</CardTitle>
+            {/* Local do Evento - card compacto com link correto */}
+            {(venue || event.location_name) && (
+              <Card className="max-h-[400px]">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg">Local do Evento</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-0">
                   <div className="space-y-3">
                     <div>
-                      <Link to={`/locais/${venue.slug}`} className="font-medium hover:text-primary">
-                        {venue.name}
-                      </Link>
-                      <p className="text-sm text-muted-foreground">{venue.address}</p>
-                      <p className="text-sm text-muted-foreground">{event.city}, {venue.state}</p>
+                      {venue?.slug ? (
+                        <Link to={`/perfil/${venue.slug}`} className="font-medium hover:text-primary">
+                          {venue.name}
+                        </Link>
+                      ) : (
+                        <div className="font-medium">{venue?.name || event.location_name}</div>
+                      )}
+                      {(venue?.address || event.address) && (
+                        <p className="text-sm text-muted-foreground">{venue?.address || event.address}</p>
+                      )}
+                      <p className="text-sm text-muted-foreground">{event.city}</p>
                     </div>
                     
-                    {venue.latitude && venue.longitude && (
-                      <div className="h-48 rounded-lg overflow-hidden">
+                    {/* Link do mapa quando houver */}
+                    {event.links?.map && (
+                      <Button variant="outline" size="sm" asChild className="w-full min-h-[44px]">
+                        <a href={event.links.map} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          Ver no mapa
+                        </a>
+                      </Button>
+                    )}
+                    
+                    {venue?.latitude && venue?.longitude && (
+                      <div className="h-32 rounded-lg overflow-hidden">
                         <CityMap 
                           events={[{
                             id: event.id,
