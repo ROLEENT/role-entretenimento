@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { getCleanTimestamp, getCleanDateRange } from '@/utils/timestampUtils';
 
 export interface AgendaItem {
   id: string;
@@ -41,20 +42,37 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
   thirtyDaysFromNow.setDate(today.getDate() + 30);
 
   let query = supabase
-    .from('agenda_public')
-    .select('*')
+    .from('events')
+    .select(`
+      id, 
+      title, 
+      subtitle, 
+      city, 
+      date_start, 
+      date_end, 
+      image_url, 
+      alt_text, 
+      highlight_type, 
+      status, 
+      priority, 
+      ticket_url, 
+      slug
+    `)
     .eq('status', 'published');
 
   // Apply date filters based on status
   if (filters?.status === 'this_week') {
     const endOfWeek = new Date();
     endOfWeek.setDate(today.getDate() + 7);
-    query = query.gte('start_at', today.toISOString()).lte('start_at', endOfWeek.toISOString());
+    const { start, end } = getCleanDateRange(today, endOfWeek);
+    query = query.gte('date_start', start).lte('date_start', end);
   } else if (filters?.status === 'this_month') {
     const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    query = query.gte('start_at', today.toISOString()).lte('start_at', endOfMonth.toISOString());
+    const { start, end } = getCleanDateRange(today, endOfMonth);
+    query = query.gte('date_start', start).lte('date_start', end);
   } else if (filters?.status === 'upcoming' || !filters?.status || filters?.status === 'all') {
-    query = query.gte('start_at', today.toISOString()).lte('start_at', thirtyDaysFromNow.toISOString());
+    const { start, end } = getCleanDateRange(today, thirtyDaysFromNow);
+    query = query.gte('date_start', start).lte('date_start', end);
   }
 
   // Apply other filters
@@ -73,23 +91,41 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
 
   query = query
     .order('priority', { ascending: false })
-    .order('start_at', { ascending: true })
+    .order('date_start', { ascending: true })
     .limit(12);
 
   const { data, error } = await query;
 
   if (error) throw error;
-  return (data as AgendaItem[]) || [];
+  
+  // Transform data to match AgendaItem interface
+  const transformedData = (data || []).map(item => ({
+    id: item.id,
+    title: item.title,
+    subtitle: item.subtitle,
+    city: item.city,
+    start_at: item.date_start,
+    end_at: item.date_end,
+    cover_url: item.image_url,
+    alt_text: item.alt_text,
+    visibility_type: (item.highlight_type === 'showcase' ? 'vitrine' : 'curadoria') as 'vitrine' | 'curadoria',
+    status: item.status,
+    priority: item.priority,
+    ticket_url: item.ticket_url,
+    slug: item.slug,
+  }));
+
+  return transformedData;
 };
 
 const fetchCityStats = async (): Promise<{ cityStats: CityStats[]; totalEvents: number; totalCities: number }> => {
   const today = new Date();
 
   const { data, error } = await supabase
-    .from('agenda_public')
+    .from('events')
     .select('city')
     .eq('status', 'published')
-    .gte('start_at', today.toISOString());
+    .gte('date_start', getCleanTimestamp(today));
 
   if (error) throw error;
 

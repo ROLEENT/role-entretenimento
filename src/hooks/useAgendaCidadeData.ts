@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { getCityQueryValue, isCapitalSlug } from '@/lib/cityToSlug';
+import { getCleanTimestamp, getCleanDateRange } from '@/utils/timestampUtils';
 
 export interface AgendaCidadeItem {
   id: string;
@@ -87,8 +88,8 @@ const fetchAgendaItems = async (params: UseAgendaCidadeDataParams) => {
     .from('events')
     .select('id, title, city, image_url, date_start, date_end, genres, slug, highlight_type, subtitle, summary', { count: 'exact' })
     .eq('status', 'published')
-    .gte('date_start', start.toISOString())
-    .lte('date_start', end.toISOString())
+    .gte('date_start', getCleanTimestamp(start))
+    .lte('date_start', getCleanTimestamp(end))
     .order('highlight_type', { ascending: false })
     .order('date_start', { ascending: true })
     .range(offset, offset + itemsPerPage - 1);
@@ -128,8 +129,8 @@ const fetchAvailableTags = async (params: Pick<UseAgendaCidadeDataParams, 'city'
     .from('events')
     .select('genres')
     .eq('status', 'published')
-    .gte('date_start', start.toISOString())
-    .lte('date_start', end.toISOString());
+    .gte('date_start', getCleanTimestamp(start))
+    .lte('date_start', getCleanTimestamp(end));
 
   if (isCapital) {
     tagsQuery = tagsQuery.eq('city', cityQueryValue);
