@@ -47,22 +47,54 @@ export const useStorageUpload = (defaultBucket: string = 'agenda-images') => {
         setUploadProgress(prev => Math.min(prev + 20, 90));
       }, 200);
 
-      const { data, error } = await supabase.storage
-        .from(bucketName)
-        .upload(filePath, file, {
-          upsert: false
-        });
+      // Check if we have admin access and add headers accordingly
+      const adminEmail = localStorage.getItem('admin_email');
+      let uploadResult;
+
+      if (adminEmail) {
+        // For admin operations, create a FormData and use fetch with headers
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch(
+          `https://nutlcbnruabjsxecqpnd.supabase.co/storage/v1/object/${bucketName}/${filePath}`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51dGxjYm5ydWFianN4ZWNxcG5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MTcwOTgsImV4cCI6MjA3MTA5MzA5OH0.K_rfijLK9e3EbDxU4uddtY0sUMUvtH-yHNEbW8Ohp5c',
+              'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51dGxjYm5ydWFianN4ZWNxcG5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MTcwOTgsImV4cCI6MjA3MTA5MzA5OH0.K_rfijLK9e3EbDxU4uddtY0sUMUvtH-yHNEbW8Ohp5c',
+              'x-admin-email': adminEmail
+            },
+            body: file
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: { message: 'Upload failed' } }));
+          throw new Error(errorData.error?.message || 'Upload failed');
+        }
+
+        uploadResult = { data: { path: filePath }, error: null };
+      } else {
+        const { data, error } = await supabase.storage
+          .from(bucketName)
+          .upload(filePath, file, {
+            upsert: false
+          });
+        
+        uploadResult = { data, error };
+      }
 
       clearInterval(progressInterval);
 
-      if (error) throw error;
+      if (uploadResult.error) throw uploadResult.error;
 
       setUploadProgress(100);
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from(bucketName)
-        .getPublicUrl(data.path);
+        .getPublicUrl(filePath);
 
       toast({
         title: "Upload realizado",
