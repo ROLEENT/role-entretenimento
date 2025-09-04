@@ -78,9 +78,14 @@ const EventDetailPage = () => {
         `)
         .eq(isUUID ? 'id' : 'slug', eventSlug)
         .eq('status', 'published')
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      
+      if (!data) {
+        setError('Evento não encontrado');
+        return;
+      }
       setEvent(data);
     } catch (error) {
       console.error('Error fetching event:', error);
