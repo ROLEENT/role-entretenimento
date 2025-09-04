@@ -34,14 +34,14 @@ const WIZARD_STEPS: WizardStep[] = [
     title: 'Informações Básicas',
     description: 'Título, subtítulo, resumo e cidade',
     component: BasicInfoStep,
-    fields: ['title', 'subtitle', 'summary', 'city']
+    fields: ['title', 'subtitle', 'summary', 'city', 'highlight_type', 'selection_reasons', 'partners']
   },
   {
     id: 'datetime',
     title: 'Data & Local',
     description: 'Horários específicos e endereço completo',
     component: DateLocationStep,
-    fields: ['start_utc', 'end_utc', 'doors_open_utc', 'headliner_starts_utc', 'venue_id', 'location_name', 'address', 'state', 'country']
+    fields: ['date_start', 'date_end', 'doors_open_utc', 'headliner_starts_utc', 'venue_id', 'location_name', 'address', 'state', 'country']
   },
   {
     id: 'lineup',
@@ -156,7 +156,29 @@ export const EventCreateWizard: React.FC<EventCreateWizardProps> = ({
     
     if (fieldsToValidate.length === 0) return true;
     
-    const isStepValid = await trigger(fieldsToValidate);
+    // Get current form values for conditional validation
+    const formValues = methods.getValues();
+    
+    // Add conditional fields based on current values
+    let conditionalFields: (keyof EventFormData)[] = [];
+    
+    if (currentStep === 0) { // Basic step
+      if (formValues.highlight_type === 'destaque') {
+        conditionalFields.push('selection_reasons');
+      }
+    }
+    
+    const allFieldsToValidate = [...fieldsToValidate, ...conditionalFields];
+    
+    const isStepValid = await trigger(allFieldsToValidate);
+    
+    // Debug logging for development
+    if (process.env.NODE_ENV === 'development' && !isStepValid) {
+      console.log('❌ Validation failed for step:', currentStep);
+      console.log('Fields to validate:', allFieldsToValidate);
+      console.log('Current errors:', errors);
+      console.log('Form values:', formValues);
+    }
     
     if (isStepValid) {
       setCompletedSteps(prev => new Set([...prev, currentStep]));
@@ -171,9 +193,18 @@ export const EventCreateWizard: React.FC<EventCreateWizardProps> = ({
     if (isValid && currentStep < WIZARD_STEPS.length - 1) {
       setCurrentStep(prev => prev + 1);
     } else if (!isValid) {
+      // Get specific error messages for better UX
+      const currentErrors = Object.entries(errors)
+        .filter(([field, _]) => {
+          const currentStepConfig = WIZARD_STEPS[currentStep];
+          return currentStepConfig.fields.includes(field as keyof EventFormData);
+        })
+        .map(([field, error]) => `${field}: ${error?.message || 'Campo obrigatório'}`)
+        .join('\n');
+      
       toast({
         title: 'Erro de validação',
-        description: 'Por favor, corrija os erros antes de continuar.',
+        description: currentErrors || 'Por favor, corrija os erros antes de continuar.',
         variant: 'destructive'
       });
     }
@@ -351,6 +382,14 @@ export const EventCreateWizard: React.FC<EventCreateWizardProps> = ({
             <p>Completed Steps: {Array.from(completedSteps).join(', ')}</p>
             <p>Form Valid: {isValid ? 'Yes' : 'No'}</p>
             <p>Errors: {Object.keys(errors).length}</p>
+            {Object.keys(errors).length > 0 && (
+              <div className="mt-2">
+                <p className="font-medium">Current Errors:</p>
+                <pre className="text-xs bg-destructive/10 p-2 rounded">
+                  {JSON.stringify(errors, null, 2)}
+                </pre>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

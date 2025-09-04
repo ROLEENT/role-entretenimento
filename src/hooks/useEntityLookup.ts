@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ComboboxAsyncOption } from '@/components/ui/combobox-async';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export interface EntityLookupOptions {
   type: 'artists' | 'organizers' | 'venues';
@@ -9,9 +10,16 @@ export interface EntityLookupOptions {
 
 export function useEntityLookup({ type, limit = 20 }: EntityLookupOptions) {
   const [loading, setLoading] = useState(false);
+  const [cache, setCache] = useState<Map<string, ComboboxAsyncOption[]>>(new Map());
 
-  const searchEntities = async (query: string): Promise<ComboboxAsyncOption[]> => {
+  const searchEntities = useCallback(async (query: string): Promise<ComboboxAsyncOption[]> => {
     if (!query.trim()) return [];
+
+    // Check cache first
+    const cacheKey = `${type}-${query}`;
+    if (cache.has(cacheKey)) {
+      return cache.get(cacheKey)!;
+    }
 
     try {
       setLoading(true);
@@ -34,19 +42,24 @@ export function useEntityLookup({ type, limit = 20 }: EntityLookupOptions) {
         return [];
       }
 
-      return result.data.map((item: any) => ({
+      const mappedData = result.data.map((item: any) => ({
         id: item.id,
         name: item.name,
         value: item.id,
         subtitle: getSubtitle(item, type),
       }));
+
+      // Cache the result
+      setCache(prev => new Map(prev.set(cacheKey, mappedData)));
+
+      return mappedData;
     } catch (error) {
       console.error('Entity lookup error:', error);
       return [];
     } finally {
       setLoading(false);
     }
-  };
+  }, [type, limit, cache]);
 
   const getEntityById = async (id: string): Promise<ComboboxAsyncOption | null> => {
     try {
