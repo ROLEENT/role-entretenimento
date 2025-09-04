@@ -5827,18 +5827,6 @@ export type Database = {
           curation_score: number | null
           event_id: string | null
         }
-        Insert: {
-          chips?: never
-          curation_notes?: string | null
-          curation_score?: number | null
-          event_id?: string | null
-        }
-        Update: {
-          chips?: never
-          curation_notes?: string | null
-          curation_score?: number | null
-          event_id?: string | null
-        }
         Relationships: []
       }
       genres_with_hierarchy: {
