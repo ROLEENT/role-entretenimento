@@ -5,7 +5,7 @@ import { Globe, Instagram, ExternalLink } from 'lucide-react';
 
 interface EventLinksCardProps {
   event: any;
-  partners: any[];
+  partners?: any[];
 }
 
 export function EventLinksCard({ event, partners }: EventLinksCardProps) {

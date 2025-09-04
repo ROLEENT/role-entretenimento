@@ -7,10 +7,12 @@ import { Link } from 'react-router-dom';
 
 interface EventOrganizerCardProps {
   partners: any[];
+  venue?: any; // Adicionar venue como fallback
 }
 
-export function EventOrganizerCard({ partners }: EventOrganizerCardProps) {
-  if (!partners || partners.length === 0) return null;
+export function EventOrganizerCard({ partners, venue }: EventOrganizerCardProps) {
+  // Se não há partners mas há venue, mostrar venue como organizador
+  if ((!partners || partners.length === 0) && !venue) return null;
 
   return (
     <Card className="rounded-lg">
@@ -21,7 +23,8 @@ export function EventOrganizerCard({ partners }: EventOrganizerCardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {partners.map((partnerData) => {
+        {/* Mostrar partners relacionais se existirem */}
+        {partners && partners.length > 0 && partners.map((partnerData) => {
           const partner = partnerData.partners;
           if (!partner) return null;
           
@@ -73,12 +76,54 @@ export function EventOrganizerCard({ partners }: EventOrganizerCardProps) {
             </div>
           );
         })}
+
+        {/* Fallback: Mostrar venue como organizador se não há partners */}
+        {(!partners || partners.length === 0) && venue && (
+          <div className="flex items-center p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors group">
+            {/* Venue Logo */}
+            <div className="flex-shrink-0 mr-3">
+              <div className="w-12 h-12 rounded-lg overflow-hidden bg-background border">
+                <div className="w-full h-full flex items-center justify-center">
+                  <Users className="h-6 w-6 text-muted-foreground" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Venue Info */}
+            <div className="flex-1 min-w-0">
+              <h4 className="font-medium truncate">{venue.name}</h4>
+              <p className="text-sm text-muted-foreground">Local</p>
+            </div>
+            
+            {/* Link to Venue Profile */}
+            {venue.slug && (
+              <Button 
+                asChild 
+                variant="ghost" 
+                size="sm" 
+                className="opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <Link to={`/venues/${venue.slug}`}>
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            )}
+          </div>
+        )}
         
-        {/* Ver todos os eventos deste organizador */}
-        {partners.length === 1 && partners[0].partners?.slug && (
+        {/* Ver todos os eventos deste organizador/venue */}
+        {partners && partners.length === 1 && partners[0].partners?.slug && (
           <Button asChild variant="outline" size="sm" className="w-full">
             <Link to={`/organizadores/${partners[0].partners.slug}`}>
               Ver todos os eventos deste produtor
+            </Link>
+          </Button>
+        )}
+        
+        {(!partners || partners.length === 0) && venue?.slug && (
+          <Button asChild variant="outline" size="sm" className="w-full">
+            <Link to={`/venues/${venue.slug}`}>
+              Ver todos os eventos deste local
             </Link>
           </Button>
         )}

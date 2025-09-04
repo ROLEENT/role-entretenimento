@@ -365,7 +365,8 @@ const EventDetailPageV2 = () => {
             <EventLineupSection 
               lineup={lineup} 
               performances={performances} 
-              visualArtists={visualArtists} 
+              visualArtists={visualArtists}
+              event={event}
             />
             
             {/* Location Section with Map */}
@@ -375,7 +376,7 @@ const EventDetailPageV2 = () => {
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
             {/* Organizer Card */}
-            <EventOrganizerCard partners={partners} />
+            <EventOrganizerCard partners={partners} venue={venue} />
             
             {/* Official Links */}
             <EventLinksCard event={event} partners={partners} />
@@ -391,8 +392,8 @@ const EventDetailPageV2 = () => {
                 </h4>
                 <p className="font-medium">{event.location_name || venue?.name}</p>
                 <p className="text-sm text-muted-foreground">{event.city}</p>
-                {venue?.open_hours && (
-                  <p className="text-sm text-muted-foreground mt-1">{venue.open_hours}</p>
+                {venue?.opening_hours && (
+                  <p className="text-sm text-muted-foreground mt-1">{venue.opening_hours}</p>
                 )}
               </CardContent>
             </Card>

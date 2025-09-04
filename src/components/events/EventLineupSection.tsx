@@ -10,12 +10,15 @@ interface EventLineupSectionProps {
   lineup: any[];
   performances: any[];
   visualArtists: any[];
+  event?: any; // Adicionar event para fallback
 }
 
-export function EventLineupSection({ lineup, performances, visualArtists }: EventLineupSectionProps) {
+export function EventLineupSection({ lineup, performances, visualArtists, event }: EventLineupSectionProps) {
   const hasLineupData = lineup?.length > 0 || performances?.length > 0 || visualArtists?.length > 0;
+  const hasEventTags = event?.tags?.length > 0;
 
-  if (!hasLineupData) return null;
+  // Se não há dados estruturados E não há tags do evento, não mostrar
+  if (!hasLineupData && !hasEventTags) return null;
 
   const renderArtistCard = (artist: any, isHeadliner = false, role?: string) => (
     <div 
@@ -150,6 +153,31 @@ export function EventLineupSection({ lineup, performances, visualArtists }: Even
                 )}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Fallback: Mostrar artistas das tags quando não há lineup estruturado */}
+        {!hasLineupData && hasEventTags && (
+          <div className="space-y-3">
+            <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">
+              Artistas do Evento
+            </h4>
+            <div className="p-4 bg-muted/30 rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                Este evento apresenta música ao vivo com artistas locais e convidados.
+              </p>
+              <div className="flex flex-wrap gap-2 mt-3">
+                {event.tags
+                  ?.filter((tag: string) => !['show', 'festa', 'música ao vivo', 'eletrônica', 'underground'].includes(tag.toLowerCase()))
+                  ?.slice(0, 6)
+                  ?.map((tag: string, index: number) => (
+                    <Badge key={index} variant="outline" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))
+                }
+              </div>
+            </div>
           </div>
         )}
       </CardContent>

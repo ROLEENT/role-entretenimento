@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MapPin, Clock, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface EventLocationCardProps {
   event: any;
@@ -52,7 +53,16 @@ export function EventLocationCard({ event, venue }: EventLocationCardProps) {
         {/* Venue Name */}
         {location.name && (
           <div>
-            <h4 className="font-medium">{location.name}</h4>
+            {venue?.slug ? (
+              <Link 
+                to={`/venues/${venue.slug}`}
+                className="font-medium hover:text-primary transition-colors cursor-pointer"
+              >
+                {location.name}
+              </Link>
+            ) : (
+              <h4 className="font-medium">{location.name}</h4>
+            )}
           </div>
         )}
         
@@ -64,10 +74,10 @@ export function EventLocationCard({ event, venue }: EventLocationCardProps) {
         )}
         
         {/* Opening Hours */}
-        {venue?.open_hours && (
+        {venue?.opening_hours && (
           <div className="flex items-center gap-2 text-sm">
             <Clock className="h-4 w-4 text-muted-foreground" />
-            <span>{venue.open_hours}</span>
+            <span>{venue.opening_hours}</span>
           </div>
         )}
         
