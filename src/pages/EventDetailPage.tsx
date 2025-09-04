@@ -29,6 +29,8 @@ import { useCommentNotifications } from '@/hooks/useCommentNotifications';
 const EventDetailPage = () => {
   const { slug } = useParams();
   const [event, setEvent] = useState(null);
+  const [venue, setVenue] = useState(null);
+  const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [shareOpen, setShareOpen] = useState(false);
@@ -63,30 +65,55 @@ const EventDetailPage = () => {
       const { data, error } = await supabase
         .from('events')
         .select(`
-          *, 
-          venues(id, name, address, city, state, lat, lng),
-          event_lineup_slots(
-            id, slot_name, start_time, end_time, stage, position, is_headliner,
-            event_lineup_slot_artists(
-              artist_id, artist_name, position, role
-            )
-          ),
-          event_partners(
-            id, partner_type, role, display_name, position, is_main,
-            partners(id, name, image_url)
-          )
+          *
         `)
         .eq(isUUID ? 'id' : 'slug', eventSlug)
         .eq('status', 'published')
         .maybeSingle();
 
-      if (error) throw error;
+      console.log('EventDetailPage query result:', { data, error, eventSlug, isUUID });
+
+      if (error) {
+        console.error('EventDetailPage query error:', error);
+        throw error;
+      }
       
       if (!data) {
+        console.log('EventDetailPage: No data returned');
         setError('Evento não encontrado');
         return;
       }
+      
+      console.log('EventDetailPage: Event data loaded:', data.title);
       setEvent(data);
+      
+      // Fetch venue data separately if venue_id exists
+      if (data.venue_id) {
+        const { data: venueData } = await supabase
+          .from('venues')
+          .select('*')
+          .eq('id', data.venue_id)
+          .single();
+        
+        if (venueData) {
+          setVenue(venueData);
+          console.log('Venue data loaded:', venueData.name);
+        }
+      }
+      
+      // Fetch partners data separately
+      const { data: partnersData } = await supabase
+        .from('event_partners')
+        .select(`
+          *,
+          partners(id, name, image_url)
+        `)
+        .eq('event_id', data.id);
+      
+      if (partnersData) {
+        setPartners(partnersData);
+        console.log('Partners data loaded:', partnersData.length, 'partners');
+      }
     } catch (error) {
       console.error('Error fetching event:', error);
       setError('Evento não encontrado');
@@ -187,12 +214,10 @@ const EventDetailPage = () => {
                     <Clock className="h-5 w-5 text-primary" />
                     <span>{format(new Date(event.date_start), 'HH:mm', { locale: ptBR })}</span>
                   </div>
-                  {event.venues && (
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-5 w-5 text-primary" />
-                      <span>{event.venues.name}, {event.city}</span>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5 text-primary" />
+                    <span>{event.location_name || 'Caos'}, {event.city}</span>
+                  </div>
                   <div className="flex items-center gap-2">
                     <Ticket className="h-5 w-5 text-primary" />
                     <span className="font-semibold">{event.price_min === 0 ? 'Gratuito' : `R$ ${event.price_min}`}</span>
@@ -271,11 +296,11 @@ const EventDetailPage = () => {
                 )}
 
                 {/* Partners Section */}
-                {event.event_partners && event.event_partners.length > 0 && (
+                {partners && partners.length > 0 && (
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-3">Organização</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {event.event_partners.map((partner) => (
+                      {partners.map((partner) => (
                         <div key={partner.id} className="text-center p-3 bg-muted/50 rounded-lg">
                           {partner.partners?.image_url && (
                             <img 
