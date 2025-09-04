@@ -60,6 +60,7 @@ interface DataTableProps<T> {
   onDelete?: (selectedItems: T[]) => void;
   getRowId: (item: T) => string;
   showActions?: boolean;
+  renderActions?: (item: T) => React.ReactNode;
 }
 
 export function DataTable<T>({
@@ -78,6 +79,7 @@ export function DataTable<T>({
   onDelete,
   getRowId,
   showActions = true,
+  renderActions,
 }: DataTableProps<T>) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -369,19 +371,23 @@ export function DataTable<T>({
                     ))}
                     {showActions && (
                       <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem onClick={() => onView?.(item)}>
-                              <Eye className="h-4 w-4 mr-2" />
-                              Visualizar
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        {renderActions ? (
+                          renderActions(item)
+                        ) : (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuItem onClick={() => onView?.(item)}>
+                                <Eye className="h-4 w-4 mr-2" />
+                                Visualizar
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
                       </TableCell>
                     )}
                   </TableRow>

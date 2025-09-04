@@ -238,6 +238,7 @@ export function AdminAgendaTable({
       onDelete={handleDeleteSelected}
       getRowId={(item) => item.id}
       showActions={true}
+      renderActions={renderActions}
     />
   );
 }
