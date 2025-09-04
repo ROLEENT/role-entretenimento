@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { citiesData, CityData } from '@/data/citiesData';
-import { eventsData } from '@/data/eventsData';
+import { useEventsByCity } from '@/hooks/useEventsByCity';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
@@ -19,25 +19,22 @@ import { Toaster } from '@/components/ui/sonner';
 const CityHighlights = () => {
   const { cidade } = useParams<{ cidade: string }>();
   const [cityData, setCityData] = useState<CityData | null>(null);
-  const [filteredEvents, setFilteredEvents] = useState(eventsData);
-  const [isLoading, setIsLoading] = useState(true);
+  const [filteredEvents, setFilteredEvents] = useState<any[]>([]);
+
+  // Get actual city name from slug
+  const actualCityName = cidade && citiesData[cidade] ? citiesData[cidade].name : '';
+  
+  const { data: events = [], isLoading: eventsLoading, error } = useEventsByCity(actualCityName);
 
   useEffect(() => {
     if (cidade && citiesData[cidade]) {
       setCityData(citiesData[cidade]);
-      
-      // Filter events by city
-      const cityEvents = eventsData.filter(event => 
-        event.city.toLowerCase().replace(/\s+/g, '-') === cidade ||
-        event.city === citiesData[cidade].name
-      );
-      setFilteredEvents(cityEvents);
+      setFilteredEvents(events);
     }
-    setIsLoading(false);
-  }, [cidade]);
+  }, [cidade, events]);
 
   const handleFilterChange = (filters: any) => {
-    let filtered = eventsData.filter(event => 
+    let filtered = events.filter(event => 
       event.city === cityData?.name
     );
 
@@ -45,18 +42,20 @@ const CityHighlights = () => {
     if (filters.search) {
       filtered = filtered.filter(event =>
         event.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-        event.venue.toLowerCase().includes(filters.search.toLowerCase()) ||
+        (event.venue?.name || '').toLowerCase().includes(filters.search.toLowerCase()) ||
         event.description.toLowerCase().includes(filters.search.toLowerCase())
       );
     }
 
     if (filters.genre) {
-      filtered = filtered.filter(event => event.genre === filters.genre);
+      filtered = filtered.filter(event => 
+        event.genres && event.genres.includes(filters.genre)
+      );
     }
 
     if (filters.priceRange) {
       filtered = filtered.filter(event => {
-        const price = event.price;
+        const price = event.price_min || 0;
         switch (filters.priceRange) {
           case 'free': return price === 0;
           case '0-30': return price > 0 && price <= 30;
@@ -72,7 +71,7 @@ const CityHighlights = () => {
     setFilteredEvents(filtered);
   };
 
-  if (isLoading) {
+  if (eventsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -157,14 +156,30 @@ const CityHighlights = () => {
                       </p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {filteredEvents.map((event) => (
-                        <EventCard
-                          key={event.id}
-                          event={event}
-                        />
-                      ))}
-                    </div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                       {filteredEvents.map((event) => (
+                         <EventCard
+                           key={event.id}
+                           event={{
+                             ...event,
+                             venue: event.venue?.name || event.location_name || '',
+                             location: event.address || '',
+                             time: event.date_start ? new Date(event.date_start).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
+                             date: event.date_start ? new Date(event.date_start).toLocaleDateString('pt-BR') : '',
+                             genre: event.genres?.[0] || '',
+                             category: event.genres?.[0] || '',
+                             attendees: 0,
+                             price: event.price_min || 0,
+                             image: event.image_url || event.cover_url || '/placeholder.svg',
+                             featured: event.highlight_type !== 'none',
+                             coordinates: event.venue?.location ? { 
+                               lat: parseFloat(event.venue.location.split(',')[0]) || 0, 
+                               lng: parseFloat(event.venue.location.split(',')[1]) || 0 
+                             } : undefined
+                           }}
+                         />
+                       ))}
+                     </div>
                   )}
                 </div>
 

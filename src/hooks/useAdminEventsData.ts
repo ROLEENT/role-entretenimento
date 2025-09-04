@@ -25,7 +25,7 @@ export const useAdminEventsData = (filters: EventFilters = {}) => {
     queryKey: ["admin-events", filters],
     queryFn: async () => {
       let query = supabase
-        .from("agenda_itens")
+        .from("events")
         .select(`
           *,
           venue:venues(id, name, location),
@@ -35,7 +35,7 @@ export const useAdminEventsData = (filters: EventFilters = {}) => {
 
       // Apply filters
       if (filters.search) {
-        query = query.or(`title.ilike.%${filters.search}%,summary.ilike.%${filters.search}%`);
+        query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
       }
 
       if (filters.status) {
@@ -47,11 +47,11 @@ export const useAdminEventsData = (filters: EventFilters = {}) => {
       }
 
       if (filters.dateStart) {
-        query = query.gte("starts_at", filters.dateStart);
+        query = query.gte("date_start", filters.dateStart);
       }
 
       if (filters.dateEnd) {
-        query = query.lte("starts_at", filters.dateEnd);
+        query = query.lte("date_start", filters.dateEnd);
       }
 
       if (filters.organizer) {
@@ -86,7 +86,7 @@ export const useAdminEventsData = (filters: EventFilters = {}) => {
     queryKey: ["admin-events-stats"],
     queryFn: async () => {
       const { data: allEvents, error } = await supabase
-        .from("agenda_itens")
+        .from("events")
         .select("status, created_at");
 
       if (error) throw error;
