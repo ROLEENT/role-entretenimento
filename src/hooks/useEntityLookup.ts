@@ -44,7 +44,7 @@ export function useEntityLookup({ type, limit = 20 }: EntityLookupOptions) {
 
       const mappedData = result.data.map((item: any) => ({
         id: item.id,
-        name: item.name || item.stage_name, // Handle both name and stage_name
+        name: getName(item, type), // Use helper function for proper name handling
         value: item.id,
         subtitle: getSubtitle(item, type),
       }));
@@ -89,7 +89,7 @@ export function useEntityLookup({ type, limit = 20 }: EntityLookupOptions) {
 
       return {
         id: data.id,
-        name: data.name || data.stage_name, // Handle both name and stage_name
+        name: getName(data, type), // Use helper function for proper name handling
         value: data.id,
         subtitle: getSubtitle(data, type),
       };
@@ -104,6 +104,18 @@ export function useEntityLookup({ type, limit = 20 }: EntityLookupOptions) {
     getEntityById,
     loading,
   };
+}
+
+function getName(item: any, type: string): string {
+  switch (type) {
+    case 'artists':
+      return item.stage_name || item.name || 'Artista sem nome';
+    case 'organizers':
+    case 'venues':
+      return item.name || 'Nome não informado';
+    default:
+      return item.name || item.stage_name || 'Item sem nome';
+  }
 }
 
 function getSubtitle(item: any, type: string): string | undefined {

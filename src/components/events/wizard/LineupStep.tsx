@@ -82,15 +82,20 @@ const ArtistSlotManager: React.FC<ArtistSlotManagerProps> = ({ control, slotInde
   });
 
   const handleArtistSelect = async (artistId: string | undefined) => {
-    if (artistId) {
-      // Check if artist is already in this slot
-      const existingArtist = artists.find((artist: any) => artist.artist_id === artistId);
-      if (existingArtist) {
-        setSelectedArtistId('');
-        return;
-      }
+    if (!artistId) {
+      setSelectedArtistId('');
+      return;
+    }
 
-      // Search for the artist details
+    // Check if artist is already in this slot
+    const existingArtist = artists.find((artist: any) => artist.artist_id === artistId);
+    if (existingArtist) {
+      setSelectedArtistId('');
+      return;
+    }
+
+    try {
+      // Get artist by ID - we need to search to get the name
       const searchResults = await searchArtists('');
       const selectedArtist = searchResults.find(artist => artist.value === artistId);
       
@@ -101,8 +106,26 @@ const ArtistSlotManager: React.FC<ArtistSlotManagerProps> = ({ control, slotInde
           position: artists.length,
           role: 'performer'
         });
+      } else {
+        // Fallback: add with ID only and allow manual name entry
+        appendArtist({
+          artist_id: artistId,
+          artist_name: `Artista ${artistId.slice(0, 8)}...`,
+          position: artists.length,
+          role: 'performer'
+        });
       }
+    } catch (error) {
+      console.error('Error adding artist:', error);
+      // Fallback: add with ID only
+      appendArtist({
+        artist_id: artistId,
+        artist_name: `Artista ${artistId.slice(0, 8)}...`,
+        position: artists.length,
+        role: 'performer'
+      });
     }
+    
     setSelectedArtistId('');
   };
 

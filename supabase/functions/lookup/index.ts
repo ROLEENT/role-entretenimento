@@ -101,7 +101,7 @@ serve(async (req) => {
     if (error) {
       console.error('Database error:', error)
       return new Response(
-        JSON.stringify({ error: 'Database query failed' }),
+        JSON.stringify({ error: 'Database query failed', details: error.message }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -121,7 +121,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Lookup function error:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: 'Internal server error', details: error.message }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

@@ -9,9 +9,13 @@ interface ArtistOption {
 export const useArtistLookup = () => {
   const searchArtists = async (query: string): Promise<ArtistOption[]> => {
     try {
-      const queryParams = query ? `?q=${encodeURIComponent(query)}` : '';
-      const { data, error } = await supabase.functions.invoke(`lookup/artists${queryParams}`, {
-        method: 'GET',
+      const { data, error } = await supabase.functions.invoke('lookup', {
+        method: 'POST',
+        body: {
+          type: 'artists',
+          q: query,
+          limit: 20
+        }
       });
 
       if (error) {
@@ -19,9 +23,9 @@ export const useArtistLookup = () => {
         return [];
       }
 
-      return (data || []).map((item: any) => ({
+      return (data?.data || []).map((item: any) => ({
         id: item.id,
-        name: item.name,
+        name: item.stage_name,
         value: item.id,
       }));
     } catch (error) {
