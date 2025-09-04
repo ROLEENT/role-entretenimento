@@ -26,13 +26,18 @@ export const OrganizersManager: React.FC = () => {
   // Use partners field from schema instead of non-existent organizers field
   const organizers = (watch('partners') || []).filter(p => p.role === 'organizer');
 
-  const addOrganizerById = (organizerId: string) => {
+  const addOrganizerById = async (organizerId: string) => {
     const currentPartners = watch('partners') || [];
+    
+    // Fetch organizer data to get the name
+    const organizerData = await getOrganizerById(organizerId);
+    const organizerName = organizerData?.name || `Organizador ${organizerId}`;
+    
     const newPartner = {
       partner_id: organizerId,
       partner_type: 'organizer' as const,
       role: 'organizer' as const,
-      display_name: '', // Will be filled from organizer data
+      display_name: organizerName,
       position: currentPartners.length,
       is_main: organizers.length === 0
     };
