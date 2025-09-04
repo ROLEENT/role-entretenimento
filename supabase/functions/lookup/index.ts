@@ -63,7 +63,7 @@ serve(async (req) => {
       case 'artists':
         queryBuilder = supabase
           .from('artists')
-          .select('id, stage_name as name, city')
+          .select('id, stage_name, city')
           .ilike('stage_name', `%${query}%`)
           .eq('status', 'active')
         break;

@@ -44,7 +44,7 @@ export function useEntityLookup({ type, limit = 20 }: EntityLookupOptions) {
 
       const mappedData = result.data.map((item: any) => ({
         id: item.id,
-        name: item.name,
+        name: item.name || item.stage_name, // Handle both name and stage_name
         value: item.id,
         subtitle: getSubtitle(item, type),
       }));
@@ -67,7 +67,7 @@ export function useEntityLookup({ type, limit = 20 }: EntityLookupOptions) {
       let selectFields = 'id, name, city';
       
       if (type === 'artists') {
-        selectFields = 'id, stage_name as name, city';
+        selectFields = 'id, stage_name, city';
       } else if (type === 'venues') {
         selectFields = 'id, name, city, address_line';
       }
@@ -89,7 +89,7 @@ export function useEntityLookup({ type, limit = 20 }: EntityLookupOptions) {
 
       return {
         id: data.id,
-        name: data.name,
+        name: data.name || data.stage_name, // Handle both name and stage_name
         value: data.id,
         subtitle: getSubtitle(data, type),
       };
