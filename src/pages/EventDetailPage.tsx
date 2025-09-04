@@ -199,16 +199,16 @@ const EventDetailPage = () => {
                   </div>
                 </div>
 
-                {event.ticket_url && (
+                {(event.ticket_url || event.ticketing?.url) && (
                   <Button asChild className="mb-6">
-                    <a href={event.ticket_url} target="_blank" rel="noopener noreferrer">
+                    <a href={event.ticket_url || event.ticketing?.url} target="_blank" rel="noopener noreferrer">
                       <Ticket className="h-4 w-4 mr-2" />
                       Comprar Ingressos
                     </a>
                   </Button>
                 )}
 
-                {!event.ticket_url && (
+                {!event.ticket_url && !event.ticketing?.url && (
                   <div className="mb-6 p-4 bg-muted/50 rounded-lg">
                     <p className="text-sm text-muted-foreground">
                       Informações sobre ingressos serão divulgadas em breve.
