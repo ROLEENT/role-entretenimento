@@ -34,6 +34,7 @@ export function VenueSelector({
 
   // Buscar venues
   const searchVenues = async (query: string = '') => {
+    console.log('DEBUG: Searching venues with query:', query);
     setLoading(true);
     try {
       let supabaseQuery = supabase
@@ -56,6 +57,7 @@ export function VenueSelector({
         return;
       }
 
+      console.log('DEBUG: Found venues:', data);
       setVenues(data || []);
     } catch (error) {
       console.error('Erro ao buscar venues:', error);
@@ -102,6 +104,7 @@ export function VenueSelector({
   }, [search, open]);
 
   const handleSelect = (venue: Venue) => {
+    console.log('DEBUG: Selecting venue:', venue);
     setSelectedVenue(venue);
     onSelect(venue);
     setOpen(false);
@@ -129,7 +132,10 @@ export function VenueSelector({
 
   return (
     <div className="space-y-2">
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={(newOpen) => {
+        console.log('DEBUG: Popover open state changing:', newOpen);
+        setOpen(newOpen);
+      }}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
@@ -137,6 +143,7 @@ export function VenueSelector({
             aria-expanded={open}
             className="w-full justify-between h-auto min-h-[2.5rem] px-3 py-2"
             disabled={disabled}
+            onClick={() => console.log('DEBUG: Button clicked!')}
           >
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -171,7 +178,11 @@ export function VenueSelector({
             </div>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+        <PopoverContent 
+          className="w-[--radix-popover-trigger-width] p-0 bg-background border border-border shadow-lg" 
+          align="start"
+          style={{ zIndex: 9999 }}
+        >
           <Command shouldFilter={false}>
             <div className="flex items-center border-b px-3">
               <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
