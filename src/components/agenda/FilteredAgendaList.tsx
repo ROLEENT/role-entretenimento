@@ -1,6 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { getCleanTimestamp, getCleanDateRange } from '@/utils/timestampUtils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Clock, Ticket } from 'lucide-react';
@@ -20,15 +21,15 @@ interface AgendaItem {
   title: string;
   subtitle?: string;
   city?: string;
-  starts_at?: string;
-  end_at?: string;
-  cover_url?: string;
+  date_start?: string;
+  date_end?: string;
+  image_url?: string;
   alt_text?: string;
   slug?: string;
   ticket_url?: string;
   location_name?: string;
   tags?: string[];
-  priority?: number;
+  genres?: string[];
 }
 
 interface FilteredAgendaListProps {
@@ -41,21 +42,27 @@ const fetchFilteredEvents = async (filters: AgendaFilters, limit?: number): Prom
   const today = new Date();
 
   let query = supabase
-    .from('agenda_itens')
-    .select('*')
-    .eq('status', 'published')
-    .is('deleted_at', null);
+    .from('events')
+    .select(`
+      id, title, subtitle, city, location_name, address,
+      date_start, date_end, image_url, alt_text, slug,
+      ticket_url, genres, tags, highlight_type, status
+    `)
+    .eq('status', 'published');
 
   // Apply date filters based on status
   if (filters.status === 'this_week') {
     const endOfWeek = new Date();
     endOfWeek.setDate(today.getDate() + 7);
-    query = query.gte('starts_at', today.toISOString()).lte('starts_at', endOfWeek.toISOString());
+    const { start, end } = getCleanDateRange(today, endOfWeek);
+    query = query.gte('date_start', start).lte('date_start', end);
   } else if (filters.status === 'this_month') {
     const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    query = query.gte('starts_at', today.toISOString()).lte('starts_at', endOfMonth.toISOString());
+    const { start, end } = getCleanDateRange(today, endOfMonth);
+    query = query.gte('date_start', start).lte('date_start', end);
   } else if (filters.status === 'upcoming' || !filters.status || filters.status === 'all') {
-    query = query.gte('starts_at', today.toISOString());
+    const cleanToday = getCleanTimestamp(today);
+    query = query.gte('date_start', cleanToday);
   }
 
   // Apply other filters
@@ -72,8 +79,7 @@ const fetchFilteredEvents = async (filters: AgendaFilters, limit?: number): Prom
   }
 
   query = query
-    .order('priority', { ascending: false })
-    .order('starts_at', { ascending: true });
+    .order('date_start', { ascending: true });
 
   if (limit) {
     query = query.limit(limit);
@@ -155,10 +161,10 @@ export function FilteredAgendaList({ filters, limit, showViewMore = false }: Fil
           <CardContent className="p-6">
             <div className="flex gap-4">
               {/* Event Image */}
-              {event.cover_url && (
+              {event.image_url && (
                 <div className="flex-shrink-0">
                   <img
-                    src={event.cover_url}
+                    src={event.image_url}
                     alt={event.alt_text || event.title}
                     className="w-20 h-20 object-cover rounded-lg"
                   />
@@ -179,10 +185,10 @@ export function FilteredAgendaList({ filters, limit, showViewMore = false }: Fil
                     )}
 
                     <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-3">
-                      {event.starts_at && (
+                      {event.date_start && (
                         <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4" />
-                          {formatDate(event.starts_at)}
+                          {formatDate(event.date_start)}
                         </div>
                       )}
                       {event.city && (
@@ -197,16 +203,16 @@ export function FilteredAgendaList({ filters, limit, showViewMore = false }: Fil
                     </div>
 
                     {/* Tags */}
-                    {event.tags && event.tags.length > 0 && (
+                    {((event.genres && event.genres.length > 0) || (event.tags && event.tags.length > 0)) && (
                       <div className="flex flex-wrap gap-1 mb-3">
-                        {event.tags.slice(0, 3).map((tag, index) => (
+                        {(event.genres || event.tags || []).slice(0, 3).map((tag, index) => (
                           <Badge key={index} variant="secondary" className="text-xs">
                             {tag}
                           </Badge>
                         ))}
-                        {event.tags.length > 3 && (
+                        {(event.genres || event.tags || []).length > 3 && (
                           <Badge variant="outline" className="text-xs">
-                            +{event.tags.length - 3}
+                            +{(event.genres || event.tags || []).length - 3}
                           </Badge>
                         )}
                       </div>

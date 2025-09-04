@@ -54,7 +54,6 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
       alt_text, 
       highlight_type, 
       status, 
-      priority, 
       ticket_url, 
       slug
     `)
@@ -90,7 +89,6 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
   }
 
   query = query
-    .order('priority', { ascending: false })
     .order('date_start', { ascending: true })
     .limit(12);
 
@@ -110,7 +108,7 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
     alt_text: item.alt_text,
     visibility_type: (item.highlight_type === 'showcase' ? 'vitrine' : 'curadoria') as 'vitrine' | 'curadoria',
     status: item.status,
-    priority: item.priority,
+    
     ticket_url: item.ticket_url,
     slug: item.slug,
   }));

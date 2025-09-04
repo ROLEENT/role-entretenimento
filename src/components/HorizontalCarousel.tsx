@@ -29,14 +29,14 @@ const EventCard = ({ item }: { item: AgendaItem }) => {
     // Prefetch the event page on hover/focus
     const link = document.createElement('link');
     link.rel = 'prefetch';
-    link.href = `/agenda/${item.slug || item.id}`;
+    link.href = `/evento/${item.slug || item.id}`;
     document.head.appendChild(link);
   };
 
   return (
     <Card className="carousel-card overflow-hidden h-full group flex-shrink-0 snap-start w-[82%] sm:w-[48%] md:w-[32%] lg:w-[23%]">
       <Link 
-        to={`/agenda/${item.slug || item.id}`}
+        to={`/evento/${item.slug || item.id}`}
         className="block h-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
         onMouseEnter={handlePrefetch}
         onFocus={handlePrefetch}
