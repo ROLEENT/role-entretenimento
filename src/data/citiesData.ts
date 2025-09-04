@@ -93,8 +93,8 @@ export const citiesData: Record<string, CityData> = {
       nightlifeScore: 9.5
     }
   },
-  'porto-alegre': {
-    id: 'porto-alegre',
+  'porto_alegre': {
+    id: 'porto_alegre',
     name: 'Porto Alegre',
     state: 'Rio Grande do Sul',
     description: 'A cena alternativa pulsa forte no Sul.',

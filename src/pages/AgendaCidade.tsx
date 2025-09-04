@@ -27,32 +27,32 @@ const PERIOD_OPTIONS = [
 const EventCard = ({ item, cityName }: { item: any; cityName: string }) => {
   const navigate = useNavigate();
   
-  // Convert legacy agenda item to new event format
+  // Convert event to display format
   const eventData = {
     id: item.id,
     title: item.title,
-    subtitle: item.subtitle,
-    summary: item.summary,
+    subtitle: item.subtitle || '',
+    summary: item.summary || '',
     city: item.city || cityName,
-    location_name: item.location_name,
-    date_start: item.starts_at,
-    date_end: item.end_at,
-    doors_open_utc: item.doors_open_utc,
-    image_url: item.cover_url,
-    price_min: item.price_min,
-    price_max: item.price_max,
-    currency: item.currency || 'BRL',
+    location_name: '',
+    date_start: item.date_start,
+    date_end: item.date_end,
+    doors_open_utc: null,
+    image_url: item.image_url,
+    price_min: 0,
+    price_max: 0,
+    currency: 'BRL',
     highlight_type: item.highlight_type || 'none',
-    is_sponsored: item.is_sponsored || false,
-    age_rating: item.age_rating,
-    genres: item.tags || [],
+    is_sponsored: false,
+    age_rating: '',
+    genres: item.genres || [],
     slug: item.slug,
-    ticket_url: item.ticket_url,
-    lineup: [] // Legacy items don't have structured lineup
+    ticket_url: '',
+    lineup: []
   };
 
   const handleClick = () => {
-    navigate(`/agenda/${item.slug || item.id}`);
+    navigate(`/evento/${item.slug || item.id}`);
   };
 
   return (

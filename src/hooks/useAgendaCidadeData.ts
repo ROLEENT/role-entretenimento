@@ -7,17 +7,18 @@ export interface AgendaCidadeItem {
   id: string;
   title: string;
   subtitle?: string;
+  summary?: string;
   city?: string;
-  start_at?: string;
-  end_at?: string;
-  cover_url?: string;
+  date_start?: string;
+  date_end?: string;
+  image_url?: string;
   alt_text?: string;
-  visibility_type?: 'vitrine' | 'curadoria';
+  highlight_type?: 'curatorial' | 'showcase' | 'none';
   status?: string;
-  priority?: number;
+  created_at?: string;
   ticket_url?: string;
   slug?: string;
-  tags?: string[];
+  genres?: string[];
 }
 
 interface UseAgendaCidadeDataParams {
@@ -83,14 +84,13 @@ const fetchAgendaItems = async (params: UseAgendaCidadeDataParams) => {
   const offset = ((params.page || 1) - 1) * itemsPerPage;
 
   let query = supabase
-    .from('agenda_itens')
-    .select('id, title, city, cover_url, start_at, end_at, tags, slug, alt_text, priority', { count: 'exact' })
+    .from('events')
+    .select('id, title, city, image_url, date_start, date_end, genres, slug, highlight_type, subtitle, summary', { count: 'exact' })
     .eq('status', 'published')
-    .is('deleted_at', null)
-    .gte('start_at', start.toISOString())
-    .lte('start_at', end.toISOString())
-    .order('priority', { ascending: false })
-    .order('start_at', { ascending: true })
+    .gte('date_start', start.toISOString())
+    .lte('date_start', end.toISOString())
+    .order('highlight_type', { ascending: false })
+    .order('date_start', { ascending: true })
     .range(offset, offset + itemsPerPage - 1);
 
   if (isCapital) {
@@ -104,7 +104,7 @@ const fetchAgendaItems = async (params: UseAgendaCidadeDataParams) => {
   }
 
   if (params.tags && params.tags.length > 0) {
-    query = query.overlaps('tags', params.tags);
+    query = query.overlaps('genres', params.tags);
   }
 
   const { data, error, count } = await query;
@@ -125,12 +125,11 @@ const fetchAvailableTags = async (params: Pick<UseAgendaCidadeDataParams, 'city'
   const { start, end } = getDateRange(params.period || 'proximos-7-dias');
 
   let tagsQuery = supabase
-    .from('agenda_itens')
-    .select('tags')
+    .from('events')
+    .select('genres')
     .eq('status', 'published')
-    .is('deleted_at', null)
-    .gte('start_at', start.toISOString())
-    .lte('start_at', end.toISOString());
+    .gte('date_start', start.toISOString())
+    .lte('date_start', end.toISOString());
 
   if (isCapital) {
     tagsQuery = tagsQuery.eq('city', cityQueryValue);
@@ -143,8 +142,8 @@ const fetchAvailableTags = async (params: Pick<UseAgendaCidadeDataParams, 'city'
 
   const tagSet = new Set<string>();
   (data || []).forEach((item) => {
-    if (item.tags && Array.isArray(item.tags)) {
-      item.tags.forEach((tag: string) => tagSet.add(tag));
+    if (item.genres && Array.isArray(item.genres)) {
+      item.genres.forEach((tag: string) => tagSet.add(tag));
     }
   });
 
