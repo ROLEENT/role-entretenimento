@@ -4,18 +4,21 @@ import { AdminV3Guard } from "@/components/AdminV3Guard";
 import { AdminV3Header } from "@/components/AdminV3Header";
 import { AdminV3Breadcrumb } from "@/components/admin/common/AdminV3Breadcrumb";
 import { EventGrid } from "@/components/events/EventGrid";
+import { AdminEventTable } from "@/components/admin/events/AdminEventTable";
 import { ChecklistWidget } from "@/components/events/ChecklistWidget";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Filter, Calendar, Users, TrendingUp } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Plus, Search, Filter, Calendar, Users, TrendingUp, Grid3X3, List } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function AdminV3EventsDashboard() {
   const navigate = useNavigate();
+  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [filters, setFilters] = useState({
     search: "",
     status: "",
@@ -33,7 +36,7 @@ export default function AdminV3EventsDashboard() {
           id, title, subtitle, summary, city, location_name,
           date_start, date_end, doors_open_utc, image_url, cover_url,
           price_min, price_max, currency, highlight_type, is_sponsored,
-          age_rating, genres, slug, ticket_url, status,
+          age_rating, genres, slug, ticket_url, status, created_at,
           lineup_slots, partners, performances, visual_artists
         `)
         .order("created_at", { ascending: false });
@@ -88,6 +91,16 @@ export default function AdminV3EventsDashboard() {
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleBulkAction = (action: string, eventIds: string[]) => {
+    console.log("Bulk action:", action, eventIds);
+    // TODO: Implement bulk actions
+  };
+
+  const refetch = () => {
+    // TODO: Implement refetch
+    console.log("Refetching events...");
   };
 
   const breadcrumbItems = [
@@ -244,32 +257,62 @@ export default function AdminV3EventsDashboard() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle>Eventos Recentes</CardTitle>
-                    <Badge variant="secondary">
-                      {events.length} evento(s)
-                    </Badge>
+                    <div className="flex items-center gap-3">
+                      <ToggleGroup 
+                        type="single" 
+                        value={viewMode} 
+                        onValueChange={(value) => value && setViewMode(value as "grid" | "table")}
+                        size="sm"
+                      >
+                        <ToggleGroupItem value="grid" aria-label="Visualizar em grade">
+                          <Grid3X3 className="h-4 w-4" />
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="table" aria-label="Visualizar em tabela">
+                          <List className="h-4 w-4" />
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                      <Badge variant="secondary">
+                        {events.length} evento(s)
+                      </Badge>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <EventGrid
-                    events={events}
-                    variant="compact"
-                    columns={1}
-                    onEventClick={handleEventClick}
-                    loading={isLoading}
-                    className="space-y-4"
-                  />
+                  {viewMode === "grid" ? (
+                    <>
+                      <EventGrid
+                        events={events}
+                        variant="compact"
+                        columns={1}
+                        onEventClick={handleEventClick}
+                        loading={isLoading}
+                        className="space-y-4"
+                      />
 
-                  {events.length === 0 && !isLoading && (
-                    <div className="text-center py-12">
-                      <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                      <h3 className="text-lg font-medium mb-2">Nenhum evento encontrado</h3>
-                      <p className="text-muted-foreground mb-4">
-                        Comece criando seu primeiro evento com o novo sistema.
-                      </p>
-                      <Button onClick={() => navigate("/admin-v3/eventos/criar")}>
-                        Criar Primeiro Evento
-                      </Button>
-                    </div>
+                      {events.length === 0 && !isLoading && (
+                        <div className="text-center py-12">
+                          <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                          <h3 className="text-lg font-medium mb-2">Nenhum evento encontrado</h3>
+                          <p className="text-muted-foreground mb-4">
+                            Comece criando seu primeiro evento com o novo sistema.
+                          </p>
+                          <Button onClick={() => navigate("/admin-v3/eventos/criar")}>
+                            Criar Primeiro Evento
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                     <AdminEventTable
+                       events={events.map(event => ({
+                         ...event,
+                         starts_at: event.date_start
+                       }))}
+                       loading={isLoading}
+                       error={null}
+                       onRefresh={refetch}
+                       onBulkAction={handleBulkAction}
+                     />
                   )}
                 </CardContent>
               </Card>
