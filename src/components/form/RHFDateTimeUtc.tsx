@@ -49,8 +49,12 @@ export default function RHFDateTimeUtc({
   // Watch the comparison field if provided
   const compareValue = compareWithField ? watch(compareWithField) : null;
 
-  const formatDateTimeLocal = (date: Date | null): string => {
-    if (!date) return "";
+  const formatDateTimeLocal = (value: Date | string | null): string => {
+    if (!value) return "";
+    
+    // Handle both Date objects and ISO strings
+    const date = typeof value === 'string' ? new Date(value) : value;
+    if (isNaN(date.getTime())) return "";
     
     const localDate = fromUTC(date, timeZone);
     
@@ -85,8 +89,12 @@ export default function RHFDateTimeUtc({
     return { date: utcDate, wasAdjusted };
   };
 
-  const getDisplayValue = (utcDate: Date | null): string => {
-    if (!utcDate) return "";
+  const getDisplayValue = (value: Date | string | null): string => {
+    if (!value) return "";
+    
+    // Handle both Date objects and ISO strings
+    const utcDate = typeof value === 'string' ? new Date(value) : value;
+    if (isNaN(utcDate.getTime())) return "";
     
     const localDate = fromUTC(utcDate, timeZone);
     
@@ -97,10 +105,16 @@ export default function RHFDateTimeUtc({
   };
 
   // Enhanced validation function for date comparison
-  const validateDateComparison = (currentValue: Date | null): string | null => {
+  const validateDateComparison = (currentValue: Date | string | null): string | null => {
     if (!currentValue || !compareValue || !isEndDate) return null;
     
-    const diffMinutes = differenceInMinutes(currentValue, compareValue);
+    // Handle both Date objects and ISO strings
+    const current = typeof currentValue === 'string' ? new Date(currentValue) : currentValue;
+    const compare = typeof compareValue === 'string' ? new Date(compareValue) : compareValue;
+    
+    if (isNaN(current.getTime()) || isNaN(compare.getTime())) return null;
+    
+    const diffMinutes = differenceInMinutes(current, compare);
     
     if (diffMinutes < 15) {
       return "A data/hora de fim deve ser pelo menos 15 minutos após o início";
@@ -149,12 +163,13 @@ export default function RHFDateTimeUtc({
                 value={formatDateTimeLocal(field.value)}
                 onChange={(e) => {
                   const result = parseLocalToUtc(e.target.value);
-                  field.onChange(result.date);
+                  // Return ISO string instead of Date object for schema compatibility
+                  field.onChange(result.date ? result.date.toISOString() : null);
                   
                   // Handle auto-adjustment of end date if this is start date
                   if (!isEndDate && result.date) {
-                    // Find corresponding end date field (assuming pattern start_at_utc -> end_at_utc)
-                    const endFieldName = name.replace('start_at', 'end_at');
+                    // Find corresponding end date field (assuming pattern start_utc -> end_utc)
+                    const endFieldName = name.replace('start_utc', 'end_utc').replace('start_at', 'end_at').replace('date_start', 'date_end');
                     handleEndDateAdjustment(result.date, endFieldName);
                   }
                 }}

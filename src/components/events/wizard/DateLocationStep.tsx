@@ -122,26 +122,26 @@ function VenueDatalist() {
 export const DateLocationStep: React.FC = () => {
   const { control, watch, setValue, clearErrors, setError, getValues } = useFormContext<EventFormData>();
   
-  const startUtc = watch('start_utc');
-  const endUtc = watch('end_utc');
+  const dateStart = watch('date_start');
+  const dateEnd = watch('date_end');
 
   // Validation effect
   useEffect(() => {
-    const s = getValues('start_utc');
-    const e = getValues('end_utc');
+    const s = getValues('date_start');
+    const e = getValues('date_end');
     if (s && e && new Date(e) <= new Date(s)) {
-      setError('end_utc', { message: 'fim precisa ser depois do início' });
+      setError('date_end', { message: 'fim precisa ser depois do início' });
     } else {
-      clearErrors('end_utc');
+      clearErrors('date_end');
     }
-  }, [startUtc, endUtc, getValues, setError, clearErrors]);
+  }, [dateStart, dateEnd, getValues, setError, clearErrors]);
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Start Date */}
         <RHFDateTimeUtc
-          name="start_utc"
+          name="date_start"
           label="Data e Hora de Início"
           showTime={true}
           timeZone="America/Sao_Paulo"
@@ -150,11 +150,11 @@ export const DateLocationStep: React.FC = () => {
 
         {/* End Date */}
         <RHFDateTimeUtc
-          name="end_utc"
+          name="date_end"
           label="Data e Hora de Fim"
           showTime={true}
           timeZone="America/Sao_Paulo"
-          compareWithField="start_utc"
+          compareWithField="date_start"
           isEndDate={true}
           description="Data e horário de fim do evento (opcional)"
         />
@@ -174,20 +174,20 @@ export const DateLocationStep: React.FC = () => {
                   step={900}
                   className="pl-10"
                   onChange={(e) => {
-                    if (!startUtc || !e.target.value) {
+                    if (!dateStart || !e.target.value) {
                       field.onChange('');
                       return;
                     }
-                    const d = new Date(startUtc);
+                    const d = new Date(dateStart);
                     const [hh, mm] = e.target.value.split(':').map(Number);
                     d.setHours(hh || 0, mm || 0, 0, 0);
                     field.onChange(d.toISOString());
                   }}
-                  disabled={!startUtc}
+                  disabled={!dateStart}
                 />
               </div>
               <FormDescription>
-                {!startUtc ? 'Defina primeiro a data de início' : 'Horário que o público pode entrar'}
+                {!dateStart ? 'Defina primeiro a data de início' : 'Horário que o público pode entrar'}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -209,20 +209,20 @@ export const DateLocationStep: React.FC = () => {
                   step={900}
                   className="pl-10"
                   onChange={(e) => {
-                    if (!startUtc || !e.target.value) {
+                    if (!dateStart || !e.target.value) {
                       field.onChange('');
                       return;
                     }
-                    const d = new Date(startUtc);
+                    const d = new Date(dateStart);
                     const [hh, mm] = e.target.value.split(':').map(Number);
                     d.setHours(hh || 0, mm || 0, 0, 0);
                     field.onChange(d.toISOString());
                   }}
-                  disabled={!startUtc}
+                  disabled={!dateStart}
                 />
               </div>
               <FormDescription>
-                {!startUtc ? 'Defina primeiro a data de início' : 'Horário do artista principal'}
+                {!dateStart ? 'Defina primeiro a data de início' : 'Horário do artista principal'}
               </FormDescription>
               <FormMessage />
             </FormItem>
