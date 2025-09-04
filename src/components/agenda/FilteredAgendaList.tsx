@@ -24,7 +24,7 @@ interface AgendaItem {
   date_start?: string;
   date_end?: string;
   image_url?: string;
-  alt_text?: string;
+  cover_alt?: string;
   slug?: string;
   ticket_url?: string;
   location_name?: string;
@@ -45,7 +45,7 @@ const fetchFilteredEvents = async (filters: AgendaFilters, limit?: number): Prom
     .from('events')
     .select(`
       id, title, subtitle, city, location_name, address,
-      date_start, date_end, image_url, alt_text, slug,
+      date_start, date_end, image_url, cover_alt, slug,
       ticket_url, genres, tags, highlight_type, status
     `)
     .eq('status', 'published');
@@ -165,7 +165,7 @@ export function FilteredAgendaList({ filters, limit, showViewMore = false }: Fil
                 <div className="flex-shrink-0">
                   <img
                     src={event.image_url}
-                    alt={event.alt_text || event.title}
+                    alt={event.cover_alt || event.title}
                     className="w-20 h-20 object-cover rounded-lg"
                   />
                 </div>

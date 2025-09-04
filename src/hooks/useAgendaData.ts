@@ -53,7 +53,7 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
       date_start, 
       date_end, 
       image_url, 
-      alt_text, 
+      cover_alt, 
       highlight_type, 
       status, 
       ticket_url, 
@@ -106,7 +106,7 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
     start_at: item.date_start,
     end_at: item.date_end,
     cover_url: item.image_url,
-    alt_text: item.alt_text,
+    alt_text: item.cover_alt,
     visibility_type: (item.highlight_type === 'vitrine' ? 'vitrine' : 'curadoria') as 'vitrine' | 'curadoria',
     status: item.status,
     
