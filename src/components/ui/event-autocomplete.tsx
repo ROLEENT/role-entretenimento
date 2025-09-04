@@ -43,7 +43,7 @@ export function EventAutocomplete({ value, onSelect, placeholder = "Buscar event
         .from('events')
         .select('id, title, city, start_at, end_at, date_start, status')
         .or(`title.ilike.%${query}%,city.ilike.%${query}%`)
-        .eq('status', 'active')
+        .eq('status', 'published')
         .order('date_start', { ascending: false })
         .limit(10);
 

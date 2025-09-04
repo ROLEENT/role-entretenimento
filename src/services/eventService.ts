@@ -31,7 +31,7 @@ export const eventService = {
         organizer:organizers(*),
         categories:event_categories(category:categories(*))
       `)
-      .eq('status', 'active')
+      .eq('status', 'published')
       .order('date_start', { ascending: true })
       .range(offset, offset + limit - 1);
 
@@ -75,7 +75,7 @@ export const eventService = {
         categories:event_categories(category:categories(*))
       `)
       .eq('id', id)
-      .eq('status', 'active')
+      .eq('status', 'published')
       .single();
 
     if (error) return null;
@@ -102,7 +102,7 @@ export const eventService = {
         organizer:organizers(*),
         categories:event_categories(category:categories(*))
       `)
-      .eq('status', 'active')
+      .eq('status', 'published')
       .gte('date_start', new Date().toISOString())
       .order('date_start', { ascending: true })
       .limit(limit);

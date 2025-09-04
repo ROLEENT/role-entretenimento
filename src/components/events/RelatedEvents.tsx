@@ -34,7 +34,7 @@ const RelatedEvents = ({ currentEventId, city, categories = [] }: RelatedEventsP
           venue:venues(*),
           categories:event_categories(category:categories(*))
         `)
-        .eq('status', 'active')
+        .eq('status', 'published')
         .neq('id', currentEventId)
         .gte('date_start', new Date().toISOString())
         .order('date_start', { ascending: true })

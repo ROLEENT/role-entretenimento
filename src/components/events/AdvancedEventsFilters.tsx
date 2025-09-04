@@ -74,7 +74,7 @@ export const AdvancedEventsFilters: React.FC<AdvancedEventsFiltersProps> = ({
       const { data: cityData } = await supabase
         .from('events')
         .select('city')
-        .eq('status', 'active');
+        .eq('status', 'published');
 
       const cityMap = new Map();
       cityData?.forEach(item => {
@@ -126,7 +126,7 @@ export const AdvancedEventsFilters: React.FC<AdvancedEventsFiltersProps> = ({
       const { data: eventsData } = await supabase
         .from('events')
         .select('tags')
-        .eq('status', 'active');
+        .eq('status', 'published');
 
       const allTags = new Set<string>();
       eventsData?.forEach(event => {

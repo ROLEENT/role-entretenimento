@@ -96,7 +96,7 @@ export function InfiniteScrollEvents({
           venues:venue_id (name, address),
           organizers:organizer_id (name)
         `)
-        .eq('status', 'active')
+        .eq('status', 'published')
         .gte('date_start', new Date().toISOString())
         .order('date_start', { ascending: true })
         .range(offset, offset + ITEMS_PER_PAGE - 1);

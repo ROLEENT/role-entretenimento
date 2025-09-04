@@ -34,7 +34,7 @@ export class SitemapGenerator {
       const { data: events } = await supabase
         .from('events')
         .select('id, updated_at')
-        .eq('status', 'active')
+        .eq('status', 'published')
         .gte('date_start', new Date().toISOString())
         .order('date_start', { ascending: true })
         .limit(1000);
@@ -104,7 +104,7 @@ export class SitemapGenerator {
       const { data: cities } = await supabase
         .from('events')
         .select('city')
-        .eq('status', 'active')
+        .eq('status', 'published')
         .gte('date_start', new Date().toISOString());
 
       if (cities) {

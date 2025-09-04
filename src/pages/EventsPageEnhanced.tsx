@@ -118,7 +118,7 @@ export default function EventsPageEnhanced() {
             )
           )
         `)
-        .eq('status', 'active');
+        .eq('status', 'published');
 
       // Apply filters
       if (filters.search || debouncedSearch) {

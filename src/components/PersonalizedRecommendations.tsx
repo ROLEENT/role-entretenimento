@@ -104,7 +104,7 @@ const PersonalizedRecommendations = () => {
           venue:venues(name, address),
           categories:event_categories(category:categories(name, color))
         `)
-        .eq('status', 'active')
+        .eq('status', 'published')
         .gte('date_start', new Date().toISOString())
         .order('date_start', { ascending: true })
         .limit(6);
@@ -143,7 +143,7 @@ const PersonalizedRecommendations = () => {
           venue:venues(name, address),
           categories:event_categories(category:categories(name, color))
         `)
-        .eq('status', 'active')
+        .eq('status', 'published')
         .gte('date_start', new Date().toISOString())
         .order('date_start', { ascending: true })
         .limit(6);

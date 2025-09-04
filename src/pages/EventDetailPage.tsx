@@ -54,7 +54,7 @@ const EventDetailPage = () => {
         .from('events')
         .select(`*, venue:venues(*), organizer:organizers(*), categories:event_categories(category:categories(*)), tickets(*)`)
         .eq('id', eventId)
-        .eq('status', 'active')
+        .eq('status', 'published')
         .single();
 
       if (error) throw error;

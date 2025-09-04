@@ -65,7 +65,7 @@ const EventsPage = () => {
             music_categories(id, name, slug, color_hex)
           )
         `, { count: 'exact' })
-        .eq('status', 'active')
+        .eq('status', 'published')
         .order('date_start');
       
       // Aplicar filtros de categoria se existirem
