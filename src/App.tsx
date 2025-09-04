@@ -343,7 +343,7 @@ function App() {
                 <Route path="/eventos" element={<EventsPage />} />
                 <Route path="/eventos/hoje" element={<EventsPage />} />
                 <Route path="/eventos/:cidade" element={<EventsPage />} />
-                <Route path="/evento/:id" element={<EventDetailPage />} />
+                <Route path="/evento/:slug" element={<EventDetailPage />} />
                 <Route path="/criar-evento" element={<CreateEventPage />} />
                 
                 {/* User Routes */}

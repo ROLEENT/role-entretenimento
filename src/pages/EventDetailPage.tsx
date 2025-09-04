@@ -27,7 +27,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCommentNotifications } from '@/hooks/useCommentNotifications';
 
 const EventDetailPage = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -37,23 +37,33 @@ const EventDetailPage = () => {
   
   const { user } = useAuth();
   
-  // Enable comment notifications for this event
-  useCommentNotifications(id, 'event');
+  // Enable comment notifications for this event (will use event.id once loaded)
+  useCommentNotifications(event?.id, 'event');
 
   useEffect(() => {
-    if (id) {
-      fetchEvent(id);
+    if (slug) {
+      fetchEvent(slug);
+    }
+  }, [slug]);
+
+  // Fetch reviews after event is loaded
+  useEffect(() => {
+    if (event?.id) {
       fetchReviews();
     }
-  }, [id]);
+  }, [event?.id]);
 
-  const fetchEvent = async (eventId) => {
+  const fetchEvent = async (eventSlug) => {
     try {
       setLoading(true);
+      
+      // Check if the parameter is a UUID (for backward compatibility)
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(eventSlug);
+      
       const { data, error } = await supabase
         .from('events')
         .select(`*, venue:venues(*), organizer:organizers(*), categories:event_categories(category:categories(*)), tickets(*)`)
-        .eq('id', eventId)
+        .eq(isUUID ? 'id' : 'slug', eventSlug)
         .eq('status', 'published')
         .single();
 
@@ -68,10 +78,10 @@ const EventDetailPage = () => {
   };
 
   const fetchReviews = async () => {
-    if (!id) return;
+    if (!event?.id) return;
     try {
       setReviewsLoading(true);
-      const reviewsData = await reviewService.getEventReviews(id);
+      const reviewsData = await reviewService.getEventReviews(event.id);
       setReviews(reviewsData);
     } catch (error) {
       console.error('Error fetching reviews:', error);
@@ -81,8 +91,8 @@ const EventDetailPage = () => {
   };
 
   const handleAddReview = async (rating: number, comment?: string) => {
-    if (!id) throw new Error('Event ID not found');
-    await reviewService.addReview(id, rating, comment);
+    if (!event?.id) throw new Error('Event ID not found');
+    await reviewService.addReview(event.id, rating, comment);
   };
 
 
