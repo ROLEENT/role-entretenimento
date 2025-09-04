@@ -61,48 +61,62 @@ const FeaturedEventsToday = () => {
         // Create a mixed array of events from agenda (curadoria) and events (vitrine)
         const mixedEvents: FeaturedEvent[] = [];
         
-        // Fetch curated events from agenda
-        const { data: agendaData, error: agendaError } = await supabase
-          .from('agenda_itens')
-          .select('id, title, city, cover_url, starts_at, location_name, tags')
-          .eq('status', 'published')
-          .gte('starts_at', new Date().toISOString())
-          .order('starts_at', { ascending: true })
-          .limit(2);
-
-        if (agendaData && !agendaError) {
-          const curatedEvents = agendaData.map(event => ({
-            ...event,
-            start_at: event.starts_at, // Map starts_at to start_at for interface compatibility
-            venue_name: event.location_name,
-            event_type: 'curadoria' as const
-          }));
-          mixedEvents.push(...curatedEvents);
-        }
-
-        // Fetch vitrine events
-        const { data: eventsData, error: eventsError } = await supabase
+        // Fetch curated events from events table with highlight_type = 'curatorial'
+        const { data: curatedData, error: curatedError } = await supabase
           .from('events')
-          .select('id, title, city, image_url, date_start, tags, price_min, price_max')
+          .select(`
+            id, title, city, image_url, date_start, tags, price_min, price_max,
+            venue:venues(name, location)
+          `)
           .eq('status', 'published')
+          .eq('highlight_type', 'curatorial')
           .gte('date_start', new Date().toISOString())
           .order('date_start', { ascending: true })
-          .limit(1);
+          .limit(2);
 
-        if (eventsData && !eventsError) {
-          const vitrineEvents = eventsData.map(event => ({
+        if (curatedData && !curatedError) {
+          const curatedEvents = curatedData.map((event: any) => ({
             id: event.id,
             title: event.title,
             city: event.city,
             cover_url: event.image_url,
             start_at: event.date_start,
-            venue_name: undefined, // Will be handled separately if needed
+            venue_name: event.venue?.[0]?.name,
+            tags: event.tags,
+            event_type: 'curadoria' as const,
+            price_min: event.price_min,
+            price_max: event.price_max
+          }));
+          mixedEvents.push(...curatedEvents);
+        }
+
+        // Fetch showcase events from events table
+        const { data: showcaseData, error: showcaseError } = await supabase
+          .from('events')
+          .select(`
+            id, title, city, image_url, date_start, tags, price_min, price_max,
+            venue:venues(name, location)
+          `)
+          .eq('status', 'published')
+          .eq('highlight_type', 'showcase')
+          .gte('date_start', new Date().toISOString())
+          .order('date_start', { ascending: true })
+          .limit(1);
+
+        if (showcaseData && !showcaseError) {
+          const showcaseEvents = showcaseData.map((event: any) => ({
+            id: event.id,
+            title: event.title,
+            city: event.city,
+            cover_url: event.image_url,
+            start_at: event.date_start,
+            venue_name: event.venue?.[0]?.name,
             tags: event.tags,
             event_type: 'vitrine' as const,
             price_min: event.price_min,
             price_max: event.price_max
           }));
-          mixedEvents.push(...vitrineEvents);
+          mixedEvents.push(...showcaseEvents);
         }
 
         // Filter by city if not "Todas"
