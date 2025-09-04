@@ -189,8 +189,128 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
               console.log(`Fallback encontrou ${eventsData.length} eventos`);
             }
           }
+        } else if (profileType === 'artista') {
+          // Para artistas, buscar em ambas as tabelas: events e agenda_itens
+          console.log(`Buscando eventos para artista: ${profileHandle}`);
+          
+          try {
+            let allEvents: any[] = [];
+            
+            // 1. Buscar na tabela events por título que contenha o nome do artista
+            // Primeiro, buscar o perfil para obter o nome do artista
+            const { data: profileData } = await supabase
+              .from('entity_profiles')
+              .select('name, source_id')
+              .eq('handle', profileHandle)
+              .eq('type', 'artista')
+              .maybeSingle();
+              
+            const artistName = profileData?.name || profileHandle;
+            
+            const { data: eventsFromEventsTable, error: eventsError } = await supabase
+              .from('events')
+              .select('id, title, slug, subtitle, image_url, date_start, date_end, city, location_name, status, visibility, genres')
+              .or(`title.ilike.%${artistName}%,title.ilike.%${profileHandle}%`)
+              .eq('status', 'published')
+              .gte('date_start', new Date().toISOString())
+              .order('date_start', { ascending: true })
+              .limit(20);
+
+            if (eventsFromEventsTable && !eventsError) {
+              const mappedEvents = eventsFromEventsTable.map((event: any) => ({
+                id: event.id,
+                title: event.title,
+                slug: event.slug,
+                subtitle: event.subtitle,
+                cover_url: event.image_url,
+                starts_at: event.date_start,
+                end_at: event.date_end,
+                city: event.city,
+                location_name: event.location_name,
+                status: event.status,
+                type: event.visibility,
+                tags: event.genres || [],
+                source: 'events' as const,
+                event_id: event.id
+              }));
+              allEvents = [...allEvents, ...mappedEvents];
+              console.log(`Encontrados ${mappedEvents.length} eventos na tabela events por título`);
+            }
+
+            // 2. Buscar na tabela events por gêneros que coincidam com as tags do artista
+            const { data: eventsByGenres, error: genresError } = await supabase
+              .from('events')
+              .select('id, title, slug, subtitle, image_url, date_start, date_end, city, location_name, status, visibility, genres')
+              .contains('genres', ['post punk'])  // Buscar por gêneros específicos do artista
+              .eq('status', 'published')
+              .gte('date_start', new Date().toISOString())
+              .order('date_start', { ascending: true })
+              .limit(20);
+
+            if (eventsByGenres && !genresError) {
+              const mappedEvents = eventsByGenres.map((event: any) => ({
+                id: event.id,
+                title: event.title,
+                slug: event.slug,
+                subtitle: event.subtitle,
+                cover_url: event.image_url,
+                starts_at: event.date_start,
+                end_at: event.date_end,
+                city: event.city,
+                location_name: event.location_name,
+                status: event.status,
+                type: event.visibility,
+                tags: event.genres || [],
+                source: 'events' as const,
+                event_id: event.id
+              }));
+              allEvents = [...allEvents, ...mappedEvents];
+              console.log(`Encontrados ${mappedEvents.length} eventos na tabela events por gêneros`);
+            }
+
+            // 3. Buscar na agenda_itens por nome do artista
+            const { data: agendaEvents, error: agendaError } = await supabase
+              .from('agenda_itens')
+              .select(`
+                id, title, slug, subtitle, cover_url, starts_at, end_at,
+                city, location_name, status, type, tags, artists_names
+              `)
+              .or(`title.ilike.%${profileHandle}%,artists_names.cs.{${profileHandle}}`)
+              .eq('status', 'published')
+              .is('deleted_at', null)
+              .gte('starts_at', new Date().toISOString())
+              .order('starts_at', { ascending: true })
+              .limit(20);
+
+            if (agendaEvents && !agendaError) {
+              const mappedEvents = agendaEvents.map((event: any) => ({
+                ...event,
+                source: 'agenda_itens' as const
+              }));
+              allEvents = [...allEvents, ...mappedEvents];
+              console.log(`Encontrados ${mappedEvents.length} eventos na agenda_itens`);
+            }
+
+            // Remover duplicatas baseado no slug
+            const uniqueEvents = allEvents.reduce((acc: any[], event: any) => {
+              if (!acc.some(e => e.slug === event.slug)) {
+                acc.push(event);
+              }
+              return acc;
+            }, []);
+
+            // Ordenar por data
+            eventsData = uniqueEvents.sort((a, b) => 
+              new Date(a.starts_at || '').getTime() - new Date(b.starts_at || '').getTime()
+            );
+
+            console.log(`Total de eventos únicos para artista ${profileHandle}: ${eventsData.length}`);
+            
+          } catch (queryError) {
+            console.error('Erro ao buscar eventos para artista:', queryError);
+          }
         } else {
-          // Para outros tipos (artistas, organizadores)
+          // Para organizadores
           let query = supabase
             .from('agenda_itens')
             .select(`
@@ -200,10 +320,7 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
             .eq('status', 'published')
             .is('deleted_at', null);
 
-          if (profileType === 'artista') {
-            // Para artistas, buscar eventos onde eles participam
-            query = query.or(`artists_names.cs.{${profileHandle}},title.ilike.%${profileHandle}%`);
-          } else if (profileType === 'organizador') {
+          if (profileType === 'organizador') {
             // Para organizadores, buscar eventos que eles organizam
             query = query.ilike('title', `%${profileHandle}%`);
           }

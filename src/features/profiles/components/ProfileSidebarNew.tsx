@@ -25,6 +25,23 @@ export function ProfileSidebarNew({ profile }: ProfileSidebarNewProps) {
   const { data: genres = [] } = useProfileGenres(profile.id, profile.type);
   const stats = useProfileStats(profile.handle, profile.type, profile.user_id);
 
+  // Função para obter bandeira do país
+  const getCountryWithFlag = (countryCode: string) => {
+    const countryMap: Record<string, string> = {
+      'BR': 'Brasil 🇧🇷',
+      'IT': 'Itália 🇮🇹',
+      'US': 'Estados Unidos 🇺🇸',
+      'FR': 'França 🇫🇷',
+      'DE': 'Alemanha 🇩🇪',
+      'ES': 'Espanha 🇪🇸',
+      'PT': 'Portugal 🇵🇹',
+      'AR': 'Argentina 🇦🇷',
+      'UK': 'Reino Unido 🇬🇧',
+      'GB': 'Reino Unido 🇬🇧',
+    };
+    return countryMap[countryCode?.toUpperCase()] || `${countryCode} 🌍`;
+  };
+
   const getTypeIcon = () => {
     switch (profile.type) {
       case 'artista':
@@ -68,13 +85,24 @@ export function ProfileSidebarNew({ profile }: ProfileSidebarNewProps) {
             </div>
           </div>
 
-          {/* Location - Highlighted for all types but especially venues */}
-          {profile.city && (
+          {/* Category for Artists */}
+          {profile.type === 'artista' && profile.category_name && (
+            <div className="flex items-center gap-3">
+              <MicIcon className="w-4 h-4 text-muted-foreground" />
+              <div>
+                <p className="text-sm font-medium">{profile.category_name}</p>
+                <p className="text-xs text-muted-foreground">Categoria</p>
+              </div>
+            </div>
+          )}
+
+          {/* Country - Show country with flag instead of city */}
+          {profile.country && (
             <div className="flex items-center gap-3">
               <MapPinIcon className="w-4 h-4 text-primary" />
               <div>
-                <p className="text-sm font-medium text-primary">{profile.city}</p>
-                <p className="text-xs text-muted-foreground">Localização</p>
+                <p className="text-sm font-medium text-primary">{getCountryWithFlag(profile.country)}</p>
+                <p className="text-xs text-muted-foreground">País</p>
               </div>
             </div>
           )}

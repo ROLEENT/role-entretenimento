@@ -69,13 +69,31 @@ export async function getProfileByHandle(handle: string) {
       try {
         const { data: artistData } = await supabase
           .from("artists")
-          .select("artist_type, instagram")
+          .select(`
+            artist_type, 
+            instagram, 
+            category_id,
+            artist_categories(name)
+          `)
           .eq("id", data.source_id)
           .maybeSingle();
         
         if (artistData) {
           (profileData as any).artist_type = artistData.artist_type;
           (profileData as any).instagram = artistData.instagram;
+          
+          // Se não tiver category_name no entity_profiles, buscar da tabela de categorias
+          if (!profileData.category_name && artistData.category_id) {
+            const { data: categoryData } = await supabase
+              .from("artist_categories")
+              .select("name")
+              .eq("id", artistData.category_id)
+              .maybeSingle();
+              
+            if (categoryData) {
+              profileData.category_name = categoryData.name;
+            }
+          }
         }
       } catch (artistError) {
         console.debug('Could not fetch artist data:', artistError);
