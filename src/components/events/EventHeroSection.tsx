@@ -37,7 +37,7 @@ export function EventHeroSection({ event, venue, formatPrice, formatTime }: Even
         {/* Badge de destaque */}
         <div className="absolute top-4 left-4 z-10">
           <HighlightBadge 
-            type={event.highlight_type === 'sponsored' ? 'vitrine' : 'curatorial'}
+            type={event.highlight_type as any}
             isSponsored={event.is_sponsored}
           />
         </div>
@@ -98,7 +98,7 @@ export function EventHeroSection({ event, venue, formatPrice, formatTime }: Even
       {event.highlight_type && event.highlight_type !== 'none' && (
         <div className="container mx-auto px-4 py-3">
           <CurationInfoBar
-            type={event.highlight_type === 'sponsored' ? 'vitrine' : 'curatorial'}
+            type={event.highlight_type as any}
             onShowCriteria={() => setShowCriteriaDrawer(true)}
           />
         </div>
