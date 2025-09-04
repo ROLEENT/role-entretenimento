@@ -224,7 +224,7 @@ export const BasicInfoStep: React.FC = () => {
               </FormControl>
               <SelectContent>
                 <SelectItem value="none">Sem destaque</SelectItem>
-                <SelectItem value="editorial">Destaque Editorial</SelectItem>
+                <SelectItem value="destaque">Destaque Curatorial</SelectItem>
                 <SelectItem value="vitrine">Vitrine Cultural</SelectItem>
               </SelectContent>
             </Select>

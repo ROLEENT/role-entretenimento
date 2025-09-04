@@ -10,8 +10,8 @@ export const ORIGIN_TAGS = {
     icon: "🎯"
   },
   "destaque-editorial": {
-    label: "Destaque Editorial", 
-    description: "Escolha destacada da redação",
+    label: "Destaque Curatorial", 
+    description: "Escolha destacada da curadoria",
     color: "amber",
     icon: "⭐"
   },
