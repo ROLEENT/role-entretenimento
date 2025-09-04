@@ -339,10 +339,10 @@ function App() {
                   <Route path="under-construction" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionHandler /></Suspense>} />
                 </Route>
                 
-                {/* Events Routes */}
-                <Route path="/eventos" element={<EventsPage />} />
-                <Route path="/eventos/hoje" element={<EventsPage />} />
-                <Route path="/eventos/:cidade" element={<EventsPage />} />
+                {/* Events Routes - /eventos permanently removed as requested */}
+                {/* Redirect old /eventos routes to /agenda */}
+                <Route path="/eventos" element={<Navigate to="/agenda" replace />} />
+                <Route path="/eventos/*" element={<Navigate to="/agenda" replace />} />
                 <Route path="/evento/:slug" element={<EventDetailPage />} />
                 <Route path="/criar-evento" element={<CreateEventPage />} />
                 
