@@ -2549,13 +2549,16 @@ export type Database = {
       events: {
         Row: {
           accessibility: Json | null
+          address: string | null
           age_notes: string | null
           age_rating: Database["public"]["Enums"]["age_rating"] | null
           city: string
+          country: string | null
           cover_alt: string | null
           cover_url: string | null
           created_at: string
           created_by: string | null
+          currency: string | null
           date_end: string | null
           date_start: string
           description: string | null
@@ -2571,6 +2574,7 @@ export type Database = {
           image_url: string | null
           is_sponsored: boolean | null
           links: Json | null
+          location_name: string | null
           og_image_url: string | null
           organizer_id: string | null
           price_max: number | null
@@ -2587,6 +2591,7 @@ export type Database = {
           summary: string | null
           tags: string[] | null
           ticket_rules: Json | null
+          ticket_url: string | null
           ticketing: Json | null
           title: string
           updated_at: string
@@ -2596,13 +2601,16 @@ export type Database = {
         }
         Insert: {
           accessibility?: Json | null
+          address?: string | null
           age_notes?: string | null
           age_rating?: Database["public"]["Enums"]["age_rating"] | null
           city: string
+          country?: string | null
           cover_alt?: string | null
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
+          currency?: string | null
           date_end?: string | null
           date_start: string
           description?: string | null
@@ -2618,6 +2626,7 @@ export type Database = {
           image_url?: string | null
           is_sponsored?: boolean | null
           links?: Json | null
+          location_name?: string | null
           og_image_url?: string | null
           organizer_id?: string | null
           price_max?: number | null
@@ -2634,6 +2643,7 @@ export type Database = {
           summary?: string | null
           tags?: string[] | null
           ticket_rules?: Json | null
+          ticket_url?: string | null
           ticketing?: Json | null
           title: string
           updated_at?: string
@@ -2643,13 +2653,16 @@ export type Database = {
         }
         Update: {
           accessibility?: Json | null
+          address?: string | null
           age_notes?: string | null
           age_rating?: Database["public"]["Enums"]["age_rating"] | null
           city?: string
+          country?: string | null
           cover_alt?: string | null
           cover_url?: string | null
           created_at?: string
           created_by?: string | null
+          currency?: string | null
           date_end?: string | null
           date_start?: string
           description?: string | null
@@ -2665,6 +2678,7 @@ export type Database = {
           image_url?: string | null
           is_sponsored?: boolean | null
           links?: Json | null
+          location_name?: string | null
           og_image_url?: string | null
           organizer_id?: string | null
           price_max?: number | null
@@ -2681,6 +2695,7 @@ export type Database = {
           summary?: string | null
           tags?: string[] | null
           ticket_rules?: Json | null
+          ticket_url?: string | null
           ticketing?: Json | null
           title?: string
           updated_at?: string
