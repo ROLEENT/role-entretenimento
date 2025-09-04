@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
 import { EventFormData } from '@/schemas/eventSchema';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
@@ -13,29 +13,57 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { SelectionReasonsManager } from './SelectionReasonsManager';
+import { supabase } from '@/integrations/supabase/client';
 
-const CITIES = [
-  'São Paulo',
-  'Rio de Janeiro',
-  'Belo Horizonte',
-  'Brasília',
-  'Porto Alegre',
-  'Recife',
-  'Fortaleza',
-  'Salvador',
-  'Curitiba',
-  'Manaus',
-  'Belém',
-  'Goiânia',
-  'Campinas',
-  'São Luís',
-  'Maceió',
-  'Natal',
-  'João Pessoa',
-  'Teresina',
-  'Campo Grande',
-  'Cuiabá'
-];
+// Hook para buscar cidades da base de dados
+const useCities = () => {
+  const [cities, setCities] = useState<Array<{ id: string; name: string; uf?: string }>>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('agenda_cities')
+          .select('id, name, uf')
+          .order('name');
+
+        if (!error && data) {
+          setCities(data);
+        } else {
+          // Fallback para lista de cidades básicas
+          setCities([
+            { id: '1', name: 'São Paulo', uf: 'SP' },
+            { id: '2', name: 'Rio de Janeiro', uf: 'RJ' },
+            { id: '3', name: 'Belo Horizonte', uf: 'MG' },
+            { id: '4', name: 'Salvador', uf: 'BA' },
+            { id: '5', name: 'Brasília', uf: 'DF' },
+            { id: '6', name: 'Recife', uf: 'PE' },
+            { id: '7', name: 'Fortaleza', uf: 'CE' },
+            { id: '8', name: 'Porto Alegre', uf: 'RS' },
+            { id: '9', name: 'Curitiba', uf: 'PR' },
+            { id: '10', name: 'Manaus', uf: 'AM' }
+          ]);
+        }
+      } catch (error) {
+        console.error('Error fetching cities:', error);
+        // Fallback mesmo em caso de erro
+        setCities([
+          { id: '1', name: 'São Paulo', uf: 'SP' },
+          { id: '2', name: 'Rio de Janeiro', uf: 'RJ' },
+          { id: '3', name: 'Belo Horizonte', uf: 'MG' }
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCities();
+  }, []);
+
+  return { cities, loading };
+};
 
 // helpers
 const toISO = (v?: Date | string | null) =>
@@ -46,6 +74,7 @@ const fromISO = (iso?: string | null) =>
 
 export const BasicInfoStep: React.FC = () => {
   const { control, watch, setValue } = useFormContext<EventFormData>();
+  const { cities, loading: citiesLoading } = useCities();
   
   const watchedTitle = watch('title');
   const watchedSlug = watch('slug');
@@ -193,11 +222,11 @@ export const BasicInfoStep: React.FC = () => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {CITIES.map((city) => (
-                    <SelectItem key={city} value={city}>
+                  {cities.map((city) => (
+                    <SelectItem key={city.id} value={city.name}>
                       <div className="flex items-center gap-2">
                         <MapPin className="w-4 h-4" />
-                        {city}
+                        {city.name} {city.uf && `- ${city.uf}`}
                       </div>
                     </SelectItem>
                   ))}
