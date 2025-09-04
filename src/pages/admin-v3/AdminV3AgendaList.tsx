@@ -5,7 +5,7 @@ import { Plus, Filter, Download, FileText } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AdminAgendaTable } from '@/components/admin/agenda/AdminAgendaTable';
 import { AdminAgendaFilters } from '@/components/admin/agenda/AdminAgendaFilters';
-import { useAdminAgendaData } from '@/hooks/useAdminAgendaData';
+import { useAdminEventsData } from '@/hooks/useAdminEventsData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AdminV3AgendaList() {
@@ -38,7 +38,7 @@ export default function AdminV3AgendaList() {
     setSearchParams(params, { replace: true });
   }, [filters, setSearchParams]);
 
-  const { data, loading, error, refetch } = useAdminAgendaData(filters);
+  const { events, loading, error, refetch, stats } = useAdminEventsData(filters);
 
   const breadcrumbs = [
     { label: 'Dashboard', path: '/admin-v3' },
@@ -58,25 +58,25 @@ export default function AdminV3AgendaList() {
   const statsCards = [
     {
       title: 'Total de Eventos',
-      value: data?.total || 0,
+      value: stats?.total || 0,
       icon: FileText,
       change: '+12%'
     },
     {
       title: 'Rascunhos',
-      value: data?.drafts || 0,
+      value: stats?.draft || 0,
       icon: FileText,
       change: '+5%'
     },
     {
       title: 'Publicados',
-      value: data?.published || 0,
+      value: stats?.published || 0,
       icon: FileText,
       change: '+8%'
     },
     {
       title: 'Desta Semana',
-      value: data?.thisWeek || 0,
+      value: stats?.thisMonth || 0,
       icon: FileText,
       change: '+15%'
     }
@@ -106,7 +106,7 @@ export default function AdminV3AgendaList() {
             Exportar
           </Button>
           <Button asChild className="gap-2">
-            <Link to="/admin-v3/agenda/criar">
+            <Link to="/admin-v3/eventos/criar">
               <Plus className="h-4 w-4" />
               Novo Evento
             </Link>
@@ -154,7 +154,7 @@ export default function AdminV3AgendaList() {
 
       {/* Table */}
       <AdminAgendaTable
-        data={data?.items || []}
+        data={events || []}
         loading={loading}
         error={error}
         onRefresh={refetch}
