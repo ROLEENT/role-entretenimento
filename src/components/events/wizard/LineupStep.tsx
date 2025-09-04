@@ -28,6 +28,7 @@ import { ComboboxAsync } from '@/components/ui/combobox-async';
 import { useEntityLookup } from '@/hooks/useEntityLookup';
 import { TicketRulesSection } from './TicketRulesSection';
 import { cn } from '@/lib/utils';
+import { X } from 'lucide-react';
 
 // Drag and drop functionality (simplified)
 const DragHandle: React.FC<{ onMoveUp: () => void; onMoveDown: () => void; canMoveUp: boolean; canMoveDown: boolean }> = ({ 
@@ -60,6 +61,128 @@ const DragHandle: React.FC<{ onMoveUp: () => void; onMoveDown: () => void; canMo
     </Button>
   </div>
 );
+
+// Artist Slot Manager Component
+interface ArtistSlotManagerProps {
+  control: any;
+  slotIndex: number;
+  searchArtists: (query: string) => Promise<any[]>;
+}
+
+const ArtistSlotManager: React.FC<ArtistSlotManagerProps> = ({ control, slotIndex, searchArtists }) => {
+  const [selectedArtistId, setSelectedArtistId] = useState<string>('');
+  const {
+    fields: artists,
+    append: appendArtist,
+    remove: removeArtist,
+    move: moveArtist
+  } = useFieldArray({
+    control,
+    name: `lineup_slots.${slotIndex}.artists`
+  });
+
+  const handleArtistSelect = async (artistId: string | undefined) => {
+    if (artistId) {
+      // Check if artist is already in this slot
+      const existingArtist = artists.find((artist: any) => artist.artist_id === artistId);
+      if (existingArtist) {
+        setSelectedArtistId('');
+        return;
+      }
+
+      // Search for the artist details
+      const searchResults = await searchArtists('');
+      const selectedArtist = searchResults.find(artist => artist.value === artistId);
+      
+      if (selectedArtist) {
+        appendArtist({
+          artist_id: selectedArtist.value,
+          artist_name: selectedArtist.name,
+          position: artists.length,
+          role: 'performer'
+        });
+      }
+    }
+    setSelectedArtistId('');
+  };
+
+  return (
+    <div className="space-y-3">
+      <FormLabel>Artistas neste slot</FormLabel>
+      
+      {/* Add artist combobox */}
+      <div className="space-y-2">
+        <ComboboxAsync
+          placeholder="Buscar e adicionar artista..."
+          emptyText="Nenhum artista encontrado"
+          onSearch={searchArtists}
+          onValueChange={handleArtistSelect}
+          value={selectedArtistId}
+        />
+      </div>
+
+      {/* List of selected artists */}
+      {artists.length > 0 && (
+        <div className="space-y-2">
+          {artists.map((artist, artistIndex) => (
+            <div key={artist.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <DragHandle
+                  onMoveUp={() => moveArtist(artistIndex, artistIndex - 1)}
+                  onMoveDown={() => moveArtist(artistIndex, artistIndex + 1)}
+                  canMoveUp={artistIndex > 0}
+                  canMoveDown={artistIndex < artists.length - 1}
+                />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{(artist as any).artist_name}</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {(artist as any).role || 'performer'}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <FormField
+                  control={control}
+                  name={`lineup_slots.${slotIndex}.artists.${artistIndex}.role`}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className="w-32">
+                        <SelectValue placeholder="Role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="performer">Performer</SelectItem>
+                        <SelectItem value="headliner">Headliner</SelectItem>
+                        <SelectItem value="support">Support</SelectItem>
+                        <SelectItem value="special-guest">Convidado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeArtist(artistIndex)}
+                  className="text-destructive"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {artists.length === 0 && (
+        <div className="text-sm text-muted-foreground p-3 bg-muted/20 rounded-lg text-center">
+          Nenhum artista adicionado neste slot
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const LineupStep: React.FC = () => {
   const { control, watch } = useFormContext<EventFormData>();
@@ -303,13 +426,11 @@ export const LineupStep: React.FC = () => {
                 />
 
                 {/* Artists in this slot */}
-                <div className="space-y-2">
-                  <FormLabel>Artistas neste slot</FormLabel>
-                  {/* Here would be the artists list for this slot */}
-                  <div className="text-sm text-muted-foreground">
-                    Funcionalidade de artistas por slot será implementada em breve
-                  </div>
-                </div>
+                <ArtistSlotManager
+                  control={control}
+                  slotIndex={slotIndex}
+                  searchArtists={searchArtists}
+                />
               </CardContent>
             </Card>
           ))}
