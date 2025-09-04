@@ -18,6 +18,7 @@ import {
   List
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { UnifiedImageUpload } from '@/components/ui/unified-image-upload';
 
 interface ImagePreviewProps {
   src: string;
@@ -137,62 +138,52 @@ export const MediaStep: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Main Image */}
-            <div className="space-y-4">
-              <FormField
-                control={control}
-                name="image_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Imagem Principal *</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="https://exemplo.com/imagem.jpg"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      URL da imagem principal do evento (formato 16:9 recomendado)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <ImagePreview 
-                src={watchedImageUrl || ''} 
-                alt="Imagem principal"
-                className="aspect-video"
-              />
-            </div>
+            <FormField
+              control={control}
+              name="image_url"
+              render={({ field }) => (
+                <FormItem>
+                  <UnifiedImageUpload
+                    value={field.value}
+                    onChange={field.onChange}
+                    label="Imagem Principal *"
+                    description="Imagem principal do evento. Recomendado: 1920x1080px (16:9)"
+                    bucket="events"
+                    folder="main-images"
+                    maxSizeMB={10}
+                    allowedTypes={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
+                    variant="banner"
+                    aspectRatio="16/9"
+                    showProgress={true}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Cover Image */}
-            <div className="space-y-4">
-              <FormField
-                control={control}
-                name="cover_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Imagem de Capa</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="https://exemplo.com/capa.jpg"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Imagem de capa para destaque (formato 21:9 recomendado)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <ImagePreview 
-                src={watchedCoverUrl || ''} 
-                alt="Imagem de capa"
-                className="aspect-[21/9]"
-              />
-            </div>
+            <FormField
+              control={control}
+              name="cover_url"
+              render={({ field }) => (
+                <FormItem>
+                  <UnifiedImageUpload
+                    value={field.value}
+                    onChange={field.onChange}
+                    label="Imagem de Capa"
+                    description="Imagem de capa para destaque. Recomendado: 2100x900px (21:9)"
+                    bucket="events"
+                    folder="cover-images"
+                    maxSizeMB={10}
+                    allowedTypes={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
+                    variant="banner"
+                    aspectRatio="21/9"
+                    showProgress={true}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
             {/* Cover Alt Text - REQUIRED */}
@@ -235,34 +226,24 @@ export const MediaStep: React.FC = () => {
           {/* Add Gallery Image */}
           <Card>
             <CardContent className="pt-6">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="URL da imagem para adicionar à galeria"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      const input = e.target as HTMLInputElement;
-                      addGalleryImage(input.value);
-                      input.value = '';
-                    }
-                  }}
-                />
-                <Button
-                  type="button"
-                  onClick={() => {
-                    const input = document.querySelector('input[placeholder*="URL da imagem"]') as HTMLInputElement;
-                    if (input) {
-                      addGalleryImage(input.value);
-                      input.value = '';
-                    }
-                  }}
-                >
-                  <Upload className="w-4 h-4" />
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Cole a URL da imagem e pressione Enter ou clique no botão para adicionar
-              </p>
+              <UnifiedImageUpload
+                value={null}
+                onChange={(url) => {
+                  if (url) {
+                    addGalleryImage(url);
+                  }
+                }}
+                label="Adicionar à Galeria"
+                description="Arraste e solte ou clique para selecionar imagens. Recomendado: 1000x1000px (1:1)"
+                bucket="events"
+                folder="gallery"
+                maxSizeMB={5}
+                allowedTypes={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
+                variant="thumbnail"
+                aspectRatio="1/1"
+                showProgress={true}
+                placeholder="Clique ou arraste imagens para adicionar à galeria"
+              />
             </CardContent>
           </Card>
 
@@ -349,78 +330,82 @@ export const MediaStep: React.FC = () => {
 
           <div className="space-y-6">
             {/* Open Graph Image */}
-            <div className="space-y-4">
-              <FormField
-                control={control}
-                name="og_image_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Imagem Open Graph</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="https://exemplo.com/og-image.jpg"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Imagem que aparece ao compartilhar nas redes sociais (1200x630px recomendado)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {watchedOgImageUrl && (
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Preview do Compartilhamento</p>
-                  <Card className="max-w-md">
-                    <CardContent className="p-0">
-                      <ImagePreview 
-                        src={watchedOgImageUrl} 
-                        alt="Open Graph"
-                        className="aspect-[1.91/1] rounded-t-lg"
-                      />
-                      <div className="p-4">
-                        <p className="font-medium line-clamp-1">
-                          {watch('title') || 'Título do Evento'}
-                        </p>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {watch('summary') || 'Descrição do evento...'}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {watch('city') || 'Cidade'} • meusite.com
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+            <FormField
+              control={control}
+              name="og_image_url"
+              render={({ field }) => (
+                <FormItem>
+                  <UnifiedImageUpload
+                    value={field.value}
+                    onChange={field.onChange}
+                    label="Imagem Open Graph"
+                    description="Imagem para compartilhamento social. Recomendado: 1200x630px (1.91:1)"
+                    bucket="events"
+                    folder="og-images"
+                    maxSizeMB={2}
+                    allowedTypes={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
+                    variant="banner"
+                    aspectRatio="1.91/1"
+                    showProgress={true}
+                  />
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
 
+            {watchedOgImageUrl && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Preview do Compartilhamento</p>
+                <Card className="max-w-md">
+                  <CardContent className="p-0">
+                    <ImagePreview 
+                      src={watchedOgImageUrl} 
+                      alt="Open Graph"
+                      className="aspect-[1.91/1] rounded-t-lg"
+                    />
+                    <div className="p-4">
+                      <p className="font-medium line-clamp-1">
+                        {watch('title') || 'Título do Evento'}
+                      </p>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {watch('summary') || 'Descrição do evento...'}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {watch('city') || 'Cidade'} • meusite.com
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
             {/* Image Guidelines */}
             <Card className="bg-muted/50">
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
                   <ImageIcon className="w-5 h-5" />
-                  Diretrizes de Imagens
+                  Diretrizes de Upload
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 <div>
                   <p className="font-medium">Imagem Principal:</p>
-                  <p className="text-muted-foreground">1920x1080px (16:9) • JPG/PNG • Máx. 2MB</p>
+                  <p className="text-muted-foreground">1920x1080px (16:9) • JPG/PNG/WebP • Máx. 10MB</p>
                 </div>
                 <div>
                   <p className="font-medium">Imagem de Capa:</p>
-                  <p className="text-muted-foreground">2100x900px (21:9) • JPG/PNG • Máx. 2MB</p>
+                  <p className="text-muted-foreground">2100x900px (21:9) • JPG/PNG/WebP • Máx. 10MB</p>
                 </div>
                 <div>
                   <p className="font-medium">Open Graph:</p>
-                  <p className="text-muted-foreground">1200x630px (1.91:1) • JPG/PNG • Máx. 1MB</p>
+                  <p className="text-muted-foreground">1200x630px (1.91:1) • JPG/PNG/WebP • Máx. 2MB</p>
                 </div>
                 <div>
                   <p className="font-medium">Galeria:</p>
-                  <p className="text-muted-foreground">1000x1000px (1:1) • JPG/PNG • Máx. 1MB cada</p>
+                  <p className="text-muted-foreground">1000x1000px (1:1) • JPG/PNG/WebP • Máx. 5MB cada</p>
+                </div>
+                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/50 rounded-lg">
+                  <p className="font-medium text-blue-900 dark:text-blue-100">💡 Dica:</p>
+                  <p className="text-blue-800 dark:text-blue-200">Use drag & drop para upload rápido e visualização em tempo real!</p>
                 </div>
               </CardContent>
             </Card>
