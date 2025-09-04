@@ -216,7 +216,7 @@ const EventDetailPage = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin className="h-5 w-5 text-primary" />
-                    <span>{event.location_name || 'Caos'}, {event.city}</span>
+                    <span>{venue?.name || event.location_name || 'Caos'}, {event.city}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Ticket className="h-5 w-5 text-primary" />
