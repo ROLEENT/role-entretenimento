@@ -62,6 +62,12 @@ export function ProfileAbout({ profile }: ProfileAboutProps) {
               <CardTitle>Informações do Local</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {profile.category_name && (
+                <div>
+                  <span className="text-sm font-medium">Categoria:</span>
+                  <p className="text-muted-foreground">{profile.category_name}</p>
+                </div>
+              )}
               {(profile as any).profile_venue?.address && (
                 <div>
                   <span className="text-sm font-medium">Endereço:</span>

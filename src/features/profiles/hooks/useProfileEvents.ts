@@ -35,7 +35,10 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
 
           let venueQuery = supabase
             .from('events')
-            .select('id, title, slug, subtitle, image_url, date_start, date_end, city, location_name, status, visibility')
+            .select(`
+              id, title, slug, subtitle, image_url, date_start, date_end, city, location_name, status, visibility,
+              venue:venues(id, name, city)
+            `)
             .eq('status', 'published');
 
           if (venues && venues.length > 0) {
@@ -55,7 +58,7 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
             console.error('Error fetching events:', eventsError);
           } else {
             // Mapear dados da tabela events para o formato ProfileEvent
-            eventsData = (eventsResult || []).map(event => ({
+            eventsData = (eventsResult || []).map((event: any) => ({
               id: event.id,
               title: event.title,
               slug: event.slug,
@@ -63,8 +66,8 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
               cover_url: event.image_url,
               starts_at: event.date_start,
               end_at: event.date_end,
-              city: event.city,
-              location_name: event.location_name,
+              city: event.city || (event.venue && event.venue[0]?.city) || 'Cidade a definir',
+              location_name: event.location_name || (event.venue && event.venue[0]?.name) || 'Local a definir',
               status: event.status,
               type: event.visibility,
               tags: []

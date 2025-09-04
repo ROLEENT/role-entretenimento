@@ -68,6 +68,17 @@ export function ProfileSidebarNew({ profile }: ProfileSidebarNewProps) {
             </div>
           </div>
 
+          {/* Category for venues */}
+          {profile.type === 'local' && profile.category_name && (
+            <div className="flex items-center gap-3">
+              <BuildingIcon className="w-4 h-4 text-muted-foreground" />
+              <div>
+                <p className="text-sm font-medium">{profile.category_name}</p>
+                <p className="text-xs text-muted-foreground">Categoria do local</p>
+              </div>
+            </div>
+          )}
+
 
           {/* Contact Email */}
           {profile.contact_email && (

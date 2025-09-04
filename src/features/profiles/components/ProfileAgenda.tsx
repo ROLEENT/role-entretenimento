@@ -7,6 +7,8 @@ import { CalendarIcon, MapPinIcon, ClockIcon, TicketIcon } from "lucide-react";
 import { Profile } from "@/features/profiles/api";
 import { format, isAfter, isBefore, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useProfileEvents, ProfileEvent } from "@/features/profiles/hooks/useProfileEvents";
+import { useNavigate } from "react-router-dom";
 
 interface ProfileAgendaProps {
   profile: Profile;
@@ -14,40 +16,16 @@ interface ProfileAgendaProps {
 
 export function ProfileAgenda({ profile }: ProfileAgendaProps) {
   const [filterType, setFilterType] = useState<'all' | 'upcoming' | 'past'>('upcoming');
+  const navigate = useNavigate();
+  
+  // Fetch real events data
+  const { data: allEvents = [], isLoading } = useProfileEvents(profile.handle, profile.type);
 
-  // Mock events data - replace with real data
-  const events = [
-    {
-      id: "1",
-      title: "Festival de Verão 2024",
-      subtitle: "Edição especial com grandes nomes",
-      date: new Date(2024, 11, 15),
-      time: "20:00",
-      location: "Praia Central, Florianópolis",
-      venue: "Arena da Praia",
-      price: "R$ 80",
-      status: "available",
-      tags: ["festival", "eletrônica", "verão"],
-      image: "/placeholder.svg"
-    },
-    {
-      id: "2",
-      title: "Show Acústico Intimista", 
-      subtitle: "Uma noite especial de música",
-      date: new Date(2024, 10, 20),
-      time: "19:30",
-      location: "Centro Cultural, São Paulo",
-      venue: "Café Cultural SP",
-      price: "R$ 45",
-      status: "sold-out",
-      tags: ["acústico", "intimista", "mpb"],
-      image: "/placeholder.svg"
-    }
-  ];
-
-  const filteredEvents = events.filter(event => {
+  const filteredEvents = allEvents.filter(event => {
+    if (!event.starts_at) return filterType === 'all';
+    
     const today = startOfDay(new Date());
-    const eventDate = startOfDay(event.date);
+    const eventDate = startOfDay(new Date(event.starts_at));
     
     switch (filterType) {
       case 'upcoming':
@@ -59,12 +37,15 @@ export function ProfileAgenda({ profile }: ProfileAgendaProps) {
     }
   });
 
-  const EventCard = ({ event }: { event: any }) => (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+  const EventCard = ({ event }: { event: ProfileEvent }) => (
+    <Card 
+      className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+      onClick={() => navigate(`/agenda/${event.slug}`)}
+    >
       <div className="flex">
         <div className="w-24 h-24 bg-muted flex-shrink-0">
           <img 
-            src={event.image} 
+            src={event.cover_url || "/placeholder.svg"} 
             alt={event.title}
             className="w-full h-full object-cover"
           />
@@ -80,37 +61,42 @@ export function ProfileAgenda({ profile }: ProfileAgendaProps) {
               <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <CalendarIcon className="h-3 w-3" />
-                  {format(event.date, "dd/MM/yyyy", { locale: ptBR })}
+                  {event.starts_at 
+                    ? format(new Date(event.starts_at), "dd/MM/yyyy", { locale: ptBR })
+                    : 'Data a definir'
+                  }
                 </span>
                 <span className="flex items-center gap-1">
                   <ClockIcon className="h-3 w-3" />
-                  {event.time}
+                  {event.starts_at 
+                    ? format(new Date(event.starts_at), "HH:mm", { locale: ptBR })
+                    : 'Horário a definir'
+                  }
                 </span>
                 <span className="flex items-center gap-1">
                   <MapPinIcon className="h-3 w-3" />
-                  {event.venue}
+                  {event.location_name} • {event.city}
                 </span>
               </div>
 
-              <div className="flex flex-wrap gap-1 mt-2">
-                {event.tags.slice(0, 3).map((tag: string) => (
-                  <Badge key={tag} variant="secondary" className="text-xs">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
+              {event.tags && event.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {event.tags.slice(0, 3).map((tag: string) => (
+                    <Badge key={tag} variant="secondary" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col items-end gap-2 ml-4">
-              <div className="text-right">
-                <div className="text-sm font-medium">{event.price}</div>
-                <Badge 
-                  variant={event.status === 'available' ? 'default' : 'destructive'}
-                  className="text-xs"
-                >
-                  {event.status === 'available' ? 'Disponível' : 'Esgotado'}
-                </Badge>
-              </div>
+              <Badge 
+                variant={event.status === 'published' ? 'default' : 'secondary'}
+                className="text-xs"
+              >
+                {event.status === 'published' ? 'Publicado' : event.status}
+              </Badge>
               
               <Button size="sm" variant="outline" className="text-xs">
                 <TicketIcon className="h-3 w-3 mr-1" />
@@ -139,7 +125,21 @@ export function ProfileAgenda({ profile }: ProfileAgendaProps) {
             
             <TabsContent value={filterType} className="mt-6">
               <div className="space-y-4">
-                {filteredEvents.length > 0 ? (
+                {isLoading ? (
+                  // Loading state
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <Card key={i} className="animate-pulse">
+                      <div className="flex">
+                        <div className="w-24 h-24 bg-muted flex-shrink-0" />
+                        <div className="flex-1 p-4 space-y-2">
+                          <div className="h-4 bg-muted rounded w-3/4" />
+                          <div className="h-3 bg-muted rounded w-1/2" />
+                          <div className="h-3 bg-muted rounded w-2/3" />
+                        </div>
+                      </div>
+                    </Card>
+                  ))
+                ) : filteredEvents.length > 0 ? (
                   filteredEvents.map((event) => (
                     <EventCard key={event.id} event={event} />
                   ))
@@ -155,7 +155,7 @@ export function ProfileAgenda({ profile }: ProfileAgendaProps) {
                         {filterType === 'upcoming' 
                           ? 'Não há eventos programados no momento. Fique de olho para não perder os próximos shows!'
                           : filterType === 'past'
-                          ? 'Este artista ainda não realizou eventos cadastrados na plataforma.'
+                          ? 'Este perfil ainda não realizou eventos cadastrados na plataforma.'
                           : 'Nenhum evento encontrado. A agenda será atualizada em breve.'}
                       </p>
                       <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -163,7 +163,7 @@ export function ProfileAgenda({ profile }: ProfileAgendaProps) {
                           Receber notificações
                         </Button>
                         <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                          Seguir artista
+                          Seguir {profile.type === 'local' ? 'local' : profile.type === 'artista' ? 'artista' : 'organizador'}
                         </Button>
                       </div>
                     </CardContent>
