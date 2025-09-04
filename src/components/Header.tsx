@@ -63,11 +63,11 @@ const Header = () => {
   useEffect(() => {
     const fetchData = async () => {
       const { data: eventsData } = await supabase
-        .from('agenda_itens')
-        .select('id, title, starts_at, location_name, city')
+        .from('events')
+        .select('id, title, date_start, location_name, city')
         .eq('status', 'published')
-        .gte('starts_at', new Date().toISOString())
-        .order('starts_at', { ascending: true })
+        .gte('date_start', new Date().toISOString())
+        .order('date_start', { ascending: true })
         .limit(100);
 
       const { data: highlightsData } = await supabase
@@ -518,11 +518,11 @@ export const HeaderGlobalSearch = () => {
   useEffect(() => {
     const fetchData = async () => {
       const { data: eventsData } = await supabase
-        .from('agenda_itens')
-        .select('id, title, starts_at, location_name, city')
+        .from('events')
+        .select('id, title, date_start, location_name, city')
         .eq('status', 'published')
-        .gte('starts_at', new Date().toISOString())
-        .order('starts_at', { ascending: true })
+        .gte('date_start', new Date().toISOString())
+        .order('date_start', { ascending: true })
         .limit(100);
 
       const { data: highlightsData } = await supabase
