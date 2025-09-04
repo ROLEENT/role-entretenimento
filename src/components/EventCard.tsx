@@ -33,7 +33,7 @@ const EventCard = ({ event, className }: EventCardProps) => {
   
   const handleClick = () => {
     const slug = event.slug || event.id;
-    navigate(`/agenda/${slug}`);
+    navigate(`/evento/${slug}`);
   };
 
   const handlePrefetch = () => {

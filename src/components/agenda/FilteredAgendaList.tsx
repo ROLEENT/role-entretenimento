@@ -224,7 +224,7 @@ export function FilteredAgendaList({ filters, limit, showViewMore = false }: Fil
                       </Button>
                     )}
                     <Button size="sm" asChild>
-                      <Link to={`/agenda/${event.slug || event.id}`}>
+                      <Link to={`/evento/${event.slug || event.id}`}>
                         Ver mais
                       </Link>
                     </Button>

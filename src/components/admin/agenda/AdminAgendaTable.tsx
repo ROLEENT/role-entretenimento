@@ -115,7 +115,7 @@ export function AdminAgendaTable({
           Duplicar
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to={`/eventos/${item.slug}`} target="_blank" className="flex items-center gap-2">
+          <Link to={`/evento/${item.slug}`} target="_blank" className="flex items-center gap-2">
             <Eye className="h-4 w-4" />
             Visualizar
           </Link>
@@ -142,7 +142,7 @@ export function AdminAgendaTable({
   };
 
   const handleView = (item: AgendaTableItem) => {
-    window.open(`/eventos/${item.slug}`, '_blank');
+    window.open(`/evento/${item.slug}`, '_blank');
   };
 
   const handleBatchStatusChange = (selectedItems: AgendaTableItem[], newStatus: string) => {
