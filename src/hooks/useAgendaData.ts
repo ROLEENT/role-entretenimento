@@ -38,8 +38,10 @@ interface AgendaFilters {
 
 const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[]> => {
   const today = new Date();
+  today.setHours(0, 0, 0, 0); // Start from beginning of today
   const thirtyDaysFromNow = new Date();
   thirtyDaysFromNow.setDate(today.getDate() + 30);
+  thirtyDaysFromNow.setHours(23, 59, 59, 999); // End of day
 
   let query = supabase
     .from('events')
@@ -63,15 +65,14 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
   if (filters?.status === 'this_week') {
     const endOfWeek = new Date();
     endOfWeek.setDate(today.getDate() + 7);
-    const { start, end } = getCleanDateRange(today, endOfWeek);
-    query = query.gte('date_start', start).lte('date_start', end);
+    endOfWeek.setHours(23, 59, 59, 999);
+    query = query.gte('date_start', today.toISOString()).lte('date_start', endOfWeek.toISOString());
   } else if (filters?.status === 'this_month') {
     const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    const { start, end } = getCleanDateRange(today, endOfMonth);
-    query = query.gte('date_start', start).lte('date_start', end);
+    endOfMonth.setHours(23, 59, 59, 999);
+    query = query.gte('date_start', today.toISOString()).lte('date_start', endOfMonth.toISOString());
   } else if (filters?.status === 'upcoming' || !filters?.status || filters?.status === 'all') {
-    const { start, end } = getCleanDateRange(today, thirtyDaysFromNow);
-    query = query.gte('date_start', start).lte('date_start', end);
+    query = query.gte('date_start', today.toISOString()).lte('date_start', thirtyDaysFromNow.toISOString());
   }
 
   // Apply other filters
@@ -118,12 +119,13 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
 
 const fetchCityStats = async (): Promise<{ cityStats: CityStats[]; totalEvents: number; totalCities: number }> => {
   const today = new Date();
+  today.setHours(0, 0, 0, 0); // Start from beginning of today
 
   const { data, error } = await supabase
     .from('events')
     .select('city')
     .eq('status', 'published')
-    .gte('date_start', getCleanTimestamp(today));
+    .gte('date_start', today.toISOString());
 
   if (error) throw error;
 

@@ -64,7 +64,17 @@ const EventDetailPage = () => {
         .from('events')
         .select(`
           *, 
-          venues(id, name, address, city, state, lat, lng)
+          venues(id, name, address, city, state, lat, lng),
+          event_lineup_slots(
+            id, slot_name, start_time, end_time, stage, position, is_headliner,
+            event_lineup_slot_artists(
+              artist_id, artist_name, position, role
+            )
+          ),
+          event_partners(
+            id, partner_type, role, display_name, position, is_main,
+            partners(id, name, image_url)
+          )
         `)
         .eq(isUUID ? 'id' : 'slug', eventSlug)
         .eq('status', 'published')
@@ -193,13 +203,85 @@ const EventDetailPage = () => {
                   </Button>
                 )}
 
+                {event.summary && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold mb-3">Resumo</h3>
+                    <SafeHTML 
+                      content={event.summary}
+                      className="prose prose-sm max-w-none text-muted-foreground"
+                    />
+                  </div>
+                )}
+
                 {event.description && (
-                  <div>
+                  <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-3">Sobre o Evento</h3>
                     <SafeHTML 
                       content={event.description}
                       className="prose prose-sm max-w-none text-muted-foreground"
                     />
+                  </div>
+                )}
+
+                {/* Lineup Section */}
+                {event.event_lineup_slots && event.event_lineup_slots.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold mb-3">Lineup</h3>
+                    <div className="space-y-3">
+                      {event.event_lineup_slots.map((slot) => (
+                        <div key={slot.id} className="p-3 bg-muted/50 rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium">{slot.slot_name}</h4>
+                            {slot.is_headliner && (
+                              <Badge variant="secondary">Headliner</Badge>
+                            )}
+                          </div>
+                          {slot.start_time && (
+                            <p className="text-sm text-muted-foreground mb-2">
+                              {format(new Date(slot.start_time), 'HH:mm', { locale: ptBR })}
+                              {slot.end_time && ` - ${format(new Date(slot.end_time), 'HH:mm', { locale: ptBR })}`}
+                            </p>
+                          )}
+                          {slot.event_lineup_slot_artists && slot.event_lineup_slot_artists.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              {slot.event_lineup_slot_artists.map((artist, index) => (
+                                <Badge key={index} variant="outline">
+                                  {artist.artist_name}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Partners Section */}
+                {event.event_partners && event.event_partners.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold mb-3">Organização</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {event.event_partners.map((partner) => (
+                        <div key={partner.id} className="text-center p-3 bg-muted/50 rounded-lg">
+                          {partner.partners?.image_url && (
+                            <img 
+                              src={partner.partners.image_url} 
+                              alt={partner.display_name || partner.partners?.name}
+                              className="w-12 h-12 mx-auto mb-2 rounded-full object-cover"
+                            />
+                          )}
+                          <p className="text-sm font-medium">
+                            {partner.display_name || partner.partners?.name}
+                          </p>
+                          {partner.role && (
+                            <p className="text-xs text-muted-foreground capitalize">
+                              {partner.role}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </CardContent>
