@@ -45,6 +45,7 @@ import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { cn } from '@/lib/utils';
 import dayjs from 'dayjs';
 
 const EventDetailPage = () => {
@@ -322,7 +323,12 @@ const EventDetailPage = () => {
           {/* Conteúdo Principal - 2 colunas em desktop */}
           <div className="lg:col-span-2 space-y-8">
             {/* Cabeçalho Forte do Evento */}
-            <Card className={`overflow-hidden ${event.highlight_type === 'editorial' ? 'border-purple-500 border-2' : ''}`}>
+            <Card className={cn(
+              "overflow-hidden",
+              event.highlight_type === 'editorial' && 'border-purple-500 border-2',
+              event.highlight_type === 'showcase' && 'border-blue-500 border-2',
+              event.highlight_type === 'sponsored' && 'border-green-500 border-2'
+            )}>
               <CardContent className="p-0">
                 {/* Capa 16:9 */}
                 <div className="relative aspect-video w-full">
@@ -331,11 +337,20 @@ const EventDetailPage = () => {
                     alt={event.cover_alt || event.title} 
                     className="w-full h-full object-cover" 
                   />
-                  {/* Badge de destaque editorial sobre a imagem */}
-                  {event.highlight_type === 'editorial' && (
+                  {/* Badge de tipo de destaque sobre a imagem */}
+                  {(event.highlight_type && event.highlight_type !== 'none') && (
                     <div className="absolute top-4 left-4">
-                      <Badge className="bg-purple-100 text-purple-800 border-purple-300">
-                        ✨ Destaque Editorial
+                      <Badge 
+                        className={cn(
+                          "font-medium",
+                          event.highlight_type === 'editorial' && "bg-purple-100 text-purple-800 border-purple-300",
+                          event.highlight_type === 'showcase' && "bg-blue-100 text-blue-800 border-blue-300",
+                          event.highlight_type === 'sponsored' && "bg-green-100 text-green-800 border-green-300"
+                        )}
+                      >
+                        {event.highlight_type === 'editorial' && '✨ Destaque Curatorial'}
+                        {event.highlight_type === 'showcase' && '🎭 Vitrine Cultural'}
+                        {event.highlight_type === 'sponsored' && '📢 Patrocinado'}
                       </Badge>
                     </div>
                   )}
@@ -408,17 +423,6 @@ const EventDetailPage = () => {
                     )}
                   </div>
 
-                  {/* Razões do destaque editorial */}
-                  {event.highlight_type === 'editorial' && Array.isArray(event.highlight_notes) && event.highlight_notes.length > 0 && (
-                    <div className="mt-4 rounded-lg border border-purple-200 bg-purple-50 p-3 text-sm">
-                      <div className="font-semibold mb-1 text-purple-900">Por que é destaque</div>
-                      <ul className="list-disc ml-5 text-purple-800">
-                        {event.highlight_notes.slice(0, 3).map((reason, i) => (
-                          <li key={i}>{reason}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
 
                   {/* Gêneros e Tags limitados com "ver todos" */}
                   {(event.genres || event.tags) && (
@@ -495,28 +499,6 @@ const EventDetailPage = () => {
               </section>
             )}
 
-            {/* Organizadores - Seção clicável */}
-            {partners && partners.length > 0 && (
-              <section className="mt-8">
-                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                  <Users className="h-6 w-6" />
-                  Organizadores
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {partners.map(partner => (
-                    <Link
-                      key={partner.id}
-                      to={`/perfil/${partner.partners?.slug || partner.display_name?.toLowerCase().replace(/\s+/g, '-')}`}
-                      className="inline-flex items-center gap-2 px-3 py-2 bg-purple-50 hover:bg-purple-100 text-purple-800 rounded-lg transition-colors min-h-[44px]"
-                    >
-                      <Users className="h-4 w-4" />
-                      <span>{partner.display_name || partner.partners?.name}</span>
-                      {partner.is_main && <span className="text-xs">• principal</span>}
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            )}
 
             {/* Outras Sessões - Performances */}
             {performances && performances.length > 0 && (
@@ -733,17 +715,100 @@ const EventDetailPage = () => {
             <EventCheckIn eventId={event.id} eventTitle={event.title} />
             <PushNotifications eventId={event.id} />
             
-            {/* Sistema de Engajamento Compacto */}
+            {/* Sistema de Engajamento & Organizadores */}
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Interações</CardTitle>
+                <CardTitle className="text-lg">Evento & Organizadores</CardTitle>
               </CardHeader>
-              <CardContent className="pt-0">
-                <CompactEngagementSystem 
-                  entityId={event.id}
-                  entityType="event"
-                  showCounts={true}
-                />
+              <CardContent className="pt-0 space-y-4">
+                {/* Interações */}
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-2">Interações</h4>
+                  <CompactEngagementSystem 
+                    entityId={event.id}
+                    entityType="event"
+                    showCounts={true}
+                  />
+                </div>
+                
+                {/* Organizadores */}
+                {partners && partners.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-2">Organizadores</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {partners.map(partner => (
+                        <div 
+                          key={partner.id} 
+                          className="inline-flex items-center gap-1 px-2 py-1 bg-purple-50 hover:bg-purple-100 text-purple-800 rounded-md transition-colors text-xs"
+                        >
+                          {partner.partners?.slug ? (
+                            <Link to={`/perfil/${partner.partners.slug}`} className="flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              {partner.display_name || partner.partners?.name}
+                              {partner.is_main && <span className="ml-1">• principal</span>}
+                            </Link>
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              {partner.display_name || partner.partners?.name}
+                              {partner.is_main && <span className="ml-1">• principal</span>}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Tipo de Destaque */}
+                {(event.highlight_type && event.highlight_type !== 'none') && (
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-2">Tipo de Destaque</h4>
+                    <Badge 
+                      className={cn(
+                        "font-medium",
+                        event.highlight_type === 'editorial' && "bg-purple-100 text-purple-800 border-purple-300",
+                        event.highlight_type === 'showcase' && "bg-blue-100 text-blue-800 border-blue-300",
+                        event.highlight_type === 'sponsored' && "bg-green-100 text-green-800 border-green-300"
+                      )}
+                    >
+                      {event.highlight_type === 'editorial' && '✨ Destaque Curatorial'}
+                      {event.highlight_type === 'showcase' && '🎭 Vitrine Cultural'}
+                      {event.highlight_type === 'sponsored' && '📢 Patrocinado'}
+                    </Badge>
+                  </div>
+                )}
+
+                {/* Motivos do Destaque */}
+                {(event.highlight_type && event.highlight_type !== 'none') && (
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-2">
+                      {event.highlight_type === 'editorial' && 'Por que é destaque'}
+                      {event.highlight_type === 'showcase' && 'Relevância cultural'}
+                      {event.highlight_type === 'sponsored' && 'Benefícios promocionais'}
+                    </h4>
+                    <div className="text-sm space-y-1">
+                      {event.highlight_type === 'editorial' && Array.isArray(event.highlight_notes) && event.highlight_notes.length > 0 ? (
+                        event.highlight_notes.slice(0, 3).map((reason, i) => (
+                          <div key={i} className="flex items-start gap-2">
+                            <span className="text-purple-600 mt-0.5">•</span>
+                            <span className="text-purple-800">{reason}</span>
+                          </div>
+                        ))
+                      ) : event.highlight_type === 'showcase' ? (
+                        <div className="flex items-start gap-2">
+                          <span className="text-blue-600 mt-0.5">•</span>
+                          <span className="text-blue-800">Projeto selecionado pela curadoria cultural</span>
+                        </div>
+                      ) : event.highlight_type === 'sponsored' ? (
+                        <div className="flex items-start gap-2">
+                          <span className="text-green-600 mt-0.5">•</span>
+                          <span className="text-green-800">Maior visibilidade e alcance promocional</span>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
             
