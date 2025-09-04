@@ -16,6 +16,7 @@ interface Event {
   city: string;
   date_start: string;
   image_url?: string;
+  slug?: string;
   venue?: { name: string };
   categories?: Array<{ category: { name: string; color: string } }>;
   price_min?: number;
@@ -90,7 +91,7 @@ const GlobalSearch = ({ events = [], highlights = [], isOpen, onClose }: GlobalS
                     {filteredEvents.map((event) => (
                       <Link
                         key={event.id}
-                        to={`/evento/${event.id}`}
+                        to={`/evento/${event.slug || event.id}`}
                         onClick={onClose}
                         className="block p-3 rounded-lg hover:bg-muted/50 transition-colors"
                       >

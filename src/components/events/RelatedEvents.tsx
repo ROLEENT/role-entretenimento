@@ -126,7 +126,7 @@ const RelatedEvents = ({ currentEventId, city, categories = [] }: RelatedEventsP
         {relatedEvents.map((event) => (
           <Link
             key={event.id}
-            to={`/evento/${event.id}`}
+            to={`/evento/${event.slug || event.id}`}
             className="block group"
           >
             <div className="flex gap-3 p-3 rounded-lg border transition-colors group-hover:bg-muted/50">

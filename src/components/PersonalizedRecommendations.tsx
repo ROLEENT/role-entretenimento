@@ -19,6 +19,7 @@ interface Event {
   state: string;
   price_min: number;
   image_url?: string;
+  slug?: string;
   venue?: {
     name: string;
     address: string;
@@ -273,7 +274,7 @@ const PersonalizedRecommendations = () => {
                       </span>
                       
                       <Button asChild size="sm">
-                        <Link to={`/evento/${event.id}`}>
+                        <Link to={`/evento/${event.slug || event.id}`}>
                           Ver Detalhes
                         </Link>
                       </Button>
