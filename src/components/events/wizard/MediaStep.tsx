@@ -148,8 +148,8 @@ export const MediaStep: React.FC = () => {
                     onChange={field.onChange}
                     label="Imagem Principal *"
                     description="Imagem principal do evento. Recomendado: 1920x1080px (16:9)"
-                    bucket="events"
-                    folder="main-images"
+                    bucket="agenda-images"
+                    folder="events/main-images"
                     maxSizeMB={10}
                     allowedTypes={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
                     variant="banner"
@@ -172,8 +172,8 @@ export const MediaStep: React.FC = () => {
                     onChange={field.onChange}
                     label="Imagem de Capa"
                     description="Imagem de capa para destaque. Recomendado: 2100x900px (21:9)"
-                    bucket="events"
-                    folder="cover-images"
+                    bucket="agenda-images"
+                    folder="events/cover-images"
                     maxSizeMB={10}
                     allowedTypes={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
                     variant="banner"
@@ -235,8 +235,8 @@ export const MediaStep: React.FC = () => {
                 }}
                 label="Adicionar à Galeria"
                 description="Arraste e solte ou clique para selecionar imagens. Recomendado: 1000x1000px (1:1)"
-                bucket="events"
-                folder="gallery"
+                bucket="agenda-images"
+                folder="events/gallery"
                 maxSizeMB={5}
                 allowedTypes={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
                 variant="thumbnail"
@@ -340,8 +340,8 @@ export const MediaStep: React.FC = () => {
                     onChange={field.onChange}
                     label="Imagem Open Graph"
                     description="Imagem para compartilhamento social. Recomendado: 1200x630px (1.91:1)"
-                    bucket="events"
-                    folder="og-images"
+                    bucket="agenda-images"
+                    folder="events/og-images"
                     maxSizeMB={2}
                     allowedTypes={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
                     variant="banner"

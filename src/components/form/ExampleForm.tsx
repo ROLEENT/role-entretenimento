@@ -152,7 +152,7 @@ export default function ExampleForm({ disabled = false }: ExampleFormProps) {
         <div className="space-y-4">
           <RHFUpload
             name="cover_url"
-            bucket="events"
+            bucket="agenda-images"
             label="Imagem de Capa"
             disabled={disabled}
           />
