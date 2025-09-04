@@ -132,8 +132,8 @@ export const eventSchema = z.object({
   // Dates & Times
   date_start: z.string().datetime("Data de início deve ser válida"),
   date_end: z.string().datetime("Data de fim deve ser válida").optional(),
-  doors_open_utc: z.string().datetime().optional(),
-  headliner_starts_utc: z.string().datetime().optional(),
+  doors_open_utc: z.string().datetime().optional().nullable(),
+  headliner_starts_utc: z.string().datetime().optional().nullable(),
   
   // Visual Content
   image_url: z.string().url().optional().or(z.literal('')),

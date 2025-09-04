@@ -163,7 +163,7 @@ export const DateLocationStep: React.FC = () => {
         <Controller
           name="doors_open_utc"
           control={control}
-          defaultValue=""
+          defaultValue={undefined}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Horário de Abertura</FormLabel>
@@ -175,7 +175,7 @@ export const DateLocationStep: React.FC = () => {
                   className="pl-10"
                   onChange={(e) => {
                     if (!dateStart || !e.target.value) {
-                      field.onChange('');
+                      field.onChange(undefined);
                       return;
                     }
                     const d = new Date(dateStart);
@@ -198,7 +198,7 @@ export const DateLocationStep: React.FC = () => {
         <Controller
           name="headliner_starts_utc"
           control={control}
-          defaultValue=""
+          defaultValue={undefined}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Início do Show Principal</FormLabel>
@@ -210,7 +210,7 @@ export const DateLocationStep: React.FC = () => {
                   className="pl-10"
                   onChange={(e) => {
                     if (!dateStart || !e.target.value) {
-                      field.onChange('');
+                      field.onChange(undefined);
                       return;
                     }
                     const d = new Date(dateStart);
