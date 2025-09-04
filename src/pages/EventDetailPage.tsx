@@ -184,9 +184,9 @@ const EventDetailPage = () => {
                   </div>
                 </div>
 
-                {event.external_url && (
+                {event.ticket_url && (
                   <Button asChild className="mb-6">
-                    <a href={event.external_url} target="_blank" rel="noopener noreferrer">
+                    <a href={event.ticket_url} target="_blank" rel="noopener noreferrer">
                       <Ticket className="h-4 w-4 mr-2" />
                       Comprar Ingressos
                     </a>
