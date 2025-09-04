@@ -405,8 +405,16 @@ const EventDetailPageV2 = () => {
                 </h4>
                 <p className="font-medium">{event.location_name || venue?.name}</p>
                 <p className="text-sm text-muted-foreground">{event.city}</p>
-                {venue?.opening_hours && (
-                  <p className="text-sm text-muted-foreground mt-1">{venue.opening_hours}</p>
+                {venue?.opening_hours && typeof venue.opening_hours === 'object' && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {(() => {
+                      const hours = venue.opening_hours as Record<string, string>;
+                      const todayEntries = Object.entries(hours).filter(([_, time]) => time && time.trim());
+                      if (todayEntries.length === 0) return null;
+                      const firstEntry = todayEntries[0];
+                      return `${firstEntry[0]}: ${firstEntry[1]}`;
+                    })()}
+                  </p>
                 )}
               </CardContent>
             </Card>

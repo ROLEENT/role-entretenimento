@@ -74,10 +74,27 @@ export function EventLocationCard({ event, venue }: EventLocationCardProps) {
         )}
         
         {/* Opening Hours */}
-        {venue?.opening_hours && (
+        {venue?.opening_hours && typeof venue.opening_hours === 'object' && (
           <div className="flex items-center gap-2 text-sm">
             <Clock className="h-4 w-4 text-muted-foreground" />
-            <span>{venue.opening_hours}</span>
+            <span>
+              {(() => {
+                const hours = venue.opening_hours as Record<string, string>;
+                const todayEntries = Object.entries(hours).filter(([_, time]) => time && time.trim());
+                if (todayEntries.length === 0) return 'Horários não informados';
+                const firstEntry = todayEntries[0];
+                const dayNames: Record<string, string> = {
+                  monday: 'Segunda',
+                  tuesday: 'Terça', 
+                  wednesday: 'Quarta',
+                  thursday: 'Quinta',
+                  friday: 'Sexta',
+                  saturday: 'Sábado',
+                  sunday: 'Domingo'
+                };
+                return `${dayNames[firstEntry[0]] || firstEntry[0]}: ${firstEntry[1]}`;
+              })()}
+            </span>
           </div>
         )}
         

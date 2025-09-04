@@ -175,14 +175,14 @@ export const reviewService = {
   async getEventReviews(eventId: string): Promise<any[]> {
     const { data, error } = await supabase
       .from('reviews')
-      .select(`
-        *,
-        user:profiles(display_name, avatar_url)
-      `)
+      .select('*')
       .eq('event_id', eventId)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching reviews:', error);
+      return []; // Return empty array instead of throwing
+    }
     return data || [];
   },
 
