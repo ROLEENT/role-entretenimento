@@ -2583,6 +2583,7 @@ export type Database = {
           start_at: string | null
           state: string
           status: string | null
+          subtitle: string | null
           summary: string | null
           tags: string[] | null
           ticket_rules: Json | null
@@ -2629,6 +2630,7 @@ export type Database = {
           start_at?: string | null
           state: string
           status?: string | null
+          subtitle?: string | null
           summary?: string | null
           tags?: string[] | null
           ticket_rules?: Json | null
@@ -2675,6 +2677,7 @@ export type Database = {
           start_at?: string | null
           state?: string
           status?: string | null
+          subtitle?: string | null
           summary?: string | null
           tags?: string[] | null
           ticket_rules?: Json | null
