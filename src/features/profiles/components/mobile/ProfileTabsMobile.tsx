@@ -83,10 +83,10 @@ export function ProfileTabsMobile({
             }}
             aria-label={tab.ariaLabel}
             role="tab"
-            aria-selected={activeTab === tab.id}
-            className={`flex-1 min-h-[56px] px-4 py-3 text-sm font-medium border-b-2 transition-all duration-300 hover:bg-accent/50 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-              activeTab === tab.id 
-                ? 'border-primary text-primary bg-primary/10 animate-fade-in' 
+            aria-selected={debouncedActiveTab === tab.id}
+            className={`flex-1 min-h-[56px] px-4 py-3 text-sm font-medium border-b-2 transition-colors duration-200 hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+              debouncedActiveTab === tab.id 
+                ? 'border-primary text-primary bg-primary/10' 
                 : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >

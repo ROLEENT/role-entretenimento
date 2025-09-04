@@ -14,13 +14,13 @@ export function useDeepLinking({ activeTab, onTabChange, validTabs }: DeepLinkin
   useEffect(() => {
     try {
       const urlTab = searchParams.get('tab');
-      if (urlTab && validTabs.includes(urlTab) && urlTab !== activeTab && onTabChange) {
+      if (urlTab && validTabs.includes(urlTab) && urlTab !== activeTab) {
         onTabChange(urlTab);
       }
     } catch (error) {
       console.debug('Deep linking error:', error);
     }
-  }, [searchParams, onTabChange, validTabs, activeTab]);
+  }, [searchParams, onTabChange, validTabs]); // Removed activeTab to prevent loop
 
   // Update URL when tab changes
   useEffect(() => {

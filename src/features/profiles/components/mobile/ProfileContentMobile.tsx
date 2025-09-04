@@ -20,7 +20,7 @@ const TabContentLoader = () => (
   </div>
 );
 
-export const ProfileContentMobile = memo(function ProfileContentMobile({ profile, activeTab }: ProfileContentMobileProps) {
+const ProfileContentMobile = memo(function ProfileContentMobile({ profile, activeTab }: ProfileContentMobileProps) {
   if (!profile) {
     return (
       <div className="md:hidden">
@@ -33,7 +33,7 @@ export const ProfileContentMobile = memo(function ProfileContentMobile({ profile
     <div className="md:hidden">
       {/* Visão Geral Tab Content */}
       {activeTab === "visao-geral" && (
-        <div className="mx-auto max-w-screen-sm space-y-0 animate-fade-in">
+        <div className="mx-auto max-w-screen-sm space-y-0">
           <Suspense fallback={<TabContentLoader />}>
             <ProfileBioMobile profile={profile} />
             
@@ -50,7 +50,7 @@ export const ProfileContentMobile = memo(function ProfileContentMobile({ profile
 
       {/* Agenda Tab Content */}
       {activeTab === "agenda" && (
-        <div className="mx-auto max-w-screen-sm px-4 py-3 animate-fade-in">
+        <div className="mx-auto max-w-screen-sm px-4 py-3">
           <Suspense fallback={<TabContentLoader />}>
             {profile.handle ? (
               <ProfileEventListMobile profile={profile} />
@@ -65,7 +65,7 @@ export const ProfileContentMobile = memo(function ProfileContentMobile({ profile
 
       {/* Conteúdos Tab Content */}
       {activeTab === "conteudos" && (
-        <div className="mx-auto max-w-screen-sm px-4 py-3 animate-fade-in">
+        <div className="mx-auto max-w-screen-sm px-4 py-3">
           <Suspense fallback={<TabContentLoader />}>
             <div className="text-center py-8 text-muted-foreground">
               <p>Conteúdos em breve</p>
@@ -76,7 +76,7 @@ export const ProfileContentMobile = memo(function ProfileContentMobile({ profile
 
       {/* Fotos e Vídeos Tab Content */}
       {activeTab === "fotos-videos" && (
-        <div className="mx-auto max-w-screen-sm px-4 py-3 animate-fade-in">
+        <div className="mx-auto max-w-screen-sm px-4 py-3">
           <Suspense fallback={<TabContentLoader />}>
             {profile.user_id ? (
               <ProfileMediaGridMobile profile={profile} />
@@ -91,7 +91,7 @@ export const ProfileContentMobile = memo(function ProfileContentMobile({ profile
 
       {/* Avaliações Tab Content */}
       {activeTab === "avaliacoes" && (
-        <div className="mx-auto max-w-screen-sm px-4 py-3 animate-fade-in">
+        <div className="mx-auto max-w-screen-sm px-4 py-3">
           <Suspense fallback={<TabContentLoader />}>
             <div className="text-center py-8 text-muted-foreground">
               <p>Avaliações em breve</p>
@@ -102,7 +102,7 @@ export const ProfileContentMobile = memo(function ProfileContentMobile({ profile
 
       {/* Sobre Tab Content */}
       {activeTab === "sobre" && (
-        <div className="mx-auto max-w-screen-sm animate-fade-in">
+        <div className="mx-auto max-w-screen-sm px-4 py-3">
           <Suspense fallback={<TabContentLoader />}>
             <ProfileAboutMobile profile={profile} />
           </Suspense>
@@ -111,3 +111,7 @@ export const ProfileContentMobile = memo(function ProfileContentMobile({ profile
     </div>
   );
 });
+
+ProfileContentMobile.displayName = 'ProfileContentMobile';
+
+export { ProfileContentMobile };
