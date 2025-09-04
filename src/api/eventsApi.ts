@@ -47,7 +47,7 @@ export interface Event {
   tags?: string[];
   
   // Highlighting
-  highlight_type?: 'none' | 'destaque' | 'vitrine';
+  highlight_type?: 'none' | 'curatorial' | 'vitrine';
   is_sponsored?: boolean;
   
   // Meta
@@ -307,7 +307,7 @@ export const eventsApi = {
         venue:venues(*),
         organizer:organizers(*)
       `)
-      .in('highlight_type', ['destaque', 'vitrine'])
+      .in('highlight_type', ['curatorial', 'vitrine'])
       .eq('status', 'published')
       .order('date_start', { ascending: true })
       .limit(limit);

@@ -23,7 +23,7 @@ interface EventCardV3Props {
     price_min?: number;
     price_max?: number;
     currency?: string;
-    highlight_type?: 'none' | 'destaque' | 'vitrine';
+    highlight_type?: 'none' | 'curatorial' | 'vitrine';
     is_sponsored?: boolean;
     age_rating?: string;
     genres?: string[];
@@ -44,9 +44,9 @@ const highlightConfig = {
     glow: '',
     border: 'border-border',
   },
-  destaque: {
+  curatorial: {
     gradient: 'bg-gradient-to-br from-primary/10 via-background to-primary/5',
-    badge: { text: 'Destaque', variant: 'secondary' as const },
+    badge: { text: 'Destaque Curatorial', variant: 'secondary' as const },
     icon: Star,
     glow: 'shadow-lg shadow-primary/20',
     border: 'border-primary/30',

@@ -29,7 +29,7 @@ export function EventIntegrationSummary() {
       status: "completed", 
       progress: 100,
       features: [
-        "✅ Variações por highlight_type (none, destaque, vitrine)",
+        "✅ Variações por highlight_type (none, curatorial, vitrine)",
         "✅ Múltiplos layouts (default, compact, grid, featured)",
         "✅ Animações Framer Motion",
         "✅ Responsive design",

@@ -219,7 +219,7 @@ export default function AdminV3EventsDashboard() {
                     <SelectContent>
                       <SelectItem value="">Todos</SelectItem>
                       <SelectItem value="none">Sem destaque</SelectItem>
-                      <SelectItem value="destaque">Destaque</SelectItem>
+                      <SelectItem value="curatorial">Destaque</SelectItem>
                       <SelectItem value="vitrine">Vitrine</SelectItem>
                     </SelectContent>
                   </Select>

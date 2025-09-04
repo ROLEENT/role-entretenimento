@@ -48,7 +48,7 @@ const sampleEvents = [
     image_url: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&h=300&fit=crop",
     price_min: 45,
     price_max: 80,
-    highlight_type: "destaque" as const,
+    highlight_type: "curatorial" as const,
     age_rating: "L" as const,
     genres: ["Jazz", "MPB"],
     slug: "noite-do-jazz",

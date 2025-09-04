@@ -36,7 +36,7 @@ export const SelectionReasonsManager: React.FC = () => {
   };
 
   // Only show for curatorial highlights
-  if (highlightType !== 'destaque') {
+  if (highlightType !== 'curatorial') {
     return null;
   }
 

@@ -163,7 +163,7 @@ export const EventCreateWizard: React.FC<EventCreateWizardProps> = ({
     let conditionalFields: (keyof EventFormData)[] = [];
     
     if (currentStep === 0) { // Basic step
-      if (formValues.highlight_type === 'destaque') {
+      if (formValues.highlight_type === 'curatorial') {
         conditionalFields.push('selection_reasons');
       }
     }

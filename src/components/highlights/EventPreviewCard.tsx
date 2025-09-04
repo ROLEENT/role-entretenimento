@@ -68,7 +68,7 @@ export const EventPreviewCard = ({
                   variant={data.highlight_type === 'vitrine' ? 'default' : 'secondary'}
                   className="text-xs"
                 >
-                  {data.highlight_type === 'vitrine' ? 'Vitrine Cultural' : 'Destaque'}
+                  {data.highlight_type === 'vitrine' ? 'Vitrine Cultural' : 'Destaque Curatorial'}
                 </Badge>
               </div>
             )}

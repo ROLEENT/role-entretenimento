@@ -534,7 +534,7 @@ export const ReviewStep: React.FC = () => {
                 )}
 
                 {/* Selection Reasons Preview */}
-                {formData.highlight_type === 'destaque' && formData.selection_reasons && formData.selection_reasons.length > 0 && (
+                {formData.highlight_type === 'curatorial' && formData.selection_reasons && formData.selection_reasons.length > 0 && (
                   <div>
                     <h3 className="font-semibold mb-2">Motivos da Seleção</h3>
                     <div className="flex flex-wrap gap-2">

@@ -114,7 +114,7 @@ const PUBLICATION_CHECKLIST: ChecklistItem[] = [
     id: 'selection_reasons',
     label: 'Motivos da escolha (para destaque curatorial)',
     required: false,
-    check: (data) => data.highlight_type !== 'destaque' || (data.selection_reasons && data.selection_reasons.length > 0),
+    check: (data) => data.highlight_type !== 'curatorial' || (data.selection_reasons && data.selection_reasons.length > 0),
     description: 'Motivos para eventos de destaque curatorial'
   }
 ];
@@ -384,7 +384,7 @@ export const PublishStep: React.FC = () => {
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="none">Sem destaque</SelectItem>
-                    <SelectItem value="destaque">Destaque Curatorial</SelectItem>
+                    <SelectItem value="curatorial">Destaque Curatorial</SelectItem>
                     <SelectItem value="vitrine">Vitrine Cultural</SelectItem>
                   </SelectContent>
                 </Select>

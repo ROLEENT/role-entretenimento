@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // Enum validations
-export const highlightTypeSchema = z.enum(['none', 'destaque', 'vitrine']);
+export const highlightTypeSchema = z.enum(['none', 'curatorial', 'vitrine']);
 export const publicationStatusSchema = z.enum(['draft', 'scheduled', 'published', 'archived']);
 export const ageRatingSchema = z.enum(['L', '10', '12', '14', '16', '18']);
 export const partnerRoleSchema = z.enum(['organizer', 'supporter', 'sponsor']);
@@ -285,7 +285,7 @@ export const eventSchema = z.object({
   }
   
   // Selection reasons validation for curatorial highlights
-  if (data.highlight_type === 'destaque' && (!data.selection_reasons || data.selection_reasons.length === 0)) {
+  if (data.highlight_type === 'curatorial' && (!data.selection_reasons || data.selection_reasons.length === 0)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: "Motivos da escolha são obrigatórios para Destaque Curatorial",
