@@ -7,10 +7,20 @@ import { MoreHorizontal, Edit, Copy, Eye, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
-import { AgendaItemInput } from '@/schemas/agenda';
+// Using events data format instead of agenda_itens
+interface EventData {
+  id: string;
+  title: string;
+  subtitle?: string;
+  status: string;
+  city?: string;
+  date_start?: string;
+  tags?: string[];
+  slug: string;
+}
 
 interface AdminAgendaTableProps {
-  data: AgendaItemInput[];
+  data: EventData[];
   loading: boolean;
   error: any;
   onRefresh: () => void;
@@ -38,14 +48,14 @@ export function AdminAgendaTable({
 }: AdminAgendaTableProps) {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
-  // Transform data for table
+  // Transform events data for table
   const tableData: AgendaTableItem[] = data.map(item => ({
     id: item.id || '',
     title: item.title || '',
     subtitle: item.subtitle,
     status: item.status || 'draft',
     city: item.city,
-    starts_at: item.start_at_utc ? item.start_at_utc.toISOString() : undefined,
+    starts_at: item.date_start || undefined,
     tags: item.tags,
     slug: item.slug || ''
   }));
@@ -95,7 +105,7 @@ export function AdminAgendaTable({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem asChild>
-          <Link to={`/admin-v3/agenda/${item.id}/editar`} className="flex items-center gap-2">
+          <Link to={`/admin-v3/eventos/${item.id}/editar`} className="flex items-center gap-2">
             <Edit className="h-4 w-4" />
             Editar
           </Link>
@@ -105,7 +115,7 @@ export function AdminAgendaTable({
           Duplicar
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to={`/preview/agenda/${item.slug}`} target="_blank" className="flex items-center gap-2">
+          <Link to={`/eventos/${item.slug}`} target="_blank" className="flex items-center gap-2">
             <Eye className="h-4 w-4" />
             Visualizar
           </Link>
@@ -132,7 +142,7 @@ export function AdminAgendaTable({
   };
 
   const handleView = (item: AgendaTableItem) => {
-    window.open(`/preview/agenda/${item.slug}`, '_blank');
+    window.open(`/eventos/${item.slug}`, '_blank');
   };
 
   const handleBatchStatusChange = (selectedItems: AgendaTableItem[], newStatus: string) => {
