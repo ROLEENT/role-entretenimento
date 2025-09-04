@@ -11,9 +11,9 @@ interface City {
 const AgendaPorCidadeHome = () => {
   // Use static data for now to eliminate loading/flickering
   const cities = [
-    { slug: "porto-alegre", name: "Porto Alegre", count: 42 },
-    { slug: "sao-paulo", name: "São Paulo", count: 120 },
-    { slug: "rio-de-janeiro", name: "Rio de Janeiro", count: 88 },
+    { slug: "porto_alegre", name: "Porto Alegre", count: 42 },
+    { slug: "sao_paulo", name: "São Paulo", count: 120 },
+    { slug: "rio_de_janeiro", name: "Rio de Janeiro", count: 88 },
     { slug: "florianopolis", name: "Florianópolis", count: 15 },
     { slug: "curitiba", name: "Curitiba", count: 27 },
     { slug: "outras-cidades", name: "Outras cidades", count: 0 },

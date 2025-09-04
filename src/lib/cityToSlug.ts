@@ -18,6 +18,11 @@ export function cityNameToSlug(name: string): string {
     .replace(/\s+/g, '_'); // Replace spaces with underscores
 }
 
+// Normalize slug to use underscores (converts hyphens to underscores)
+export function normalizeSlug(slug: string): string {
+  return slug.replace(/-/g, '_');
+}
+
 // Convert slug back to display name for UI
 export function slugToCityName(slug: string): string {
   // First check if it's a capital

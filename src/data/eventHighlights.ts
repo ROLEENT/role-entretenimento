@@ -34,7 +34,7 @@ export const eventHighlights: EventHighlight[] = [
     genre: "Rock/Punk",
     price: 35,
     city: "Porto Alegre",
-    citySlug: "porto-alegre",
+    citySlug: "porto_alegre",
     featured: true,
     weekRange: "14-17 Agosto"
   },
@@ -53,7 +53,7 @@ export const eventHighlights: EventHighlight[] = [
     genre: "Psytrance",
     price: 180,
     city: "Porto Alegre", 
-    citySlug: "porto-alegre",
+    citySlug: "porto_alegre",
     featured: true,
     weekRange: "14-17 Agosto"
   },
@@ -72,7 +72,7 @@ export const eventHighlights: EventHighlight[] = [
     genre: "MPB",
     price: 60,
     city: "Porto Alegre",
-    citySlug: "porto-alegre", 
+    citySlug: "porto_alegre",
     featured: false,
     weekRange: "14-17 Agosto"
   },
@@ -90,7 +90,7 @@ export const eventHighlights: EventHighlight[] = [
     genre: "Pop",
     price: 25,
     city: "Porto Alegre",
-    citySlug: "porto-alegre",
+    citySlug: "porto_alegre",
     featured: false,
     weekRange: "14-17 Agosto"
   },
@@ -109,7 +109,7 @@ export const eventHighlights: EventHighlight[] = [
     genre: "Drag Show",
     price: 45,
     city: "Porto Alegre",
-    citySlug: "porto-alegre",
+    citySlug: "porto_alegre",
     featured: true,
     weekRange: "14-17 Agosto"
   }

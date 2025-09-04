@@ -23,7 +23,7 @@ export const blogPosts: BlogPost[] = [
   {
     id: "1",
     city: "Porto Alegre",
-    citySlug: "porto-alegre",
+    citySlug: "porto_alegre",
     title: "Eventos em Porto Alegre: os rolês que vão tomar conta da cidade nesta semana",
     slug: "14-17-agosto",
     lead: "Porto Alegre tá daquele jeito — no talo. Entre os dias 14 e 17 de agosto, a capital gaúcha entrega um cardápio de rolês que vai do rock pesado ao psytrance de 30 horas, passando por pop nostálgico, darkwave elegante, samba raiz e até um techno fetichista que promete virar madrugada.",
@@ -81,7 +81,7 @@ A dúvida agora é boa: seguir o techno até o sol nascer ou acordar cedo para a
   {
     id: "2",
     city: "São Paulo",
-    citySlug: "sao-paulo",
+    citySlug: "sao_paulo",
     title: "São Paulo ferve: a agenda cultural que não para de crescer",
     slug: "21-24-agosto",
     lead: "A capital paulista não dorme e nem deveria. Esta semana, a cidade entrega desde shows intimistas em galerias até festivals que ocupam a madrugada inteira.",
@@ -113,7 +113,7 @@ São Paulo nunca decepciona. A única dificuldade é escolher entre tantas opç�
   {
     id: "3",
     city: "Rio de Janeiro",
-    citySlug: "rio-de-janeiro",
+    citySlug: "rio_de_janeiro",
     title: "Rio: entre o funk e o jazz, a cidade que não para",
     slug: "07-10-setembro",
     lead: "O Rio continua sendo o laboratório cultural mais efervescente do país. Funk, jazz, rock e MPB se misturam numa semana que promete ser inesquecível.",

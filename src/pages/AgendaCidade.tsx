@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate, Navigate } from 'react-router-dom';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +13,7 @@ import { useAgendaCidadeData } from '@/hooks/useAgendaCidadeData';
 import { useSearchDebounce } from '@/hooks/useSearchDebounce';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { slugToCityName, isCapitalSlug, capitalSlugToCode } from '@/lib/cityToSlug';
+import { slugToCityName, isCapitalSlug, capitalSlugToCode, normalizeSlug } from '@/lib/cityToSlug';
 import { EventCardV3 } from '@/components/events/EventCardV3';
 
 
@@ -84,6 +84,11 @@ export default function AgendaCidade() {
   const { cidade } = useParams<{ cidade: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  // Normalize the slug to use underscores and redirect if needed
+  if (cidade && cidade !== normalizeSlug(cidade)) {
+    return <Navigate to={`/agenda/cidade/${normalizeSlug(cidade)}`} replace />;
+  }
 
   // Force scroll to top when city changes
   useEffect(() => {
