@@ -35,7 +35,7 @@ export function ProfileTabsMobile({
     },
     {
       id: "midia",
-      label: "Mídia",
+      label: "Mídia", 
       icon: Image,
       count: mediaCount > 0 ? mediaCount : undefined,
       ariaLabel: `Ver mídia ${mediaCount > 0 ? `com ${mediaCount} itens` : ''}`

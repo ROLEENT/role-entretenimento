@@ -13,9 +13,14 @@ interface ProfileEventListMobileProps {
 }
 
 export const ProfileEventListMobile = memo(function ProfileEventListMobile({ profile, limit }: ProfileEventListMobileProps) {
-  const { data: events = [], isLoading } = useProfileEvents(profile.handle, profile.type);
+  const { data: events = [], isLoading, error } = useProfileEvents(profile.handle, profile.type);
   const navigate = useNavigate();
   const { showAnimatedToast } = useAnimatedToast();
+
+  console.log(`ProfileEventListMobile - Profile: ${profile.name} (${profile.type}), Handle: ${profile.handle}`);
+  console.log(`ProfileEventListMobile - Events:`, events);
+  console.log(`ProfileEventListMobile - IsLoading:`, isLoading);
+  console.log(`ProfileEventListMobile - Error:`, error);
 
   const displayEvents = limit ? events.slice(0, limit) : events;
 
@@ -36,8 +41,19 @@ export const ProfileEventListMobile = memo(function ProfileEventListMobile({ pro
   }, [navigate, showAnimatedToast]);
 
   const handleViewAllEvents = useCallback(() => {
-    navigate(`/perfil/${profile.handle}/agenda`);
-  }, [navigate, profile.handle]);
+    // Navegar para a aba agenda do perfil sem usar rota específica
+    if ('vibrate' in navigator) {
+      navigator.vibrate(50);
+    }
+    console.log('Clicou em Ver todos os eventos');
+    // Simples reload da página na aba agenda pode ser implementado aqui
+    // Por ora, vamos apenas dar feedback visual
+    showAnimatedToast({
+      title: "Agenda completa",
+      description: "Confira todos os eventos abaixo",
+      duration: 2000
+    });
+  }, [showAnimatedToast]);
 
   if (isLoading) {
     return (

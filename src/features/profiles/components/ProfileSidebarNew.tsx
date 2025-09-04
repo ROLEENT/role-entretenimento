@@ -68,6 +68,17 @@ export function ProfileSidebarNew({ profile }: ProfileSidebarNewProps) {
             </div>
           </div>
 
+          {/* Location - Highlighted for all types but especially venues */}
+          {profile.city && (
+            <div className="flex items-center gap-3">
+              <MapPinIcon className="w-4 h-4 text-primary" />
+              <div>
+                <p className="text-sm font-medium text-primary">{profile.city}</p>
+                <p className="text-xs text-muted-foreground">Localização</p>
+              </div>
+            </div>
+          )}
+
           {/* Category for venues */}
           {profile.type === 'local' && profile.category_name && (
             <div className="flex items-center gap-3">

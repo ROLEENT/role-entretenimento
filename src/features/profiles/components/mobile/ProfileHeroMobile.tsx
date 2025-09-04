@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { VerifiedIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { VerifiedIcon, MapPinIcon } from "lucide-react";
 import { Profile } from "@/features/profiles/api";
 import { LazyImage } from "@/components/ui/lazy-image";
 
@@ -55,12 +56,20 @@ export function ProfileHeroMobile({ profile }: ProfileHeroMobileProps) {
           
           <p className="text-sm text-white/70">@{profile.handle}</p>
           
-          {/* Location info if available */}
-          {(profile.city || profile.state) && (
-            <p className="text-sm text-white/70">
-              {profile.city}{profile.city && profile.state && ', '}{profile.state}
-            </p>
-          )}
+          {/* Location and Category badges */}
+          <div className="flex flex-wrap items-center gap-2 mt-2">
+            {profile.city && (
+              <Badge variant="secondary" className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
+                <MapPinIcon className="w-3 h-3 mr-1" />
+                {profile.city}
+              </Badge>
+            )}
+            {profile.category_name && (
+              <Badge variant="outline" className="bg-white/10 text-white border-white/30 backdrop-blur-sm">
+                {profile.category_name}
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
     </div>

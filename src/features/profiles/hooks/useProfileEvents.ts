@@ -21,60 +21,171 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
     queryKey: ['profile-events', profileHandle, profileType],
     queryFn: async () => {
       try {
-        // Primeiro, tentar buscar na tabela events (mais atual)
+        console.log(`Buscando eventos para ${profileType}: ${profileHandle}`);
         let eventsData: ProfileEvent[] = [];
         
         if (profileType === 'local') {
-          // Para locais, buscar por venue_id e location_name
-          // Primeiro, buscar o venue pelo slug/handle
-          const { data: venues } = await supabase
+          // Para locais, buscar de forma robusta
+          console.log(`Buscando venue para handle: ${profileHandle}`);
+          
+          // Primeiro, buscar o venue pelo slug
+          const { data: venues, error: venueError } = await supabase
             .from('venues')
-            .select('id, name, slug')
-            .or(`slug.eq.${profileHandle},name.ilike.%${profileHandle}%`)
+            .select('id, name, slug, city')
+            .eq('slug', profileHandle)
             .limit(1);
 
-          let venueQuery = supabase
-            .from('events')
-            .select(`
-              id, title, slug, subtitle, image_url, date_start, date_end, city, location_name, status, visibility,
-              venue:venues(id, name, city)
-            `)
-            .eq('status', 'published');
+          console.log('Venues encontrados:', venues);
+          if (venueError) console.error('Erro ao buscar venue:', venueError);
 
           if (venues && venues.length > 0) {
-            // Buscar eventos pelo venue_id OU location_name
-            venueQuery = venueQuery.or(`venue_id.eq.${venues[0].id},location_name.ilike.%${profileHandle}%`);
-          } else {
-            // Fallback: buscar apenas por location_name
-            venueQuery = venueQuery.ilike('location_name', `%${profileHandle}%`);
-          }
+            const venue = venues[0];
+            console.log(`Venue encontrado: ${venue.name} (${venue.city})`);
+            
+            // Buscar eventos usando múltiplas estratégias
+            try {
+              // 1. Buscar na tabela events por venue_id
+              const { data: eventsByVenue, error: error1 } = await supabase
+                .from('events')
+                .select('id, title, slug, subtitle, image_url, date_start, date_end, city, location_name, status, visibility')
+                .eq('venue_id', venue.id)
+                .eq('status', 'published')
+                .gte('date_start', new Date().toISOString())
+                .order('date_start', { ascending: true })
+                .limit(20);
 
-          const { data: eventsResult, error: eventsError } = await venueQuery
-            .gte('date_start', new Date().toISOString())
-            .order('date_start', { ascending: true })
-            .limit(20);
+              // 2. Buscar na tabela events por location_name
+              const { data: eventsByLocation, error: error2 } = await supabase
+                .from('events')
+                .select('id, title, slug, subtitle, image_url, date_start, date_end, city, location_name, status, visibility')
+                .ilike('location_name', `%${venue.name}%`)
+                .eq('status', 'published')
+                .gte('date_start', new Date().toISOString())
+                .order('date_start', { ascending: true })
+                .limit(20);
+              
+              // 3. Buscar na agenda_itens
+              const { data: eventsFromAgenda, error: error3 } = await supabase
+                .from('agenda_itens')
+                .select('id, title, slug, subtitle, cover_url, starts_at, end_at, city, location_name, status, type, tags')
+                .ilike('location_name', `%${venue.name}%`)
+                .eq('status', 'published')
+                .is('deleted_at', null)
+                .gte('starts_at', new Date().toISOString())
+                .order('starts_at', { ascending: true })
+                .limit(20);
 
-          if (eventsError) {
-            console.error('Error fetching events:', eventsError);
+              // Combinar todos os resultados
+              let allEvents: any[] = [];
+              
+              // Adicionar eventos da tabela events (venue_id)
+              if (eventsByVenue && !error1) {
+                const mappedEvents = eventsByVenue.map((event: any) => ({
+                  id: event.id,
+                  title: event.title,
+                  slug: event.slug,
+                  subtitle: event.subtitle,
+                  cover_url: event.image_url,
+                  starts_at: event.date_start,
+                  end_at: event.date_end,
+                  city: event.city || venue.city,
+                  location_name: venue.name, // Sempre usar o nome do venue
+                  status: event.status,
+                  type: event.visibility,
+                  tags: [],
+                  source: 'events_by_venue'
+                }));
+                allEvents = [...allEvents, ...mappedEvents];
+                console.log(`Encontrados ${mappedEvents.length} eventos por venue_id`);
+              }
+
+              // Adicionar eventos da tabela events (location_name)
+              if (eventsByLocation && !error2) {
+                const mappedEvents = eventsByLocation.map((event: any) => ({
+                  id: event.id,
+                  title: event.title,
+                  slug: event.slug,
+                  subtitle: event.subtitle,
+                  cover_url: event.image_url,
+                  starts_at: event.date_start,
+                  end_at: event.date_end,
+                  city: event.city || venue.city,
+                  location_name: venue.name, // Sempre usar o nome do venue
+                  status: event.status,
+                  type: event.visibility,
+                  tags: [],
+                  source: 'events_by_location'
+                }));
+                allEvents = [...allEvents, ...mappedEvents];
+                console.log(`Encontrados ${mappedEvents.length} eventos por location_name`);
+              }
+
+              // Adicionar eventos da agenda_itens
+              if (eventsFromAgenda && !error3) {
+                const mappedEvents = eventsFromAgenda.map((event: any) => ({
+                  id: event.id,
+                  title: event.title,
+                  slug: event.slug,
+                  subtitle: event.subtitle,
+                  cover_url: event.cover_url,
+                  starts_at: event.starts_at,
+                  end_at: event.end_at,
+                  city: event.city || venue.city,
+                  location_name: venue.name, // Sempre usar o nome do venue
+                  status: event.status,
+                  type: event.type,
+                  tags: event.tags || [],
+                  source: 'agenda_itens'
+                }));
+                allEvents = [...allEvents, ...mappedEvents];
+                console.log(`Encontrados ${mappedEvents.length} eventos da agenda_itens`);
+              }
+
+              // Remover duplicatas baseado no slug
+              const uniqueEvents = allEvents.reduce((acc: any[], event: any) => {
+                if (!acc.some(e => e.slug === event.slug)) {
+                  acc.push(event);
+                }
+                return acc;
+              }, []);
+
+              // Ordenar por data
+              eventsData = uniqueEvents.sort((a, b) => 
+                new Date(a.starts_at || '').getTime() - new Date(b.starts_at || '').getTime()
+              );
+
+              console.log(`Total de eventos únicos para ${venue.name}: ${eventsData.length}`);
+              
+            } catch (queryError) {
+              console.error('Erro ao buscar eventos:', queryError);
+            }
           } else {
-            // Mapear dados da tabela events para o formato ProfileEvent
-            eventsData = (eventsResult || []).map((event: any) => ({
-              id: event.id,
-              title: event.title,
-              slug: event.slug,
-              subtitle: event.subtitle,
-              cover_url: event.image_url,
-              starts_at: event.date_start,
-              end_at: event.date_end,
-              city: event.city || (event.venue && event.venue[0]?.city) || 'Cidade a definir',
-              location_name: event.location_name || (event.venue && event.venue[0]?.name) || 'Local a definir',
-              status: event.status,
-              type: event.visibility,
-              tags: []
-            }));
+            console.log('Nenhum venue encontrado, tentando fallback...');
+            
+            // Fallback: buscar diretamente na agenda_itens
+            const { data: fallbackEvents, error: fallbackError } = await supabase
+              .from('agenda_itens')
+              .select('id, title, slug, subtitle, cover_url, starts_at, end_at, city, location_name, status, type, tags')
+              .or(`location_name.ilike.%${profileHandle}%,title.ilike.%${profileHandle}%`)
+              .eq('status', 'published')
+              .is('deleted_at', null)
+              .gte('starts_at', new Date().toISOString())
+              .order('starts_at', { ascending: true })
+              .limit(20);
+            
+            if (!fallbackError && fallbackEvents) {
+              eventsData = fallbackEvents.map((event: any) => ({
+                ...event,
+                cover_url: event.cover_url,
+                starts_at: event.starts_at,
+                end_at: event.end_at,
+                source: 'fallback'
+              }));
+              console.log(`Fallback encontrou ${eventsData.length} eventos`);
+            }
           }
         } else {
-          // Para outros tipos, manter busca na agenda_itens se necessário
+          // Para outros tipos (artistas, organizadores)
           let query = supabase
             .from('agenda_itens')
             .select(`
@@ -104,7 +215,7 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
           }
         }
 
-        console.log(`Profile events for ${profileType} "${profileHandle}":`, eventsData);
+        console.log(`Eventos finais para ${profileType} "${profileHandle}":`, eventsData);
         return eventsData;
       } catch (error) {
         console.error('Error in useProfileEvents:', error);
