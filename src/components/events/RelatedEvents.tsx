@@ -107,7 +107,7 @@ const RelatedEvents = ({ currentEventId, city, categories = [] }: RelatedEventsP
             Nenhum evento relacionado encontrado no momento.
           </p>
           <Button asChild variant="outline" className="w-full">
-            <Link to="/eventos">
+            <Link to="/agenda">
               Ver Todos os Eventos
               <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
@@ -178,7 +178,7 @@ const RelatedEvents = ({ currentEventId, city, categories = [] }: RelatedEventsP
         ))}
         
         <Button asChild variant="outline" className="w-full mt-4">
-          <Link to="/eventos">
+          <Link to="/agenda">
             Ver Mais Eventos
             <ArrowRight className="w-4 h-4 ml-2" />
           </Link>

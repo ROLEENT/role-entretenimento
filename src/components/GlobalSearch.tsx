@@ -185,7 +185,7 @@ const GlobalSearch = ({ events = [], highlights = [], isOpen, onClose }: GlobalS
                   <h3 className="text-sm font-medium text-muted-foreground mb-3">Ações Rápidas</h3>
                   <div className="grid grid-cols-2 gap-2">
                     <Link
-                      to="/eventos"
+                      to="/agenda"
                       onClick={onClose}
                       className="p-3 rounded-lg hover:bg-muted/50 transition-colors text-center"
                     >

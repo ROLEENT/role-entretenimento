@@ -288,7 +288,7 @@ const PersonalizedRecommendations = () => {
 
         <div className="text-center mt-8">
           <Button asChild variant="outline">
-            <Link to="/eventos">
+            <Link to="/agenda">
               Ver Todos os Eventos
             </Link>
           </Button>
