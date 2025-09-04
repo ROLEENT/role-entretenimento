@@ -66,7 +66,7 @@ const FeaturedEventsToday = () => {
           .from('events')
           .select(`
             id, title, city, image_url, date_start, tags, price_min, price_max,
-            venue:venues(name, address, city)
+            venues(name, address, city)
           `)
           .eq('status', 'published')
           .eq('highlight_type', 'curatorial')
@@ -81,7 +81,7 @@ const FeaturedEventsToday = () => {
             city: event.city,
             cover_url: event.image_url,
             start_at: event.date_start,
-            venue_name: event.venue?.[0]?.name,
+            venue_name: event.venues?.name,
             tags: event.tags,
             event_type: 'curadoria' as const,
             price_min: event.price_min,
@@ -95,7 +95,7 @@ const FeaturedEventsToday = () => {
           .from('events')
           .select(`
             id, title, city, image_url, date_start, tags, price_min, price_max,
-            venue:venues(name, address, city)
+            venues(name, address, city)
           `)
           .eq('status', 'published')
           .eq('highlight_type', 'vitrine')
@@ -110,7 +110,7 @@ const FeaturedEventsToday = () => {
             city: event.city,
             cover_url: event.image_url,
             start_at: event.date_start,
-            venue_name: event.venue?.[0]?.name,
+            venue_name: event.venues?.name,
             tags: event.tags,
             event_type: 'vitrine' as const,
             price_min: event.price_min,
