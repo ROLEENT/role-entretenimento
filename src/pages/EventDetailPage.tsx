@@ -208,6 +208,14 @@ const EventDetailPage = () => {
                   </Button>
                 )}
 
+                {!event.ticket_url && (
+                  <div className="mb-6 p-4 bg-muted/50 rounded-lg">
+                    <p className="text-sm text-muted-foreground">
+                      Informações sobre ingressos serão divulgadas em breve.
+                    </p>
+                  </div>
+                )}
+
                 {event.summary && (
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-3">Resumo</h3>
