@@ -65,47 +65,56 @@ const toISO = (v?: Date | string | null) =>
 const fromISO = (iso?: string | null) =>
   iso ? new Date(iso) : undefined;
 
-function VenueSection() {
-  const { setValue, watch, register } = useFormContext();
-  const selectedId = watch('venue_id') || '';
+// helper
+async function fetchVenues(q: string) {
+  if (!q) return [];
+  const base = 'https://nutlcbnruabjsxecqpnd.supabase.co';
+  const key  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51dGxjYm5ydWFianN4ZWNxcG5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MTcwOTgsImV4cCI6MjA3MTA5MzA5OH0.K_rfijLK9e3EbDxU4uddtY0sUMUvtH-yHNEbW8Ohp5c';
+  const url =
+    `${base}/rest/v1/venues?select=id,name,city` +
+    `&or=(name.ilike.*${encodeURIComponent(q)}*,city.ilike.*${encodeURIComponent(q)}*)&order=name.asc&limit=10`;
+  const res = await fetch(url, { headers: { apikey: key } });
+  return res.ok ? (await res.json()) as {id:string;name:string;city?:string}[] : [];
+}
 
-  const handleVenueSelect = (venue: any) => {
-    setValue('venue_id', venue ? venue.id : '', { shouldValidate: true });
-  };
+function VenueDatalist() {
+  const { register, setValue, watch } = useFormContext();
+  const [q, setQ] = React.useState("");
+  const [opts, setOpts] = React.useState<{id:string;name:string;city?:string}[]>([]);
+  const selectedId = watch("venue_id") as string | undefined;
+
+  React.useEffect(() => {
+    let alive = true;
+    fetchVenues(q).then(r => { if (alive) setOpts(r); });
+    return () => { alive = false; };
+  }, [q]);
 
   return (
-    <div className="space-y-4">
-      <FormItem>
-        <FormLabel>Local do Evento</FormLabel>
-        <FormControl>
-          <VenueAutocomplete
-            value={selectedId}
-            onSelect={handleVenueSelect}
-            placeholder="Buscar e selecionar venue..."
-          />
-        </FormControl>
-        <FormDescription>
-          Busque por venues cadastrados ou informe um endereço manual
-        </FormDescription>
-        <FormMessage />
-      </FormItem>
-      
+    <>
+      <input
+        list="venues"
+        className="w-full h-10 rounded-md border px-3"
+        placeholder="Buscar venue..."
+        onChange={(e) => {
+          const val = e.target.value.trim();
+          setQ(val);
+          const hit = opts.find(o => `${o.name}${o.city ? " • " + o.city : ""}`.toLowerCase() === val.toLowerCase());
+          setValue("venue_id", hit ? hit.id : "", { shouldValidate: true });
+        }}
+      />
+      <datalist id="venues">
+        {opts.map(o => (
+          <option key={o.id} value={`${o.name}${o.city ? " • " + o.city : ""}`} />
+        ))}
+      </datalist>
+
       {!selectedId && (
-        <FormItem>
-          <FormLabel>Endereço Manual</FormLabel>
-          <FormControl>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input {...register("address")} placeholder="Nome e endereço do local" className="pl-10" />
-            </div>
-          </FormControl>
-          <FormDescription>
-            Informe o nome e endereço caso não encontre o venue na busca
-          </FormDescription>
-          <FormMessage />
-        </FormItem>
+        <>
+          <label className="mt-2 block">Nome do Local</label>
+          <input {...register("address")} className="w-full h-10 rounded-md border px-3" placeholder="Nome e endereço do local" />
+        </>
       )}
-    </div>
+    </>
   );
 }
 
@@ -255,7 +264,7 @@ export const DateLocationStep: React.FC = () => {
 
         {/* Venue Selector */}
         <div className="lg:col-span-2">
-          <VenueSection />
+          <VenueDatalist />
         </div>
 
         {/* State */}
