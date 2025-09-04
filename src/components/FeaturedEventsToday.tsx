@@ -84,7 +84,7 @@ const FeaturedEventsToday = () => {
         const { data: eventsData, error: eventsError } = await supabase
           .from('events')
           .select('id, title, city, image_url, date_start, tags, price_min, price_max')
-          .eq('status', 'active')
+          .eq('status', 'published')
           .gte('date_start', new Date().toISOString())
           .order('date_start', { ascending: true })
           .limit(1);
