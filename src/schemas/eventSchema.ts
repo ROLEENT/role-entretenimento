@@ -188,6 +188,9 @@ export const eventSchema = z.object({
   performances: z.array(performanceSchema).default([]),
   visual_artists: z.array(visualArtistSchema).default([]),
   
+  // Simple artists array (alternative to lineup_slots for simple events)
+  artists: z.array(lineupSlotArtistSchema).default([]),
+  
   // Metadata
   created_at: z.string().datetime().optional(),
   updated_at: z.string().datetime().optional(),

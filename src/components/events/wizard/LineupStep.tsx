@@ -22,13 +22,15 @@ import {
   Palette,
   GripVertical,
   ChevronUp,
-  ChevronDown
+  ChevronDown,
+  X,
+  Settings
 } from 'lucide-react';
 import { ComboboxAsync } from '@/components/ui/combobox-async';
 import { useEntityLookup } from '@/hooks/useEntityLookup';
 import { TicketRulesSection } from './TicketRulesSection';
+import { SimpleArtistSelector } from './SimpleArtistSelector';
 import { cn } from '@/lib/utils';
-import { X } from 'lucide-react';
 
 // Drag and drop functionality (simplified)
 const DragHandle: React.FC<{ onMoveUp: () => void; onMoveDown: () => void; canMoveUp: boolean; canMoveDown: boolean }> = ({ 
@@ -210,6 +212,7 @@ const ArtistSlotManager: React.FC<ArtistSlotManagerProps> = ({ control, slotInde
 export const LineupStep: React.FC = () => {
   const { control, watch } = useFormContext<EventFormData>();
   const [activeTab, setActiveTab] = useState('lineup');
+  const [useAdvancedMode, setUseAdvancedMode] = useState(false);
   
   const { searchEntities: searchArtists } = useEntityLookup({ type: 'artists' });
 
@@ -308,37 +311,143 @@ export const LineupStep: React.FC = () => {
             <div>
               <h3 className="text-lg font-semibold">Lineup Musical</h3>
               <p className="text-sm text-muted-foreground">
-                Organize os artistas por slots de horário
+                {useAdvancedMode ? 'Organize os artistas por slots de horário' : 'Selecione os artistas do evento'}
               </p>
             </div>
-            <Button onClick={addLineupSlot} className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              Adicionar Slot
-            </Button>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="advanced-mode"
+                  checked={useAdvancedMode}
+                  onCheckedChange={setUseAdvancedMode}
+                />
+                <FormLabel htmlFor="advanced-mode" className="text-sm flex items-center gap-1">
+                  <Settings className="w-4 h-4" />
+                  Modo avançado (slots)
+                </FormLabel>
+              </div>
+              {useAdvancedMode && (
+                <Button onClick={addLineupSlot} className="flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
+                  Adicionar Slot
+                </Button>
+              )}
+            </div>
           </div>
 
-          {lineupSlots.map((slot, slotIndex) => (
-            <Card key={slot.id} className="relative">
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <DragHandle
-                      onMoveUp={() => moveLineupSlot(slotIndex, slotIndex - 1)}
-                      onMoveDown={() => moveLineupSlot(slotIndex, slotIndex + 1)}
-                      canMoveUp={slotIndex > 0}
-                      canMoveDown={slotIndex < lineupSlots.length - 1}
-                    />
-                    <div className="space-y-1">
+          {/* Simple Mode - Direct Artist Selection */}
+          {!useAdvancedMode && (
+            <SimpleArtistSelector />
+          )}
+
+          {/* Advanced Mode - Slot-based lineup */}
+          {useAdvancedMode && (
+            <div className="space-y-4">
+              {lineupSlots.map((slot, slotIndex) => (
+                <Card key={slot.id} className="relative">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <DragHandle
+                          onMoveUp={() => moveLineupSlot(slotIndex, slotIndex - 1)}
+                          onMoveDown={() => moveLineupSlot(slotIndex, slotIndex + 1)}
+                          canMoveUp={slotIndex > 0}
+                          canMoveDown={slotIndex < lineupSlots.length - 1}
+                        />
+                        <div className="space-y-1">
+                          <FormField
+                            control={control}
+                            name={`lineup_slots.${slotIndex}.slot_name`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Nome do slot (ex: Abertura, Main Stage, etc.)"
+                                    {...field}
+                                    className="font-medium"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <FormField
+                          control={control}
+                          name={`lineup_slots.${slotIndex}.is_headliner`}
+                          render={({ field }) => (
+                            <FormItem className="flex items-center space-x-2">
+                              <FormControl>
+                                <Switch
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <FormLabel className="text-sm">Headliner</FormLabel>
+                            </FormItem>
+                          )}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeLineupSlot(slotIndex)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <FormField
                         control={control}
-                        name={`lineup_slots.${slotIndex}.slot_name`}
+                        name={`lineup_slots.${slotIndex}.start_time`}
                         render={({ field }) => (
                           <FormItem>
+                            <FormLabel>Início</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="Nome do slot (ex: Abertura, Main Stage, etc.)"
+                                type="time"
                                 {...field}
-                                className="font-medium"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={control}
+                        name={`lineup_slots.${slotIndex}.end_time`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Fim</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="time"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={control}
+                        name={`lineup_slots.${slotIndex}.stage`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Palco</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Nome do palco"
+                                {...field}
                               />
                             </FormControl>
                             <FormMessage />
@@ -346,132 +455,51 @@ export const LineupStep: React.FC = () => {
                         )}
                       />
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
+
                     <FormField
                       control={control}
-                      name={`lineup_slots.${slotIndex}.is_headliner`}
+                      name={`lineup_slots.${slotIndex}.notes`}
                       render={({ field }) => (
-                        <FormItem className="flex items-center space-x-2">
+                        <FormItem>
+                          <FormLabel>Observações</FormLabel>
                           <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
+                            <Textarea
+                              placeholder="Informações adicionais sobre este slot"
+                              {...field}
+                              rows={2}
                             />
                           </FormControl>
-                          <FormLabel className="text-sm">Headliner</FormLabel>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeLineupSlot(slotIndex)}
-                      className="text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
+
+                    {/* Artists in this slot */}
+                    <ArtistSlotManager
+                      control={control}
+                      slotIndex={slotIndex}
+                      searchArtists={searchArtists}
+                    />
+                  </CardContent>
+                </Card>
+              ))}
+
+              {lineupSlots.length === 0 && (
+                <Card className="border-dashed">
+                  <CardContent className="flex flex-col items-center justify-center py-12">
+                    <Music className="w-12 h-12 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Nenhum slot de lineup</h3>
+                    <p className="text-muted-foreground text-center mb-4">
+                      Adicione slots para organizar os artistas por horário
+                    </p>
+                    <Button onClick={addLineupSlot}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Adicionar Primeiro Slot
                     </Button>
-                  </div>
-                </div>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <FormField
-                    control={control}
-                    name={`lineup_slots.${slotIndex}.start_time`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Início</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="time"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={control}
-                    name={`lineup_slots.${slotIndex}.end_time`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Fim</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="time"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={control}
-                    name={`lineup_slots.${slotIndex}.stage`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Palco</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Nome do palco"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={control}
-                  name={`lineup_slots.${slotIndex}.notes`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Observações</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Informações adicionais sobre este slot"
-                          {...field}
-                          rows={2}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Artists in this slot */}
-                <ArtistSlotManager
-                  control={control}
-                  slotIndex={slotIndex}
-                  searchArtists={searchArtists}
-                />
-              </CardContent>
-            </Card>
-          ))}
-
-          {lineupSlots.length === 0 && (
-            <Card className="border-dashed">
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <Music className="w-12 h-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Nenhum slot de lineup</h3>
-                <p className="text-muted-foreground text-center mb-4">
-                  Adicione slots para organizar os artistas por horário
-                </p>
-                <Button onClick={addLineupSlot}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Adicionar Primeiro Slot
-                </Button>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           )}
         </TabsContent>
 
