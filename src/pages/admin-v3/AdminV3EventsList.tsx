@@ -21,6 +21,7 @@ interface EventFilters {
   dateEnd?: string;
   organizer?: string;
   venue?: string;
+  showDeleted?: boolean;
 }
 
 export default function AdminV3EventsList() {
@@ -149,7 +150,24 @@ export default function AdminV3EventsList() {
           </p>
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex items-center gap-4">
+          <div className="flex gap-2">
+            <Button
+              variant={filters.showDeleted ? "outline" : "default"}
+              onClick={() => setFilters(prev => ({ ...prev, showDeleted: false }))}
+              size="sm"
+            >
+              Ativos
+            </Button>
+            <Button
+              variant={filters.showDeleted ? "default" : "outline"}
+              onClick={() => setFilters(prev => ({ ...prev, showDeleted: true }))}
+              size="sm"
+            >
+              Lixeira
+              {stats?.trashed ? ` (${stats.trashed})` : ''}
+            </Button>
+          </div>
           <Button 
             variant="outline" 
             size="sm" 

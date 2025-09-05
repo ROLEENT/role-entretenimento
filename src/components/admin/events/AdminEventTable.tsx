@@ -29,6 +29,7 @@ interface Event {
   city?: string;
   starts_at?: string;
   created_at: string;
+  deleted_at?: string | null;
   venue?: { id: string; name: string; location?: string };
   organizer?: { id: string; name: string };
 }
@@ -39,6 +40,7 @@ interface AdminEventTableProps {
   error: any;
   onRefresh: () => void;
   onBulkAction: (action: string, eventIds: string[]) => void;
+  filters?: { showDeleted?: boolean };
 }
 
 export function AdminEventTable({
@@ -47,9 +49,12 @@ export function AdminEventTable({
   error,
   onRefresh,
   onBulkAction,
+  filters,
 }: AdminEventTableProps) {
   const navigate = useNavigate();
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
+  
+  const showDeleted = filters?.showDeleted || false;
 
   const handleSelectEvent = (eventId: string, checked: boolean) => {
     if (checked) {
@@ -154,6 +159,7 @@ export function AdminEventTable({
               <TableHead>Data</TableHead>
               <TableHead>Local</TableHead>
               <TableHead>Organizador</TableHead>
+              {showDeleted && <TableHead>Apagado em</TableHead>}
               <TableHead>Criado em</TableHead>
               <TableHead className="w-12 text-right">Ações</TableHead>
             </TableRow>
@@ -220,6 +226,11 @@ export function AdminEventTable({
                     <span className="text-muted-foreground">-</span>
                   )}
                 </TableCell>
+                {showDeleted && (
+                  <TableCell>
+                    {event.deleted_at ? format(new Date(event.deleted_at), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}
+                  </TableCell>
+                )}
                 <TableCell>
                   {format(new Date(event.created_at), "dd/MM/yyyy", { locale: ptBR })}
                 </TableCell>
@@ -227,6 +238,7 @@ export function AdminEventTable({
                   <EventActionCell 
                     event={event}
                     onEventDeleted={onRefresh}
+                    onEventRestored={onRefresh}
                     onEventDuplicated={(event) => {
                       // TODO: Implementar duplicação
                       console.log('Duplicar evento:', event);

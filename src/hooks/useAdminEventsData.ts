@@ -12,6 +12,7 @@ interface EventFilters {
   organizer?: string;
   venue?: string;
   completion?: string;
+  showDeleted?: boolean;
 }
 
 export const useAdminEventsData = (filters: EventFilters = {}) => {
@@ -30,9 +31,7 @@ export const useAdminEventsData = (filters: EventFilters = {}) => {
           *,
           venue:venues(id, name, address, city),
           organizer:organizers(id, name)
-        `)
-        .is("deleted_at", null) // Only get non-deleted events
-        .order("created_at", { ascending: false });
+        `);
 
       // Apply filters
       if (filters.search) {
@@ -63,6 +62,15 @@ export const useAdminEventsData = (filters: EventFilters = {}) => {
         query = query.eq("venue_id", filters.venue);
       }
 
+      // Filter by deleted status
+      if (filters.showDeleted) {
+        query = query.not("deleted_at", "is", null);
+      } else {
+        query = query.is("deleted_at", null);
+      }
+
+      query = query.order("created_at", { ascending: false });
+
       const { data, error } = await query;
 
       if (error) throw error;
@@ -88,26 +96,30 @@ export const useAdminEventsData = (filters: EventFilters = {}) => {
     queryFn: async () => {
       const { data: allEvents, error } = await supabase
         .from("events")
-        .select("status, created_at")
-        .is("deleted_at", null); // Only count non-deleted events
+        .select("status, created_at, deleted_at");
 
       if (error) throw error;
 
-      const total = allEvents?.length || 0;
-      const published = allEvents?.filter(e => e.status === "published").length || 0;
-      const draft = allEvents?.filter(e => e.status === "draft").length || 0;
+      const activeEvents = allEvents?.filter(e => !e.deleted_at) || [];
+      const trashedEvents = allEvents?.filter(e => e.deleted_at) || [];
       
-      const thisMonth = allEvents?.filter(e => {
+      const total = activeEvents.length;
+      const published = activeEvents.filter(e => e.status === "published").length;
+      const draft = activeEvents.filter(e => e.status === "draft").length;
+      const trashed = trashedEvents.length;
+      
+      const thisMonth = activeEvents.filter(e => {
         const eventDate = new Date(e.created_at);
         const now = new Date();
         return eventDate.getMonth() === now.getMonth() && eventDate.getFullYear() === now.getFullYear();
-      }).length || 0;
+      }).length;
 
       return {
         total,
         published,
         draft,
         thisMonth,
+        trashed,
       };
     },
   });
