@@ -39,12 +39,7 @@ export default defineConfig(({ mode }) => ({
           // Utilities
           'utils-vendor': ['date-fns', 'clsx', 'tailwind-merge'],
           // Performance monitoring
-          'monitoring': ['@sentry/react', 'web-vitals'],
-          // App-specific chunks
-          'api': ['src/api/eventsApi.ts'],
-          'components': ['src/components/'],
-          'hooks': ['src/hooks/'],
-          'utils': ['src/utils/']
+          'monitoring': ['@sentry/react', 'web-vitals']
         },
         // Optimize chunk sizes
         chunkFileNames: (chunkInfo) => {
