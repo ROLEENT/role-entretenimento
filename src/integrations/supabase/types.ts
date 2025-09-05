@@ -8197,6 +8197,10 @@ export type Database = {
         Args: { p_event_id: string }
         Returns: undefined
       }
+      sync_admin_users: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       test_admin_insert: {
         Args: Record<PropertyKey, never>
         Returns: Json
