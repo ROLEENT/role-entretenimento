@@ -1738,6 +1738,30 @@ export type Database = {
           },
         ]
       }
+      compliance_settings: {
+        Row: {
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           body: string | null
@@ -4933,6 +4957,42 @@ export type Database = {
           },
         ]
       }
+      security_logs: {
+        Row: {
+          admin_email: string | null
+          created_at: string | null
+          details: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          severity: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          admin_email?: string | null
+          created_at?: string | null
+          details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          admin_email?: string | null
+          created_at?: string | null
+          details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       site_metrics: {
         Row: {
           active_cities: number | null
@@ -7494,6 +7554,10 @@ export type Database = {
           slug: string
         }[]
       }
+      get_compliance_setting: {
+        Args: { setting_key: string }
+        Returns: Json
+      }
       get_comprehensive_analytics: {
         Args: {
           p_admin_email: string
@@ -7767,6 +7831,16 @@ export type Database = {
           p_old_values?: Json
           p_record_id?: string
           p_table_name?: string
+        }
+        Returns: undefined
+      }
+      log_security_event: {
+        Args: {
+          p_admin_email?: string
+          p_details?: Json
+          p_event_type: string
+          p_severity?: string
+          p_user_id?: string
         }
         Returns: undefined
       }

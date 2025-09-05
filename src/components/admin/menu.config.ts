@@ -86,6 +86,12 @@ export const MENUS = {
       description: "dados",
       icon: Database
     },
+    { 
+      href: "/admin-v3/gestao/security", 
+      title: "Segurança", 
+      description: "compliance",
+      icon: User
+    },
   ],
   destaques: [
     { 

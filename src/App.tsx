@@ -73,6 +73,7 @@ const AdminV3GestaoLogsPage = lazy(() => import("./pages/admin-v3/gestao/SystemL
 const AdminV3GestaoNotificacoesPage = lazy(() => import("./pages/admin-v3/gestao/NotificationsPushPage"));
 const AnalyticsPage = lazy(() => import("./pages/admin-v3/gestao/AnalyticsPage"));
 const BackupRestorePage = lazy(() => import("./pages/admin-v3/gestao/BackupRestorePage"));
+const SecurityPage = lazy(() => import("./pages/admin-v3/gestao/security"));
 
 
 const OrganizerTerms = lazy(() => import("./pages/OrganizerTerms"));
@@ -338,6 +339,7 @@ function App() {
                   <Route path="gestao/notificacoes" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoNotificacoesPage /></Suspense>} />
                   <Route path="gestao/analytics" element={<Suspense fallback={<AdminLoadingFallback />}><AnalyticsPage /></Suspense>} />
                   <Route path="gestao/backup" element={<Suspense fallback={<AdminLoadingFallback />}><BackupRestorePage /></Suspense>} />
+                  <Route path="gestao/security" element={<Suspense fallback={<AdminLoadingFallback />}><SecurityPage /></Suspense>} />
                   <Route path="destaques" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
                   <Route path="destaques/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
                   

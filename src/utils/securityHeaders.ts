@@ -116,4 +116,9 @@ export const initSecurity = () => {
       }
     });
   }
+  
+  // Import and setup enhanced security
+  import('@/utils/security/cspHeaders').then(({ setupSecurityProtections }) => {
+    setupSecurityProtections();
+  });
 };
