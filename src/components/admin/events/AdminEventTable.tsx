@@ -11,17 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
-  Eye, 
   Calendar,
   MapPin,
   User
@@ -29,6 +19,7 @@ import {
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { EventCompletionBadge } from '@/components/admin/common/CompletionBadgeList';
+import { EventActionCell } from './EventActionCell';
 
 interface Event {
   id: string;
@@ -164,7 +155,7 @@ export function AdminEventTable({
               <TableHead>Local</TableHead>
               <TableHead>Organizador</TableHead>
               <TableHead>Criado em</TableHead>
-              <TableHead className="w-12"></TableHead>
+              <TableHead className="w-12 text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -232,33 +223,15 @@ export function AdminEventTable({
                 <TableCell>
                   {format(new Date(event.created_at), "dd/MM/yyyy", { locale: ptBR })}
                 </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => navigate(`/evento/${event.id}`)}>
-                        <Eye className="h-4 w-4 mr-2" />
-                        Visualizar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => navigate(`/admin-v3/eventos/${event.id}/editar`)}
-                      >
-                        <Edit className="h-4 w-4 mr-2" />
-                        Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => onBulkAction("delete", [event.id])}
-                        className="text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Excluir
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                <TableCell className="relative text-right">
+                  <EventActionCell 
+                    event={event}
+                    onEventDeleted={onRefresh}
+                    onEventDuplicated={(event) => {
+                      // TODO: Implementar duplicação
+                      console.log('Duplicar evento:', event);
+                    }}
+                  />
                 </TableCell>
               </TableRow>
             ))}

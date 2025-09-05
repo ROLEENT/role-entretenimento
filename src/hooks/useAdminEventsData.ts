@@ -31,6 +31,7 @@ export const useAdminEventsData = (filters: EventFilters = {}) => {
           venue:venues(id, name, address, city),
           organizer:organizers(id, name)
         `)
+        .is("deleted_at", null) // Only get non-deleted events
         .order("created_at", { ascending: false });
 
       // Apply filters
@@ -87,7 +88,8 @@ export const useAdminEventsData = (filters: EventFilters = {}) => {
     queryFn: async () => {
       const { data: allEvents, error } = await supabase
         .from("events")
-        .select("status, created_at");
+        .select("status, created_at")
+        .is("deleted_at", null); // Only count non-deleted events
 
       if (error) throw error;
 
