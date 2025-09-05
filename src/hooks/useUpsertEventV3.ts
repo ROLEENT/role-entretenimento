@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { eventsApi } from "@/api/eventsApi";
+import { eventsApi } from "@/lib/eventsApi";
 import { eventDebugUtils } from "@/utils/eventDebugUtils";
+import { EventFormData } from "@/schemas/eventSchema";
 
 export function useEventSeries() {
   const queryResult = useQuery({
@@ -41,7 +42,7 @@ export function useUpsertEventV3() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (eventData: any) => {
+    mutationFn: async (eventData: EventFormData) => {
       try {
         console.log("🎪 Iniciando salvamento do evento:", { 
           hasId: !!eventData.id, 
@@ -55,8 +56,8 @@ export function useUpsertEventV3() {
           throw new Error(`Dados inválidos: ${validation.errors.join(', ')}`);
         }
 
-        // Usar dados limpos da validação
-        const cleanEventData = validation.cleanedData;
+        // Use original data since validation only returns isValid and errors
+        const cleanEventData = eventData;
 
         if (cleanEventData.id) {
           // Update existing event
@@ -74,13 +75,7 @@ export function useUpsertEventV3() {
             visual_artists: cleanEventData.visual_artists?.length || 0
           });
           
-          const result = await eventsApi.createEvent({
-            event_data: cleanEventData,
-            partners: cleanEventData.partners || [],
-            lineup_slots: cleanEventData.lineup_slots || [],
-            performances: cleanEventData.performances || [],
-            visual_artists: cleanEventData.visual_artists || []
-          });
+          const result = await eventsApi.createEvent(cleanEventData);
           
           console.log("✅ Evento criado com sucesso. ID:", result);
           return result;

@@ -2,10 +2,10 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-import { EventFormV3, validateEventForPublish } from '@/schemas/event-v3';
+import { EventFormData, validateEventForPublish } from '@/schemas/eventSchema';
 
 interface PublicationChecklistProps {
-  data: EventFormV3;
+  data: EventFormData;
   slugError?: string | null;
   onPublish?: () => void;
   isPublishing?: boolean;

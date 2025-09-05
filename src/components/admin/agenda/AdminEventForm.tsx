@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { eventFlexibleSchema, type EventFlexibleForm } from "@/schemas/event-flexible";
+import { eventSchema, type EventFormData } from "@/schemas/eventSchema";
 import { useUpsertEvent } from "@/hooks/useUpsertEvent";
 import { useFormDirtyGuard } from "@/lib/forms";
 import RHFInput from "@/components/form/RHFInput";
@@ -24,9 +24,9 @@ import { MultipleOrganizerSelector } from "@/components/agenda/MultipleOrganizer
 import { Separator } from "@/components/ui/separator";
 
 interface AdminEventFormProps {
-  initialData?: Partial<EventFlexibleForm>;
+  initialData?: Partial<EventFormData>;
   eventId?: string;
-  onSave?: (data: EventFlexibleForm) => void;
+  onSave?: (data: EventFormData) => void;
   onCancel?: () => void;
 }
 
@@ -36,12 +36,12 @@ export default function AdminEventForm({
   onSave,
   onCancel,
 }: AdminEventFormProps) {
-  const form = useForm<EventFlexibleForm>({
-    resolver: zodResolver(eventFlexibleSchema),
+  const form = useForm<EventFormData>({
+    resolver: zodResolver(eventSchema),
     defaultValues: {
       status: "draft",
       lineup: [],
-      links: [],
+      links: {},
       gallery: [],
       organizer_ids: [],
       ...initialData,
@@ -61,7 +61,7 @@ export default function AdminEventForm({
     }
   }, [initialData, form]);
 
-  const handleSubmit = async (data: EventFlexibleForm, publish = false) => {
+  const handleSubmit = async (data: EventFormData, publish = false) => {
     try {
       const submitData = {
         ...data,
@@ -86,8 +86,8 @@ export default function AdminEventForm({
     }
   };
 
-  const onSubmit = (data: EventFlexibleForm) => handleSubmit(data, false);
-  const onPublish = (data: EventFlexibleForm) => handleSubmit(data, true);
+  const onSubmit = (data: EventFormData) => handleSubmit(data, false);
+  const onPublish = (data: EventFormData) => handleSubmit(data, true);
 
   const watchedTitle = form.watch("title");
   const watchedStatus = form.watch("status");
@@ -403,7 +403,7 @@ export default function AdminEventForm({
               <ul className="space-y-1 text-sm text-destructive">
                 {Object.entries(form.formState.errors).map(([field, error]) => (
                   <li key={field}>
-                    <strong>{field}:</strong> {error?.message as string}
+                    <strong>{field}:</strong> {(error as any)?.message || 'Error'}
                   </li>
                 ))}
               </ul>

@@ -3,12 +3,12 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, MapPin, Clock, Users, ExternalLink, Monitor, Smartphone } from 'lucide-react';
-import { EventFormV3 } from '@/schemas/event-v3';
+import { EventFormData } from '@/schemas/eventSchema';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 interface EventPreviewCardProps {
-  data: EventFormV3;
+  data: EventFormData;
   variant?: 'desktop' | 'mobile';
   className?: string;
 }

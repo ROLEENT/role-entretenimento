@@ -7109,7 +7109,7 @@ export type Database = {
         Args:
           | { p_admin_email: string; p_event_id: string }
           | { p_event_id: string }
-        Returns: boolean
+        Returns: Json
       }
       admin_delete_highlight: {
         Args: { p_highlight_id: string }

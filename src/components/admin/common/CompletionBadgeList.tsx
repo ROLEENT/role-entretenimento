@@ -2,7 +2,7 @@ import React from 'react';
 import { CompletionBadge } from '@/components/ui/progress-indicator';
 import { useVenueCompletionStatus, useEventCompletionStatus } from '@/hooks/useCompletionStatus';
 import { VenueFlexibleFormData } from '@/schemas/venue-flexible';
-import { EventFlexibleForm } from '@/schemas/event-flexible';
+import { EventFormData } from '@/schemas/eventSchema';
 
 interface VenueCompletionBadgeProps {
   venue: Partial<VenueFlexibleFormData>;
@@ -18,7 +18,7 @@ export const VenueCompletionBadge: React.FC<VenueCompletionBadgeProps> = ({
 };
 
 interface EventCompletionBadgeProps {
-  event: Partial<EventFlexibleForm>;
+  event: Partial<EventFormData>;
   className?: string;
 }
 

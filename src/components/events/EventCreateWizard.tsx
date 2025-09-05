@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle, Circle, ArrowLeft, ArrowRight, Save, Eye } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
 import { useUpsertEventV3 } from '@/hooks/useUpsertEventV3';
 import { eventDebugUtils } from '@/utils/eventDebugUtils';
@@ -94,7 +94,7 @@ export const EventCreateWizard: React.FC<EventCreateWizardProps> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
-  const { toast } = useToast();
+  // Use toast from sonner
   const navigate = useNavigate();
   const { mutate: saveEvent, isPending: isSaving } = useUpsertEventV3();
 

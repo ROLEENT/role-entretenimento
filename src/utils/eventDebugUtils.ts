@@ -1,172 +1,132 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from '@/integrations/supabase/client';
 
-/**
- * Utilitário para testar conectividade e debugging de eventos
- */
 export const eventDebugUtils = {
-  /**
-   * Testa se a RPC create_event_cascade está acessível
-   */
   async testCreateEventRPC() {
     try {
-      console.log("🧪 Testando conectividade da RPC create_event_cascade...");
-      
-      const testData = {
+      const { data, error } = await supabase.rpc('create_event_cascade', {
         event_data: {
-          title: "TESTE - Evento Debug",
-          slug: `teste-debug-${Date.now()}`,
-          status: "draft",
-          city: "São Paulo",
-          date_start: new Date().toISOString()
-        },
-        partners: [],
-        lineup_slots: [],
-        performances: [],
-        visual_artists: []
-      };
+          title: 'Test Event',
+          date_start: new Date().toISOString(),
+          city: 'Test City',
+          status: 'draft'
+        }
+      });
 
-      const { data, error } = await supabase.rpc('create_event_cascade', testData);
-      
       if (error) {
-        console.error("❌ Erro no teste da RPC:", error);
-        return { success: false, error: error.message };
+        return {
+          success: false,
+          error: error.message
+        };
       }
 
-      console.log("✅ RPC funcionando! ID do evento teste:", data);
-      
-      // Limpar o evento de teste
-      if (data) {
-        await supabase.from('events').delete().eq('id', data);
-        console.log("🧹 Evento de teste removido");
-      }
-
-      return { success: true, eventId: data };
+      return {
+        success: true,
+        data
+      };
     } catch (error) {
-      console.error("❌ Erro no teste de conectividade:", error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Erro desconhecido' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   },
 
-  /**
-   * Valida dados de evento antes de enviar
-   */
-  validateEventData(eventData: any) {
-    const errors: string[] = [];
-    
-    if (!eventData.title || eventData.title.trim() === '') {
-      errors.push("Título é obrigatório");
-    }
-    
-    if (!eventData.date_start) {
-      errors.push("Data de início é obrigatória");
-    }
-    
-    if (!eventData.city || eventData.city.trim() === '') {
-      errors.push("Cidade é obrigatória");
-    }
-
-    // Verificar se slug existe, se não, gerar um
-    if (!eventData.slug) {
-      eventData.slug = eventData.title
-        ?.toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '') || 'evento-sem-titulo';
-    }
-
-    console.log("🔍 Validação de dados do evento:", {
-      isValid: errors.length === 0,
-      errors,
-      data: {
-        title: eventData.title,
-        slug: eventData.slug,
-        city: eventData.city,
-        date_start: eventData.date_start,
-        status: eventData.status
-      }
-    });
-
-    return {
-      isValid: errors.length === 0,
-      errors,
-      cleanedData: eventData
-    };
-  },
-
-  /**
-   * Testa autenticação do usuário
-   */
   async testUserAuth() {
     try {
       const { data: { user }, error } = await supabase.auth.getUser();
       
       if (error) {
-        console.error("❌ Erro na autenticação:", error);
-        return { authenticated: false, error: error.message };
+        return {
+          authenticated: false,
+          error: error.message
+        };
       }
-
-      console.log("👤 Status de autenticação:", {
-        authenticated: !!user,
-        userId: user?.id,
-        email: user?.email
-      });
 
       return {
         authenticated: !!user,
-        user: user
+        user
       };
     } catch (error) {
-      console.error("❌ Erro ao verificar autenticação:", error);
-      return { 
-        authenticated: false, 
-        error: error instanceof Error ? error.message : 'Erro desconhecido' 
+      return {
+        authenticated: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   },
 
-  /**
-   * Lista tabelas relacionadas a eventos para debug
-   */
   async checkEventTables() {
+    const results = {
+      events: { exists: false, count: 0, error: null },
+      agenda_itens: { exists: false, count: 0, error: null },
+      venues: { exists: false, count: 0, error: null },
+      organizers: { exists: false, count: 0, error: null }
+    };
+
+    // Check events table
     try {
-      const tables = [
-        'events',
-        'event_partners', 
-        'event_lineup_slots',
-        'event_performances',
-        'event_visual_artists'
-      ];
-
-      const results: Record<string, any> = {};
-
-      for (const table of tables) {
-        try {
-          const { count, error } = await supabase
-            .from(table)
-            .select('*', { count: 'exact', head: true });
-
-          results[table] = error ? 
-            { error: error.message } : 
-            { count };
-        } catch (err) {
-          results[table] = { 
-            error: err instanceof Error ? err.message : 'Erro desconhecido' 
-          };
-        }
-      }
-
-      console.log("📊 Status das tabelas de eventos:", results);
-      return results;
+      const { data, error } = await supabase.from('events').select('id', { count: 'exact', head: true });
+      results.events.exists = !error;
+      results.events.count = data?.length || 0;
+      results.events.error = error?.message || null;
     } catch (error) {
-      console.error("❌ Erro ao verificar tabelas:", error);
-      return {};
+      results.events.error = error instanceof Error ? error.message : 'Unknown error';
     }
+
+    // Check agenda_itens table
+    try {
+      const { data, error } = await supabase.from('agenda_itens').select('id', { count: 'exact', head: true });
+      results.agenda_itens.exists = !error;
+      results.agenda_itens.count = data?.length || 0;
+      results.agenda_itens.error = error?.message || null;
+    } catch (error) {
+      results.agenda_itens.error = error instanceof Error ? error.message : 'Unknown error';
+    }
+
+    // Check venues table
+    try {
+      const { data, error } = await supabase.from('venues').select('id', { count: 'exact', head: true });
+      results.venues.exists = !error;
+      results.venues.count = data?.length || 0;
+      results.venues.error = error?.message || null;
+    } catch (error) {
+      results.venues.error = error instanceof Error ? error.message : 'Unknown error';
+    }
+
+    // Check organizers table
+    try {
+      const { data, error } = await supabase.from('organizers').select('id', { count: 'exact', head: true });
+      results.organizers.exists = !error;
+      results.organizers.count = data?.length || 0;
+      results.organizers.error = error?.message || null;
+    } catch (error) {
+      results.organizers.error = error instanceof Error ? error.message : 'Unknown error';
+    }
+
+    return results;
+  },
+
+  validateEventData(data: any) {
+    const errors = [];
+    
+    if (!data.title) errors.push('Title is required');
+    if (!data.date_start) errors.push('Start date is required');
+    if (!data.city) errors.push('City is required');
+    
+    if (data.date_start && data.date_end) {
+      const start = new Date(data.date_start);
+      const end = new Date(data.date_end);
+      if (end <= start) {
+        errors.push('End date must be after start date');
+      }
+    }
+    
+    if (data.price_min && data.price_max && data.price_max < data.price_min) {
+      errors.push('Maximum price must be greater than minimum price');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
   }
 };
-
-// Exportar para uso em desenvolvimento
-if (process.env.NODE_ENV === 'development') {
-  (window as any).eventDebugUtils = eventDebugUtils;
-}

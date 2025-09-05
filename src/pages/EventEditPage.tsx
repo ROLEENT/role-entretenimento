@@ -12,7 +12,7 @@ import { AdminV3Breadcrumb } from "@/components/AdminV3Breadcrumb";
 import { FormShell, FormSection, FORM_SECTIONS } from "@/components/form";
 import { RHFInput, RHFTextarea, RHFSelect, RHFSelectAsync, RHFDateTime, RHFUpload, RHFLinks } from "@/components/form";
 import RHFSlug from "@/components/form/RHFSlug";
-import { eventSchema, EventForm } from "@/schemas/event";
+import { eventSchema, EventFormData } from "@/schemas/eventSchema";
 import { useUpsertEvent } from "@/hooks/useUpsertEvent";
 
 export default function EventEditPage() {
@@ -39,7 +39,7 @@ export default function EventEditPage() {
     enabled: isEditing,
   });
 
-  const form = useForm<EventForm>({
+  const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       title: "",
@@ -80,16 +80,16 @@ export default function EventEditPage() {
     }
   }, [event, form]);
 
-  const handleSaveDraft = async (data: EventForm) => {
-    await upsertEvent.mutateAsync({ ...data, status: "draft" });
+  const handleSaveDraft = async (data: EventFormData) => {
+    await upsertEvent.mutateAsync({ eventData: { ...data, status: "draft" }, eventId: id });
   };
 
-  const handlePublish = async (data: EventForm) => {
-    await upsertEvent.mutateAsync({ ...data, status: "published" });
+  const handlePublish = async (data: EventFormData) => {
+    await upsertEvent.mutateAsync({ eventData: { ...data, status: "published" }, eventId: id });
   };
 
-  const handleSaveAndExit = async (data: EventForm) => {
-    await upsertEvent.mutateAsync(data);
+  const handleSaveAndExit = async (data: EventFormData) => {
+    await upsertEvent.mutateAsync({ eventData: data, eventId: id });
     navigate("/admin-v3/agenda");
   };
 

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { EventFlexibleForm } from '@/schemas/event-flexible';
+import { EventFormData } from '@/schemas/eventSchema';
 import { VenueFlexibleFormData } from '@/schemas/venue-flexible';
 
 // Define field weights for different types of content
@@ -143,7 +143,7 @@ export function useVenueCompletionStatus(data: Partial<VenueFlexibleFormData>) {
 }
 
 // Hook for event completion status
-export function useEventCompletionStatus(data: Partial<EventFlexibleForm>) {
+export function useEventCompletionStatus(data: Partial<EventFormData>) {
   return useMemo(() => {
     const completion = calculateCompletion(data, EVENT_FIELD_WEIGHTS);
     
