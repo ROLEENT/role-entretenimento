@@ -37,11 +37,15 @@ interface AgendaFilters {
 }
 
 const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[]> => {
+  // FIXED: Use CURRENT_DATE to include events from today
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Start from beginning of today
   const thirtyDaysFromNow = new Date();
   thirtyDaysFromNow.setDate(today.getDate() + 30);
   thirtyDaysFromNow.setHours(23, 59, 59, 999); // End of day
+
+  console.log('🔍 Fetching events with filters:', filters);
+  console.log('📅 Date range:', today.toISOString(), 'to', thirtyDaysFromNow.toISOString());
 
   let query = supabase
     .from('events')
@@ -61,18 +65,26 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
     `)
     .eq('status', 'published');
 
-  // Apply date filters based on status
+  // Apply date filters based on status - FIXED: Include current day events
   if (filters?.status === 'this_week') {
     const endOfWeek = new Date();
     endOfWeek.setDate(today.getDate() + 7);
     endOfWeek.setHours(23, 59, 59, 999);
-    query = query.gte('date_start', today.toISOString()).lte('date_start', endOfWeek.toISOString());
+    // Use date comparison without time to include current day
+    const todayStr = today.toISOString().split('T')[0];
+    const endOfWeekStr = endOfWeek.toISOString();
+    query = query.gte('date_start', todayStr).lte('date_start', endOfWeekStr);
   } else if (filters?.status === 'this_month') {
     const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     endOfMonth.setHours(23, 59, 59, 999);
-    query = query.gte('date_start', today.toISOString()).lte('date_start', endOfMonth.toISOString());
+    const todayStr = today.toISOString().split('T')[0];
+    const endOfMonthStr = endOfMonth.toISOString();
+    query = query.gte('date_start', todayStr).lte('date_start', endOfMonthStr);
   } else if (filters?.status === 'upcoming' || !filters?.status || filters?.status === 'all') {
-    query = query.gte('date_start', today.toISOString()).lte('date_start', thirtyDaysFromNow.toISOString());
+    // Include events from today onwards
+    const todayStr = today.toISOString().split('T')[0];
+    const thirtyDaysStr = thirtyDaysFromNow.toISOString();
+    query = query.gte('date_start', todayStr).lte('date_start', thirtyDaysStr);
   }
 
   // Apply other filters
@@ -118,14 +130,18 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
 };
 
 const fetchCityStats = async (): Promise<{ cityStats: CityStats[]; totalEvents: number; totalCities: number }> => {
+  // FIXED: Use CURRENT_DATE to include events from today
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Start from beginning of today
+  const todayStr = today.toISOString().split('T')[0];
+
+  console.log('🔍 Fetching city stats from date:', todayStr);
 
   const { data, error } = await supabase
     .from('events')
     .select('city')
     .eq('status', 'published')
-    .gte('date_start', today.toISOString());
+    .gte('date_start', todayStr);
 
   if (error) throw error;
 

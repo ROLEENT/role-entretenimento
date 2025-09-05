@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import CityChips from "./CityChips";
 import CityCardSkeleton from "./CityCardSkeleton";
+import { useCityEventStats } from "@/hooks/useCityEventStats";
 
 interface City {
   slug: string;
@@ -9,15 +10,43 @@ interface City {
 }
 
 const AgendaPorCidadeHome = () => {
-  // Use static data for now to eliminate loading/flickering
-  const cities = [
-    { slug: "porto_alegre", name: "Porto Alegre", count: 42 },
-    { slug: "sao_paulo", name: "São Paulo", count: 120 },
-    { slug: "rio_de_janeiro", name: "Rio de Janeiro", count: 88 },
-    { slug: "florianopolis", name: "Florianópolis", count: 15 },
-    { slug: "curitiba", name: "Curitiba", count: 27 },
-    { slug: "outras-cidades", name: "Outras cidades", count: 0 },
-  ];
+  const { data: cityStats, isLoading, error } = useCityEventStats();
+
+  // Map real data to city structure with proper names
+  const cityNameMap: Record<string, string> = {
+    'porto_alegre': 'Porto Alegre',
+    'sao_paulo': 'São Paulo',
+    'rio_de_janeiro': 'Rio de Janeiro',
+    'florianopolis': 'Florianópolis',
+    'curitiba': 'Curitiba',
+  };
+
+  // Create cities array from real data or show loading state
+  const cities: City[] = isLoading 
+    ? [
+        { slug: "porto_alegre", name: "Porto Alegre", count: null },
+        { slug: "sao_paulo", name: "São Paulo", count: null },
+        { slug: "rio_de_janeiro", name: "Rio de Janeiro", count: null },
+        { slug: "florianopolis", name: "Florianópolis", count: null },
+        { slug: "curitiba", name: "Curitiba", count: null },
+        { slug: "outras-cidades", name: "Outras cidades", count: null },
+      ]
+    : Object.entries(cityNameMap).map(([slug, name]) => {
+        const realSlug = name.toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, '_');
+        const stats = cityStats?.find(s => s.slug === realSlug);
+        return {
+          slug,
+          name,
+          count: stats?.count || 0,
+        };
+      }).concat([
+        { slug: "outras-cidades", name: "Outras cidades", count: 0 }
+      ]);
+
+  console.log('🏙️ Cities with stats:', cities);
 
   return (
     <section className="py-16 sm:py-20" aria-labelledby="agenda-por-cidade-title">

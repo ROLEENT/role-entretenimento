@@ -70,7 +70,7 @@ const FeaturedEventsToday = () => {
           `)
           .eq('status', 'published')
           .eq('highlight_type', 'curatorial')
-          .gte('date_start', new Date().toISOString())
+          .gte('date_start', new Date().toISOString().split('T')[0])
           .order('date_start', { ascending: true })
           .limit(2);
 
@@ -99,7 +99,7 @@ const FeaturedEventsToday = () => {
           `)
           .eq('status', 'published')
           .eq('highlight_type', 'vitrine')
-          .gte('date_start', new Date().toISOString())
+          .gte('date_start', new Date().toISOString().split('T')[0])
           .order('date_start', { ascending: true })
           .limit(1);
 
