@@ -65,14 +65,8 @@ export default defineConfig(({ mode }) => ({
     // Modern build target
     target: 'es2020',
     sourcemap: mode === 'development',
-    // Minification
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: mode === 'production',
-        drop_debugger: mode === 'production',
-      },
-    },
+    // Use esbuild for minification (faster and included by default)
+    minify: mode === 'production' ? 'esbuild' : false,
     // Asset size limits
     assetsInlineLimit: 4096,
     // CSS code splitting
