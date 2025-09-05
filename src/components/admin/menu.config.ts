@@ -75,6 +75,12 @@ export const MENUS = {
       icon: BarChart3
     },
     { 
+      href: "/admin-v3/gestao/performance", 
+      title: "Performance", 
+      description: "monitoramento",
+      icon: Activity
+    },
+    { 
       href: "/admin-v3/gestao/backup", 
       title: "Backup/Restore", 
       description: "dados",
