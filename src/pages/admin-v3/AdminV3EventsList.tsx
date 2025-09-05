@@ -8,6 +8,9 @@ import { AdminEventTable } from "@/components/admin/events/AdminEventTable";
 import { useAdminEventsData } from "@/hooks/useAdminEventsData";
 import { AdminV3Breadcrumb } from "@/components/admin/common/AdminV3Breadcrumb";
 import { useNavigate } from "react-router-dom";
+import { eventsApi } from "@/api/eventsApi";
+import { toast } from "sonner";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 
 interface EventFilters {
   search?: string;
@@ -22,6 +25,9 @@ interface EventFilters {
 export default function AdminV3EventsList() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [eventIdsToDelete, setEventIdsToDelete] = useState<string[]>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [filters, setFilters] = useState<EventFilters>({
     search: searchParams.get("search") || "",
     status: searchParams.get("status") || "",
@@ -57,8 +63,33 @@ export default function AdminV3EventsList() {
   };
 
   const handleBulkAction = (action: string, eventIds: string[]) => {
-    // TODO: Implement bulk actions
-    console.log("Bulk action:", action, "for events:", eventIds);
+    if (action === "delete") {
+      setEventIdsToDelete(eventIds);
+      setDeleteConfirmOpen(true);
+    } else {
+      // TODO: Implement other bulk actions
+      console.log("Bulk action:", action, "for events:", eventIds);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      // Delete events one by one
+      for (const eventId of eventIdsToDelete) {
+        await eventsApi.deleteEvent(eventId);
+      }
+      
+      toast.success(`${eventIdsToDelete.length} evento(s) excluído(s) com sucesso!`);
+      refetch(); // Refresh the events list
+    } catch (error) {
+      console.error("Error deleting events:", error);
+      toast.error("Erro ao excluir evento(s). Tente novamente.");
+    } finally {
+      setIsDeleting(false);
+      setDeleteConfirmOpen(false);
+      setEventIdsToDelete([]);
+    }
   };
 
   const breadcrumbItems = [
@@ -170,6 +201,21 @@ export default function AdminV3EventsList() {
           />
         </CardContent>
       </Card>
+
+      <ConfirmationDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        title="Excluir Evento(s)"
+        description={`Tem certeza que deseja excluir ${eventIdsToDelete.length} evento(s)? Esta ação não pode ser desfeita.`}
+        confirmText={isDeleting ? "Excluindo..." : "Excluir"}
+        cancelText="Cancelar"
+        variant="destructive"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          setDeleteConfirmOpen(false);
+          setEventIdsToDelete([]);
+        }}
+      />
     </div>
   );
 }
