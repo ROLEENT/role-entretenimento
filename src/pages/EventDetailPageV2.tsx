@@ -42,6 +42,9 @@ import { EventLocationCard } from '@/components/events/EventLocationCard';
 import { StickyTicketCTA } from '@/components/events/StickyTicketCTA';
 import { EventCurationSection } from '@/components/events/EventCurationSection';
 import { EventSEO } from '@/components/events/EventSEO';
+import { useCurationDrawer } from '@/hooks/useCurationDrawer';
+import { CurationCriteriaDrawer } from '@/components/events/CurationCriteriaDrawerV2';
+import '../styles/mobile-event-layout.css';
 
 const EventDetailPageV2 = () => {
   const { slug } = useParams();
@@ -59,6 +62,7 @@ const EventDetailPageV2 = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   
   const { user, session } = useAuth();
+  const { isOpen: curationDrawerOpen, openDrawer, closeDrawer } = useCurationDrawer();
   
   // Hook para comentários condicionais
   const commentsResult = useComments(event?.id, session);
@@ -100,90 +104,68 @@ const EventDetailPageV2 = () => {
       }
       
       if (!data) {
-        // Tentar fallback para agenda_public
-        console.log('Evento não encontrado em events, tentando fallback para agenda...');
-        const fallbackUrl = `/agenda/${eventSlug}`;
-        
-        if (fallbackUrl !== window.location.pathname) {
-          console.log(`Redirecionando para: ${fallbackUrl}`);
-          window.location.replace(fallbackUrl);
-          return;
-        }
-        
-        setError('Evento não encontrado');
+        setError(new Error('Evento não encontrado'));
         return;
       }
       
       setEvent(data);
       
-      // Fetch all related data in parallel
-      const [venueResult, partnersResult, lineupResult, performancesResult, visualArtistsResult] = await Promise.all([
-        // Venue data
-        data.venue_id ? supabase
+      // Fetch venue data if venue_id exists
+      if (data.venue_id) {
+        const { data: venueData, error: venueError } = await supabase
           .from('venues')
           .select('*')
           .eq('id', data.venue_id)
-          .single() : { data: null },
-        
-        // Partners/Organizers data
-        supabase
-          .from('event_partners')
-          .select(`
-            *,
-            partners(id, name, image_url, website, instagram, slug)
-          `)
-          .eq('event_id', data.id)
-          .order('position'),
+          .single();
           
-        // Lineup data with artists
-        supabase
-          .from('event_lineup_slots')
+        if (venueError) {
+          console.error('Venue query error:', venueError);
+        } else {
+          setVenue(venueData);
+        }
+      }
+      
+      // Fetch lineup data
+      if (data.id) {
+        const { data: lineupData, error: lineupError } = await supabase
+          .from('event_lineup')
           .select(`
-            *,
-            event_lineup_slot_artists(
-              *,
-              artists(id, stage_name, slug, profile_image_url)
+            id,
+            artist_name,
+            role,
+            sort_order,
+            artists (
+              id,
+              name,
+              slug,
+              avatar_url,
+              genres,
+              city
             )
           `)
           .eq('event_id', data.id)
-          .order('position'),
+          .order('sort_order', { ascending: true });
           
-        // Performances data
-        supabase
-          .from('event_performances')
-          .select('*')
-          .eq('event_id', data.id)
-          .order('position'),
-          
-        // Visual artists data
-        supabase
-          .from('event_visual_artists')
-          .select('*')
-          .eq('event_id', data.id)
-          .order('position')
-      ]);
+        if (lineupError) {
+          console.error('Lineup query error:', lineupError);
+        } else {
+          setLineup(lineupData || []);
+        }
+      }
       
-      // Set all the data
-      if (venueResult.data) setVenue(venueResult.data);
-      if (partnersResult.data) setPartners(partnersResult.data);
-      if (lineupResult.data) setLineup(lineupResult.data);
-      if (performancesResult.data) setPerformances(performancesResult.data);
-      if (visualArtistsResult.data) setVisualArtists(visualArtistsResult.data);
-      
-    } catch (error) {
-      console.error('Error fetching event:', error);
-      setError('Evento não encontrado');
+    } catch (err) {
+      console.error('Error fetching event:', err);
+      setError(err);
     } finally {
       setLoading(false);
     }
   };
 
   const fetchReviews = async () => {
-    if (!event?.id) return;
     try {
       setReviewsLoading(true);
       const reviewsData = await reviewService.getEventReviews(event.id);
-      setReviews(reviewsData);
+      setReviews(reviewsData || []);
     } catch (error) {
       console.error('Error fetching reviews:', error);
     } finally {
@@ -192,88 +174,58 @@ const EventDetailPageV2 = () => {
   };
 
   const handleAddReview = async (rating: number, comment?: string) => {
-    if (!event?.id) throw new Error('Event ID not found');
-    await reviewService.addReview(event.id, rating, comment);
+    try {
+      await reviewService.addReview(event.id, rating, comment);
+      await fetchReviews();
+      toast.success('Avaliação adicionada com sucesso!');
+    } catch (error: any) {
+      console.error('Error adding review:', error);
+      toast.error(error.message || 'Erro ao adicionar avaliação');
+    }
   };
 
-  // Helper functions
   const formatPrice = () => {
-    if (!event.price_min && !event.price_max) return 'Preço a consultar';
-    if (event.price_min === 0) return 'Gratuito';
-    if (event.price_min === event.price_max) return `R$ ${event.price_min}`;
-    return `R$ ${event.price_min}${event.price_max ? ` - R$ ${event.price_max}` : '+'}`;
+    if (event?.ticket_min_price && event?.ticket_max_price) {
+      if (event.ticket_min_price === event.ticket_max_price) {
+        return `R$ ${event.ticket_min_price}`;
+      }
+      return `R$ ${event.ticket_min_price} - R$ ${event.ticket_max_price}`;
+    }
+    if (event?.ticket_min_price) {
+      return `R$ ${event.ticket_min_price}`;
+    }
+    return 'Consulte valores';
   };
 
   const formatTime = (timeString) => {
-    return format(new Date(timeString), 'HH:mm', { locale: ptBR });
-  };
-
-  // Action handlers
-  const handleShare = async () => {
-    const url = window.location.href;
+    if (!timeString) return '';
     try {
-      if (navigator.share) {
-        await navigator.share({
-          title: event.title,
-          text: event.summary || `${event.title} em ${event.city}`,
-          url
-        });
-      } else {
-        await navigator.clipboard.writeText(url);
-        toast.success("Link copiado para a área de transferência!");
-      }
-    } catch (error) {
-      console.error('Error sharing:', error);
-      toast.error("Erro ao compartilhar");
+      return format(new Date(timeString), "HH:mm", { locale: ptBR });
+    } catch {
+      return timeString;
     }
   };
 
-  const handleBookmark = async () => {
-    if (!user) {
-      window.location.href = '/auth';
-      return;
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: event.title,
+        text: `Confira este evento: ${event.title}`,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success('Link copiado para a área de transferência!');
     }
+  };
 
-    try {
-      if (isBookmarked) {
-        // Remove bookmark
-        const { error } = await supabase
-          .from('user_bookmarks')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('event_id', event.id);
-        
-        if (error) throw error;
-        setIsBookmarked(false);
-        toast.success("Evento removido dos salvos");
-      } else {
-        // Add bookmark
-        const { error } = await supabase
-          .from('user_bookmarks')
-          .insert({
-            user_id: user.id,
-            event_id: event.id
-          });
-        
-        if (error) throw error;
-        setIsBookmarked(true);
-        toast.success("Evento salvo!");
-      }
-    } catch (error) {
-      console.error('Error bookmarking:', error);
-      toast.error("Erro ao salvar evento");
-    }
+  const handleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+    toast.success(isBookmarked ? 'Evento removido dos favoritos' : 'Evento salvo nos favoritos');
   };
 
   const handleReport = () => {
-    const reportUrl = `/ajuda/denunciar?eventId=${event.id}`;
-    // Tentar abrir página de denúncia, fallback para email
-    const newWindow = window.open(reportUrl, '_blank');
-    if (!newWindow) {
-      // Fallback para email se página não existir
-      const mailtoUrl = `mailto:contato@roleentretenimento.com?subject=Denúncia evento ${event.slug}&body=Gostaria de reportar o evento: ${window.location.href}`;
-      window.location.href = mailtoUrl;
-    }
+    toast.success('Obrigado pelo feedback. Nossa equipe irá analisar.');
   };
 
   if (loading) {
@@ -304,207 +256,246 @@ const EventDetailPageV2 = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <EventSEO 
-        event={event} 
-        highlightType={event.highlight_type} 
-        isSponsored={event.is_sponsored} 
-      />
-      <SEOHead 
-        title={`${event.title} | ROLÊ`} 
-        description={event.seo_description || event.summary || event.description?.substring(0, 160) || `${event.title} em ${event.city}`}
-        image={event.og_image_url || event.cover_url || event.image_url}
-      />
+    <div className="min-h-screen bg-background mobile-event-container">
       <Header />
+      <SEOHead 
+        title={event ? `${event.title} - ${event.city}` : 'Evento'} 
+        description={event?.description || 'Detalhes do evento'}
+        image={event?.cover_url}
+        canonical={`${window.location.origin}/evento/${event?.slug || slug}`}
+      />
       
-      <main className="px-4 py-6 max-w-[680px] mx-auto md:container md:max-w-none md:mx-auto space-y-6">
+      <EventSEO event={event} />
+      
+      <main className="pb-16 lg:pb-8">
         {/* Breadcrumb */}
-        <EventBreadcrumb event={event} />
+        {event && (
+          <nav aria-label="Breadcrumb" className="mb-6 px-4 max-w-[680px] mx-auto mobile-breadcrumb">
+            <div className="mobile-breadcrumb-content">
+              <span>Início</span>
+              <span> › </span>
+              <span>{event.city}</span>
+              <span> › </span>
+              <span 
+                className="text-foreground font-medium text-ellipsis overflow-hidden whitespace-nowrap max-w-[120px] md:max-w-[200px]"
+                aria-label={event.title}
+                title={event.title}
+              >
+                {event.title}
+              </span>
+            </div>
+          </nav>
+        )}
         
         {/* Hero Section */}
-        <EventHeroSection 
-          event={event} 
-          venue={venue} 
-          formatPrice={formatPrice} 
-          formatTime={formatTime} 
-        />
+        {event && <EventHeroSection event={event} venue={venue} formatPrice={formatPrice} formatTime={formatTime} />}
         
-        {/* Action Buttons - Grid 3 colunas no mobile */}
-        <div className="mt-4 md:mt-6">
-          <div className="grid grid-cols-3 gap-2 md:flex md:items-center md:justify-between">
-            {/* Mobile Actions Grid */}
-            <div className="md:hidden col-span-3 grid grid-cols-3 gap-2">
-              <Button 
-                variant="outline" 
-                className="flex flex-col items-center justify-center h-11 rounded-xl border border-white/10 text-xs hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-primary"
-                onClick={handleShare}
-                aria-label="Compartilhar evento"
-              >
-                <Share2 className="h-4 w-4 mb-1" />
-                Compartilhar
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="flex flex-col items-center justify-center h-11 rounded-xl border border-white/10 text-xs hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-primary"
-                onClick={handleBookmark}
-                aria-label={isBookmarked ? "Remover dos salvos" : "Salvar evento"}
-              >
-                <Bookmark className={`h-4 w-4 mb-1 ${isBookmarked ? 'fill-current' : ''}`} />
-                {isBookmarked ? 'Salvo' : 'Salvar'}
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="flex flex-col items-center justify-center h-11 rounded-xl border border-white/10 text-xs hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-primary"
-                onClick={handleReport}
-                aria-label="Reportar evento"
-              >
-                <Flag className="h-4 w-4 mb-1" />
-                Reportar
-              </Button>
+        {/* Badges Section - Mobile First */}
+        {event && (
+          <div className="px-4 max-w-[680px] mx-auto mb-4">
+            <div className="flex items-center gap-2 flex-wrap">
+              {event.highlight_type === 'curatorial' && (
+                <div className="mobile-highlight-badge curatorial">
+                  ✨ Destaque curatorial
+                </div>
+              )}
+              {(event.highlight_type === 'vitrine' || event.highlight_type === 'sponsored') && (
+                <div className="mobile-highlight-badge vitrine">
+                  📢 Vitrine patrocinada
+                </div>
+              )}
             </div>
+          </div>
+        )}
+        
+        {/* Tickets Section */}
+        {event && <EventTicketsSection event={event} formatPrice={formatPrice} />}
+        
+        {/* Action Bar - Mobile Grid */}
+        <div className="px-4 max-w-[680px] mx-auto mb-6">
+          <div className="mobile-action-grid">
+            <button
+              onClick={handleShare}
+              className="mobile-action-button"
+              aria-label="Compartilhar evento"
+            >
+              <Share2 className="h-4 w-4" />
+              <span>Compartilhar</span>
+            </button>
             
-            {/* Desktop Actions */}
-            <div className="hidden md:flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleShare}>
-                <Share2 className="h-4 w-4 mr-2" />
-                Compartilhar
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleBookmark}>
-                <Bookmark className={`h-4 w-4 mr-2 ${isBookmarked ? 'fill-current' : ''}`} />
-                {isBookmarked ? 'Salvo' : 'Salvar'}
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleReport}>
-                <Flag className="h-4 w-4 mr-2" />
-                Reportar
-              </Button>
-            </div>
+            <button
+              onClick={handleBookmark}
+              className="mobile-action-button"
+              aria-label={isBookmarked ? 'Remover dos salvos' : 'Salvar evento'}
+            >
+              <Bookmark className={cn(
+                "h-4 w-4",
+                isBookmarked && "fill-current"
+              )} />
+              <span>{isBookmarked ? 'Salvo' : 'Salvar'}</span>
+            </button>
             
-            <div className="hidden md:block">
-              <CompactEngagementSystem entityId={event.id} entityType="event" />
-            </div>
+            <button
+              onClick={handleReport}
+              className="mobile-action-button"
+              aria-label="Reportar evento"
+            >
+              <Flag className="h-4 w-4" />
+              <span>Reportar</span>
+            </button>
           </div>
         </div>
         
-        {/* Main Content - Layout responsivo */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 mt-6">
-          {/* Left Column - Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Tickets Section */}
-            <EventTicketsSection event={event} formatPrice={formatPrice} />
-            
-            {/* Curation Section */}
-            <EventCurationSection 
-              eventId={event.id}
-              highlightType={event.highlight_type}
-            />
-            
-            {/* Description Section */}
-            {event.description && (
-              <Card className="rounded-xl mt-4">
-                <CardContent className="p-4 md:p-6">
-                  <h2 className="text-lg md:text-xl font-semibold mb-4">Descrição</h2>
-                  <div className="prose prose-sm max-w-none text-[15px] md:text-base">
-                    <SafeHTML content={event.description} />
+        {/* Main Content - Two column layout */}
+        <div className="max-w-7xl mx-auto px-4 lg:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            {/* Left Column - Main Content */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Curation Section */}
+              {(event.highlight_type === 'curatorial' || event.highlight_type === 'editorial') && (
+                <div className="mobile-curation-card">
+                  <div className="mobile-curation-content">
+                    <EventCurationSection 
+                      eventId={event.id}
+                      highlightType={event.highlight_type}
+                    />
+                    <button
+                      onClick={openDrawer}
+                      className="mobile-curation-link"
+                      aria-label="Ver critérios de curadoria"
+                    >
+                      Como escolhemos este destaque?
+                    </button>
                   </div>
+                </div>
+              )}
+              
+              {/* Description Section */}
+              {event.description && (
+                <Card className="rounded-xl">
+                  <CardContent className="p-4 md:p-6">
+                    <h2 className="text-lg md:text-xl font-semibold mb-4">Descrição</h2>
+                    <div className="prose prose-sm max-w-none text-[15px] md:text-base">
+                      <SafeHTML content={event.description} />
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+              
+              {/* Lineup Section */}
+              <EventLineupSection 
+                lineup={lineup} 
+                performances={performances} 
+                visualArtists={visualArtists}
+                event={event}
+              />
+              
+              {/* Location Section with Map */}
+              <EventLocationCard event={event} venue={venue} />
+            </div>
+            
+            {/* Right Column - Sidebar (desktop only) */}
+            <div className="hidden lg:block space-y-6">
+              {/* Organizer Card */}
+              <EventOrganizerCard partners={partners} venue={venue} />
+              
+              {/* Official Links */}
+              <EventLinksCard event={event} partners={partners} />
+              
+              {/* Mood/Tags */}
+              <EventMoodTagsCard event={event} />
+              
+              {/* Location Summary (smaller) */}
+              <Card className="rounded-xl">
+                <CardContent className="p-4">
+                  <h4 className="font-medium text-sm text-muted-foreground mb-2 uppercase tracking-wide">
+                    Local
+                  </h4>
+                  <p className="font-medium">{event.location_name || venue?.name}</p>
+                  <p className="text-sm text-muted-foreground">{event.city}</p>
+                  {venue?.opening_hours && typeof venue.opening_hours === 'object' && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {(() => {
+                        const hours = venue.opening_hours as Record<string, string>;
+                        const todayEntries = Object.entries(hours).filter(([_, time]) => time && time.trim());
+                        if (todayEntries.length === 0) return null;
+                        const firstEntry = todayEntries[0];
+                        return `${firstEntry[0]}: ${firstEntry[1]}`;
+                      })()}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
+            </div>
+          </div>
+          
+          {/* Mobile: Organizer & Links Cards */}
+          <div className="lg:hidden space-y-4 mt-6">
+            <EventOrganizerCard partners={partners} venue={venue} />
+            <EventLinksCard event={event} partners={partners} />
+            <EventMoodTagsCard event={event} />
+          </div>
+          
+          {/* Comments & Reviews */}
+          <div className="mt-8 md:mt-12 space-y-6 md:space-y-8">
+            {commentsResult?.showComments && (
+              <div>
+                <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Comentários</h2>
+                <Card className="rounded-xl">
+                  <CardContent className="p-4 md:p-6">
+                    <p className="text-muted-foreground text-sm md:text-base">Sistema de comentários em desenvolvimento</p>
+                  </CardContent>
+                </Card>
+              </div>
             )}
             
-            {/* Lineup Section */}
-            <EventLineupSection 
-              lineup={lineup} 
-              performances={performances} 
-              visualArtists={visualArtists}
-              event={event}
-            />
-            
-            {/* Location Section with Map */}
-            <EventLocationCard event={event} venue={venue} />
-          </div>
-          
-          {/* Right Column - Sidebar (desktop only) */}
-          <div className="hidden lg:block space-y-6">
-            {/* Organizer Card */}
-            <EventOrganizerCard partners={partners} venue={venue} />
-            
-            {/* Official Links */}
-            <EventLinksCard event={event} partners={partners} />
-            
-            {/* Mood/Tags */}
-            <EventMoodTagsCard event={event} />
-            
-            {/* Location Summary (smaller) */}
-            <Card className="rounded-xl">
-              <CardContent className="p-4">
-                <h4 className="font-medium text-sm text-muted-foreground mb-2 uppercase tracking-wide">
-                  Local
-                </h4>
-                <p className="font-medium">{event.location_name || venue?.name}</p>
-                <p className="text-sm text-muted-foreground">{event.city}</p>
-                {venue?.opening_hours && typeof venue.opening_hours === 'object' && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {(() => {
-                      const hours = venue.opening_hours as Record<string, string>;
-                      const todayEntries = Object.entries(hours).filter(([_, time]) => time && time.trim());
-                      if (todayEntries.length === 0) return null;
-                      const firstEntry = todayEntries[0];
-                      return `${firstEntry[0]}: ${firstEntry[1]}`;
-                    })()}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-        
-        {/* Mobile: Organizer & Links Cards */}
-        <div className="lg:hidden space-y-4 mt-6">
-          <EventOrganizerCard partners={partners} venue={venue} />
-          <EventLinksCard event={event} partners={partners} />
-          <EventMoodTagsCard event={event} />
-        </div>
-        
-        {/* Comments & Reviews */}
-        <div className="mt-8 md:mt-12 space-y-6 md:space-y-8">
-          {commentsResult?.showComments && (
             <div>
-              <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Comentários</h2>
-              <Card className="rounded-xl">
-                <CardContent className="p-4 md:p-6">
-                  <p className="text-muted-foreground text-sm md:text-base">Sistema de comentários em desenvolvimento</p>
-                </CardContent>
-              </Card>
+              <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Avaliações</h2>
+              <ReviewSystem
+                itemId={event.id}
+                itemType="event"
+                reviews={reviews}
+                onReviewAdded={fetchReviews}
+                onAddReview={handleAddReview}
+                loading={reviewsLoading}
+              />
             </div>
-          )}
+          </div>
           
-          <div>
-            <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Avaliações</h2>
-            <ReviewSystem
-              itemId={event.id}
-              itemType="event"
-              reviews={reviews}
-              onReviewAdded={fetchReviews}
-              onAddReview={handleAddReview}
-              loading={reviewsLoading}
+          {/* Related Events */}
+          <div className="mt-8 md:mt-12">
+            <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Você também pode gostar</h2>
+            <RelatedEvents 
+              currentEventId={event.id}
+              city={event.city}
+              categories={event.genres || []}
             />
           </div>
-        </div>
-        
-        {/* Related Events */}
-        <div className="mt-8 md:mt-12">
-          <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Você também pode gostar</h2>
-          <RelatedEvents 
-            currentEventId={event.id}
-            city={event.city}
-            categories={event.genres || []}
-          />
         </div>
       </main>
       
       {/* Sticky CTA for Mobile */}
       <StickyTicketCTA event={event} formatPrice={formatPrice} />
+      
+      {/* Curation Criteria Drawer */}
+      {event && (
+        <CurationCriteriaDrawer
+          open={curationDrawerOpen}
+          onOpenChange={closeDrawer}
+          criteria={[
+            { key: 'relevancia', status: 'met', is_primary: true },
+            { key: 'qualidade', status: 'met', is_primary: true },
+            { key: 'diversidade', status: 'partial', is_primary: false },
+            { key: 'impacto', status: 'met', is_primary: true },
+            { key: 'coerencia', status: 'partial', is_primary: false },
+            { key: 'experiencia', status: 'met', is_primary: false },
+            { key: 'tecnica', status: 'partial', is_primary: false },
+            { key: 'acessibilidade', status: 'met', is_primary: false }
+          ]}
+          notes="Este evento se destaca pela sua relevância cultural única na cidade, com lineup de alta qualidade e forte impacto na comunidade local."
+          eventTitle={event.title}
+        />
+      )}
       
       <Footer />
       <BackToTop />

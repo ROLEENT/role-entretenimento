@@ -1,39 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 
 export function useCurationDrawer() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
 
-  const openDrawer = () => {
+  const openDrawer = useCallback(() => {
     setIsOpen(true);
-    setIsAnimating(true);
-    
-    // Permitir animação de entrada
-    setTimeout(() => setIsAnimating(false), 300);
-  };
+  }, []);
 
-  const closeDrawer = () => {
-    setIsAnimating(true);
-    
-    // Animação de saída antes de fechar
-    setTimeout(() => {
-      setIsOpen(false);
-      setIsAnimating(false);
-    }, 200);
-  };
-
-  // Cleanup quando componente desmonta
-  useEffect(() => {
-    return () => {
-      if (isOpen) {
-        document.body.style.overflow = '';
-      }
-    };
-  }, [isOpen]);
+  const closeDrawer = useCallback(() => {
+    setIsOpen(false);
+  }, []);
 
   return {
     isOpen,
-    isAnimating,
     openDrawer,
     closeDrawer,
     setIsOpen

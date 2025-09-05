@@ -1,5 +1,58 @@
 /* Mobile Event Layout - Specific styles for EventDetailPageV2 */
 
+/* Base mobile container */
+.mobile-event-container {
+  @apply min-h-screen bg-background;
+}
+
+/* Mobile breadcrumb improvements */
+.mobile-breadcrumb {
+  @apply mb-4 px-4 max-w-[680px] mx-auto;
+}
+
+.mobile-breadcrumb-content {
+  @apply flex items-center text-xs opacity-80 gap-1;
+}
+
+/* Mobile highlight badges */
+.mobile-highlight-badge {
+  @apply inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium border;
+}
+
+.mobile-highlight-badge.curatorial {
+  @apply bg-transparent border-[#c77dff] text-[#c77dff];
+}
+
+.mobile-highlight-badge.vitrine {
+  @apply bg-[#c77dff] border-[#c77dff] text-white;
+}
+
+/* Mobile action button grid */
+.mobile-action-grid {
+  @apply grid grid-cols-3 gap-2;
+}
+
+.mobile-action-button {
+  @apply flex flex-col items-center justify-center gap-1 p-3 min-h-[44px] rounded-lg border border-border bg-background text-foreground hover:bg-muted transition-colors;
+}
+
+.mobile-action-button span {
+  @apply text-xs font-medium;
+}
+
+/* Mobile curation card */
+.mobile-curation-card {
+  @apply px-4 max-w-[680px] mx-auto mb-6;
+}
+
+.mobile-curation-content {
+  @apply bg-muted/50 border border-border rounded-lg p-4;
+}
+
+.mobile-curation-link {
+  @apply inline-flex items-center text-sm text-[#c77dff] hover:text-[#c77dff]/80 transition-colors mt-3 font-medium;
+}
+
 /* Mobile container with proper max-width and padding */
 @media (max-width: 768px) {
   .mobile-event-container {
