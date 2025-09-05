@@ -6341,200 +6341,57 @@ export type Database = {
       }
       events_active: {
         Row: {
-          accessibility: Json | null
-          address: string | null
-          age_notes: string | null
-          age_rating: Database["public"]["Enums"]["age_rating"] | null
           city: string | null
-          country: string | null
-          cover_alt: string | null
           cover_url: string | null
           created_at: string | null
-          created_by: string | null
-          curation_notes: string | null
-          curation_score: number | null
-          currency: string | null
           date_end: string | null
           date_start: string | null
-          deleted_at: string | null
-          description: string | null
-          doors_open_utc: string | null
-          edition_number: number | null
-          end_at: string | null
-          external_url: string | null
-          gallery: Json | null
-          genres: string[] | null
-          headliner_starts_utc: string | null
           highlight_type: Database["public"]["Enums"]["highlight_type"] | null
           id: string | null
           image_url: string | null
           is_sponsored: boolean | null
-          links: Json | null
-          location_name: string | null
-          og_image_url: string | null
-          organizer_id: string | null
           price_max: number | null
           price_min: number | null
-          seo_description: string | null
-          seo_title: string | null
-          series_id: string | null
           slug: string | null
-          source: string | null
-          start_at: string | null
-          state: string | null
-          status: string | null
-          subtitle: string | null
           summary: string | null
-          tags: string[] | null
-          ticket_rules: Json | null
-          ticket_url: string | null
-          ticketing: Json | null
           title: string | null
           updated_at: string | null
-          updated_by: string | null
-          venue_id: string | null
-          visibility: string | null
         }
         Insert: {
-          accessibility?: Json | null
-          address?: string | null
-          age_notes?: string | null
-          age_rating?: Database["public"]["Enums"]["age_rating"] | null
           city?: string | null
-          country?: string | null
-          cover_alt?: string | null
           cover_url?: string | null
           created_at?: string | null
-          created_by?: string | null
-          curation_notes?: string | null
-          curation_score?: number | null
-          currency?: string | null
           date_end?: string | null
           date_start?: string | null
-          deleted_at?: string | null
-          description?: string | null
-          doors_open_utc?: string | null
-          edition_number?: number | null
-          end_at?: string | null
-          external_url?: string | null
-          gallery?: Json | null
-          genres?: string[] | null
-          headliner_starts_utc?: string | null
           highlight_type?: Database["public"]["Enums"]["highlight_type"] | null
           id?: string | null
           image_url?: string | null
           is_sponsored?: boolean | null
-          links?: Json | null
-          location_name?: string | null
-          og_image_url?: string | null
-          organizer_id?: string | null
           price_max?: number | null
           price_min?: number | null
-          seo_description?: string | null
-          seo_title?: string | null
-          series_id?: string | null
           slug?: string | null
-          source?: string | null
-          start_at?: string | null
-          state?: string | null
-          status?: string | null
-          subtitle?: string | null
           summary?: string | null
-          tags?: string[] | null
-          ticket_rules?: Json | null
-          ticket_url?: string | null
-          ticketing?: Json | null
           title?: string | null
           updated_at?: string | null
-          updated_by?: string | null
-          venue_id?: string | null
-          visibility?: string | null
         }
         Update: {
-          accessibility?: Json | null
-          address?: string | null
-          age_notes?: string | null
-          age_rating?: Database["public"]["Enums"]["age_rating"] | null
           city?: string | null
-          country?: string | null
-          cover_alt?: string | null
           cover_url?: string | null
           created_at?: string | null
-          created_by?: string | null
-          curation_notes?: string | null
-          curation_score?: number | null
-          currency?: string | null
           date_end?: string | null
           date_start?: string | null
-          deleted_at?: string | null
-          description?: string | null
-          doors_open_utc?: string | null
-          edition_number?: number | null
-          end_at?: string | null
-          external_url?: string | null
-          gallery?: Json | null
-          genres?: string[] | null
-          headliner_starts_utc?: string | null
           highlight_type?: Database["public"]["Enums"]["highlight_type"] | null
           id?: string | null
           image_url?: string | null
           is_sponsored?: boolean | null
-          links?: Json | null
-          location_name?: string | null
-          og_image_url?: string | null
-          organizer_id?: string | null
           price_max?: number | null
           price_min?: number | null
-          seo_description?: string | null
-          seo_title?: string | null
-          series_id?: string | null
           slug?: string | null
-          source?: string | null
-          start_at?: string | null
-          state?: string | null
-          status?: string | null
-          subtitle?: string | null
           summary?: string | null
-          tags?: string[] | null
-          ticket_rules?: Json | null
-          ticket_url?: string | null
-          ticketing?: Json | null
           title?: string | null
           updated_at?: string | null
-          updated_by?: string | null
-          venue_id?: string | null
-          visibility?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "events_organizer_id_fkey"
-            columns: ["organizer_id"]
-            isOneToOne: false
-            referencedRelation: "organizers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "events_organizer_id_fkey"
-            columns: ["organizer_id"]
-            isOneToOne: false
-            referencedRelation: "organizers_public"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "events_series_id_fkey"
-            columns: ["series_id"]
-            isOneToOne: false
-            referencedRelation: "event_series"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "events_venue_id_fkey"
-            columns: ["venue_id"]
-            isOneToOne: false
-            referencedRelation: "venues"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       events_complete: {
         Row: {
@@ -6732,178 +6589,76 @@ export type Database = {
       }
       events_with_relations: {
         Row: {
-          accessibility: Json | null
-          address: string | null
-          age_notes: string | null
-          age_rating: Database["public"]["Enums"]["age_rating"] | null
           city: string | null
-          country: string | null
-          cover_alt: string | null
           cover_url: string | null
           created_at: string | null
-          created_by: string | null
-          curation_notes: string | null
-          curation_score: number | null
-          currency: string | null
           date_end: string | null
           date_start: string | null
           description: string | null
-          doors_open_utc: string | null
-          edition_number: number | null
-          end_at: string | null
-          external_url: string | null
-          gallery: Json | null
-          genres: string[] | null
-          headliner_starts_utc: string | null
           highlight_type: Database["public"]["Enums"]["highlight_type"] | null
           id: string | null
           image_url: string | null
           is_sponsored: boolean | null
-          lineup_slots: Json[] | null
-          links: Json | null
-          location_name: string | null
-          og_image_url: string | null
           organizer_id: string | null
-          partners: Json[] | null
-          performances: Json[] | null
           price_max: number | null
           price_min: number | null
-          seo_description: string | null
-          seo_title: string | null
-          series_id: string | null
           slug: string | null
-          source: string | null
-          start_at: string | null
           state: string | null
           status: string | null
-          subtitle: string | null
           summary: string | null
           tags: string[] | null
-          ticket_rules: Json | null
-          ticket_url: string | null
-          ticketing: Json | null
           title: string | null
           updated_at: string | null
-          updated_by: string | null
           venue_id: string | null
           visibility: string | null
-          visual_artists: Json[] | null
         }
         Insert: {
-          accessibility?: Json | null
-          address?: string | null
-          age_notes?: string | null
-          age_rating?: Database["public"]["Enums"]["age_rating"] | null
           city?: string | null
-          country?: string | null
-          cover_alt?: string | null
           cover_url?: string | null
           created_at?: string | null
-          created_by?: string | null
-          curation_notes?: string | null
-          curation_score?: number | null
-          currency?: string | null
           date_end?: string | null
           date_start?: string | null
           description?: string | null
-          doors_open_utc?: string | null
-          edition_number?: number | null
-          end_at?: string | null
-          external_url?: string | null
-          gallery?: Json | null
-          genres?: string[] | null
-          headliner_starts_utc?: string | null
           highlight_type?: Database["public"]["Enums"]["highlight_type"] | null
           id?: string | null
           image_url?: string | null
           is_sponsored?: boolean | null
-          lineup_slots?: never
-          links?: Json | null
-          location_name?: string | null
-          og_image_url?: string | null
           organizer_id?: string | null
-          partners?: never
-          performances?: never
           price_max?: number | null
           price_min?: number | null
-          seo_description?: string | null
-          seo_title?: string | null
-          series_id?: string | null
           slug?: string | null
-          source?: string | null
-          start_at?: string | null
           state?: string | null
           status?: string | null
-          subtitle?: string | null
           summary?: string | null
           tags?: string[] | null
-          ticket_rules?: Json | null
-          ticket_url?: string | null
-          ticketing?: Json | null
           title?: string | null
           updated_at?: string | null
-          updated_by?: string | null
           venue_id?: string | null
           visibility?: string | null
-          visual_artists?: never
         }
         Update: {
-          accessibility?: Json | null
-          address?: string | null
-          age_notes?: string | null
-          age_rating?: Database["public"]["Enums"]["age_rating"] | null
           city?: string | null
-          country?: string | null
-          cover_alt?: string | null
           cover_url?: string | null
           created_at?: string | null
-          created_by?: string | null
-          curation_notes?: string | null
-          curation_score?: number | null
-          currency?: string | null
           date_end?: string | null
           date_start?: string | null
           description?: string | null
-          doors_open_utc?: string | null
-          edition_number?: number | null
-          end_at?: string | null
-          external_url?: string | null
-          gallery?: Json | null
-          genres?: string[] | null
-          headliner_starts_utc?: string | null
           highlight_type?: Database["public"]["Enums"]["highlight_type"] | null
           id?: string | null
           image_url?: string | null
           is_sponsored?: boolean | null
-          lineup_slots?: never
-          links?: Json | null
-          location_name?: string | null
-          og_image_url?: string | null
           organizer_id?: string | null
-          partners?: never
-          performances?: never
           price_max?: number | null
           price_min?: number | null
-          seo_description?: string | null
-          seo_title?: string | null
-          series_id?: string | null
           slug?: string | null
-          source?: string | null
-          start_at?: string | null
           state?: string | null
           status?: string | null
-          subtitle?: string | null
           summary?: string | null
           tags?: string[] | null
-          ticket_rules?: Json | null
-          ticket_url?: string | null
-          ticketing?: Json | null
           title?: string | null
           updated_at?: string | null
-          updated_by?: string | null
           venue_id?: string | null
           visibility?: string | null
-          visual_artists?: never
         }
         Relationships: [
           {
@@ -6918,13 +6673,6 @@ export type Database = {
             columns: ["organizer_id"]
             isOneToOne: false
             referencedRelation: "organizers_public"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "events_series_id_fkey"
-            columns: ["series_id"]
-            isOneToOne: false
-            referencedRelation: "event_series"
             referencedColumns: ["id"]
           },
           {
@@ -7157,8 +6905,9 @@ export type Database = {
         Row: {
           artists_count: number | null
           events_count: number | null
+          highlights_count: number | null
           organizers_count: number | null
-          venues_count: number | null
+          partners_count: number | null
         }
         Relationships: []
       }
@@ -8320,6 +8069,10 @@ export type Database = {
       }
       is_admin_session_valid: {
         Args: { p_admin_email: string }
+        Returns: boolean
+      }
+      is_admin_simple: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
       is_admin_user: {
