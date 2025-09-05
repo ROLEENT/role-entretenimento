@@ -24,14 +24,8 @@ export default function AdminV3EventsCreateEdit() {
       if (!id) return null;
       
       const { data, error } = await supabase
-        .from("events")
-        .select(`
-          *,
-          lineup_slots (*),
-          partners (*),
-          performances (*),
-          visual_artists (*)
-        `)
+        .from("events_with_relations")
+        .select("*")
         .eq("id", id)
         .single();
 

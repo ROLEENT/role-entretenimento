@@ -36,8 +36,7 @@ export default function AdminV3EventsDashboard() {
           id, title, subtitle, summary, city, location_name,
           date_start, date_end, doors_open_utc, image_url, cover_url,
           price_min, price_max, currency, highlight_type, is_sponsored,
-          age_rating, genres, slug, ticket_url, status, created_at,
-          lineup_slots, partners, performances, visual_artists
+          age_rating, genres, slug, ticket_url, status, created_at
         `)
         .order("created_at", { ascending: false });
 

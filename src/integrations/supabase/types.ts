@@ -2003,6 +2003,13 @@ export type Database = {
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "event_categories_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       event_checkins: {
@@ -2040,6 +2047,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_checkins_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
             referencedColumns: ["id"]
           },
         ]
@@ -2085,6 +2099,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_comments_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
             referencedColumns: ["id"]
           },
           {
@@ -2148,6 +2169,13 @@ export type Database = {
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "event_companions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       event_curation_criteria: {
@@ -2188,6 +2216,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_curation_criteria_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
             referencedColumns: ["id"]
           },
         ]
@@ -2239,6 +2274,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "event_engagement_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "event_engagement_highlight_id_fkey"
             columns: ["highlight_id"]
             isOneToOne: false
@@ -2279,6 +2321,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_favorites_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
             referencedColumns: ["id"]
           },
         ]
@@ -2383,6 +2432,13 @@ export type Database = {
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "event_lineup_slots_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       event_partners: {
@@ -2435,6 +2491,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_partners_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
             referencedColumns: ["id"]
           },
         ]
@@ -2497,6 +2560,13 @@ export type Database = {
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "event_performances_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       event_reviews: {
@@ -2537,6 +2607,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_reviews_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
             referencedColumns: ["id"]
           },
         ]
@@ -2661,6 +2738,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_visual_artists_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
             referencedColumns: ["id"]
           },
         ]
@@ -3069,6 +3153,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "group_events_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "group_events_group_id_fkey"
             columns: ["group_id"]
             isOneToOne: false
@@ -3422,6 +3513,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "highlights_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
             referencedColumns: ["id"]
           },
           {
@@ -4659,6 +4757,13 @@ export type Database = {
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "push_subscriptions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       reviews: {
@@ -4702,6 +4807,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
             referencedColumns: ["id"]
           },
         ]
@@ -4889,6 +5001,13 @@ export type Database = {
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "tickets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_badges: {
@@ -4991,6 +5110,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_calendar_events_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_relations"
             referencedColumns: ["id"]
           },
         ]
@@ -5828,6 +5954,205 @@ export type Database = {
           event_id: string | null
         }
         Relationships: []
+      }
+      events_with_relations: {
+        Row: {
+          accessibility: Json | null
+          address: string | null
+          age_notes: string | null
+          age_rating: Database["public"]["Enums"]["age_rating"] | null
+          city: string | null
+          country: string | null
+          cover_alt: string | null
+          cover_url: string | null
+          created_at: string | null
+          created_by: string | null
+          curation_notes: string | null
+          curation_score: number | null
+          currency: string | null
+          date_end: string | null
+          date_start: string | null
+          description: string | null
+          doors_open_utc: string | null
+          edition_number: number | null
+          end_at: string | null
+          external_url: string | null
+          gallery: Json | null
+          genres: string[] | null
+          headliner_starts_utc: string | null
+          highlight_type: Database["public"]["Enums"]["highlight_type"] | null
+          id: string | null
+          image_url: string | null
+          is_sponsored: boolean | null
+          lineup_slots: Json[] | null
+          links: Json | null
+          location_name: string | null
+          og_image_url: string | null
+          organizer_id: string | null
+          partners: Json[] | null
+          performances: Json[] | null
+          price_max: number | null
+          price_min: number | null
+          seo_description: string | null
+          seo_title: string | null
+          series_id: string | null
+          slug: string | null
+          source: string | null
+          start_at: string | null
+          state: string | null
+          status: string | null
+          subtitle: string | null
+          summary: string | null
+          tags: string[] | null
+          ticket_rules: Json | null
+          ticket_url: string | null
+          ticketing: Json | null
+          title: string | null
+          updated_at: string | null
+          updated_by: string | null
+          venue_id: string | null
+          visibility: string | null
+          visual_artists: Json[] | null
+        }
+        Insert: {
+          accessibility?: Json | null
+          address?: string | null
+          age_notes?: string | null
+          age_rating?: Database["public"]["Enums"]["age_rating"] | null
+          city?: string | null
+          country?: string | null
+          cover_alt?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          curation_notes?: string | null
+          curation_score?: number | null
+          currency?: string | null
+          date_end?: string | null
+          date_start?: string | null
+          description?: string | null
+          doors_open_utc?: string | null
+          edition_number?: number | null
+          end_at?: string | null
+          external_url?: string | null
+          gallery?: Json | null
+          genres?: string[] | null
+          headliner_starts_utc?: string | null
+          highlight_type?: Database["public"]["Enums"]["highlight_type"] | null
+          id?: string | null
+          image_url?: string | null
+          is_sponsored?: boolean | null
+          lineup_slots?: never
+          links?: Json | null
+          location_name?: string | null
+          og_image_url?: string | null
+          organizer_id?: string | null
+          partners?: never
+          performances?: never
+          price_max?: number | null
+          price_min?: number | null
+          seo_description?: string | null
+          seo_title?: string | null
+          series_id?: string | null
+          slug?: string | null
+          source?: string | null
+          start_at?: string | null
+          state?: string | null
+          status?: string | null
+          subtitle?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          ticket_rules?: Json | null
+          ticket_url?: string | null
+          ticketing?: Json | null
+          title?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          venue_id?: string | null
+          visibility?: string | null
+          visual_artists?: never
+        }
+        Update: {
+          accessibility?: Json | null
+          address?: string | null
+          age_notes?: string | null
+          age_rating?: Database["public"]["Enums"]["age_rating"] | null
+          city?: string | null
+          country?: string | null
+          cover_alt?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          curation_notes?: string | null
+          curation_score?: number | null
+          currency?: string | null
+          date_end?: string | null
+          date_start?: string | null
+          description?: string | null
+          doors_open_utc?: string | null
+          edition_number?: number | null
+          end_at?: string | null
+          external_url?: string | null
+          gallery?: Json | null
+          genres?: string[] | null
+          headliner_starts_utc?: string | null
+          highlight_type?: Database["public"]["Enums"]["highlight_type"] | null
+          id?: string | null
+          image_url?: string | null
+          is_sponsored?: boolean | null
+          lineup_slots?: never
+          links?: Json | null
+          location_name?: string | null
+          og_image_url?: string | null
+          organizer_id?: string | null
+          partners?: never
+          performances?: never
+          price_max?: number | null
+          price_min?: number | null
+          seo_description?: string | null
+          seo_title?: string | null
+          series_id?: string | null
+          slug?: string | null
+          source?: string | null
+          start_at?: string | null
+          state?: string | null
+          status?: string | null
+          subtitle?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          ticket_rules?: Json | null
+          ticket_url?: string | null
+          ticketing?: Json | null
+          title?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          venue_id?: string | null
+          visibility?: string | null
+          visual_artists?: never
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "organizers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "event_series"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       genres_with_hierarchy: {
         Row: {
