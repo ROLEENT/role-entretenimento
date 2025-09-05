@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
+import { createHybridEventFetcher } from '@/lib/eventDataAdapters';
 import { supabase } from '@/integrations/supabase/client';
 import { getCityQueryValue, isCapitalSlug } from '@/lib/cityToSlug';
-import { getCleanTimestamp, getCleanDateRange } from '@/utils/timestampUtils';
+import { getCleanTimestamp } from '@/utils/timestampUtils';
 
 export interface AgendaCidadeItem {
   id: string;
@@ -286,7 +287,7 @@ export const useAgendaCidadeData = (params: UseAgendaCidadeDataParams) => {
     params.period || 'proximos-7-dias',
   ], [params.city, params.period]);
 
-  // Fetch agenda items with caching
+  // Fetch agenda items with hybrid approach
   const {
     data: itemsData,
     isLoading,
@@ -294,7 +295,59 @@ export const useAgendaCidadeData = (params: UseAgendaCidadeDataParams) => {
     refetch: refetchItems,
   } = useQuery({
     queryKey: itemsQueryKey,
-    queryFn: () => fetchAgendaItems(params),
+    queryFn: async () => {
+      if (!params.city) {
+        throw new Error('Cidade não especificada');
+      }
+
+      console.log('🏙️ Fetching unified city agenda data for:', params.city, 'period:', params.period);
+      
+      const cityQueryValue = getCityQueryValue(params.city);
+      const { start, end } = getDateRange(params.period || 'proximos-7-dias');
+      
+      const hybridFetcher = createHybridEventFetcher(supabase);
+      const events = await hybridFetcher({
+        city: cityQueryValue,
+        search: params.search,
+        tags: params.genres,
+        dateRange: { start, end },
+        status: 'published'
+      });
+
+      console.log(`✅ Unified city agenda data fetched for ${params.city}:`, {
+        total: events.length,
+        sources: events.reduce((acc, event) => {
+          acc[event.source] = (acc[event.source] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>)
+      });
+      
+      // Transform and paginate
+      const itemsPerPage = 18;
+      const offset = ((params.page || 1) - 1) * itemsPerPage;
+      const paginatedEvents = events.slice(offset, offset + itemsPerPage);
+      
+      const items: AgendaCidadeItem[] = paginatedEvents.map(event => ({
+        id: event.id,
+        title: event.title,
+        subtitle: event.subtitle,
+        summary: event.summary,
+        city: event.city,
+        date_start: event.date_start,
+        date_end: event.date_end,
+        image_url: event.image_url,
+        highlight_type: event.highlight_type as 'vitrine' | 'curatorial' | 'none',
+        status: event.status,
+        slug: event.slug,
+        genres: event.genres || []
+      }));
+      
+      return {
+        items,
+        totalCount: events.length,
+        totalPages: Math.ceil(events.length / itemsPerPage),
+      };
+    },
     enabled: !!params.city,
     staleTime: 3 * 60 * 1000, // 3 minutes - events change more frequently
     gcTime: 15 * 60 * 1000, // 15 minutes

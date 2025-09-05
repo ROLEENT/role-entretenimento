@@ -5,12 +5,12 @@ import { toast } from 'sonner';
 export interface EventFormData {
   title: string;
   description: string;
-  start_at: string;
+  date_start: string;  // Changed from start_at
   city: string;
   state: string;
   venue_id: string;
   slug?: string;
-  end_at?: string;
+  date_end?: string;   // Changed from end_at
   organizer_id?: string;
   cover_url?: string;
   tags?: string[];
@@ -40,10 +40,8 @@ export const useEventManagement = () => {
         description: data.description || null,
         city: data.city,
         state: data.state,
-        date_start: data.start_at,
-        date_end: data.end_at || null,
-        start_at: data.start_at,
-        end_at: data.end_at || null,
+        date_start: data.date_start,  // Using correct field name
+        date_end: data.date_end || null,
         venue_id: data.venue_id,
         organizer_id: data.organizer_id || null,
         cover_url: data.cover_url || null,
@@ -90,10 +88,8 @@ export const useEventManagement = () => {
         description: data.description || null,
         city: data.city,
         state: data.state,
-        date_start: data.start_at,
-        date_end: data.end_at || null,
-        start_at: data.start_at,
-        end_at: data.end_at || null,
+        date_start: data.date_start,  // Using correct field name
+        date_end: data.date_end || null,
         venue_id: data.venue_id,
         organizer_id: data.organizer_id || null,
         cover_url: data.cover_url || null,

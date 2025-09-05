@@ -162,6 +162,7 @@ export const createHybridEventFetcher = (supabase: any) => {
       search?: string;
       tags?: string[];
       dateRange?: { start: Date; end: Date };
+      status?: string;
       limit?: number;
       offset?: number;
     } = {}

@@ -2,7 +2,7 @@ import Header, { HeaderGlobalSearch } from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import AgendaPorCidadeHome from "@/components/AgendaPorCidadeHome";
 import BlocoRevista from "@/components/BlocoRevista";
-import FeaturedEventsToday from "@/components/FeaturedEventsToday";
+import { FeaturedEventsToday } from "@/components/FeaturedEventsToday";
 import RoleEmNumeros from "@/components/RoleEmNumeros";
 import Newsletter from "@/components/Newsletter";
 import Footer from "@/components/Footer";
