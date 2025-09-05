@@ -10,6 +10,7 @@ import { CheckCircle, Circle, ArrowLeft, ArrowRight, Save, Eye } from 'lucide-re
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useUpsertEventV3 } from '@/hooks/useUpsertEventV3';
+import { eventDebugUtils } from '@/utils/eventDebugUtils';
 
 // Step components
 import { BasicInfoStep } from './wizard/BasicInfoStep';
@@ -375,21 +376,77 @@ export const EventCreateWizard: React.FC<EventCreateWizardProps> = ({
       {process.env.NODE_ENV === 'development' && (
         <Card className="mt-8 bg-muted">
           <CardHeader>
-            <CardTitle className="text-sm">Debug Info</CardTitle>
+            <CardTitle className="text-sm">Debug Info & Tools</CardTitle>
           </CardHeader>
-          <CardContent className="text-xs">
-            <p>Current Step: {currentStep}</p>
-            <p>Completed Steps: {Array.from(completedSteps).join(', ')}</p>
-            <p>Form Valid: {isValid ? 'Yes' : 'No'}</p>
-            <p>Errors: {Object.keys(errors).length}</p>
-            {Object.keys(errors).length > 0 && (
-              <div className="mt-2">
-                <p className="font-medium">Current Errors:</p>
-                <pre className="text-xs bg-destructive/10 p-2 rounded">
-                  {JSON.stringify(errors, null, 2)}
-                </pre>
+          <CardContent className="text-xs space-y-4">
+            <div>
+              <p>Current Step: {currentStep}</p>
+              <p>Completed Steps: {Array.from(completedSteps).join(', ')}</p>
+              <p>Form Valid: {isValid ? 'Yes' : 'No'}</p>
+              <p>Errors: {Object.keys(errors).length}</p>
+              {Object.keys(errors).length > 0 && (
+                <div className="mt-2">
+                  <p className="font-medium">Current Errors:</p>
+                  <pre className="text-xs bg-destructive/10 p-2 rounded">
+                    {JSON.stringify(errors, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <p className="font-medium">Debug Tools:</p>
+              <div className="flex gap-2 flex-wrap">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={async () => {
+                    const result = await eventDebugUtils.testCreateEventRPC();
+                    toast({
+                      title: result.success ? 'RPC OK' : 'RPC Error',
+                      description: result.success ? 
+                        'Conectividade com banco OK' : 
+                        result.error,
+                      variant: result.success ? 'default' : 'destructive'
+                    });
+                  }}
+                >
+                  Testar RPC
+                </Button>
+                
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={async () => {
+                    const result = await eventDebugUtils.testUserAuth();
+                    toast({
+                      title: result.authenticated ? 'Auth OK' : 'Auth Error',
+                      description: result.authenticated ? 
+                        `Usuário: ${result.user?.email}` : 
+                        result.error,
+                      variant: result.authenticated ? 'default' : 'destructive'
+                    });
+                  }}
+                >
+                  Testar Auth
+                </Button>
+                
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={async () => {
+                    const results = await eventDebugUtils.checkEventTables();
+                    console.log("📊 Status das tabelas:", results);
+                    toast({
+                      title: 'Tabelas verificadas',
+                      description: 'Veja o console para detalhes',
+                    });
+                  }}
+                >
+                  Verificar Tabelas
+                </Button>
               </div>
-            )}
+            </div>
           </CardContent>
         </Card>
       )}

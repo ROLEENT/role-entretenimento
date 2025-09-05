@@ -2,6 +2,7 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { eventsApi } from "@/api/eventsApi";
+import { eventDebugUtils } from "@/utils/eventDebugUtils";
 
 export function useEventSeries() {
   const queryResult = useQuery({
@@ -48,28 +49,37 @@ export function useUpsertEventV3() {
           status: eventData.status 
         });
 
-        if (eventData.id) {
+        // Validar dados antes de enviar
+        const validation = eventDebugUtils.validateEventData(eventData);
+        if (!validation.isValid) {
+          throw new Error(`Dados inválidos: ${validation.errors.join(', ')}`);
+        }
+
+        // Usar dados limpos da validação
+        const cleanEventData = validation.cleanedData;
+
+        if (cleanEventData.id) {
           // Update existing event
-          console.log("🔄 Atualizando evento existente:", eventData.id);
-          const result = await eventsApi.updateEvent(eventData.id, eventData);
+          console.log("🔄 Atualizando evento existente:", cleanEventData.id);
+          const result = await eventsApi.updateEvent(cleanEventData.id, cleanEventData);
           console.log("✅ Evento atualizado com sucesso:", result);
           return result;
         } else {
           // Create new event using the cascade RPC
           console.log("🆕 Criando novo evento com dados:", {
-            event_data: eventData,
-            partners: eventData.partners?.length || 0,
-            lineup_slots: eventData.lineup_slots?.length || 0,
-            performances: eventData.performances?.length || 0,
-            visual_artists: eventData.visual_artists?.length || 0
+            event_data: cleanEventData,
+            partners: cleanEventData.partners?.length || 0,
+            lineup_slots: cleanEventData.lineup_slots?.length || 0,
+            performances: cleanEventData.performances?.length || 0,
+            visual_artists: cleanEventData.visual_artists?.length || 0
           });
           
           const result = await eventsApi.createEvent({
-            event_data: eventData,
-            partners: eventData.partners || [],
-            lineup_slots: eventData.lineup_slots || [],
-            performances: eventData.performances || [],
-            visual_artists: eventData.visual_artists || []
+            event_data: cleanEventData,
+            partners: cleanEventData.partners || [],
+            lineup_slots: cleanEventData.lineup_slots || [],
+            performances: cleanEventData.performances || [],
+            visual_artists: cleanEventData.visual_artists || []
           });
           
           console.log("✅ Evento criado com sucesso. ID:", result);
