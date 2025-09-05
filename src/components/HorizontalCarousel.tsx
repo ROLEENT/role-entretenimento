@@ -34,7 +34,7 @@ const EventCard = ({ item }: { item: AgendaItem }) => {
   };
 
   return (
-    <Card className="carousel-card overflow-hidden h-full group flex-shrink-0 snap-start w-[82%] sm:w-[48%] md:w-[32%] lg:w-[23%]">
+    <Card className="carousel-card overflow-hidden flex-shrink-0 snap-start w-[280px] h-[320px] group bg-card shadow-card hover:shadow-hover transition-shadow">
       <Link 
         to={`/evento/${item.slug || item.id}`}
         className="block h-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
@@ -47,7 +47,7 @@ const EventCard = ({ item }: { item: AgendaItem }) => {
               <source 
                 media="(min-width: 768px)"
                 srcSet={`${item.cover_url}?w=300&h=200&fit=crop 300w, ${item.cover_url}?w=400&h=267&fit=crop 400w`}
-                sizes="(min-width: 1200px) 300px, (min-width: 768px) 250px, 280px"
+                sizes="280px"
               />
               <img
                 src={`${item.cover_url}?w=280&h=187&fit=crop`}
@@ -63,11 +63,13 @@ const EventCard = ({ item }: { item: AgendaItem }) => {
             </div>
           )}
         </div>
-        <CardContent className="p-4">
-          <h3 className="font-semibold text-base line-clamp-2 mb-2 group-hover:text-primary transition-colors">
-            {item.title}
-          </h3>
-          <p className="text-chip text-muted-foreground">
+        <CardContent className="p-4 flex flex-col justify-between flex-1">
+          <div>
+            <h3 className="font-semibold text-base min-h-[3rem] mb-2 group-hover:text-primary transition-colors leading-tight">
+              {item.title}
+            </h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
             {item.city} · {item.start_at ? formatDate(item.start_at) : 'Data a definir'}
           </p>
         </CardContent>
@@ -77,9 +79,9 @@ const EventCard = ({ item }: { item: AgendaItem }) => {
 };
 
 const CarouselSkeleton = () => (
-  <div className="carousel-track flex component-spacing overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">
+  <div className="flex space-x-4 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth px-4">
     {[...Array(6)].map((_, i) => (
-      <Card key={i} className="carousel-card overflow-hidden h-full flex-shrink-0 snap-start w-[82%] sm:w-[48%] md:w-[32%] lg:w-[23%]">
+      <Card key={i} className="carousel-card overflow-hidden flex-shrink-0 snap-start w-[280px] h-[320px] bg-card">
         <div className="aspect-[3/2] bg-muted animate-pulse" />
         <CardContent className="p-4 space-y-2">
           <div className="h-5 bg-muted animate-pulse rounded" />
@@ -176,7 +178,7 @@ export const HorizontalCarousel = ({ items, title, isLoading = false, className 
         {/* Carousel Track */}
         <div 
           ref={trackRef}
-          className="carousel-track flex component-spacing overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth cursor-grab active:cursor-grabbing motion-reduce:scroll-auto"
+          className="carousel-track flex space-x-4 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth cursor-grab active:cursor-grabbing motion-reduce:scroll-auto px-4"
           role="list"
           aria-label={title}
           style={{
