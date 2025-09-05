@@ -8671,7 +8671,7 @@ export type Database = {
       }
       soft_delete_event: {
         Args: { p_event_id: string }
-        Returns: undefined
+        Returns: boolean
       }
       sync_admin_users: {
         Args: Record<PropertyKey, never>
