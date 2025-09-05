@@ -1,0 +1,114 @@
+MIT License
+
+Copyright (c) 2025 Role Entretenimento
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Licenças de Terceiros
+
+Este projeto utiliza as seguintes bibliotecas e suas respectivas licenças:
+
+### Dependencies
+
+- **React** (MIT License) - Copyright (c) Meta Platforms, Inc.
+- **TypeScript** (Apache License 2.0) - Copyright (c) Microsoft Corporation
+- **Tailwind CSS** (MIT License) - Copyright (c) Tailwind Labs, Inc.
+- **Supabase** (Apache License 2.0) - Copyright (c) Supabase, Inc.
+- **Radix UI** (MIT License) - Copyright (c) WorkOS
+- **Framer Motion** (MIT License) - Copyright (c) Framer B.V.
+- **React Query** (MIT License) - Copyright (c) Tanner Linsley
+- **Lucide React** (ISC License) - Copyright (c) Lucide Contributors
+- **React Hook Form** (MIT License) - Copyright (c) React Hook Form
+- **Zod** (MIT License) - Copyright (c) Colin McDonnell
+- **date-fns** (MIT License) - Copyright (c) Sasha Koss
+- **clsx** (MIT License) - Copyright (c) Luke Edwards
+- **class-variance-authority** (Apache License 2.0) - Copyright (c) Joe Bell
+
+### Build Tools
+
+- **Vite** (MIT License) - Copyright (c) Evan You & Vite Contributors
+- **PostCSS** (MIT License) - Copyright (c) Andrey Sitnik
+- **Autoprefixer** (MIT License) - Copyright (c) Andrey Sitnik
+- **ESLint** (MIT License) - Copyright (c) OpenJS Foundation
+- **Prettier** (MIT License) - Copyright (c) James Long
+
+### Testing
+
+- **Playwright** (Apache License 2.0) - Copyright (c) Microsoft Corporation
+- **Vitest** (MIT License) - Copyright (c) Anthony Fu
+
+Para a lista completa e versões específicas, consulte o arquivo `package.json`.
+
+---
+
+## Atribuições
+
+### Fonts
+- **Inter** - SIL Open Font License 1.1
+
+### Icons
+- **Lucide** - ISC License
+- Alguns ícones personalizados criados pela equipe Role Entretenimento
+
+### Images
+- Todas as imagens de exemplo são licenciadas sob Creative Commons ou criadas pela equipe
+- Fotos de perfil e eventos são propriedade dos respectivos usuários
+
+### Design System
+- Inspirado em **Radix UI** e **shadcn/ui**
+- Paleta de cores personalizada para Role Entretenimento
+- Componentes customizados licenciados sob MIT
+
+---
+
+## Contribuições
+
+Ao contribuir para este projeto, você concorda que suas contribuições serão licenciadas sob a mesma licença MIT.
+
+### Guidelines para Contribuições
+
+1. **Fork** o repositório
+2. Crie uma **branch** para sua feature (`git checkout -b feature/AmazingFeature`)
+3. **Commit** suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. **Push** para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um **Pull Request**
+
+### Código de Conduta
+
+Este projeto adere ao [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/) Code of Conduct.
+
+---
+
+## Suporte e Contato
+
+Para questões sobre licenciamento ou uso comercial:
+
+- **Email**: legal@roleentretenimento.com.br
+- **Website**: https://roleentretenimento.com.br
+- **GitHub**: https://github.com/role-entretenimento
+
+---
+
+## Disclaimer
+
+Este software é fornecido "como está", sem garantias de qualquer tipo, expressas ou implícitas, incluindo, mas não se limitando às garantias de comercialização, adequação a um propósito específico e não violação.
+
+Em nenhum caso os autores ou detentores dos direitos autorais serão responsáveis por qualquer reivindicação, danos ou outras responsabilidades, seja em uma ação de contrato, ato ilícito ou de outra forma, decorrentes de, fora de ou em conexão com o software ou o uso ou outros negócios no software.
