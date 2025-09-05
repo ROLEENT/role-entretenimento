@@ -40,10 +40,10 @@ export default function AdminEventForm({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       status: "draft",
-      lineup: [],
+      artists: [], // Changed from lineup to match EventFormData schema
       links: {},
       gallery: [],
-      organizer_ids: [],
+      partners: [], // Changed from organizer_ids to match EventFormData schema
       ...initialData,
     },
   });
@@ -70,7 +70,7 @@ export default function AdminEventForm({
       };
 
       await new Promise((resolve, reject) => {
-        upsertEvent(submitData, {
+        upsertEvent({ eventData: submitData, eventId }, {
           onSuccess: (result) => {
             toast.success(
               publish ? "Evento publicado com sucesso!" : "Evento salvo como rascunho!"

@@ -203,11 +203,7 @@ export const EventCreateWizard: React.FC<EventCreateWizardProps> = ({
         .map(([field, error]) => `${field}: ${error?.message || 'Campo obrigatório'}`)
         .join('\n');
       
-      toast({
-        title: 'Erro de validação',
-        description: currentErrors || 'Por favor, corrija os erros antes de continuar.',
-        variant: 'destructive'
-      });
+      toast.error(currentErrors || 'Por favor, corrija os erros antes de continuar.');
     }
   };
 
@@ -229,10 +225,7 @@ export const EventCreateWizard: React.FC<EventCreateWizardProps> = ({
     try {
       saveEvent(data, {
         onSuccess: (result) => {
-          toast({
-            title: 'Evento salvo!',
-            description: 'O evento foi criado com sucesso.',
-          });
+          toast.success('Evento salvo!');
           
           if (onSave) {
             onSave(data);
@@ -241,11 +234,7 @@ export const EventCreateWizard: React.FC<EventCreateWizardProps> = ({
           }
         },
         onError: (error) => {
-          toast({
-            title: 'Erro ao salvar',
-            description: error.message,
-            variant: 'destructive'
-          });
+          toast.error(`Erro ao salvar: ${error.message}`);
         }
       });
     } catch (error) {
@@ -255,10 +244,7 @@ export const EventCreateWizard: React.FC<EventCreateWizardProps> = ({
 
   const handlePreview = () => {
     // Implementation for preview functionality
-    toast({
-      title: 'Preview',
-      description: 'Função de preview em desenvolvimento.',
-    });
+    toast.success('Preview em desenvolvimento.');
   };
 
   const progress = ((currentStep + 1) / WIZARD_STEPS.length) * 100;
@@ -402,13 +388,7 @@ export const EventCreateWizard: React.FC<EventCreateWizardProps> = ({
                   variant="outline"
                   onClick={async () => {
                     const result = await eventDebugUtils.testCreateEventRPC();
-                    toast({
-                      title: result.success ? 'RPC OK' : 'RPC Error',
-                      description: result.success ? 
-                        'Conectividade com banco OK' : 
-                        result.error,
-                      variant: result.success ? 'default' : 'destructive'
-                    });
+                    toast.success(result.success ? 'RPC OK' : 'RPC Error');
                   }}
                 >
                   Testar RPC
@@ -419,13 +399,7 @@ export const EventCreateWizard: React.FC<EventCreateWizardProps> = ({
                   variant="outline"
                   onClick={async () => {
                     const result = await eventDebugUtils.testUserAuth();
-                    toast({
-                      title: result.authenticated ? 'Auth OK' : 'Auth Error',
-                      description: result.authenticated ? 
-                        `Usuário: ${result.user?.email}` : 
-                        result.error,
-                      variant: result.authenticated ? 'default' : 'destructive'
-                    });
+                    toast.success(result.authenticated ? 'Auth OK' : 'Auth Error');
                   }}
                 >
                   Testar Auth
@@ -437,10 +411,7 @@ export const EventCreateWizard: React.FC<EventCreateWizardProps> = ({
                   onClick={async () => {
                     const results = await eventDebugUtils.checkEventTables();
                     console.log("📊 Status das tabelas:", results);
-                    toast({
-                      title: 'Tabelas verificadas',
-                      description: 'Veja o console para detalhes',
-                    });
+                    toast.success('Tabelas verificadas - veja o console');
                   }}
                 >
                   Verificar Tabelas

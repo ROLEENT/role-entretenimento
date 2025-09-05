@@ -92,10 +92,10 @@ export default function AdminV3AgendaEdit() {
     price_min: event.price_min || null,
     price_max: event.price_max || null,
     age_rating: event.age_rating || null,
-    lineup: [], // This would need to be populated from a relation
+    artists: [], // Changed from lineup to match schema
     excerpt: event.summary || null,
-    content: event.summary || null, // Using summary as content for now
-    links: [],
+    content: event.summary || null,
+    links: {}, // Changed from array to object to match schema
     cover_url: event.cover_url || null,
     gallery: [],
     seo_title: event.meta_title || null,
