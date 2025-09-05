@@ -18,6 +18,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -43,31 +44,24 @@ export function EventActionCell({ event, onEventDeleted, onEventDuplicated }: Ev
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      console.log('🗑️ Iniciando soft delete do evento:', {
-        id: event.id,
-        title: event.title,
-        status: event.status
-      });
-      
-      // Feedback otimista: fechar dialog e remover da UI imediatamente
-      setDeleteDialogOpen(false);
-      onEventDeleted(); // Trigger refresh otimista
-      
-      // Chamar nova RPC de soft delete (sem necessidade de admin email)
-      const { error: rpcError } = await supabase.rpc('soft_delete_event', {
+      const { data, error } = await supabase.rpc('soft_delete_event', {
         p_event_id: event.id
       });
 
-      console.log('📊 Resultado RPC soft_delete_event:', { error: rpcError });
-
-      if (rpcError) {
-        console.error('❌ Erro ao excluir evento:', rpcError);
-        toast.error(`Erro ao excluir evento: ${rpcError.message}`);
+      if (error) {
+        console.error('❌ Erro ao excluir evento:', error);
+        toast.error(`Erro ao excluir evento: ${error.message}`);
         return;
       }
 
-      console.log('✅ Evento excluído com sucesso (soft delete)');
+      if (!data) {
+        toast.error('Erro: permissão negada para excluir evento');
+        return;
+      }
+
       toast.success('Evento excluído com sucesso!');
+      setDeleteDialogOpen(false);
+      onEventDeleted();
       
     } catch (error: any) {
       console.error('❌ Erro inesperado ao excluir evento:', error);
@@ -111,7 +105,6 @@ export function EventActionCell({ event, onEventDeleted, onEventDuplicated }: Ev
           align="end" 
           side="bottom"
           className="z-50 min-w-44"
-          // Portal is automatically handled by Radix UI
         >
           <DropdownMenuItem onClick={handleView}>
             <Eye className="mr-2 h-4 w-4" />
@@ -126,39 +119,41 @@ export function EventActionCell({ event, onEventDeleted, onEventDuplicated }: Ev
             Duplicar
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem 
-            onClick={() => setDeleteDialogOpen(true)}
-            className="text-destructive focus:text-destructive"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Excluir…
-          </DropdownMenuItem>
+          <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <AlertDialogTrigger asChild>
+              <DropdownMenuItem 
+                className="text-destructive focus:text-destructive"
+                onSelect={(e) => e.preventDefault()}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Excluir…
+              </DropdownMenuItem>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Excluir evento?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Tem certeza que deseja excluir o evento "{event.title}"? 
+                  Esta ação pode ser revertida pelo administrador se necessário.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleting}>
+                  Cancelar
+                </AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {isDeleting ? 'Excluindo...' : 'Excluir'}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Excluir evento?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja excluir o evento "{event.title}"? 
-              Esta ação pode ser revertida pelo administrador se necessário.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isDeleting ? 'Excluindo...' : 'Excluir'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
