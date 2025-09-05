@@ -78,25 +78,20 @@ const fetchAgendaItems = async (params: UseAgendaCidadeDataParams) => {
     throw new Error('Cidade não especificada');
   }
 
+  console.log('🏙️ fetchAgendaItems called for city:', params.city, 'period:', params.period);
+
   const cityQueryValue = getCityQueryValue(params.city);
   const isCapital = isCapitalSlug(params.city);
   const { start, end } = getDateRange(params.period || 'proximos-7-dias');
   const itemsPerPage = 18;
   const offset = ((params.page || 1) - 1) * itemsPerPage;
 
-  console.log('🔍 Fetching agenda items for city:', cityQueryValue);
-  console.log('📅 Date range:', start.toISOString(), 'to', end.toISOString());
-
-  // FIXED: Use date strings without time to include current day events
-  const startStr = start.toISOString().split('T')[0];
-  const endStr = end.toISOString().split('T')[0] + 'T23:59:59.999Z';
-
   let query = supabase
     .from('events')
     .select('id, title, city, image_url, date_start, date_end, genres, slug, highlight_type, subtitle, summary', { count: 'exact' })
     .eq('status', 'published')
-    .gte('date_start', startStr)
-    .lte('date_start', endStr)
+    .gte('date_start', getCleanTimestamp(start))
+    .lte('date_start', getCleanTimestamp(end))
     .order('highlight_type', { ascending: false })
     .order('date_start', { ascending: true })
     .range(offset, offset + itemsPerPage - 1);
@@ -116,7 +111,12 @@ const fetchAgendaItems = async (params: UseAgendaCidadeDataParams) => {
   }
 
   const { data, error, count } = await query;
-  if (error) throw error;
+  if (error) {
+    console.error('❌ fetchAgendaItems error:', error);
+    throw error;
+  }
+
+  console.log('✅ fetchAgendaItems success for', params.city, '- found:', data?.length || 0, 'events, total:', count);
 
   return {
     items: (data as AgendaCidadeItem[]) || [],
@@ -132,16 +132,12 @@ const fetchAvailableTags = async (params: Pick<UseAgendaCidadeDataParams, 'city'
   const isCapital = isCapitalSlug(params.city);
   const { start, end } = getDateRange(params.period || 'proximos-7-dias');
 
-  // FIXED: Use date strings without time to include current day events
-  const startStr = start.toISOString().split('T')[0];
-  const endStr = end.toISOString().split('T')[0] + 'T23:59:59.999Z';
-
   let tagsQuery = supabase
     .from('events')
     .select('genres')
     .eq('status', 'published')
-    .gte('date_start', startStr)
-    .lte('date_start', endStr);
+    .gte('date_start', getCleanTimestamp(start))
+    .lte('date_start', getCleanTimestamp(end));
 
   if (isCapital) {
     tagsQuery = tagsQuery.eq('city', cityQueryValue);
@@ -150,7 +146,10 @@ const fetchAvailableTags = async (params: Pick<UseAgendaCidadeDataParams, 'city'
   }
 
   const { data, error } = await tagsQuery;
-  if (error) throw error;
+  if (error) {
+    console.error('❌ fetchAvailableTags error:', error);
+    throw error;
+  }
 
   const tagSet = new Set<string>();
   (data || []).forEach((item) => {

@@ -82,7 +82,7 @@ const FeaturedEventsToday = () => {
             cover_url: event.image_url,
             start_at: event.date_start,
             venue_name: event.venues?.name,
-            tags: event.tags,
+            tags: event.genres,
             event_type: 'curadoria' as const,
             price_min: event.price_min,
             price_max: event.price_max
@@ -111,7 +111,7 @@ const FeaturedEventsToday = () => {
             cover_url: event.image_url,
             start_at: event.date_start,
             venue_name: event.venues?.name,
-            tags: event.tags,
+            tags: event.genres,
             event_type: 'vitrine' as const,
             price_min: event.price_min,
             price_max: event.price_max

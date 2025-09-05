@@ -37,15 +37,14 @@ interface AgendaFilters {
 }
 
 const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[]> => {
-  // FIXED: Use CURRENT_DATE to include events from today
+  console.log('🔍 fetchUpcomingEvents called with filters:', filters);
+  
+  // Use CURRENT_DATE to include events from today (00:00:00)
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Start from beginning of today
   const thirtyDaysFromNow = new Date();
   thirtyDaysFromNow.setDate(today.getDate() + 30);
   thirtyDaysFromNow.setHours(23, 59, 59, 999); // End of day
-
-  console.log('🔍 Fetching events with filters:', filters);
-  console.log('📅 Date range:', today.toISOString(), 'to', thirtyDaysFromNow.toISOString());
 
   let query = supabase
     .from('events')
@@ -65,26 +64,19 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
     `)
     .eq('status', 'published');
 
-  // Apply date filters based on status - FIXED: Include current day events
+  // Apply date filters based on status - use date comparison to include current day events
   if (filters?.status === 'this_week') {
     const endOfWeek = new Date();
     endOfWeek.setDate(today.getDate() + 7);
     endOfWeek.setHours(23, 59, 59, 999);
-    // Use date comparison without time to include current day
-    const todayStr = today.toISOString().split('T')[0];
-    const endOfWeekStr = endOfWeek.toISOString();
-    query = query.gte('date_start', todayStr).lte('date_start', endOfWeekStr);
+    query = query.gte('date_start', today.toISOString()).lte('date_start', endOfWeek.toISOString());
   } else if (filters?.status === 'this_month') {
     const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     endOfMonth.setHours(23, 59, 59, 999);
-    const todayStr = today.toISOString().split('T')[0];
-    const endOfMonthStr = endOfMonth.toISOString();
-    query = query.gte('date_start', todayStr).lte('date_start', endOfMonthStr);
+    query = query.gte('date_start', today.toISOString()).lte('date_start', endOfMonth.toISOString());
   } else if (filters?.status === 'upcoming' || !filters?.status || filters?.status === 'all') {
-    // Include events from today onwards
-    const todayStr = today.toISOString().split('T')[0];
-    const thirtyDaysStr = thirtyDaysFromNow.toISOString();
-    query = query.gte('date_start', todayStr).lte('date_start', thirtyDaysStr);
+    // Include current day events by using date comparison
+    query = query.gte('date_start', today.toISOString()).lte('date_start', thirtyDaysFromNow.toISOString());
   }
 
   // Apply other filters
@@ -97,8 +89,7 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
   }
 
   if (filters?.tags && filters.tags.length > 0) {
-    // This would need proper tags column implementation
-    // query = query.overlaps('tags', filters.tags);
+    query = query.overlaps('genres', filters.tags);
   }
 
   query = query
@@ -107,7 +98,12 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
 
   const { data, error } = await query;
 
-  if (error) throw error;
+  if (error) {
+    console.error('❌ fetchUpcomingEvents error:', error);
+    throw error;
+  }
+  
+  console.log('✅ fetchUpcomingEvents success, found:', data?.length || 0, 'events');
   
   // Transform data to match AgendaItem interface
   const transformedData = (data || []).map(item => ({
@@ -130,20 +126,23 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
 };
 
 const fetchCityStats = async (): Promise<{ cityStats: CityStats[]; totalEvents: number; totalCities: number }> => {
-  // FIXED: Use CURRENT_DATE to include events from today
+  console.log('📊 fetchCityStats called');
+  
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Start from beginning of today
-  const todayStr = today.toISOString().split('T')[0];
-
-  console.log('🔍 Fetching city stats from date:', todayStr);
 
   const { data, error } = await supabase
     .from('events')
     .select('city')
     .eq('status', 'published')
-    .gte('date_start', todayStr);
+    .gte('date_start', today.toISOString());
 
-  if (error) throw error;
+  if (error) {
+    console.error('❌ fetchCityStats error:', error);
+    throw error;
+  }
+
+  console.log('✅ fetchCityStats success, found:', data?.length || 0, 'total events');
 
   // Calculate stats
   const cityCount: Record<string, number> = {};
@@ -160,6 +159,8 @@ const fetchCityStats = async (): Promise<{ cityStats: CityStats[]; totalEvents: 
 
   const totalEvents = Object.values(cityCount).reduce((sum, count) => sum + count, 0);
   const totalCities = Object.keys(cityCount).length;
+
+  console.log('📊 City stats:', { totalEvents, totalCities, cityStats });
 
   return { cityStats, totalEvents, totalCities };
 };

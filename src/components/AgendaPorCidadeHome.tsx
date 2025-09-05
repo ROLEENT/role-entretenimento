@@ -1,7 +1,7 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import CityChips from "./CityChips";
-import CityCardSkeleton from "./CityCardSkeleton";
-import { useCityEventStats } from "@/hooks/useCityEventStats";
 
 interface City {
   slug: string;
@@ -10,43 +10,98 @@ interface City {
 }
 
 const AgendaPorCidadeHome = () => {
-  const { data: cityStats, isLoading, error } = useCityEventStats();
+  const [cities, setCities] = useState<City[]>([
+    { slug: "porto_alegre", name: "Porto Alegre", count: null },
+    { slug: "sao_paulo", name: "São Paulo", count: null },
+    { slug: "rio_de_janeiro", name: "Rio de Janeiro", count: null },
+    { slug: "florianopolis", name: "Florianópolis", count: null },
+    { slug: "curitiba", name: "Curitiba", count: null },
+    { slug: "outras-cidades", name: "Outras cidades", count: null },
+  ]);
 
-  // Map real data to city structure with proper names
-  const cityNameMap: Record<string, string> = {
-    'porto_alegre': 'Porto Alegre',
-    'sao_paulo': 'São Paulo',
-    'rio_de_janeiro': 'Rio de Janeiro',
-    'florianopolis': 'Florianópolis',
-    'curitiba': 'Curitiba',
-  };
+  useEffect(() => {
+    const fetchCityCounts = async () => {
+      console.log('🏘️ AgendaPorCidadeHome: Fetching city counts');
+      
+      try {
+        // Get today's date at 00:00:00 to include current day events
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Get next 7 days for "this week" filter
+        const nextWeek = new Date();
+        nextWeek.setDate(today.getDate() + 7);
+        nextWeek.setHours(23, 59, 59, 999);
 
-  // Create cities array from real data or show loading state
-  const cities: City[] = isLoading 
-    ? [
-        { slug: "porto_alegre", name: "Porto Alegre", count: null },
-        { slug: "sao_paulo", name: "São Paulo", count: null },
-        { slug: "rio_de_janeiro", name: "Rio de Janeiro", count: null },
-        { slug: "florianopolis", name: "Florianópolis", count: null },
-        { slug: "curitiba", name: "Curitiba", count: null },
-        { slug: "outras-cidades", name: "Outras cidades", count: null },
-      ]
-    : Object.entries(cityNameMap).map(([slug, name]) => {
-        const realSlug = name.toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .replace(/\s+/g, '_');
-        const stats = cityStats?.find(s => s.slug === realSlug);
-        return {
-          slug,
-          name,
-          count: stats?.count || 0,
-        };
-      }).concat([
-        { slug: "outras-cidades", name: "Outras cidades", count: 0 }
-      ]);
+        const { data, error } = await supabase
+          .from('events')
+          .select('city')
+          .eq('status', 'published')
+          .gte('date_start', today.toISOString())
+          .lte('date_start', nextWeek.toISOString());
 
-  console.log('🏙️ Cities with stats:', cities);
+        if (error) {
+          console.error('❌ AgendaPorCidadeHome fetch error:', error);
+          return;
+        }
+
+        console.log('✅ AgendaPorCidadeHome: Found', data?.length || 0, 'total events');
+
+        // Count events by city
+        const cityCount: Record<string, number> = {};
+        (data || []).forEach((item) => {
+          if (item.city) {
+            cityCount[item.city] = (cityCount[item.city] || 0) + 1;
+          }
+        });
+
+        console.log('🏘️ City counts:', cityCount);
+
+        // Update cities with real counts
+        setCities(prevCities => 
+          prevCities.map(city => {
+            let realCount = 0;
+            
+            // Map city names to database city values
+            switch (city.slug) {
+              case 'porto_alegre':
+                realCount = cityCount['Porto Alegre'] || 0;
+                break;
+              case 'sao_paulo':
+                realCount = cityCount['São Paulo'] || 0;
+                break;
+              case 'rio_de_janeiro':
+                realCount = cityCount['Rio de Janeiro'] || 0;
+                break;
+              case 'florianopolis':
+                realCount = cityCount['Florianópolis'] || 0;
+                break;
+              case 'curitiba':
+                realCount = cityCount['Curitiba'] || 0;
+                break;
+              case 'outras-cidades':
+                // Calculate other cities count
+                const mainCitiesCount = (cityCount['Porto Alegre'] || 0) + 
+                                      (cityCount['São Paulo'] || 0) + 
+                                      (cityCount['Rio de Janeiro'] || 0) + 
+                                      (cityCount['Florianópolis'] || 0) + 
+                                      (cityCount['Curitiba'] || 0);
+                const totalEvents = Object.values(cityCount).reduce((sum, count) => sum + count, 0);
+                realCount = totalEvents - mainCitiesCount;
+                break;
+            }
+            
+            return { ...city, count: realCount };
+          })
+        );
+
+      } catch (error) {
+        console.error('❌ AgendaPorCidadeHome error:', error);
+      }
+    };
+
+    fetchCityCounts();
+  }, []);
 
   return (
     <section className="py-16 sm:py-20" aria-labelledby="agenda-por-cidade-title">
