@@ -42,6 +42,23 @@ export default function AdminV3EventsList() {
 
   const { events, loading, error, refetch, stats } = useAdminEventsData(filters);
 
+  // Show login message if not authenticated
+  if (!adminLoading && !isAdmin) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Acesso Restrito</h1>
+          <p className="text-muted-foreground mb-4">
+            Você precisa estar logado para gerenciar eventos.
+          </p>
+          <Button onClick={() => navigate('/auth')} className="mb-4">
+            Fazer Login
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   // Sync filters with URL
   useEffect(() => {
     const params = new URLSearchParams();

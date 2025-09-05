@@ -343,28 +343,27 @@ export const eventsApi = {
     try {
       console.log("🗑️ Iniciando exclusão do evento:", id);
       
-      // Get current user session for admin verification
+      // Get current user session for authentication
       const { data: { session } } = await supabase.auth.getSession();
       
-      if (!session?.user?.email) {
-        throw new Error('Usuário não autenticado');
+      if (!session?.user) {
+        throw new Error('Usuário não autenticado. Faça login para excluir eventos.');
       }
 
-      console.log("✅ Admin autenticado:", session.user.email);
+      console.log("✅ Usuário autenticado:", session.user.email);
 
-      // Use admin delete function that bypasses RLS with proper headers
-      const { data, error } = await supabase.rpc('admin_delete_event', {
-        p_admin_email: session.user.email,
-        p_event_id: id
-      });
+      // Direct deletion - RLS policy now allows authenticated users
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('id', id);
 
       if (error) {
-        console.error("🚨 Erro RPC admin_delete_event:", error);
+        console.error("🚨 Erro ao excluir evento:", error);
+        if (error.code === 'PGRST116') {
+          throw new Error('Evento não encontrado');
+        }
         throw new Error(`Erro ao excluir evento: ${error.message}`);
-      }
-
-      if (!data) {
-        throw new Error('Falha ao excluir evento - função retornou false');
       }
 
       console.log("✅ Evento excluído com sucesso:", id);
