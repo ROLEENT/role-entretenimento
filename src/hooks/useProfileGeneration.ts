@@ -50,23 +50,40 @@ export const useProfileGeneration = (agentId: string, agentType: ProfileType) =>
 
   // Gerar handle único
   const generateUniqueHandle = async (baseName: string): Promise<string> => {
+    if (!baseName || baseName.trim() === '') {
+      baseName = 'organizador';
+    }
+    
     let handle = generateSlug(baseName);
     let counter = 1;
     
-    while (true) {
-      const { data } = await supabase
+    // Adicionar timestamp para garantir unicidade
+    const timestamp = Date.now().toString().slice(-6);
+    
+    while (counter < 100) { // Limite para evitar loops infinitos
+      const testHandle = counter === 1 ? handle : `${generateSlug(baseName)}-${counter}`;
+      
+      const { data, error } = await supabase
         .from('entity_profiles')
         .select('id')
-        .eq('handle', handle)
+        .eq('handle', testHandle)
         .maybeSingle();
       
-      if (!data) break;
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking handle:', error);
+        // Se houve erro, use timestamp para garantir unicidade
+        return `${generateSlug(baseName)}-${timestamp}`;
+      }
       
-      handle = `${generateSlug(baseName)}-${counter}`;
+      if (!data) {
+        return testHandle;
+      }
+      
       counter++;
     }
     
-    return handle;
+    // Fallback: usar timestamp se não conseguiu gerar handle único
+    return `${generateSlug(baseName)}-${timestamp}`;
   };
 
   // Mapear dados do agente para perfil
