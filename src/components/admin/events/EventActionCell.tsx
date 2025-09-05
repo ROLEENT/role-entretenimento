@@ -49,40 +49,29 @@ export function EventActionCell({ event, onEventDeleted, onEventDuplicated }: Ev
         status: event.status
       });
       
-      // Get admin session first
-      const { data: { session } } = await supabase.auth.getSession();
-      const adminEmail = session?.user?.email;
+      // Feedback otimista: fechar dialog e remover da UI imediatamente
+      setDeleteDialogOpen(false);
+      onEventDeleted(); // Trigger refresh otimista
       
-      if (!adminEmail) {
-        toast.error("Sessão de admin não encontrada");
-        return;
-      }
-
-      // Use the new admin_delete_event function with admin email
-      const { data: rpcData, error: rpcError } = await supabase.rpc('admin_delete_event', {
-        p_admin_email: adminEmail,
+      // Chamar nova RPC de soft delete (sem necessidade de admin email)
+      const { error: rpcError } = await supabase.rpc('soft_delete_event', {
         p_event_id: event.id
       });
 
-      console.log('📊 Resultado RPC admin_delete_event:', { data: rpcData, error: rpcError });
+      console.log('📊 Resultado RPC soft_delete_event:', { error: rpcError });
 
       if (rpcError) {
         console.error('❌ Erro ao excluir evento:', rpcError);
         toast.error(`Erro ao excluir evento: ${rpcError.message}`);
-        return; // Não fechar o dialog em caso de erro
+        return;
       }
 
       console.log('✅ Evento excluído com sucesso (soft delete)');
       toast.success('Evento excluído com sucesso!');
       
-      // Só fechar dialog e chamar callback em caso de sucesso
-      setDeleteDialogOpen(false);
-      onEventDeleted(); // Trigger refresh
-      
     } catch (error: any) {
       console.error('❌ Erro inesperado ao excluir evento:', error);
       toast.error(`Erro inesperado: ${error.message || 'Erro desconhecido'}`);
-      // Não fechar o dialog em caso de erro
     } finally {
       setIsDeleting(false);
     }

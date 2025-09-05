@@ -100,15 +100,7 @@ export const eventsApi = {
 
   async deleteEvent(eventId: string) {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const adminEmail = session?.user?.email;
-      
-      if (!adminEmail) {
-        throw new Error('Admin não autenticado');
-      }
-
-      const { data, error } = await supabase.rpc('admin_delete_event', {
-        p_admin_email: adminEmail,
+      const { error } = await supabase.rpc('soft_delete_event', {
         p_event_id: eventId
       });
 
@@ -116,13 +108,26 @@ export const eventsApi = {
         throw new Error(`Erro ao excluir evento: ${error.message}`);
       }
 
-      if (!data?.success) {
-        throw new Error(data?.error || 'Erro desconhecido ao excluir evento');
+      return { success: true };
+    } catch (error) {
+      console.error('Error in deleteEvent:', error);
+      throw error;
+    }
+  },
+
+  async restoreEvent(eventId: string) {
+    try {
+      const { error } = await supabase.rpc('restore_event', {
+        p_event_id: eventId
+      });
+
+      if (error) {
+        throw new Error(`Erro ao restaurar evento: ${error.message}`);
       }
 
       return { success: true };
     } catch (error) {
-      console.error('Error in deleteEvent:', error);
+      console.error('Error in restoreEvent:', error);
       throw error;
     }
   },
