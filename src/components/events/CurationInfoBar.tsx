@@ -1,6 +1,7 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { Info, ExternalLink } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface CurationInfoBarProps {
@@ -19,63 +20,47 @@ const normalizeType = (type: CurationInfoBarProps['type']): 'curatorial' | 'vitr
 export function CurationInfoBar({ type, onShowCriteria, className }: CurationInfoBarProps) {
   const normalizedType = normalizeType(type);
 
-  if (normalizedType === 'curatorial') {
-    return (
-      <div 
-        className={cn(
-          'bg-[#c77dff]/5 border border-[#c77dff]/20 rounded-lg p-3 flex items-center justify-between gap-3',
-          className
-        )}
-        data-curation-type="curatorial"
-      >
-        <div className="flex items-center gap-2 text-sm text-[#c77dff]">
-          <Info className="w-4 h-4" />
-          <span>Este evento foi selecionado pela curadoria do ROLÊ</span>
-        </div>
-        {onShowCriteria && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onShowCriteria}
-            className="text-[#c77dff] hover:bg-[#c77dff]/10 h-auto py-1 px-2"
-          >
-            Por que é destaque?
-          </Button>
-        )}
-      </div>
-    );
-  }
+  const config = {
+    curatorial: {
+      icon: Info,
+      text: 'Selecionado pela curadoria do ROLÊ',
+      linkText: 'Por que é destaque?',
+      className: 'bg-[#c77dff1a] border-[#c77dff]/20'
+    },
+    vitrine: {
+      icon: ExternalLink,
+      text: 'Conteúdo publicitário',
+      linkText: 'Por que é destaque?',
+      className: 'bg-[#c77dff1a] border-[#c77dff]/20'
+    }
+  };
 
-  if (normalizedType === 'vitrine') {
-    return (
-      <div 
-        className={cn(
-          'bg-muted border rounded-lg p-3 flex items-center justify-between gap-3',
-          className
-        )}
-        data-curation-type="vitrine"
-        data-sponsor="true"
-      >
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <ExternalLink className="w-4 h-4" />
-          <span>
-            <strong>Parceria comercial</strong> • Conteúdo publicitário contratado pelo produtor
-          </span>
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            const descSection = document.querySelector('[data-event-description]');
-            descSection?.scrollIntoView({ behavior: 'smooth' });
-          }}
-          className="text-muted-foreground hover:bg-muted/80 h-auto py-1 px-2"
-        >
-          Ver detalhes
-        </Button>
-      </div>
-    );
-  }
+  const currentConfig = config[normalizedType];
+  const Icon = currentConfig.icon;
 
-  return null;
+  return (
+    <Card className={cn('rounded-xl border', currentConfig.className, className)}>
+      <CardContent className="p-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <Icon className="h-4 w-4 text-[#c77dff] flex-shrink-0" />
+            <span className="text-sm text-foreground line-clamp-2">
+              {currentConfig.text}
+            </span>
+          </div>
+          
+          {onShowCriteria && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onShowCriteria}
+              className="text-xs text-[#c77dff] hover:text-[#c77dff] hover:bg-[#c77dff]/10 flex-shrink-0"
+            >
+              {currentConfig.linkText}
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
 }

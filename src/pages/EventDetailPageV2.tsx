@@ -317,7 +317,7 @@ const EventDetailPageV2 = () => {
       />
       <Header />
       
-      <main className="container mx-auto px-4 py-6">
+      <main className="px-4 py-6 max-w-[680px] mx-auto md:container md:max-w-none md:mx-auto space-y-6">
         {/* Breadcrumb */}
         <EventBreadcrumb event={event} />
         
@@ -329,30 +329,68 @@ const EventDetailPageV2 = () => {
           formatTime={formatTime} 
         />
         
-        {/* Action Buttons */}
-        <div className="flex items-center justify-between my-6">
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handleShare}>
-              <Share2 className="h-4 w-4 mr-2" />
-              Compartilhar
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleBookmark}>
-              <Bookmark className={`h-4 w-4 mr-2 ${isBookmarked ? 'fill-current' : ''}`} />
-              {isBookmarked ? 'Salvo' : 'Salvar'}
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleReport}>
-              <Flag className="h-4 w-4 mr-2" />
-              Reportar
-            </Button>
+        {/* Action Buttons - Grid 3 colunas no mobile */}
+        <div className="mt-4 md:mt-6">
+          <div className="grid grid-cols-3 gap-2 md:flex md:items-center md:justify-between">
+            {/* Mobile Actions Grid */}
+            <div className="md:hidden col-span-3 grid grid-cols-3 gap-2">
+              <Button 
+                variant="outline" 
+                className="flex flex-col items-center justify-center h-11 rounded-xl border border-white/10 text-xs hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-primary"
+                onClick={handleShare}
+                aria-label="Compartilhar evento"
+              >
+                <Share2 className="h-4 w-4 mb-1" />
+                Compartilhar
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="flex flex-col items-center justify-center h-11 rounded-xl border border-white/10 text-xs hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-primary"
+                onClick={handleBookmark}
+                aria-label={isBookmarked ? "Remover dos salvos" : "Salvar evento"}
+              >
+                <Bookmark className={`h-4 w-4 mb-1 ${isBookmarked ? 'fill-current' : ''}`} />
+                {isBookmarked ? 'Salvo' : 'Salvar'}
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="flex flex-col items-center justify-center h-11 rounded-xl border border-white/10 text-xs hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-primary"
+                onClick={handleReport}
+                aria-label="Reportar evento"
+              >
+                <Flag className="h-4 w-4 mb-1" />
+                Reportar
+              </Button>
+            </div>
+            
+            {/* Desktop Actions */}
+            <div className="hidden md:flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={handleShare}>
+                <Share2 className="h-4 w-4 mr-2" />
+                Compartilhar
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleBookmark}>
+                <Bookmark className={`h-4 w-4 mr-2 ${isBookmarked ? 'fill-current' : ''}`} />
+                {isBookmarked ? 'Salvo' : 'Salvar'}
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleReport}>
+                <Flag className="h-4 w-4 mr-2" />
+                Reportar
+              </Button>
+            </div>
+            
+            <div className="hidden md:block">
+              <CompactEngagementSystem entityId={event.id} entityType="event" />
+            </div>
           </div>
-          
-          <CompactEngagementSystem entityId={event.id} entityType="event" />
         </div>
         
-        {/* Main Content - Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Content - Layout responsivo */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 mt-6">
           {/* Left Column - Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6">
             {/* Tickets Section */}
             <EventTicketsSection event={event} formatPrice={formatPrice} />
             
@@ -364,10 +402,10 @@ const EventDetailPageV2 = () => {
             
             {/* Description Section */}
             {event.description && (
-              <Card className="rounded-lg">
-                <CardContent className="p-6">
-                  <h2 className="text-2xl font-bold mb-4">Descrição</h2>
-                  <div className="prose prose-sm max-w-none">
+              <Card className="rounded-xl mt-4">
+                <CardContent className="p-4 md:p-6">
+                  <h2 className="text-lg md:text-xl font-semibold mb-4">Descrição</h2>
+                  <div className="prose prose-sm max-w-none text-[15px] md:text-base">
                     <SafeHTML content={event.description} />
                   </div>
                 </CardContent>
@@ -386,8 +424,8 @@ const EventDetailPageV2 = () => {
             <EventLocationCard event={event} venue={venue} />
           </div>
           
-          {/* Right Column - Sidebar */}
-          <div className="space-y-6">
+          {/* Right Column - Sidebar (desktop only) */}
+          <div className="hidden lg:block space-y-6">
             {/* Organizer Card */}
             <EventOrganizerCard partners={partners} venue={venue} />
             
@@ -398,7 +436,7 @@ const EventDetailPageV2 = () => {
             <EventMoodTagsCard event={event} />
             
             {/* Location Summary (smaller) */}
-            <Card className="rounded-lg">
+            <Card className="rounded-xl">
               <CardContent className="p-4">
                 <h4 className="font-medium text-sm text-muted-foreground mb-2 uppercase tracking-wide">
                   Local
@@ -421,21 +459,28 @@ const EventDetailPageV2 = () => {
           </div>
         </div>
         
+        {/* Mobile: Organizer & Links Cards */}
+        <div className="lg:hidden space-y-4 mt-6">
+          <EventOrganizerCard partners={partners} venue={venue} />
+          <EventLinksCard event={event} partners={partners} />
+          <EventMoodTagsCard event={event} />
+        </div>
+        
         {/* Comments & Reviews */}
-        <div className="mt-12 space-y-8">
+        <div className="mt-8 md:mt-12 space-y-6 md:space-y-8">
           {commentsResult?.showComments && (
             <div>
-              <h2 className="text-2xl font-bold mb-6">Comentários</h2>
-              <Card className="rounded-lg">
-                <CardContent className="p-6">
-                  <p className="text-muted-foreground">Sistema de comentários em desenvolvimento</p>
+              <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Comentários</h2>
+              <Card className="rounded-xl">
+                <CardContent className="p-4 md:p-6">
+                  <p className="text-muted-foreground text-sm md:text-base">Sistema de comentários em desenvolvimento</p>
                 </CardContent>
               </Card>
             </div>
           )}
           
           <div>
-            <h2 className="text-2xl font-bold mb-6">Avaliações</h2>
+            <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Avaliações</h2>
             <ReviewSystem
               itemId={event.id}
               itemType="event"
@@ -448,8 +493,8 @@ const EventDetailPageV2 = () => {
         </div>
         
         {/* Related Events */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-6">Você também pode gostar</h2>
+        <div className="mt-8 md:mt-12">
+          <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Você também pode gostar</h2>
           <RelatedEvents 
             currentEventId={event.id}
             city={event.city}
