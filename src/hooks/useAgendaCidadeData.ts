@@ -26,7 +26,7 @@ interface UseAgendaCidadeDataParams {
   city: string;
   search?: string;
   period?: string;
-  tags?: string[];
+  genres?: string[];
   page?: number;
 }
 
@@ -104,8 +104,8 @@ const fetchAgendaItems = async (params: UseAgendaCidadeDataParams) => {
     query = query.ilike('title', `%${params.search.trim()}%`);
   }
 
-  if (params.tags && params.tags.length > 0) {
-    query = query.overlaps('genres', params.tags);
+  if (params.genres && params.genres.length > 0) {
+    query = query.overlaps('genres', params.genres);
   }
 
   const { data, error, count } = await query;
@@ -158,9 +158,9 @@ export const useAgendaCidadeData = (params: UseAgendaCidadeDataParams) => {
     params.city,
     params.search || '',
     params.period || 'proximos-7-dias',
-    params.tags || [],
+    params.genres || [],
     params.page || 1,
-  ], [params.city, params.search, params.period, params.tags, params.page]);
+  ], [params.city, params.search, params.period, params.genres, params.page]);
 
   const tagsQueryKey = useMemo(() => [
     'agenda-cidade-tags',

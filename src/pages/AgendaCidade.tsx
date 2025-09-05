@@ -163,7 +163,7 @@ export default function AgendaCidade() {
     city: cidade!,
     search: currentSearch,
     period: currentPeriod,
-    tags: currentTags,
+    genres: currentTags,
     page: currentPage,
   });
 
