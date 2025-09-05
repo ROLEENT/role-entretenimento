@@ -375,6 +375,13 @@ export type Database = {
             referencedRelation: "artists"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "agenda_item_artists_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       agenda_item_organizers: {
@@ -1253,6 +1260,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "artists_artist_types_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "artists_artist_types_type_id_fkey"
             columns: ["type_id"]
             isOneToOne: false
@@ -1280,6 +1294,13 @@ export type Database = {
             columns: ["artist_id"]
             isOneToOne: false
             referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artists_genres_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists_public"
             referencedColumns: ["id"]
           },
           {
@@ -2442,6 +2463,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "event_lineup_slot_artists_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "event_lineup_slot_artists_slot_id_fkey"
             columns: ["slot_id"]
             isOneToOne: false
@@ -3029,6 +3057,13 @@ export type Database = {
             columns: ["organizer_id"]
             isOneToOne: false
             referencedRelation: "organizers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "organizers_public"
             referencedColumns: ["id"]
           },
           {
@@ -3652,6 +3687,13 @@ export type Database = {
             columns: ["organizer_id"]
             isOneToOne: false
             referencedRelation: "organizers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "highlights_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "organizers_public"
             referencedColumns: ["id"]
           },
           {
@@ -6197,6 +6239,87 @@ export type Database = {
         }
         Relationships: []
       }
+      artists_public: {
+        Row: {
+          artist_type: string | null
+          audius_url: string | null
+          beatport_url: string | null
+          bio_long: string | null
+          bio_short: string | null
+          booking_email: string | null
+          booking_phone: string | null
+          booking_whatsapp: string | null
+          city: string | null
+          country: string | null
+          cover_image_url: string | null
+          created_at: string | null
+          id: string | null
+          instagram: string | null
+          profile_image_url: string | null
+          slug: string | null
+          soundcloud_url: string | null
+          spotify_url: string | null
+          stage_name: string | null
+          state: string | null
+          tags: string[] | null
+          updated_at: string | null
+          website_url: string | null
+          youtube_url: string | null
+        }
+        Insert: {
+          artist_type?: string | null
+          audius_url?: string | null
+          beatport_url?: string | null
+          bio_long?: string | null
+          bio_short?: string | null
+          booking_email?: never
+          booking_phone?: never
+          booking_whatsapp?: never
+          city?: string | null
+          country?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          id?: string | null
+          instagram?: never
+          profile_image_url?: string | null
+          slug?: string | null
+          soundcloud_url?: string | null
+          spotify_url?: string | null
+          stage_name?: string | null
+          state?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          website_url?: string | null
+          youtube_url?: string | null
+        }
+        Update: {
+          artist_type?: string | null
+          audius_url?: string | null
+          beatport_url?: string | null
+          bio_long?: string | null
+          bio_short?: string | null
+          booking_email?: never
+          booking_phone?: never
+          booking_whatsapp?: never
+          city?: string | null
+          country?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          id?: string | null
+          instagram?: never
+          profile_image_url?: string | null
+          slug?: string | null
+          soundcloud_url?: string | null
+          spotify_url?: string | null
+          stage_name?: string | null
+          state?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          website_url?: string | null
+          youtube_url?: string | null
+        }
+        Relationships: []
+      }
       cities_other_counts: {
         Row: {
           city_name: string | null
@@ -6385,6 +6508,13 @@ export type Database = {
             columns: ["organizer_id"]
             isOneToOne: false
             referencedRelation: "organizers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "organizers_public"
             referencedColumns: ["id"]
           },
           {
@@ -6587,6 +6717,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "events_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "organizers_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "events_series_id_fkey"
             columns: ["series_id"]
             isOneToOne: false
@@ -6632,6 +6769,111 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      organizers_public: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          city: string | null
+          country: string | null
+          cover_url: string | null
+          created_at: string | null
+          email: string | null
+          id: string | null
+          instagram: string | null
+          name: string | null
+          phone: string | null
+          slug: string | null
+          state: string | null
+          updated_at: string | null
+          website: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          country?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          email?: never
+          id?: string | null
+          instagram?: string | null
+          name?: string | null
+          phone?: never
+          slug?: string | null
+          state?: string | null
+          updated_at?: string | null
+          website?: string | null
+          whatsapp?: never
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          country?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          email?: never
+          id?: string | null
+          instagram?: string | null
+          name?: string | null
+          phone?: never
+          slug?: string | null
+          state?: string | null
+          updated_at?: string | null
+          website?: string | null
+          whatsapp?: never
+        }
+        Relationships: []
+      }
+      partners_public: {
+        Row: {
+          capacity: string | null
+          contact_email: string | null
+          created_at: string | null
+          featured: boolean | null
+          id: string | null
+          image_url: string | null
+          instagram: string | null
+          location: string | null
+          name: string | null
+          rating: number | null
+          types: string[] | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          capacity?: string | null
+          contact_email?: never
+          created_at?: string | null
+          featured?: boolean | null
+          id?: string | null
+          image_url?: string | null
+          instagram?: string | null
+          location?: string | null
+          name?: string | null
+          rating?: number | null
+          types?: string[] | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          capacity?: string | null
+          contact_email?: never
+          created_at?: string | null
+          featured?: boolean | null
+          id?: string | null
+          image_url?: string | null
+          instagram?: string | null
+          location?: string | null
+          name?: string | null
+          rating?: number | null
+          types?: string[] | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
       }
       profiles_with_stats: {
         Row: {
@@ -7321,6 +7563,10 @@ export type Database = {
       }
       can_receive_notification: {
         Args: { p_notification_type: string; p_user_id: string }
+        Returns: boolean
+      }
+      can_view_sensitive_data: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
       change_admin_password: {
