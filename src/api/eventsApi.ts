@@ -252,31 +252,91 @@ export const eventsApi = {
   },
 
   async createEvent(eventData: CreateEventData): Promise<string> {
-    const { data, error } = await supabase.rpc('create_event_cascade', {
-      event_data: eventData.event_data,
-      partners: eventData.partners || [],
-      lineup_slots: eventData.lineup_slots || [],
-      performances: eventData.performances || [],
-      visual_artists: eventData.visual_artists || []
-    });
+    try {
+      console.log("📡 Chamando RPC create_event_cascade com dados:", {
+        event_data_keys: Object.keys(eventData.event_data || {}),
+        partners_count: eventData.partners?.length || 0,
+        lineup_slots_count: eventData.lineup_slots?.length || 0,
+        performances_count: eventData.performances?.length || 0,
+        visual_artists_count: eventData.visual_artists?.length || 0
+      });
 
-    if (error) throw error;
-    return data;
+      const { data, error } = await supabase.rpc('create_event_cascade', {
+        event_data: eventData.event_data,
+        partners: eventData.partners || [],
+        lineup_slots: eventData.lineup_slots || [],
+        performances: eventData.performances || [],
+        visual_artists: eventData.visual_artists || []
+      });
+
+      if (error) {
+        console.error("🚨 Erro na RPC create_event_cascade:", {
+          error,
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        throw new Error(`Erro no banco de dados: ${error.message} (${error.code})`);
+      }
+
+      if (!data) {
+        throw new Error("RPC não retornou ID do evento criado");
+      }
+
+      console.log("✅ RPC create_event_cascade executada com sucesso. ID retornado:", data);
+      return data;
+    } catch (error) {
+      console.error("❌ Erro na função createEvent:", error);
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error("Erro desconhecido ao criar evento");
+    }
   },
 
   async updateEvent(id: string, eventData: Partial<EventFormData>): Promise<Event> {
-    const { data, error } = await supabase
-      .from('events')
-      .update({
-        ...eventData,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', id)
-      .select()
-      .single();
+    try {
+      console.log("🔄 Atualizando evento:", { 
+        id, 
+        keys: Object.keys(eventData),
+        title: eventData.title,
+        status: eventData.status 
+      });
 
-    if (error) throw error;
-    return data;
+      const { data, error } = await supabase
+        .from('events')
+        .update({
+          ...eventData,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("🚨 Erro ao atualizar evento:", {
+          error,
+          code: error.code,
+          message: error.message,
+          eventId: id
+        });
+        throw new Error(`Erro ao atualizar evento: ${error.message} (${error.code})`);
+      }
+
+      if (!data) {
+        throw new Error("Evento não encontrado para atualização");
+      }
+
+      console.log("✅ Evento atualizado com sucesso:", data.id);
+      return data;
+    } catch (error) {
+      console.error("❌ Erro na função updateEvent:", error);
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error("Erro desconhecido ao atualizar evento");
+    }
   },
 
   async deleteEvent(id: string): Promise<void> {

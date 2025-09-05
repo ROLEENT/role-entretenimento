@@ -1,5 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import EventErrorBoundary from './EventErrorBoundary';
 
 // Lazy load do EventCreateWizard principal
 const EventCreateWizard = lazy(() => 
@@ -36,9 +37,11 @@ const StepLoadingFallback = () => (
 
 export function LazyEventCreateWizard(props: LazyEventCreateWizardProps) {
   return (
-    <Suspense fallback={<WizardLoadingFallback />}>
-      <EventCreateWizard {...props} />
-    </Suspense>
+    <EventErrorBoundary>
+      <Suspense fallback={<WizardLoadingFallback />}>
+        <EventCreateWizard {...props} />
+      </Suspense>
+    </EventErrorBoundary>
   );
 }
 
