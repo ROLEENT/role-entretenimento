@@ -5,6 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { GlobalSEO } from "@/components/seo/GlobalSEO";
 import { FocusManagementProvider } from "@/components/FocusManagementProvider";
 import { queryClient } from "@/lib/queryClient";
 import { AuthProvider } from "@/auth/AuthContext";
@@ -190,6 +191,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <GlobalSEO />
           <AuthProvider>
             <ErrorBoundary>
               <BrowserRouter>

@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { MobileSafeImage } from './ui/mobile-safe-image';
 import { formatEventDateTime } from '@/utils/dateUtils';
 import { useNavigate } from 'react-router-dom';
+import { HighlightBadge } from './events/HighlightBadge';
 
 interface EventCardProps {
   event: {
@@ -17,6 +18,8 @@ interface EventCardProps {
     start_at?: string;
     end_at?: string;
     tags?: string[];
+    highlight_type?: 'none' | 'curatorial' | 'vitrine' | 'editorial' | 'sponsored';
+    is_sponsored?: boolean;
     // Backwards compatibility
     image?: string;
     date?: string;
@@ -71,6 +74,15 @@ const EventCard = ({ event, className }: EventCardProps) => {
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        </div>
+        
+        {/* Highlight Badge */}
+        <div className="absolute top-3 left-3">
+          <HighlightBadge 
+            type={event.highlight_type || 'none'} 
+            isSponsored={event.is_sponsored}
+            className="shadow-lg backdrop-blur-sm"
           />
         </div>
       </div>

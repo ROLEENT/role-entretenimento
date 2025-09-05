@@ -1,8 +1,13 @@
+User-agent: *
+Allow: /
+
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Twitterbot
 Allow: /
@@ -10,5 +15,16 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
+User-agent: WhatsApp
 Allow: /
+
+# Sitemap
+Sitemap: https://roleentretenimento.com.br/sitemap.xml
+
+# Bloquear admin e arquivos temporários
+Disallow: /admin/
+Disallow: /temp/
+Disallow: /*.json$
+Disallow: /*?utm_*
+Disallow: /*?fbclid=*
+Disallow: /*?gclid=*
