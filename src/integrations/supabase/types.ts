@@ -7396,6 +7396,13 @@ export type Database = {
           week_start: string
         }[]
       }
+      find_security_definer_views: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          view_definition: string
+          view_name: string
+        }[]
+      }
       fn_slugify: {
         Args: { input_text: string }
         Returns: string
