@@ -13,6 +13,7 @@ import { Toaster } from "@/components/ui/sonner";
 import SEOOptimizations from "@/components/SEOOptimizations";
 import AccessibilityEnhancements from "@/components/AccessibilityEnhancements";
 import { AdminAccessButton } from "@/components/AdminAccessButton";
+import RealEventsTestPanel from "@/components/RealEventsTestPanel";
 
 const Index = () => {
   return (
@@ -59,6 +60,7 @@ const Index = () => {
         
         <NotificationPermissionPrompt />
         <AdminAccessButton />
+        <RealEventsTestPanel />
         <BackToTop />
         <HeaderGlobalSearch />
         <Toaster />

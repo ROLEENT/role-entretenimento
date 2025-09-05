@@ -46,6 +46,7 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
   thirtyDaysFromNow.setDate(today.getDate() + 30);
   thirtyDaysFromNow.setHours(23, 59, 59, 999); // End of day
 
+  // First, try to get events from the 'events' table (new admin-v3 data)
   let query = supabase
     .from('events')
     .select(`
@@ -60,7 +61,8 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
       highlight_type, 
       status, 
       ticket_url, 
-      slug
+      slug,
+      genres
     `)
     .eq('status', 'published');
 
@@ -96,28 +98,107 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
     .order('date_start', { ascending: true })
     .limit(12);
 
-  const { data, error } = await query;
+  const { data: eventsData, error: eventsError } = await query;
+  
+  let allEvents: any[] = eventsData || [];
+  
+  // If we don't have enough events from the 'events' table, fetch from 'agenda_itens' as fallback
+  if (allEvents.length < 12) {
+    console.log('🔄 Not enough events from events table, fetching fallback from agenda_itens');
+    
+    let agendaQuery = supabase
+      .from('agenda_itens')
+      .select(`
+        id, 
+        title, 
+        subtitle, 
+        city, 
+        starts_at, 
+        end_at, 
+        cover_url, 
+        alt_text, 
+        visibility_type, 
+        status, 
+        ticket_url, 
+        slug,
+        tags
+      `)
+      .eq('status', 'published');
 
-  if (error) {
-    console.error('❌ fetchUpcomingEvents error:', error);
-    throw error;
+    // Apply same filters to agenda_itens
+    if (filters?.status === 'this_week') {
+      const endOfWeek = new Date();
+      endOfWeek.setDate(today.getDate() + 7);
+      endOfWeek.setHours(23, 59, 59, 999);
+      agendaQuery = agendaQuery.gte('starts_at', today.toISOString()).lte('starts_at', endOfWeek.toISOString());
+    } else if (filters?.status === 'this_month') {
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      endOfMonth.setHours(23, 59, 59, 999);
+      agendaQuery = agendaQuery.gte('starts_at', today.toISOString()).lte('starts_at', endOfMonth.toISOString());
+    } else if (filters?.status === 'upcoming' || !filters?.status || filters?.status === 'all') {
+      agendaQuery = agendaQuery.gte('starts_at', today.toISOString()).lte('starts_at', thirtyDaysFromNow.toISOString());
+    }
+
+    if (filters?.search) {
+      agendaQuery = agendaQuery.or(`title.ilike.%${filters.search}%,subtitle.ilike.%${filters.search}%`);
+    }
+
+    if (filters?.city) {
+      agendaQuery = agendaQuery.eq('city', filters.city);
+    }
+
+    if (filters?.tags && filters.tags.length > 0) {
+      agendaQuery = agendaQuery.overlaps('tags', filters.tags);
+    }
+
+    agendaQuery = agendaQuery
+      .order('starts_at', { ascending: true })
+      .limit(12 - allEvents.length);
+
+    const { data: agendaData, error: agendaError } = await agendaQuery;
+    
+    if (agendaData && !agendaError) {
+      // Transform agenda_itens data to match events format
+      const transformedAgendaData = agendaData.map(item => ({
+        id: item.id,
+        title: item.title,
+        subtitle: item.subtitle,
+        city: item.city,
+        date_start: item.starts_at,
+        date_end: item.end_at,
+        image_url: item.cover_url,
+        cover_alt: item.alt_text,
+        highlight_type: item.visibility_type === 'vitrine' ? 'vitrine' : 'curatorial',
+        status: item.status,
+        ticket_url: item.ticket_url,
+        slug: item.slug,
+        genres: item.tags || []
+      }));
+      
+      allEvents = [...allEvents, ...transformedAgendaData];
+      console.log('✅ Added', transformedAgendaData.length, 'events from agenda_itens as fallback');
+    }
+  }
+
+  if (eventsError && allEvents.length === 0) {
+    console.error('❌ fetchUpcomingEvents error:', eventsError);
+    throw eventsError;
   }
   
-  console.log('✅ fetchUpcomingEvents success, found:', data?.length || 0, 'events');
+  console.log('✅ fetchUpcomingEvents success, found:', allEvents.length, 'total events');
   
   // Transform data to match AgendaItem interface
-  const transformedData = (data || []).map(item => ({
+  const transformedData = allEvents.map(item => ({
     id: item.id,
     title: item.title,
     subtitle: item.subtitle,
     city: item.city,
-    start_at: item.date_start,
-    end_at: item.date_end,
-    cover_url: item.image_url,
-    alt_text: item.cover_alt,
+    start_at: item.date_start || item.starts_at,
+    end_at: item.date_end || item.end_at,
+    cover_url: item.image_url || item.cover_url,
+    alt_text: item.cover_alt || item.alt_text,
     visibility_type: (item.highlight_type === 'vitrine' ? 'vitrine' : 'curadoria') as 'vitrine' | 'curadoria',
     status: item.status,
-    
     ticket_url: item.ticket_url,
     slug: item.slug,
   }));
@@ -131,22 +212,39 @@ const fetchCityStats = async (): Promise<{ cityStats: CityStats[]; totalEvents: 
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Start from beginning of today
 
-  const { data, error } = await supabase
+  // Get stats from events table first
+  const { data: eventsData, error: eventsError } = await supabase
     .from('events')
     .select('city')
     .eq('status', 'published')
     .gte('date_start', today.toISOString());
 
-  if (error) {
-    console.error('❌ fetchCityStats error:', error);
-    throw error;
+  // Get stats from agenda_itens as fallback/supplement
+  const { data: agendaData, error: agendaError } = await supabase
+    .from('agenda_itens')
+    .select('city')
+    .eq('status', 'published')
+    .gte('starts_at', today.toISOString());
+
+  if (eventsError && agendaError) {
+    console.error('❌ fetchCityStats error:', eventsError || agendaError);
+    throw eventsError || agendaError;
   }
 
-  console.log('✅ fetchCityStats success, found:', data?.length || 0, 'total events');
+  console.log('✅ fetchCityStats success - events:', eventsData?.length || 0, 'agenda:', agendaData?.length || 0);
 
-  // Calculate stats
+  // Combine and calculate stats from both sources
   const cityCount: Record<string, number> = {};
-  (data || []).forEach((item) => {
+  
+  // Count from events table
+  (eventsData || []).forEach((item) => {
+    if (item.city) {
+      cityCount[item.city] = (cityCount[item.city] || 0) + 1;
+    }
+  });
+  
+  // Count from agenda_itens table
+  (agendaData || []).forEach((item) => {
     if (item.city) {
       cityCount[item.city] = (cityCount[item.city] || 0) + 1;
     }
@@ -160,7 +258,7 @@ const fetchCityStats = async (): Promise<{ cityStats: CityStats[]; totalEvents: 
   const totalEvents = Object.values(cityCount).reduce((sum, count) => sum + count, 0);
   const totalCities = Object.keys(cityCount).length;
 
-  console.log('📊 City stats:', { totalEvents, totalCities, cityStats });
+  console.log('📊 Combined city stats:', { totalEvents, totalCities, cityStats });
 
   return { cityStats, totalEvents, totalCities };
 };

@@ -65,8 +65,8 @@ const FeaturedEventsToday = () => {
         const { data: curatedData, error: curatedError } = await supabase
           .from('events')
           .select(`
-            id, title, city, image_url, date_start, tags, price_min, price_max,
-            venues(name, address, city)
+            id, title, city, image_url, date_start, genres, price_min, price_max,
+            venue:venues(name, address, city)
           `)
           .eq('status', 'published')
           .eq('highlight_type', 'curatorial')
@@ -81,7 +81,7 @@ const FeaturedEventsToday = () => {
             city: event.city,
             cover_url: event.image_url,
             start_at: event.date_start,
-            venue_name: event.venues?.name,
+            venue_name: event.venue?.name,
             tags: event.genres,
             event_type: 'curadoria' as const,
             price_min: event.price_min,
@@ -94,8 +94,8 @@ const FeaturedEventsToday = () => {
         const { data: showcaseData, error: showcaseError } = await supabase
           .from('events')
           .select(`
-            id, title, city, image_url, date_start, tags, price_min, price_max,
-            venues(name, address, city)
+            id, title, city, image_url, date_start, genres, price_min, price_max,
+            venue:venues(name, address, city)
           `)
           .eq('status', 'published')
           .eq('highlight_type', 'vitrine')
@@ -110,7 +110,7 @@ const FeaturedEventsToday = () => {
             city: event.city,
             cover_url: event.image_url,
             start_at: event.date_start,
-            venue_name: event.venues?.name,
+            venue_name: event.venue?.name,
             tags: event.genres,
             event_type: 'vitrine' as const,
             price_min: event.price_min,
@@ -212,7 +212,7 @@ const FeaturedEventsToday = () => {
                 const badgeConfig = getBadgeConfig(event.event_type, index);
                 
                 return (
-                  <Link key={`${event.event_type}-${event.id}`} to={`/${event.event_type === 'curadoria' ? 'agenda' : 'evento'}/${event.id}`} className="block group">
+                  <Link key={`${event.event_type}-${event.id}`} to={`/evento/${event.id}`} className="block group">
                     <Card className="h-full hover:shadow-xl transition-all duration-300 overflow-hidden border hover:border-primary/30 hover:scale-[1.02] transform">
                       <div className="relative">
                         <LazyImage

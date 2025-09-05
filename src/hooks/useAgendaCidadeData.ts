@@ -86,42 +86,122 @@ const fetchAgendaItems = async (params: UseAgendaCidadeDataParams) => {
   const itemsPerPage = 18;
   const offset = ((params.page || 1) - 1) * itemsPerPage;
 
-  let query = supabase
+  // First, fetch from events table (new admin-v3 data)
+  let eventsQuery = supabase
     .from('events')
     .select('id, title, city, image_url, date_start, date_end, genres, slug, highlight_type, subtitle, summary', { count: 'exact' })
     .eq('status', 'published')
     .gte('date_start', getCleanTimestamp(start))
     .lte('date_start', getCleanTimestamp(end))
     .order('highlight_type', { ascending: false })
-    .order('date_start', { ascending: true })
-    .range(offset, offset + itemsPerPage - 1);
+    .order('date_start', { ascending: true });
 
   if (isCapital) {
-    query = query.eq('city', cityQueryValue);
+    eventsQuery = eventsQuery.eq('city', cityQueryValue);
   } else {
-    query = query.ilike('city', cityQueryValue);
+    eventsQuery = eventsQuery.ilike('city', cityQueryValue);
   }
 
   if (params.search && params.search.trim()) {
-    query = query.ilike('title', `%${params.search.trim()}%`);
+    eventsQuery = eventsQuery.ilike('title', `%${params.search.trim()}%`);
   }
 
   if (params.genres && params.genres.length > 0) {
-    query = query.overlaps('genres', params.genres);
+    eventsQuery = eventsQuery.overlaps('genres', params.genres);
   }
 
-  const { data, error, count } = await query;
-  if (error) {
-    console.error('❌ fetchAgendaItems error:', error);
-    throw error;
+  const { data: eventsData, error: eventsError, count: eventsCount } = await eventsQuery
+    .range(offset, offset + itemsPerPage - 1);
+
+  let allItems: AgendaCidadeItem[] = [];
+  let totalCount = 0;
+
+  if (eventsData && !eventsError) {
+    // Transform events data to AgendaCidadeItem format
+    allItems = eventsData.map(item => ({
+      id: item.id,
+      title: item.title,
+      subtitle: item.subtitle,
+      summary: item.summary,
+      city: item.city,
+      date_start: item.date_start,
+      date_end: item.date_end,
+      image_url: item.image_url,
+      highlight_type: (item.highlight_type === 'vitrine' ? 'vitrine' : (item.highlight_type === 'curatorial' ? 'curatorial' : 'none')) as 'vitrine' | 'curatorial' | 'none',
+      status: 'published' as const,
+      slug: item.slug,
+      genres: item.genres || []
+    }));
+    totalCount = eventsCount || 0;
   }
 
-  console.log('✅ fetchAgendaItems success for', params.city, '- found:', data?.length || 0, 'events, total:', count);
+  // If we don't have enough items, fetch from agenda_itens as fallback
+  if (allItems.length < itemsPerPage) {
+    console.log('🔄 Not enough events from events table, fetching fallback from agenda_itens');
+    
+    let agendaQuery = supabase
+      .from('agenda_itens')
+      .select('id, title, city, cover_url, starts_at, end_at, tags, slug, visibility_type, subtitle, summary', { count: 'exact' })
+      .eq('status', 'published')
+      .gte('starts_at', getCleanTimestamp(start))
+      .lte('starts_at', getCleanTimestamp(end))
+      .order('visibility_type', { ascending: false })
+      .order('starts_at', { ascending: true });
+
+    if (isCapital) {
+      agendaQuery = agendaQuery.eq('city', cityQueryValue);
+    } else {
+      agendaQuery = agendaQuery.ilike('city', cityQueryValue);
+    }
+
+    if (params.search && params.search.trim()) {
+      agendaQuery = agendaQuery.ilike('title', `%${params.search.trim()}%`);
+    }
+
+    if (params.genres && params.genres.length > 0) {
+      agendaQuery = agendaQuery.overlaps('tags', params.genres);
+    }
+
+    const remainingItems = itemsPerPage - allItems.length;
+    const agendaOffset = Math.max(0, offset - (eventsCount || 0));
+    
+    const { data: agendaData, error: agendaError, count: agendaCount } = await agendaQuery
+      .range(agendaOffset, agendaOffset + remainingItems - 1);
+
+    if (agendaData && !agendaError) {
+      // Transform agenda_itens data to AgendaCidadeItem format
+      const transformedAgendaItems = agendaData.map(item => ({
+        id: item.id,
+        title: item.title,
+        subtitle: item.subtitle,
+        summary: item.summary,
+        city: item.city,
+        date_start: item.starts_at,
+        date_end: item.end_at,
+        image_url: item.cover_url,
+        highlight_type: (item.visibility_type === 'vitrine' ? 'vitrine' : 'curatorial') as 'vitrine' | 'curatorial' | 'none',
+        status: 'published' as const,
+        slug: item.slug,
+        genres: item.tags || []
+      }));
+      
+      allItems = [...allItems, ...transformedAgendaItems];
+      totalCount += agendaCount || 0;
+      console.log('✅ Added', transformedAgendaItems.length, 'items from agenda_itens as fallback');
+    }
+  }
+
+  if (eventsError && allItems.length === 0) {
+    console.error('❌ fetchAgendaItems error:', eventsError);
+    throw eventsError;
+  }
+
+  console.log('✅ fetchAgendaItems success for', params.city, '- found:', allItems.length, 'items, total:', totalCount);
 
   return {
-    items: (data as AgendaCidadeItem[]) || [],
-    totalCount: count || 0,
-    totalPages: Math.ceil((count || 0) / itemsPerPage),
+    items: allItems,
+    totalCount,
+    totalPages: Math.ceil(totalCount / itemsPerPage),
   };
 };
 
@@ -132,7 +212,8 @@ const fetchAvailableTags = async (params: Pick<UseAgendaCidadeDataParams, 'city'
   const isCapital = isCapitalSlug(params.city);
   const { start, end } = getDateRange(params.period || 'proximos-7-dias');
 
-  let tagsQuery = supabase
+  // Get tags from events table
+  let eventsTagsQuery = supabase
     .from('events')
     .select('genres')
     .eq('status', 'published')
@@ -140,21 +221,48 @@ const fetchAvailableTags = async (params: Pick<UseAgendaCidadeDataParams, 'city'
     .lte('date_start', getCleanTimestamp(end));
 
   if (isCapital) {
-    tagsQuery = tagsQuery.eq('city', cityQueryValue);
+    eventsTagsQuery = eventsTagsQuery.eq('city', cityQueryValue);
   } else {
-    tagsQuery = tagsQuery.ilike('city', cityQueryValue);
+    eventsTagsQuery = eventsTagsQuery.ilike('city', cityQueryValue);
   }
 
-  const { data, error } = await tagsQuery;
-  if (error) {
-    console.error('❌ fetchAvailableTags error:', error);
-    throw error;
+  // Get tags from agenda_itens table  
+  let agendaTagsQuery = supabase
+    .from('agenda_itens')
+    .select('tags')
+    .eq('status', 'published')
+    .gte('starts_at', getCleanTimestamp(start))
+    .lte('starts_at', getCleanTimestamp(end));
+
+  if (isCapital) {
+    agendaTagsQuery = agendaTagsQuery.eq('city', cityQueryValue);
+  } else {
+    agendaTagsQuery = agendaTagsQuery.ilike('city', cityQueryValue);
+  }
+
+  const [{ data: eventsData, error: eventsError }, { data: agendaData, error: agendaError }] = await Promise.all([
+    eventsTagsQuery,
+    agendaTagsQuery
+  ]);
+
+  if (eventsError && agendaError) {
+    console.error('❌ fetchAvailableTags error:', eventsError || agendaError);
+    throw eventsError || agendaError;
   }
 
   const tagSet = new Set<string>();
-  (data || []).forEach((item) => {
+  
+  // Add tags from events table
+  (eventsData || []).forEach((item) => {
     if (item.genres && Array.isArray(item.genres)) {
       item.genres.forEach((tag: string) => tagSet.add(tag));
+    }
+  });
+  
+  // Add tags from agenda_itens table
+  (agendaData || []).forEach((item) => {
+    if (item.tags && Array.isArray(item.tags)) {
+      item.tags.forEach((tag: string) => tagSet.add(tag));
     }
   });
 
