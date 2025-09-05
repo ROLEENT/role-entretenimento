@@ -7106,7 +7106,9 @@ export type Database = {
         Returns: boolean
       }
       admin_delete_event: {
-        Args: { p_event_id: string }
+        Args:
+          | { p_admin_email: string; p_event_id: string }
+          | { p_event_id: string }
         Returns: boolean
       }
       admin_delete_highlight: {
@@ -8069,6 +8071,10 @@ export type Database = {
       }
       is_admin_session_valid: {
         Args: { p_admin_email: string }
+        Returns: boolean
+      }
+      is_admin_session_valid_v2: {
+        Args: { session_email: string }
         Returns: boolean
       }
       is_admin_simple: {

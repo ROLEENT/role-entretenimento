@@ -12,11 +12,23 @@ export const useAdminAuth = () => {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user?.email) {
-          // For development, we'll assume any authenticated user is admin
-          // In production, this would check against admin_users table
-          setIsAdmin(true);
-          setAdminEmail(session.user.email);
-          console.log("✅ Admin autenticado:", session.user.email);
+          // Verificar se é admin usando approved_admins
+          const { data, error } = await supabase
+            .from('approved_admins')
+            .select('email, is_active')
+            .eq('email', session.user.email)
+            .eq('is_active', true)
+            .single();
+          
+          if (data && !error) {
+            setIsAdmin(true);
+            setAdminEmail(session.user.email);
+            console.log("✅ Admin autenticado:", session.user.email);
+          } else {
+            setIsAdmin(false);
+            setAdminEmail(null);
+            console.log("❌ Usuário não é admin:", session.user.email);
+          }
         } else {
           setIsAdmin(false);
           setAdminEmail(null);
@@ -34,9 +46,23 @@ export const useAdminAuth = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session?.user?.email) {
-        setIsAdmin(true);
-        setAdminEmail(session.user.email);
-        console.log("✅ Admin logado:", session.user.email);
+        // Verificar se é admin usando approved_admins
+        const { data, error } = await supabase
+          .from('approved_admins')
+          .select('email, is_active')
+          .eq('email', session.user.email)
+          .eq('is_active', true)
+          .single();
+        
+        if (data && !error) {
+          setIsAdmin(true);
+          setAdminEmail(session.user.email);
+          console.log("✅ Admin logado:", session.user.email);
+        } else {
+          setIsAdmin(false);
+          setAdminEmail(null);
+          console.log("❌ Usuário não é admin:", session.user.email);
+        }
       } else if (event === 'SIGNED_OUT') {
         setIsAdmin(false);
         setAdminEmail(null);

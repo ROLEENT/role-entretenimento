@@ -49,33 +49,27 @@ export function EventActionCell({ event, onEventDeleted, onEventDuplicated }: Ev
         status: event.status
       });
       
-      // Primeiro tentar com RPC
-      const { data: rpcData, error: rpcError } = await supabase.rpc('soft_delete_event', {
+      // Get admin session first
+      const { data: { session } } = await supabase.auth.getSession();
+      const adminEmail = session?.user?.email;
+      
+      if (!adminEmail) {
+        toast.error("Sessão de admin não encontrada");
+        return;
+      }
+
+      // Use the new admin_delete_event function with admin email
+      const { data: rpcData, error: rpcError } = await supabase.rpc('admin_delete_event', {
+        p_admin_email: adminEmail,
         p_event_id: event.id
       });
 
-      console.log('📊 Resultado RPC soft_delete_event:', { data: rpcData, error: rpcError });
+      console.log('📊 Resultado RPC admin_delete_event:', { data: rpcData, error: rpcError });
 
       if (rpcError) {
-        console.warn('⚠️ RPC falhou, tentando UPDATE direto:', rpcError);
-        
-        // Fallback: UPDATE direto na tabela events
-        const { data: updateData, error: updateError } = await supabase
-          .from('events')
-          .update({ 
-            deleted_at: new Date().toISOString(),
-            status: 'draft'
-          })
-          .eq('id', event.id)
-          .select();
-
-        console.log('📊 Resultado UPDATE direto:', { data: updateData, error: updateError });
-
-        if (updateError) {
-          console.error('❌ Erro em ambas as tentativas (RPC e UPDATE):', updateError);
-          toast.error(`Erro ao excluir evento: ${updateError.message}`);
-          return; // Não fechar o dialog em caso de erro
-        }
+        console.error('❌ Erro ao excluir evento:', rpcError);
+        toast.error(`Erro ao excluir evento: ${rpcError.message}`);
+        return; // Não fechar o dialog em caso de erro
       }
 
       console.log('✅ Evento excluído com sucesso (soft delete)');
