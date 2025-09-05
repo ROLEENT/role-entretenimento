@@ -43,25 +43,52 @@ export function EventActionCell({ event, onEventDeleted, onEventDuplicated }: Ev
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      console.log('🗑️ Iniciando soft delete do evento:', event.id);
+      console.log('🗑️ Iniciando soft delete do evento:', {
+        id: event.id,
+        title: event.title,
+        status: event.status
+      });
       
-      // Use soft delete function
-      const { error } = await supabase.rpc('soft_delete_event', {
+      // Primeiro tentar com RPC
+      const { data: rpcData, error: rpcError } = await supabase.rpc('soft_delete_event', {
         p_event_id: event.id
       });
 
-      if (error) {
-        console.error('❌ Erro no soft delete:', error);
-        throw error;
+      console.log('📊 Resultado RPC soft_delete_event:', { data: rpcData, error: rpcError });
+
+      if (rpcError) {
+        console.warn('⚠️ RPC falhou, tentando UPDATE direto:', rpcError);
+        
+        // Fallback: UPDATE direto na tabela events
+        const { data: updateData, error: updateError } = await supabase
+          .from('events')
+          .update({ 
+            deleted_at: new Date().toISOString(),
+            status: 'draft'
+          })
+          .eq('id', event.id)
+          .select();
+
+        console.log('📊 Resultado UPDATE direto:', { data: updateData, error: updateError });
+
+        if (updateError) {
+          console.error('❌ Erro em ambas as tentativas (RPC e UPDATE):', updateError);
+          toast.error(`Erro ao excluir evento: ${updateError.message}`);
+          return; // Não fechar o dialog em caso de erro
+        }
       }
 
       console.log('✅ Evento excluído com sucesso (soft delete)');
       toast.success('Evento excluído com sucesso!');
-      onEventDeleted(); // Trigger refresh
+      
+      // Só fechar dialog e chamar callback em caso de sucesso
       setDeleteDialogOpen(false);
+      onEventDeleted(); // Trigger refresh
+      
     } catch (error: any) {
-      console.error('❌ Erro ao excluir evento:', error);
-      toast.error('Erro ao excluir evento: ' + (error.message || 'Erro desconhecido'));
+      console.error('❌ Erro inesperado ao excluir evento:', error);
+      toast.error(`Erro inesperado: ${error.message || 'Erro desconhecido'}`);
+      // Não fechar o dialog em caso de erro
     } finally {
       setIsDeleting(false);
     }
