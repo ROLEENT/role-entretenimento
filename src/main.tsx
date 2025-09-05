@@ -6,6 +6,8 @@ import { preloadCriticalResources, registerServiceWorker } from "@/utils/service
 import { addResourceHints, optimizeForMobile } from "@/utils/performanceHelpers";
 import { initPerformanceMonitoring } from "./utils/performanceMonitor";
 import { initSecurity } from "@/utils/securityHeaders";
+import { CriticalCSS } from "./components/performance/CriticalCSS";
+import { ResourceOptimizer } from "./components/performance/ResourceOptimizer";
 
 // Initialize security (CSP, context checks)
 initSecurity();
@@ -26,6 +28,8 @@ initPerformanceMonitoring();
 
 createRoot(document.getElementById("root")!).render(
   <HelmetProvider>
+    <CriticalCSS />
+    <ResourceOptimizer />
     <App />
   </HelmetProvider>
 );
