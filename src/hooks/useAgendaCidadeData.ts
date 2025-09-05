@@ -10,16 +10,16 @@ export interface AgendaCidadeItem {
   subtitle?: string;
   summary?: string;
   city?: string;
-  date_start?: string;
-  date_end?: string;
-  image_url?: string;
+  starts_at?: string;
+  end_at?: string;
+  cover_url?: string;
   alt_text?: string;
   highlight_type?: 'curatorial' | 'vitrine' | 'none';
   status?: string;
   created_at?: string;
   ticket_url?: string;
   slug?: string;
-  genres?: string[];
+  tags?: string[];
 }
 
 interface UseAgendaCidadeDataParams {
@@ -85,13 +85,13 @@ const fetchAgendaItems = async (params: UseAgendaCidadeDataParams) => {
   const offset = ((params.page || 1) - 1) * itemsPerPage;
 
   let query = supabase
-    .from('events')
-    .select('id, title, city, image_url, date_start, date_end, genres, slug, highlight_type, subtitle, summary', { count: 'exact' })
+    .from('agenda_itens')
+    .select('id, title, city, cover_url, starts_at, end_at, tags, slug, highlight_type, subtitle, summary', { count: 'exact' })
     .eq('status', 'published')
-    .gte('date_start', getCleanTimestamp(start))
-    .lte('date_start', getCleanTimestamp(end))
+    .gte('starts_at', getCleanTimestamp(start))
+    .lte('starts_at', getCleanTimestamp(end))
     .order('highlight_type', { ascending: false })
-    .order('date_start', { ascending: true })
+    .order('starts_at', { ascending: true })
     .range(offset, offset + itemsPerPage - 1);
 
   if (isCapital) {
@@ -105,7 +105,7 @@ const fetchAgendaItems = async (params: UseAgendaCidadeDataParams) => {
   }
 
   if (params.tags && params.tags.length > 0) {
-    query = query.overlaps('genres', params.tags);
+    query = query.overlaps('tags', params.tags);
   }
 
   const { data, error, count } = await query;
@@ -126,11 +126,11 @@ const fetchAvailableTags = async (params: Pick<UseAgendaCidadeDataParams, 'city'
   const { start, end } = getDateRange(params.period || 'proximos-7-dias');
 
   let tagsQuery = supabase
-    .from('events')
-    .select('genres')
+    .from('agenda_itens')
+    .select('tags')
     .eq('status', 'published')
-    .gte('date_start', getCleanTimestamp(start))
-    .lte('date_start', getCleanTimestamp(end));
+    .gte('starts_at', getCleanTimestamp(start))
+    .lte('starts_at', getCleanTimestamp(end));
 
   if (isCapital) {
     tagsQuery = tagsQuery.eq('city', cityQueryValue);
@@ -143,8 +143,8 @@ const fetchAvailableTags = async (params: Pick<UseAgendaCidadeDataParams, 'city'
 
   const tagSet = new Set<string>();
   (data || []).forEach((item) => {
-    if (item.genres && Array.isArray(item.genres)) {
-      item.genres.forEach((tag: string) => tagSet.add(tag));
+    if (item.tags && Array.isArray(item.tags)) {
+      item.tags.forEach((tag: string) => tagSet.add(tag));
     }
   });
 

@@ -44,16 +44,16 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
   thirtyDaysFromNow.setHours(23, 59, 59, 999); // End of day
 
   let query = supabase
-    .from('events')
+    .from('agenda_itens')
     .select(`
       id, 
       title, 
       subtitle, 
       city, 
-      date_start, 
-      date_end, 
-      image_url, 
-      cover_alt, 
+      starts_at, 
+      end_at, 
+      cover_url, 
+      alt_text, 
       highlight_type, 
       status, 
       ticket_url, 
@@ -66,13 +66,13 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
     const endOfWeek = new Date();
     endOfWeek.setDate(today.getDate() + 7);
     endOfWeek.setHours(23, 59, 59, 999);
-    query = query.gte('date_start', today.toISOString()).lte('date_start', endOfWeek.toISOString());
+    query = query.gte('starts_at', today.toISOString()).lte('starts_at', endOfWeek.toISOString());
   } else if (filters?.status === 'this_month') {
     const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     endOfMonth.setHours(23, 59, 59, 999);
-    query = query.gte('date_start', today.toISOString()).lte('date_start', endOfMonth.toISOString());
+    query = query.gte('starts_at', today.toISOString()).lte('starts_at', endOfMonth.toISOString());
   } else if (filters?.status === 'upcoming' || !filters?.status || filters?.status === 'all') {
-    query = query.gte('date_start', today.toISOString()).lte('date_start', thirtyDaysFromNow.toISOString());
+    query = query.gte('starts_at', today.toISOString()).lte('starts_at', thirtyDaysFromNow.toISOString());
   }
 
   // Apply other filters
@@ -90,7 +90,7 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
   }
 
   query = query
-    .order('date_start', { ascending: true })
+    .order('starts_at', { ascending: true })
     .limit(12);
 
   const { data, error } = await query;
@@ -103,10 +103,10 @@ const fetchUpcomingEvents = async (filters?: AgendaFilters): Promise<AgendaItem[
     title: item.title,
     subtitle: item.subtitle,
     city: item.city,
-    start_at: item.date_start,
-    end_at: item.date_end,
-    cover_url: item.image_url,
-    alt_text: item.cover_alt,
+    start_at: item.starts_at,
+    end_at: item.end_at,
+    cover_url: item.cover_url,
+    alt_text: item.alt_text,
     visibility_type: (item.highlight_type === 'vitrine' ? 'vitrine' : 'curadoria') as 'vitrine' | 'curadoria',
     status: item.status,
     
@@ -122,10 +122,10 @@ const fetchCityStats = async (): Promise<{ cityStats: CityStats[]; totalEvents: 
   today.setHours(0, 0, 0, 0); // Start from beginning of today
 
   const { data, error } = await supabase
-    .from('events')
+    .from('agenda_itens')
     .select('city')
     .eq('status', 'published')
-    .gte('date_start', today.toISOString());
+    .gte('starts_at', today.toISOString());
 
   if (error) throw error;
 
