@@ -340,12 +340,41 @@ export const eventsApi = {
   },
 
   async deleteEvent(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('events')
-      .delete()
-      .eq('id', id);
+    try {
+      console.log("🗑️ Iniciando exclusão do evento:", id);
+      
+      // Get current user session for admin verification
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.user?.email) {
+        throw new Error('Usuário não autenticado');
+      }
 
-    if (error) throw error;
+      console.log("✅ Admin autenticado:", session.user.email);
+
+      // Use admin delete function that bypasses RLS with proper headers
+      const { data, error } = await supabase.rpc('admin_delete_event', {
+        p_admin_email: session.user.email,
+        p_event_id: id
+      });
+
+      if (error) {
+        console.error("🚨 Erro RPC admin_delete_event:", error);
+        throw new Error(`Erro ao excluir evento: ${error.message}`);
+      }
+
+      if (!data) {
+        throw new Error('Falha ao excluir evento - função retornou false');
+      }
+
+      console.log("✅ Evento excluído com sucesso:", id);
+    } catch (error) {
+      console.error("❌ Erro na função deleteEvent:", error);
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error("Erro desconhecido ao excluir evento");
+    }
   },
 
   async getNearbyEvents(lat: number, lng: number, radiusKm = 10): Promise<Event[]> {

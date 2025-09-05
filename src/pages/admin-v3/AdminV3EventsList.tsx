@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { eventsApi } from "@/api/eventsApi";
 import { toast } from "sonner";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 interface EventFilters {
   search?: string;
@@ -28,6 +29,7 @@ export default function AdminV3EventsList() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [eventIdsToDelete, setEventIdsToDelete] = useState<string[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { isAdmin, adminEmail, isLoading: adminLoading } = useAdminAuth();
   const [filters, setFilters] = useState<EventFilters>({
     search: searchParams.get("search") || "",
     status: searchParams.get("status") || "",
@@ -73,18 +75,40 @@ export default function AdminV3EventsList() {
   };
 
   const handleConfirmDelete = async () => {
+    if (!isAdmin || !adminEmail) {
+      toast.error("Permissões insuficientes para excluir eventos");
+      return;
+    }
+
     setIsDeleting(true);
+    let successCount = 0;
+    let errorCount = 0;
+    
     try {
-      // Delete events one by one
+      // Delete events one by one with better error handling
       for (const eventId of eventIdsToDelete) {
-        await eventsApi.deleteEvent(eventId);
+        try {
+          console.log("🗑️ Excluindo evento:", eventId);
+          await eventsApi.deleteEvent(eventId);
+          successCount++;
+          console.log("✅ Evento excluído:", eventId);
+        } catch (error) {
+          errorCount++;
+          console.error("❌ Erro ao excluir evento:", eventId, error);
+        }
       }
       
-      toast.success(`${eventIdsToDelete.length} evento(s) excluído(s) com sucesso!`);
-      refetch(); // Refresh the events list
+      if (successCount > 0) {
+        toast.success(`${successCount} evento(s) excluído(s) com sucesso!`);
+        refetch(); // Refresh the events list
+      }
+      
+      if (errorCount > 0) {
+        toast.error(`Erro ao excluir ${errorCount} evento(s). Verifique os logs.`);
+      }
     } catch (error) {
-      console.error("Error deleting events:", error);
-      toast.error("Erro ao excluir evento(s). Tente novamente.");
+      console.error("Error in bulk delete:", error);
+      toast.error("Erro inesperado ao excluir eventos. Tente novamente.");
     } finally {
       setIsDeleting(false);
       setDeleteConfirmOpen(false);
