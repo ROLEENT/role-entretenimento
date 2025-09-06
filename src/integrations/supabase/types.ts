@@ -8262,6 +8262,21 @@ export type Database = {
           success: boolean
         }[]
       }
+      bulk_delete_agenda_items: {
+        Args: { item_ids: string[] }
+        Returns: undefined
+      }
+      bulk_restore_agenda_items: {
+        Args: { item_ids: string[] }
+        Returns: undefined
+      }
+      bulk_update_agenda_status: {
+        Args: {
+          item_ids: string[]
+          new_status: Database["public"]["Enums"]["agenda_status"]
+        }
+        Returns: undefined
+      }
       calculate_notification_metrics: {
         Args:
           | Record<PropertyKey, never>
@@ -8433,6 +8448,10 @@ export type Database = {
         Args: { p_event_id: string }
         Returns: boolean
       }
+      duplicate_agenda_item: {
+        Args: { item_id: string }
+        Returns: string
+      }
       ensure_admin_role: {
         Args: { user_email: string }
         Returns: undefined
@@ -8482,6 +8501,10 @@ export type Database = {
       generate_venue_slug: {
         Args: { venue_name: string }
         Returns: string
+      }
+      get_agenda_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       get_analytics_data: {
         Args: {

@@ -43,7 +43,7 @@ import { NewsletterPage } from "@/pages/admin/NewsletterPage";
 import { AdminV3Layout } from "@/components/admin/AdminV3Layout";
 
 // Admin V3 Pages
-const AdminV3AgendaList = lazy(() => import("./pages/admin-v3/AdminV3AgendaList"));
+const AdminV3AgendaListNew = lazy(() => import("./pages/admin-v3/AdminV3AgendaListNew"));
 const AdminV3AgendaCreate = lazy(() => import("./pages/admin-v3/AdminV3AgendaCreate"));
 const AdminV3AgendaEdit = lazy(() => import("./pages/admin-v3/AdminV3AgendaEdit"));
 const AdminV3ArtistsList = lazy(() => import("./pages/admin-v3/AdminV3ArtistsList").then(module => ({ default: module.default })));
@@ -297,7 +297,7 @@ function App() {
                   <Route path="debug" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Debug /></Suspense>} />
                   
                    {/* Agenda Routes */}
-                   <Route path="agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaList /></Suspense>} />
+                   <Route path="agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaListNew /></Suspense>} />
                    <Route path="agenda/criar" element={<Navigate to="/admin-v3/eventos/criar" replace />} />
                   <Route path="agenda/:id/editar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaEdit /></Suspense>} />
                   <Route path="agenda/rascunhos" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Rascunhos da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Salvar eventos como rascunho', 'Revisar antes de publicar', 'Agendamento de publicação']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Rascunhos'}]} /></Suspense>} />
