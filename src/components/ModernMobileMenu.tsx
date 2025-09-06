@@ -188,7 +188,15 @@ export function ModernMobileMenu({
             </div>
 
             {/* Main Content - Com scroll otimizado */}
-            <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-4" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <div 
+              className="flex-1 overflow-y-auto overscroll-contain px-6 py-4" 
+              style={{ 
+                WebkitOverflowScrolling: 'touch',
+                maxHeight: 'calc(100vh - 200px)', // Evita conflito com header/footer
+                scrollbarWidth: 'thin',
+                scrollbarColor: 'rgba(156, 163, 175, 0.3) transparent'
+              }}
+            >
               <div className="space-y-4">
                 {menuSections.map((section, index) => (
                   <motion.div

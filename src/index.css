@@ -43,13 +43,25 @@
 
 /* garantir altura total e scroll behavior */
 html, body, #root { 
-  height: 100%; 
+  height: 100vh; 
   scroll-behavior: smooth;
   overflow-x: hidden; /* Evita scroll horizontal duplo */
 }
 
 body {
   overflow-y: auto; /* Scroll principal apenas no body */
+}
+
+/* Evitar scroll duplo em elementos específicos */
+.main-content {
+  height: calc(100vh - var(--header-height, 64px));
+  overflow-y: auto;
+}
+
+/* Layout principal sem scroll próprio */
+.app-layout {
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* iOS Safe Areas */
@@ -1332,21 +1344,25 @@ body {
   animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* scroll fino e único */
-html { scrollbar-gutter: stable; }
-* { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,.28) transparent; }
-*::-webkit-scrollbar { width: 8px; height: 8px; }
-*::-webkit-scrollbar-thumb { background: rgba(0,0,0,.28); border-radius: 999px; }
+/* scroll fino e estilizado */
+html { 
+  scrollbar-gutter: stable; 
+}
 
-/* forçar só body a rolar */
-html, body, #__next, #root { min-height: 100%; height: auto; overflow-y: auto; }
+* { 
+  scrollbar-width: thin; 
+  scrollbar-color: rgba(0,0,0,.28) transparent; 
+}
 
-/* matar scroll em wrappers comuns do form */
-.h-screen { height: auto !important; min-height: 100vh !important; }
-.max-h-screen, .overflow-y-auto:not(nav *):not([data-nav]):not(.nav-container), .overflow-auto:not(nav *):not([data-nav]):not(.nav-container) { max-height: none !important; overflow: visible !important; }
+*::-webkit-scrollbar { 
+  width: 8px; 
+  height: 8px; 
+}
 
-/* cards e seções não criam scroll próprio */
-[class*="Card"]:not(nav *):not([data-nav]) { overflow: visible !important; }
+*::-webkit-scrollbar-thumb { 
+  background: rgba(0,0,0,.28); 
+  border-radius: 999px; 
+}
 
 /* garantir scroll horizontal em navegação */
 nav .overflow-x-auto, [data-nav] .overflow-x-auto, .nav-container .overflow-x-auto { overflow-x: auto !important; overflow-y: hidden !important; }
