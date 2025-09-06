@@ -6003,6 +6003,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_preferences: {
+        Row: {
+          email_notifications: boolean
+          notification_topics: string[]
+          push_notifications: boolean
+          user_id: string
+        }
+        Insert: {
+          email_notifications?: boolean
+          notification_topics?: string[]
+          push_notifications?: boolean
+          user_id: string
+        }
+        Update: {
+          email_notifications?: boolean
+          notification_topics?: string[]
+          push_notifications?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           avatar_url: string | null
