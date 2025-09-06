@@ -149,13 +149,13 @@ const Header = () => {
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <SheetContent 
             side="right" 
-            className="w-[300px] sm:w-[350px] bg-background overflow-y-auto z-50"
+            className="w-[300px] sm:w-[350px] bg-background z-50 flex flex-col h-full max-h-screen"
             style={{ paddingTop: 'calc(16px + env(safe-area-inset-top))' }}
           >
-            <SheetHeader>
+            <SheetHeader className="flex-shrink-0">
               <SheetTitle className="text-left">Menu</SheetTitle>
             </SheetHeader>
-            <div className="py-6 space-y-6">
+            <div className="flex-1 overflow-y-auto overscroll-behavior-contain py-6 space-y-6" style={{ WebkitOverflowScrolling: 'touch' }}>
               {/* Search */}
               <div className="space-y-2">
                 <Button

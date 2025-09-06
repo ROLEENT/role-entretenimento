@@ -9418,6 +9418,10 @@ export type Database = {
         Args: { new_username: string }
         Returns: boolean
       }
+      validate_username_not_fake: {
+        Args: { username: string }
+        Returns: boolean
+      }
       verify_email_hash_migration: {
         Args: Record<PropertyKey, never>
         Returns: {
