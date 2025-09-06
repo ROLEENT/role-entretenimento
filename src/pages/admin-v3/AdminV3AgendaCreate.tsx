@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import AdminEventForm from '@/components/admin/agenda/AdminEventForm';
+import { LazyEventCreateWizard } from '@/components/events/LazyEventCreateWizard';
 import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
+import { toast } from 'sonner';
 
 export default function AdminV3AgendaCreate() {
   const navigate = useNavigate();
@@ -12,7 +13,9 @@ export default function AdminV3AgendaCreate() {
     { label: 'Criar Evento' }
   ];
 
-  const handleSave = () => {
+  const handleSave = (eventData: any) => {
+    console.log("Agenda event created:", eventData);
+    toast.success("Evento da agenda criado com sucesso!");
     navigate('/admin-v3/agenda');
   };
 
@@ -27,11 +30,11 @@ export default function AdminV3AgendaCreate() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Criar Novo Evento</h1>
-          <p className="text-muted-foreground">Adicione um novo evento à agenda</p>
+          <p className="text-muted-foreground">Use o assistente para criar um evento da agenda</p>
         </div>
       </div>
       
-      <AdminEventForm 
+      <LazyEventCreateWizard 
         onSave={handleSave}
         onCancel={handleCancel}
       />

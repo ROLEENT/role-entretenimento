@@ -298,6 +298,7 @@ function App() {
                   
                    {/* Agenda Routes */}
                    <Route path="agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaListNew /></Suspense>} />
+                   <Route path="agenda/novo" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaCreate /></Suspense>} />
                    <Route path="agenda/criar" element={<Navigate to="/admin-v3/eventos/criar" replace />} />
                   <Route path="agenda/:id/editar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaEdit /></Suspense>} />
                   <Route path="agenda/rascunhos" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Rascunhos da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Salvar eventos como rascunho', 'Revisar antes de publicar', 'Agendamento de publicação']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Rascunhos'}]} /></Suspense>} />
