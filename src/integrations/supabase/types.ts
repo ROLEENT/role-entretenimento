@@ -1322,6 +1322,48 @@ export type Database = {
           },
         ]
       }
+      attendance: {
+        Row: {
+          event_id: string
+          id: number
+          show_publicly: boolean
+          status: Database["public"]["Enums"]["attendance_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          event_id: string
+          id?: number
+          show_publicly?: boolean
+          status: Database["public"]["Enums"]["attendance_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          event_id?: string
+          id?: number
+          show_publicly?: boolean
+          status?: Database["public"]["Enums"]["attendance_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "agenda_itens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "agenda_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       backup_metadata: {
         Row: {
           admin_email: string
@@ -5341,6 +5383,45 @@ export type Database = {
           },
         ]
       }
+      saves: {
+        Row: {
+          collection: string
+          created_at: string
+          event_id: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          collection?: string
+          created_at?: string
+          event_id: string
+          id?: number
+          user_id: string
+        }
+        Update: {
+          collection?: string
+          created_at?: string
+          event_id?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saves_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "agenda_itens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saves_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "agenda_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       security_logs: {
         Row: {
           admin_email: string | null
@@ -9258,6 +9339,7 @@ export type Database = {
       agenda_visibility: "curadoria" | "vitrine"
       agent_status: "active" | "inactive"
       article_status: "draft" | "published" | "scheduled"
+      attendance_status: "going" | "maybe" | "went"
       badge_type: "activity" | "achievement" | "special" | "milestone"
       category_type:
         | "general"
@@ -9434,6 +9516,7 @@ export const Constants = {
       agenda_visibility: ["curadoria", "vitrine"],
       agent_status: ["active", "inactive"],
       article_status: ["draft", "published", "scheduled"],
+      attendance_status: ["going", "maybe", "went"],
       badge_type: ["activity", "achievement", "special", "milestone"],
       category_type: [
         "general",
