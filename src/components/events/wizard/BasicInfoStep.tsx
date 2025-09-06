@@ -13,7 +13,9 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { SelectionReasonsManager } from './SelectionReasonsManager';
+import { CuratorialCriteria } from '@/components/admin/events/CuratorialCriteria';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 // Hook para buscar cidades da base de dados
 const useCities = () => {
@@ -73,11 +75,14 @@ const fromISO = (iso?: string | null) =>
   iso ? new Date(iso) : undefined;
 
 export const BasicInfoStep: React.FC = () => {
-  const { control, watch, setValue } = useFormContext<EventFormData>();
+  const methods = useFormContext<EventFormData>();
+  const { control, watch, setValue } = methods;
   const { cities, loading: citiesLoading } = useCities();
+  const { user } = useAuth(); // Para verificar permissões de admin/editor
   
   const watchedTitle = watch('title');
   const watchedSlug = watch('slug');
+  const highlightType = watch('highlight_type');
 
   // Auto-generate slug preview
   React.useEffect(() => {
@@ -265,6 +270,11 @@ export const BasicInfoStep: React.FC = () => {
 
       {/* Selection Reasons - Only for curatorial highlights */}
       <SelectionReasonsManager />
+
+      {/* Critérios de Curadoria - Only for curatorial highlights and admin/editor users */}
+      {highlightType === 'curatorial' && user && (
+        <CuratorialCriteria form={methods} />
+      )}
 
       {/* Tags */}
       <FormField

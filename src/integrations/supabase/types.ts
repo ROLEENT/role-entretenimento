@@ -428,6 +428,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           cupom: string | null
+          curatorial_criteria: Json | null
           currency: string | null
           deleted_at: string | null
           editorial_notes: string | null
@@ -498,6 +499,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           cupom?: string | null
+          curatorial_criteria?: Json | null
           currency?: string | null
           deleted_at?: string | null
           editorial_notes?: string | null
@@ -568,6 +570,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           cupom?: string | null
+          curatorial_criteria?: Json | null
           currency?: string | null
           deleted_at?: string | null
           editorial_notes?: string | null
@@ -8276,6 +8279,10 @@ export type Database = {
           new_status: Database["public"]["Enums"]["agenda_status"]
         }
         Returns: undefined
+      }
+      calculate_curatorial_score: {
+        Args: { criteria: Json }
+        Returns: number
       }
       calculate_notification_metrics: {
         Args:

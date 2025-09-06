@@ -36,6 +36,23 @@ export const accessibilitySchema = z.object({
   notes: z.string().optional()
 }).optional();
 
+// Schema para critérios de curadoria
+export const curatorialCriterionSchema = z.object({
+  checked: z.boolean().default(false),
+  note: z.string().optional()
+});
+
+export const curatorialCriteriaSchema = z.object({
+  cultural_relevance: curatorialCriterionSchema.optional(),
+  lineup: curatorialCriterionSchema.optional(),
+  visual_identity: curatorialCriterionSchema.optional(),
+  experience: curatorialCriterionSchema.optional(),
+  city_connection: curatorialCriterionSchema.optional(),
+  audience_coherence: curatorialCriterionSchema.optional(),
+  engagement_potential: curatorialCriterionSchema.optional(),
+  innovation: curatorialCriterionSchema.optional()
+}).optional();
+
 export const galleryItemSchema = z.object({
   url: z.string().url(),
   alt: z.string().optional(),
@@ -163,6 +180,9 @@ export const eventSchema = z.object({
   highlight_type: highlightTypeSchema.default('none'),
   is_sponsored: z.boolean().default(false),
   selection_reasons: z.array(z.string().min(1)).optional(),
+  
+  // Critérios de curadoria ROLÊ
+  curatorial_criteria: curatorialCriteriaSchema,
   
   // Structure & Accessibility
   links: linksSchema,
@@ -345,6 +365,8 @@ export type TicketingData = z.infer<typeof ticketingSchema>;
 export type LinksData = z.infer<typeof linksSchema>;
 export type AccessibilityData = z.infer<typeof accessibilitySchema>;
 export type GalleryItem = z.infer<typeof galleryItemSchema>;
+export type CuratorialCriterion = z.infer<typeof curatorialCriterionSchema>;
+export type CuratorialCriteria = z.infer<typeof curatorialCriteriaSchema>;
 
 // Validation helpers
 export function validateEventForPublish(data: EventFormData): string[] {
