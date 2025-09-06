@@ -8,6 +8,7 @@ import { ArtistFlexibleForm } from '@/schemas/agents-flexible';
 import { RHFSlug } from '../RHFSlug';
 import { CountrySelect } from '@/components/form/CountrySelect';
 import { RHFGenreSelect } from '@/components/form/RHFGenreSelect';
+import { RHFArtistRolesSelect } from '@/components/form/RHFArtistRolesSelect';
 import { AgentesTagsInput } from '@/components/agentes/AgentesTagsInput';
 import ArtistCategorySelect from '@/components/fields/ArtistCategorySelect';
 
@@ -188,9 +189,9 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
             </FormItem>
           )}
         />
-        <div>
-          <RHFGenreSelect name="genres" label="Gêneros Musicais" />
-        </div>
+        <RHFGenreSelect name="genres" label="Gêneros Musicais" />
+        
+        <RHFArtistRolesSelect name="artist_roles" label="Funções/Roles" maxRoles={3} />
       </div>
 
       <div className="md:col-span-2">

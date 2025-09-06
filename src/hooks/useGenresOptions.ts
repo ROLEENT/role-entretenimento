@@ -13,16 +13,20 @@ export const useGenresOptions = () => {
     setLoading(true);
     try {
       const queryParams = query ? `?q=${encodeURIComponent(query)}` : '';
-      const { data, error } = await supabase.functions.invoke(`options/genres${queryParams}`, {
+      const response = await fetch(`/api/options/genres${queryParams}`, {
         method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
       });
 
-      if (error) {
-        console.error('Error searching genres:', error);
+      if (!response.ok) {
+        console.error('Error searching genres:', response.statusText);
         return [];
       }
 
-      return (data?.items || []).map(item => ({
+      const data = await response.json();
+      return (data?.items || []).map((item: any) => ({
         label: item.name,
         value: item.id
       }));
@@ -37,7 +41,7 @@ export const useGenresOptions = () => {
   const createGenre = async (name: string): Promise<SelectOption> => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('options/genres', {
+      const response = await fetch('/api/options/genres', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,11 +49,13 @@ export const useGenresOptions = () => {
         body: JSON.stringify({ name })
       });
 
-      if (error) {
-        console.error('Error creating genre:', error);
-        throw error;
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error creating genre:', errorData);
+        throw new Error(errorData.error || 'Failed to create genre');
       }
 
+      const data = await response.json();
       return {
         label: data.name,
         value: data.id
