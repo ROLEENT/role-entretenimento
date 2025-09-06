@@ -106,7 +106,6 @@ export function AdminV3LayoutHeader() {
   });
   const [passwordLoading, setPasswordLoading] = useState(false);
 
-  const projectRef = 'nutlcbnruabjsxecqpnd';
   const breadcrumbs = generateBreadcrumbs(location.pathname);
 
   useEffect(() => {
@@ -270,11 +269,6 @@ export function AdminV3LayoutHeader() {
 
         {/* Right side */}
         <div className="flex items-center gap-3">
-          {/* Project ref chip */}
-          <div className="hidden md:block rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
-            {projectRef}
-          </div>
-
           {/* User menu */}
           {loading ? (
             <Skeleton className="h-8 w-8 rounded-full" />
