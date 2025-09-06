@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminV3Guard } from "@/components/AdminV3Guard";
-
-import { AdminV3Breadcrumb } from "@/components/admin/common/AdminV3Breadcrumb";
 import { EventGrid } from "@/components/events/EventGrid";
 // AdminEventTable removed - using EventGrid only
 import { ChecklistWidget } from "@/components/events/ChecklistWidget";
@@ -102,17 +100,8 @@ export default function AdminV3EventsDashboard() {
     console.log("Refetching events...");
   };
 
-  const breadcrumbItems = [
-    { label: "Eventos", path: "/admin-v3/eventos" }
-  ];
-
   return (
-    <AdminV3Guard>
-      <div className="min-h-screen bg-background">
-        
-        
-        <div className="container mx-auto p-6 space-y-6">
-          <AdminV3Breadcrumb items={breadcrumbItems} />
+    <div className="space-y-6">
           
           {/* Header */}
           <div className="flex justify-between items-start">
@@ -365,9 +354,7 @@ export default function AdminV3EventsDashboard() {
                 />
               )}
             </div>
-          </div>
         </div>
-      </div>
-    </AdminV3Guard>
+    </div>
   );
 }

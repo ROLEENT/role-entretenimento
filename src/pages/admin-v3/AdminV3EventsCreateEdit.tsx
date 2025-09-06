@@ -1,8 +1,5 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { AdminV3Guard } from "@/components/AdminV3Guard";
-
-import { AdminV3Breadcrumb } from "@/components/admin/common/AdminV3Breadcrumb";
 import { EventCreateWizard } from "@/components/events/EventCreateWizard";
 import { ChecklistWidget } from "@/components/events/ChecklistWidget";
 import { useQuery } from "@tanstack/react-query";
@@ -58,60 +55,45 @@ export default function AdminV3EventsCreateEdit() {
     navigate("/admin-v3/eventos");
   };
 
-  const breadcrumbItems = [
-    { label: "Eventos", path: "/admin-v3/eventos" },
-    { label: isEditing ? `Editar: ${event?.title || "..."}` : "Criar Evento" }
-  ];
-
   if (isLoading && isEditing) {
     return (
-      <AdminV3Guard>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      </AdminV3Guard>
+      <div className="min-h-[400px] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
     );
   }
 
   if (error) {
     return (
-      <AdminV3Guard>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <p className="text-destructive">Erro ao carregar evento: {error.message}</p>
-        </div>
-      </AdminV3Guard>
+      <div className="min-h-[400px] flex items-center justify-center">
+        <p className="text-destructive">Erro ao carregar evento: {error.message}</p>
+      </div>
     );
   }
 
   return (
-    <AdminV3Guard>
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto p-6 space-y-6">
-          <AdminV3Breadcrumb items={breadcrumbItems} />
-          
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Main Wizard */}
-            <div className="lg:col-span-3">
-              <EventCreateWizard
-                initialData={event || getEventDefaults()}
-                onSave={handleSave}
-                onCancel={handleCancel}
-              />
-            </div>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Main Wizard */}
+        <div className="lg:col-span-3">
+          <EventCreateWizard
+            initialData={event || getEventDefaults()}
+            onSave={handleSave}
+            onCancel={handleCancel}
+          />
+        </div>
 
-            {/* Sidebar with checklist */}
-            <div className="space-y-6">
-              <ChecklistWidget
-                eventData={wizardData}
-                onItemClick={(itemId) => {
-                  // Could scroll to specific field in wizard
-                  console.log("Focus field:", itemId);
-                }}
-              />
-            </div>
-          </div>
+        {/* Sidebar with checklist */}
+        <div className="space-y-6">
+          <ChecklistWidget
+            eventData={wizardData}
+            onItemClick={(itemId) => {
+              // Could scroll to specific field in wizard
+              console.log("Focus field:", itemId);
+            }}
+          />
         </div>
       </div>
-    </AdminV3Guard>
+    </div>
   );
 }

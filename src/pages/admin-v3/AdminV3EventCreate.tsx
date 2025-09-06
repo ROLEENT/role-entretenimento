@@ -1,7 +1,4 @@
 import { useState } from "react";
-import { AdminV3Guard } from "@/components/AdminV3Guard";
-
-import { AdminV3Breadcrumb } from "@/components/admin/common/AdminV3Breadcrumb";
 import { EventCreateWizard } from "@/components/events/EventCreateWizard";
 import { ChecklistWidget } from "@/components/events/ChecklistWidget";
 import { getEventDefaults } from "@/schemas/eventSchema";
@@ -40,47 +37,29 @@ export default function AdminV3EventCreate() {
     }
   };
 
-  const breadcrumbItems = isFromAgenda 
-    ? [
-        { label: "Agenda", path: "/admin-v3/agenda" },
-        { label: "Criar Evento" }
-      ]
-    : [
-        { label: "Eventos", path: "/admin-v3/eventos" },
-        { label: "Criar Evento" }
-      ];
-
   return (
-    <AdminV3Guard>
-      <div className="min-h-screen bg-background">
-        
-        
-        <div className="container mx-auto p-6 space-y-6">
-          <AdminV3Breadcrumb items={breadcrumbItems} />
-          
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Main Wizard */}
-            <div className="lg:col-span-3">
-              <EventCreateWizard
-                initialData={getEventDefaults()}
-                onSave={handleSave}
-                onCancel={handleCancel}
-              />
-            </div>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Main Wizard */}
+        <div className="lg:col-span-3">
+          <EventCreateWizard
+            initialData={getEventDefaults()}
+            onSave={handleSave}
+            onCancel={handleCancel}
+          />
+        </div>
 
-            {/* Sidebar with checklist */}
-            <div className="space-y-6">
-              <ChecklistWidget
-                eventData={wizardData}
-                onItemClick={(itemId) => {
-                  // Could scroll to specific field in wizard
-                  console.log("Focus field:", itemId);
-                }}
-              />
-            </div>
-          </div>
+        {/* Sidebar with checklist */}
+        <div className="space-y-6">
+          <ChecklistWidget
+            eventData={wizardData}
+            onItemClick={(itemId) => {
+              // Could scroll to specific field in wizard
+              console.log("Focus field:", itemId);
+            }}
+          />
         </div>
       </div>
-    </AdminV3Guard>
+    </div>
   );
 }

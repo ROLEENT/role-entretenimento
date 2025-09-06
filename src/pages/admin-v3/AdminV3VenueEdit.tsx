@@ -8,7 +8,7 @@ import { AdminV3Guard } from '@/components/AdminV3Guard';
 
 import { FormShell } from '@/components/form';
 import { Form } from '@/components/ui/form';
-import { AdminV3Breadcrumb } from '@/components/admin/common/AdminV3Breadcrumb';
+
 import { AdminVenueForm } from '@/components/admin/venues/AdminVenueForm';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { venueFlexibleSchema, VenueFlexibleFormData } from '@/schemas/venue-flexible';
@@ -145,19 +145,14 @@ const AdminV3VenueEdit: React.FC = () => {
 
   if (isLoading) {
     return (
-      <AdminV3Guard>
-        <main className="container mx-auto px-4 py-8">
-          <AdminV3Breadcrumb items={breadcrumbs} />
-          <LoadingSpinner />
-        </main>
-      </AdminV3Guard>
+      <main className="space-y-6">
+        <LoadingSpinner />
+      </main>
     );
   }
 
   return (
-    <AdminV3Guard>
-      <main className="container mx-auto px-4 py-8">
-        <AdminV3Breadcrumb items={breadcrumbs} />
+    <main className="space-y-6">
         
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -199,8 +194,7 @@ const AdminV3VenueEdit: React.FC = () => {
             <AdminVenueForm form={form} />
           </FormShell>
         </Form>
-      </main>
-    </AdminV3Guard>
+    </main>
   );
 };
 

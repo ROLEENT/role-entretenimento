@@ -3,11 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { AdminV3Guard } from '@/components/AdminV3Guard';
-
 import { FormShell } from '@/components/form';
 import { Form } from '@/components/ui/form';
-import { AdminV3Breadcrumb } from '@/components/admin/common/AdminV3Breadcrumb';
+
 import { AdminBlogForm } from '@/components/admin/blog/AdminBlogForm';
 import { BlogPostForm, useUpsertBlogPost } from '@/hooks/useUpsertBlogPost';
 
@@ -78,25 +76,20 @@ const AdminV3BlogCreate: React.FC = () => {
   ];
 
   return (
-    <AdminV3Guard>
-      
-      <main className="container mx-auto px-4 py-8">
-        <AdminV3Breadcrumb items={breadcrumbs} />
-        
-        <Form {...form}>
-          <FormShell
-            title="Criar Novo Post"
-            description="Publique um novo artigo na revista digital"
-            form={form}
-            onSaveAndExit={handleSaveAndExit}
-            backUrl="/admin-v3/revista"
-            isSubmitting={upsertBlogPost.isPending}
-          >
-            <AdminBlogForm form={form} />
-          </FormShell>
-        </Form>
-      </main>
-    </AdminV3Guard>
+    <main className="space-y-6">
+      <Form {...form}>
+        <FormShell
+          title="Criar Novo Post"
+          description="Publique um novo artigo na revista digital"
+          form={form}
+          onSaveAndExit={handleSaveAndExit}
+          backUrl="/admin-v3/revista"
+          isSubmitting={upsertBlogPost.isPending}
+        >
+          <AdminBlogForm form={form} />
+        </FormShell>
+      </Form>
+    </main>
   );
 };
 

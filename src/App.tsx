@@ -24,7 +24,7 @@ const CurationTestPage = lazy(() => import("./pages/test/curation"));
 const CurationDrawerTest = lazy(() => import("./pages/CurationDrawerTest"));
 // Dashboard components
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
-const DashboardLayout = lazy(() => import("./components/DashboardLayout"));
+
 import { DashboardRedirect } from "@/components/DashboardRedirect";
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -265,9 +265,7 @@ function App() {
             {/* New Dashboard Route */}
             <Route path="/dashboard" element={
               <Suspense fallback={<AdminLoadingFallback />}>
-                <DashboardLayout>
-                  <DashboardPage />
-                </DashboardLayout>
+                <DashboardPage />
               </Suspense>
             } />
 

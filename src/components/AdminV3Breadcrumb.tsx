@@ -12,30 +12,7 @@ interface AdminV3BreadcrumbProps {
 }
 
 export function AdminV3Breadcrumb({ items }: AdminV3BreadcrumbProps) {
-  return (
-    <nav className="flex items-center space-x-1 text-sm text-muted-foreground mb-6">
-      <Link 
-        to="/admin-v3" 
-        className="hover:text-foreground transition-colors"
-      >
-        Admin v3
-      </Link>
-      
-      {items.map((item, index) => (
-        <React.Fragment key={index}>
-          <ChevronRight className="h-4 w-4" />
-          {item.path ? (
-            <Link 
-              to={item.path}
-              className="hover:text-foreground transition-colors"
-            >
-              {item.label}
-            </Link>
-          ) : (
-            <span className="text-foreground font-medium">{item.label}</span>
-          )}
-        </React.Fragment>
-      ))}
-    </nav>
-  );
+  // This component is deprecated - breadcrumbs are now handled by AdminV3LayoutHeader
+  // This is just a stub to prevent build errors
+  return null;
 }

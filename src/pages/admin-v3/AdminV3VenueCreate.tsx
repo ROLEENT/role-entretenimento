@@ -2,11 +2,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AdminV3Guard } from '@/components/AdminV3Guard';
-
 import { FormShell } from '@/components/form';
 import { Form } from '@/components/ui/form';
-import { AdminV3Breadcrumb } from '@/components/admin/common/AdminV3Breadcrumb';
+
 import { AdminVenueForm } from '@/components/admin/venues/AdminVenueForm';
 import { venueFlexibleSchema, VenueFlexibleFormData } from '@/schemas/venue-flexible';
 import { useUpsertVenue } from '@/hooks/useUpsertAgents';
@@ -112,25 +110,20 @@ const AdminV3VenueCreate: React.FC = () => {
   ];
 
   return (
-    <AdminV3Guard>
-      
-      <main className="container mx-auto px-4 py-8">
-        <AdminV3Breadcrumb items={breadcrumbs} />
-        
-        <Form {...form}>
-          <FormShell
-            title="Criar Novo Local"
-            description="Cadastre um novo espaço cultural, casa de shows, bar ou clube"
-            form={form}
-            onSaveAndExit={handleSaveAndExit}
-            backUrl="/admin-v3/agentes/venues"
-            isSubmitting={upsertVenue.isPending}
-          >
-            <AdminVenueForm form={form} />
-          </FormShell>
-        </Form>
-      </main>
-    </AdminV3Guard>
+    <main className="space-y-6">
+      <Form {...form}>
+        <FormShell
+          title="Criar Novo Local"
+          description="Cadastre um novo espaço cultural, casa de shows, bar ou clube"
+          form={form}
+          onSaveAndExit={handleSaveAndExit}
+          backUrl="/admin-v3/agentes/venues"
+          isSubmitting={upsertVenue.isPending}
+        >
+          <AdminVenueForm form={form} />
+        </FormShell>
+      </Form>
+    </main>
   );
 };
 
