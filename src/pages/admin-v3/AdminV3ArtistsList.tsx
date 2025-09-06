@@ -7,6 +7,7 @@ import { AdminArtistFilters } from '@/components/admin/agents/AdminArtistFilters
 import { AdminArtistTable } from '@/components/admin/agents/AdminArtistTable';
 import { useAdminArtistsData } from '@/hooks/useAdminArtistsData';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { ImageRecoveryButton } from '@/components/admin/utils/ImageRecoveryButton';
 
 const AdminV3ArtistsList: React.FC = () => {
   const {
@@ -32,12 +33,15 @@ const AdminV3ArtistsList: React.FC = () => {
   ];
 
   const actions = (
-    <Button asChild>
-      <Link to="/admin-v3/agentes/artistas/create">
-        <Plus className="h-4 w-4 mr-2" />
-        Novo Artista
-      </Link>
-    </Button>
+    <div className="flex gap-2">
+      <ImageRecoveryButton />
+      <Button asChild>
+        <Link to="/admin-v3/agentes/artistas/create">
+          <Plus className="h-4 w-4 mr-2" />
+          Novo Artista
+        </Link>
+      </Button>
+    </div>
   );
 
   if (error) {
