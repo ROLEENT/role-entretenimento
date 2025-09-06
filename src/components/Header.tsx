@@ -22,6 +22,12 @@ import {
   DropdownMenuTrigger 
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "./ui/avatar";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "./ui/accordion";
 
 // Header mobile 2 linhas com carrossel de cidades
 const Header = () => {
@@ -149,30 +155,21 @@ const Header = () => {
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <SheetContent 
             side="right" 
-            className="w-[300px] sm:w-[350px] z-50 flex flex-col"
-            style={{ 
-              height: '100vh',
-              maxHeight: '100vh',
-              overflowY: 'auto',
-              WebkitOverflowScrolling: 'touch'
-            }}
+            className="w-[300px] sm:w-[350px] z-50 flex flex-col h-full p-0"
           >
             {/* Fixed Header */}
-            <div 
-              className="sticky top-0 bg-background z-10 border-b border-border"
-              style={{ paddingTop: 'calc(16px + env(safe-area-inset-top))' }}
-            >
-              <SheetHeader className="pb-4">
+            <div className="sticky top-0 bg-background z-10 border-b border-border p-6 pb-4">
+              <SheetHeader>
                 <SheetTitle className="text-left">Menu</SheetTitle>
               </SheetHeader>
             </div>
             
-            {/* Scrollable Content */}
-            <div className="flex-1 py-6 space-y-6"
+            {/* Scrollable Body */}
+            <div 
+              className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-6"
               style={{ 
-                overflowY: 'auto',
                 WebkitOverflowScrolling: 'touch',
-                paddingBottom: 'calc(16px + env(safe-area-inset-bottom))'
+                overscrollBehavior: 'contain'
               }}
             >
               {/* Search */}
@@ -204,7 +201,6 @@ const Header = () => {
                     )}
                     onClick={() => {
                       setMobileMenuOpen(false);
-                      // Ensure scroll to top on mobile navigation
                       setTimeout(() => window.scrollTo(0, 0), 100);
                     }}
                     aria-current={isActive(link.href) ? 'page' : undefined}
@@ -213,101 +209,112 @@ const Header = () => {
                   </Link>
                 ))}
                 
-                {/* Perfis section */}
-                <div className="space-y-1">
-                  <div className="px-4 py-2 text-sm font-medium text-muted-foreground">Perfis</div>
-                  {perfisDropdownItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      to={item.href}
-                      className="flex items-center py-2 px-6 text-sm text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        setTimeout(() => window.scrollTo(0, 0), 100);
-                      }}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
+                {/* Perfis Accordion - starts closed */}
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="perfis" className="border-none">
+                    <AccordionTrigger className="px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg hover:no-underline">
+                      Perfis
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-2">
+                      <div className="space-y-1">
+                        {perfisDropdownItems.map((item) => (
+                          <Link
+                            key={item.href}
+                            to={item.href}
+                            className="flex items-center py-2 px-6 text-sm text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+                            onClick={() => {
+                              setMobileMenuOpen(false);
+                              setTimeout(() => window.scrollTo(0, 0), 100);
+                            }}
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </nav>
 
               {/* User Section */}
-              <div className="border-t pt-4 space-y-3">
-                  {publicUser ? (
-                    <>
-                      <div className="flex items-center gap-3 px-4 py-2">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                            {publicUser.email?.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">
-                            {publicUser.email}
-                          </p>
-                        </div>
-                      </div>
-                       <Link
-                         to="/profile"
-                         className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
-                         onClick={() => setMobileMenuOpen(false)}
-                       >
-                         <User className="h-4 w-4" />
-                         Perfil
-                       </Link>
-                        <Link
-                         to="/meus-salvos"
-                         className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
-                         onClick={() => setMobileMenuOpen(false)}
-                       >
-                         <Heart className="h-4 w-4" />
-                         Meus Salvos
-                       </Link>
-                      <Link
-                        to="/notificacoes"
-                        className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Calendar className="h-4 w-4" />
-                       Minhas Notificações
-                     </Link>
-                    {hasAdminAccess && (
-                      <Link
-                        to="/admin-v3"
-                        className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Settings className="h-4 w-4" />
-                        Painel Admin
-                      </Link>
-                    )}
-                    <button 
-                      onClick={publicSignOut}
-                      className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors w-full text-left"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      Sair
-                    </button>
-                  </>
-                ) : (
-                  <Button 
-                    className="w-full h-12"
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      setShowPublicAuth(true);
-                    }}
+              {publicUser ? (
+                <div className="border-t pt-4 space-y-3">
+                  <div className="flex items-center gap-3 px-4 py-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                        {publicUser.email?.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {publicUser.email}
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
                   >
-                    <User className="mr-2 h-4 w-4" />
-                    Entrar
-                  </Button>
-                )}
-
-                {/* Theme Toggle */}
-                <div className="flex items-center justify-between px-4 py-2">
-                  <span className="text-sm font-medium text-foreground">Tema</span>
-                  <ThemeToggle />
+                    <User className="h-4 w-4" />
+                    Perfil
+                  </Link>
+                  <Link
+                    to="/meus-salvos"
+                    className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Heart className="h-4 w-4" />
+                    Meus Salvos
+                  </Link>
+                  <Link
+                    to="/notificacoes"
+                    className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Calendar className="h-4 w-4" />
+                    Minhas Notificações
+                  </Link>
+                  {hasAdminAccess && (
+                    <Link
+                      to="/admin-v3"
+                      className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Settings className="h-4 w-4" />
+                      Painel Admin
+                    </Link>
+                  )}
+                  <button 
+                    onClick={publicSignOut}
+                    className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors w-full text-left"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sair
+                  </button>
                 </div>
+              ) : null}
+            </div>
+
+            {/* Sticky Footer */}
+            <div className="sticky bottom-0 bg-background z-10 border-t border-border p-6 pt-4">
+              {!publicUser && (
+                <Button 
+                  className="w-full h-12 mb-4"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setShowPublicAuth(true);
+                  }}
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  Entrar
+                </Button>
+              )}
+
+              {/* Theme Block */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground">Tema</span>
+                <ThemeToggle />
               </div>
             </div>
           </SheetContent>
