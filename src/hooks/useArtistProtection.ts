@@ -13,7 +13,7 @@ interface AuditLog {
   created_at: string;
 }
 
-interface ProtectionStats {
+export interface ProtectionStats {
   total_artists: number;
   recent_changes: number;
   failed_operations: number;

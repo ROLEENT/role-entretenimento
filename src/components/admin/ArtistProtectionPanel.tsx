@@ -3,17 +3,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useArtistProtection } from '@/hooks/useArtistProtection';
+import { useArtistProtection, ProtectionStats } from '@/hooks/useArtistProtection';
 import { Shield, Database, Activity, AlertTriangle, Download } from 'lucide-react';
 
 export const ArtistProtectionPanel = () => {
   const { loading, getAuditLogs, getProtectionStats, createBackup } = useArtistProtection();
   const [auditLogs, setAuditLogs] = useState([]);
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<ProtectionStats>({
     total_artists: 0,
     recent_changes: 0,
     failed_operations: 0,
-    backup_status: 'inactive' as const
+    backup_status: 'inactive'
   });
 
   useEffect(() => {
