@@ -117,7 +117,7 @@ export default function AdminV3AgendaListNew() {
             {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
           </Button>
           <Button asChild>
-            <Link to="/admin-v3/agenda/novo" className="gap-2">
+            <Link to="/admin-v3/eventos/criar?from=agenda" className="gap-2">
               <Plus className="h-4 w-4" />
               Novo Evento
             </Link>

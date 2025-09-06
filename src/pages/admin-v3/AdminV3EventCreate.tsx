@@ -5,11 +5,13 @@ import { AdminV3Breadcrumb } from "@/components/admin/common/AdminV3Breadcrumb";
 import { EventCreateWizard } from "@/components/events/EventCreateWizard";
 import { ChecklistWidget } from "@/components/events/ChecklistWidget";
 import { getEventDefaults } from "@/schemas/eventSchema";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 export default function AdminV3EventCreate() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isFromAgenda = searchParams.get('from') === 'agenda';
   
   const [wizardData, setWizardData] = useState(() => {
     return getEventDefaults();
@@ -17,8 +19,13 @@ export default function AdminV3EventCreate() {
 
   const handleSave = async (eventData: any) => {
     try {
-      toast.success("Evento criado com sucesso!");
-      navigate("/admin-v3/eventos");
+      if (isFromAgenda) {
+        toast.success("Evento da agenda criado com sucesso!");
+        navigate("/admin-v3/agenda");
+      } else {
+        toast.success("Evento criado com sucesso!");
+        navigate("/admin-v3/eventos");
+      }
     } catch (error) {
       console.error("Error saving event:", error);
       toast.error("Erro ao salvar evento");
@@ -26,13 +33,22 @@ export default function AdminV3EventCreate() {
   };
 
   const handleCancel = () => {
-    navigate("/admin-v3/eventos");
+    if (isFromAgenda) {
+      navigate("/admin-v3/agenda");
+    } else {
+      navigate("/admin-v3/eventos");
+    }
   };
 
-  const breadcrumbItems = [
-    { label: "Eventos", path: "/admin-v3/eventos" },
-    { label: "Criar Evento" }
-  ];
+  const breadcrumbItems = isFromAgenda 
+    ? [
+        { label: "Agenda", path: "/admin-v3/agenda" },
+        { label: "Criar Evento" }
+      ]
+    : [
+        { label: "Eventos", path: "/admin-v3/eventos" },
+        { label: "Criar Evento" }
+      ];
 
   return (
     <AdminV3Guard>
