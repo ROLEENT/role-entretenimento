@@ -149,13 +149,32 @@ const Header = () => {
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <SheetContent 
             side="right" 
-            className="w-[300px] sm:w-[350px] bg-background z-50 flex flex-col h-full max-h-screen"
-            style={{ paddingTop: 'calc(16px + env(safe-area-inset-top))' }}
+            className="w-[300px] sm:w-[350px] z-50 flex flex-col"
+            style={{ 
+              height: '100vh',
+              maxHeight: '100vh',
+              overflowY: 'auto',
+              WebkitOverflowScrolling: 'touch'
+            }}
           >
-            <SheetHeader className="flex-shrink-0">
-              <SheetTitle className="text-left">Menu</SheetTitle>
-            </SheetHeader>
-            <div className="flex-1 overflow-y-auto overscroll-behavior-contain py-6 space-y-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+            {/* Fixed Header */}
+            <div 
+              className="sticky top-0 bg-background z-10 border-b border-border"
+              style={{ paddingTop: 'calc(16px + env(safe-area-inset-top))' }}
+            >
+              <SheetHeader className="pb-4">
+                <SheetTitle className="text-left">Menu</SheetTitle>
+              </SheetHeader>
+            </div>
+            
+            {/* Scrollable Content */}
+            <div className="flex-1 py-6 space-y-6"
+              style={{ 
+                overflowY: 'auto',
+                WebkitOverflowScrolling: 'touch',
+                paddingBottom: 'calc(16px + env(safe-area-inset-bottom))'
+              }}
+            >
               {/* Search */}
               <div className="space-y-2">
                 <Button
