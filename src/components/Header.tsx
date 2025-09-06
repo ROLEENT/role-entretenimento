@@ -365,19 +365,17 @@ const Header = () => {
                 
                 {/* Perfis Dropdown */}
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className={cn(
-                      "flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary relative",
-                      isPerfisActive() 
-                        ? "text-primary" 
-                        : "text-muted-foreground"
-                    )}>
-                      Perfis
-                      <ChevronDown className="h-3 w-3" />
-                      {isPerfisActive() && (
-                        <div className="absolute -bottom-6 left-0 right-0 h-0.5 bg-primary rounded-full" />
-                      )}
-                    </button>
+                  <DropdownMenuTrigger className={cn(
+                    "flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary relative bg-transparent border-0 cursor-pointer",
+                    isPerfisActive() 
+                      ? "text-primary" 
+                      : "text-muted-foreground"
+                  )}>
+                    Perfis
+                    <ChevronDown className="h-3 w-3" />
+                    {isPerfisActive() && (
+                      <div className="absolute -bottom-6 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                    )}
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
                     {perfisDropdownItems.map((item) => (
@@ -428,16 +426,14 @@ const Header = () => {
                 <NotificationTrigger />
                 <ThemeToggle />
 
-                {publicUser ? (
+                 {publicUser ? (
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-primary text-primary-foreground">
-                            {publicUser.email?.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                      </Button>
+                    <DropdownMenuTrigger className="relative h-8 w-8 rounded-full border-0 bg-transparent cursor-pointer">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-primary text-primary-foreground">
+                          {publicUser.email?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56" align="end" forceMount>
                       <DropdownMenuLabel className="font-normal">
