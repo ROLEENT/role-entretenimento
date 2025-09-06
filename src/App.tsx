@@ -46,6 +46,11 @@ import { AdminV3Layout } from "@/components/admin/AdminV3Layout";
 const AdminV3AgendaListNew = lazy(() => import("./pages/admin-v3/AdminV3AgendaListNew"));
 
 const AdminV3AgendaEdit = lazy(() => import("./pages/admin-v3/AdminV3AgendaEdit"));
+
+// Admin Catalogs Pages
+const CatalogsGenresPage = lazy(() => import("./pages/admin/CatalogsGenresPage"));
+const CatalogsArtistRolesPage = lazy(() => import("./pages/admin/CatalogsArtistRolesPage"));
+
 const AdminV3ArtistsList = lazy(() => import("./pages/admin-v3/AdminV3ArtistsList").then(module => ({ default: module.default })));
 const AdminV3ArtistCreate = lazy(() => import("./pages/admin-v3/AdminV3ArtistCreate").then(module => ({ default: module.default })));
 const AdminV3ArtistEdit = lazy(() => import("./pages/admin-v3/AdminV3ArtistEdit").then(module => ({ default: module.default })));
@@ -331,6 +336,10 @@ function App() {
                   <Route path="agentes/organizadores" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizadoresList /></Suspense>} />
                   <Route path="agentes/organizadores/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerCreate /></Suspense>} />
                   <Route path="agentes/organizadores/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerEdit /></Suspense>} />
+                  
+                  {/* Catalogs Routes */}
+                  <Route path="catalogos/generos" element={<Suspense fallback={<AdminLoadingFallback />}><CatalogsGenresPage /></Suspense>} />
+                  <Route path="catalogos/funcoes" element={<Suspense fallback={<AdminLoadingFallback />}><CatalogsArtistRolesPage /></Suspense>} />
                   
                   
                   {/* Other modules */}

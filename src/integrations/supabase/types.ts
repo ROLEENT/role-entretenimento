@@ -983,6 +983,111 @@ export type Database = {
           },
         ]
       }
+      artist_genres: {
+        Row: {
+          artist_id: string
+          genre_id: string
+        }
+        Insert: {
+          artist_id: string
+          genre_id: string
+        }
+        Update: {
+          artist_id?: string
+          genre_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_genres_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_genres_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_genres_genre_id_fkey"
+            columns: ["genre_id"]
+            isOneToOne: false
+            referencedRelation: "genres"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_genres_genre_id_fkey"
+            columns: ["genre_id"]
+            isOneToOne: false
+            referencedRelation: "genres_with_hierarchy"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      artist_roles: {
+        Row: {
+          artist_id: string
+          role_id: string
+        }
+        Insert: {
+          artist_id: string
+          role_id: string
+        }
+        Update: {
+          artist_id?: string
+          role_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_roles_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_roles_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artist_roles_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "artist_roles_lookup"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      artist_roles_lookup: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       artist_spotify_data: {
         Row: {
           artist_name: string
@@ -3514,7 +3619,7 @@ export type Database = {
           is_active: boolean | null
           name: string
           parent_genre_id: string | null
-          slug: string | null
+          slug: string
           source: string | null
           updated_at: string | null
         }
@@ -3526,7 +3631,7 @@ export type Database = {
           is_active?: boolean | null
           name?: string
           parent_genre_id?: string | null
-          slug?: string | null
+          slug: string
           source?: string | null
           updated_at?: string | null
         }
@@ -3538,7 +3643,7 @@ export type Database = {
           is_active?: boolean | null
           name?: string
           parent_genre_id?: string | null
-          slug?: string | null
+          slug?: string
           source?: string | null
           updated_at?: string | null
         }
@@ -8663,6 +8768,14 @@ export type Database = {
       }
       ensure_artist: {
         Args: { p_artist_type?: string; p_stage_name: string }
+        Returns: string
+      }
+      ensure_artist_role: {
+        Args: { p_name: string }
+        Returns: string
+      }
+      ensure_genre: {
+        Args: { p_name: string }
         Returns: string
       }
       ensure_user_profile: {
