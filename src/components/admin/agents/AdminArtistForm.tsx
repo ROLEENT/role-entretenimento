@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Save, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { FormErrorDisplay } from '@/components/ui/form-error-display';
+import { toast } from '@/hooks/use-toast';
 import { ArtistBasicTab } from './tabs/ArtistBasicTab';
 import { ArtistContactTab } from './tabs/ArtistContactTab';
 import { ArtistProfessionalTab } from './tabs/ArtistProfessionalTab';
@@ -51,7 +53,13 @@ export const AdminArtistForm: React.FC<AdminArtistFormProps> = ({
 
 
   const handleSubmit = (data: ArtistFlexibleForm) => {
-    onSubmit(data);
+    console.log("Form submission:", data);
+    console.log("Form errors:", form.formState.errors);
+    try {
+      onSubmit(data);
+    } catch (error) {
+      console.error("Submit error:", error);
+    }
   };
 
   return (
@@ -78,7 +86,21 @@ export const AdminArtistForm: React.FC<AdminArtistFormProps> = ({
         </div>
         
         <Button
-          onClick={form.handleSubmit(handleSubmit)}
+          onClick={(e) => {
+            e.preventDefault();
+            console.log("Save button clicked");
+            form.handleSubmit((data) => {
+              console.log("Form is valid, submitting:", data);
+              handleSubmit(data);
+            }, (errors) => {
+              console.log("Form validation errors:", errors);
+              toast({
+                title: "Erro de validação",
+                description: "Por favor, corrija os campos destacados.",
+                variant: "destructive"
+              });
+            })();
+          }}
           disabled={isLoading}
           className="min-w-[120px]"
         >
@@ -86,6 +108,11 @@ export const AdminArtistForm: React.FC<AdminArtistFormProps> = ({
           {isLoading ? 'Salvando...' : 'Salvar'}
         </Button>
       </div>
+
+      {/* Error Display */}
+      {Object.keys(form.formState.errors).length > 0 && (
+        <FormErrorDisplay errors={form.formState.errors} className="mb-6" />
+      )}
 
       {/* Form */}
       <Form {...form}>

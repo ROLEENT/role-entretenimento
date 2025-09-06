@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { VenueFlexibleFormData } from "@/schemas/venue-flexible";
 import { ArtistForm, OrganizerForm } from "@/schemas/agents";
+import { ArtistFlexibleForm } from "@/schemas/agents-flexible";
 import { toast } from "sonner";
 import { syncArtistGenres } from "@/utils/artistPivotSync";
 
@@ -11,7 +12,7 @@ export const useUpsertArtist = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: ArtistForm) => {
+    mutationFn: async (data: ArtistFlexibleForm) => {
       console.log("Upserting artist:", data);
 
       // Generate slug from stage_name if not provided
