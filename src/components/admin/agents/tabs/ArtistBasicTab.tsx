@@ -188,19 +188,9 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="genres"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Gêneros Musicais</FormLabel>
-              <FormControl>
-                <RHFGenreSelect name="genres" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div>
+          <RHFGenreSelect name="genres" label="Gêneros Musicais" />
+        </div>
       </div>
 
       <div className="md:col-span-2">
