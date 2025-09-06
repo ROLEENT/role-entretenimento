@@ -8781,10 +8781,10 @@ export type Database = {
       ensure_user_profile: {
         Args: {
           p_avatar_url?: string
-          p_display_name: string
+          p_display_name?: string
           p_username: string
         }
-        Returns: undefined
+        Returns: string
       }
       events_by_week: {
         Args: { last_days?: number }
@@ -9347,6 +9347,27 @@ export type Database = {
         Args: { p_ids: string[] }
         Returns: undefined
       }
+      search_rolezeiros_public: {
+        Args: {
+          p_cities?: string[]
+          p_genres?: string[]
+          p_limit?: number
+          p_offset?: number
+          p_order?: string
+          p_q?: string
+        }
+        Returns: {
+          avatar_url: string
+          bio: string
+          city_preferences: string[]
+          display_name: string
+          genre_preferences: string[]
+          id: string
+          joined_at: string
+          last_attended: string
+          username: string
+        }[]
+      }
       search_users_by_username: {
         Args: { search_term: string }
         Returns: {
@@ -9363,11 +9384,13 @@ export type Database = {
         Returns: boolean
       }
       set_attendance: {
-        Args: {
-          p_event_id: string
-          p_show_publicly?: boolean
-          p_status: Database["public"]["Enums"]["attendance_status"]
-        }
+        Args:
+          | {
+              p_event_id: string
+              p_show_publicly?: boolean
+              p_status: Database["public"]["Enums"]["attendance_status"]
+            }
+          | { p_event_id: string; p_show_publicly?: boolean; p_status: string }
         Returns: undefined
       }
       setup_audit_triggers: {
