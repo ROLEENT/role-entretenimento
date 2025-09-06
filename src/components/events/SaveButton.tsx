@@ -39,6 +39,7 @@ export function SaveButton({
         .select("id")
         .eq("event_id", eventId)
         .eq("user_id", user.id)
+        .eq("collection", collection)
         .limit(1)
         .maybeSingle();
         
@@ -52,7 +53,7 @@ export function SaveButton({
     return () => {
       mounted = false;
     };
-  }, [user, eventId]);
+  }, [user, eventId, collection]);
 
   async function toggleSave() {
     if (!user) {
@@ -62,39 +63,28 @@ export function SaveButton({
 
     setLoading(true);
     try {
-      if (saved) {
-        // Remove save
-        const { error } = await supabase
-          .from("event_saves")
-          .delete()
-          .eq("event_id", eventId)
-          .eq("user_id", user.id);
-          
-        if (error) throw error;
-        setSaved(false);
-        toast({
-          title: "Evento removido dos salvos",
-          description: "O evento foi removido da sua lista de salvos."
-        });
-      } else {
-        // Add save
-        const { error } = await supabase
-          .from("event_saves")
-          .insert({
-            event_id: eventId,
-            user_id: user.id,
-            collection
-          });
-          
-        if (error) throw error;
-        setSaved(true);
-        toast({
-          title: "Evento salvo!",
-          description: "O evento foi adicionado à sua lista de salvos."
-        });
+      // Optimistic update
+      setSaved((s) => !s);
+      
+      const { data, error } = await supabase.rpc("toggle_save", {
+        event_id: eventId,
+        collection,
+      });
+      
+      if (error) throw error;
+      
+      if (typeof data?.[0]?.saved === "boolean") {
+        setSaved(data[0].saved);
       }
+      
+      toast({
+        title: saved ? "Evento removido dos salvos" : "Evento salvo!",
+        description: saved ? "O evento foi removido da sua lista de salvos." : "O evento foi adicionado à sua lista de salvos."
+      });
     } catch (err) {
       console.error("Error toggling save:", err);
+      // Rollback optimistic update
+      setSaved((s) => !s);
       toast({
         title: "Erro ao salvar evento",
         description: "Tente novamente em alguns instantes.",

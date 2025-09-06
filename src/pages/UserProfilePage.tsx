@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCurrentUserProfile } from '@/hooks/useUserProfile';
 import { useUserAuth } from '@/hooks/useUserAuth';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
+import { ProfileEditFormV2 } from '@/components/profile/ProfileEditFormV2';
 import { UserSavedEvents } from '@/components/profile/UserSavedEvents';
 import { UserAttendances } from '@/components/profile/UserAttendances';
 import { UserNotifications } from '@/components/profile/UserNotifications';
@@ -50,7 +50,7 @@ export default function UserProfilePage() {
           </TabsList>
           
           <TabsContent value="perfil" className="space-y-6">
-            <ProfileEditForm profile={profile} />
+            <ProfileEditFormV2 />
           </TabsContent>
           
           <TabsContent value="salvos">

@@ -9179,6 +9179,18 @@ export type Database = {
         Args: { p_event_id: string; p_user_id: string }
         Returns: boolean
       }
+      get_user_public_attendance_by_username: {
+        Args: { p_limit?: number; p_username: string }
+        Returns: {
+          city: string
+          cover_url: string
+          event_id: string
+          starts_at: string
+          status: string
+          title: string
+          updated_at: string
+        }[]
+      }
       get_user_role: {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]

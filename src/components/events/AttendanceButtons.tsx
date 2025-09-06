@@ -67,16 +67,11 @@ export function AttendanceButtons({
       const prev = status;
       setStatus(newStatus);
 
-      const { error } = await supabase
-        .from("event_attendance")
-        .upsert({
-          event_id: eventId,
-          user_id: user.id,
-          status: newStatus,
-          show_publicly: showPublicly
-        }, {
-          onConflict: "event_id,user_id"
-        });
+      const { error } = await supabase.rpc("set_attendance", {
+        p_event_id: eventId,
+        p_status: newStatus,
+        p_show_publicly: showPublicly,
+      });
 
       if (error) throw error;
       
@@ -146,15 +141,21 @@ export function AttendanceButtons({
         )}
         Fui
       </Button>
-      <label className="ml-3 inline-flex items-center gap-2 text-sm select-none">
+      <div className="ml-3 flex items-center space-x-2">
         <input
           type="checkbox"
+          id="show-publicly"
           className="h-4 w-4 rounded border"
           checked={showPublicly}
           onChange={(e) => setShowPublicly(e.target.checked)}
         />
-        Mostrar publicamente
-      </label>
+        <label 
+          htmlFor="show-publicly" 
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+        >
+          Mostrar publicamente
+        </label>
+      </div>
     </div>
   );
 }
