@@ -229,30 +229,30 @@ const Header = () => {
                           </p>
                         </div>
                       </div>
-                      <Link
-                        to="/profile"
-                        className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <User className="h-4 w-4" />
-                        Perfil
-                      </Link>
                        <Link
-                        to="/meus-perfis"
+                         to="/profile"
+                         className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+                         onClick={() => setMobileMenuOpen(false)}
+                       >
+                         <User className="h-4 w-4" />
+                         Perfil
+                       </Link>
+                        <Link
+                         to="/meus-salvos"
+                         className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+                         onClick={() => setMobileMenuOpen(false)}
+                       >
+                         <Heart className="h-4 w-4" />
+                         Meus Salvos
+                       </Link>
+                      <Link
+                        to="/notificacoes"
                         className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        <User className="h-4 w-4" />
-                        Meus Perfis
-                      </Link>
-                     <Link
-                       to="/meu-calendario"
-                       className="flex items-center gap-3 px-4 py-3 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
-                       onClick={() => setMobileMenuOpen(false)}
-                     >
-                       <Calendar className="h-4 w-4" />
-                      Meu Calendário
-                    </Link>
+                        <Calendar className="h-4 w-4" />
+                       Minhas Notificações
+                     </Link>
                     {hasAdminAccess && (
                       <Link
                         to="/admin-v3"
@@ -423,31 +423,31 @@ const Header = () => {
                     <DropdownMenuContent className="w-56" align="end" forceMount>
                       <DropdownMenuLabel className="font-normal">
                         <div className="flex flex-col space-y-1">
-                          <p className="text-sm font-medium leading-none">Perfil</p>
+                          <p className="text-sm font-medium leading-none">Minha Conta</p>
                           <p className="text-xs leading-none text-muted-foreground">
                             {publicUser.email}
                           </p>
                         </div>
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link to="/profile">
-                          <User className="mr-2 h-4 w-4" />
-                          Perfil
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                         <Link to="/meu-calendario">
-                           <Calendar className="mr-2 h-4 w-4" />
-                           Meu Calendário
+                       <DropdownMenuItem asChild>
+                         <Link to="/profile">
+                           <User className="mr-2 h-4 w-4" />
+                           Perfil
                          </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                         <Link to="/favoritos">
-                           <Star className="mr-2 h-4 w-4" />
-                           Favoritos
-                         </Link>
-                      </DropdownMenuItem>
+                       </DropdownMenuItem>
+                       <DropdownMenuItem asChild>
+                          <Link to="/meus-salvos">
+                            <Heart className="mr-2 h-4 w-4" />
+                            Meus Salvos
+                          </Link>
+                       </DropdownMenuItem>
+                       <DropdownMenuItem asChild>
+                          <Link to="/notificacoes">
+                            <Calendar className="mr-2 h-4 w-4" />
+                            Minhas Notificações
+                          </Link>
+                       </DropdownMenuItem>
                       {hasAdminAccess && (
                         <DropdownMenuItem asChild>
                           <Link to="/admin-v3">

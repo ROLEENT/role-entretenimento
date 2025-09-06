@@ -5,6 +5,7 @@ import { MobileSafeImage } from './ui/mobile-safe-image';
 import { formatEventDateTime } from '@/utils/dateUtils';
 import { useNavigate } from 'react-router-dom';
 import { HighlightBadge } from './events/HighlightBadge';
+import { EventSocialActions } from './events/EventSocialActions';
 
 interface EventCardProps {
   event: {
@@ -117,6 +118,14 @@ const EventCard = ({ event, className }: EventCardProps) => {
             )}
           </div>
         )}
+
+        {/* Social Actions */}
+        <div 
+          onClick={(e) => e.stopPropagation()}
+          className="pt-2 border-t border-border"
+        >
+          <EventSocialActions eventId={event.id} compact />
+        </div>
       </CardContent>
     </Card>
   );

@@ -68,7 +68,7 @@ interface UserFollows {
 export const PublicProfilePage: React.FC = () => {
   const { username } = useParams<{ username: string }>();
   const { user: currentUser } = useUserAuth();
-  const { toggleFollow, getFollowState } = useSocialActions();
+  const { toggleFollow } = useSocialActions();
   
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [saves, setSaves] = useState<UserSaves[]>([]);
@@ -202,7 +202,8 @@ export const PublicProfilePage: React.FC = () => {
     );
   }
 
-  const followState = getFollowState('user', profile.id);
+  // Mock follow state for now
+  const followState = { following: false, loading: false };
 
   return (
     <div className="container mx-auto px-4 py-8">

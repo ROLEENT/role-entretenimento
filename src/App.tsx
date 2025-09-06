@@ -148,6 +148,7 @@ const DiscoverUsers = lazy(() => import("./pages/DiscoverUsers"));
 const CreateProfileComingSoon = lazy(() => import("./pages/CreateProfileComingSoon"));
 const FavoritosPage = lazy(() => import("./pages/FavoritosPage"));
 const PublicProfilePage = lazy(() => import("./pages/PublicProfilePage").then(module => ({ default: module.PublicProfilePage })));
+const UserProfile = lazy(() => import("./pages/UserProfile"));
 const SavesPage = lazy(() => import("./pages/SavesPage").then(module => ({ default: module.SavesPage })));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ScrollToTop = lazy(() => import("./components/ScrollToTop"));
@@ -259,6 +260,9 @@ function App() {
                 
                 {/* Public Profile Routes */}
                 <Route path="/u/:username" element={<Suspense fallback={<PageLoadingFallback />}><PublicProfilePage /></Suspense>} />
+                
+                {/* User Profile Route */}
+                <Route path="/usuario/:username" element={<Suspense fallback={<PageLoadingFallback />}><UserProfile /></Suspense>} />
                 
                 {/* Profile Creation Routes - Coming Soon */}
                 <Route path="/criar/perfil" element={<Suspense fallback={<PageLoadingFallback />}><CreateProfileComingSoon /></Suspense>} />

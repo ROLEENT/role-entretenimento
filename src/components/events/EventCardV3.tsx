@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { EventSocialActions } from "./EventSocialActions";
 
 interface EventCardV3Props {
   event: {
@@ -312,6 +313,14 @@ export function EventCardV3({
               </p>
             )}
 
+            {/* Social Actions */}
+            <div 
+              onClick={(e) => e.stopPropagation()}
+              className="mb-4 pb-4 border-b border-border"
+            >
+              <EventSocialActions eventId={event.id} />
+            </div>
+
             {/* Footer */}
             <div className="flex items-center justify-between">
               <div className="text-lg font-bold text-primary">
@@ -413,10 +422,18 @@ export function EventCardV3({
 
           {/* Summary */}
           {event.summary && (
-            <p className="text-sm text-muted-foreground line-clamp-2">
+            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
               {event.summary}
             </p>
           )}
+
+          {/* Social Actions */}
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="pt-3 border-t border-border"
+          >
+            <EventSocialActions eventId={event.id} compact />
+          </div>
         </CardContent>
       </Card>
     </motion.div>
