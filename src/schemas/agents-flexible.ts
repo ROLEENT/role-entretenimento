@@ -8,7 +8,7 @@ export const artistFlexibleSchema = z.object({
   stage_name: z.string().min(1, "Nome artístico é obrigatório"),
   slug: z.string().optional(), // Will be auto-generated if not provided
   artist_type: z.string().optional(),
-  category_id: z.string().uuid().optional().or(z.literal("")),
+  category_id: z.string().uuid().nullable().optional(),
   categories: z.array(z.object({
     id: z.string(),
     name: z.string(),
