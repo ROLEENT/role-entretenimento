@@ -474,17 +474,6 @@ const Header = () => {
                   </Button>
                 )}
 
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  asChild
-                  className="hover:bg-accent"
-                  aria-label="Favoritos"
-                >
-                  <Link to="/favorites">
-                    <Heart className="h-4 w-4" />
-                  </Link>
-                </Button>
               </div>
             </div>
           </div>
