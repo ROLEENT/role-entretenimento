@@ -8,11 +8,15 @@ import {
   Calendar,
   Music,
   Sun,
-  Moon
+  Moon,
+  Users,
+  TrendingUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/components/ThemeProvider';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import roleLogo from '@/assets/role-logo.png';
 
 interface RoleMenuMobileProps {
@@ -21,6 +25,12 @@ interface RoleMenuMobileProps {
   onSearch?: (term: string) => void;
   eventCount?: number;
   setShowPublicAuth?: (show: boolean) => void;
+}
+
+interface MenuStats {
+  totalEvents: number;
+  totalArtists: number;
+  isLoading: boolean;
 }
 
 export function RoleMenuMobile({
@@ -33,14 +43,56 @@ export function RoleMenuMobile({
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isNavigating, setIsNavigating] = useState(false);
 
-  // Auto-focus search when menu opens
+  // Fetch dynamic stats for the menu
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ['menu-stats'],
+    queryFn: async (): Promise<MenuStats> => {
+      try {
+        const [eventsResult, artistsResult] = await Promise.all([
+          supabase
+            .from('events')
+            .select('id', { count: 'exact' })
+            .eq('status', 'active'),
+          supabase
+            .from('profiles')
+            .select('id', { count: 'exact' })
+            .eq('user_type', 'artist')
+        ]);
+
+        return {
+          totalEvents: eventsResult.count || 0,
+          totalArtists: artistsResult.count || 0,
+          isLoading: false
+        };
+      } catch (error) {
+        console.error('Error fetching menu stats:', error);
+        return {
+          totalEvents: eventCount,
+          totalArtists: 0,
+          isLoading: false
+        };
+      }
+    },
+    enabled: isOpen,
+    staleTime: 30000, // Cache for 30 seconds
+    refetchOnWindowFocus: false
+  });
+
+  // Auto-focus search when menu opens with enhanced accessibility
   useEffect(() => {
     if (isOpen) {
       const timer = setTimeout(() => {
         const searchInput = document.getElementById('role-search-input');
-        searchInput?.focus();
-      }, 100);
+        if (searchInput) {
+          searchInput.focus();
+          // Add haptic feedback on supported devices
+          if ('vibrate' in navigator) {
+            navigator.vibrate(50);
+          }
+        }
+      }, 150); // Slight delay for better UX
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
@@ -51,6 +103,22 @@ export function RoleMenuMobile({
     }
     onClose();
   };
+
+  const handleNavigation = async (path: string) => {
+    setIsNavigating(true);
+    // Add haptic feedback
+    if ('vibrate' in navigator) {
+      navigator.vibrate(30);
+    }
+    
+    setTimeout(() => {
+      navigate(path);
+      onClose();
+      setIsNavigating(false);
+    }, 100); // Brief delay for visual feedback
+  };
+
+  const displayStats = stats || { totalEvents: eventCount, totalArtists: 0, isLoading: statsLoading };
 
   return (
     <DrawerPrimitive.Root 
@@ -63,6 +131,7 @@ export function RoleMenuMobile({
         <DrawerPrimitive.Overlay className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" />
         
         <DrawerPrimitive.Content
+          data-testid="role-menu-mobile"
           className="
             fixed inset-0 z-50 bg-gradient-to-br from-purple-100 via-pink-50 to-purple-50
             dark:from-purple-950/90 dark:via-pink-950/90 dark:to-purple-950/90
@@ -135,10 +204,7 @@ export function RoleMenuMobile({
                     active:scale-[0.98]
                     cursor-pointer
                   "
-                  onClick={() => {
-                    navigate('/agenda');
-                    onClose();
-                  }}
+                  onClick={() => handleNavigation('/agenda')}
                 >
                   <div className="flex items-center justify-between h-full">
                     <div className="flex items-center space-x-4">
@@ -154,8 +220,17 @@ export function RoleMenuMobile({
                       <div className="text-white/60 text-xs uppercase tracking-wide">
                         Eventos
                       </div>
-                      <div className="text-white font-bold text-lg">
-                        {eventCount}
+                      <div className="text-white font-bold text-lg flex items-center gap-2">
+                        {displayStats.isLoading ? (
+                          <div className="w-8 h-6 bg-white/20 rounded animate-pulse" />
+                        ) : (
+                          <>
+                            {displayStats.totalEvents}
+                            {displayStats.totalEvents > 0 && (
+                              <TrendingUp className="h-4 w-4 text-green-300" />
+                            )}
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -180,19 +255,26 @@ export function RoleMenuMobile({
                     active:scale-95
                     cursor-pointer
                   "
-                  onClick={() => {
-                    navigate('/agenda/todos');
-                    onClose();
-                  }}
+                  onClick={() => handleNavigation('/agenda/todos')}
                 >
                   <div className="flex flex-col justify-between h-full">
                     <div className="p-2 bg-white/30 rounded-lg w-fit">
                       <Calendar className="h-4 w-4 text-purple-700 dark:text-purple-200" />
                     </div>
-                    <div>
+                    <div className="flex items-center justify-between w-full">
                       <h4 className="font-semibold text-purple-800 dark:text-purple-100">
                         Eventos
                       </h4>
+                      <div 
+                        className="text-xs text-purple-600 dark:text-purple-300 font-medium"
+                        data-testid="event-counter"
+                      >
+                        {displayStats.isLoading ? (
+                          <div className="w-6 h-3 bg-purple-300 dark:bg-purple-700 rounded animate-pulse" />
+                        ) : (
+                          displayStats.totalEvents
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -209,19 +291,29 @@ export function RoleMenuMobile({
                     active:scale-95
                     cursor-pointer
                   "
-                  onClick={() => {
-                    navigate('/perfis?type=artista');
-                    onClose();
-                  }}
+                  onClick={() => handleNavigation('/perfis?type=artista')}
                 >
                   <div className="flex flex-col justify-between h-full">
                     <div className="p-2 bg-white/30 rounded-lg w-fit">
                       <Music className="h-4 w-4 text-pink-700 dark:text-pink-200" />
                     </div>
-                    <div>
+                    <div className="flex items-center justify-between w-full">
                       <h4 className="font-semibold text-pink-800 dark:text-pink-100">
                         Artistas
                       </h4>
+                      <div 
+                        className="text-xs text-pink-600 dark:text-pink-300 font-medium flex items-center gap-1"
+                        data-testid="artist-counter"
+                      >
+                        {displayStats.isLoading ? (
+                          <div className="w-6 h-3 bg-pink-300 dark:bg-pink-700 rounded animate-pulse" />
+                        ) : (
+                          <>
+                            <Users className="h-3 w-3" />
+                            {displayStats.totalArtists}
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -236,40 +328,64 @@ export function RoleMenuMobile({
               <Button 
                 className="
                   w-full h-12 
-                  bg-purple-600 hover:bg-purple-700 
-                  text-white font-semibold
-                  rounded-xl shadow-lg
-                  transition-all duration-200
-                  hover:scale-[1.02] active:scale-[0.98]
+                  bg-gradient-to-r from-primary to-primary-hover
+                  hover:from-primary-hover hover:to-primary
+                  text-primary-foreground font-semibold
+                  rounded-xl shadow-elevated
+                  transition-all duration-300 ease-out
+                  hover:scale-[1.02] hover:shadow-glow active:scale-[0.98]
+                  disabled:opacity-50 disabled:cursor-not-allowed
                 "
+                disabled={isNavigating}
                 onClick={() => {
                   if (setShowPublicAuth) {
+                    // Add haptic feedback
+                    if ('vibrate' in navigator) {
+                      navigator.vibrate(40);
+                    }
                     setShowPublicAuth(true);
                   }
                   onClose();
                 }}
               >
-                Entrar na plataforma
+                {isNavigating ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Carregando...
+                  </div>
+                ) : (
+                  'Entrar na plataforma'
+                )}
               </Button>
 
-              {/* Theme Toggle */}
+              {/* Theme Toggle with Enhanced UX */}
               <div className="flex items-center justify-center">
                 <button
-                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  onClick={() => {
+                    // Add haptic feedback
+                    if ('vibrate' in navigator) {
+                      navigator.vibrate(25);
+                    }
+                    setTheme(theme === 'dark' ? 'light' : 'dark');
+                  }}
                   className="
-                    flex items-center justify-center
+                    group flex items-center justify-center
                     w-12 h-12 rounded-xl
                     bg-white/20 backdrop-blur-sm
                     text-white hover:bg-white/30
-                    transition-all duration-200
+                    transition-all duration-300 ease-out
                     hover:scale-110 active:scale-95
+                    focus:outline-none focus:ring-2 focus:ring-white/50
                   "
+                  aria-label={`Mudar para tema ${theme === 'dark' ? 'claro' : 'escuro'}`}
                 >
-                  {theme === 'dark' ? (
-                    <Sun className="h-5 w-5" />
-                  ) : (
-                    <Moon className="h-5 w-5" />
-                  )}
+                  <div className="relative">
+                    {theme === 'dark' ? (
+                      <Sun className="h-5 w-5 transition-transform duration-300 group-hover:rotate-90" />
+                    ) : (
+                      <Moon className="h-5 w-5 transition-transform duration-300 group-hover:-rotate-12" />
+                    )}
+                  </div>
                 </button>
               </div>
             </div>
