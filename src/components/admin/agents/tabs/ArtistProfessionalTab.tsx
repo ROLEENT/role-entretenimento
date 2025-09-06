@@ -4,6 +4,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ArtistFlexibleForm } from '@/schemas/agents-flexible';
+import { RHFArtistRolesSelect } from '@/components/form/RHFArtistRolesSelect';
 
 interface ArtistProfessionalTabProps {
   form: UseFormReturn<ArtistFlexibleForm>;
@@ -78,6 +79,10 @@ export const ArtistProfessionalTab: React.FC<ArtistProfessionalTabProps> = ({ fo
             </FormItem>
           )}
         />
+      </div>
+
+      <div className="space-y-4">
+        <RHFArtistRolesSelect name="roles" maxRoles={3} />
       </div>
 
       <div className="space-y-4">

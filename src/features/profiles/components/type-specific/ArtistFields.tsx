@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreateProfile } from '../../schemas';
 import { TagSelector } from '../TagSelector';
+import { RHFGenreSelect } from '@/components/form/RHFGenreSelect';
+import { RHFArtistRolesSelect } from '@/components/form/RHFArtistRolesSelect';
 import { Music, DollarSign, Briefcase, MapPin, FileText, ExternalLink } from 'lucide-react';
 
 interface ArtistFieldsProps {
@@ -45,24 +47,9 @@ export function ArtistFields({ form }: ArtistFieldsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <FormField
-            control={form.control}
-            name="genres"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Gêneros Musicais *</FormLabel>
-                <FormControl>
-                  <TagSelector
-                    value={field.value || []}
-                    onChange={field.onChange}
-                    placeholder="Adicione gêneros musicais..."
-                    suggestions={musicGenres}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <RHFGenreSelect name="genres" maxGenres={5} />
+
+          <RHFArtistRolesSelect name="roles" maxRoles={3} />
 
           <FormField
             control={form.control}

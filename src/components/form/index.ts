@@ -32,6 +32,7 @@ export { InstagramField } from './InstagramField';
 export { CountrySelect } from './CountrySelect';
 export { GenreSelect } from './GenreSelect';
 export { RHFGenreSelect } from './RHFGenreSelect';
+export { RHFArtistRolesSelect } from './RHFArtistRolesSelect';
 
 // Examples
 export { default as ExampleForm } from './ExampleForm';
