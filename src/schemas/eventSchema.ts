@@ -417,6 +417,7 @@ export function getEventDefaults(): Partial<EventFormData> {
     visual_artists: [],
     links: {},
     ticketing: {},
+    curatorial_criteria: {},
     accessibility: {
       wheelchair_accessible: false,
       audio_description: false,

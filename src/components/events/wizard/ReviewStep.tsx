@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { CuratorialCriteriaDisplay } from '@/components/admin/events/CuratorialCriteriaDisplay';
 import { 
   CheckCircle, 
   AlertTriangle, 
@@ -22,7 +23,8 @@ import {
   Globe,
   Ticket,
   Music,
-  Palette
+  Palette,
+  Star
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -390,6 +392,11 @@ export const ReviewStep: React.FC = () => {
                 <p className="text-muted-foreground">{formData.summary}</p>
               </CardContent>
             </Card>
+          )}
+
+          {/* Critérios de Curadoria - Only for curatorial highlights */}
+          {formData.highlight_type === 'curatorial' && formData.curatorial_criteria && (
+            <CuratorialCriteriaDisplay criteria={formData.curatorial_criteria} />
           )}
         </TabsContent>
 
