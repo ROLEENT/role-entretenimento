@@ -6114,6 +6114,45 @@ export type Database = {
         }
         Relationships: []
       }
+      users_public: {
+        Row: {
+          accessibility_notes: string | null
+          avatar_url: string | null
+          bio: string | null
+          city_preferences: string[] | null
+          created_at: string
+          display_name: string | null
+          genre_preferences: string[] | null
+          id: string
+          is_profile_public: boolean
+          username: string
+        }
+        Insert: {
+          accessibility_notes?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          city_preferences?: string[] | null
+          created_at?: string
+          display_name?: string | null
+          genre_preferences?: string[] | null
+          id: string
+          is_profile_public?: boolean
+          username: string
+        }
+        Update: {
+          accessibility_notes?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          city_preferences?: string[] | null
+          created_at?: string
+          display_name?: string | null
+          genre_preferences?: string[] | null
+          id?: string
+          is_profile_public?: boolean
+          username?: string
+        }
+        Relationships: []
+      }
       venue_categories: {
         Row: {
           created_at: string
