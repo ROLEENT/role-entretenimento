@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Settings, LogOut, UserPlus } from 'lucide-react';
+import { User, Settings, LogOut, UserPlus, Bookmark, Bell } from 'lucide-react';
 import { useUserAuth } from '@/hooks/useUserAuth';
 import { toast } from '@/hooks/use-toast';
 
@@ -85,13 +85,19 @@ export const UserHeader = () => {
         <DropdownMenuItem asChild>
           <Link to="/profile" className="cursor-pointer">
             <User className="mr-2 h-4 w-4" />
-            <span>Meu perfil</span>
+            <span>Perfil</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to="/settings" className="cursor-pointer">
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Configurações</span>
+          <Link to="/saves" className="cursor-pointer">
+            <Bookmark className="mr-2 h-4 w-4" />
+            <span>Meus salvos</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/notifications" className="cursor-pointer">
+            <Bell className="mr-2 h-4 w-4" />
+            <span>Minhas notificações</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

@@ -147,6 +147,8 @@ const GamificationPage = lazy(() => import("./pages/GamificationPage"));
 const DiscoverUsers = lazy(() => import("./pages/DiscoverUsers"));
 const CreateProfileComingSoon = lazy(() => import("./pages/CreateProfileComingSoon"));
 const FavoritosPage = lazy(() => import("./pages/FavoritosPage"));
+const PublicProfilePage = lazy(() => import("./pages/PublicProfilePage").then(module => ({ default: module.PublicProfilePage })));
+const SavesPage = lazy(() => import("./pages/SavesPage").then(module => ({ default: module.SavesPage })));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ScrollToTop = lazy(() => import("./components/ScrollToTop"));
 const DebugCombo = lazy(() => import("./pages/DebugCombo"));
@@ -254,6 +256,9 @@ function App() {
                 <Route path="/perfil/@:handle" element={<Suspense fallback={<PageLoadingFallback />}><ProfilePage /></Suspense>} />
                 <Route path="/claim/:handle" element={<Suspense fallback={<PageLoadingFallback />}><ClaimProfilePage /></Suspense>} />
                 <Route path="/cidades/:slug/perfis" element={<Suspense fallback={<PageLoadingFallback />}><CityDirectoryPage /></Suspense>} />
+                
+                {/* Public Profile Routes */}
+                <Route path="/u/:username" element={<Suspense fallback={<PageLoadingFallback />}><PublicProfilePage /></Suspense>} />
                 
                 {/* Profile Creation Routes - Coming Soon */}
                 <Route path="/criar/perfil" element={<Suspense fallback={<PageLoadingFallback />}><CreateProfileComingSoon /></Suspense>} />
