@@ -187,8 +187,8 @@ export function ModernMobileMenu({
               </motion.div>
             </div>
 
-            {/* Main Content */}
-            <div className="flex-1 overflow-y-auto px-6 py-4">
+            {/* Main Content - Com scroll otimizado */}
+            <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-4" style={{ WebkitOverflowScrolling: 'touch' }}>
               <div className="space-y-4">
                 {menuSections.map((section, index) => (
                   <motion.div

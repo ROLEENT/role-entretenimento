@@ -44,7 +44,12 @@
 /* garantir altura total e scroll behavior */
 html, body, #root { 
   height: 100%; 
-  scroll-behavior: smooth; 
+  scroll-behavior: smooth;
+  overflow-x: hidden; /* Evita scroll horizontal duplo */
+}
+
+body {
+  overflow-y: auto; /* Scroll principal apenas no body */
 }
 
 /* iOS Safe Areas */
