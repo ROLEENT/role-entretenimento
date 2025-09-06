@@ -8,11 +8,13 @@ import { getEventDefaults } from "@/schemas/eventSchema";
 import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useUpsertEventV3 } from "@/hooks/useUpsertEventV3";
 
 export default function AdminV3EventsCreateEdit() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isEditing = Boolean(id);
+  const upsertEventMutation = useUpsertEventV3();
 
   // Fetch event data for editing
   const { data: event, isLoading, error } = useQuery({
@@ -38,16 +40,15 @@ export default function AdminV3EventsCreateEdit() {
 
   const handleSave = async (eventData: any) => {
     try {
-      if (isEditing) {
-        toast.success("Evento atualizado com sucesso!");
-        navigate("/admin-v3/eventos");
-      } else {
-        toast.success("Evento criado com sucesso!");
-        navigate("/admin-v3/eventos");
-      }
+      // Add the ID to the event data if editing
+      const dataToSave = isEditing ? { ...eventData, id } : eventData;
+      
+      await upsertEventMutation.mutateAsync(dataToSave);
+      
+      navigate("/admin-v3/eventos");
     } catch (error) {
       console.error("Error saving event:", error);
-      toast.error("Erro ao salvar evento");
+      // Error toast is handled by the mutation hook
     }
   };
 
