@@ -52,8 +52,10 @@ const CatalogsGenresPage = lazy(() => import("./pages/admin/CatalogsGenresPage")
 const CatalogsArtistRolesPage = lazy(() => import("./pages/admin/CatalogsArtistRolesPage"));
 
 // User Profile Pages
-const UserProfilePage = lazy(() => import("./pages/UserProfilePage"));
 const PublicUserProfilePage = lazy(() => import("./pages/PublicUserProfilePage"));
+const PublicUserProfilePageV2 = lazy(() => import("./pages/PublicUserProfilePageV2"));
+const MePage = lazy(() => import("./pages/MePage"));
+const RolezeirosPage = lazy(() => import("./pages/RolezeirosPage"));
 
 const AdminV3ArtistsList = lazy(() => import("./pages/admin-v3/AdminV3ArtistsList").then(module => ({ default: module.default })));
 const AdminV3ArtistCreate = lazy(() => import("./pages/admin-v3/AdminV3ArtistCreate").then(module => ({ default: module.default })));
@@ -268,7 +270,7 @@ function App() {
                 <Route path="/cidades/:slug/perfis" element={<Suspense fallback={<PageLoadingFallback />}><CityDirectoryPage /></Suspense>} />
                 
                 {/* Public Profile Routes */}
-                <Route path="/u/:username" element={<Suspense fallback={<PageLoadingFallback />}><PublicProfilePage /></Suspense>} />
+                <Route path="/u/:username" element={<Suspense fallback={<PageLoadingFallback />}><PublicUserProfilePageV2 /></Suspense>} />
                 
                 {/* User Profile Route */}
                 <Route path="/usuario/:username" element={<Suspense fallback={<PageLoadingFallback />}><UserProfile /></Suspense>} />
@@ -386,17 +388,14 @@ function App() {
                 <Route path="/feed" element={<FeedPage />} />
                 <Route path="/descobrir" element={<DiscoverUsers />} />
                 <Route path="/eventos/semana/:data" element={<WeeklyHighlights />} />
-                {/* User Profile Routes */}
-                <Route path="/me" element={
-                  <RequireAuth>
-                    <Suspense fallback={<PageLoadingFallback />}>
-                      <UserProfilePage />
-                    </Suspense>
-                  </RequireAuth>
-                } />
+                {/* Rolezeiros Routes */}
+                <Route path="/me" element={<Suspense fallback={<PageLoadingFallback />}><MePage /></Suspense>} />
+                <Route path="/rolezeiros" element={<Suspense fallback={<PageLoadingFallback />}><RolezeirosPage /></Suspense>} />
+                
+                {/* Legacy User Profile Routes */}
                 <Route path="/u/:username" element={
                   <Suspense fallback={<PageLoadingFallback />}>
-                    <PublicUserProfilePage />
+                    <PublicUserProfilePageV2 />
                   </Suspense>
                 } />
                 
