@@ -28,7 +28,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "./ui/accordion";
-import { ModernMobileMenu } from './ModernMobileMenu';
+import { RoleMenuMobile } from './RoleMenuMobile';
 
 // Header mobile 2 linhas com carrossel de cidades
 const Header = () => {
@@ -153,15 +153,15 @@ const Header = () => {
           </div>
         </header>
 
-        {/* Modern Mobile Menu */}
-        <ModernMobileMenu
+        {/* ROLÊ Mobile Menu */}
+        <RoleMenuMobile
           isOpen={mobileMenuOpen}
           onClose={() => setMobileMenuOpen(false)}
-          publicUser={publicUser}
-          hasAdminAccess={hasAdminAccess}
-          publicSignOut={publicSignOut}
-          setSearchOpen={setSearchOpen}
-          setShowPublicAuth={setShowPublicAuth}
+          onSearch={(term) => {
+            setSearchTerm(term);
+            setSearchOpen(true);
+          }}
+          eventCount={events.length}
         />
 
         <PublicAuthDialog

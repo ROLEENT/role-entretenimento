@@ -17,7 +17,7 @@ import { useTheme } from '@/components/ThemeProvider';
 interface RoleMenuMobileProps {
   isOpen: boolean;
   onClose: () => void;
-  onSearch?: () => void;
+  onSearch?: (term: string) => void;
   eventCount?: number;
 }
 
@@ -42,8 +42,8 @@ export function RoleMenuMobile({
   }, [isOpen]);
 
   const handleSearch = () => {
-    if (onSearch) {
-      onSearch();
+    if (onSearch && searchQuery.trim()) {
+      onSearch(searchQuery);
     }
     onClose();
   };
