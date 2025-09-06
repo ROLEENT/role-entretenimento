@@ -55,7 +55,8 @@ const Header = () => {
     { href: '/perfis', label: 'Todos os perfis' },
     { href: '/perfis?type=artista', label: 'Artistas' },
     { href: '/perfis?type=local', label: 'Locais' },
-    { href: '/perfis?type=organizador', label: 'Organizadores' }
+    { href: '/perfis?type=organizador', label: 'Organizadores' },
+    { href: '/rolezeiros', label: 'Rolezeiros' }
   ];
 
   const cities = [
@@ -115,7 +116,7 @@ const Header = () => {
   };
 
   const isPerfisActive = () => {
-    return location.pathname.startsWith('/perfis') || location.pathname.startsWith('/perfil');
+    return location.pathname.startsWith('/perfis') || location.pathname.startsWith('/perfil') || location.pathname.startsWith('/rolezeiros');
   };
 
   const isCityActive = (citySlug: string) => {
