@@ -134,7 +134,7 @@ const ProfileContentMobile = memo(function ProfileContentMobile({ profile, activ
   }, [activeTab, profile]);
 
   return (
-    <div className="md:hidden">
+    <div className="md:hidden mt-4">
       {content}
     </div>
   );

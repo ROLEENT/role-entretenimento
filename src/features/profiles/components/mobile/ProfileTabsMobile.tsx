@@ -86,8 +86,8 @@ export function ProfileTabsMobile({
   }, [onTabChange]);
 
   return (
-    <div className="mx-auto max-w-screen-sm mt-4 px-4 md:hidden">
-      <div className="flex border-b border-border">
+    <div className="mx-auto max-w-screen-sm mt-6 px-4 md:hidden sticky top-16 z-30 bg-background/95 backdrop-blur border-b border-border">
+      <div className="flex">
         {tabs.map((tab) => (
           <button
             key={tab.id}
