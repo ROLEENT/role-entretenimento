@@ -333,6 +333,16 @@ function App() {
                   
                   {/* Agentes Routes */}
                   <Route path="agentes/artistas" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsList /></Suspense>} />
+                  
+                  {/* Redirecionamentos para rotas mais curtas */}
+                  <Route path="artistas" element={<Navigate to="/admin-v3/agentes/artistas" replace />} />
+                  <Route path="artistas/criar" element={<Navigate to="/admin-v3/agentes/artistas/criar" replace />} />
+                  <Route path="artistas/create" element={<Navigate to="/admin-v3/agentes/artistas/create" replace />} />
+                  <Route path="artistas/:id/edit" element={<Navigate to={`/admin-v3/agentes/artistas/${window.location.pathname.split('/')[3]}/edit`} replace />} />
+                  <Route path="venues" element={<Navigate to="/admin-v3/agentes/venues" replace />} />
+                  <Route path="venues/create" element={<Navigate to="/admin-v3/agentes/venues/create" replace />} />
+                  <Route path="venues/:id/edit" element={<Navigate to={`/admin-v3/agentes/venues/${window.location.pathname.split('/')[3]}/edit`} replace />} />
+                  <Route path="organizadores" element={<Navigate to="/admin-v3/agentes/organizadores" replace />} />
                   <Route path="agentes/artistas/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
                   <Route path="agentes/artistas/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
                   <Route path="agentes/artistas/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistEdit /></Suspense>} />
