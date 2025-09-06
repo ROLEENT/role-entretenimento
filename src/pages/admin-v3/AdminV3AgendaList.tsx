@@ -5,7 +5,8 @@ import { Plus, Filter, Download, FileText } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AdminAgendaTable } from '@/components/admin/agenda/AdminAgendaTable';
 import { AdminAgendaFilters } from '@/components/admin/agenda/AdminAgendaFilters';
-import { useAdminEventsData } from '@/hooks/useAdminEventsData';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AdminV3AgendaList() {
@@ -38,7 +39,42 @@ export default function AdminV3AgendaList() {
     setSearchParams(params, { replace: true });
   }, [filters, setSearchParams]);
 
-  const { events, loading, error, refetch, stats } = useAdminEventsData(filters);
+  // Fetch agenda items (legacy table)
+  const { data: events = [], isLoading: loading, error, refetch } = useQuery({
+    queryKey: ["admin-agenda", filters],
+    queryFn: async () => {
+      let query = supabase
+        .from("agenda_itens")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (filters.search) {
+        query = query.ilike("title", `%${filters.search}%`);
+      }
+      if (filters.status) {
+        query = query.eq("status", filters.status);
+      }
+      if (filters.city) {
+        query = query.ilike("city", `%${filters.city}%`);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // Simple stats for agenda
+  const stats = {
+    total: events.length,
+    draft: events.filter(e => e.status === 'draft').length,
+    published: events.filter(e => e.status === 'published').length,
+    thisMonth: events.filter(e => {
+      const eventDate = new Date(e.created_at);
+      const now = new Date();
+      return eventDate.getMonth() === now.getMonth() && eventDate.getFullYear() === now.getFullYear();
+    }).length,
+  };
 
   const breadcrumbs = [
     { label: 'Dashboard', path: '/admin-v3' },

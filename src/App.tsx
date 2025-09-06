@@ -112,8 +112,6 @@ const AdminV3EventsDashboard = lazy(() => import("./pages/admin-v3/AdminV3Events
 const AdminV3EventsCreateEdit = lazy(() => import("./pages/admin-v3/AdminV3EventsCreateEdit"));
 const AdminV3EventCreate = lazy(() => import("./pages/admin-v3/AdminV3EventCreate"));
 
-// Legacy - Manter compatibilidade
-const AdminV3EventsList = lazy(() => import("./pages/admin-v3/AdminV3EventsList"));
 const AdminV3EventEdit = lazy(() => import("./pages/admin-v3/AdminV3EventEdit"));
 const DevAuth = lazy(() => import("./pages/DevAuth"));
 

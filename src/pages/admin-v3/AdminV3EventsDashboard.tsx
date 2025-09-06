@@ -4,7 +4,7 @@ import { AdminV3Guard } from "@/components/AdminV3Guard";
 import { AdminV3Header } from "@/components/AdminV3Header";
 import { AdminV3Breadcrumb } from "@/components/admin/common/AdminV3Breadcrumb";
 import { EventGrid } from "@/components/events/EventGrid";
-import { AdminEventTable } from "@/components/admin/events/AdminEventTable";
+// AdminEventTable removed - using EventGrid only
 import { ChecklistWidget } from "@/components/events/ChecklistWidget";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -301,18 +301,20 @@ export default function AdminV3EventsDashboard() {
                         </div>
                       )}
                     </>
-                  ) : (
-                     <AdminEventTable
-                       events={events.map(event => ({
-                         ...event,
-                         starts_at: event.date_start
-                       }))}
-                       loading={isLoading}
-                       error={null}
-                       onRefresh={refetch}
-                       onBulkAction={handleBulkAction}
-                     />
-                  )}
+                   ) : (
+                     <div className="text-center py-8">
+                       <p className="text-muted-foreground">
+                         Visualização em tabela será reimplementada em breve.
+                       </p>
+                       <Button 
+                         variant="outline" 
+                         onClick={() => setViewMode("grid")}
+                         className="mt-4"
+                       >
+                         Voltar para Grade
+                       </Button>
+                     </div>
+                   )}
                 </CardContent>
               </Card>
             </div>
