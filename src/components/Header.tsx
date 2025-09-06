@@ -28,6 +28,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "./ui/accordion";
+import { MobileMenuDrawer } from './MobileMenuDrawer';
 
 // Header mobile 2 linhas com carrossel de cidades
 const Header = () => {
@@ -153,183 +154,18 @@ const Header = () => {
         </header>
 
         {/* Mobile Menu Drawer */}
-        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-          <SheetContent 
-            side="left" 
-            className={cn(
-              "z-50 flex h-dvh w-[88vw] max-w-[420px] flex-col p-0",
-              "touch-manipulation pointer-events-auto"
-            )}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header fixo */}
-            <div className="sticky top-0 z-20 bg-background px-5 pb-3 pt-5">
-              <h2 className="text-xl font-semibold">Menu</h2>
-              <div className="mt-3 h-px w-full bg-border" />
-            </div>
-
-            {/* Corpo rolável */}
-            <nav className="flex-1 min-h-0 overflow-y-auto px-5 pb-4 pr-3 -mr-1 overscroll-contain [-webkit-overflow-scrolling:touch]">
-              {/* Search */}
-              <div className="mb-6">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start gap-3 h-12"
-                  onClick={() => {
-                    setSearchOpen(true);
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  <Search className="h-4 w-4" />
-                  Buscar eventos e artigos
-                </Button>
-              </div>
-
-              <ul className="flex flex-col gap-3 text-lg">
-                {navLinks.map((link) => (
-                  <li key={link.href}>
-                    <Link 
-                      to={link.href}
-                      className={cn(
-                        "block py-2 transition-colors",
-                        isActive(link.href) ? "text-primary font-medium" : "text-foreground"
-                      )}
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        setTimeout(() => window.scrollTo(0, 0), 100);
-                      }}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-
-                {/* Perfis como acordeão — fechado por padrão */}
-                <li>
-                  <Accordion type="single" collapsible defaultValue="">
-                    <AccordionItem value="perfis" className="border-0">
-                      <AccordionTrigger className="justify-between p-0 text-lg font-semibold">
-                        Perfis
-                      </AccordionTrigger>
-                      <AccordionContent className="pl-2 pt-2">
-                        <ul className="flex flex-col gap-2">
-                          {perfisDropdownItems.map((item) => (
-                            <li key={item.href}>
-                              <Link 
-                                to={item.href}
-                                className="block py-1 text-base text-foreground transition-colors hover:text-primary"
-                                onClick={() => setMobileMenuOpen(false)}
-                              >
-                                {item.label}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </li>
-
-                {/* User Section */}
-                {publicUser && (
-                  <>
-                    <li className="border-t pt-4">
-                      <div className="flex items-center gap-3 py-2">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                            {publicUser.email?.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">
-                            {publicUser.email}
-                          </p>
-                        </div>
-                      </div>
-                    </li>
-                    <li>
-                      <Link
-                        to="/profile"
-                        className="flex items-center gap-3 py-2 text-base text-foreground transition-colors hover:text-primary"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <User className="h-4 w-4" />
-                        Perfil
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="/meus-salvos"
-                        className="flex items-center gap-3 py-2 text-base text-foreground transition-colors hover:text-primary"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Heart className="h-4 w-4" />
-                        Meus Salvos
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="/notificacoes"
-                        className="flex items-center gap-3 py-2 text-base text-foreground transition-colors hover:text-primary"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Calendar className="h-4 w-4" />
-                        Minhas Notificações
-                      </Link>
-                    </li>
-                    {hasAdminAccess && (
-                      <li>
-                        <Link
-                          to="/admin-v3"
-                          className="flex items-center gap-3 py-2 text-base text-foreground transition-colors hover:text-primary"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          <Settings className="h-4 w-4" />
-                          Painel Admin
-                        </Link>
-                      </li>
-                    )}
-                    <li>
-                      <button 
-                        onClick={publicSignOut}
-                        className="flex items-center gap-3 py-2 text-base text-foreground transition-colors hover:text-primary w-full text-left"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        Sair
-                      </button>
-                    </li>
-                  </>
-                )}
-              </ul>
-            </nav>
-
-            {/* Rodapé fixo com Entrar e Tema */}
-            <div className="sticky bottom-0 z-20 bg-background px-5 py-4 border-t">
-              {!publicUser && (
-                <Button 
-                  className="w-full mb-3" 
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setShowPublicAuth(true);
-                  }}
-                >
-                  Entrar
-                </Button>
-              )}
-
-              <div>
-                <p className="mb-2 text-sm">Tema</p>
-                {/* As opções de tema ganham scroll próprio caso cresçam */}
-                <div className="max-h-[40vh] overflow-y-auto pr-2 -mr-1 rounded-xl border bg-muted/40 p-2 overscroll-contain [-webkit-overflow-scrolling:touch]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Escolher tema</span>
-                    <ThemeToggle />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </SheetContent>
-        </Sheet>
+        <MobileMenuDrawer
+          isOpen={mobileMenuOpen}
+          onClose={() => setMobileMenuOpen(false)}
+          navLinks={navLinks}
+          perfisDropdownItems={perfisDropdownItems}
+          isActive={isActive}
+          publicUser={publicUser}
+          hasAdminAccess={hasAdminAccess}
+          publicSignOut={publicSignOut}
+          setSearchOpen={setSearchOpen}
+          setShowPublicAuth={setShowPublicAuth}
+        />
 
         <GlobalSearch
           events={events}
