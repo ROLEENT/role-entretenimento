@@ -5,8 +5,9 @@ import {
   Search, 
   X,
   Star,
-  Calendar,
+  Newspaper,
   Music,
+  User,
   Sun,
   Moon,
   Users,
@@ -17,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { useTheme } from '@/components/ThemeProvider';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import roleLogo from '@/assets/role-logo.png';
+import { usePublicAuth } from '@/hooks/usePublicAuth';
 
 interface RoleMenuMobileProps {
   isOpen: boolean;
@@ -41,6 +42,7 @@ export function RoleMenuMobile({
   setShowPublicAuth
 }: RoleMenuMobileProps) {
   const { theme, setTheme } = useTheme();
+  const { isAuthenticated } = usePublicAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [isNavigating, setIsNavigating] = useState(false);
@@ -144,11 +146,9 @@ export function RoleMenuMobile({
             
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
-              <img 
-                src={roleLogo} 
-                alt="ROLÊ" 
-                className="h-8 w-auto drop-shadow-sm"
-              />
+              <h1 className="text-2xl font-bold text-white drop-shadow-sm">
+                ROLÊ
+              </h1>
               <DrawerPrimitive.Close asChild>
                 <Button 
                   variant="ghost" 
@@ -240,42 +240,30 @@ export function RoleMenuMobile({
                 </div>
               </div>
 
-              {/* Secondary Cards Grid */}
-              <div className="grid grid-cols-2 gap-4">
+              {/* Secondary Cards Grid - Cards menores (~80px altura) */}
+              <div className="grid grid-cols-3 gap-3">
                 
-                {/* Eventos Card */}
+                {/* Revista Card */}
                 <div 
                   className="
                     group bg-gradient-to-br from-purple-200 to-purple-300
                     dark:from-purple-800/60 dark:to-purple-900/60
-                    rounded-xl p-4 h-24
+                    rounded-xl p-3 h-20
                     shadow-md
                     transition-all duration-200 ease-out
                     hover:scale-105 hover:shadow-lg
                     active:scale-95
                     cursor-pointer
                   "
-                  onClick={() => handleNavigation('/agenda/todos')}
+                  onClick={() => handleNavigation('/revista')}
                 >
                   <div className="flex flex-col justify-between h-full">
-                    <div className="p-2 bg-white/30 rounded-lg w-fit">
-                      <Calendar className="h-4 w-4 text-purple-700 dark:text-purple-200" />
+                    <div className="p-1.5 bg-white/30 rounded-lg w-fit">
+                      <Newspaper className="h-3.5 w-3.5 text-purple-700 dark:text-purple-200" />
                     </div>
-                    <div className="flex items-center justify-between w-full">
-                      <h4 className="font-semibold text-purple-800 dark:text-purple-100">
-                        Eventos
-                      </h4>
-                      <div 
-                        className="text-xs text-purple-600 dark:text-purple-300 font-medium"
-                        data-testid="event-counter"
-                      >
-                        {displayStats.isLoading ? (
-                          <div className="w-6 h-3 bg-purple-300 dark:bg-purple-700 rounded animate-pulse" />
-                        ) : (
-                          displayStats.totalEvents
-                        )}
-                      </div>
-                    </div>
+                    <h4 className="font-semibold text-xs text-purple-800 dark:text-purple-100">
+                      Revista
+                    </h4>
                   </div>
                 </div>
 
@@ -284,7 +272,7 @@ export function RoleMenuMobile({
                   className="
                     group bg-gradient-to-br from-pink-200 to-orange-200
                     dark:from-pink-800/60 dark:to-orange-800/60
-                    rounded-xl p-4 h-24
+                    rounded-xl p-3 h-20
                     shadow-md
                     transition-all duration-200 ease-out
                     hover:scale-105 hover:shadow-lg
@@ -294,71 +282,94 @@ export function RoleMenuMobile({
                   onClick={() => handleNavigation('/perfis?type=artista')}
                 >
                   <div className="flex flex-col justify-between h-full">
-                    <div className="p-2 bg-white/30 rounded-lg w-fit">
-                      <Music className="h-4 w-4 text-pink-700 dark:text-pink-200" />
+                    <div className="p-1.5 bg-white/30 rounded-lg w-fit">
+                      <Music className="h-3.5 w-3.5 text-pink-700 dark:text-pink-200" />
                     </div>
                     <div className="flex items-center justify-between w-full">
-                      <h4 className="font-semibold text-pink-800 dark:text-pink-100">
+                      <h4 className="font-semibold text-xs text-pink-800 dark:text-pink-100">
                         Artistas
                       </h4>
                       <div 
-                        className="text-xs text-pink-600 dark:text-pink-300 font-medium flex items-center gap-1"
+                        className="text-xs text-pink-600 dark:text-pink-300 font-medium"
                         data-testid="artist-counter"
                       >
                         {displayStats.isLoading ? (
-                          <div className="w-6 h-3 bg-pink-300 dark:bg-pink-700 rounded animate-pulse" />
+                          <div className="w-4 h-2 bg-pink-300 dark:bg-pink-700 rounded animate-pulse" />
                         ) : (
-                          <>
-                            <Users className="h-3 w-3" />
-                            {displayStats.totalArtists}
-                          </>
+                          displayStats.totalArtists
                         )}
                       </div>
                     </div>
                   </div>
                 </div>
 
+                {/* Meu Perfil Card */}
+                <div 
+                  className="
+                    group bg-gradient-to-br from-blue-200 to-blue-300
+                    dark:from-blue-800/60 dark:to-blue-900/60
+                    rounded-xl p-3 h-20
+                    shadow-md
+                    transition-all duration-200 ease-out
+                    hover:scale-105 hover:shadow-lg
+                    active:scale-95
+                    cursor-pointer
+                  "
+                  onClick={() => handleNavigation(isAuthenticated ? '/profile' : '/perfis')}
+                >
+                  <div className="flex flex-col justify-between h-full">
+                    <div className="p-1.5 bg-white/30 rounded-lg w-fit">
+                      <User className="h-3.5 w-3.5 text-blue-700 dark:text-blue-200" />
+                    </div>
+                    <h4 className="font-semibold text-xs text-blue-800 dark:text-blue-100">
+                      {isAuthenticated ? 'Meu Perfil' : 'Perfis'}
+                    </h4>
+                  </div>
+                </div>
+
               </div>
             </div>
 
-            {/* Footer */}
+            {/* Footer - Condicional baseado no login */}
             <div className="space-y-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+16px)]">
               
-              {/* CTA Button */}
-              <Button 
-                className="
-                  w-full h-12 
-                  bg-gradient-to-r from-primary to-primary-hover
-                  hover:from-primary-hover hover:to-primary
-                  text-primary-foreground font-semibold
-                  rounded-xl shadow-elevated
-                  transition-all duration-300 ease-out
-                  hover:scale-[1.02] hover:shadow-glow active:scale-[0.98]
-                  disabled:opacity-50 disabled:cursor-not-allowed
-                "
-                disabled={isNavigating}
-                onClick={() => {
-                  if (setShowPublicAuth) {
-                    // Add haptic feedback
-                    if ('vibrate' in navigator) {
-                      navigator.vibrate(40);
+              {/* CTA Button - Só mostra se usuário NÃO está logado */}
+              {!isAuthenticated && (
+                <Button 
+                  className="
+                    w-full h-12 
+                    bg-gradient-to-r from-[#8B5CF6] to-[#EC4899]
+                    hover:from-[#7C3AED] hover:to-[#DB2777]
+                    text-white font-semibold
+                    rounded-xl shadow-lg
+                    transition-all duration-300 ease-out
+                    hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]
+                    disabled:opacity-50 disabled:cursor-not-allowed
+                  "
+                  disabled={isNavigating}
+                  onClick={() => {
+                    if (setShowPublicAuth) {
+                      // Add haptic feedback
+                      if ('vibrate' in navigator) {
+                        navigator.vibrate(40);
+                      }
+                      setShowPublicAuth(true);
                     }
-                    setShowPublicAuth(true);
-                  }
-                  onClose();
-                }}
-              >
-                {isNavigating ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Carregando...
-                  </div>
-                ) : (
-                  'Entrar na plataforma'
-                )}
-              </Button>
+                    onClose();
+                  }}
+                >
+                  {isNavigating ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Carregando...
+                    </div>
+                  ) : (
+                    'Entrar na plataforma'
+                  )}
+                </Button>
+              )}
 
-              {/* Theme Toggle with Enhanced UX */}
+              {/* Theme Toggle - Sempre visível */}
               <div className="flex items-center justify-center">
                 <button
                   onClick={() => {
