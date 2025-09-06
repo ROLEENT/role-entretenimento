@@ -23,10 +23,10 @@ export default function AdminV3EventsCreateEdit() {
       if (!id) return null;
       
       const { data, error } = await supabase
-        .from("events_with_relations")
+        .from("events")
         .select("*")
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
