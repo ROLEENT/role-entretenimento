@@ -162,6 +162,7 @@ const Header = () => {
             setSearchOpen(true);
           }}
           eventCount={events.length}
+          setShowPublicAuth={setShowPublicAuth}
         />
 
         <PublicAuthDialog

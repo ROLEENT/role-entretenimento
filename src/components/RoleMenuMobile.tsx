@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Drawer as DrawerPrimitive } from 'vaul';
 import { 
   Search, 
@@ -13,21 +13,25 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/components/ThemeProvider';
+import roleLogo from '@/assets/role-logo.png';
 
 interface RoleMenuMobileProps {
   isOpen: boolean;
   onClose: () => void;
   onSearch?: (term: string) => void;
   eventCount?: number;
+  setShowPublicAuth?: (show: boolean) => void;
 }
 
 export function RoleMenuMobile({
   isOpen,
   onClose,
   onSearch,
-  eventCount = 0
+  eventCount = 0,
+  setShowPublicAuth
 }: RoleMenuMobileProps) {
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
   // Auto-focus search when menu opens
@@ -71,9 +75,11 @@ export function RoleMenuMobile({
             
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
-              <h1 className="text-2xl font-bold text-white drop-shadow-sm">
-                ROLÊ
-              </h1>
+              <img 
+                src={roleLogo} 
+                alt="ROLÊ" 
+                className="h-8 w-auto drop-shadow-sm"
+              />
               <DrawerPrimitive.Close asChild>
                 <Button 
                   variant="ghost" 
@@ -130,7 +136,7 @@ export function RoleMenuMobile({
                     cursor-pointer
                   "
                   onClick={() => {
-                    // Navigate to explore
+                    navigate('/agenda');
                     onClose();
                   }}
                 >
@@ -175,7 +181,7 @@ export function RoleMenuMobile({
                     cursor-pointer
                   "
                   onClick={() => {
-                    // Navigate to events
+                    navigate('/agenda/todos');
                     onClose();
                   }}
                 >
@@ -204,7 +210,7 @@ export function RoleMenuMobile({
                     cursor-pointer
                   "
                   onClick={() => {
-                    // Navigate to artists
+                    navigate('/perfis?type=artista');
                     onClose();
                   }}
                 >
@@ -237,7 +243,9 @@ export function RoleMenuMobile({
                   hover:scale-[1.02] active:scale-[0.98]
                 "
                 onClick={() => {
-                  // Navigate to platform
+                  if (setShowPublicAuth) {
+                    setShowPublicAuth(true);
+                  }
                   onClose();
                 }}
               >
