@@ -8665,6 +8665,14 @@ export type Database = {
         Args: { p_artist_type?: string; p_stage_name: string }
         Returns: string
       }
+      ensure_user_profile: {
+        Args: {
+          p_avatar_url?: string
+          p_display_name: string
+          p_username: string
+        }
+        Returns: undefined
+      }
       events_by_week: {
         Args: { last_days?: number }
         Returns: {
