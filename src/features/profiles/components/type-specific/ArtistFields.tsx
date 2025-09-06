@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreateProfile } from '../../schemas';
 import { TagSelector } from '../TagSelector';
 import { RHFGenreSelect } from '@/components/form/RHFGenreSelect';
-import { RHFArtistRolesSelect } from '@/components/form/RHFArtistRolesSelect';
+import { RHFArtistCategoriesSelect } from '@/components/form/RHFArtistCategoriesSelect';
 import { Music, DollarSign, Briefcase, MapPin, FileText, ExternalLink } from 'lucide-react';
 
 interface ArtistFieldsProps {
@@ -49,7 +49,7 @@ export function ArtistFields({ form }: ArtistFieldsProps) {
         <CardContent className="space-y-4">
           <RHFGenreSelect name="genres" maxGenres={5} />
 
-          <RHFArtistRolesSelect name="roles" maxRoles={3} />
+          <RHFArtistCategoriesSelect name="categories" maxCategories={3} />
 
           <FormField
             control={form.control}
