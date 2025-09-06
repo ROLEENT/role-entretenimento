@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Drawer as DrawerPrimitive } from 'vaul';
 import { 
@@ -8,18 +8,13 @@ import {
   Calendar, 
   Settings, 
   LogOut,
-  X 
+  X,
+  ChevronDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 
 interface MobileMenuDrawerProps {
   isOpen: boolean;
@@ -46,6 +41,7 @@ export function MobileMenuDrawer({
   setSearchOpen,
   setShowPublicAuth
 }: MobileMenuDrawerProps) {
+  const [perfisOpen, setPerfisOpen] = useState(false);
   return (
     <DrawerPrimitive.Root 
       direction="left" 
@@ -129,31 +125,42 @@ export function MobileMenuDrawer({
                   </li>
                 ))}
 
-                {/* Perfis como acordeão — fechado por padrão */}
+                {/* Perfis dropdown customizado */}
                 <li>
-                  <Accordion type="single" collapsible defaultValue="">
-                    <AccordionItem value="perfis" className="border-0">
-                      <AccordionTrigger className="justify-between p-0 text-lg font-normal text-foreground hover:no-underline data-[state=open]:text-primary">
-                        Perfis
-                      </AccordionTrigger>
-                      <AccordionContent className="pl-2 pt-2">
-                        <ul className="flex flex-col gap-2">
-                          {perfisDropdownItems.map((item) => (
-                            <li key={item.href}>
-                              <DrawerPrimitive.Close asChild>
-                                <Link 
-                                  to={item.href}
-                                  className="block py-1 text-base text-foreground transition-colors hover:text-primary"
-                                >
-                                  {item.label}
-                                </Link>
-                              </DrawerPrimitive.Close>
-                            </li>
-                          ))}
-                        </ul>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPerfisOpen(!perfisOpen);
+                    }}
+                    className="flex items-center justify-between w-full py-2 text-lg font-normal text-foreground transition-colors hover:text-primary"
+                    aria-expanded={perfisOpen}
+                    style={{ touchAction: "manipulation" }}
+                  >
+                    Perfis
+                    <ChevronDown 
+                      className={cn(
+                        "h-4 w-4 transition-transform duration-200",
+                        perfisOpen ? "rotate-180" : ""
+                      )} 
+                    />
+                  </button>
+                  {perfisOpen && (
+                    <ul className="pl-2 pt-2 space-y-2 animate-in slide-in-from-top-1 duration-200">
+                      {perfisDropdownItems.map((item) => (
+                        <li key={item.href}>
+                          <DrawerPrimitive.Close asChild>
+                            <Link 
+                              to={item.href}
+                              className="block py-1 text-base text-foreground transition-colors hover:text-primary"
+                              onClick={() => setPerfisOpen(false)}
+                            >
+                              {item.label}
+                            </Link>
+                          </DrawerPrimitive.Close>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
 
                 {/* User Section */}
