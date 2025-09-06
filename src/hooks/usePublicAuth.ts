@@ -14,7 +14,7 @@ interface PublicAuthState {
 let globalPublicAuthState: PublicAuthState = {
   user: null,
   session: null,
-  loading: true,
+  loading: false,
   isAuthenticated: false
 };
 
