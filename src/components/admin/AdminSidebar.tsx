@@ -13,6 +13,7 @@ import {
   SidebarMenuButton,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { MENUS } from "@/components/admin/menu.config";
 
 export function AdminSidebar() {
@@ -38,120 +39,122 @@ export function AdminSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        {/* Agenda */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Agenda</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {MENUS.agenda.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.href)}
-                    tooltip={state === "collapsed" ? item.title : undefined}
-                  >
-                    <NavLink to={item.href}>
-                      {item.icon && <item.icon className="h-4 w-4" />}
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <ScrollArea className="flex-1">
+          {/* Agenda */}
+          <SidebarGroup>
+            <SidebarGroupLabel>Agenda</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {MENUS.agenda.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive(item.href)}
+                      tooltip={state === "collapsed" ? item.title : undefined}
+                    >
+                      <NavLink to={item.href}>
+                        {item.icon && <item.icon className="h-4 w-4" />}
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
 
-        {/* Perfis */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Perfis</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {MENUS.perfis.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.href)}
-                    tooltip={state === "collapsed" ? item.title : undefined}
-                  >
-                    <NavLink to={item.href}>
-                      {item.icon && <item.icon className="h-4 w-4" />}
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+          {/* Perfis */}
+          <SidebarGroup>
+            <SidebarGroupLabel>Perfis</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {MENUS.perfis.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive(item.href)}
+                      tooltip={state === "collapsed" ? item.title : undefined}
+                    >
+                      <NavLink to={item.href}>
+                        {item.icon && <item.icon className="h-4 w-4" />}
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
 
-        {/* Revista */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Revista</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {MENUS.revista.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.href)}
-                    tooltip={state === "collapsed" ? item.title : undefined}
-                  >
-                    <NavLink to={item.href}>
-                      {item.icon && <item.icon className="h-4 w-4" />}
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+          {/* Revista */}
+          <SidebarGroup>
+            <SidebarGroupLabel>Revista</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {MENUS.revista.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive(item.href)}
+                      tooltip={state === "collapsed" ? item.title : undefined}
+                    >
+                      <NavLink to={item.href}>
+                        {item.icon && <item.icon className="h-4 w-4" />}
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
 
-        {/* Gestão */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Gestão</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {MENUS.gestao.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.href)}
-                    tooltip={state === "collapsed" ? item.title : undefined}
-                  >
-                    <NavLink to={item.href}>
-                      {item.icon && <item.icon className="h-4 w-4" />}
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+          {/* Gestão */}
+          <SidebarGroup>
+            <SidebarGroupLabel>Gestão</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {MENUS.gestao.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive(item.href)}
+                      tooltip={state === "collapsed" ? item.title : undefined}
+                    >
+                      <NavLink to={item.href}>
+                        {item.icon && <item.icon className="h-4 w-4" />}
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
 
-        {/* Destaques */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Destaques</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {MENUS.destaques.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.href)}
-                    tooltip={state === "collapsed" ? item.title : undefined}
-                  >
-                    <NavLink to={item.href}>
-                      {item.icon && <item.icon className="h-4 w-4" />}
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+          {/* Destaques */}
+          <SidebarGroup>
+            <SidebarGroupLabel>Destaques</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {MENUS.destaques.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive(item.href)}
+                      tooltip={state === "collapsed" ? item.title : undefined}
+                    >
+                      <NavLink to={item.href}>
+                        {item.icon && <item.icon className="h-4 w-4" />}
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </ScrollArea>
       </SidebarContent>
     </Sidebar>
   );

@@ -8,12 +8,6 @@ export const MENUS = {
       description: "lista completa",
       icon: Calendar
     },
-    { 
-      href: "/admin-v3/agenda/criar", 
-      title: "Criar evento", 
-      description: "novo cadastro",
-      icon: Plus
-    },
   ],
   perfis: [
     { 
