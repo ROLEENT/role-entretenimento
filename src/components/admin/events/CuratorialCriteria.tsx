@@ -11,6 +11,24 @@ interface CuratorialCriteriaProps {
   form: UseFormReturn<any>;
 }
 
+export type CuratorialCriterion = { 
+  checked: boolean; 
+  note?: string; 
+};
+
+export type CuratorialCriteria = {
+  cultural_relevance: CuratorialCriterion;
+  lineup: CuratorialCriterion;
+  visual_identity: CuratorialCriterion;
+  audience_experience: CuratorialCriterion;
+  city_connection: CuratorialCriterion;
+  audience_fit: CuratorialCriterion;
+  engagement_potential: CuratorialCriterion;
+  authenticity_innovation: CuratorialCriterion;
+  lgbtqiap_diversity: CuratorialCriterion;
+  community_support: CuratorialCriterion;
+};
+
 interface CriterionData {
   key: string;
   title: string;
@@ -21,42 +39,52 @@ const CRITERIA: CriterionData[] = [
   {
     key: 'cultural_relevance',
     title: 'Relevância cultural',
-    description: 'Este evento contribui de forma significativa para a cena cultural?'
+    description: 'Este evento dialoga com a cena e amplia repertório cultural?'
   },
   {
     key: 'lineup',
     title: 'Line-up ou proposta artística',
-    description: 'A curadoria musical ou de performances tem coerência, autenticidade e provoca a cena?'
+    description: 'Curadoria coerente, autêntica e provocativa?'
   },
   {
     key: 'visual_identity',
     title: 'Identidade visual e comunicação',
-    description: 'O material de divulgação é bem cuidado e conecta com o público?'
+    description: 'Arte e texto bem cuidados, alinhados ao público?'
   },
   {
-    key: 'experience',
+    key: 'audience_experience',
     title: 'Experiência para o público',
-    description: 'O evento oferece ambientação, acessibilidade ou experiências que vão além da música?'
+    description: 'Ambientação, acessibilidade e camadas além da música?'
   },
   {
     key: 'city_connection',
     title: 'Conexão com a cidade',
-    description: 'Este rolê ressignifica ou representa espaços urbanos e culturais?'
+    description: 'Ocupa e ressignifica espaços urbanos e culturais?'
   },
   {
-    key: 'audience_coherence',
+    key: 'audience_fit',
     title: 'Coerência com o público do ROLÊ',
-    description: 'Está alinhado com o perfil urbano e criativo do público?'
+    description: 'Alinha com nosso público urbano e criativo?'
   },
   {
     key: 'engagement_potential',
     title: 'Potencial de engajamento',
-    description: 'O evento desperta desejo de compartilhamento, comentários e presença?'
+    description: 'Gera desejo de compartilhar, comentar e estar?'
   },
   {
-    key: 'innovation',
-    title: 'Inovação ou autenticidade',
-    description: 'O rolê apresenta autenticidade ou mistura ousada de gêneros/estéticas?'
+    key: 'authenticity_innovation',
+    title: 'Autenticidade ou inovação',
+    description: 'Mostra identidade própria ou mistura ousada?'
+  },
+  {
+    key: 'lgbtqiap_diversity',
+    title: 'Diversidade e representatividade LGBTQIAP+',
+    description: 'Presença de artistas, equipes e público queer com políticas claras de respeito e segurança?'
+  },
+  {
+    key: 'community_support',
+    title: 'Impacto comunitário e suporte à cena',
+    description: 'Ação com coletivos, contratação local, formação, preços acessíveis, ações solidárias?'
   }
 ];
 
@@ -69,16 +97,16 @@ export function CuratorialCriteria({ form }: CuratorialCriteriaProps) {
   ).length;
 
   const getScoreColor = (count: number) => {
-    if (count >= 6) return 'text-green-600 bg-green-50 border-green-200';
-    if (count >= 4) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-    if (count >= 2) return 'text-orange-600 bg-orange-50 border-orange-200';
+    if (count >= 7) return 'text-green-600 bg-green-50 border-green-200';
+    if (count >= 5) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+    if (count >= 3) return 'text-orange-600 bg-orange-50 border-orange-200';
     return 'text-gray-600 bg-gray-50 border-gray-200';
   };
 
   const getScoreText = (count: number) => {
-    if (count >= 6) return 'Potencial alto para destaque';
-    if (count >= 4) return 'Potencial médio para destaque';
-    if (count >= 2) return 'Potencial baixo para destaque';
+    if (count >= 7) return 'Potencial alto para destaque';
+    if (count >= 5) return 'Potencial médio para destaque';
+    if (count >= 3) return 'Potencial baixo para destaque';
     return 'Não recomendado para destaque';
   };
 
@@ -95,7 +123,7 @@ export function CuratorialCriteria({ form }: CuratorialCriteriaProps) {
               variant="outline" 
               className={`${getScoreColor(checkedCount)} font-medium`}
             >
-              {checkedCount}/8 critérios
+              {checkedCount}/10 critérios
             </Badge>
             {checkedCount > 0 && (
               <span className={`text-sm ${getScoreColor(checkedCount).split(' ')[0]}`}>
@@ -171,7 +199,7 @@ export function CuratorialCriteria({ form }: CuratorialCriteriaProps) {
               <span>{getScoreText(checkedCount)}</span>
             </div>
             <p className="text-sm mt-1 opacity-80">
-              Com base nos {checkedCount} critérios marcados, este evento {checkedCount >= 4 ? 'pode ser considerado' : 'não é recomendado'} para destaque curatorial.
+              Com base nos {checkedCount} critérios marcados, este evento {checkedCount >= 5 ? 'pode ser considerado' : 'não é recomendado'} para destaque curatorial.
             </p>
           </div>
         )}
