@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminV3Guard } from '@/components/AdminV3Guard';
-import { AdminV3Header } from '@/components/AdminV3Header';
+
 import { FormShell } from '@/components/form';
 import { Form } from '@/components/ui/form';
 import { AdminV3Breadcrumb } from '@/components/admin/common/AdminV3Breadcrumb';
@@ -146,11 +146,9 @@ const AdminV3VenueEdit: React.FC = () => {
   if (isLoading) {
     return (
       <AdminV3Guard>
-        <AdminV3Header />
         <main className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center min-h-64">
-            <LoadingSpinner />
-          </div>
+          <AdminV3Breadcrumb items={breadcrumbs} />
+          <LoadingSpinner />
         </main>
       </AdminV3Guard>
     );
@@ -158,7 +156,6 @@ const AdminV3VenueEdit: React.FC = () => {
 
   return (
     <AdminV3Guard>
-      <AdminV3Header />
       <main className="container mx-auto px-4 py-8">
         <AdminV3Breadcrumb items={breadcrumbs} />
         
@@ -167,25 +164,27 @@ const AdminV3VenueEdit: React.FC = () => {
             <h1 className="text-2xl font-bold">{`Editar Local: ${venue?.name}`}</h1>
             <p className="text-muted-foreground">Atualize as informações do local</p>
           </div>
-          <ProfileGenerationButton
-            agentData={{
-              id: venue.id,
-              name: venue.name,
-              slug: venue.slug,
-              city: venue.city,
-              state: venue.state,
-              country: venue.country,
-              bio_short: venue.about?.slice(0, 160),
-              bio: venue.about,
-              avatar_url: venue.cover_url,
-              cover_url: venue.cover_url,
-              tags: venue.tags,
-              instagram: venue.instagram,
-              website: venue.website,
-              email: venue.email,
-            }}
-            agentType="local"
-          />
+          {venue && (
+            <ProfileGenerationButton
+              agentData={{
+                id: venue.id,
+                name: venue.name,
+                slug: venue.slug,
+                city: venue.city,
+                state: venue.state,
+                country: venue.country,
+                bio_short: venue.about?.slice(0, 160),
+                bio: venue.about,
+                avatar_url: venue.cover_url,
+                cover_url: venue.cover_url,
+                tags: venue.tags,
+                instagram: venue.instagram,
+                website: venue.website,
+                email: venue.email,
+              }}
+              agentType="local"
+            />
+          )}
         </div>
 
         <Form {...form}>

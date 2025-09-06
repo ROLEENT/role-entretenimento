@@ -47,8 +47,6 @@ export function AdminV3Header() {
   });
   const [passwordLoading, setPasswordLoading] = useState(false);
 
-  // Extract project ref from Supabase URL
-  const projectRef = 'nutlcbnruabjsxecqpnd'; // Current project ref
 
   useEffect(() => {
     loadUserData();
@@ -186,11 +184,6 @@ export function AdminV3Header() {
           <div className="flex items-center gap-3">
             {/* Quick Actions */}
             <QuickActions />
-            
-            {/* Project ref chip */}
-            <div className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
-              {projectRef}
-            </div>
 
 
           {/* User menu */}

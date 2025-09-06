@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { AdminV3Header } from '@/components/AdminV3Header';
+
 import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
 import { useAdminBlogPosts } from '@/hooks/useAdminBlogPosts';
 import { Search, Plus, Edit, Copy, Trash2, Eye } from 'lucide-react';
@@ -60,7 +60,7 @@ export function AdminBlogList() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AdminV3Header />
+      
       <div className="pt-16 p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           <AdminV3Breadcrumb 

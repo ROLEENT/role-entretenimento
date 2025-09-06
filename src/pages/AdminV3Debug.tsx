@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { AdminV3Guard } from '@/components/AdminV3Guard';
-import { AdminV3Header } from '@/components/AdminV3Header';
+
 import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,7 @@ export default function AdminV3Debug() {
   const [profileError, setProfileError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const projectRef = 'nutlcbnruabjsxecqpnd'; // Current project ref
+  
 
   const fetchProfileRole = async () => {
     if (!session?.user?.id) return;
@@ -97,7 +97,7 @@ export default function AdminV3Debug() {
   return (
     <AdminV3Guard>
       <div className="min-h-screen bg-background">
-        <AdminV3Header />
+        
         <div className="p-6">
           <div className="max-w-4xl mx-auto space-y-6">
             {/* Breadcrumb */}
@@ -144,7 +144,7 @@ export default function AdminV3Debug() {
                   <div>
                     <strong>Project Ref:</strong>
                     <p className="font-mono text-sm bg-muted p-2 rounded mt-1">
-                      {projectRef}
+                      [REMOVIDO POR SEGURANÇA]
                     </p>
                   </div>
                 </CardContent>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { AdminV3Guard } from "@/components/AdminV3Guard";
-import { AdminV3Header } from "@/components/AdminV3Header";
+
 import { AdminV3Breadcrumb } from "@/components/admin/common/AdminV3Breadcrumb";
 import { EventCreateWizard } from "@/components/events/EventCreateWizard";
 import { ChecklistWidget } from "@/components/events/ChecklistWidget";
@@ -66,28 +66,18 @@ export default function AdminV3EventsCreateEdit() {
   if (isLoading && isEditing) {
     return (
       <AdminV3Guard>
-        <div className="min-h-screen bg-background">
-          <AdminV3Header />
-          <div className="container mx-auto p-6">
-            <div className="flex items-center justify-center h-64">
-              <Loader2 className="h-8 w-8 animate-spin" />
-            </div>
-          </div>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin" />
         </div>
       </AdminV3Guard>
     );
   }
 
-  if (error && isEditing) {
+  if (error) {
     return (
       <AdminV3Guard>
-        <div className="min-h-screen bg-background">
-          <AdminV3Header />
-          <div className="container mx-auto p-6">
-            <div className="text-center text-destructive">
-              Erro ao carregar evento: {error?.message || "Evento não encontrado"}
-            </div>
-          </div>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <p className="text-destructive">Erro ao carregar evento: {error.message}</p>
         </div>
       </AdminV3Guard>
     );
@@ -96,8 +86,6 @@ export default function AdminV3EventsCreateEdit() {
   return (
     <AdminV3Guard>
       <div className="min-h-screen bg-background">
-        <AdminV3Header />
-        
         <div className="container mx-auto p-6 space-y-6">
           <AdminV3Breadcrumb items={breadcrumbItems} />
           
