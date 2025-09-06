@@ -73,6 +73,7 @@ export const eventsApi = {
           tags: eventData.tags,
           highlight_type: eventData.highlight_type,
           is_sponsored: eventData.is_sponsored,
+          curatorial_criteria: eventData.curatorial_criteria || {},
           links: eventData.links,
           accessibility: eventData.accessibility,
           seo_title: eventData.seo_title,

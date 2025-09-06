@@ -3154,6 +3154,7 @@ export type Database = {
           created_by: string | null
           curation_notes: string | null
           curation_score: number | null
+          curatorial_criteria: Json | null
           currency: string | null
           date_end: string | null
           date_start: string
@@ -3209,6 +3210,7 @@ export type Database = {
           created_by?: string | null
           curation_notes?: string | null
           curation_score?: number | null
+          curatorial_criteria?: Json | null
           currency?: string | null
           date_end?: string | null
           date_start: string
@@ -3264,6 +3266,7 @@ export type Database = {
           created_by?: string | null
           curation_notes?: string | null
           curation_score?: number | null
+          curatorial_criteria?: Json | null
           currency?: string | null
           date_end?: string | null
           date_start?: string
