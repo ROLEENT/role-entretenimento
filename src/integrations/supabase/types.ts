@@ -2052,6 +2052,36 @@ export type Database = {
           },
         ]
       }
+      event_attendance: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          show_publicly: boolean
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          show_publicly?: boolean
+          status: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          show_publicly?: boolean
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       event_categories: {
         Row: {
           category_id: string
@@ -3022,6 +3052,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      event_saves: {
+        Row: {
+          collection: string
+          created_at: string
+          event_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          collection?: string
+          created_at?: string
+          event_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          collection?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       event_series: {
         Row: {
