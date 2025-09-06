@@ -147,8 +147,7 @@ export function ModernMobileMenu({
         <DrawerPrimitive.Overlay className="fixed inset-0 z-40 bg-black/60" />
         
         <DrawerPrimitive.Content
-          className="fixed inset-y-0 left-0 z-50 w-full bg-background shadow-xl focus:outline-none"
-          style={{ touchAction: "manipulation" }}
+          className="fixed inset-y-0 left-0 z-50 w-full bg-background shadow-xl focus:outline-none touch-optimized"
         >
           <div className="flex h-dvh flex-col">
             {/* Header */}
@@ -187,65 +186,103 @@ export function ModernMobileMenu({
               </motion.div>
             </div>
 
-            {/* Main Content - Com scroll otimizado */}
+            {/* Main Content - Com scroll horizontal deslizante otimizado */}
             <div 
-              className="flex-1 overflow-y-auto overscroll-contain px-6 py-4" 
+              className="flex-1 mobile-vertical-scroll px-6 py-4" 
               style={{ 
-                WebkitOverflowScrolling: 'touch',
-                maxHeight: 'calc(100vh - 200px)', // Evita conflito com header/footer
-                scrollbarWidth: 'thin',
-                scrollbarColor: 'rgba(156, 163, 175, 0.3) transparent'
+                maxHeight: 'calc(100vh - 200px)'
               }}
             >
-              <div className="space-y-4">
-                {menuSections.map((section, index) => (
-                  <motion.div
-                    key={section.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 + index * 0.1 }}
-                  >
-                    <DrawerPrimitive.Close asChild>
-                      <Link
-                        to={section.href}
-                        className="block group"
+              {/* Seções do Menu - Layout horizontal deslizante */}
+              <div className="space-y-6">
+                {/* Menu principal em cards horizontais */}
+                <div className="mobile-horizontal-scroll overflow-x-auto pb-4">
+                  <div className="flex gap-4 w-max touch-optimized">
+                    {menuSections.map((section, index) => (
+                      <motion.div
+                        key={section.id}
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 + index * 0.1 }}
+                        className="mobile-scroll-item"
+                        style={{ scrollSnapAlign: 'start' }}
                       >
-                        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r p-[2px] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
-                          {/* Gradient border */}
-                          <div className={`absolute inset-0 bg-gradient-to-r ${section.gradient} opacity-20 group-hover:opacity-30 transition-opacity`} />
-                          
-                          {/* Card content */}
-                          <div className="relative bg-background rounded-2xl p-4 h-20 flex items-center gap-4">
-                            <div className={`p-3 rounded-xl bg-gradient-to-r ${section.gradient}`}>
-                              <section.icon className="h-6 w-6 text-white" />
-                            </div>
-                            
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                                {section.title}
-                              </h3>
-                              <p className="text-sm text-muted-foreground">
-                                {section.description}
-                              </p>
-                            </div>
-                            
-                            <div className="text-right">
-                              <div className="flex items-center gap-1 text-sm font-medium text-primary">
-                                <TrendingUp className="h-4 w-4" />
-                                {section.count}
+                        <DrawerPrimitive.Close asChild>
+                          <Link
+                            to={section.href}
+                            className="block group"
+                          >
+                            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r p-[2px] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] w-80">
+                              {/* Gradient border */}
+                              <div className={`absolute inset-0 bg-gradient-to-r ${section.gradient} opacity-20 group-hover:opacity-30 transition-opacity`} />
+                              
+                              {/* Card content */}
+                              <div className="relative bg-background rounded-2xl p-6 h-32 flex flex-col justify-between">
+                                <div className="flex items-start justify-between">
+                                  <div className={`p-3 rounded-xl bg-gradient-to-r ${section.gradient}`}>
+                                    <section.icon className="h-6 w-6 text-white" />
+                                  </div>
+                                  
+                                  <div className="text-right">
+                                    <div className="flex items-center gap-1 text-lg font-bold text-primary">
+                                      <TrendingUp className="h-4 w-4" />
+                                      {section.count}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                      {section.countLabel}
+                                    </p>
+                                  </div>
+                                </div>
+                                
+                                <div>
+                                  <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors mb-1">
+                                    {section.title}
+                                  </h3>
+                                  <p className="text-sm text-muted-foreground">
+                                    {section.description}
+                                  </p>
+                                </div>
                               </div>
-                              <p className="text-xs text-muted-foreground">
-                                {section.countLabel}
-                              </p>
                             </div>
-                            
-                            <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                          </div>
-                        </div>
-                      </Link>
-                    </DrawerPrimitive.Close>
-                  </motion.div>
-                ))}
+                          </Link>
+                        </DrawerPrimitive.Close>
+                      </motion.div>
+                    ))}
+                  </div>
+                  
+                  {/* Indicador de scroll */}
+                  <div className="flex justify-center mt-4 gap-2">
+                    {menuSections.map((_, index) => (
+                      <div 
+                        key={index}
+                        className="w-2 h-2 rounded-full bg-primary/20"
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Menu de ações rápidas vertical */}
+                <div className="grid grid-cols-2 gap-3">
+                  <DrawerPrimitive.Close asChild>
+                    <Link
+                      to="/agenda"
+                      className="flex flex-col items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 hover:bg-gradient-to-br hover:from-purple-500/20 hover:to-pink-500/20 transition-all duration-300"
+                    >
+                      <Calendar className="h-6 w-6 text-purple-500" />
+                      <span className="text-sm font-medium">Eventos</span>
+                    </Link>
+                  </DrawerPrimitive.Close>
+
+                  <DrawerPrimitive.Close asChild>
+                    <Link
+                      to="/perfis?type=artista"
+                      className="flex flex-col items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20 hover:bg-gradient-to-br hover:from-orange-500/20 hover:to-red-500/20 transition-all duration-300"
+                    >
+                      <Music className="h-6 w-6 text-orange-500" />
+                      <span className="text-sm font-medium">Artistas</span>
+                    </Link>
+                  </DrawerPrimitive.Close>
+                </div>
               </div>
 
               {/* User Section */}

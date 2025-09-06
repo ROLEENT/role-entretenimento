@@ -48,6 +48,45 @@ html, body, #root {
   overflow-x: hidden; /* Evita scroll horizontal duplo */
 }
 
+/* Scroll horizontal deslizante para mobile menu */
+.mobile-horizontal-scroll {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+}
+
+.mobile-horizontal-scroll::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.mobile-scroll-item {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* Scroll vertical suave para mobile menu */
+.mobile-vertical-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+.mobile-vertical-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Touch gestures otimizados */
+.touch-optimized {
+  touch-action: pan-y pinch-zoom;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 body {
   overflow-y: auto; /* Scroll principal apenas no body */
 }
