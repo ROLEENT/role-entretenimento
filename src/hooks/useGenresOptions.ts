@@ -12,21 +12,24 @@ export const useGenresOptions = () => {
   const searchGenres = async (query: string): Promise<SelectOption[]> => {
     setLoading(true);
     try {
-      const queryParams = query ? `?q=${encodeURIComponent(query)}` : '';
-      const response = await fetch(`/api/options/genres${queryParams}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      let queryBuilder = supabase
+        .from('genres')
+        .select('id, name')
+        .eq('is_active', true)
+        .order('name');
 
-      if (!response.ok) {
-        console.error('Error searching genres:', response.statusText);
+      if (query) {
+        queryBuilder = queryBuilder.ilike('name', `%${query}%`);
+      }
+
+      const { data, error } = await queryBuilder.limit(50);
+
+      if (error) {
+        console.error('Error searching genres:', error);
         return [];
       }
 
-      const data = await response.json();
-      return (data?.items || []).map((item: any) => ({
+      return (data || []).map(item => ({
         label: item.name,
         value: item.id
       }));
@@ -41,21 +44,25 @@ export const useGenresOptions = () => {
   const createGenre = async (name: string): Promise<SelectOption> => {
     setLoading(true);
     try {
-      const response = await fetch('/api/options/genres', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name })
-      });
+      // Generate slug from name
+      const slug = name
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Error creating genre:', errorData);
-        throw new Error(errorData.error || 'Failed to create genre');
+      const { data, error } = await supabase
+        .from('genres')
+        .upsert({ name, slug, is_active: true }, { onConflict: 'slug' })
+        .select('id, name')
+        .single();
+
+      if (error) {
+        console.error('Error creating genre:', error);
+        throw new Error(error.message || 'Failed to create genre');
       }
 
-      const data = await response.json();
       return {
         label: data.name,
         value: data.id
