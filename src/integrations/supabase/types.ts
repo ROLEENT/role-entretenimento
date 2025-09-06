@@ -4736,6 +4736,7 @@ export type Database = {
           instagram: string | null
           invoice_email: string | null
           invoice_name: string | null
+          is_active: boolean
           links: Json | null
           logo_alt: string | null
           name: string
@@ -4774,6 +4775,7 @@ export type Database = {
           instagram?: string | null
           invoice_email?: string | null
           invoice_name?: string | null
+          is_active?: boolean
           links?: Json | null
           logo_alt?: string | null
           name: string
@@ -4812,6 +4814,7 @@ export type Database = {
           instagram?: string | null
           invoice_email?: string | null
           invoice_name?: string | null
+          is_active?: boolean
           links?: Json | null
           logo_alt?: string | null
           name?: string
