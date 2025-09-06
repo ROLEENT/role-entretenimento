@@ -8832,6 +8832,15 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      get_event_social: {
+        Args: { p_event_id: string; p_limit?: number }
+        Returns: {
+          avatars: string[]
+          going_count: number
+          maybe_count: number
+          went_count: number
+        }[]
+      }
       get_highlight_like_count: {
         Args: { p_highlight_id: string }
         Returns: number
@@ -9166,6 +9175,14 @@ export type Database = {
         Args: { admin_email: string }
         Returns: boolean
       }
+      set_attendance: {
+        Args: {
+          p_event_id: string
+          p_show_publicly?: boolean
+          p_status: Database["public"]["Enums"]["attendance_status"]
+        }
+        Returns: undefined
+      }
       setup_audit_triggers: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -9201,6 +9218,22 @@ export type Database = {
       to_slug: {
         Args: { input_text: string }
         Returns: string
+      }
+      toggle_follow: {
+        Args: {
+          p_entity_slug?: string
+          p_entity_type: string
+          p_entity_uuid?: string
+        }
+        Returns: {
+          following: boolean
+        }[]
+      }
+      toggle_save: {
+        Args: { collection?: string; event_id: string }
+        Returns: {
+          saved: boolean
+        }[]
       }
       track_analytics_event: {
         Args: {
