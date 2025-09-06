@@ -6,6 +6,7 @@ interface UserAuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isAuthenticated: boolean;
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -105,6 +106,7 @@ export const useUserAuthState = () => {
     user,
     session,
     loading,
+    isAuthenticated: !!user,
     signUp,
     signIn,
     signOut,

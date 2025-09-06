@@ -51,6 +51,10 @@ const AdminV3AgendaEdit = lazy(() => import("./pages/admin-v3/AdminV3AgendaEdit"
 const CatalogsGenresPage = lazy(() => import("./pages/admin/CatalogsGenresPage"));
 const CatalogsArtistRolesPage = lazy(() => import("./pages/admin/CatalogsArtistRolesPage"));
 
+// User Profile Pages
+const UserProfilePage = lazy(() => import("./pages/UserProfilePage"));
+const PublicUserProfilePage = lazy(() => import("./pages/PublicUserProfilePage"));
+
 const AdminV3ArtistsList = lazy(() => import("./pages/admin-v3/AdminV3ArtistsList").then(module => ({ default: module.default })));
 const AdminV3ArtistCreate = lazy(() => import("./pages/admin-v3/AdminV3ArtistCreate").then(module => ({ default: module.default })));
 const AdminV3ArtistEdit = lazy(() => import("./pages/admin-v3/AdminV3ArtistEdit").then(module => ({ default: module.default })));
@@ -382,6 +386,20 @@ function App() {
                 <Route path="/feed" element={<FeedPage />} />
                 <Route path="/descobrir" element={<DiscoverUsers />} />
                 <Route path="/eventos/semana/:data" element={<WeeklyHighlights />} />
+                {/* User Profile Routes */}
+                <Route path="/me" element={
+                  <RequireAuth>
+                    <Suspense fallback={<PageLoadingFallback />}>
+                      <UserProfilePage />
+                    </Suspense>
+                  </RequireAuth>
+                } />
+                <Route path="/u/:username" element={
+                  <Suspense fallback={<PageLoadingFallback />}>
+                    <PublicUserProfilePage />
+                  </Suspense>
+                } />
+                
                 <Route path="/meu-calendario" element={
                   <RequireAuth>
                     <CalendarPage />
