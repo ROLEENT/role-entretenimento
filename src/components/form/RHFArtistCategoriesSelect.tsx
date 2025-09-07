@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { X, Plus, Briefcase } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
+import { createAdminClient } from '@/lib/supabase/admin-client';
+import { useAdminSession } from '@/hooks/useAdminSession';
 import { toast } from "sonner";
 
 interface RHFArtistCategoriesSelectProps {
@@ -29,6 +31,7 @@ export function RHFArtistCategoriesSelect({
   maxCategories = 5
 }: RHFArtistCategoriesSelectProps) {
   const { control } = useFormContext();
+  const { adminEmail } = useAdminSession();
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState<CategoryOption[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -43,7 +46,7 @@ export function RHFArtistCategoriesSelect({
     setIsLoading(true);
     try {
       const { data, error } = await supabase
-        .from('artist_categories')
+        .from('categories')
         .select('id, name')
         .ilike('name', `%${query}%`)
         .eq('is_active', true)
@@ -70,6 +73,10 @@ export function RHFArtistCategoriesSelect({
 
   const createCategory = async (name: string) => {
     try {
+      if (!adminEmail) {
+        throw new Error('Acesso negado: apenas administradores podem criar categorias');
+      }
+
       // Gerar slug a partir do nome
       const slug = name
         .toLowerCase()
@@ -78,11 +85,16 @@ export function RHFArtistCategoriesSelect({
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)/g, "");
 
-      const { data, error } = await supabase
-        .from('artist_categories')
+      // Usar cliente admin com headers corretos
+      const adminClient = createAdminClient(adminEmail);
+
+      const { data, error } = await adminClient
+        .from('categories')
         .insert({ 
           name: name.trim(), 
           slug,
+          kind: 'revista', // Tipo padrão para categorias de artista
+          color: '#3b82f6', // Cor padrão
           is_active: true,
           description: `Categoria ${name.trim()}`
         })
@@ -216,7 +228,7 @@ export function RHFArtistCategoriesSelect({
                           {category.name}
                         </button>
                       ))
-                    ) : inputValue.trim() ? (
+                    ) : inputValue.trim() && adminEmail ? (
                       <button
                         type="button"
                         className="w-full px-3 py-2 text-left hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground flex items-center gap-2"
@@ -226,6 +238,10 @@ export function RHFArtistCategoriesSelect({
                         <Plus className="w-4 h-4" />
                         Criar "{inputValue}"
                       </button>
+                    ) : inputValue.trim() ? (
+                      <div className="px-3 py-2 text-sm text-muted-foreground">
+                        Apenas administradores podem criar categorias
+                      </div>
                     ) : null}
                   </div>
                 )}
