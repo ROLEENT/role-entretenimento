@@ -4,7 +4,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { VenueFlexibleFormData } from "@/schemas/venue-flexible";
 import { ArtistForm, OrganizerForm } from "@/schemas/agents";
-import { ArtistFlexibleForm } from "@/schemas/agents-flexible";
 import { toast } from "sonner";
 import { syncArtistGenres } from "@/utils/artistPivotSync";
 
@@ -12,7 +11,7 @@ export const useUpsertArtist = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: ArtistFlexibleForm) => {
+    mutationFn: async (data: ArtistForm) => {
       console.log("Upserting artist:", data);
 
       // Generate slug from stage_name if not provided
@@ -29,11 +28,8 @@ export const useUpsertArtist = () => {
           .slice(0, 80); // Limit to 80 chars
       };
 
-      // Extract genres and categories for separate handling
-      const { genres, categories, ...dataWithoutGenres } = data;
-      
-      // Process categories - use first selected category as category_id
-      const categoryId = categories && categories.length > 0 ? categories[0].id : null;
+      // Extract genres for separate handling
+      const { genres, ...dataWithoutGenres } = data;
 
       // Transform data to match database schema exactly
       const transformedData = {
@@ -68,9 +64,6 @@ export const useUpsertArtist = () => {
         status: data.status || 'active',
         priority: data.priority || 0,
         image_rights_authorized: data.image_rights_authorized || false,
-        
-        // Set category_id from selected categories
-        category_id: categoryId,
       };
 
       const { data: result, error } = await supabase

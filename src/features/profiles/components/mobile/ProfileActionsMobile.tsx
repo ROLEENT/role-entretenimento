@@ -12,7 +12,7 @@ export function ProfileActionsMobile({ profile }: ProfileActionsMobileProps) {
   const { shareProfile } = useProfileShare();
 
   return (
-    <div className="mx-auto max-w-screen-sm px-4 mt-6 md:hidden">
+    <div className="mx-auto max-w-screen-sm px-4 mt-3 md:hidden">
       <div className="flex gap-2">
         {/* Follow button with primary color */}
         <FollowButton 

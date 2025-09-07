@@ -37,7 +37,7 @@ export function ProfileHeroMobile({ profile }: ProfileHeroMobileProps) {
       </div>
 
       {/* Avatar overlapping cover */}
-      <div className="mx-auto max-w-screen-sm -mt-12 px-4 flex items-end gap-3 pb-4">
+      <div className="mx-auto max-w-screen-sm -mt-12 px-4 flex items-end gap-3">
         <Avatar className="w-24 h-24 border-2 border-white/20 shadow-lg">
           <AvatarImage src={profile.avatar_url} alt={profile.name} />
           <AvatarFallback className="text-black text-xl font-bold bg-white">

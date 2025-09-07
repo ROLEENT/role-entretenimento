@@ -43,64 +43,8 @@
 
 /* garantir altura total e scroll behavior */
 html, body, #root { 
-  height: 100vh; 
-  scroll-behavior: smooth;
-  overflow-x: hidden; /* Evita scroll horizontal duplo */
-}
-
-/* Scroll horizontal deslizante para mobile menu */
-.mobile-horizontal-scroll {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Internet Explorer 10+ */
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x mandatory;
-  overscroll-behavior-x: contain;
-}
-
-.mobile-horizontal-scroll::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
-
-.mobile-scroll-item {
-  scroll-snap-align: start;
-  flex-shrink: 0;
-}
-
-/* Scroll vertical suave para mobile menu */
-.mobile-vertical-scroll {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  scroll-behavior: smooth;
-}
-
-.mobile-vertical-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-/* Touch gestures otimizados */
-.touch-optimized {
-  touch-action: pan-y pinch-zoom;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-body {
-  overflow-y: auto; /* Scroll principal apenas no body */
-}
-
-/* Evitar scroll duplo em elementos específicos */
-.main-content {
-  height: calc(100vh - var(--header-height, 64px));
-  overflow-y: auto;
-}
-
-/* Layout principal sem scroll próprio */
-.app-layout {
-  height: 100vh;
-  overflow: hidden;
+  height: 100%; 
+  scroll-behavior: smooth; 
 }
 
 /* iOS Safe Areas */
@@ -1383,25 +1327,21 @@ body {
   animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* scroll fino e estilizado */
-html { 
-  scrollbar-gutter: stable; 
-}
+/* scroll fino e único */
+html { scrollbar-gutter: stable; }
+* { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,.28) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-thumb { background: rgba(0,0,0,.28); border-radius: 999px; }
 
-* { 
-  scrollbar-width: thin; 
-  scrollbar-color: rgba(0,0,0,.28) transparent; 
-}
+/* forçar só body a rolar */
+html, body, #__next, #root { min-height: 100%; height: auto; overflow-y: auto; }
 
-*::-webkit-scrollbar { 
-  width: 8px; 
-  height: 8px; 
-}
+/* matar scroll em wrappers comuns do form */
+.h-screen { height: auto !important; min-height: 100vh !important; }
+.max-h-screen, .overflow-y-auto:not(nav *):not([data-nav]):not(.nav-container), .overflow-auto:not(nav *):not([data-nav]):not(.nav-container) { max-height: none !important; overflow: visible !important; }
 
-*::-webkit-scrollbar-thumb { 
-  background: rgba(0,0,0,.28); 
-  border-radius: 999px; 
-}
+/* cards e seções não criam scroll próprio */
+[class*="Card"]:not(nav *):not([data-nav]) { overflow: visible !important; }
 
 /* garantir scroll horizontal em navegação */
 nav .overflow-x-auto, [data-nav] .overflow-x-auto, .nav-container .overflow-x-auto { overflow-x: auto !important; overflow-y: hidden !important; }

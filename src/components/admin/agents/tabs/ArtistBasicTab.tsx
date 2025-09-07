@@ -8,8 +8,8 @@ import { ArtistFlexibleForm } from '@/schemas/agents-flexible';
 import { RHFSlug } from '../RHFSlug';
 import { CountrySelect } from '@/components/form/CountrySelect';
 import { RHFGenreSelect } from '@/components/form/RHFGenreSelect';
-import { RHFArtistCategoriesSelect } from '@/components/form/RHFArtistCategoriesSelect';
 import { AgentesTagsInput } from '@/components/agentes/AgentesTagsInput';
+import ArtistCategorySelect from '@/components/fields/ArtistCategorySelect';
 
 interface ArtistBasicTabProps {
   form: UseFormReturn<ArtistFlexibleForm>;
@@ -72,11 +72,18 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
         required={true}
       />
 
-      <RHFArtistCategoriesSelect 
-        name="categories" 
-        label="Categorias/Funções"
-        placeholder="Ex: DJ, Produtor, Cantor..."
-        maxCategories={5}
+      <FormField
+        control={form.control}
+        name="category_id"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Categoria</FormLabel>
+            <FormControl>
+              <ArtistCategorySelect name="category_id" placeholder="Selecione a categoria" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
       />
 
       <FormField
@@ -181,7 +188,19 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
             </FormItem>
           )}
         />
-        <RHFGenreSelect name="genres" label="Gêneros Musicais" />
+        <FormField
+          control={form.control}
+          name="genres"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Gêneros Musicais</FormLabel>
+              <FormControl>
+                <RHFGenreSelect name="genres" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
 
       <div className="md:col-span-2">

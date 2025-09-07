@@ -41,7 +41,6 @@ import { NewsletterPage } from "@/pages/admin/NewsletterPage";
 
 // Admin V3 Layout
 import { AdminV3Layout } from "@/components/admin/AdminV3Layout";
-import { DynamicRedirect } from "@/components/admin/DynamicRedirect";
 
 // Admin V3 Pages
 const AdminV3AgendaListNew = lazy(() => import("./pages/admin-v3/AdminV3AgendaListNew"));
@@ -145,7 +144,7 @@ const TrabalheConosco = lazy(() => import("./pages/institucional/TrabalheConosco
 const Imprensa = lazy(() => import("./pages/institucional/Imprensa"));
 
 // User pages - lazy loaded
-const EventsPage = lazy(() => import("./pages/EventsPage")); // ATIVADO PARA PUBLICAÇÃO
+// const EventsPage = lazy(() => import("./pages/EventsPage")); // Removed as requested
 const EventDetailPageV2 = lazy(() => import("./pages/EventDetailPageV2"));
 const CreateEventPage = lazy(() => import("./pages/CreateEventPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
@@ -330,22 +329,10 @@ function App() {
                   {/* Legacy Routes - Redirecionamentos */}
                   <Route path="agenda/eventos" element={<Navigate to="/admin-v3/eventos" replace />} />
                   <Route path="agenda/eventos/criar" element={<Navigate to="/admin-v3/eventos/criar" replace />} />
-                  <Route path="agenda/eventos/:id/editar" element={<DynamicRedirect basePath="/admin-v3/eventos" />} />
+                  <Route path="agenda/eventos/:id/editar" element={<Navigate to="/admin-v3/eventos/$1/editar" replace />} />
                   
                   {/* Agentes Routes */}
                   <Route path="agentes/artistas" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsList /></Suspense>} />
-                  
-                  {/* Redirecionamentos para rotas mais curtas */}
-                  <Route path="artistas" element={<Navigate to="/admin-v3/agentes/artistas" replace />} />
-                  <Route path="artistas/criar" element={<Navigate to="/admin-v3/agentes/artistas/criar" replace />} />
-                  <Route path="artistas/create" element={<Navigate to="/admin-v3/agentes/artistas/create" replace />} />
-                  <Route path="artistas/:id/edit" element={<DynamicRedirect basePath="/admin-v3/agentes/artistas" />} />
-                  <Route path="venues" element={<Navigate to="/admin-v3/agentes/venues" replace />} />
-                  <Route path="venues/create" element={<Navigate to="/admin-v3/agentes/venues/create" replace />} />
-                  <Route path="venues/:id/edit" element={<DynamicRedirect basePath="/admin-v3/agentes/venues" />} />
-                  <Route path="organizadores" element={<Navigate to="/admin-v3/agentes/organizadores" replace />} />
-                  <Route path="organizadores/create" element={<Navigate to="/admin-v3/agentes/organizadores/create" replace />} />
-                  <Route path="organizadores/:id/edit" element={<DynamicRedirect basePath="/admin-v3/agentes/organizadores" />} />
                   <Route path="agentes/artistas/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
                   <Route path="agentes/artistas/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
                   <Route path="agentes/artistas/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistEdit /></Suspense>} />
@@ -380,9 +367,10 @@ function App() {
                   <Route path="under-construction" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionHandler /></Suspense>} />
                 </Route>
                 
-                {/* Events Routes - ATIVADAS PARA PUBLICAÇÃO */}
-                <Route path="/eventos" element={<Suspense fallback={<AdminLoadingFallback />}><EventsPage /></Suspense>} />
-                <Route path="/eventos/:id" element={<EventDetailPageV2 />} />
+                {/* Events Routes - /eventos permanently removed as requested */}
+                {/* Redirect old /eventos routes to /agenda */}
+                <Route path="/eventos" element={<Navigate to="/agenda" replace />} />
+                <Route path="/eventos/*" element={<Navigate to="/agenda" replace />} />
                 <Route path="/evento/:slug" element={<EventDetailPageV2 />} />
                 <Route path="/criar-evento" element={<CreateEventPage />} />
                 
