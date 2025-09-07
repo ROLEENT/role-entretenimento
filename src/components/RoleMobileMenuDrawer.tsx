@@ -61,7 +61,8 @@ export const RoleMobileMenuDrawer: React.FC<RoleMobileMenuDrawerProps> = ({
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      setSearchOpen?.(true);
+      // Open search modal and pass search term via URL or global state
+      window.location.href = `/agenda?q=${encodeURIComponent(searchTerm.trim())}`;
       onClose();
     }
   };
