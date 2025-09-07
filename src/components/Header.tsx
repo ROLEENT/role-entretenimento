@@ -28,7 +28,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "./ui/accordion";
-import { MobileMenuDrawer } from './MobileMenuDrawer';
+import { RoleMobileMenuDrawer } from './RoleMobileMenuDrawer';
 
 // Header mobile 2 linhas com carrossel de cidades
 const Header = () => {
@@ -154,7 +154,7 @@ const Header = () => {
         </header>
 
         {/* Mobile Menu Drawer */}
-        <MobileMenuDrawer
+        <RoleMobileMenuDrawer
           isOpen={mobileMenuOpen}
           onClose={() => setMobileMenuOpen(false)}
           navLinks={navLinks}
