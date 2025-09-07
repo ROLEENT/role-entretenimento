@@ -272,7 +272,6 @@ export const RoleMobileMenuDrawer: React.FC<RoleMobileMenuDrawerProps> = ({
               <Button
                 onClick={() => {
                   setShowPublicAuth?.(true);
-                  onClose();
                 }}
                 className={cn(
                   "w-full h-12 rounded-xl font-semibold text-base",
