@@ -3,7 +3,7 @@ import { X, Search, Star, Newspaper, Music, User, Sun, Moon } from 'lucide-react
 import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@/components/ThemeProvider';
 import { supabase } from '@/integrations/supabase/client';
 
 interface RoleMobileMenuDrawerProps {
