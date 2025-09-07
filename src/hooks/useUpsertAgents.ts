@@ -29,8 +29,11 @@ export const useUpsertArtist = () => {
           .slice(0, 80); // Limit to 80 chars
       };
 
-      // Extract genres for separate handling
-      const { genres, ...dataWithoutGenres } = data;
+      // Extract genres and categories for separate handling
+      const { genres, categories, ...dataWithoutGenres } = data;
+      
+      // Process categories - use first selected category as category_id
+      const categoryId = categories && categories.length > 0 ? categories[0].id : null;
 
       // Transform data to match database schema exactly
       const transformedData = {
@@ -65,6 +68,9 @@ export const useUpsertArtist = () => {
         status: data.status || 'active',
         priority: data.priority || 0,
         image_rights_authorized: data.image_rights_authorized || false,
+        
+        // Set category_id from selected categories
+        category_id: categoryId,
       };
 
       const { data: result, error } = await supabase

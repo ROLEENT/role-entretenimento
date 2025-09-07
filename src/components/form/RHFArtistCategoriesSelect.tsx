@@ -46,7 +46,7 @@ export function RHFArtistCategoriesSelect({
     setIsLoading(true);
     try {
       const { data, error } = await supabase
-        .from('categories')
+        .from('artist_categories')
         .select('id, name')
         .ilike('name', `%${query}%`)
         .eq('is_active', true)
@@ -89,12 +89,10 @@ export function RHFArtistCategoriesSelect({
       const adminClient = createAdminClient(adminEmail);
 
       const { data, error } = await adminClient
-        .from('categories')
+        .from('artist_categories')
         .insert({ 
           name: name.trim(), 
           slug,
-          kind: 'revista', // Tipo padrão para categorias de artista
-          color: '#3b82f6', // Cor padrão
           is_active: true,
           description: `Categoria ${name.trim()}`
         })
