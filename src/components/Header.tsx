@@ -173,6 +173,12 @@ const Header = () => {
           isOpen={searchOpen}
           onClose={() => setSearchOpen(false)}
         />
+
+        <PublicAuthDialog
+          open={showPublicAuth}
+          onOpenChange={setShowPublicAuth}
+          defaultTab="signin"
+        />
       </>
     );
   }
