@@ -9,6 +9,7 @@ export const artistFlexibleSchema = z.object({
   slug: z.string().min(1, "Slug é obrigatório").regex(/^[a-z0-9-]+$/, "Slug deve conter apenas letras minúsculas, números e hífens"),
   artist_type: z.string().optional(),
   category_id: z.string().uuid().optional().or(z.literal("")),
+  categories: z.array(z.string()).default([]),
   status: z.enum(["active", "inactive"]).default("active"),
   
   // Bio fields - all optional

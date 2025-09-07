@@ -9,7 +9,7 @@ import { RHFSlug } from '../RHFSlug';
 import { CountrySelect } from '@/components/form/CountrySelect';
 import { RHFGenreSelect } from '@/components/form/RHFGenreSelect';
 import { AgentesTagsInput } from '@/components/agentes/AgentesTagsInput';
-import ArtistCategorySelect from '@/components/fields/ArtistCategorySelect';
+import { RHFArtistCategorySelect } from '@/components/form/RHFArtistCategorySelect';
 
 interface ArtistBasicTabProps {
   form: UseFormReturn<ArtistFlexibleForm>;
@@ -74,12 +74,16 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
 
       <FormField
         control={form.control}
-        name="category_id"
+        name="categories"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Categoria</FormLabel>
             <FormControl>
-              <ArtistCategorySelect name="category_id" placeholder="Selecione a categoria" />
+              <RHFArtistCategorySelect 
+                name="categories" 
+                label="Categorias"
+                placeholder="Digite para buscar categorias... Ex: DJ, Produtor, Cantor"
+                maxCategories={8}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
