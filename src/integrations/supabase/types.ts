@@ -4736,6 +4736,7 @@ export type Database = {
           instagram: string | null
           invoice_email: string | null
           invoice_name: string | null
+          is_active: boolean
           links: Json | null
           logo_alt: string | null
           name: string
@@ -4774,6 +4775,7 @@ export type Database = {
           instagram?: string | null
           invoice_email?: string | null
           invoice_name?: string | null
+          is_active?: boolean
           links?: Json | null
           logo_alt?: string | null
           name: string
@@ -4812,6 +4814,7 @@ export type Database = {
           instagram?: string | null
           invoice_email?: string | null
           invoice_name?: string | null
+          is_active?: boolean
           links?: Json | null
           logo_alt?: string | null
           name?: string
@@ -5684,6 +5687,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      system_backups: {
+        Row: {
+          backup_data: Json
+          backup_type: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          notes: string | null
+          record_count: number
+          table_name: string
+        }
+        Insert: {
+          backup_data: Json
+          backup_type: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          record_count?: number
+          table_name: string
+        }
+        Update: {
+          backup_data?: Json
+          backup_type?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          record_count?: number
+          table_name?: string
+        }
+        Relationships: []
       }
       system_logs: {
         Row: {
@@ -8728,6 +8764,15 @@ export type Database = {
       }
       create_system_backup: {
         Args: { p_admin_email: string; p_backup_type?: string }
+        Returns: string
+      }
+      create_table_backup: {
+        Args: {
+          p_backup_type?: string
+          p_created_by?: string
+          p_notes?: string
+          p_table_name: string
+        }
         Returns: string
       }
       debug_admin_highlight_auth: {
