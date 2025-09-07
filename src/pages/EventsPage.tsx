@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -314,7 +314,9 @@ const EventsPage = () => {
                         {event.price_min && (
                           <span className="font-bold text-primary">R$ {event.price_min}</span>
                         )}
-                        <Button size="sm" className="ml-auto">Ver detalhes</Button>
+                        <Button size="sm" className="ml-auto" asChild>
+                          <Link to={`/evento/${event.slug}`}>Ver detalhes</Link>
+                        </Button>
                       </div>
                     </div>
                   </CardContent>

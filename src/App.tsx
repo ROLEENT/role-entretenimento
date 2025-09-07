@@ -145,7 +145,7 @@ const TrabalheConosco = lazy(() => import("./pages/institucional/TrabalheConosco
 const Imprensa = lazy(() => import("./pages/institucional/Imprensa"));
 
 // User pages - lazy loaded
-// const EventsPage = lazy(() => import("./pages/EventsPage")); // Removed as requested
+const EventsPage = lazy(() => import("./pages/EventsPage")); // ATIVADO PARA PUBLICAÇÃO
 const EventDetailPageV2 = lazy(() => import("./pages/EventDetailPageV2"));
 const CreateEventPage = lazy(() => import("./pages/CreateEventPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
@@ -380,10 +380,9 @@ function App() {
                   <Route path="under-construction" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionHandler /></Suspense>} />
                 </Route>
                 
-                {/* Events Routes - /eventos permanently removed as requested */}
-                {/* Redirect old /eventos routes to /agenda */}
-                <Route path="/eventos" element={<Navigate to="/agenda" replace />} />
-                <Route path="/eventos/*" element={<Navigate to="/agenda" replace />} />
+                {/* Events Routes - ATIVADAS PARA PUBLICAÇÃO */}
+                <Route path="/eventos" element={<Suspense fallback={<AdminLoadingFallback />}><EventsPage /></Suspense>} />
+                <Route path="/eventos/:id" element={<EventDetailPageV2 />} />
                 <Route path="/evento/:slug" element={<EventDetailPageV2 />} />
                 <Route path="/criar-evento" element={<CreateEventPage />} />
                 
