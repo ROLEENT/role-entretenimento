@@ -1,5 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { createAdminClient } from '@/lib/supabase/admin-client';
+import { useAdminSession } from '@/hooks/useAdminSession';
 
 interface SlugCheckResult {
   available: boolean;
@@ -8,6 +10,7 @@ interface SlugCheckResult {
 }
 
 export const useSlugValidation = (table: 'agenda_itens' | 'artists' | 'venues' | 'organizers' | 'blog_posts') => {
+  const { adminEmail } = useAdminSession();
   const [result, setResult] = useState<SlugCheckResult>({
     available: true,
     loading: false,
@@ -23,7 +26,10 @@ export const useSlugValidation = (table: 'agenda_itens' | 'artists' | 'venues' |
     setResult({ available: true, loading: true, error: null });
 
     try {
-      let query = supabase
+      // Use admin client if available, otherwise regular client
+      const client = adminEmail ? createAdminClient(adminEmail) : supabase;
+      
+      let query = client
         .from(table)
         .select('id')
         .eq('slug', slug)
@@ -36,6 +42,7 @@ export const useSlugValidation = (table: 'agenda_itens' | 'artists' | 'venues' |
       const { data, error } = await query;
 
       if (error) {
+        console.error('Slug check error:', error);
         setResult({ 
           available: false, 
           loading: false, 
@@ -52,13 +59,14 @@ export const useSlugValidation = (table: 'agenda_itens' | 'artists' | 'venues' |
       });
 
     } catch (error) {
+      console.error('Slug validation error:', error);
       setResult({ 
         available: false, 
         loading: false, 
         error: 'Erro na verificação' 
       });
     }
-  }, [table]);
+  }, [table, adminEmail]);
 
   const generateSlug = useCallback((text: string): string => {
     return text
