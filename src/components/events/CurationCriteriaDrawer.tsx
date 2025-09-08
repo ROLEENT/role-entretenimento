@@ -403,31 +403,23 @@ export function CurationCriteriaDrawer({
             className="w-full h-11 rounded-xl bg-[#c77dff] text-black font-semibold hover:bg-[#c77dff]/90"
             onClick={closeWithHistory}
           >
-            Salvar
+            Entendi
           </Button>
           
           <Button 
-            variant="outline" 
-            className="w-full h-11 rounded-xl border border-white/15 hover:bg-white/5"
+            variant="ghost" 
+            className="w-full h-11 rounded-xl hover:bg-white/5"
             asChild
           >
             <a 
               href="/politicas/curadoria" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2"
+              className="flex items-center justify-center gap-2 text-sm text-muted-foreground"
             >
               <span>Política de curadoria</span>
-              <ExternalLink className="w-4 h-4" />
+              <ExternalLink className="w-3 h-3" />
             </a>
-          </Button>
-          
-          <Button 
-            variant="ghost"
-            className="w-full h-11 rounded-xl hover:bg-white/5"
-            onClick={closeWithHistory}
-          >
-            Fechar
           </Button>
         </div>
       </div>

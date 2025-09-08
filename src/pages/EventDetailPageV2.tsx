@@ -43,7 +43,7 @@ import { EventLocationCard } from '@/components/events/EventLocationCard';
 import { EventCurationSection } from '@/components/events/EventCurationSection';
 import { EventSEO } from '@/components/events/EventSEO';
 import { useCurationDrawer } from '@/hooks/useCurationDrawer';
-import { CurationCriteriaDrawer } from '@/components/events/CurationCriteriaDrawerV2';
+import { CurationCriteriaDrawer } from '@/components/events/CurationCriteriaDrawer';
 import '../styles/mobile-event-layout.css';
 
 const EventDetailPageV2 = () => {
@@ -469,7 +469,7 @@ const EventDetailPageV2 = () => {
       
       {/* Sticky CTA for Mobile - removed per user request */}
       
-      {/* Curation Criteria Drawer */}
+      {/* Curation Criteria Drawer - Modal de leitura pública */}
       {event && (
         <CurationCriteriaDrawer
           open={curationDrawerOpen}
@@ -486,7 +486,6 @@ const EventDetailPageV2 = () => {
           ]}
           notes="Este evento se destaca pela sua relevância cultural única na cidade, com lineup de alta qualidade e forte impacto na comunidade local."
           eventTitle={event.title}
-          curatorialCriteria={event.curatorial_criteria}
         />
       )}
       

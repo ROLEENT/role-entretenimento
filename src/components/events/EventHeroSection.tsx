@@ -136,7 +136,7 @@ export function EventHeroSection({ event, venue, formatPrice, formatTime }: Even
         </div>
       )}
 
-      {/* Drawer de critérios */}
+      {/* Drawer de critérios - Modal de leitura pública */}
       <CurationCriteriaDrawer
         open={showCriteriaDrawer}
         onOpenChange={setShowCriteriaDrawer}
