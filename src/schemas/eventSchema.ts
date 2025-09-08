@@ -198,7 +198,7 @@ export const eventSchema = z.object({
   edition_number: z.number().int().min(1).optional(),
   
   // Status & Publishing
-  status: publicationStatusSchema.default('draft'),
+  status: publicationStatusSchema.default('published'),
   visibility: z.enum(['public', 'private', 'unlisted']).default('public'),
   slug: z.string().optional(),
   
@@ -401,7 +401,7 @@ export function validateEventForPublish(data: EventFormData): string[] {
 // Default values helper
 export function getEventDefaults(): Partial<EventFormData> {
   return {
-    status: 'draft',
+    status: 'published',
     visibility: 'public',
     highlight_type: 'none',
     is_sponsored: false,
