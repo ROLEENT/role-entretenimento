@@ -473,7 +473,6 @@ body {
   overflow-x: hidden;
   overflow-y: auto; /* Ensure vertical scrolling is always available */
 }
-}
 
 @layer utilities {
   .animate-on-scroll {
