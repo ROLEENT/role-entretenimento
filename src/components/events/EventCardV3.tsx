@@ -194,12 +194,7 @@ export function EventCardV3({
                 )}
               </div>
 
-              {/* Price */}
-              <div className="text-right flex-shrink-0">
-                <p className="text-xs font-medium text-primary">
-                  {formatPrice(event.price_min, event.price_max)}
-                </p>
-              </div>
+              {/* Price removed per user request */}
             </div>
           </CardContent>
         </Card>
@@ -353,11 +348,7 @@ export function EventCardV3({
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between">
-              <div className="text-lg font-bold text-primary">
-                {formatPrice(event.price_min, event.price_max)}
-              </div>
-              
+            <div className="flex items-center justify-end">
               {event.ticket_url && (
                 <Button 
                   size="sm" 
@@ -421,12 +412,7 @@ export function EventCardV3({
             </div>
           )}
 
-          {/* Price */}
-          <div className="absolute bottom-3 right-3">
-            <Badge className="bg-background/90 text-foreground shadow-lg backdrop-blur-sm">
-              {formatPrice(event.price_min, event.price_max)}
-            </Badge>
-          </div>
+          {/* Price removed per user request */}
         </div>
 
         <CardContent className="p-4">
