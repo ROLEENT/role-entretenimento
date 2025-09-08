@@ -359,13 +359,6 @@ const EventDetailPageV2 = () => {
                       eventId={event.id}
                       highlightType={event.highlight_type}
                     />
-                    <button
-                      onClick={openDrawer}
-                      className="mobile-curation-link"
-                      aria-label="Ver critérios de curadoria"
-                    >
-                      Como escolhemos este destaque?
-                    </button>
                   </div>
                 </div>
               )}

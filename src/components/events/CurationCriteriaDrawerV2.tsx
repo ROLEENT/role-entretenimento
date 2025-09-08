@@ -358,39 +358,42 @@ export function CurationCriteriaDrawer({
         
         {/* Desktop Container */}
         <div className="md:bg-[#1a1a1a] md:rounded-xl md:max-w-3xl md:w-full md:max-h-[90vh] md:m-4 md:flex md:flex-col">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 md:p-6 border-b border-white/10 drawer-header">
-            <div className="flex-1">
-              <h2 id="drawer-title" className="text-xl md:text-2xl font-bold text-white mb-1">
-                Como escolhemos este destaque?
-              </h2>
-              {eventTitle && (
-                <p className="text-sm text-white/60">{eventTitle}</p>
-              )}
-              
-              {/* Contador de critérios */}
-              <div className="flex items-center gap-2 mt-3">
-                <div className="flex items-center gap-2 text-sm bg-[#c77dff]/10 border border-[#c77dff]/20 rounded-full px-3 py-1">
-                  <div className="w-2 h-2 rounded-full bg-[#c77dff]" />
-                  <span className="font-medium text-[#c77dff]">
-                    {metCriteria} de {totalCriteria} critérios atendidos
-                  </span>
+          {/* Header Fixo */}
+          <div className="sticky top-0 z-10 bg-[#1a1a1a] rounded-t-xl md:rounded-t-xl border-b border-white/10 p-4 md:p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <h2 id="drawer-title" className="text-xl md:text-2xl font-bold text-white mb-1">
+                  Como escolhemos este destaque?
+                </h2>
+                {eventTitle && (
+                  <p className="text-sm text-white/60">{eventTitle}</p>
+                )}
+                
+                {/* Contador de critérios */}
+                <div className="flex items-center gap-2 mt-3">
+                  <div className="flex items-center gap-2 text-sm bg-[#c77dff]/10 border border-[#c77dff]/20 rounded-full px-3 py-1">
+                    <div className="w-2 h-2 rounded-full bg-[#c77dff]" />
+                    <span className="font-medium text-[#c77dff]">
+                      {metCriteria} de {totalCriteria} critérios atendidos
+                    </span>
+                  </div>
                 </div>
               </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onOpenChange(false)}
+                className="h-8 w-8 p-0 rounded-full hover:bg-white/10 text-white shrink-0"
+                aria-label="Fechar"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-              className="h-8 w-8 p-0 rounded-full hover:bg-white/10 text-white shrink-0"
-              aria-label="Fechar"
-            >
-              <X className="h-4 w-4" />
-            </Button>
           </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto p-4 md:p-6 drawer-content space-y-6">
+          {/* Content Scrollável */}
+          <div className="flex-1 overflow-y-auto max-h-[calc(90vh-200px)] md:max-h-[calc(80vh-200px)]">
+            <div className="p-4 md:p-6 space-y-6">
             {/* Intro Text */}
             <div className="text-center">
               <p className="text-white/80 text-sm leading-relaxed">
@@ -413,17 +416,18 @@ export function CurationCriteriaDrawer({
               ))}
             </div>
 
-            {/* Notes */}
-            {notes && (
-              <div className="p-4 bg-white/[0.03] border border-white/10 rounded-xl">
-                <h4 className="font-semibold text-white mb-3">Observações da Curadoria</h4>
-                <p className="text-sm text-white/70 leading-relaxed">{notes}</p>
-              </div>
-            )}
+              {/* Notes */}
+              {notes && (
+                <div className="p-4 bg-white/[0.03] border border-white/10 rounded-xl">
+                  <h4 className="font-semibold text-white mb-3">Observações da Curadoria</h4>
+                  <p className="text-sm text-white/70 leading-relaxed">{notes}</p>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Footer */}
-          <div className="border-t border-white/10 p-4 md:p-6 drawer-footer">
+          {/* Footer Fixo */}
+          <div className="sticky bottom-0 bg-[#1a1a1a] border-t border-white/10 p-4 md:p-6 rounded-b-xl md:rounded-b-xl">
             <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 onClick={() => onOpenChange(false)}
@@ -432,17 +436,17 @@ export function CurationCriteriaDrawer({
                 Entendi
               </Button>
               <Button
-                variant="outline"
-                className="sm:w-auto border-white/20 text-white/80 hover:bg-white/5 hover:text-white h-11"
+                variant="ghost"
+                className="sm:w-auto text-white/60 hover:bg-white/5 hover:text-white h-11 text-sm"
                 asChild
               >
                 <a 
                   href="/sobre/politica-curatorial" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center text-sm"
+                  className="flex items-center justify-center gap-2"
                 >
-                  <ExternalLink className="h-4 w-4 mr-2" />
+                  <ExternalLink className="h-3 w-3" />
                   Política Curatorial
                 </a>
               </Button>

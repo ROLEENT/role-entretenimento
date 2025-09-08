@@ -24,13 +24,13 @@ export function CurationInfoBar({ type, onShowCriteria, className }: CurationInf
     curatorial: {
       icon: Info,
       text: 'Selecionado pela curadoria do ROLÊ',
-      linkText: 'Por que é destaque?',
+      linkText: 'Como escolhemos este destaque?',
       className: 'bg-[#c77dff1a] border-[#c77dff]/20'
     },
     vitrine: {
       icon: ExternalLink,
       text: 'Conteúdo publicitário',
-      linkText: 'Por que é destaque?',
+      linkText: 'Como escolhemos este destaque?',
       className: 'bg-[#c77dff1a] border-[#c77dff]/20'
     }
   };
