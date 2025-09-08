@@ -1,4 +1,3 @@
-"use client";
 import React, { createContext, useContext, useState, useRef } from "react";
 
 const Ctx = createContext<{open:boolean; setOpen:(v:boolean)=>void} | null>(null);
