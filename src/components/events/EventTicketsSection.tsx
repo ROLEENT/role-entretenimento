@@ -28,12 +28,13 @@ export function EventTicketsSection({ event, formatPrice }: EventTicketsSectionP
   const ticketTiers = getTicketTiers();
 
   const formatTicketPrice = (price: number, currency: string = 'BRL') => {
-    if (price === 0) return 'Gratuito';
+    const numPrice = Number(price || 0);
+    if (numPrice === 0) return 'Gratuito';
     
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: currency === 'BRL' ? 'BRL' : 'USD'
-    }).format(price);
+    }).format(numPrice);
   };
 
   return (
