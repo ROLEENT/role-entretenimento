@@ -5,10 +5,8 @@ export function ResourceOptimizer() {
   const { config, preloadResource } = usePerformanceOptimizations();
 
   useEffect(() => {
-    // Preload critical fonts
-    if (config.preloadCritical) {
-      preloadResource('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap', 'style');
-    }
+    // Sempre preload de fonts críticas para reduzir LCP
+    preloadResource('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap', 'style');
 
     // Add resource hints for external domains
     const resourceHints = [
@@ -50,42 +48,54 @@ export function ResourceOptimizer() {
       optimizeScripts();
     }
 
-    // Preload critical images based on route
+    // Preload critical images more aggressively for LCP
     const preloadCriticalImages = () => {
       const currentPath = window.location.pathname;
       
-      // Home page critical images
+      // Always preload critical images
+      const criticalImages = [
+        '/banner-home.png',
+        '/role-logo.png',
+        '/placeholder.svg'
+      ];
+      
+      criticalImages.forEach(src => {
+        if (!document.querySelector(`link[rel="preload"][href="${src}"]`)) {
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.as = 'image';
+          link.href = src;
+          link.fetchPriority = 'high';
+          document.head.appendChild(link);
+        }
+      });
+      
+      // Warm up API endpoints to reduce TTFB
       if (currentPath === '/') {
-        const heroImages = [
-          '/banner-home.png',
-          '/role-logo.png'
-        ];
-        
-        heroImages.forEach(src => {
-          // Check if already preloaded to avoid duplicates
-          if (!document.querySelector(`link[rel="preload"][href="${src}"]`)) {
-            const link = document.createElement('link');
-            link.rel = 'preload';
-            link.as = 'image';
-            link.href = src;
-            link.fetchPriority = 'high';
-            document.head.appendChild(link);
-          }
-        });
+        // Prefetch data for home page
+        fetch('/rest/v1/site_metrics?is_current=eq.true').catch(() => {});
+        fetch('/rest/v1/events?select=id,title&status=eq.published&limit=1').catch(() => {});
       }
     };
 
     // Always preload critical images for better performance
     preloadCriticalImages();
 
-    // Service Worker registration for caching - re-enabled for performance
-    if ('serviceWorker' in navigator && config.preloadCritical) {
-      // Delay SW registration to not block initial load
-      setTimeout(() => {
-        navigator.serviceWorker.register('/sw.js').catch(() => {
-          // Silently fail - SW is optional
+    // Service Worker registration - immediate for better caching
+    if ('serviceWorker' in navigator) {
+      // Register immediately if DOM ready, otherwise on load
+      if (document.readyState === 'complete') {
+        navigator.serviceWorker.register('/sw.js').then(registration => {
+          // Force activation of new SW
+          if (registration.waiting) {
+            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+          }
+        }).catch(() => {});
+      } else {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
         });
-      }, 2000);
+      }
     }
 
     return () => {

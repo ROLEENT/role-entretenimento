@@ -12,12 +12,23 @@ const STATIC_ASSETS = [
   '/role-logo.png'
 ];
 
-// Install event - cache static assets
+// Install event - cache crítico primeiro para reduzir TTFB
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(STATIC_CACHE_NAME)
-      .then(cache => cache.addAll(STATIC_ASSETS))
-      .then(() => self.skipWaiting())
+    caches.open(STATIC_CACHE_NAME).then(cache => {
+      // Cache assets críticos primeiro
+      const criticalAssets = STATIC_ASSETS.filter(asset => 
+        asset === '/' || asset.includes('.png') || asset.includes('manifest')
+      );
+      
+      return cache.addAll(criticalAssets).then(() => {
+        // Cache resto em background
+        const remainingAssets = STATIC_ASSETS.filter(asset => !criticalAssets.includes(asset));
+        return Promise.allSettled(
+          remainingAssets.map(asset => cache.add(asset).catch(() => {}))
+        );
+      });
+    }).then(() => self.skipWaiting())
   );
 });
 
@@ -90,7 +101,7 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// Fetch event - implement caching strategy
+// Fetch event - estratégias otimizadas para TTFB e LCP
 self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
@@ -101,27 +112,36 @@ self.addEventListener('fetch', event => {
   // Skip chrome-extension and other non-http(s) requests
   if (!url.protocol.startsWith('http')) return;
 
-  // API requests - Network First strategy
+  // API requests - Cache first para dados menos críticos
   if (url.pathname.includes('/rest/v1/') || url.pathname.includes('/api/')) {
-    event.respondWith(networkFirstStrategy(request, DYNAMIC_CACHE_NAME));
+    // Dados que mudam pouco: cache first
+    if (url.pathname.includes('site_metrics') || 
+        url.pathname.includes('highlights') ||
+        url.pathname.includes('categories')) {
+      event.respondWith(cacheFirstStrategy(request, DYNAMIC_CACHE_NAME));
+    } else {
+      // Dados dinâmicos: network first com timeout
+      event.respondWith(networkFirstStrategy(request, DYNAMIC_CACHE_NAME));
+    }
     return;
   }
 
-  // Images - Cache First strategy
+  // Images - Cache First com preload agressivo
   if (request.destination === 'image' || url.pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i)) {
     event.respondWith(cacheFirstStrategy(request, IMAGE_CACHE_NAME));
     return;
   }
 
-  // Static assets - Cache First strategy
+  // Static assets - Cache First para reduzir TTFB
   if (url.pathname.match(/\.(js|css|woff2?|ttf|eot)$/i)) {
     event.respondWith(cacheFirstStrategy(request, STATIC_CACHE_NAME));
     return;
   }
 
-  // HTML pages - Network First strategy
+  // HTML pages - Cache first para reduzir TTFB inicial
   if (request.destination === 'document') {
-    event.respondWith(networkFirstStrategy(request, DYNAMIC_CACHE_NAME));
+    event.respondWith(cacheFirstStrategy(request, STATIC_CACHE_NAME)
+      .catch(() => networkFirstStrategy(request, DYNAMIC_CACHE_NAME)));
     return;
   }
 
@@ -129,26 +149,31 @@ self.addEventListener('fetch', event => {
   event.respondWith(networkFirstStrategy(request, DYNAMIC_CACHE_NAME));
 });
 
-// Network First strategy (with fallback to cache)
+// Network First strategy otimizada para TTFB
 async function networkFirstStrategy(request, cacheName) {
+  // Timeout para reduzir TTFB em conexões lentas
+  const timeout = new Promise((_, reject) => 
+    setTimeout(() => reject(new Error('Network timeout')), 2500)
+  );
+  
   try {
-    const networkResponse = await fetch(request);
+    const networkResponse = await Promise.race([fetch(request), timeout]);
     
-    // Cache successful responses
+    // Cache em background para não bloquear resposta
     if (networkResponse.ok) {
       const cache = await caches.open(cacheName);
-      cache.put(request, networkResponse.clone());
+      cache.put(request, networkResponse.clone()).catch(() => {});
     }
     
     return networkResponse;
   } catch (error) {
-    // Network failed, try cache
+    // Network failed ou timeout, fallback para cache
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
       return cachedResponse;
     }
     
-    // If it's an HTML request and we have no cache, return offline page
+    // Offline fallback mínimo
     if (request.destination === 'document') {
       return new Response(
         `<!DOCTYPE html>
@@ -175,11 +200,26 @@ async function networkFirstStrategy(request, cacheName) {
   }
 }
 
-// Cache First strategy (with network fallback)
+// Cache First strategy otimizada para LCP
 async function cacheFirstStrategy(request, cacheName) {
   const cachedResponse = await caches.match(request);
   
   if (cachedResponse) {
+    // Verificar se cache não está muito antigo (apenas para APIs)
+    if (cacheName === DYNAMIC_CACHE_NAME) {
+      const cacheDate = cachedResponse.headers.get('date');
+      const isStale = cacheDate && (Date.now() - new Date(cacheDate).getTime()) > 30 * 60 * 1000; // 30min
+      
+      // Update em background se stale
+      if (isStale) {
+        fetch(request).then(response => {
+          if (response.ok) {
+            caches.open(cacheName).then(cache => cache.put(request, response));
+          }
+        }).catch(() => {});
+      }
+    }
+    
     return cachedResponse;
   }
   
@@ -188,17 +228,23 @@ async function cacheFirstStrategy(request, cacheName) {
     
     if (networkResponse.ok) {
       const cache = await caches.open(cacheName);
-      cache.put(request, networkResponse.clone());
+      // Cache imediatamente para próximas requisições
+      cache.put(request, networkResponse.clone()).catch(() => {});
     }
     
     return networkResponse;
   } catch (error) {
-    // For images, return a placeholder
+    // Return cached mesmo se stale
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    
+    // Placeholder mínimo para imagens
     if (request.destination === 'image') {
       return new Response(
         `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
           <rect width="200" height="200" fill="#f3f4f6"/>
-          <text x="100" y="100" text-anchor="middle" dy=".3em" fill="#9ca3af">Imagem indisponível</text>
+          <text x="100" y="100" text-anchor="middle" dy=".3em" fill="#9ca3af">Offline</text>
         </svg>`,
         { headers: { 'Content-Type': 'image/svg+xml' } }
       );

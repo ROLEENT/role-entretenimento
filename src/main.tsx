@@ -8,6 +8,7 @@ import { initPerformanceMonitoring } from "./utils/performanceMonitor";
 import { initSecurity } from "@/utils/securityHeaders";
 import { CriticalCSS } from "./components/performance/CriticalCSS";
 import { ResourceOptimizer } from "./components/performance/ResourceOptimizer";
+import { ImageOptimizer } from "./components/performance/ImageOptimizer";
 
 // Initialize security (CSP, context checks)
 initSecurity();
@@ -32,6 +33,8 @@ createRoot(document.getElementById("root")!).render(
   <HelmetProvider>
     <CriticalCSS />
     <ResourceOptimizer />
-    <App />
+    <ImageOptimizer>
+      <App />
+    </ImageOptimizer>
   </HelmetProvider>
 );
