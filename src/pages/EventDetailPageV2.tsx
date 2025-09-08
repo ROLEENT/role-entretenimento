@@ -45,6 +45,7 @@ import { EventSEO } from '@/components/events/EventSEO';
 import { useCurationDrawer } from '@/hooks/useCurationDrawer';
 import { useCurationData } from '@/hooks/useCurationData';
 import { CurationCriteriaDrawer } from '@/components/events/CurationCriteriaDrawer';
+import { formatWeekdayPtBR } from '@/utils/dateUtils';
 import '../styles/mobile-event-layout.css';
 
 const EventDetailPageV2 = () => {
@@ -419,7 +420,19 @@ const EventDetailPageV2 = () => {
                   <h4 className="font-medium text-sm text-muted-foreground mb-2 uppercase tracking-wide">
                     Local
                   </h4>
-                  <p className="font-medium">{event.location_name || venue?.name}</p>
+                  {venue?.slug ? (
+                    <Link 
+                      to={`/perfil/${venue.slug}`}
+                      className="font-medium hover:text-primary transition-colors cursor-pointer"
+                    >
+                      {event.location_name || venue?.name}
+                    </Link>
+                  ) : (
+                    <p className="font-medium">
+                      {event.location_name || venue?.name}
+                      {venue && !venue.slug && console.warn('Local sem slug definido:', venue.name)}
+                    </p>
+                  )}
                   <p className="text-sm text-muted-foreground">{event.city}</p>
                   {venue?.opening_hours && typeof venue.opening_hours === 'object' && (
                     <p className="text-sm text-muted-foreground mt-1">
@@ -428,7 +441,8 @@ const EventDetailPageV2 = () => {
                         const todayEntries = Object.entries(hours).filter(([_, time]) => time && time.trim());
                         if (todayEntries.length === 0) return null;
                         const firstEntry = todayEntries[0];
-                        return `${firstEntry[0]}: ${firstEntry[1]}`;
+                        const weekdayPtBR = formatWeekdayPtBR(firstEntry[0]);
+                        return `${weekdayPtBR}: ${firstEntry[1]}`;
                       })()}
                     </p>
                   )}
