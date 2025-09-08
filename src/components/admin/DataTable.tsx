@@ -303,34 +303,32 @@ export function DataTable<T>({
         </div>
       )}
 
-      {/* Data Table - Com scroll horizontal controlado */}
-      <div className="rounded-md border overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table className="min-w-full">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px] sticky left-0 bg-background z-10">
-                  <Checkbox
-                    checked={selectedItems.size === data.length && data.length > 0}
-                    onCheckedChange={toggleSelectAll}
-                  />
+      {/* Data Table */}
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[50px]">
+                <Checkbox
+                  checked={selectedItems.size === data.length && data.length > 0}
+                  onCheckedChange={toggleSelectAll}
+                />
+              </TableHead>
+              {columns.map((column) => (
+                <TableHead
+                  key={String(column.key)}
+                  className={column.sortable ? "cursor-pointer hover:bg-muted/50" : ""}
+                  onClick={column.sortable ? () => handleSort(column.key) : undefined}
+                >
+                  <div className="flex items-center gap-1">
+                    {column.label}
+                    {column.sortable && getSortIcon(column.key)}
+                  </div>
                 </TableHead>
-                {columns.map((column: any) => (
-                  <TableHead
-                    key={String(column.key)}
-                    className={`${column.sortable ? "cursor-pointer hover:bg-muted/50" : ""} ${column.className || ""}`}
-                    style={{ width: column.width }}
-                    onClick={column.sortable ? () => handleSort(column.key) : undefined}
-                  >
-                    <div className="flex items-center gap-1">
-                      {column.label}
-                      {column.sortable && getSortIcon(column.key)}
-                    </div>
-                  </TableHead>
-                ))}
-                {showActions && <TableHead className="w-[100px] sticky right-0 bg-background">Ações</TableHead>}
-              </TableRow>
-            </TableHeader>
+              ))}
+              {showActions && <TableHead className="w-[100px]">Ações</TableHead>}
+            </TableRow>
+          </TableHeader>
           <TableBody>
             {loading ? (
               [...Array(5)].map((_, i) => (
@@ -358,25 +356,21 @@ export function DataTable<T>({
                     key={itemId}
                     className={selectedItems.has(itemId) ? "bg-muted/50" : ""}
                   >
-                    <TableCell className="sticky left-0 bg-background">
+                    <TableCell>
                       <Checkbox
                         checked={selectedItems.has(itemId)}
                         onCheckedChange={() => toggleSelectItem(itemId)}
                       />
                     </TableCell>
-                    {columns.map((column: any) => (
-                      <TableCell 
-                        key={String(column.key)}
-                        className={column.className || ""}
-                        style={{ width: column.width }}
-                      >
+                    {columns.map((column) => (
+                      <TableCell key={String(column.key)}>
                         {column.render
                           ? column.render(item[column.key], item)
                           : String(item[column.key] || '-')}
                       </TableCell>
                     ))}
                     {showActions && (
-                      <TableCell className="sticky right-0 bg-background">
+                      <TableCell>
                         {renderActions ? (
                           renderActions(item)
                         ) : (
@@ -401,8 +395,7 @@ export function DataTable<T>({
               })
             )}
           </TableBody>
-          </Table>
-        </div>
+        </Table>
       </div>
     </div>
   );

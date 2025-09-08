@@ -17,10 +17,10 @@ export default function AdminV3AgendaEdit() {
       if (!id) throw new Error('ID não fornecido');
       
       const { data, error } = await supabase
-        .from('agenda_active')
+        .from('agenda_itens')
         .select('*')
         .eq('id', id)
-        .maybeSingle();
+        .single();
       
       if (error) throw error;
       return data;

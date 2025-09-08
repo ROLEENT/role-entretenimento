@@ -13,10 +13,8 @@ export function AdminV3Layout() {
           <AdminSidebar />
           <SidebarInset className="flex-1">
             <AdminV3LayoutHeader />
-            <main className="flex-1 overflow-auto">
-              <div className="p-4 md:p-6">
-                <Outlet />
-              </div>
+            <main className="flex flex-1 flex-col gap-4 p-4 md:p-6">
+              <Outlet />
             </main>
           </SidebarInset>
         </div>

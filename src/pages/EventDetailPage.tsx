@@ -299,19 +299,10 @@ const EventDetailPage = () => {
 
   // Helper functions
   const formatPrice = () => {
-    const minPrice = Number(event.price_min || 0);
-    const maxPrice = Number(event.price_max || 0);
-    
-    if (!minPrice && !maxPrice) return 'Preço a consultar';
-    if (minPrice === 0) return 'Gratuito';
-    
-    const formatCurrency = (price) => new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(price);
-    
-    if (minPrice === maxPrice) return formatCurrency(minPrice);
-    return `${formatCurrency(minPrice)}${maxPrice ? ` - ${formatCurrency(maxPrice)}` : '+'}`;
+    if (!event.price_min && !event.price_max) return 'Preço a consultar';
+    if (event.price_min === 0) return 'Gratuito';
+    if (event.price_min === event.price_max) return `R$ ${event.price_min}`;
+    return `R$ ${event.price_min}${event.price_max ? ` - R$ ${event.price_max}` : '+'}`;
   };
 
   const formatTime = (timeString) => {
