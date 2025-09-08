@@ -249,7 +249,7 @@ export function NewAdminAgendaTable({
     </DropdownMenu>
   );
 
-  // Table columns configuration
+  // Table columns configuration - Otimizada para responsividade
   const columns = [
     {
       key: 'select' as keyof AgendaItem,
@@ -268,7 +268,7 @@ export function NewAdminAgendaTable({
       label: 'Título',
       sortable: true,
       render: (value: any, item: AgendaItem) => (
-        <div className="max-w-[300px]">
+        <div className="min-w-[200px] max-w-[300px]">
           <div className="font-medium truncate">{item.title}</div>
           {item.subtitle && (
             <div className="text-sm text-muted-foreground truncate">{item.subtitle}</div>
@@ -280,45 +280,60 @@ export function NewAdminAgendaTable({
       key: 'status' as keyof AgendaItem,
       label: 'Status',
       sortable: true,
-      render: (value: any, item: AgendaItem) => getStatusBadge(item.status)
+      render: (value: any, item: AgendaItem) => getStatusBadge(item.status),
+      width: '120px'
     },
     {
       key: 'city' as keyof AgendaItem,
       label: 'Cidade',
       sortable: true,
-      render: (value: any, item: AgendaItem) => getCityBadge(item.city || '')
+      render: (value: any, item: AgendaItem) => getCityBadge(item.city || ''),
+      className: 'hidden md:table-cell',
+      width: '140px'
     },
     {
       key: 'starts_at' as keyof AgendaItem,
-      label: 'Data do Evento',
+      label: 'Data',
       sortable: true,
       render: (value: any, item: AgendaItem) => 
-        item.starts_at ? format(new Date(item.starts_at), 'dd/MM/yyyy HH:mm', { locale: ptBR }) : '-'
+        item.starts_at ? (
+          <div className="text-sm">
+            {format(new Date(item.starts_at), 'dd/MM/yyyy', { locale: ptBR })}
+            <div className="text-xs text-muted-foreground">
+              {format(new Date(item.starts_at), 'HH:mm', { locale: ptBR })}
+            </div>
+          </div>
+        ) : '-',
+      width: '100px'
     },
     {
       key: 'tags' as keyof AgendaItem,
       label: 'Tags',
       render: (value: any, item: AgendaItem) => (
-        <div className="flex flex-wrap gap-1 max-w-[200px]">
-          {item.tags?.slice(0, 3).map((tag, index) => (
+        <div className="flex flex-wrap gap-1 max-w-[150px]">
+          {item.tags?.slice(0, 2).map((tag, index) => (
             <Badge key={index} variant="outline" className="text-xs">
               {tag}
             </Badge>
           ))}
-          {item.tags && item.tags.length > 3 && (
+          {item.tags && item.tags.length > 2 && (
             <Badge variant="outline" className="text-xs">
-              +{item.tags.length - 3}
+              +{item.tags.length - 2}
             </Badge>
           )}
         </div>
-      )
+      ),
+      className: 'hidden lg:table-cell',
+      width: '150px'
     },
     {
       key: 'created_at' as keyof AgendaItem,
-      label: 'Criado em',
+      label: 'Criado',
       sortable: true,
       render: (value: any, item: AgendaItem) => 
-        format(new Date(item.created_at), 'dd/MM/yyyy', { locale: ptBR })
+        format(new Date(item.created_at), 'dd/MM/yyyy', { locale: ptBR }),
+      className: 'hidden xl:table-cell',
+      width: '100px'
     }
   ];
 
