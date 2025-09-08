@@ -105,7 +105,7 @@ export function useNewAdminAgendaData(filters: AgendaFilters): UseNewAdminAgenda
     queryKey: createQueryKey(),
     queryFn: async () => {
       let query = supabase
-        .from('agenda_itens')
+        .from('agenda_active')
         .select('*', { count: 'exact' })
         .order('created_at', { ascending: false })
         .range((page - 1) * pageSize, page * pageSize - 1);
@@ -321,7 +321,7 @@ export function useNewAdminAgendaData(filters: AgendaFilters): UseNewAdminAgenda
       
       // Fetch all data without pagination for export
       const { data, error } = await supabase
-        .from('agenda_itens')
+        .from('agenda_active')
         .select('*')
         .is('deleted_at', null)
         .order('created_at', { ascending: false });
