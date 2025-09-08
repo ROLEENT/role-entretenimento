@@ -114,7 +114,9 @@ export const adaptEventForCarousel = (event: UnifiedEvent) => ({
   ticket_url: event.ticket_url,
   slug: event.slug,
   tags: event.genres,
-  venue_name: event.venue_name
+  venue_name: event.venue_name,
+  price_min: event.price_min,
+  price_max: event.price_max
 });
 
 /**
