@@ -59,46 +59,33 @@ export function usePerformanceOptimizations() {
     }
   }, []);
 
-  // Auto-adjust config - otimizado para performance máxima
+  // Auto-adjust config based on metrics
   useEffect(() => {
     const newConfig: PerformanceConfig = {
       enableLazyLoading: true,
       enableImageOptimization: true,
       enableReducedMotion: metrics.reduceMotion,
       enableDataSaver: metrics.saveData,
-      maxImageQuality: 90,
+      maxImageQuality: 85,
       preloadCritical: true,
     };
 
-    // Configuração agressiva para conexões rápidas
-    if (metrics.connectionType === '4g' || !metrics.connectionType) {
-      newConfig.maxImageQuality = 95;
-      newConfig.preloadCritical = true;
-    }
-    // Manter qualidade razoável para 3g
-    else if (metrics.connectionType === '3g') {
-      newConfig.maxImageQuality = 80;
-      newConfig.preloadCritical = true;
-    }
-    // Apenas conexões muito lentas reduzem drasticamente
-    else if (metrics.connectionType === 'slow-2g' || metrics.connectionType === '2g') {
+    // Adjust for slow connections
+    if (metrics.connectionType === 'slow-2g' || metrics.connectionType === '2g') {
       newConfig.maxImageQuality = 60;
+      newConfig.enableDataSaver = true;
       newConfig.preloadCritical = false;
+    } else if (metrics.connectionType === '3g') {
+      newConfig.maxImageQuality = 75;
     }
 
-    // Dispositivos potentes: máxima qualidade
-    if (metrics.deviceMemory >= 8) {
-      newConfig.maxImageQuality = 95;
-      newConfig.preloadCritical = true;
-    } else if (metrics.deviceMemory >= 4) {
-      newConfig.maxImageQuality = 85;
-      newConfig.preloadCritical = true;
-    } else if (metrics.deviceMemory < 2) {
+    // Adjust for low memory devices
+    if (metrics.deviceMemory < 4) {
       newConfig.maxImageQuality = Math.min(newConfig.maxImageQuality, 70);
       newConfig.preloadCritical = false;
     }
 
-    // Respeitar save data apenas em casos extremos
+    // Force data saver if explicitly enabled
     if (metrics.saveData) {
       newConfig.enableDataSaver = true;
       newConfig.maxImageQuality = Math.min(newConfig.maxImageQuality, 65);
