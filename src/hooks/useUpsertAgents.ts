@@ -209,6 +209,7 @@ export const useUpsertOrganizer = () => {
   return useMutation({
     mutationFn: async (data: any) => {
       console.log("Upserting organizer:", data);
+      console.log("Table columns available:", Object.keys(data));
 
       // Transform data to match organizers table structure
       const organizerData = {
