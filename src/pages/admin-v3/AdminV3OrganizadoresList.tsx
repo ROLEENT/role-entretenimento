@@ -33,7 +33,7 @@ const AdminV3OrganizadoresList: React.FC = () => {
 
   const actions = (
     <Button asChild>
-      <Link to="/admin-v3/agentes/organizadores/create">
+      <Link to="/admin-v3/agentes/organizadores/create-v2">
         <Plus className="h-4 w-4 mr-2" />
         Novo Organizador
       </Link>
@@ -115,7 +115,7 @@ const AdminV3OrganizadoresList: React.FC = () => {
                 : 'Comece cadastrando seu primeiro organizador.'}
             </p>
             <Button asChild>
-              <Link to="/admin-v3/agentes/organizadores/create">
+              <Link to="/admin-v3/agentes/organizadores/create-v2">
                 <Plus className="h-4 w-4 mr-2" />
                 Cadastrar Primeiro Organizador
               </Link>

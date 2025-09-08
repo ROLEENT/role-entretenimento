@@ -19,7 +19,7 @@ export const MENUS = {
     { 
       href: "/admin-v3/agentes/organizadores", 
       title: "Organizadores", 
-      description: "em desenvolvimento",
+      description: "listagem",
       icon: Building2
     },
     { 
@@ -31,6 +31,12 @@ export const MENUS = {
     { 
       href: "/admin-v3/agentes/artistas/criar", 
       title: "Novo artista", 
+      description: "cadastro",
+      icon: UserPlus
+    },
+    { 
+      href: "/admin-v3/agentes/organizadores/create-v2", 
+      title: "Novo organizador", 
       description: "cadastro",
       icon: UserPlus
     },
