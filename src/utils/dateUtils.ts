@@ -105,6 +105,29 @@ export const formatEventTime = (timeString?: string | null): string => {
 };
 
 /**
+ * Formata dia da semana para português brasileiro
+ */
+export const formatWeekdayPtBR = (input: Date | string): string => {
+  const WEEKDAY_MAP: Record<string, string> = {
+    monday: 'segunda-feira',
+    tuesday: 'terça-feira',
+    wednesday: 'quarta-feira',
+    thursday: 'quinta-feira',
+    friday: 'sexta-feira',
+    saturday: 'sábado',
+    sunday: 'domingo'
+  };
+  
+  if (input instanceof Date) {
+    const dayIndex = input.getDay();
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    return WEEKDAY_MAP[days[dayIndex]] || '';
+  }
+  
+  return WEEKDAY_MAP[input.toLowerCase()] || input;
+};
+
+/**
  * Formata data e horário juntos
  */
 export const formatEventDateTime = (dateString?: string | null, endDateOrTime?: string | null): string => {

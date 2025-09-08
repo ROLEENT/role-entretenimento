@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MapPin, Clock, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { formatWeekdayPtBR } from '@/utils/dateUtils';
 
 interface EventLocationCardProps {
   event: any;
@@ -55,13 +56,16 @@ export function EventLocationCard({ event, venue }: EventLocationCardProps) {
           <div>
             {venue?.slug ? (
               <Link 
-                to={`/venues/${venue.slug}`}
+                to={`/perfil/${venue.slug}`}
                 className="font-medium hover:text-primary transition-colors cursor-pointer"
               >
                 {location.name}
               </Link>
             ) : (
-              <h4 className="font-medium">{location.name}</h4>
+              <h4 className="font-medium">
+                {location.name}
+                {venue && !venue.slug && console.warn('Local sem slug definido:', venue.name)}
+              </h4>
             )}
           </div>
         )}
@@ -83,16 +87,8 @@ export function EventLocationCard({ event, venue }: EventLocationCardProps) {
                 const todayEntries = Object.entries(hours).filter(([_, time]) => time && time.trim());
                 if (todayEntries.length === 0) return 'Horários não informados';
                 const firstEntry = todayEntries[0];
-                const dayNames: Record<string, string> = {
-                  monday: 'Segunda',
-                  tuesday: 'Terça', 
-                  wednesday: 'Quarta',
-                  thursday: 'Quinta',
-                  friday: 'Sexta',
-                  saturday: 'Sábado',
-                  sunday: 'Domingo'
-                };
-                return `${dayNames[firstEntry[0]] || firstEntry[0]}: ${firstEntry[1]}`;
+                const weekdayPtBR = formatWeekdayPtBR(firstEntry[0]);
+                return `${weekdayPtBR}: ${firstEntry[1]}`;
               })()}
             </span>
           </div>
