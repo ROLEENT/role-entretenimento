@@ -43,6 +43,7 @@ import { EventLocationCard } from '@/components/events/EventLocationCard';
 import { EventCurationSection } from '@/components/events/EventCurationSection';
 import { EventSEO } from '@/components/events/EventSEO';
 import { useCurationDrawer } from '@/hooks/useCurationDrawer';
+import { useCurationData } from '@/hooks/useCurationData';
 import { CurationCriteriaDrawer } from '@/components/events/CurationCriteriaDrawer';
 import '../styles/mobile-event-layout.css';
 
@@ -63,6 +64,7 @@ const EventDetailPageV2 = () => {
   
   const { user, session } = useAuth();
   const { isOpen: curationDrawerOpen, openDrawer, closeDrawer } = useCurationDrawer();
+  const { data: curationData } = useCurationData(event?.id || '');
   
   // Hook para comentários condicionais
   const commentsResult = useComments(event?.id, session);
@@ -470,22 +472,14 @@ const EventDetailPageV2 = () => {
       {/* Sticky CTA for Mobile - removed per user request */}
       
       {/* Curation Criteria Drawer - Modal de leitura pública */}
-      {event && (
+      {event && curationData && (
         <CurationCriteriaDrawer
           open={curationDrawerOpen}
           onOpenChange={closeDrawer}
-          criteria={[
-            { key: 'relevancia', status: 'met', is_primary: true },
-            { key: 'qualidade', status: 'met', is_primary: true },
-            { key: 'diversidade', status: 'partial', is_primary: false },
-            { key: 'impacto', status: 'met', is_primary: true },
-            { key: 'coerencia', status: 'partial', is_primary: false },
-            { key: 'experiencia', status: 'met', is_primary: false },
-            { key: 'tecnica', status: 'partial', is_primary: false },
-            { key: 'acessibilidade', status: 'met', is_primary: false }
-          ]}
-          notes="Este evento se destaca pela sua relevância cultural única na cidade, com lineup de alta qualidade e forte impacto na comunidade local."
+          criteria={curationData.criteria}
+          notes={curationData.notes}
           eventTitle={event.title}
+          curatorialCriteria={event.curatorial_criteria}
         />
       )}
       

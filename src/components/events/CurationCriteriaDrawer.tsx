@@ -1,22 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Check, Minus, X, ExternalLink, ChevronDown, ChevronRight } from 'lucide-react';
+import { Check, Minus, X, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 
 export type CriterionKey = 'relevancia' | 'qualidade' | 'diversidade' | 'impacto' | 'coerencia' | 'experiencia' | 'tecnica' | 'acessibilidade';
-export type CriterionStatus = 'met' | 'partial' | 'na';
+export type CriterionStatus = 'met' | 'partial' | 'na' | 'not_informed';
 
 interface CriterionData {
   key: CriterionKey;
   status: CriterionStatus;
   is_primary: boolean;
+  justification?: string;
 }
 
 interface CurationCriteriaDrawerProps {
@@ -25,6 +20,7 @@ interface CurationCriteriaDrawerProps {
   criteria: CriterionData[];
   notes?: string;
   eventTitle?: string;
+  curatorialCriteria?: any;
 }
 
 const CRITERIA_CONFIG: Record<CriterionKey, { label: string; description: string }> = {
@@ -63,50 +59,81 @@ const CRITERIA_CONFIG: Record<CriterionKey, { label: string; description: string
 };
 
 const STATUS_CONFIG = {
-  met: { icon: Check, label: 'Atende', className: 'text-green-600 bg-green-50 border-green-200' },
-  partial: { icon: Minus, label: 'Parcial', className: 'text-yellow-600 bg-yellow-50 border-yellow-200' },
-  na: { icon: X, label: 'Não se aplica', className: 'text-gray-500 bg-gray-50 border-gray-200' }
+  met: { icon: Check, label: 'Atendido', className: 'text-green-600 bg-green-100 border-green-300' },
+  partial: { icon: Minus, label: 'Parcial', className: 'text-yellow-600 bg-yellow-100 border-yellow-300' },
+  na: { icon: X, label: 'Não se aplica', className: 'text-gray-500 bg-gray-100 border-gray-300' },
+  not_informed: { icon: X, label: 'Não informado', className: 'text-red-500 bg-red-100 border-red-300' }
 };
 
-function CriterionAccordionItem({ 
+function CriterionItem({ 
   criterionKey, 
   status, 
-  isPrimary 
+  isPrimary,
+  justification
 }: { 
   criterionKey: CriterionKey; 
   status: CriterionStatus; 
-  isPrimary: boolean 
+  isPrimary: boolean;
+  justification?: string;
 }) {
+  const [expanded, setExpanded] = useState(false);
   const config = CRITERIA_CONFIG[criterionKey];
   const statusConfig = STATUS_CONFIG[status];
   const StatusIcon = statusConfig.icon;
 
+  const displayJustification = justification || "Não informado";
+  const isLongText = displayJustification.length > 200;
+  const truncatedText = isLongText ? displayJustification.slice(0, 200) + "..." : displayJustification;
+
   return (
-    <AccordionItem 
-      value={criterionKey} 
-      className="rounded-xl border border-white/10 px-3 mb-2 data-[state=open]:bg-white/5"
-    >
-      <AccordionTrigger className="hover:no-underline py-3 [&[data-state=open]>svg]:rotate-90">
-        <div className="flex items-center justify-between w-full mr-3">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-sm text-left">{config.label}</span>
-            {isPrimary && (
-              <Badge variant="outline" className="text-xs px-2 py-0.5">Destaque</Badge>
-            )}
-          </div>
-          <div className={cn(
-            'flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border',
-            statusConfig.className
-          )}>
-            <StatusIcon className="w-3 h-3" />
-            <span>{statusConfig.label}</span>
-          </div>
+    <div className="border border-white/10 rounded-xl p-4 space-y-3 bg-white/[0.02]">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h4 className="font-semibold text-base text-white">{config.label}</h4>
+          {isPrimary && (
+            <Badge variant="outline" className="text-xs px-2 py-0.5 border-[#c77dff] text-[#c77dff]">
+              Destaque
+            </Badge>
+          )}
         </div>
-      </AccordionTrigger>
-      <AccordionContent className="pb-3 pt-1">
-        <p className="text-sm text-neutral-300">{config.description}</p>
-      </AccordionContent>
-    </AccordionItem>
+        <div className={cn(
+          'flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border',
+          statusConfig.className
+        )}>
+          <StatusIcon className="w-3 h-3" />
+          <span className="font-medium">{statusConfig.label}</span>
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <p className="text-sm text-neutral-300 leading-relaxed">
+          {expanded || !isLongText ? displayJustification : truncatedText}
+        </p>
+        
+        {isLongText && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setExpanded(!expanded)}
+            className="text-[#c77dff] hover:text-[#c77dff] hover:bg-[#c77dff]/10 p-0 h-auto text-sm"
+          >
+            <span className="flex items-center gap-1">
+              {expanded ? (
+                <>
+                  Ver menos
+                  <ChevronUp className="w-3 h-3" />
+                </>
+              ) : (
+                <>
+                  Ver mais
+                  <ChevronDown className="w-3 h-3" />
+                </>
+              )}
+            </span>
+          </Button>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -239,7 +266,8 @@ export function CurationCriteriaDrawer({
   onOpenChange, 
   criteria, 
   notes, 
-  eventTitle 
+  eventTitle,
+  curatorialCriteria 
 }: CurationCriteriaDrawerProps) {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
@@ -270,10 +298,19 @@ export function CurationCriteriaDrawer({
     return acc;
   }, 0);
 
-  // Determinar quais itens devem estar abertos por padrão
-  const defaultOpenItems = criteria
-    .filter(c => c.is_primary)
-    .map(c => c.key);
+  // Mapear dados dos critérios reais do evento
+  const mappedCriteria = Object.keys(CRITERIA_CONFIG).map((key) => {
+    const criterionKey = key as CriterionKey;
+    const criterion = criteria.find(c => c.key === criterionKey);
+    const curatedData = curatorialCriteria?.[criterionKey];
+    
+    return {
+      key: criterionKey,
+      status: criterion?.status || 'not_informed',
+      is_primary: criterion?.is_primary || false,
+      justification: curatedData?.justification || criterion?.justification
+    };
+  });
 
   // Swipe down para fechar no mobile
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -364,33 +401,23 @@ export function CurationCriteriaDrawer({
         </div>
 
         {/* Conteúdo com scroll */}
-        <div className="px-4 py-2 max-h-[80vh] overflow-y-auto">
-          <Accordion 
-            type="multiple" 
-            defaultValue={defaultOpenItems}
-            className="space-y-2"
-          >
-            {Object.keys(CRITERIA_CONFIG).map((key) => {
-              const criterionKey = key as CriterionKey;
-              const criterion = criteria.find(c => c.key === criterionKey);
-              const status = criterion?.status || 'na';
-              const isPrimary = criterion?.is_primary || false;
-
-              return (
-                <CriterionAccordionItem
-                  key={criterionKey}
-                  criterionKey={criterionKey}
-                  status={status}
-                  isPrimary={isPrimary}
-                />
-              );
-            })}
-          </Accordion>
+        <div className="px-4 py-2 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20">
+          <div className="space-y-4">
+            {mappedCriteria.map((criterion) => (
+              <CriterionItem
+                key={criterion.key}
+                criterionKey={criterion.key}
+                status={criterion.status}
+                isPrimary={criterion.is_primary}
+                justification={criterion.justification}
+              />
+            ))}
+          </div>
 
           {notes && (
             <div className="mt-6 space-y-2">
               <h4 className="text-sm font-semibold text-white">Notas da Curadoria</h4>
-              <p className="text-sm text-neutral-300 bg-white/5 p-3 rounded-xl border border-white/10">
+              <p className="text-sm text-neutral-300 bg-white/5 p-3 rounded-xl border border-white/10 leading-relaxed">
                 {notes}
               </p>
             </div>
