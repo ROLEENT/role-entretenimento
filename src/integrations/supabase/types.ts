@@ -4931,6 +4931,36 @@ export type Database = {
         }
         Relationships: []
       }
+      performance_alerts: {
+        Row: {
+          created_at: string
+          id: string
+          metric_name: string
+          threshold: number
+          timestamp: string
+          url: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metric_name: string
+          threshold: number
+          timestamp?: string
+          url: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metric_name?: string
+          threshold?: number
+          timestamp?: string
+          url?: string
+          value?: number
+        }
+        Relationships: []
+      }
       performance_metrics: {
         Row: {
           created_at: string
