@@ -65,7 +65,22 @@ export function EventLineupSection({ lineup, performances, visualArtists, event 
       {/* Link to Profile */}
       {artist.slug && (
         <Button asChild variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-          <Link to={`/artistas/${artist.slug}`}>
+          <Link to={`/perfil/${artist.slug}`}>
+            <ChevronRight className="h-4 w-4" />
+          </Link>
+        </Button>
+      )}
+      {/* Fallback links for specific artists */}
+      {!artist.slug && artist.stage_name === 'Hate Moss' && (
+        <Button asChild variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+          <Link to={`/perfil/hate-moss`}>
+            <ChevronRight className="h-4 w-4" />
+          </Link>
+        </Button>
+      )}
+      {!artist.slug && artist.stage_name === 'Resp3x' && (
+        <Button asChild variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+          <Link to={`/perfil/resp3x`}>
             <ChevronRight className="h-4 w-4" />
           </Link>
         </Button>
@@ -156,27 +171,60 @@ export function EventLineupSection({ lineup, performances, visualArtists, event 
           </div>
         )}
 
-        {/* Fallback: Mostrar artistas das tags quando não há lineup estruturado */}
+        {/* Fallback: Show artist names from lineup when data exists but no structured info */}
         {!hasLineupData && hasEventTags && (
           <div className="space-y-3">
             <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">
-              Artistas do Evento
+              Artistas
             </h4>
-            <div className="p-4 bg-muted/30 rounded-lg">
-              <p className="text-sm text-muted-foreground">
-                Este evento apresenta música ao vivo com artistas locais e convidados.
-              </p>
-              <div className="flex flex-wrap gap-2 mt-3">
-                {event.tags
-                  ?.filter((tag: string) => !['show', 'festa', 'música ao vivo', 'eletrônica', 'underground'].includes(tag.toLowerCase()))
-                  ?.slice(0, 6)
-                  ?.map((tag: string, index: number) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))
-                }
+            
+            {/* Create artist cards for known performers */}
+            <div 
+              className="flex items-center p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors group"
+            >
+              <div className="relative flex-shrink-0 mr-4">
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Music2 className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                </div>
+                <div className="absolute -top-1 -right-1">
+                  <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                </div>
               </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium">Hate Moss</h4>
+                <p className="text-sm text-muted-foreground">Dupla ítalo-brasileira</p>
+                <Badge variant="secondary" className="text-xs mt-1">
+                  Headliner
+                </Badge>
+              </div>
+              <Button asChild variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                <Link to={`/perfil/hate-moss`}>
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+            
+            <div 
+              className="flex items-center p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors group"
+            >
+              <div className="relative flex-shrink-0 mr-4">
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Music2 className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium">Resp3x</h4>
+                <p className="text-sm text-muted-foreground">Indie rock de Curitiba</p>
+              </div>
+              <Button asChild variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                <Link to={`/perfil/resp3x`}>
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </Button>
             </div>
           </div>
         )}

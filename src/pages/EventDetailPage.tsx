@@ -357,7 +357,7 @@ const EventDetailPage = () => {
                   {/* Botão de ingressos sobre a imagem */}
                   {(event.ticket_url || event.ticketing?.url) && (
                     <div className="absolute bottom-4 right-4">
-                      <Button asChild size="lg" className="bg-green-600 hover:bg-green-700 text-white font-semibold min-h-[44px]">
+                      <Button asChild size="default" className="bg-green-600 hover:bg-green-700 text-white font-medium min-h-[36px]">
                         <a href={event.ticket_url || event.ticketing?.url} target="_blank" rel="noopener noreferrer">
                           <Ticket className="h-5 w-5 mr-2" />
                           Comprar Ingressos
