@@ -20,11 +20,13 @@ optimizeForMobile();
 // Initialize performance monitoring
 initPerformanceMonitoring();
 
-// Register service worker for caching (skip for admin routes)
-// SW temporariamente desabilitado para debugging
-// if (!window.location.pathname.startsWith('/admin')) {
-//   registerServiceWorker();
-// }
+// Register service worker for caching - re-enabled for performance
+if (!window.location.pathname.startsWith('/admin')) {
+  // Delay SW registration to not block initial load
+  setTimeout(() => {
+    registerServiceWorker();
+  }, 1000);
+}
 
 createRoot(document.getElementById("root")!).render(
   <HelmetProvider>

@@ -59,36 +59,43 @@ export function usePerformanceOptimizations() {
     }
   }, []);
 
-  // Auto-adjust config based on metrics
+  // Auto-adjust config based on metrics - more aggressive optimizations
   useEffect(() => {
     const newConfig: PerformanceConfig = {
       enableLazyLoading: true,
       enableImageOptimization: true,
       enableReducedMotion: metrics.reduceMotion,
       enableDataSaver: metrics.saveData,
-      maxImageQuality: 85,
+      maxImageQuality: 90, // Higher quality for better caching
       preloadCritical: true,
     };
 
-    // Adjust for slow connections
+    // Adjust for slow connections - more aggressive optimizations
     if (metrics.connectionType === 'slow-2g' || metrics.connectionType === '2g') {
-      newConfig.maxImageQuality = 60;
+      newConfig.maxImageQuality = 50;
       newConfig.enableDataSaver = true;
       newConfig.preloadCritical = false;
     } else if (metrics.connectionType === '3g') {
-      newConfig.maxImageQuality = 75;
+      newConfig.maxImageQuality = 70;
+      newConfig.preloadCritical = true;
     }
 
-    // Adjust for low memory devices
+    // Adjust for low memory devices - keep preloading for better UX
     if (metrics.deviceMemory < 4) {
-      newConfig.maxImageQuality = Math.min(newConfig.maxImageQuality, 70);
-      newConfig.preloadCritical = false;
+      newConfig.maxImageQuality = Math.min(newConfig.maxImageQuality, 65);
+      newConfig.preloadCritical = true; // Keep preloading for better UX
+    }
+
+    // High-end devices get maximum quality
+    if (metrics.deviceMemory >= 8) {
+      newConfig.maxImageQuality = 95;
+      newConfig.preloadCritical = true;
     }
 
     // Force data saver if explicitly enabled
     if (metrics.saveData) {
       newConfig.enableDataSaver = true;
-      newConfig.maxImageQuality = Math.min(newConfig.maxImageQuality, 65);
+      newConfig.maxImageQuality = Math.min(newConfig.maxImageQuality, 60);
     }
 
     setConfig(newConfig);

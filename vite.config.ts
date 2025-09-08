@@ -23,23 +23,51 @@ export default defineConfig(({ mode }) => ({
     // Performance optimizations
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Core React libraries
-          'react-vendor': ['react', 'react-dom'],
-          // UI libraries
-          'ui-vendor': [
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-navigation-menu',
-            '@radix-ui/react-toast',
-            '@radix-ui/react-select'
-          ],
-          // API and data
-          'api-vendor': ['@supabase/supabase-js', '@tanstack/react-query'],
-          // Utilities
-          'utils-vendor': ['date-fns', 'clsx', 'tailwind-merge'],
-          // Performance monitoring
-          'monitoring': ['@sentry/react', 'web-vitals']
+        manualChunks: (id) => {
+          // Core React libraries - keep together for better caching
+          if (id.includes('react') || id.includes('react-dom')) {
+            return 'react-vendor';
+          }
+          
+          // Critical UI components - smaller chunks for faster loading
+          if (id.includes('@radix-ui')) {
+            return 'ui-vendor';
+          }
+          
+          // API and data handling
+          if (id.includes('@supabase') || id.includes('@tanstack/react-query')) {
+            return 'api-vendor';
+          }
+          
+          // Performance monitoring - separate to avoid blocking
+          if (id.includes('@sentry') || id.includes('web-vitals')) {
+            return 'monitoring';
+          }
+          
+          // Date utilities
+          if (id.includes('date-fns')) {
+            return 'date-vendor';
+          }
+          
+          // Motion libraries - separate for performance
+          if (id.includes('framer-motion')) {
+            return 'animation-vendor';
+          }
+          
+          // Admin components - lazy loaded
+          if (id.includes('/admin/') || id.includes('admin-')) {
+            return 'admin';
+          }
+          
+          // Large node_modules libraries
+          if (id.includes('node_modules') && id.includes('lucide-react')) {
+            return 'icons-vendor';
+          }
+          
+          // Keep other node_modules together but smaller
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
         },
         // Optimize chunk sizes
         chunkFileNames: (chunkInfo) => {
@@ -67,26 +95,28 @@ export default defineConfig(({ mode }) => ({
     sourcemap: mode === 'development',
     // Use esbuild for minification (faster and included by default)
     minify: mode === 'production' ? 'esbuild' : false,
-    // Asset size limits
-    assetsInlineLimit: 4096,
+    // Asset size limits - inline smaller assets for fewer requests
+    assetsInlineLimit: 8192,
     // CSS code splitting
     cssCodeSplit: true,
   },
   optimizeDeps: {
-    // Pre-bundle critical dependencies
+    // Pre-bundle critical dependencies for faster dev and production
     include: [
       '@supabase/supabase-js',
       '@tanstack/react-query',
       'react',
       'react-dom',
       'react-router-dom',
-      'framer-motion',
       'date-fns',
       'clsx',
-      'tailwind-merge'
+      'tailwind-merge',
+      'lucide-react',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-toast'
     ],
-    // Exclude dev dependencies
-    exclude: ['@vite/client', '@vite/env'],
+    // Exclude heavy libraries from pre-bundling
+    exclude: ['@vite/client', '@vite/env', 'framer-motion'],
   },
   // Performance hints
   esbuild: {

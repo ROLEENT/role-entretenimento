@@ -23,7 +23,19 @@ const getConnectionInfo = () => {
   };
 };
 
+// Optimized metric sending with sampling and batching
+let metricQueue: any[] = [];
+let lastFlushTime = Date.now();
+const FLUSH_INTERVAL = 10000; // 10 seconds
+const MAX_QUEUE_SIZE = 20;
+const SAMPLE_RATE = 0.1; // Only sample 10% of sessions
+
+const shouldSample = () => Math.random() < SAMPLE_RATE;
+
 const sendMetricToSupabase = async (metric: Metric) => {
+  // Skip if not in sample to reduce overhead
+  if (!shouldSample()) return;
+
   try {
     const { connectionType, deviceMemory } = getConnectionInfo();
     
@@ -38,7 +50,8 @@ const sendMetricToSupabase = async (metric: Metric) => {
       deviceMemory
     };
 
-    await supabase.from('perf_metrics').insert({
+    // Add to queue instead of immediate send
+    metricQueue.push({
       session_id: performanceData.sessionId,
       metric_name: performanceData.metricName,
       metric_value: performanceData.metricValue,
@@ -49,9 +62,26 @@ const sendMetricToSupabase = async (metric: Metric) => {
       device_memory: performanceData.deviceMemory
     });
 
-    console.log(`Performance metric sent: ${metric.name} = ${metric.value}${performanceData.unit}`);
+    // Flush if queue is full or enough time has passed
+    if (metricQueue.length >= MAX_QUEUE_SIZE || (Date.now() - lastFlushTime) > FLUSH_INTERVAL) {
+      flushMetrics();
+    }
   } catch (error) {
-    console.error('Error sending performance metric:', error);
+    // Silently handle errors to not affect performance
+  }
+};
+
+const flushMetrics = async () => {
+  if (metricQueue.length === 0) return;
+
+  const batch = [...metricQueue];
+  metricQueue = [];
+  lastFlushTime = Date.now();
+
+  try {
+    await supabase.from('perf_metrics').insert(batch);
+  } catch (error) {
+    // Silently handle errors
   }
 };
 

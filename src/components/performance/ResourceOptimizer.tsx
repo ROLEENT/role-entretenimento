@@ -62,24 +62,30 @@ export function ResourceOptimizer() {
         ];
         
         heroImages.forEach(src => {
-          const link = document.createElement('link');
-          link.rel = 'preload';
-          link.as = 'image';
-          link.href = src;
-          document.head.appendChild(link);
+          // Check if already preloaded to avoid duplicates
+          if (!document.querySelector(`link[rel="preload"][href="${src}"]`)) {
+            const link = document.createElement('link');
+            link.rel = 'preload';
+            link.as = 'image';
+            link.href = src;
+            link.fetchPriority = 'high';
+            document.head.appendChild(link);
+          }
         });
       }
     };
 
-    if (config.preloadCritical) {
-      preloadCriticalImages();
-    }
+    // Always preload critical images for better performance
+    preloadCriticalImages();
 
-    // Service Worker registration for caching
+    // Service Worker registration for caching - re-enabled for performance
     if ('serviceWorker' in navigator && config.preloadCritical) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {
-        // Silently fail - SW is optional
-      });
+      // Delay SW registration to not block initial load
+      setTimeout(() => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {
+          // Silently fail - SW is optional
+        });
+      }, 2000);
     }
 
     return () => {

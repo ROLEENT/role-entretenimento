@@ -1,13 +1,14 @@
 import { useEffect } from 'react';
 
 const criticalCSS = `
-/* Critical above-the-fold styles */
+/* Critical above-the-fold styles - optimized for performance */
 .hero-section {
   background: var(--gradient-hero);
   min-height: 60vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  contain: layout style paint;
 }
 
 .nav-header {
@@ -17,18 +18,20 @@ const criticalCSS = `
   position: sticky;
   top: 0;
   z-index: 50;
+  contain: layout style;
 }
 
 .event-card {
   background: hsl(var(--card));
   border-radius: var(--radius);
   box-shadow: var(--shadow-card);
-  transition: var(--transition-smooth);
+  transition: transform 0.2s ease;
+  will-change: transform;
+  contain: layout style paint;
 }
 
 .event-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
 }
 
 .highlight-badge {
@@ -59,7 +62,7 @@ const criticalCSS = `
     hsl(var(--muted)) 75%
   );
   background-size: 200% 100%;
-  animation: shimmer 2s ease-in-out infinite;
+  animation: shimmer 1.5s ease-in-out infinite;
 }
 
 @keyframes shimmer {
@@ -75,14 +78,31 @@ const criticalCSS = `
 img {
   max-width: 100%;
   height: auto;
+  loading: lazy;
 }
 
-/* Reduce motion for accessibility */
+/* Font loading optimization */
+.font-loading {
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.font-loaded {
+  font-family: Inter, system-ui, sans-serif;
+}
+
+/* Reduce motion for accessibility and performance */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Connection-aware optimizations */
+@media (max-width: 768px) {
+  .skeleton-loading {
+    animation-duration: 1s;
   }
 }
 `;
