@@ -12,10 +12,17 @@ export const useArtistCategoriesOptions = () => {
   const searchArtistCategories = async (query: string): Promise<SelectOption[]> => {
     setLoading(true);
     try {
-      const queryParams = query ? `?q=${encodeURIComponent(query)}` : '';
-      const { data, error } = await supabase.functions.invoke(`options/artist-categories${queryParams}`, {
-        method: 'GET',
-      });
+      let queryBuilder = supabase
+        .from('artist_categories')
+        .select('id, name')
+        .eq('is_active', true)
+        .order('name');
+
+      if (query && query.trim()) {
+        queryBuilder = queryBuilder.ilike('name', `%${query.trim()}%`);
+      }
+
+      const { data, error } = await queryBuilder;
 
       if (error) {
         console.error('Error searching artist categories:', error);
@@ -37,13 +44,29 @@ export const useArtistCategoriesOptions = () => {
   const createArtistCategory = async (name: string): Promise<SelectOption> => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('options/artist-categories', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name })
-      });
+      const cleanName = name.trim();
+      if (!cleanName) {
+        throw new Error('Nome da categoria não pode estar vazio');
+      }
+
+      // Generate slug from name
+      const slug = cleanName
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Remove accents
+        .replace(/[^a-z0-9\s]/g, '') // Remove special chars
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+
+      const { data, error } = await supabase
+        .from('artist_categories')
+        .insert({
+          name: cleanName,
+          slug: slug,
+          is_active: true
+        })
+        .select('id, name')
+        .single();
 
       if (error) {
         console.error('Error creating artist category:', error);
