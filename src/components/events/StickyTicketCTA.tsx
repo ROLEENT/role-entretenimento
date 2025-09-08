@@ -38,8 +38,8 @@ export function StickyTicketCTA({ event, formatPrice }: StickyTicketCTAProps) {
     >
       <Button 
         asChild 
-        size="lg" 
-        className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-semibold min-h-[44px] rounded-xl text-base"
+        size="default" 
+        className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-medium min-h-[40px] rounded-lg text-sm"
       >
         <a 
           href={event.ticket_url || event.ticketing?.url} 

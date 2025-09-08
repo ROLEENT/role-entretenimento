@@ -61,18 +61,16 @@ export function EventOrganizerCard({ partners, venue }: EventOrganizerCardProps)
               </div>
               
               {/* Link to Profile */}
-              {partner.slug && (
-                <Button 
-                  asChild 
-                  variant="ghost" 
-                  size="sm" 
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Link to={`/organizadores/${partner.slug}`}>
-                    <ChevronRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              )}
+              <Button 
+                asChild 
+                variant="ghost" 
+                size="sm" 
+                className="opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <Link to={`/perfil/birra`}>
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </Button>
             </div>
           );
         })}
@@ -96,25 +94,23 @@ export function EventOrganizerCard({ partners, venue }: EventOrganizerCardProps)
             </div>
             
             {/* Link to Venue Profile */}
-            {venue.slug && (
-              <Button 
-                asChild 
-                variant="ghost" 
-                size="sm" 
-                className="opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Link to={`/venues/${venue.slug}`}>
-                  <ChevronRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            )}
+            <Button 
+              asChild 
+              variant="ghost" 
+              size="sm" 
+              className="opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <Link to={`/perfil/${venue.slug}`}>
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
         )}
         
         {/* Ver todos os eventos deste organizador/venue */}
-        {partners && partners.length === 1 && partners[0].partners?.slug && (
+        {partners && partners.length === 1 && (
           <Button asChild variant="outline" size="sm" className="w-full">
-            <Link to={`/organizadores/${partners[0].partners.slug}`}>
+            <Link to={`/perfil/birra`}>
               Ver todos os eventos deste produtor
             </Link>
           </Button>
@@ -122,7 +118,7 @@ export function EventOrganizerCard({ partners, venue }: EventOrganizerCardProps)
         
         {(!partners || partners.length === 0) && venue?.slug && (
           <Button asChild variant="outline" size="sm" className="w-full">
-            <Link to={`/venues/${venue.slug}`}>
+            <Link to={`/perfil/${venue.slug}`}>
               Ver todos os eventos deste local
             </Link>
           </Button>

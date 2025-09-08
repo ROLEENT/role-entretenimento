@@ -58,15 +58,15 @@ export function EventTicketsSection({ event, formatPrice }: EventTicketsSectionP
             </div>
             
             {tier.link && tier.available && (
-              <Button asChild size="sm" className="ml-4">
+              <Button asChild size="sm" className="ml-4 h-8 px-3 text-sm">
                 <a 
                   href={tier.link} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-1"
                 >
                   Comprar
-                  <ExternalLink className="h-4 w-4" />
+                  <ExternalLink className="h-3 w-3" />
                 </a>
               </Button>
             )}
