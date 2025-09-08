@@ -74,15 +74,15 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
 
       <FormField
         control={form.control}
-        name="categories"
+        name="category_id"
         render={({ field }) => (
           <FormItem>
             <FormControl>
               <RHFArtistCategorySelect 
-                name="categories" 
-                label="Categorias"
-                placeholder="Digite para buscar categorias... Ex: DJ, Produtor, Cantor"
-                maxCategories={8}
+                name="category_id" 
+                label="Categoria"
+                placeholder="Digite para buscar categoria... Ex: DJ, Produtor, Cantor"
+                maxCategories={1}
               />
             </FormControl>
             <FormMessage />
