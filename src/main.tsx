@@ -9,6 +9,10 @@ import { initSecurity } from "@/utils/securityHeaders";
 import { CriticalCSS } from "./components/performance/CriticalCSS";
 import { ResourceOptimizer } from "./components/performance/ResourceOptimizer";
 import { ImageOptimizer } from "./components/performance/ImageOptimizer";
+import { CriticalResourcesOptimizer } from "./components/performance/CriticalResourcesOptimizer";
+import { LCPOptimizer } from "./components/performance/LCPOptimizer";
+import { CacheOptimizer } from "./components/performance/CacheOptimizer";
+import { PerformanceMonitor } from "./components/performance/PerformanceMonitor";
 
 // Initialize security (CSP, context checks)
 initSecurity();
@@ -32,6 +36,10 @@ if (!window.location.pathname.startsWith('/admin')) {
 createRoot(document.getElementById("root")!).render(
   <HelmetProvider>
     <CriticalCSS />
+    <CriticalResourcesOptimizer />
+    <LCPOptimizer />
+    <CacheOptimizer />
+    <PerformanceMonitor />
     <ResourceOptimizer />
     <ImageOptimizer>
       <App />
