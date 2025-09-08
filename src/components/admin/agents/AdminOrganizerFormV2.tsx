@@ -30,6 +30,8 @@ export const AdminOrganizerFormV2: React.FC<AdminOrganizerFormV2Props> = ({
       contact_whatsapp: '',
       instagram: '',
       website: '',
+      avatar_url: '',
+      cover_url: '',
       bio: '',
       bio_short: '',
       status: 'active',
@@ -220,6 +222,41 @@ export const AdminOrganizerFormV2: React.FC<AdminOrganizerFormV2Props> = ({
                   <FormLabel>Website</FormLabel>
                   <FormControl>
                     <Input {...field} type="url" placeholder="https://organizador.com" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Mídia</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField
+              control={form.control}
+              name="avatar_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Logo/Avatar URL</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="url" placeholder="https://exemplo.com/logo.jpg" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="cover_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Imagem de Capa URL</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="url" placeholder="https://exemplo.com/capa.jpg" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

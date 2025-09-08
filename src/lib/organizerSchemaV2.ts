@@ -9,6 +9,8 @@ export const organizerSchemaV2 = z.object({
   contact_whatsapp: z.string().optional(),
   instagram: z.string().optional(),
   website: z.string().url('URL inválida').optional().or(z.literal('')),
+  avatar_url: z.string().optional(),
+  cover_url: z.string().optional(),
   bio: z.string().optional(),
   bio_short: z.string().optional(),
   status: z.enum(['active', 'inactive']).default('active'),

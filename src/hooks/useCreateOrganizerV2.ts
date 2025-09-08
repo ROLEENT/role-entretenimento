@@ -35,12 +35,12 @@ export const useCreateOrganizerV2 = () => {
         contact_whatsapp: data.contact_whatsapp || null,
         instagram: data.instagram || null,
         site: data.website || null,
+        avatar_url: data.avatar_url || null,
+        cover_url: data.cover_url || null,
         bio: data.bio || null,
         bio_short: data.bio_short || null,
         status: data.status || 'active',
         is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       };
 
       console.log('Dados finais para inserção:', organizerData);
