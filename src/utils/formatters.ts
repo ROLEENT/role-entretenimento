@@ -58,3 +58,46 @@ export function isValidBrazilianPhone(phone: string): boolean {
   const digits = normalizePhone(phone);
   return digits.length >= 10 && digits.length <= 11;
 }
+
+/**
+ * Format event prices consistently across the application
+ * Handles PostgreSQL decimal values and null/undefined cases
+ */
+export function formatEventPrice(min?: number | string | null, max?: number | string | null, currency = 'BRL'): string {
+  // Convert to numbers and handle null/undefined/empty string cases
+  const minNum = min !== null && min !== undefined && min !== '' ? Number(min) : null;
+  const maxNum = max !== null && max !== undefined && max !== '' ? Number(max) : null;
+  
+  // Both are null/undefined or both are 0
+  if ((minNum === null && maxNum === null) || (minNum === 0 && maxNum === 0)) {
+    return 'Gratuito';
+  }
+  
+  // Only min is 0
+  if (minNum === 0 && maxNum && maxNum > 0) {
+    return `Gratuito - R$ ${maxNum}`;
+  }
+  
+  // Both have same value
+  if (minNum && maxNum && minNum === maxNum) {
+    return `R$ ${minNum}`;
+  }
+  
+  // Range
+  if (minNum && maxNum) {
+    return `R$ ${minNum} - R$ ${maxNum}`;
+  }
+  
+  // Only min
+  if (minNum && minNum > 0) {
+    return `A partir de R$ ${minNum}`;
+  }
+  
+  // Only max
+  if (maxNum && maxNum > 0) {
+    return `Até R$ ${maxNum}`;
+  }
+  
+  // Fallback
+  return 'Preço a consultar';
+}

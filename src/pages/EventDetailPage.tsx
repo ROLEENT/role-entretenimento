@@ -299,10 +299,42 @@ const EventDetailPage = () => {
 
   // Helper functions
   const formatPrice = () => {
-    if (!event.price_min && !event.price_max) return 'Preço a consultar';
-    if (event.price_min === 0) return 'Gratuito';
-    if (event.price_min === event.price_max) return `R$ ${event.price_min}`;
-    return `R$ ${event.price_min}${event.price_max ? ` - R$ ${event.price_max}` : '+'}`;
+    // Convert to numbers and handle PostgreSQL decimal values
+    const minNum = event.price_min !== null && event.price_min !== undefined ? Number(event.price_min) : null;
+    const maxNum = event.price_max !== null && event.price_max !== undefined ? Number(event.price_max) : null;
+    
+    // Both are null/undefined or both are 0
+    if ((minNum === null && maxNum === null) || (minNum === 0 && maxNum === 0)) {
+      return 'Gratuito';
+    }
+    
+    // Only min is 0
+    if (minNum === 0 && maxNum && maxNum > 0) {
+      return `Gratuito - R$ ${maxNum}`;
+    }
+    
+    // Both have same value
+    if (minNum && maxNum && minNum === maxNum) {
+      return `R$ ${minNum}`;
+    }
+    
+    // Range
+    if (minNum && maxNum) {
+      return `R$ ${minNum} - R$ ${maxNum}`;
+    }
+    
+    // Only min
+    if (minNum && minNum > 0) {
+      return `A partir de R$ ${minNum}`;
+    }
+    
+    // Only max
+    if (maxNum && maxNum > 0) {
+      return `Até R$ ${maxNum}`;
+    }
+    
+    // Fallback
+    return 'Preço a consultar';
   };
 
   const formatTime = (timeString) => {

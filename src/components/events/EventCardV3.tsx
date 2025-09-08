@@ -92,11 +92,42 @@ export function EventCardV3({
   };
 
   const formatPrice = (min?: number, max?: number, currency = 'BRL') => {
-    if (!min && !max) return 'Grátis';
-    if (min === max) return `R$ ${min}`;
-    if (min && max) return `R$ ${min} - R$ ${max}`;
-    if (min) return `A partir de R$ ${min}`;
-    return `Até R$ ${max}`;
+    // Convert to numbers and handle PostgreSQL decimal values
+    const minNum = min !== null && min !== undefined ? Number(min) : null;
+    const maxNum = max !== null && max !== undefined ? Number(max) : null;
+    
+    // Both are null/undefined or both are 0
+    if ((minNum === null && maxNum === null) || (minNum === 0 && maxNum === 0)) {
+      return 'Gratuito';
+    }
+    
+    // Only min is 0
+    if (minNum === 0 && maxNum && maxNum > 0) {
+      return `Gratuito - R$ ${maxNum}`;
+    }
+    
+    // Both have same value
+    if (minNum && maxNum && minNum === maxNum) {
+      return `R$ ${minNum}`;
+    }
+    
+    // Range
+    if (minNum && maxNum) {
+      return `R$ ${minNum} - R$ ${maxNum}`;
+    }
+    
+    // Only min
+    if (minNum && minNum > 0) {
+      return `A partir de R$ ${minNum}`;
+    }
+    
+    // Only max
+    if (maxNum && maxNum > 0) {
+      return `Até R$ ${maxNum}`;
+    }
+    
+    // Fallback
+    return 'Preço a consultar';
   };
 
   const headliners = event.lineup?.filter(artist => artist.is_headliner).slice(0, 2) || [];

@@ -52,11 +52,32 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
               {(event.price_min !== null || event.price_max !== null) && (
                 <div className="flex items-center gap-1">
                   <DollarSign className="w-3 h-3" />
-                  <span>
-                    {event.price_min === 0 ? 'Grátis' : 
-                     event.price_min === event.price_max ? `R$ ${event.price_min}` :
-                     `R$ ${event.price_min || 0} - ${event.price_max || '?'}`}
-                  </span>
+                   <span>
+                     {(() => {
+                       const minNum = event.price_min !== null && event.price_min !== undefined ? Number(event.price_min) : null;
+                       const maxNum = event.price_max !== null && event.price_max !== undefined ? Number(event.price_max) : null;
+                       
+                       if ((minNum === null && maxNum === null) || (minNum === 0 && maxNum === 0)) {
+                         return 'Gratuito';
+                       }
+                       if (minNum === 0 && maxNum && maxNum > 0) {
+                         return `Gratuito - R$ ${maxNum}`;
+                       }
+                       if (minNum && maxNum && minNum === maxNum) {
+                         return `R$ ${minNum}`;
+                       }
+                       if (minNum && maxNum) {
+                         return `R$ ${minNum} - R$ ${maxNum}`;
+                       }
+                       if (minNum && minNum > 0) {
+                         return `A partir de R$ ${minNum}`;
+                       }
+                       if (maxNum && maxNum > 0) {
+                         return `Até R$ ${maxNum}`;
+                       }
+                       return 'Preço a consultar';
+                     })()}
+                   </span>
                 </div>
               )}
             </div>
