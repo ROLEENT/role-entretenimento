@@ -210,27 +210,42 @@ export const useUpsertOrganizer = () => {
     mutationFn: async (data: any) => {
       console.log("Upserting organizer:", data);
 
-      // Transform data to match organizers table structure with new columns
+      // Transform data to match organizers table structure
       const organizerData = {
         id: data.id || undefined,
         name: data.name,
         slug: data.slug || null,
-        site: data.site || data.website || null,
+        site: data.site || null,
+        site_url: data.website || data.site_url || null,
         email: data.email || null,
         phone: data.phone || null,
         whatsapp: data.whatsapp || null,
+        website: data.website || null,
         avatar_url: data.avatar_url || null,
         avatar_alt: data.avatar_alt || null,
         cover_url: data.cover_url || null,
         cover_alt: data.cover_alt || null,
         instagram: data.instagram || null,
-        bio: data.bio || null, // Now using the actual bio column
-        status: data.status || 'active',
+        bio: data.bio || null,
+        bio_short: data.bio_short || null,
+        about: data.about || null,
+        status: data.status || 'draft',
+        type: data.type || 'organizador',
         contact_email: data.contact_email || data.email || null,
         contact_whatsapp: data.contact_whatsapp || data.whatsapp || data.phone || null,
+        booking_email: data.booking_email || null,
+        booking_whatsapp: data.booking_whatsapp || null,
         country: data.country || 'BR',
         city: data.city || null,
         state: data.state || null,
+        city_id: data.city_id || null,
+        invoice_name: data.invoice_name || null,
+        tax_id: data.tax_id || null,
+        invoice_email: data.invoice_email || null,
+        pix_key: data.pix_key || null,
+        bank: data.bank || {},
+        links: data.links || {},
+        is_active: data.is_active !== undefined ? data.is_active : true,
       };
 
       const { data: result, error } = await supabase
