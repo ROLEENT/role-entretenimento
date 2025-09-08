@@ -493,6 +493,7 @@ const EventDetailPageV2 = () => {
           ]}
           notes="Este evento se destaca pela sua relevância cultural única na cidade, com lineup de alta qualidade e forte impacto na comunidade local."
           eventTitle={event.title}
+          curatorialCriteria={event.curatorial_criteria}
         />
       )}
       
