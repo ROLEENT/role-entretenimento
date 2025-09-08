@@ -309,8 +309,163 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
           } catch (queryError) {
             console.error('Erro ao buscar eventos para artista:', queryError);
           }
+        } else if (profileType === 'organizador') {
+          // Para organizadores, buscar em ambas as tabelas: events e agenda_itens
+          console.log(`Buscando eventos para organizador: ${profileHandle}`);
+          
+          try {
+            let allEvents: any[] = [];
+            
+            // 1. Buscar o organizador pelo slug para obter o ID
+            const { data: organizerData } = await supabase
+              .from('entity_profiles')
+              .select('name, source_id')
+              .eq('handle', profileHandle)
+              .eq('type', 'organizador')
+              .maybeSingle();
+              
+            const organizerName = organizerData?.name || profileHandle;
+            const organizerId = organizerData?.source_id;
+            
+            console.log(`Organizador encontrado: ${organizerName}, ID: ${organizerId}`);
+
+            // 2. Buscar na tabela events por organizer_id
+            if (organizerId) {
+              const { data: eventsByOrganizerId, error: error1 } = await supabase
+                .from('events')
+                .select('id, title, slug, subtitle, image_url, date_start, date_end, city, location_name, status, visibility, genres')
+                .eq('organizer_id', organizerId)
+                .eq('status', 'published')
+                .gte('date_start', new Date().toISOString())
+                .order('date_start', { ascending: true })
+                .limit(20);
+
+              if (eventsByOrganizerId && !error1) {
+                const mappedEvents = eventsByOrganizerId.map((event: any) => ({
+                  id: event.id,
+                  title: event.title,
+                  slug: event.slug,
+                  subtitle: event.subtitle,
+                  cover_url: event.image_url,
+                  starts_at: event.date_start,
+                  end_at: event.date_end,
+                  city: event.city,
+                  location_name: event.location_name,
+                  status: event.status,
+                  type: event.visibility,
+                  tags: event.genres || [],
+                  source: 'events' as const,
+                  event_id: event.id
+                }));
+                allEvents = [...allEvents, ...mappedEvents];
+                console.log(`Encontrados ${mappedEvents.length} eventos por organizer_id na tabela events`);
+              }
+            }
+
+            // 3. Buscar na tabela events por título que contenha o nome do organizador
+            const { data: eventsByTitle, error: error2 } = await supabase
+              .from('events')
+              .select('id, title, slug, subtitle, image_url, date_start, date_end, city, location_name, status, visibility, genres')
+              .or(`title.ilike.%${organizerName}%,title.ilike.%${profileHandle}%`)
+              .eq('status', 'published')
+              .gte('date_start', new Date().toISOString())
+              .order('date_start', { ascending: true })
+              .limit(20);
+
+            if (eventsByTitle && !error2) {
+              const mappedEvents = eventsByTitle.map((event: any) => ({
+                id: event.id,
+                title: event.title,
+                slug: event.slug,
+                subtitle: event.subtitle,
+                cover_url: event.image_url,
+                starts_at: event.date_start,
+                end_at: event.date_end,
+                city: event.city,
+                location_name: event.location_name,
+                status: event.status,
+                type: event.visibility,
+                tags: event.genres || [],
+                source: 'events' as const,
+                event_id: event.id
+              }));
+              allEvents = [...allEvents, ...mappedEvents];
+              console.log(`Encontrados ${mappedEvents.length} eventos por título na tabela events`);
+            }
+
+            // 4. Buscar eventos através da tabela de relacionamento agenda_item_organizers
+            if (organizerId) {
+              const { data: organizedAgendaItems, error: error3 } = await supabase
+                .from('agenda_item_organizers')
+                .select(`
+                  agenda_id,
+                  agenda_itens!inner (
+                    id, title, slug, subtitle, cover_url, starts_at, end_at,
+                    city, location_name, status, type, tags
+                  )
+                `)
+                .eq('organizer_id', organizerId);
+
+              if (organizedAgendaItems && !error3) {
+                const mappedEvents = organizedAgendaItems
+                  .filter(item => item.agenda_itens)
+                  .map((item: any) => {
+                    const event = item.agenda_itens;
+                    return {
+                      ...event,
+                      source: 'agenda_itens' as const
+                    };
+                  })
+                  .filter(event => event.status === 'published' && !event.deleted_at);
+                
+                allEvents = [...allEvents, ...mappedEvents];
+                console.log(`Encontrados ${mappedEvents.length} eventos através de agenda_item_organizers`);
+              }
+            }
+
+            // 5. Buscar na agenda_itens por título
+            const { data: agendaEventsByTitle, error: error4 } = await supabase
+              .from('agenda_itens')
+              .select(`
+                id, title, slug, subtitle, cover_url, starts_at, end_at,
+                city, location_name, status, type, tags
+              `)
+              .or(`title.ilike.%${organizerName}%,title.ilike.%${profileHandle}%`)
+              .eq('status', 'published')
+              .is('deleted_at', null)
+              .gte('starts_at', new Date().toISOString())
+              .order('starts_at', { ascending: true })
+              .limit(20);
+
+            if (agendaEventsByTitle && !error4) {
+              const mappedEvents = agendaEventsByTitle.map((event: any) => ({
+                ...event,
+                source: 'agenda_itens' as const
+              }));
+              allEvents = [...allEvents, ...mappedEvents];
+              console.log(`Encontrados ${mappedEvents.length} eventos por título na agenda_itens`);
+            }
+
+            // Remover duplicatas baseado no slug
+            const uniqueEvents = allEvents.reduce((acc: any[], event: any) => {
+              if (!acc.some(e => e.slug === event.slug)) {
+                acc.push(event);
+              }
+              return acc;
+            }, []);
+
+            // Ordenar por data
+            eventsData = uniqueEvents.sort((a, b) => 
+              new Date(a.starts_at || '').getTime() - new Date(b.starts_at || '').getTime()
+            );
+
+            console.log(`Total de eventos únicos para organizador ${profileHandle}: ${eventsData.length}`);
+            
+          } catch (queryError) {
+            console.error('Erro ao buscar eventos para organizador:', queryError);
+          }
         } else {
-          // Para organizadores
+          // Fallback para outros tipos de perfil
           let query = supabase
             .from('agenda_itens')
             .select(`
@@ -319,11 +474,6 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
             `)
             .eq('status', 'published')
             .is('deleted_at', null);
-
-          if (profileType === 'organizador') {
-            // Para organizadores, buscar eventos que eles organizam
-            query = query.ilike('title', `%${profileHandle}%`);
-          }
 
           const { data, error } = await query
             .order('starts_at', { ascending: true })
