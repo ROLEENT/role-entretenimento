@@ -110,7 +110,7 @@ export const EventCreateWizard: React.FC<EventCreateWizardProps> = ({
       state: '',
       country: 'Brasil',
       currency: 'BRL',
-      status: 'draft',
+      status: 'published',
       visibility: 'public',
       highlight_type: 'none',
       is_sponsored: false,
