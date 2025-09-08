@@ -43,23 +43,7 @@ export function EventHeroSection({ event, venue, formatPrice, formatTime }: Even
           />
         </div>
         
-        {/* CTA de ingressos - oculto no mobile, visível apenas no desktop */}
-        <div className="hidden md:block absolute bottom-4 right-4">
-          <Button 
-            asChild 
-            size="lg" 
-            className="bg-primary hover:bg-primary-hover text-primary-foreground font-semibold min-h-[48px] shadow-lg"
-          >
-            <a 
-              href={event.ticket_url || event.ticketing?.url || '#ingressos'} 
-              target={event.ticket_url ? "_blank" : "_self"}
-              rel={event.ticket_url ? "noopener noreferrer" : undefined}
-            >
-              <Ticket className="h-5 w-5 mr-2" />
-              Ingressos a partir de {formatPrice()}
-            </a>
-          </Button>
-        </div>
+        {/* Desktop CTA removed per user request */}
         
         {/* Event Title Overlay - removido do mobile */}
         <div className="hidden md:block absolute bottom-0 left-0 right-0 p-6 text-white">
@@ -139,23 +123,7 @@ export function EventHeroSection({ event, venue, formatPrice, formatTime }: Even
           </div>
         </div>
 
-        {/* CTA Mobile - fora da imagem */}
-        <div className="pt-2">
-          <Button 
-            asChild 
-            size="lg" 
-            className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-semibold min-h-[44px] rounded-xl text-base"
-          >
-            <a 
-              href={event.ticket_url || event.ticketing?.url || '#ingressos'} 
-              target={event.ticket_url ? "_blank" : "_self"}
-              rel={event.ticket_url ? "noopener noreferrer" : undefined}
-            >
-              <Ticket className="h-5 w-5 mr-2" />
-              Ingressos a partir de {formatPrice()}
-            </a>
-          </Button>
-        </div>
+        {/* Mobile CTA removed per user request */}
       </div>
 
       {/* Faixa contextual compacta */}
