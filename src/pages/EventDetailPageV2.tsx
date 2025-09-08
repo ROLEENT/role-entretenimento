@@ -39,7 +39,7 @@ import { EventOrganizerCard } from '@/components/events/EventOrganizerCard';
 import { EventLinksCard } from '@/components/events/EventLinksCard';
 import { EventMoodTagsCard } from '@/components/events/EventMoodTagsCard';
 import { EventLocationCard } from '@/components/events/EventLocationCard';
-import { StickyTicketCTA } from '@/components/events/StickyTicketCTA';
+// StickyTicketCTA removed per user request
 import { EventCurationSection } from '@/components/events/EventCurationSection';
 import { EventSEO } from '@/components/events/EventSEO';
 import { useCurationDrawer } from '@/hooks/useCurationDrawer';
@@ -474,8 +474,7 @@ const EventDetailPageV2 = () => {
         </div>
       </main>
       
-      {/* Sticky CTA for Mobile */}
-      <StickyTicketCTA event={event} formatPrice={formatPrice} />
+      {/* Sticky CTA for Mobile - removed per user request */}
       
       {/* Curation Criteria Drawer */}
       {event && (
