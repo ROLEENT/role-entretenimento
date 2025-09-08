@@ -20,7 +20,13 @@ export function CurationSystemDemo() {
     curation_notes: 'Show raro em POA. Combina pós punk, eletrônica sombria e cena local. Artista internacional de qualidade com proposta coerente.',
     summary: 'Show raro em POA combinando pós-punk, eletrônica sombria e cena local.',
     city: 'Porto Alegre',
-    location_name: 'Caos'
+    location_name: 'Caos',
+    curatorial_criteria: {
+      cultural_relevance: { checked: true, note: 'A Hate Moss tem trajetória internacional e é uma das bandas ítalo-brasileiras mais interessantes do circuito pós-punk/electroclash atual.' },
+      lineup: { checked: true, note: 'A banda é consistente na sua identidade sombria e experimental, e a presença do Resp3x soma diversidade com rock, punk e indie.' },
+      city_connection: { checked: true, note: 'É a estreia da Hate Moss em Curitiba, num lugar simbólico para a cena independente.' },
+      engagement_potential: { checked: true, note: 'Há narrativa de "primeira vez na cidade", o que gera expectativa e compartilhamento.' }
+    }
   };
 
   const mockCriteria = [
@@ -145,9 +151,8 @@ export function CurationSystemDemo() {
       <CurationCriteriaDrawer
         open={showDrawer}
         onOpenChange={setShowDrawer}
-        criteria={mockCriteria as any}
-        notes={mockEvent.curation_notes}
         eventTitle={mockEvent.title}
+        curatorialCriteria={mockEvent.curatorial_criteria}
       />
 
       {/* Seção: Especificações Técnicas */}

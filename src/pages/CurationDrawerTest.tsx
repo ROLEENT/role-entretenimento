@@ -107,9 +107,12 @@ export default function CurationDrawerTest() {
         <CurationCriteriaDrawer
           open={isDrawerOpen}
           onOpenChange={setIsDrawerOpen}
-          criteria={mockCriteria}
-          notes={mockNotes}
           eventTitle="Festival de Música Eletrônica - Summer Edition 2024"
+          curatorialCriteria={{
+            cultural_relevance: { checked: true, note: mockNotes },
+            lineup: { checked: true, note: "Lineup diversificado e de qualidade" },
+            diversity_inclusion: { checked: false, note: "Melhorar diversidade" }
+          }}
         />
       </div>
     </div>

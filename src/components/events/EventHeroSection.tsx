@@ -137,13 +137,14 @@ export function EventHeroSection({ event, venue, formatPrice, formatTime }: Even
       )}
 
       {/* Drawer de critérios - Modal de leitura pública */}
-      <CurationCriteriaDrawer
-        open={showCriteriaDrawer}
-        onOpenChange={setShowCriteriaDrawer}
-        criteria={curationData?.criteria || []}
-        notes={curationData?.notes}
-        eventTitle={event.title}
-      />
+      {event.curatorial_criteria && (
+        <CurationCriteriaDrawer
+          open={showCriteriaDrawer}
+          onOpenChange={setShowCriteriaDrawer}
+          eventTitle={event.title}
+          curatorialCriteria={event.curatorial_criteria}
+        />
+      )}
     </section>
   );
 }

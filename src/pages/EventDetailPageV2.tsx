@@ -306,6 +306,19 @@ const EventDetailPageV2 = () => {
                   📢 Vitrine patrocinada
                 </div>
               )}
+              
+              {/* Botão único de curadoria */}
+              {(event.highlight_type === 'curatorial' || event.highlight_type === 'editorial') && event.curatorial_criteria && (
+                <Button
+                  id="curation-open"
+                  variant="ghost"
+                  size="sm"
+                  onClick={openDrawer}
+                  className="text-xs text-[#c77dff] hover:text-[#c77dff] hover:bg-[#c77dff]/10"
+                >
+                  Como escolhemos este destaque?
+                </Button>
+              )}
             </div>
           </div>
         )}
@@ -472,12 +485,10 @@ const EventDetailPageV2 = () => {
       {/* Sticky CTA for Mobile - removed per user request */}
       
       {/* Curation Criteria Drawer - Modal de leitura pública */}
-      {event && curationData && (
+      {event && event.curatorial_criteria && (
         <CurationCriteriaDrawer
           open={curationDrawerOpen}
           onOpenChange={closeDrawer}
-          criteria={curationData.criteria}
-          notes={curationData.notes}
           eventTitle={event.title}
           curatorialCriteria={event.curatorial_criteria}
         />

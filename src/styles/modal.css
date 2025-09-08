@@ -1,0 +1,78 @@
+/* Modal base styles */
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 50;
+}
+
+.modal__dialog {
+  width: min(960px, 95vw);
+  max-height: min(88vh, 920px);
+  background: #111114;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.modal__header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: linear-gradient(#111114 85%, transparent);
+  border-bottom: 1px solid #2a2a33;
+  padding: 20px 24px 10px;
+}
+
+.modal__body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 12px 24px 24px;
+}
+
+.modal__footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background: linear-gradient(transparent, #111114 60%);
+  border-top: 1px solid #2a2a33;
+  padding: 16px 24px;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .modal__dialog {
+    max-height: min(90vh, 800px);
+  }
+  
+  .modal__body {
+    max-height: 60vh;
+  }
+}
+
+/* Scrollbar styling */
+.modal__body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal__body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal__body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.modal__body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}

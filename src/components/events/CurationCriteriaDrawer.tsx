@@ -3,101 +3,102 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Check, Minus, X, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import '../../styles/modal.css';
 
-export type CriterionKey = 'relevancia' | 'qualidade' | 'diversidade' | 'impacto' | 'coerencia' | 'experiencia' | 'tecnica' | 'acessibilidade';
-export type CriterionStatus = 'met' | 'partial' | 'na' | 'not_informed';
-
-interface CriterionData {
-  key: CriterionKey;
-  status: CriterionStatus;
-  is_primary: boolean;
-  justification?: string;
-}
+type CriterionStatus = 'met' | 'partial' | 'not_applicable' | 'not_informed';
 
 interface CurationCriteriaDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  criteria: CriterionData[];
-  notes?: string;
   eventTitle?: string;
   curatorialCriteria?: any;
 }
 
-const CRITERIA_CONFIG: Record<CriterionKey, { label: string; description: string }> = {
-  relevancia: {
+// Mapeamento dos critérios reais conforme solicitado
+const CRITERIA_CONFIG = {
+  cultural_relevance: {
     label: 'Relevância Cultural',
     description: 'Diálogo real com a cena da cidade'
   },
-  qualidade: {
+  lineup: {
     label: 'Qualidade Artística',
     description: 'Entrega consistente do line-up e proposta'
   },
-  diversidade: {
+  diversity_inclusion: {
     label: 'Diversidade e Inclusão',
     description: 'Representatividade no palco e na pista'
   },
-  impacto: {
+  local_impact: {
     label: 'Impacto Local',
     description: 'Contribuição para a comunidade e circulação'
   },
-  coerencia: {
+  curatorial_coherence: {
     label: 'Coerência Curatorial',
     description: 'Conceito, narrativa e execução alinhados'
   },
-  experiencia: {
+  audience_experience: {
     label: 'Experiência do Público',
     description: 'Cuidado com acolhimento e fluidez'
   },
-  tecnica: {
-    label: 'Técnica e Produção',
-    description: 'Som, luz, segurança e operação'
+  city_connection: {
+    label: 'Conexão com a cidade',
+    description: 'Relação com o local e contexto urbano'
   },
-  acessibilidade: {
-    label: 'Acessibilidade',
-    description: 'Informações claras, estrutura e preço justo'
+  engagement_potential: {
+    label: 'Potencial de engajamento',
+    description: 'Capacidade de mobilizar e envolver o público'
   }
 };
 
 const STATUS_CONFIG = {
-  met: { icon: Check, label: 'Atendido', className: 'text-green-600 bg-green-100 border-green-300' },
-  partial: { icon: Minus, label: 'Parcial', className: 'text-yellow-600 bg-yellow-100 border-yellow-300' },
-  na: { icon: X, label: 'Não se aplica', className: 'text-gray-500 bg-gray-100 border-gray-300' },
-  not_informed: { icon: X, label: 'Não informado', className: 'text-red-500 bg-red-100 border-red-300' }
+  met: { 
+    icon: Check, 
+    label: 'Atendido', 
+    className: 'bg-[#153f2a] text-[#22c55e] border-[#245b3a]' 
+  },
+  partial: { 
+    icon: Minus, 
+    label: 'Parcial', 
+    className: 'bg-[#3b2e12] text-[#f59e0b] border-[#6b4d15]' 
+  },
+  not_applicable: { 
+    icon: X, 
+    label: 'Não se aplica', 
+    className: 'bg-[#24262b] text-[#c9c9d1] border-[#2f3137]' 
+  },
+  not_informed: { 
+    icon: X, 
+    label: 'Não informado', 
+    className: 'bg-[#3a1f22] text-[#ef4444] border-[#5e2a2f]' 
+  }
 };
 
 function CriterionItem({ 
   criterionKey, 
   status, 
-  isPrimary,
   justification
 }: { 
-  criterionKey: CriterionKey; 
+  criterionKey: string; 
   status: CriterionStatus; 
-  isPrimary: boolean;
   justification?: string;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const config = CRITERIA_CONFIG[criterionKey];
+  const config = CRITERIA_CONFIG[criterionKey as keyof typeof CRITERIA_CONFIG];
   const statusConfig = STATUS_CONFIG[status];
   const StatusIcon = statusConfig.icon;
+
+  if (!config) return null;
 
   const displayJustification = justification || "Não informado";
   const isLongText = displayJustification.length > 200;
   const truncatedText = isLongText ? displayJustification.slice(0, 200) + "..." : displayJustification;
 
   return (
-    <div className="border border-white/10 rounded-xl p-4 space-y-3 bg-white/[0.02]">
+    <div className="bg-[#1b1b22] border border-[#2a2a33] rounded-xl p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h4 className="font-semibold text-base text-white">{config.label}</h4>
-          {isPrimary && (
-            <Badge variant="outline" className="text-xs px-2 py-0.5 border-[#c77dff] text-[#c77dff]">
-              Destaque
-            </Badge>
-          )}
-        </div>
+        <h4 className="font-semibold text-base text-[#f3f3f7] max-w-[80ch]">{config.label}</h4>
         <div className={cn(
-          'flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border',
+          'flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border flex-shrink-0',
           statusConfig.className
         )}>
           <StatusIcon className="w-3 h-3" />
@@ -106,7 +107,7 @@ function CriterionItem({
       </div>
       
       <div className="space-y-2">
-        <p className="text-sm text-neutral-300 leading-relaxed">
+        <p className="text-sm text-[#f3f3f7] leading-relaxed max-w-[80ch]">
           {expanded || !isLongText ? displayJustification : truncatedText}
         </p>
         
@@ -264,8 +265,6 @@ function useFocusTrap(open: boolean, onClose: () => void) {
 export function CurationCriteriaDrawer({ 
   open, 
   onOpenChange, 
-  criteria, 
-  notes, 
   eventTitle,
   curatorialCriteria 
 }: CurationCriteriaDrawerProps) {
@@ -292,25 +291,38 @@ export function CurationCriteriaDrawer({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const score = criteria.reduce((acc, c) => {
-    if (c.status === 'met') return acc + 1;
-    if (c.status === 'partial') return acc + 0.5;
-    return acc;
-  }, 0);
-
   // Mapear dados dos critérios reais do evento
   const mappedCriteria = Object.keys(CRITERIA_CONFIG).map((key) => {
-    const criterionKey = key as CriterionKey;
-    const criterion = criteria.find(c => c.key === criterionKey);
-    const curatedData = curatorialCriteria?.[criterionKey];
+    const criterionData = curatorialCriteria?.[key];
+    
+    // Converter estrutura {checked: true/false, note: "text"} para status e justification
+    let status: CriterionStatus = 'not_informed';
+    let justification = '';
+    
+    if (criterionData) {
+      if (criterionData.checked === true) {
+        status = 'met';
+      } else if (criterionData.checked === false) {
+        status = 'not_applicable';
+      }
+      
+      // Tentar múltiplas chaves para a justificativa
+      justification = criterionData.note || 
+                    criterionData.justification || 
+                    criterionData.text || 
+                    criterionData.motivo || 
+                    '';
+    }
     
     return {
-      key: criterionKey,
-      status: criterion?.status || 'not_informed',
-      is_primary: criterion?.is_primary || false,
-      justification: curatedData?.justification || criterion?.justification
+      key,
+      status,
+      justification: justification || 'Não informado'
     };
   });
+  
+  // Contar apenas critérios com status 'met'
+  const metCriteriaCount = mappedCriteria.filter(c => c.status === 'met').length;
 
   // Swipe down para fechar no mobile
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -339,48 +351,79 @@ export function CurationCriteriaDrawer({
     }
   };
 
+  // Body scroll control
+  useEffect(() => {
+    if (open) {
+      document.body.classList.add('modal-open');
+      return () => document.body.classList.remove('modal-open');
+    }
+  }, [open]);
+
   if (!open) return null;
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-end md:items-center md:justify-center"
+      className="modal"
       onClick={handleBackdropClick}
       aria-hidden="true"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px',
+        zIndex: 50
+      }}
     >
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       
-      {/* Drawer/Modal */}
+      {/* Modal */}
       <div
         ref={drawerRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="curadoria-title"
-        className={cn(
-          "relative w-full bg-neutral-900 text-[#f3f3f7]",
-          isMobile ? 
-            "rounded-t-2xl max-h-[90vh]" : 
-            "rounded-2xl max-w-2xl max-h-[80vh] mx-4"
-        )}
+        className="modal__dialog"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        style={{
+          width: 'min(960px, 95vw)',
+          maxHeight: 'min(88vh, 920px)',
+          background: '#111114',
+          borderRadius: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative'
+        }}
       >
         {/* Header fixo */}
-        <div className="px-4 py-3 sticky top-0 bg-neutral-900/95 backdrop-blur border-b border-white/10 rounded-t-2xl">
+        <div 
+          className="modal__header"
+          style={{
+            position: 'sticky',
+            top: 0,
+            zIndex: 2,
+            background: 'linear-gradient(#111114 85%, transparent)',
+            borderBottom: '1px solid #2a2a33',
+            padding: '20px 24px 10px'
+          }}
+        >
           <div className="flex items-center justify-between">
             <h2 
               id="curadoria-title"
-              className="text-lg font-semibold"
+              className="text-lg font-semibold text-[#f3f3f7]"
               tabIndex={-1}
             >
-              Como escolhemos este destaque
+              Como escolhemos este destaque?
             </h2>
             <Button
               variant="ghost"
               size="sm"
               onClick={closeWithHistory}
-              className="h-10 w-10 rounded-full border border-white/15 hover:bg-white/10"
+              className="h-10 w-10 rounded-full border border-[#2a2a33] hover:bg-[#2a2a33] text-[#f3f3f7]"
               aria-label="Fechar critérios de curadoria"
             >
               <X className="h-4 w-4" />
@@ -388,66 +431,72 @@ export function CurationCriteriaDrawer({
           </div>
           
           {eventTitle && (
-            <p className="text-sm text-neutral-400 mt-1">
-              Critérios para <span className="font-medium text-white">{eventTitle}</span>
+            <p className="text-sm text-[#c9c9d1] mt-1">
+              Critérios para <span className="font-medium text-[#f3f3f7]">{eventTitle}</span>
             </p>
           )}
           
           <div className="flex items-center gap-2 mt-2">
-            <Badge variant="outline" className="text-xs px-2.5 py-1 border-white/15">
-              {score} de 8 critérios atendidos
+            <Badge 
+              variant="outline" 
+              className="text-xs px-2.5 py-1 border-[#2a2a33] text-[#f3f3f7] bg-transparent"
+            >
+              {metCriteriaCount} de 8 critérios atendidos
             </Badge>
           </div>
         </div>
 
         {/* Conteúdo com scroll */}
-        <div className="px-4 py-2 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20">
+        <div 
+          className="modal__body"
+          style={{
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            overscrollBehavior: 'contain',
+            padding: '12px 24px 24px'
+          }}
+        >
           <div className="space-y-4">
             {mappedCriteria.map((criterion) => (
               <CriterionItem
                 key={criterion.key}
                 criterionKey={criterion.key}
                 status={criterion.status}
-                isPrimary={criterion.is_primary}
                 justification={criterion.justification}
               />
             ))}
           </div>
-
-          {notes && (
-            <div className="mt-6 space-y-2">
-              <h4 className="text-sm font-semibold text-white">Notas da Curadoria</h4>
-              <p className="text-sm text-neutral-300 bg-white/5 p-3 rounded-xl border border-white/10 leading-relaxed">
-                {notes}
-              </p>
-            </div>
-          )}
         </div>
 
         {/* Footer fixo */}
-        <div className="px-4 pb-[calc(16px+env(safe-area-inset-bottom,0px))] pt-3 sticky bottom-0 bg-neutral-900/95 backdrop-blur border-t border-white/10 space-y-3">
+        <div 
+          className="modal__footer"
+          style={{
+            position: 'sticky',
+            bottom: 0,
+            zIndex: 2,
+            background: 'linear-gradient(transparent, #111114 60%)',
+            borderTop: '1px solid #2a2a33',
+            padding: '16px 24px',
+            textAlign: 'center'
+          }}
+        >
           <Button 
-            className="w-full h-11 rounded-xl bg-[#c77dff] text-black font-semibold hover:bg-[#c77dff]/90"
+            className="w-full h-11 rounded-xl bg-[#c77dff] text-black font-semibold hover:bg-[#c77dff]/90 mb-3"
             onClick={closeWithHistory}
           >
             Entendi
           </Button>
           
-          <Button 
-            variant="ghost" 
-            className="w-full h-11 rounded-xl hover:bg-white/5"
-            asChild
+          <a 
+            href="/politicas/curadoria" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-sm text-[#c9c9d1] hover:text-[#f3f3f7] inline-flex items-center gap-1 opacity-70"
           >
-            <a 
-              href="/politicas/curadoria" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 text-sm text-muted-foreground"
-            >
-              <span>Política de curadoria</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
-          </Button>
+            <span>Política de curadoria</span>
+            <ExternalLink className="w-3 h-3" />
+          </a>
         </div>
       </div>
     </div>
