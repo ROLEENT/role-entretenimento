@@ -64,6 +64,7 @@ const AdminV3ArtistEdit = lazy(() => import("./pages/admin-v3/AdminV3ArtistEdit"
 // Admin V3 Organizers Pages  
 const AdminV3OrganizadoresList = lazy(() => import("./pages/admin-v3/AdminV3OrganizadoresList"));
 const AdminV3OrganizerCreate = lazy(() => import("./pages/admin-v3/AdminV3OrganizerCreate"));
+const AdminV3OrganizerCreateV2 = lazy(() => import("./pages/admin-v3/AdminV3OrganizerCreateV2"));
 const AdminV3OrganizerEdit = lazy(() => import("./pages/admin-v3/AdminV3OrganizerEdit"));
 
 // Admin V3 Venues Pages
@@ -341,6 +342,7 @@ function App() {
                   <Route path="agentes/venues/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenueEdit /></Suspense>} />
                   <Route path="agentes/organizadores" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizadoresList /></Suspense>} />
                   <Route path="agentes/organizadores/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerCreate /></Suspense>} />
+                  <Route path="agentes/organizadores/create-v2" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerCreateV2 /></Suspense>} />
                   <Route path="agentes/organizadores/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerEdit /></Suspense>} />
                   
                   {/* Catalogs Routes */}
