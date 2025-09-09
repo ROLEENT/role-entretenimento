@@ -57,7 +57,11 @@ export function useUpsertEventV3() {
         }
 
         // Use original data since validation only returns isValid and errors
-        const cleanEventData = eventData;
+        // Convert organizer_ids array to organizer_id for backwards compatibility
+        const cleanEventData = {
+          ...eventData,
+          organizer_id: eventData.organizer_ids?.[0] || eventData.organizer_id
+        };
 
         if (cleanEventData.id) {
           // Update existing event
