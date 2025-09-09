@@ -11,7 +11,31 @@ export const eventsApi = {
         throw new Error('Admin não autenticado');
       }
 
-      // For agenda_itens, use direct insert with is_published flag
+      // Extract organizers from partners
+      const partners = (eventData as any).partners || [];
+      const organizers = partners.filter((p: any) => p.role === 'organizer');
+      
+      console.log('🔍 Debug organizers:', {
+        partners: partners.length,
+        organizers: organizers.length,
+        organizerData: organizers.map(o => ({ 
+          partner_id: o.partner_id, 
+          role: o.role, 
+          is_main: o.is_main 
+        }))
+      });
+      
+      // Ensure we have at least one organizer if publishing
+      const isPublished = (eventData as any).is_published || false;
+      if (isPublished && organizers.length === 0) {
+        throw new Error('Eventos publicados devem ter pelo menos um organizador definido');
+      }
+
+      // Extract main organizer
+      const mainOrganizer = organizers.find((o: any) => o.is_main) || organizers[0];
+      const organizerIds = organizers.map((o: any) => o.partner_id).filter(Boolean);
+
+      // For agenda_itens, use direct insert with organizer data
       const { data, error } = await supabase
         .from('agenda_itens')
         .insert({
@@ -28,7 +52,9 @@ export const eventsApi = {
           location_name: eventData.location_name,
           address: eventData.address,
           status: 'published',
-          is_published: (eventData as any).is_published || false,
+          is_published: isPublished,
+          organizer_id: mainOrganizer?.partner_id || null,
+          organizer_ids: organizerIds,
           created_by: session?.user?.id
         })
         .select()
@@ -36,6 +62,28 @@ export const eventsApi = {
 
       if (error) {
         throw new Error(`Erro ao criar evento: ${error.message}`);
+      }
+
+      // Create organizer relationships in agenda_item_organizers
+      if (organizers.length > 0) {
+        const organizerRelations = organizers.map((org: any, index: number) => ({
+          agenda_id: data.id,
+          organizer_id: org.partner_id,
+          role: org.role || 'organizer',
+          main_organizer: org.is_main || false,
+          position: index
+        })).filter((rel: any) => rel.organizer_id);
+
+        if (organizerRelations.length > 0) {
+          const { error: orgError } = await supabase
+            .from('agenda_item_organizers')
+            .insert(organizerRelations);
+
+          if (orgError) {
+            console.error('Error creating organizer relations:', orgError);
+            // Don't throw here, just log the error
+          }
+        }
       }
 
       return data.id;
@@ -54,6 +102,30 @@ export const eventsApi = {
         throw new Error('Admin não autenticado');
       }
 
+      // Extract organizers from partners
+      const partners = (eventData as any).partners || [];
+      const organizers = partners.filter((p: any) => p.role === 'organizer');
+      
+      console.log('🔍 Debug organizers (update):', {
+        partners: partners.length,
+        organizers: organizers.length,
+        organizerData: organizers.map(o => ({ 
+          partner_id: o.partner_id, 
+          role: o.role, 
+          is_main: o.is_main 
+        }))
+      });
+      
+      // Ensure we have at least one organizer if publishing
+      const isPublished = (eventData as any).is_published || false;
+      if (isPublished && organizers.length === 0) {
+        throw new Error('Eventos publicados devem ter pelo menos um organizador definido');
+      }
+
+      // Extract main organizer
+      const mainOrganizer = organizers.find((o: any) => o.is_main) || organizers[0];
+      const organizerIds = organizers.map((o: any) => o.partner_id).filter(Boolean);
+
       // Update agenda_itens
       const { error: eventError } = await supabase
         .from('agenda_itens')
@@ -70,7 +142,9 @@ export const eventsApi = {
           venue_id: eventData.venue_id,
           location_name: eventData.location_name,
           address: eventData.address,
-          is_published: (eventData as any).is_published || false,
+          is_published: isPublished,
+          organizer_id: mainOrganizer?.partner_id || null,
+          organizer_ids: organizerIds,
           updated_by: session?.user?.id,
           updated_at: new Date().toISOString()
         })
@@ -78,6 +152,35 @@ export const eventsApi = {
 
       if (eventError) {
         throw new Error(`Erro ao atualizar evento: ${eventError.message}`);
+      }
+
+      // Update organizer relationships
+      // First, delete existing organizer relations
+      await supabase
+        .from('agenda_item_organizers')
+        .delete()
+        .eq('agenda_id', eventId);
+
+      // Create new organizer relationships
+      if (organizers.length > 0) {
+        const organizerRelations = organizers.map((org: any, index: number) => ({
+          agenda_id: eventId,
+          organizer_id: org.partner_id,
+          role: org.role || 'organizer',
+          main_organizer: org.is_main || false,
+          position: index
+        })).filter((rel: any) => rel.organizer_id);
+
+        if (organizerRelations.length > 0) {
+          const { error: orgError } = await supabase
+            .from('agenda_item_organizers')
+            .insert(organizerRelations);
+
+          if (orgError) {
+            console.error('Error updating organizer relations:', orgError);
+            // Don't throw here, just log the error
+          }
+        }
       }
 
       return eventId;

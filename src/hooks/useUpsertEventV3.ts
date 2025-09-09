@@ -57,10 +57,25 @@ export function useUpsertEventV3() {
           throw new Error(`Dados inválidos: ${validation.errors.join(', ')}`);
         }
 
+        // Check organizers if publishing
+        const shouldPublish = canPublish(eventData);
+        if (shouldPublish) {
+          const organizers = eventData.partners?.filter((p: any) => p.role === 'organizer') || [];
+          console.log('🔍 Validating organizers for published event:', {
+            partnersCount: eventData.partners?.length || 0,
+            organizersCount: organizers.length,
+            organizers: organizers.map(o => ({ id: o.partner_id, role: o.role }))
+          });
+          
+          if (organizers.length === 0) {
+            throw new Error('Eventos publicados devem ter pelo menos um organizador definido');
+          }
+        }
+
         // Use original data since validation only returns isValid and errors
         const cleanEventData = {
           ...eventData,
-          is_published: canPublish(eventData)
+          is_published: shouldPublish
         };
 
         if (cleanEventData.id) {
