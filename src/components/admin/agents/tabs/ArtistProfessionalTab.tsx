@@ -91,7 +91,7 @@ export const ArtistProfessionalTab: React.FC<ArtistProfessionalTabProps> = ({ fo
       </div>
 
       {/* Dynamic Genres Field */}
-      <DynamicGenresField categoryName={categoryData?.name} />
+            <DynamicGenresField categoryName={categoryData?.name} />
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Requisitos Técnicos</h3>

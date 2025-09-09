@@ -1,17 +1,30 @@
 import { z } from "zod";
 
+// Normalization function for accent and case insensitive comparison
+const norm = (s?: string) =>
+  s?.toString().normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim() ?? '';
+
+// Categories that indicate acting (normalized for comparison)
+const ACTING = new Set([
+  'drag', 'drag queen', 'drag king', 'performer', 'ator', 'atriz',
+  'dancarino', 'bailarino', 'teatro', 'burlesco', 'vogue performer'
+]);
+
+// Categories that indicate music (normalized for comparison)  
+const MUSIC = new Set([
+  'dj', 'produtor musical', 'cantor', 'mc', 'banda', 'instrumentista'
+]);
+
 // Helper function to check if category includes acting types
 const hasActingCategory = (categoryName?: string) => {
   if (!categoryName) return false;
-  const actingCategories = ["drag", "drag queen", "drag king", "performer", "ator", "atriz", "dançarino", "bailarino", "teatro", "burlesco"];
-  return actingCategories.some(cat => categoryName.toLowerCase().includes(cat.toLowerCase()));
+  return ACTING.has(norm(categoryName));
 };
 
 // Helper function to check if category includes music types
 const hasMusicCategory = (categoryName?: string) => {
   if (!categoryName) return false;
-  const musicCategories = ["dj", "produtor musical", "cantor", "mc", "banda", "instrumentista"];
-  return musicCategories.some(cat => categoryName.toLowerCase().includes(cat.toLowerCase()));
+  return MUSIC.has(norm(categoryName));
 };
 
 // Flexible schema for artists with minimal required fields
@@ -90,17 +103,38 @@ export const artistFlexibleSchema = z.object({
   genres: z.array(z.string()).default([]),
   
   // Dynamic genre fields based on categories
-  music_genres: z.array(z.string()).default([]),
-  acting_genres: z.array(z.string()).default([]),
+  music_genres: z.array(z.string()).max(5).default([]),
+  acting_genres: z.array(z.string()).max(5).default([]),
   
   // Timestamps (handled by database)
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
-}).refine((data) => {
-  // This would need category name for full validation, but we'll handle it in the form logic
-  return true;
-}, {
-  message: "Pelo menos um gênero é obrigatório para a categoria selecionada"
+}).superRefine((v, ctx) => {
+  // Conditional validation for genre fields based on artist type and categories
+  const tipoArtista = norm(v.artist_type);
+  const categorias: string[] = [];
+  
+  // Add category names if available (this would be enhanced in the form layer)
+  // For now, we validate based on artist_type
+  
+  const hasActing = ACTING.has(tipoArtista);
+  const hasMusic = MUSIC.has(tipoArtista);
+
+  if (hasActing && v.acting_genres.length === 0) {
+    ctx.addIssue({ 
+      code: 'custom', 
+      path: ['acting_genres'], 
+      message: 'Adicione pelo menos 1 gênero de atuação' 
+    });
+  }
+
+  if (hasMusic && v.music_genres.length === 0) {
+    ctx.addIssue({ 
+      code: 'custom', 
+      path: ['music_genres'], 
+      message: 'Adicione pelo menos 1 gênero musical' 
+    });
+  }
 });
 
 // Flexible schema for organizers with minimal required fields

@@ -55,31 +55,35 @@ export const AdminArtistForm: React.FC<AdminArtistFormProps> = ({
   const categoryId = form.watch("category_id");
   const { data: categoryData } = useArtistCategory(categoryId);
 
-  const handleSubmit = (data: ArtistFlexibleForm) => {
-    // Clean irrelevant genre fields based on category
-    const cleanedData = { ...data };
+  const handleSubmit = async (data: ArtistFlexibleForm) => {
+    // Clean up genre fields based on category type and artist type
+    const tipoArtista = data.artist_type || '';
+    const categoryName = categoryData?.name || '';
     
-    if (categoryData?.name) {
-      // Check if category has acting or music elements
-      const hasActingCategory = ["drag", "drag queen", "drag king", "performer", "ator", "atriz", "dançarino", "bailarino", "teatro", "burlesco"]
-        .some(cat => categoryData.name.toLowerCase().includes(cat.toLowerCase()));
-      const hasMusicCategory = ["dj", "produtor musical", "cantor", "mc", "banda", "instrumentista"]
-        .some(cat => categoryData.name.toLowerCase().includes(cat.toLowerCase()));
-        
-      // Clear irrelevant fields
-      if (!hasActingCategory) {
-        cleanedData.acting_genres = [];
-      }
-      if (!hasMusicCategory) {
-        cleanedData.music_genres = [];
-      }
-    } else {
-      // If no category selected, clear both
-      cleanedData.acting_genres = [];
-      cleanedData.music_genres = [];
-    }
+    // Normalize and check both artist type and category
+    const norm = (s?: string) =>
+      s?.toString().normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim() ?? '';
     
-    onSubmit(cleanedData);
+    const ACTING = new Set([
+      'drag', 'drag queen', 'drag king', 'performer', 'ator', 'atriz',
+      'dancarino', 'bailarino', 'teatro', 'burlesco', 'vogue performer'
+    ]);
+    
+    const MUSIC = new Set([
+      'dj', 'produtor musical', 'cantor', 'mc', 'banda', 'instrumentista'
+    ]);
+    
+    const hasActing = ACTING.has(norm(tipoArtista)) || ACTING.has(norm(categoryName));
+    const hasMusic = MUSIC.has(norm(tipoArtista)) || MUSIC.has(norm(categoryName));
+    
+    // Clean payload - only include relevant genre fields
+    const cleanedData = {
+      ...data,
+      acting_genres: hasActing ? (data.acting_genres || []) : [],
+      music_genres: hasMusic ? (data.music_genres || []) : [],
+    };
+    
+    await onSubmit(cleanedData);
   };
 
   return (

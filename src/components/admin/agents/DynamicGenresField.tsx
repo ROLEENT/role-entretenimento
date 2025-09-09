@@ -1,6 +1,11 @@
 import React, { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { AgentesTagsInput } from "@/components/agentes/AgentesTagsInput";
+import { useArtistCategory } from "@/hooks/useArtistCategory";
+
+// Normalization function for accent and case insensitive comparison
+const norm = (s?: string) =>
+  s?.toString().normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim() ?? '';
 
 // Predefined suggestions for different genre types
 const ACTING_GENRE_SUGGESTIONS = [
@@ -37,16 +42,16 @@ const MUSIC_GENRE_SUGGESTIONS = [
   "ambient"
 ];
 
-// Categories that indicate acting
-const ACTING_CATEGORIES = [
-  "drag", "drag queen", "drag king", "performer", "ator", "atriz", 
-  "dançarino", "bailarino", "teatro", "burlesco"
-];
+// Categories that indicate acting (normalized for comparison)
+const ACTING = new Set([
+  'drag', 'drag queen', 'drag king', 'performer', 'ator', 'atriz',
+  'dancarino', 'bailarino', 'teatro', 'burlesco', 'vogue performer'
+]);
 
-// Categories that indicate music
-const MUSIC_CATEGORIES = [
-  "dj", "produtor musical", "cantor", "mc", "banda", "instrumentista"
-];
+// Categories that indicate music (normalized for comparison)
+const MUSIC = new Set([
+  'dj', 'produtor musical', 'cantor', 'mc', 'banda', 'instrumentista'
+]);
 
 interface DynamicGenresFieldProps {
   categoryName?: string;
@@ -55,30 +60,44 @@ interface DynamicGenresFieldProps {
 export function DynamicGenresField({ categoryName }: DynamicGenresFieldProps) {
   const { watch, setValue, getValues } = useFormContext();
   
-  // Watch the category field to determine which genre fields to show
+  // Watch both artist_type and category_id
+  const artistType = watch("artist_type");
   const categoryId = watch("category_id");
   const musicGenres = watch("music_genres") || [];
   const actingGenres = watch("acting_genres") || [];
 
-  // Determine what type of categories are selected based on the category name
-  const hasActingCategory = categoryName ? 
-    ACTING_CATEGORIES.some(cat => categoryName.toLowerCase().includes(cat.toLowerCase())) : false;
-    
-  const hasMusicCategory = categoryName ? 
-    MUSIC_CATEGORIES.some(cat => categoryName.toLowerCase().includes(cat.toLowerCase())) : false;
+  // Get category data to map category_id to name
+  const { data: categoryData } = useArtistCategory(categoryId);
+  
+  // Determine what type of categories are selected
+  const tipoArtista = norm(artistType);
+  const categorias: string[] = [];
+  
+  // Add category name from categoryData if available
+  if (categoryData?.name) {
+    categorias.push(norm(categoryData.name));
+  }
+  
+  // Add categoryName prop if provided (for backward compatibility)
+  if (categoryName) {
+    categorias.push(norm(categoryName));
+  }
 
-  // Clear irrelevant genres when category changes
+  const hasActing = ACTING.has(tipoArtista) || categorias.some(c => ACTING.has(c));
+  const hasMusic = MUSIC.has(tipoArtista) || categorias.some(c => MUSIC.has(c));
+
+  // Clear irrelevant genres when category/type changes with proper revalidation
   useEffect(() => {
-    if (!hasActingCategory && actingGenres.length > 0) {
-      setValue("acting_genres", []);
+    if (!hasActing && actingGenres.length > 0) {
+      setValue("acting_genres", [], { shouldDirty: true, shouldValidate: true });
     }
-    if (!hasMusicCategory && musicGenres.length > 0) {
-      setValue("music_genres", []);
+    if (!hasMusic && musicGenres.length > 0) {
+      setValue("music_genres", [], { shouldDirty: true, shouldValidate: true });
     }
-  }, [hasActingCategory, hasMusicCategory, actingGenres.length, musicGenres.length, setValue]);
+  }, [hasActing, hasMusic, actingGenres.length, musicGenres.length, setValue]);
 
-  const showActingGenres = hasActingCategory;
-  const showMusicGenres = hasMusicCategory;
+  const showActingGenres = hasActing;
+  const showMusicGenres = hasMusic;
 
   // Don't render anything if no relevant categories are selected
   if (!showActingGenres && !showMusicGenres) {
