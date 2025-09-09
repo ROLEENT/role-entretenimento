@@ -44,7 +44,8 @@ export const AdminArtistForm: React.FC<AdminArtistFormProps> = ({
       image_rights_authorized: false,
       priority: 0,
       tags: [],
-      genres: [],
+      music_genres: [],
+      acting_genres: [],
       ...artist,
     },
   });

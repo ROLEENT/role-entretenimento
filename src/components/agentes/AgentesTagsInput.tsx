@@ -11,14 +11,16 @@ interface AgentesTagsInputProps {
   label?: string;
   placeholder?: string;
   maxTags?: number;
+  suggestions?: string[];
 }
 
-export function AgentesTagsInput({ 
-  name = "tags", 
-  label = "Tags",
+export const AgentesTagsInput: React.FC<AgentesTagsInputProps> = ({
+  name,
+  label,
   placeholder = "Digite uma tag e pressione Enter",
-  maxTags = 12 
-}: AgentesTagsInputProps) {
+  maxTags = 10,
+  suggestions = []
+}) => {
   const { watch, setValue, formState: { errors } } = useFormContext();
   const [inputValue, setInputValue] = useState("");
   
@@ -48,12 +50,19 @@ export function AgentesTagsInput({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      addTag(inputValue);
+      if (inputValue.trim()) {
+        addTag(inputValue.trim());
+      }
     } else if (e.key === 'Backspace' && !inputValue && tags.length > 0) {
-      // Remove última tag se input estiver vazio
       removeTag(tags[tags.length - 1]);
     }
   };
+
+  // Filtrar sugestões baseadas no input atual
+  const filteredSuggestions = suggestions.filter(suggestion => 
+    suggestion.toLowerCase().includes(inputValue.toLowerCase()) &&
+    !tags.includes(suggestion)
+  ).slice(0, 5); // Mostrar no máximo 5 sugestões
 
   return (
     <div className="space-y-2">
@@ -77,21 +86,37 @@ export function AgentesTagsInput({
           ))}
         </div>
         
-        <Input
-          id={name}
+        <input
+          type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={tags.length >= maxTags ? `Máximo ${maxTags} tags` : placeholder}
+          placeholder={tags.length === 0 ? placeholder : ""}
+          className="flex-1 outline-none bg-transparent text-sm placeholder:text-muted-foreground"
           disabled={tags.length >= maxTags}
-          className="border-0 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
         />
       </div>
+
+      {/* Sugestões */}
+      {inputValue && filteredSuggestions.length > 0 && (
+        <div className="mt-2 border border-border rounded-md bg-background shadow-sm">
+          {filteredSuggestions.map((suggestion, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => addTag(suggestion)}
+              className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors first:rounded-t-md last:rounded-b-md"
+            >
+              {suggestion}
+            </button>
+          ))}
+        </div>
+      )}
       
-      <div className="flex justify-between text-sm text-muted-foreground">
+      <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
         <span>{tags.length}/{maxTags} tags</span>
         {error && <span className="text-destructive">{error}</span>}
       </div>
     </div>
   );
-}
+};

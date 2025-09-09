@@ -73,11 +73,55 @@ export const artistFlexibleSchema = z.object({
   image_rights_authorized: z.boolean().default(false),
   priority: z.number().default(0),
   tags: z.array(z.string()).default([]),
-  genres: z.array(z.string()).default([]),
+  
+  // Gêneros dinâmicos baseados na categoria
+  music_genres: z.array(z.string()).max(5, "Máximo de 5 gêneros musicais").default([]),
+  acting_genres: z.array(z.string()).max(5, "Máximo de 5 gêneros de atuação").default([]),
   
   // Timestamps (handled by database)
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
+}).superRefine((data, ctx) => {
+  // Validação condicional baseada na categoria
+  if (data.category_id) {
+    const { getCategoryType } = require('@/constants/artistCategories');
+    
+    // Buscar slug da categoria pelo ID seria ideal, mas por agora usamos a lógica existente
+    // Esta validação será executada no submit do formulário
+    const categoryType = getCategoryType(data.category_id);
+    
+    // Se for categoria de atuação e não tem gêneros de atuação
+    if (categoryType === 'acting' && (!data.acting_genres || data.acting_genres.length === 0)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['acting_genres'],
+        message: 'Pelo menos um gênero de atuação é obrigatório para esta categoria'
+      });
+    }
+    
+    // Se for categoria musical e não tem gêneros musicais
+    if (categoryType === 'music' && (!data.music_genres || data.music_genres.length === 0)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['music_genres'],
+        message: 'Pelo menos um gênero musical é obrigatório para esta categoria'
+      });
+    }
+    
+    // Se for categoria mista, precisa ter pelo menos um tipo de gênero
+    if (categoryType === 'mixed') {
+      const hasActing = data.acting_genres && data.acting_genres.length > 0;
+      const hasMusic = data.music_genres && data.music_genres.length > 0;
+      
+      if (!hasActing && !hasMusic) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['music_genres'],
+          message: 'Pelo menos um gênero (musical ou de atuação) é obrigatório'
+        });
+      }
+    }
+  }
 });
 
 // Flexible schema for organizers with minimal required fields
