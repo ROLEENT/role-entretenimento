@@ -16,6 +16,7 @@ import {
 import { Profile } from "@/features/profiles/api";
 import { useProfileGenres } from "@/features/profiles/hooks/useProfileGenres";
 import { useProfileStats } from "@/features/profiles/hooks/useProfileStats";
+import ArtistGenres from "./ArtistGenres";
 
 interface ProfileSidebarNewProps {
   profile: Profile;
@@ -215,7 +216,10 @@ export function ProfileSidebarNew({ profile }: ProfileSidebarNewProps) {
       )}
 
       {/* Genres/Tags Card */}
-      {(genres.length > 0 || (profile.tags && profile.tags.length > 0)) && (
+      {(((profile as any).music_genres?.length > 0) || 
+        ((profile as any).acting_genres?.length > 0) || 
+        (genres.length > 0) || 
+        (profile.tags && profile.tags.length > 0)) && (
         <Card className="shadow-card">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -225,7 +229,13 @@ export function ProfileSidebarNew({ profile }: ProfileSidebarNewProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {/* Genres */}
+              {/* Artist Genres (Music & Acting) */}
+              <ArtistGenres 
+                music={(profile as any).music_genres} 
+                acting={(profile as any).acting_genres} 
+              />
+              
+              {/* Legacy Genres */}
               {genres.length > 0 && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-2">Gêneros</p>

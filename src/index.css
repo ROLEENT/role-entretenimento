@@ -1582,3 +1582,20 @@ div[class*="bg-gradient-to-t"]::after {
   position: relative;
   z-index: 30;
 }
+
+/* Artist Genres Styling */
+.tags-subtitle {
+  font-size: 0.75rem;
+  margin: 8px 0 6px;
+  opacity: 0.85;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  font-size: 0.75rem;
+}
