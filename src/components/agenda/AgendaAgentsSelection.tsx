@@ -3,7 +3,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { OrganizerCombobox } from '@/components/OrganizerCombobox';
 import { VenueCombobox } from '@/components/VenueCombobox';
-import { MultipleOrganizerSelector } from './MultipleOrganizerSelector';
+// Sistema antigo removido - usando events.organizer_id
 
 export function AgendaAgentsSelection() {
   const { watch } = useFormContext();
@@ -55,8 +55,10 @@ export function AgendaAgentsSelection() {
       </div>
 
       <div className="border-t pt-6">
-        <h3 className="text-lg font-medium mb-4">Organizadores do Evento</h3>
-        <MultipleOrganizerSelector agendaId={eventId} />
+        <h3 className="text-lg font-medium mb-4">Organizador do Evento</h3>
+        <p className="text-sm text-muted-foreground">
+          Use o campo "Organizador Principal" acima para definir o organizador do evento.
+        </p>
       </div>
 
       {isPublished && (

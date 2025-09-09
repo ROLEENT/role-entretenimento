@@ -46,7 +46,7 @@ import { useCurationDrawer } from '@/hooks/useCurationDrawer';
 import { useCurationData } from '@/hooks/useCurationData';
 import { CurationCriteriaDrawer } from '@/components/events/CurationCriteriaDrawer';
 import { formatWeekdayPtBR } from '@/utils/dateUtils';
-import { useEventOrganizers } from '@/hooks/useEventOrganizers';
+// Sistema antigo removido - usando events.organizer_id
 import '../styles/mobile-event-layout.css';
 
 const EventDetailPageV2 = () => {
@@ -65,8 +65,7 @@ const EventDetailPageV2 = () => {
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   
-  // Use the existing hook for organizers
-  const { organizers, isLoading: organizersLoading } = useEventOrganizers(event?.id);
+  // Sistema antigo removido - organizador vem direto de event.organizer
   
   const { user, session } = useAuth();
   const { isOpen: curationDrawerOpen, openDrawer, closeDrawer } = useCurationDrawer();
@@ -98,20 +97,13 @@ const EventDetailPageV2 = () => {
       // Check if the parameter is a UUID (for backward compatibility)
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(eventSlug);
       
-      // Fetch main event data with organizers through relationship table
+      // Fetch main event data with organizer (sistema novo simplificado)
       const { data, error } = await supabase
         .from('events')
         .select(`
           *,
           organizer:organizers!events_organizer_id_fkey (
             id, name, slug, avatar_url, city
-          ),
-          agenda_item_organizers (
-            main_organizer,
-            role,
-            organizer:organizers!agenda_item_organizers_organizer_id_fkey (
-              id, name, slug, avatar_url, city
-            )
           )
         `)
         .eq(isUUID ? 'id' : 'slug', eventSlug)
@@ -145,7 +137,7 @@ const EventDetailPageV2 = () => {
         }
       }
       
-      // Organizer data is now handled by useEventOrganizers hook
+      // Organizador vem direto de event.organizer
       // Fetch lineup data - corrigindo para usar event_lineup_slots
       if (data.id) {
         const { data: lineupData, error: lineupError } = await supabase
@@ -278,7 +270,7 @@ const EventDetailPageV2 = () => {
   // Use the organizer directly from the event query
   const eventOrganizer = event?.organizer;
 
-  if (loading || organizersLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -454,7 +446,7 @@ const EventDetailPageV2 = () => {
             {/* Right Column - Sidebar (desktop only) */}
             <div className="hidden lg:block space-y-6">
               {/* Organizer Card */}
-              <EventOrganizerCard event={event} />
+              <EventOrganizerCard organizer={event?.organizer} />
               
               {/* Official Links */}
               <EventLinksCard event={event} partners={partners} />
@@ -501,7 +493,7 @@ const EventDetailPageV2 = () => {
           
           {/* Mobile: Organizer & Links Cards */}
           <div className="lg:hidden space-y-4 mt-6">
-            <EventOrganizerCard event={event} />
+            <EventOrganizerCard organizer={event?.organizer} />
             <EventLinksCard event={event} partners={partners} />
             <EventMoodTagsCard event={event} />
           </div>

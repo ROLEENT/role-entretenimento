@@ -7,29 +7,12 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
 interface EventOrganizerCardProps {
-  event?: any; // Evento completo com organizadores
+  organizer?: any; // Organizador do evento (sistema novo)
 }
 
-export function EventOrganizerCard({ event }: EventOrganizerCardProps) {
-  // Buscar organizador principal do evento
-  const organizerData = React.useMemo(() => {
-    // Primeiro, tentar organizador direto
-    if (event?.organizer) {
-      return event.organizer;
-    }
-    
-    // Depois, buscar organizador principal na tabela de relacionamento
-    if (event?.agenda_item_organizers?.length > 0) {
-      const mainOrganizer = event.agenda_item_organizers.find(org => org.main_organizer);
-      if (mainOrganizer?.organizer) {
-        return mainOrganizer.organizer;
-      }
-      // Se não há organizador principal marcado, pegar o primeiro
-      return event.agenda_item_organizers[0]?.organizer;
-    }
-    
-    return null;
-  }, [event]);
+export function EventOrganizerCard({ organizer }: EventOrganizerCardProps) {
+  // Sistema novo simplificado - apenas organizador direto
+  const organizerData = organizer;
 
   // Se não há organizador, não mostrar o card
   if (!organizerData) return null;

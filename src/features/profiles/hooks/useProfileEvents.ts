@@ -393,35 +393,7 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
               console.log(`Encontrados ${mappedEvents.length} eventos por título na tabela events`);
             }
 
-            // 4. Buscar eventos através da tabela de relacionamento agenda_item_organizers
-            if (organizerId) {
-              const { data: organizedAgendaItems, error: error3 } = await supabase
-                .from('agenda_item_organizers')
-                .select(`
-                  agenda_id,
-                  agenda_itens!inner (
-                    id, title, slug, subtitle, cover_url, starts_at, end_at,
-                    city, location_name, status, type, tags
-                  )
-                `)
-                .eq('organizer_id', organizerId);
-
-              if (organizedAgendaItems && !error3) {
-                const mappedEvents = organizedAgendaItems
-                  .filter(item => item.agenda_itens)
-                  .map((item: any) => {
-                    const event = item.agenda_itens;
-                    return {
-                      ...event,
-                      source: 'agenda_itens' as const
-                    };
-                  })
-                  .filter(event => event.status === 'published' && !event.deleted_at);
-                
-                allEvents = [...allEvents, ...mappedEvents];
-                console.log(`Encontrados ${mappedEvents.length} eventos através de agenda_item_organizers`);
-              }
-            }
+            // Sistema antigo removido - usando apenas events.organizer_id
 
             // 5. Buscar na agenda_itens por título
             const { data: agendaEventsByTitle, error: error4 } = await supabase
