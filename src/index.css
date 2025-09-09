@@ -475,6 +475,32 @@ body {
 }
 }
 
+/* Dropdown menu text visibility fixes */
+.nav .has-dropdown > a,
+.main-nav .has-dropdown > a,
+.header-nav .has-dropdown > a {
+  color: var(--nav-fg, currentColor) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  text-indent: 0 !important;
+  font-size: inherit !important;
+}
+
+.nav .has-dropdown > a .label {
+  display: inline !important;
+}
+
+.nav .has-dropdown > a svg + span,
+.main-nav .has-dropdown > a svg + span {
+  display: inline !important;
+}
+
+.nav .has-dropdown > a {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 12px;
+}
+
 @layer utilities {
   .animate-on-scroll {
     opacity: 0;

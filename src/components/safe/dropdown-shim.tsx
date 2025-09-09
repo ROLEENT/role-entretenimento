@@ -45,8 +45,21 @@ export function DropdownMenu({ children, modal }: { children: React.ReactNode; m
   );
 }
 
-export function DropdownMenuTrigger({ children, className, ...rest }: any) {
+export function DropdownMenuTrigger({ children, className, asChild, ...rest }: any) {
   const ctx = useContext(Ctx)!;
+  
+  if (asChild) {
+    return React.cloneElement(children, {
+      ...rest,
+      onClick: (e: any) => {
+        children.props.onClick?.(e);
+        ctx.setOpen(!ctx.open);
+      },
+      "aria-haspopup": "menu",
+      "aria-expanded": ctx.open,
+    });
+  }
+  
   return (
     <button
       type="button"
