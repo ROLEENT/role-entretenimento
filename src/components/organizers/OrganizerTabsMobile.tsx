@@ -1,21 +1,18 @@
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, Calendar, Image, Info, FileText, Star } from "lucide-react";
+import { Eye, Calendar, Info, MapPin, Users } from "lucide-react";
 import { useMemo, useCallback, useRef } from "react";
 import { useDebounce } from "use-debounce";
 
-interface ProfileTabsMobileProps {
+interface OrganizerTabsMobileProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   eventCount?: number;
-  mediaCount?: number;
 }
 
-export function ProfileTabsMobile({ 
+export function OrganizerTabsMobile({ 
   activeTab, 
   onTabChange, 
-  eventCount = 0, 
-  mediaCount = 0 
-}: ProfileTabsMobileProps) {
+  eventCount = 0 
+}: OrganizerTabsMobileProps) {
   // Use ref to prevent unnecessary re-renders during debounce
   const lastClickedTabRef = useRef<string>(activeTab);
   
@@ -27,41 +24,34 @@ export function ProfileTabsMobile({
       id: "visao-geral",
       label: "Visão",
       icon: Eye,
-      ariaLabel: "Ver visão geral do perfil"
+      ariaLabel: "Ver visão geral do organizador"
     },
     {
-      id: "agenda",
-      label: "Agenda",
+      id: "eventos",
+      label: "Eventos",
       icon: Calendar,
       count: eventCount > 0 ? eventCount : undefined,
-      ariaLabel: `Ver agenda ${eventCount > 0 ? `com ${eventCount} eventos` : ''}`
+      ariaLabel: `Ver eventos ${eventCount > 0 ? `com ${eventCount} eventos` : ''}`
     },
     {
-      id: "conteudos",
-      label: "Conteúdos",
-      icon: FileText,
-      ariaLabel: "Ver conteúdos do perfil"
+      id: "equipe",
+      label: "Equipe",
+      icon: Users,
+      ariaLabel: "Ver equipe do organizador"
     },
     {
-      id: "fotos-videos",
-      label: "Mídia", 
-      icon: Image,
-      count: mediaCount > 0 ? mediaCount : undefined,
-      ariaLabel: `Ver mídia ${mediaCount > 0 ? `com ${mediaCount} itens` : ''}`
-    },
-    {
-      id: "avaliacoes",
-      label: "Avaliações",
-      icon: Star,
-      ariaLabel: "Ver avaliações do perfil"
+      id: "locais",
+      label: "Locais",
+      icon: MapPin,
+      ariaLabel: "Ver locais do organizador"
     },
     {
       id: "sobre",
       label: "Sobre",
       icon: Info,
-      ariaLabel: "Ver informações sobre o perfil"
+      ariaLabel: "Ver informações sobre o organizador"
     },
-  ], [eventCount, mediaCount]);
+  ], [eventCount]);
 
   // Immediate tab change with debounced UI feedback
   const handleTabChange = useCallback((tabId: string) => {

@@ -1,21 +1,20 @@
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, Calendar, Image, Info, FileText, Star } from "lucide-react";
+import { Eye, Calendar, Info, Image, MapPin, Clock } from "lucide-react";
 import { useMemo, useCallback, useRef } from "react";
 import { useDebounce } from "use-debounce";
 
-interface ProfileTabsMobileProps {
+interface VenueTabsMobileProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   eventCount?: number;
   mediaCount?: number;
 }
 
-export function ProfileTabsMobile({ 
+export function VenueTabsMobile({ 
   activeTab, 
   onTabChange, 
-  eventCount = 0, 
+  eventCount = 0,
   mediaCount = 0 
-}: ProfileTabsMobileProps) {
+}: VenueTabsMobileProps) {
   // Use ref to prevent unnecessary re-renders during debounce
   const lastClickedTabRef = useRef<string>(activeTab);
   
@@ -27,39 +26,39 @@ export function ProfileTabsMobile({
       id: "visao-geral",
       label: "Visão",
       icon: Eye,
-      ariaLabel: "Ver visão geral do perfil"
+      ariaLabel: "Ver visão geral do local"
     },
     {
-      id: "agenda",
-      label: "Agenda",
+      id: "eventos",
+      label: "Eventos",
       icon: Calendar,
       count: eventCount > 0 ? eventCount : undefined,
-      ariaLabel: `Ver agenda ${eventCount > 0 ? `com ${eventCount} eventos` : ''}`
+      ariaLabel: `Ver eventos ${eventCount > 0 ? `com ${eventCount} eventos` : ''}`
     },
     {
-      id: "conteudos",
-      label: "Conteúdos",
-      icon: FileText,
-      ariaLabel: "Ver conteúdos do perfil"
-    },
-    {
-      id: "fotos-videos",
-      label: "Mídia", 
+      id: "fotos",
+      label: "Fotos",
       icon: Image,
       count: mediaCount > 0 ? mediaCount : undefined,
-      ariaLabel: `Ver mídia ${mediaCount > 0 ? `com ${mediaCount} itens` : ''}`
+      ariaLabel: `Ver fotos ${mediaCount > 0 ? `com ${mediaCount} fotos` : ''}`
     },
     {
-      id: "avaliacoes",
-      label: "Avaliações",
-      icon: Star,
-      ariaLabel: "Ver avaliações do perfil"
+      id: "horarios",
+      label: "Horários",
+      icon: Clock,
+      ariaLabel: "Ver horários de funcionamento"
+    },
+    {
+      id: "localizacao",
+      label: "Local",
+      icon: MapPin,
+      ariaLabel: "Ver localização no mapa"
     },
     {
       id: "sobre",
       label: "Sobre",
       icon: Info,
-      ariaLabel: "Ver informações sobre o perfil"
+      ariaLabel: "Ver informações sobre o local"
     },
   ], [eventCount, mediaCount]);
 
