@@ -46,13 +46,13 @@ import { useCurationDrawer } from '@/hooks/useCurationDrawer';
 import { useCurationData } from '@/hooks/useCurationData';
 import { CurationCriteriaDrawer } from '@/components/events/CurationCriteriaDrawer';
 import { formatWeekdayPtBR } from '@/utils/dateUtils';
+import { useEventOrganizers } from '@/hooks/useEventOrganizers';
 import '../styles/mobile-event-layout.css';
 
 const EventDetailPageV2 = () => {
   const { slug } = useParams();
   const [event, setEvent] = useState(null);
   const [venue, setVenue] = useState(null);
-  const [organizer, setOrganizer] = useState(null);
   const [partners, setPartners] = useState([]);
   const [lineup, setLineup] = useState([]);
   const [performances, setPerformances] = useState([]);
@@ -64,6 +64,9 @@ const EventDetailPageV2 = () => {
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  
+  // Use the existing hook for organizers
+  const { organizers, isLoading: organizersLoading } = useEventOrganizers(event?.id);
   
   const { user, session } = useAuth();
   const { isOpen: curationDrawerOpen, openDrawer, closeDrawer } = useCurationDrawer();
@@ -130,20 +133,7 @@ const EventDetailPageV2 = () => {
         }
       }
       
-      // Fetch organizer data if organizer_id exists
-      if (data.organizer_id) {
-        const { data: organizerData, error: organizerError } = await supabase
-          .from('organizers')
-          .select('*')
-          .eq('id', data.organizer_id)
-          .single();
-          
-        if (organizerError) {
-          console.error('Organizer query error:', organizerError);
-        } else {
-          setOrganizer(organizerData);
-        }
-      }
+      // Organizer data is now handled by useEventOrganizers hook
       // Fetch lineup data - corrigindo para usar event_lineup_slots
       if (data.id) {
         const { data: lineupData, error: lineupError } = await supabase
@@ -273,7 +263,10 @@ const EventDetailPageV2 = () => {
     toast.success('Obrigado pelo feedback. Nossa equipe irá analisar.');
   };
 
-  if (loading) {
+  // Get the main organizer from the organizers list
+  const mainOrganizer = organizers?.find(org => org.main_organizer)?.organizers || organizers?.[0]?.organizers;
+
+  if (loading || organizersLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -449,7 +442,7 @@ const EventDetailPageV2 = () => {
             {/* Right Column - Sidebar (desktop only) */}
             <div className="hidden lg:block space-y-6">
               {/* Organizer Card */}
-              <EventOrganizerCard organizer={organizer} venue={venue} />
+              <EventOrganizerCard organizer={mainOrganizer} venue={venue} />
               
               {/* Official Links */}
               <EventLinksCard event={event} partners={partners} />
@@ -496,7 +489,7 @@ const EventDetailPageV2 = () => {
           
           {/* Mobile: Organizer & Links Cards */}
           <div className="lg:hidden space-y-4 mt-6">
-            <EventOrganizerCard organizer={organizer} venue={venue} />
+            <EventOrganizerCard organizer={mainOrganizer} venue={venue} />
             <EventLinksCard event={event} partners={partners} />
             <EventMoodTagsCard event={event} />
           </div>
