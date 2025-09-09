@@ -220,7 +220,7 @@ export function ProfileSidebarNew({ profile }: ProfileSidebarNewProps) {
           <CardHeader className="pb-4">
             <CardTitle className="text-lg flex items-center gap-2">
               <MusicIcon className="w-4 h-4" />
-              Tags Musicais
+              Tags
             </CardTitle>
           </CardHeader>
           <CardContent>
