@@ -227,10 +227,10 @@ const Header = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className={cn(
-                      "flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary relative bg-transparent border-0 cursor-pointer",
+                      "flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary relative bg-transparent border-0 cursor-pointer perfis-dropdown-trigger",
                       isPerfisActive() 
                         ? "text-primary" 
-                        : "text-muted-foreground"
+                        : "text-foreground"
                     )}>
                       Perfis
                       <ChevronDown className="h-3 w-3" />

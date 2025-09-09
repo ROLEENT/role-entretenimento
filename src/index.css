@@ -476,29 +476,36 @@ body {
 }
 
 /* Dropdown menu text visibility fixes */
-.nav .has-dropdown > a,
-.main-nav .has-dropdown > a,
-.header-nav .has-dropdown > a {
-  color: var(--nav-fg, currentColor) !important;
+[data-radix-dropdown-trigger],
+button[aria-haspopup="menu"] {
+  color: hsl(var(--foreground)) !important;
   opacity: 1 !important;
   visibility: visible !important;
-  text-indent: 0 !important;
-  font-size: inherit !important;
 }
 
-.nav .has-dropdown > a .label {
-  display: inline !important;
+/* Specific fix for Perfis dropdown button */
+button[aria-haspopup="menu"]:has(svg) {
+  color: hsl(var(--muted-foreground)) !important;
 }
 
-.nav .has-dropdown > a svg + span,
-.main-nav .has-dropdown > a svg + span {
-  display: inline !important;
+button[aria-haspopup="menu"]:hover {
+  color: hsl(var(--primary)) !important;
 }
 
-.nav .has-dropdown > a {
-  display: inline-flex;
-  align-items: center;
-  padding: 10px 12px;
+/* Ensure dropdown trigger text is always visible */
+[role="button"]:has([data-radix-dropdown-trigger]) {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Specific styling for perfis dropdown */
+.perfis-dropdown-trigger {
+  color: hsl(var(--foreground)) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.perfis-dropdown-trigger:hover {
+  color: hsl(var(--primary)) !important;
 }
 
 @layer utilities {
