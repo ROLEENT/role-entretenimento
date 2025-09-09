@@ -239,10 +239,15 @@ const Header = () => {
                       )}
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent>
+                  <DropdownMenuContent align="start" className="min-w-48">
                     {perfisDropdownItems.map((item) => (
                       <DropdownMenuItem key={item.href} asChild>
-                        <Link to={item.href}>{item.label}</Link>
+                        <Link 
+                          to={item.href} 
+                          className="block w-full text-foreground hover:text-primary transition-colors"
+                        >
+                          {item.label}
+                        </Link>
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>

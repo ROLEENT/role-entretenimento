@@ -95,14 +95,30 @@ export function DropdownMenuContent({ children, align = "start", sideOffset = 4,
   );
 }
 
-export function DropdownMenuItem({ children, onSelect, onClick, className, inset, ...rest }: any) {
+export function DropdownMenuItem({ children, onSelect, onClick, className, inset, asChild, ...rest }: any) {
   const handle = onSelect ?? onClick;
+  
+  if (asChild) {
+    return (
+      <li>
+        {React.cloneElement(children, {
+          ...rest,
+          className: `block w-full text-left rounded-md px-3 py-2 hover:bg-accent transition-colors ${inset ? 'pl-8' : ''} ${className ?? ""} ${children.props.className ?? ""}`,
+          onClick: (e: any) => {
+            children.props.onClick?.(e);
+            handle?.(e);
+          },
+        })}
+      </li>
+    );
+  }
+  
   return (
     <li>
       <button
         type="button"
         onClick={handle}
-        className={`block w-full text-left rounded-md px-3 py-2 hover:bg-accent ${inset ? 'pl-8' : ''} ${className ?? ""}`}
+        className={`block w-full text-left rounded-md px-3 py-2 hover:bg-accent transition-colors ${inset ? 'pl-8' : ''} ${className ?? ""}`}
         {...rest}
       >
         {children}
