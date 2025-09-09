@@ -57,6 +57,7 @@ const EventDetailPageV2 = () => {
   const [lineup, setLineup] = useState([]);
   const [performances, setPerformances] = useState([]);
   const [visualArtists, setVisualArtists] = useState([]);
+  const [fallbackArtists, setFallbackArtists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [shareOpen, setShareOpen] = useState(false);
@@ -168,6 +169,21 @@ const EventDetailPageV2 = () => {
           console.error('Lineup query error:', lineupError);
         } else {
           setLineup(lineupData || []);
+        }
+        
+        // If no structured lineup data but event has tags, fetch known artists for fallback
+        if ((!lineupData || lineupData.length === 0) && data.tags?.length > 0) {
+          const { data: artistsData, error: artistsError } = await supabase
+            .from('artists')
+            .select('id, stage_name, slug, profile_image_url, bio_short')
+            .in('slug', ['hate-moss', 'resp'])
+            .order('stage_name');
+            
+          if (artistsError) {
+            console.error('Fallback artists query error:', artistsError);
+          } else {
+            setFallbackArtists(artistsData || []);
+          }
         }
       }
       
@@ -412,6 +428,7 @@ const EventDetailPageV2 = () => {
                 performances={performances} 
                 visualArtists={visualArtists}
                 event={event}
+                fallbackArtists={fallbackArtists}
               />
               
               {/* Location Section with Map */}

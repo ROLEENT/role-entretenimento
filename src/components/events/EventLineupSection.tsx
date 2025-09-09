@@ -10,10 +10,11 @@ interface EventLineupSectionProps {
   lineup: any[];
   performances: any[];
   visualArtists: any[];
-  event?: any; // Adicionar event para fallback
+  event?: any;
+  fallbackArtists?: any[]; // Artists data for fallback display
 }
 
-export function EventLineupSection({ lineup, performances, visualArtists, event }: EventLineupSectionProps) {
+export function EventLineupSection({ lineup, performances, visualArtists, event, fallbackArtists }: EventLineupSectionProps) {
   const hasLineupData = lineup?.length > 0 || performances?.length > 0 || visualArtists?.length > 0;
   const hasEventTags = event?.tags?.length > 0;
 
@@ -78,9 +79,9 @@ export function EventLineupSection({ lineup, performances, visualArtists, event 
           </Link>
         </Button>
       )}
-      {!artist.slug && artist.stage_name === 'Resp3x' && (
+      {!artist.slug && (artist.stage_name === 'Resp3x' || artist.stage_name === 'Resp') && (
         <Button asChild variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-          <Link to={`/perfil/resp3x`}>
+          <Link to={`/perfil/resp`}>
             <ChevronRight className="h-4 w-4" />
           </Link>
         </Button>
@@ -172,60 +173,21 @@ export function EventLineupSection({ lineup, performances, visualArtists, event 
         )}
 
         {/* Fallback: Show artist names from lineup when data exists but no structured info */}
-        {!hasLineupData && hasEventTags && (
+        {!hasLineupData && hasEventTags && fallbackArtists && (
           <div className="space-y-3">
             <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">
               Artistas
             </h4>
             
-            {/* Create artist cards for known performers */}
-            <div 
-              className="flex items-center p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors group"
-            >
-              <div className="relative flex-shrink-0 mr-4">
-                <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Music2 className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                </div>
-                <div className="absolute -top-1 -right-1">
-                  <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-medium">Hate Moss</h4>
-                <p className="text-sm text-muted-foreground">Dupla ítalo-brasileira</p>
-                <Badge variant="secondary" className="text-xs mt-1">
-                  Headliner
-                </Badge>
-              </div>
-              <Button asChild variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                <Link to={`/perfil/hate-moss`}>
-                  <ChevronRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-            
-            <div 
-              className="flex items-center p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors group"
-            >
-              <div className="relative flex-shrink-0 mr-4">
-                <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Music2 className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-medium">Resp3x</h4>
-                <p className="text-sm text-muted-foreground">Indie rock de Curitiba</p>
-              </div>
-              <Button asChild variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                <Link to={`/perfil/resp3x`}>
-                  <ChevronRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
+            {fallbackArtists.map((artist, index) => renderArtistCard(
+              {
+                ...artist,
+                stage_name: artist.stage_name,
+                profile_image_url: artist.profile_image_url,
+                slug: artist.slug
+              },
+              index === 0 // First artist is headliner
+            ))}
           </div>
         )}
       </CardContent>
