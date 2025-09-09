@@ -9,3 +9,6 @@ export { ProfileEventListMobile } from './ProfileEventListMobile';
 export { ProfileMediaGridMobile } from './ProfileMediaGridMobile';
 export { ProfileAboutMobile } from './ProfileAboutMobile';
 export { ProfileSkeletonMobile } from './ProfileSkeletonMobile';
+export { ProfileStatsCardMobile } from './ProfileStatsCardMobile';
+export { ProfileGenresCardMobile } from './ProfileGenresCardMobile';
+export { ProfileInfoCardMobile } from './ProfileInfoCardMobile';

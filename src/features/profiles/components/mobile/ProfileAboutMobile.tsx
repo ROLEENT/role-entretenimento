@@ -4,6 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Profile } from "@/features/profiles/api";
 import { Component, ReactNode } from "react";
+import { ProfileStatsCardMobile } from "./ProfileStatsCardMobile";
+import { ProfileGenresCardMobile } from "./ProfileGenresCardMobile";
+import { ProfileInfoCardMobile } from "./ProfileInfoCardMobile";
 
 interface ProfileAboutMobileProps {
   profile: Profile;
@@ -72,6 +75,21 @@ function ProfileAboutMobileContent({ profile }: ProfileAboutMobileProps) {
   
   return (
     <div className="space-y-6">
+      {/* Informações do perfil */}
+      <div className="px-4">
+        <ProfileInfoCardMobile profile={profile} />
+      </div>
+
+      {/* Estatísticas */}
+      <div className="px-4">
+        <ProfileStatsCardMobile profile={profile} />
+      </div>
+
+      {/* Tags musicais */}
+      <div className="px-4">
+        <ProfileGenresCardMobile profile={profile} />
+      </div>
+
       {/* Categoria e cidade destacada para locais */}
       {profile.type === 'local' && (
         <div className="px-4">
