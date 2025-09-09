@@ -26,7 +26,7 @@ export interface AddEventOrganizerData {
   position?: number;
 }
 
-export const useEventOrganizers = (agendaId?: string) => {
+export const useEventOrganizers = (eventId?: string) => {
   const queryClient = useQueryClient();
 
   // Fetch organizers for an event
@@ -35,9 +35,9 @@ export const useEventOrganizers = (agendaId?: string) => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["event-organizers", agendaId],
+    queryKey: ["event-organizers", eventId],
     queryFn: async () => {
-      if (!agendaId) return [];
+      if (!eventId) return [];
 
       const { data, error } = await supabase
         .from("agenda_item_organizers")
@@ -50,7 +50,7 @@ export const useEventOrganizers = (agendaId?: string) => {
             instagram
           )
         `)
-        .eq("agenda_id", agendaId)
+        .eq("agenda_id", eventId)
         .order("position");
 
       if (error) {
@@ -60,7 +60,7 @@ export const useEventOrganizers = (agendaId?: string) => {
 
       return data as EventOrganizerData[];
     },
-    enabled: !!agendaId,
+    enabled: !!eventId,
   });
 
   // Add organizer to event
@@ -94,7 +94,7 @@ export const useEventOrganizers = (agendaId?: string) => {
       return result;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["event-organizers", agendaId] });
+      queryClient.invalidateQueries({ queryKey: ["event-organizers", eventId] });
       toast.success("Organizador adicionado com sucesso!");
     },
     onError: (error) => {
@@ -117,7 +117,7 @@ export const useEventOrganizers = (agendaId?: string) => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["event-organizers", agendaId] });
+      queryClient.invalidateQueries({ queryKey: ["event-organizers", eventId] });
       toast.success("Organizador removido com sucesso!");
     },
     onError: (error) => {
@@ -144,7 +144,7 @@ export const useEventOrganizers = (agendaId?: string) => {
         await supabase
           .from("agenda_item_organizers")
           .update({ main_organizer: false })
-          .eq("agenda_id", agendaId)
+          .eq("agenda_id", eventId)
           .neq("id", id);
       }
 
@@ -159,7 +159,7 @@ export const useEventOrganizers = (agendaId?: string) => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["event-organizers", agendaId] });
+      queryClient.invalidateQueries({ queryKey: ["event-organizers", eventId] });
       toast.success("Organizador atualizado com sucesso!");
     },
     onError: (error) => {
@@ -187,7 +187,7 @@ export const useEventOrganizers = (agendaId?: string) => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["event-organizers", agendaId] });
+      queryClient.invalidateQueries({ queryKey: ["event-organizers", eventId] });
       toast.success("Organizadores reordenados com sucesso!");
     },
     onError: (error) => {
