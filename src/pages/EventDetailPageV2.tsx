@@ -144,26 +144,36 @@ const EventDetailPageV2 = () => {
           setOrganizer(organizerData);
         }
       }
-      // Fetch lineup data
+      // Fetch lineup data - corrigindo para usar event_lineup_slots
       if (data.id) {
         const { data: lineupData, error: lineupError } = await supabase
-          .from('event_lineup')
+          .from('event_lineup_slots')
           .select(`
             id,
-            artist_name,
-            role,
-            sort_order,
-            artists (
+            slot_name,
+            start_time,
+            end_time,
+            stage,
+            position,
+            is_headliner,
+            event_lineup_slot_artists (
               id,
-              name,
-              slug,
-              profile_image_url,
-              genres,
-              city
+              artist_id,
+              artist_name,
+              position,
+              role,
+              artists (
+                id,
+                stage_name,
+                slug,
+                profile_image_url,
+                bio_short,
+                city
+              )
             )
           `)
           .eq('event_id', data.id)
-          .order('sort_order', { ascending: true });
+          .order('position', { ascending: true });
           
         if (lineupError) {
           console.error('Lineup query error:', lineupError);
