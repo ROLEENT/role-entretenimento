@@ -17,6 +17,8 @@ import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { eventsApi } from '@/lib/eventsApi';
+import { EventFormData } from '@/schemas/eventSchema';
 
 interface FormData {
   title: string;
@@ -41,13 +43,20 @@ interface Venue {
   state: string;
 }
 
+interface Organizer {
+  id: string;
+  name: string;
+}
+
 const CreateEventPage = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [venues, setVenues] = useState<Venue[]>([]);
+  const [organizers, setOrganizers] = useState<Organizer[]>([]);
   const [selectedVenue, setSelectedVenue] = useState<string>('');
+  const [selectedOrganizer, setSelectedOrganizer] = useState<string>('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
 
@@ -73,6 +82,7 @@ const CreateEventPage = () => {
       return;
     }
     loadVenues();
+    loadOrganizers();
   }, [isAuthenticated, navigate]);
 
   const loadVenues = async () => {
@@ -86,6 +96,20 @@ const CreateEventPage = () => {
       setVenues(data || []);
     } catch (error) {
       console.error('Erro ao carregar venues:', error);
+    }
+  };
+
+  const loadOrganizers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('organizers')
+        .select('id, name')
+        .order('name');
+
+      if (error) throw error;
+      setOrganizers(data || []);
+    } catch (error) {
+      console.error('Erro ao carregar organizadores:', error);
     }
   };
 
