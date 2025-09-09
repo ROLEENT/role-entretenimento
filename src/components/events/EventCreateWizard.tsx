@@ -16,6 +16,7 @@ import { eventDebugUtils } from '@/utils/eventDebugUtils';
 import { BasicInfoStep } from './wizard/BasicInfoStep';
 import { DateLocationStep } from './wizard/DateLocationStep';
 import { LineupStep } from './wizard/LineupStep';
+import { PromotionTaxonomyStep } from './wizard/PromotionTaxonomyStep';
 import { MediaStep } from './wizard/MediaStep';
 import { LinksStep } from './wizard/LinksStep';
 import { ReviewStep } from './wizard/ReviewStep';
@@ -50,6 +51,13 @@ const WIZARD_STEPS: WizardStep[] = [
     description: 'Artistas, slots e performances',
     component: LineupStep,
     fields: ['lineup_slots', 'performances', 'visual_artists']
+  },
+  {
+    id: 'promotion',
+    title: 'Promoção & Taxonomias',
+    description: 'Tipo de promoção, gêneros e tags',
+    component: PromotionTaxonomyStep,
+    fields: ['promo_type', 'vitrine_package', 'vitrine_order_id', 'featured_reasons', 'featured_note', 'event_genres', 'tags']
   },
   {
     id: 'media',
@@ -125,6 +133,16 @@ export const EventCreateWizard: React.FC<EventCreateWizardProps> = ({
       lineup_slots: [],
       performances: [],
       visual_artists: [],
+      // Novos campos de promoção
+      promo_type: 'none',
+      vitrine_package: '',
+      vitrine_order_id: '',
+      vitrine_notes: '',
+      featured_reasons: [],
+      featured_note: '',
+      featured_until: '',
+      featured_weight: 50,
+      event_genres: [],
       ...initialData
     },
     mode: 'onChange'

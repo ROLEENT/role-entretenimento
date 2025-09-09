@@ -55,7 +55,17 @@ export const eventsApi = {
           is_published: isPublished,
           organizer_id: mainOrganizer?.id || null,
           organizer_ids: organizerIds,
-          created_by: session?.user?.id
+          created_by: session?.user?.id,
+          // Novos campos de promoção
+          promo_type: (eventData as any).promo_type || 'none',
+          vitrine_package: (eventData as any).promo_type?.includes('vitrine') ? (eventData as any).vitrine_package : null,
+          vitrine_order_id: (eventData as any).promo_type?.includes('vitrine') ? (eventData as any).vitrine_order_id : null,
+          vitrine_notes: (eventData as any).promo_type?.includes('vitrine') ? (eventData as any).vitrine_notes : null,
+          featured_reasons: (eventData as any).promo_type?.includes('destaque') ? (eventData as any).featured_reasons : [],
+          featured_note: (eventData as any).promo_type?.includes('destaque') ? (eventData as any).featured_note : null,
+          featured_until: (eventData as any).promo_type?.includes('destaque') ? (eventData as any).featured_until : null,
+          featured_weight: (eventData as any).promo_type?.includes('destaque') ? (eventData as any).featured_weight : 0,
+          event_genres: (eventData as any).event_genres || []
         })
         .select()
         .single();
@@ -146,7 +156,17 @@ export const eventsApi = {
           organizer_id: mainOrganizer?.partner_id || null,
           organizer_ids: organizerIds,
           updated_by: session?.user?.id,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          // Novos campos de promoção
+          promo_type: (eventData as any).promo_type || 'none',
+          vitrine_package: (eventData as any).promo_type?.includes('vitrine') ? (eventData as any).vitrine_package : null,
+          vitrine_order_id: (eventData as any).promo_type?.includes('vitrine') ? (eventData as any).vitrine_order_id : null,
+          vitrine_notes: (eventData as any).promo_type?.includes('vitrine') ? (eventData as any).vitrine_notes : null,
+          featured_reasons: (eventData as any).promo_type?.includes('destaque') ? (eventData as any).featured_reasons : [],
+          featured_note: (eventData as any).promo_type?.includes('destaque') ? (eventData as any).featured_note : null,
+          featured_until: (eventData as any).promo_type?.includes('destaque') ? (eventData as any).featured_until : null,
+          featured_weight: (eventData as any).promo_type?.includes('destaque') ? (eventData as any).featured_weight : 0,
+          event_genres: (eventData as any).event_genres || []
         })
         .eq('id', eventId);
 
