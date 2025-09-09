@@ -12,6 +12,9 @@ interface EventOrganizerCardProps {
 }
 
 export function EventOrganizerCard({ organizer, venue }: EventOrganizerCardProps) {
+  console.log(`[EventOrganizerCard] Recebido organizador:`, organizer);
+  console.log(`[EventOrganizerCard] Recebido venue:`, venue);
+  
   // Carregar dados do organizador se apenas o ID foi fornecido
   const [organizerData, setOrganizerData] = React.useState<any>(organizer);
   

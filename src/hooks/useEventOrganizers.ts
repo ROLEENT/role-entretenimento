@@ -13,6 +13,8 @@ export interface EventOrganizerData {
   organizers?: {
     id: string;
     name: string;
+    slug?: string;
+    avatar_url?: string;
     site?: string;
     instagram?: string;
   };
@@ -39,26 +41,68 @@ export const useEventOrganizers = (eventId?: string) => {
     queryFn: async () => {
       if (!eventId) return [];
 
-      const { data, error } = await supabase
-        .from("agenda_item_organizers")
-        .select(`
-          *,
-          organizers:organizer_id (
-            id,
-            name,
-            site,
-            instagram
-          )
-        `)
-        .eq("agenda_id", eventId)
-        .order("position");
+      console.log(`[useEventOrganizers] Buscando organizadores para evento: ${eventId}`);
 
-      if (error) {
-        console.error("Error fetching event organizers:", error);
-        throw error;
+      // Primeiro, verificar se é um evento da tabela 'events' ou 'agenda_itens'
+      const { data: eventCheck } = await supabase
+        .from("events")
+        .select("id")
+        .eq("id", eventId)
+        .single();
+
+      if (eventCheck) {
+        console.log(`[useEventOrganizers] Evento encontrado na tabela 'events'`);
+        // É um evento da nova tabela 'events', buscar organizadores via agenda_item_organizers
+        const { data, error } = await supabase
+          .from("agenda_item_organizers")
+          .select(`
+            *,
+            organizers:organizer_id (
+              id,
+              name,
+              slug,
+              avatar_url,
+              site,
+              instagram
+            )
+          `)
+          .eq("agenda_id", eventId)
+          .order("position");
+
+        if (error) {
+          console.error("Error fetching event organizers from events table:", error);
+          throw error;
+        }
+
+        console.log(`[useEventOrganizers] Encontrados ${data?.length || 0} organizadores para evento 'events'`, data);
+        return data as EventOrganizerData[];
+      } else {
+        console.log(`[useEventOrganizers] Evento encontrado na tabela 'agenda_itens'`);
+        // É um evento da tabela 'agenda_itens', usar consulta original
+        const { data, error } = await supabase
+          .from("agenda_item_organizers")
+          .select(`
+            *,
+            organizers:organizer_id (
+              id,
+              name,
+              slug,
+              avatar_url,
+              site,
+              instagram
+            )
+          `)
+          .eq("agenda_id", eventId)
+          .order("position");
+
+        if (error) {
+          console.error("Error fetching event organizers from agenda_itens:", error);
+          throw error;
+        }
+
+        console.log(`[useEventOrganizers] Encontrados ${data?.length || 0} organizadores para evento 'agenda_itens'`, data);
+        return data as EventOrganizerData[];
       }
-
-      return data as EventOrganizerData[];
     },
     enabled: !!eventId,
   });
