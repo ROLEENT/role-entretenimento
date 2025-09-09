@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Profile } from "@/features/profiles/api";
 import { Component, ReactNode } from "react";
+import { getCountryDisplay } from "@/utils/countryUtils";
 import { ProfileStatsCardMobile } from "./ProfileStatsCardMobile";
 import { ProfileGenresCardMobile } from "./ProfileGenresCardMobile";
 import { ProfileInfoCardMobile } from "./ProfileInfoCardMobile";
@@ -118,16 +119,13 @@ function ProfileAboutMobileContent({ profile }: ProfileAboutMobileProps) {
         </div>
       )}
 
-      {/* Localização */}
-      {(profile.city || profile.state) && (
+      {/* Localização - apenas para artistas com país */}
+      {profile.type === 'artista' && profile.country && (
         <div className="px-4">
           <h3 className="text-sm font-semibold text-foreground mb-3">Localização</h3>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <MapPin className="w-4 h-4" />
-            <span>
-              {profile.city}{profile.city && profile.state && ', '}{profile.state}
-              {profile.country && profile.country !== 'BR' && `, ${profile.country}`}
-            </span>
+            <span>{getCountryDisplay(profile.country)}</span>
           </div>
         </div>
       )}

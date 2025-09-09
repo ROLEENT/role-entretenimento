@@ -2,6 +2,7 @@ import { Profile } from "@/features/profiles/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Mail } from "lucide-react";
+import { getCountryDisplay } from "@/utils/countryUtils";
 
 interface ProfileSidebarProps {
   profile: Profile;
@@ -60,11 +61,11 @@ export function ProfileSidebar({ profile }: ProfileSidebarProps) {
                profile.type === 'local' ? 'Local' : 'Organizador'}
             </span>
           </div>
-          {profile.city && (
+          {profile.country && (
             <div>
               <span className="text-muted-foreground">Localização:</span>
               <span className="ml-2 font-medium">
-                {profile.city}{profile.state ? `, ${profile.state}` : ''}
+                {getCountryDisplay(profile.country)}
               </span>
             </div>
           )}
