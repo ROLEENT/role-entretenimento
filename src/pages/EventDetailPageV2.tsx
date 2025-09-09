@@ -98,10 +98,15 @@ const EventDetailPageV2 = () => {
       // Check if the parameter is a UUID (for backward compatibility)
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(eventSlug);
       
-      // Fetch main event data
+      // Fetch main event data with organizer relationship
       const { data, error } = await supabase
         .from('events')
-        .select('*')
+        .select(`
+          *,
+          organizer:organizers!events_organizer_id_fkey (
+            id, name, slug, avatar_url, city
+          )
+        `)
         .eq(isUUID ? 'id' : 'slug', eventSlug)
         .eq('status', 'published')
         .maybeSingle();
@@ -263,11 +268,8 @@ const EventDetailPageV2 = () => {
     toast.success('Obrigado pelo feedback. Nossa equipe irá analisar.');
   };
 
-  // Get the main organizer from the organizers list
-  const mainOrganizer = organizers?.find(org => org.main_organizer)?.organizers || organizers?.[0]?.organizers;
-  
-  // Fallback: if there's no organizer but there's a direct organizer_id, load that
-  const directOrganizerRef = event?.organizer_id;
+  // Use the organizer directly from the event query
+  const eventOrganizer = event?.organizer;
 
   if (loading || organizersLoading) {
     return (
@@ -445,7 +447,7 @@ const EventDetailPageV2 = () => {
             {/* Right Column - Sidebar (desktop only) */}
             <div className="hidden lg:block space-y-6">
               {/* Organizer Card */}
-              <EventOrganizerCard organizer={mainOrganizer || (directOrganizerRef ? { id: directOrganizerRef } : null)} venue={venue} />
+              <EventOrganizerCard organizer={eventOrganizer} />
               
               {/* Official Links */}
               <EventLinksCard event={event} partners={partners} />
@@ -492,7 +494,7 @@ const EventDetailPageV2 = () => {
           
           {/* Mobile: Organizer & Links Cards */}
           <div className="lg:hidden space-y-4 mt-6">
-            <EventOrganizerCard organizer={mainOrganizer || (directOrganizerRef ? { id: directOrganizerRef } : null)} venue={venue} />
+            <EventOrganizerCard organizer={eventOrganizer} />
             <EventLinksCard event={event} partners={partners} />
             <EventMoodTagsCard event={event} />
           </div>
