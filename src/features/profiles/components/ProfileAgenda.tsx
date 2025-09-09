@@ -21,6 +21,9 @@ export function ProfileAgenda({ profile }: ProfileAgendaProps) {
   
   // Fetch real events data
   const { data: allEvents = [], isLoading } = useProfileEvents(profile.handle, profile.type);
+  
+  console.log(`ProfileAgenda - Profile: ${profile.handle} (${profile.type})`);
+  console.log(`ProfileAgenda - Eventos carregados: ${allEvents.length}`, allEvents);
 
   const filteredEvents = allEvents.filter(event => {
     if (!event.starts_at) return filterType === 'all';

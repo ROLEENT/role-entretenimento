@@ -226,6 +226,7 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
                 .from('event_lineup_slot_artists')
                 .select(`
                   artist_id,
+                  slot_id,
                   event_lineup_slots!inner (
                     event_id,
                     events!inner (
@@ -234,13 +235,18 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
                     )
                   )
                 `)
-                .eq('artist_id', artistId)
-                .eq('event_lineup_slots.events.status', 'published')
-                .gte('event_lineup_slots.events.date_start', new Date().toISOString())
-                .order('event_lineup_slots.events.date_start', { ascending: true });
+                .eq('artist_id', artistId);
 
               if (eventLineupArtists && !eventLineupError) {
-                const mappedEvents = eventLineupArtists.map((item: any) => ({
+                // Filtrar apenas eventos publicados e futuros
+                const filteredEvents = eventLineupArtists.filter((item: any) => {
+                  const event = item.event_lineup_slots?.events;
+                  if (!event) return false;
+                  return event.status === 'published' && 
+                         new Date(event.date_start) >= new Date();
+                });
+                
+                const mappedEvents = filteredEvents.map((item: any) => ({
                   id: item.event_lineup_slots.events.id,
                   title: item.event_lineup_slots.events.title,
                   slug: item.event_lineup_slots.events.slug,
@@ -251,12 +257,16 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
                   city: item.event_lineup_slots.events.city,
                   location_name: item.event_lineup_slots.events.location_name,
                   status: item.event_lineup_slots.events.status,
-                  visibility: item.event_lineup_slots.events.visibility,
-                  genres: item.event_lineup_slots.events.genres,
-                  source: 'events' as const
+                  type: item.event_lineup_slots.events.visibility,
+                  tags: item.event_lineup_slots.events.genres || [],
+                  source: 'events' as const,
+                  event_id: item.event_lineup_slots.events.id
                 }));
                 allEvents = [...allEvents, ...mappedEvents];
                 console.log(`Encontrados ${mappedEvents.length} eventos via event_lineup_slot_artists`);
+                console.log('Dados dos eventos encontrados:', mappedEvents);
+              } else if (eventLineupError) {
+                console.error('Erro ao buscar eventos via event_lineup_slot_artists:', eventLineupError);
               }
             }
 
