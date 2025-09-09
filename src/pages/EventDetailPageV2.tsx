@@ -178,26 +178,8 @@ const EventDetailPageV2 = () => {
         if (lineupError) {
           console.error('Lineup query error:', lineupError);
         } else {
-          // Transform the nested lineup data for easier consumption
-          const transformedLineup = (lineupData || []).flatMap(slot => 
-            (slot.event_lineup_slot_artists || []).map(artistSlot => ({
-              id: artistSlot.id,
-              artist_name: artistSlot.artist_name,
-              role: artistSlot.role,
-              sort_order: artistSlot.position,
-              is_headliner: slot.is_headliner,
-              artists: artistSlot.artists ? {
-                id: (artistSlot.artists as any).id,
-                name: (artistSlot.artists as any).stage_name,
-                slug: (artistSlot.artists as any).slug,
-                profile_image_url: (artistSlot.artists as any).profile_image_url,
-                bio_short: (artistSlot.artists as any).bio_short,
-                city: (artistSlot.artists as any).city
-              } : null
-            }))
-          );
-          
-          setLineup(transformedLineup);
+          // Keep the hierarchical structure - DON'T flatten!
+          setLineup(lineupData || []);
         }
         
         // If no structured lineup data but event has tags, fetch known artists for fallback
