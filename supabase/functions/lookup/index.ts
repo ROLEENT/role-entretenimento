@@ -70,10 +70,17 @@ serve(async (req) => {
         
       case 'organizers':
         queryBuilder = supabase
-          .from('organizers')
-          .select('id, name, city')
+          .from('entity_profiles')
+          .select(`
+            source_id as id, 
+            name, 
+            city,
+            contact_email,
+            handle
+          `)
+          .eq('type', 'organizador')
+          .eq('visibility', 'public')
           .ilike('name', `%${query}%`)
-          .eq('status', 'active')
         break;
         
       case 'venues':
