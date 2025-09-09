@@ -98,13 +98,20 @@ const EventDetailPageV2 = () => {
       // Check if the parameter is a UUID (for backward compatibility)
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(eventSlug);
       
-      // Fetch main event data with organizer relationship
+      // Fetch main event data with organizers through relationship table
       const { data, error } = await supabase
         .from('events')
         .select(`
           *,
           organizer:organizers!events_organizer_id_fkey (
             id, name, slug, avatar_url, city
+          ),
+          agenda_item_organizers (
+            main_organizer,
+            role,
+            organizer:organizers!agenda_item_organizers_organizer_id_fkey (
+              id, name, slug, avatar_url, city
+            )
           )
         `)
         .eq(isUUID ? 'id' : 'slug', eventSlug)
@@ -447,7 +454,7 @@ const EventDetailPageV2 = () => {
             {/* Right Column - Sidebar (desktop only) */}
             <div className="hidden lg:block space-y-6">
               {/* Organizer Card */}
-              <EventOrganizerCard organizer={eventOrganizer} />
+              <EventOrganizerCard event={event} />
               
               {/* Official Links */}
               <EventLinksCard event={event} partners={partners} />
@@ -494,7 +501,7 @@ const EventDetailPageV2 = () => {
           
           {/* Mobile: Organizer & Links Cards */}
           <div className="lg:hidden space-y-4 mt-6">
-            <EventOrganizerCard organizer={eventOrganizer} />
+            <EventOrganizerCard event={event} />
             <EventLinksCard event={event} partners={partners} />
             <EventMoodTagsCard event={event} />
           </div>

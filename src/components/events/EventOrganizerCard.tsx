@@ -7,37 +7,29 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
 interface EventOrganizerCardProps {
-  organizer?: any; // Organizador principal do evento
+  event?: any; // Evento completo com organizadores
 }
 
-export function EventOrganizerCard({ organizer }: EventOrganizerCardProps) {
-  // Carregar dados do organizador se apenas o ID foi fornecido
-  const [organizerData, setOrganizerData] = React.useState<any>(organizer);
-  
-  React.useEffect(() => {
-    if (organizer?.id && !organizer.name) {
-      // Se temos apenas o ID, buscar os dados completos
-      const fetchOrganizer = async () => {
-        try {
-          const { data } = await supabase
-            .from('organizers')
-            .select('id, name, avatar_url, slug')
-            .eq('id', organizer.id)
-            .single();
-          
-          if (data) {
-            setOrganizerData(data);
-          }
-        } catch (error) {
-          console.error('Error fetching organizer:', error);
-        }
-      };
-      
-      fetchOrganizer();
-    } else {
-      setOrganizerData(organizer);
+export function EventOrganizerCard({ event }: EventOrganizerCardProps) {
+  // Buscar organizador principal do evento
+  const organizerData = React.useMemo(() => {
+    // Primeiro, tentar organizador direto
+    if (event?.organizer) {
+      return event.organizer;
     }
-  }, [organizer]);
+    
+    // Depois, buscar organizador principal na tabela de relacionamento
+    if (event?.agenda_item_organizers?.length > 0) {
+      const mainOrganizer = event.agenda_item_organizers.find(org => org.main_organizer);
+      if (mainOrganizer?.organizer) {
+        return mainOrganizer.organizer;
+      }
+      // Se não há organizador principal marcado, pegar o primeiro
+      return event.agenda_item_organizers[0]?.organizer;
+    }
+    
+    return null;
+  }, [event]);
 
   // Se não há organizador, não mostrar o card
   if (!organizerData) return null;
