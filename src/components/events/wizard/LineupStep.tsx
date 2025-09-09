@@ -639,6 +639,7 @@ export const LineupStep: React.FC = () => {
                             <SelectItem value="b2b">B2B</SelectItem>
                             <SelectItem value="teatro">Teatro</SelectItem>
                             <SelectItem value="danca">Dança</SelectItem>
+                            <SelectItem value="drag-show">Drag Show</SelectItem>
                             <SelectItem value="poetry">Poetry</SelectItem>
                             <SelectItem value="outro">Outro</SelectItem>
                           </SelectContent>
