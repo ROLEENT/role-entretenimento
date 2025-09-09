@@ -135,7 +135,7 @@ export const OrganizersManager: React.FC = () => {
                 className="flex items-center justify-between p-3 border rounded-lg"
               >
                 <div className="flex items-center gap-3">
-                  <Building className="w-4 h-4 text-muted-foreground" />
+                  <Users className="w-4 h-4 text-muted-foreground" />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{organizer.display_name}</span>
