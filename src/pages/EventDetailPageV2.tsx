@@ -156,7 +156,7 @@ const EventDetailPageV2 = () => {
               id,
               name,
               slug,
-              avatar_url,
+              profile_image_url,
               genres,
               city
             )

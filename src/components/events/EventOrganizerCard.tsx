@@ -29,9 +29,9 @@ export function EventOrganizerCard({ organizer, venue }: EventOrganizerCardProps
             {/* Organizer Logo */}
             <div className="flex-shrink-0 mr-3">
               <div className="w-12 h-12 rounded-lg overflow-hidden bg-background border">
-                {organizer.image_url ? (
+                {organizer.avatar_url ? (
                   <LazyImage 
-                    src={organizer.image_url} 
+                    src={organizer.avatar_url} 
                     alt={organizer.name}
                     className="w-full h-full object-cover"
                   />
