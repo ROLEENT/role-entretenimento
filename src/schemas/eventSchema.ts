@@ -474,6 +474,16 @@ export function getEventDefaults(): Partial<EventFormData> {
       audio_description: false,
       sign_language: false,
       sensory_friendly: false
-    }
+    },
+    // Campos de promoção
+    promo_type: 'none',
+    vitrine_package: '',
+    vitrine_order_id: '',
+    vitrine_notes: '',
+    featured_reasons: [],
+    featured_note: '',
+    featured_until: '',
+    featured_weight: 50,
+    event_genres: []
   };
 }
