@@ -133,6 +133,7 @@ export const visualArtistSchema = z.object({
 export const eventSchema = z.object({
   // Organizers
   organizer_ids: z.array(z.string().uuid()).min(1, "Pelo menos um organizador é obrigatório"),
+  organizer_id: z.string().uuid().optional(),
   // Basic Information
   id: z.string().uuid().optional(),
   title: z.string().min(1, "Título é obrigatório").max(200, "Título muito longo"),

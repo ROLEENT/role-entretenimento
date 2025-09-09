@@ -48,6 +48,7 @@ export const eventsApi = {
           summary: eventData.summary,
           description: eventData.description,
           venue_id: eventData.venue_id,
+          organizer_id: eventData.organizer_id,
           location_name: eventData.location_name,
           address: eventData.address,
           city: eventData.city,
