@@ -53,7 +53,7 @@ export const eventsApi = {
           address: eventData.address,
           status: 'published',
           is_published: isPublished,
-          organizer_id: mainOrganizer?.partner_id || null,
+          organizer_id: mainOrganizer?.id || null,
           organizer_ids: organizerIds,
           created_by: session?.user?.id
         })
@@ -68,7 +68,7 @@ export const eventsApi = {
       if (organizers.length > 0) {
         const organizerRelations = organizers.map((org: any, index: number) => ({
           agenda_id: data.id,
-          organizer_id: org.partner_id,
+          organizer_id: org.id,
           role: org.role || 'organizer',
           main_organizer: org.is_main || false,
           position: index
@@ -124,7 +124,7 @@ export const eventsApi = {
 
       // Extract main organizer
       const mainOrganizer = organizers.find((o: any) => o.is_main) || organizers[0];
-      const organizerIds = organizers.map((o: any) => o.partner_id).filter(Boolean);
+      const organizerIds = organizers.map((o: any) => o.id).filter(Boolean);
 
       // Update agenda_itens
       const { error: eventError } = await supabase
