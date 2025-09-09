@@ -4,32 +4,32 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAdminAuth } from './useAdminAuth';
 
-interface AgendaFilters {
+interface EventFilters {
   search: string;
   status: string;
   city: string;
 }
 
-export const useAdminAgendaData = () => {
+export const useAdminEventsData = () => {
   const queryClient = useQueryClient();
-  const { isAdmin } = useAdminAuth();
-  const [filters, setFilters] = useState<AgendaFilters>({
+  const { callAdminRpc, isAdmin } = useAdminAuth();
+  const [filters, setFilters] = useState<EventFilters>({
     search: '',
     status: 'all',
     city: 'all'
   });
 
-  // Fetch agenda items with filters
-  const { data: agendaItems, isLoading, error } = useQuery({
-    queryKey: ['admin-agenda', filters],
+  // Fetch events with filters
+  const { data: events, isLoading, error } = useQuery({
+    queryKey: ['admin-events', filters],
     queryFn: async () => {
       let query = supabase
-        .from('agenda_itens')
+        .from('events')
         .select('*')
         .order('updated_at', { ascending: false });
 
       if (filters.search) {
-        query = query.or(`title.ilike.%${filters.search}%,summary.ilike.%${filters.search}%`);
+        query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
       }
 
       if (filters.status && filters.status !== 'all') {
@@ -46,52 +46,47 @@ export const useAdminAgendaData = () => {
     },
   });
 
-  // Delete agenda item mutation
-  const deleteAgendaMutation = useMutation({
-    mutationFn: async (agendaId: string) => {
+  // Delete event mutation
+  const deleteEventMutation = useMutation({
+    mutationFn: async (eventId: string) => {
       if (!isAdmin) {
         throw new Error('Acesso negado: permissões de admin necessárias');
       }
       
-      // Para agenda_itens, usar DELETE direto pois tem policy staff_delete
-      const { error } = await supabase
-        .from('agenda_itens')
-        .delete()
-        .eq('id', agendaId);
-
-      if (error) throw error;
-      return agendaId;
+      return await callAdminRpc('admin_delete_event', {
+        p_event_id: eventId
+      });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-agenda'] });
-      toast.success('Item da agenda removido com sucesso');
+      queryClient.invalidateQueries({ queryKey: ['admin-events'] });
+      toast.success('Evento removido com sucesso');
     },
     onError: (error) => {
-      console.error('Error deleting agenda item:', error);
-      toast.error('Erro ao remover item da agenda');
+      console.error('Error deleting event:', error);
+      toast.error('Erro ao remover evento');
     },
   });
 
-  const updateFilters = (newFilters: Partial<AgendaFilters>) => {
+  const updateFilters = (newFilters: Partial<EventFilters>) => {
     setFilters(prev => ({ ...prev, ...newFilters }));
   };
 
-  const deleteAgendaItem = (agendaId: string) => {
-    deleteAgendaMutation.mutate(agendaId);
+  const deleteEvent = (eventId: string) => {
+    deleteEventMutation.mutate(eventId);
   };
 
   return {
     // Data
-    agendaItems,
+    events,
     filters,
     
     // Loading states
     isLoading,
     error,
-    isDeleting: deleteAgendaMutation.isPending,
+    isDeleting: deleteEventMutation.isPending,
     
     // Actions
     updateFilters,
-    deleteAgendaItem,
+    deleteEvent,
   };
 };
