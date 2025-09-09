@@ -70,7 +70,7 @@ export const useUpsertArtist = () => {
       const { data: result, error } = await supabase
         .from("artists")
         .upsert(transformedData, { 
-          onConflict: "slug",
+          onConflict: data.id ? "id" : "slug",
           ignoreDuplicates: false 
         })
         .select("*")
@@ -175,7 +175,7 @@ export const useUpsertVenue = () => {
       const { data: result, error } = await supabase
         .from("venues")
         .upsert(venueData, { 
-          onConflict: "slug",
+          onConflict: data.id ? "id" : "slug",
           ignoreDuplicates: false 
         })
         .select("*")
