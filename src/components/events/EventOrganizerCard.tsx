@@ -49,10 +49,11 @@ export function EventOrganizerCard({ organizer, venue }: EventOrganizerCardProps
     return null;
   }
 
-  // Priorizar organizador sobre venue
-  const shouldShowOrganizer = organizerData?.name;
+  // Priorizar organizador sobre venue - CORRIGIDO
+  const shouldShowOrganizer = organizerData?.name || organizerData?.id;
   const shouldShowVenue = !shouldShowOrganizer && venue?.name;
 
+  console.log(`[EventOrganizerCard] organizerData final:`, organizerData);
   console.log(`[EventOrganizerCard] shouldShowOrganizer:`, shouldShowOrganizer);
   console.log(`[EventOrganizerCard] shouldShowVenue:`, shouldShowVenue);
 
