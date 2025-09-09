@@ -22,7 +22,7 @@ export default function AdminV3EventEdit() {
           organizer:organizers(*)
         `)
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
