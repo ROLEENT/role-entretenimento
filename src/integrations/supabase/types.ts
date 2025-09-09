@@ -1173,6 +1173,7 @@ export type Database = {
         Row: {
           about: string | null
           accommodation_notes: string | null
+          acting_genres: string[] | null
           artist_type: string | null
           audius_url: string | null
           availability_days: string[] | null
@@ -1200,6 +1201,7 @@ export type Database = {
           instagram: string | null
           internal_notes: string | null
           links: Json | null
+          music_genres: string[] | null
           phone: string | null
           presskit_url: string | null
           priority: number | null
@@ -1231,6 +1233,7 @@ export type Database = {
         Insert: {
           about?: string | null
           accommodation_notes?: string | null
+          acting_genres?: string[] | null
           artist_type?: string | null
           audius_url?: string | null
           availability_days?: string[] | null
@@ -1258,6 +1261,7 @@ export type Database = {
           instagram?: string | null
           internal_notes?: string | null
           links?: Json | null
+          music_genres?: string[] | null
           phone?: string | null
           presskit_url?: string | null
           priority?: number | null
@@ -1289,6 +1293,7 @@ export type Database = {
         Update: {
           about?: string | null
           accommodation_notes?: string | null
+          acting_genres?: string[] | null
           artist_type?: string | null
           audius_url?: string | null
           availability_days?: string[] | null
@@ -1316,6 +1321,7 @@ export type Database = {
           instagram?: string | null
           internal_notes?: string | null
           links?: Json | null
+          music_genres?: string[] | null
           phone?: string | null
           presskit_url?: string | null
           priority?: number | null

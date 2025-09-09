@@ -13,6 +13,7 @@ import { ArtistContactTab } from './tabs/ArtistContactTab';
 import { ArtistProfessionalTab } from './tabs/ArtistProfessionalTab';
 import { ArtistMediaTab } from './tabs/ArtistMediaTab';
 import { ArtistManagementTab } from './tabs/ArtistManagementTab';
+import { useArtistCategory } from '@/hooks/useArtistCategory';
 
 import { artistFlexibleSchema, ArtistFlexibleForm } from '@/schemas/agents-flexible';
 
@@ -45,13 +46,40 @@ export const AdminArtistForm: React.FC<AdminArtistFormProps> = ({
       priority: 0,
       tags: [],
       genres: [],
+      music_genres: [],
+      acting_genres: [],
       ...artist,
     },
   });
 
+  const categoryId = form.watch("category_id");
+  const { data: categoryData } = useArtistCategory(categoryId);
 
   const handleSubmit = (data: ArtistFlexibleForm) => {
-    onSubmit(data);
+    // Clean irrelevant genre fields based on category
+    const cleanedData = { ...data };
+    
+    if (categoryData?.name) {
+      // Check if category has acting or music elements
+      const hasActingCategory = ["drag", "drag queen", "drag king", "performer", "ator", "atriz", "dançarino", "bailarino", "teatro", "burlesco"]
+        .some(cat => categoryData.name.toLowerCase().includes(cat.toLowerCase()));
+      const hasMusicCategory = ["dj", "produtor musical", "cantor", "mc", "banda", "instrumentista"]
+        .some(cat => categoryData.name.toLowerCase().includes(cat.toLowerCase()));
+        
+      // Clear irrelevant fields
+      if (!hasActingCategory) {
+        cleanedData.acting_genres = [];
+      }
+      if (!hasMusicCategory) {
+        cleanedData.music_genres = [];
+      }
+    } else {
+      // If no category selected, clear both
+      cleanedData.acting_genres = [];
+      cleanedData.music_genres = [];
+    }
+    
+    onSubmit(cleanedData);
   };
 
   return (

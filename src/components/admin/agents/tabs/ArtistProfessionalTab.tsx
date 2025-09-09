@@ -5,12 +5,17 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ArtistFlexibleForm } from '@/schemas/agents-flexible';
 import { RHFArtistRolesSelect } from '@/components/form/RHFArtistRolesSelect';
+import { DynamicGenresField } from '../DynamicGenresField';
+import { useArtistCategory } from '@/hooks/useArtistCategory';
 
 interface ArtistProfessionalTabProps {
   form: UseFormReturn<ArtistFlexibleForm>;
 }
 
 export const ArtistProfessionalTab: React.FC<ArtistProfessionalTabProps> = ({ form }) => {
+  const categoryId = form.watch("category_id");
+  const { data: categoryData } = useArtistCategory(categoryId);
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -84,6 +89,9 @@ export const ArtistProfessionalTab: React.FC<ArtistProfessionalTabProps> = ({ fo
       <div className="space-y-4">
         <RHFArtistRolesSelect name="roles" maxRoles={3} />
       </div>
+
+      {/* Dynamic Genres Field */}
+      <DynamicGenresField categoryName={categoryData?.name} />
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Requisitos Técnicos</h3>

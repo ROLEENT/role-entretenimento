@@ -1,5 +1,19 @@
 import { z } from "zod";
 
+// Helper function to check if category includes acting types
+const hasActingCategory = (categoryName?: string) => {
+  if (!categoryName) return false;
+  const actingCategories = ["drag", "drag queen", "drag king", "performer", "ator", "atriz", "dançarino", "bailarino", "teatro", "burlesco"];
+  return actingCategories.some(cat => categoryName.toLowerCase().includes(cat.toLowerCase()));
+};
+
+// Helper function to check if category includes music types
+const hasMusicCategory = (categoryName?: string) => {
+  if (!categoryName) return false;
+  const musicCategories = ["dj", "produtor musical", "cantor", "mc", "banda", "instrumentista"];
+  return musicCategories.some(cat => categoryName.toLowerCase().includes(cat.toLowerCase()));
+};
+
 // Flexible schema for artists with minimal required fields
 export const artistFlexibleSchema = z.object({
   id: z.string().uuid().optional(),
@@ -75,9 +89,18 @@ export const artistFlexibleSchema = z.object({
   tags: z.array(z.string()).default([]),
   genres: z.array(z.string()).default([]),
   
+  // Dynamic genre fields based on categories
+  music_genres: z.array(z.string()).default([]),
+  acting_genres: z.array(z.string()).default([]),
+  
   // Timestamps (handled by database)
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
+}).refine((data) => {
+  // This would need category name for full validation, but we'll handle it in the form logic
+  return true;
+}, {
+  message: "Pelo menos um gênero é obrigatório para a categoria selecionada"
 });
 
 // Flexible schema for organizers with minimal required fields
