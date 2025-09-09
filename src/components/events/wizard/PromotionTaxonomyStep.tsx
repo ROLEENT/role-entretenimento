@@ -55,6 +55,7 @@ const FEATURED_REASONS = [
 ];
 
 export function PromotionTaxonomyStep() {
+  console.log('🎪 PromotionTaxonomyStep renderizando...');
   const { watch, setValue, getValues } = useFormContext();
   
   const promoType = watch('promo_type') || 'none';

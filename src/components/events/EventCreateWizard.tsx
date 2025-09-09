@@ -267,6 +267,12 @@ export const EventCreateWizard: React.FC<EventCreateWizardProps> = ({
 
   const progress = ((currentStep + 1) / WIZARD_STEPS.length) * 100;
   const CurrentStepComponent = WIZARD_STEPS[currentStep].component;
+  
+  console.log('🎯 EventCreateWizard render:', {
+    currentStep,
+    stepTitle: WIZARD_STEPS[currentStep].title,
+    componentName: CurrentStepComponent.name
+  });
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
