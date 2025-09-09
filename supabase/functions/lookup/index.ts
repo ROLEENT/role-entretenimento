@@ -58,50 +58,45 @@ serve(async (req) => {
 
     let queryBuilder;
     
-    // Build query based on type - all queries now use entity_profiles
+    // Build query based on type - using original tables that work
     switch (type) {
       case 'artists':
         queryBuilder = supabase
-          .from('entity_profiles')
+          .from('artists')
           .select(`
-            source_id as id, 
-            name, 
+            id, 
+            stage_name as name,
             city,
-            contact_email,
-            handle
+            booking_email as contact_email,
+            slug as handle
           `)
-          .eq('type', 'artista')
-          .eq('visibility', 'public')
-          .ilike('name', `%${query}%`)
+          .eq('status', 'active')
+          .ilike('stage_name', `%${query}%`)
         break;
         
       case 'organizers':
         queryBuilder = supabase
-          .from('entity_profiles')
+          .from('organizers')
           .select(`
-            source_id as id, 
-            name, 
+            id, 
+            name,
             city,
-            contact_email,
-            handle
+            email as contact_email,
+            slug as handle
           `)
-          .eq('type', 'organizador')
-          .eq('visibility', 'public')
           .ilike('name', `%${query}%`)
         break;
         
       case 'venues':
         queryBuilder = supabase
-          .from('entity_profiles')
+          .from('venues')
           .select(`
-            source_id as id, 
-            name, 
+            id, 
+            name,
             city,
             contact_email,
-            handle
+            slug as handle
           `)
-          .eq('type', 'local')
-          .eq('visibility', 'public')
           .ilike('name', `%${query}%`)
         break;
         
