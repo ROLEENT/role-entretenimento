@@ -57,13 +57,22 @@ export const useAdminEventsData = () => {
         p_event_id: eventId
       });
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['admin-events'] });
-      toast.success('Evento removido com sucesso');
+      
+      // Verificar se a resposta indica sucesso
+      if (data && typeof data === 'object' && 'message' in data) {
+        toast.success(data.message || 'Evento removido com sucesso');
+      } else {
+        toast.success('Evento removido com sucesso');
+      }
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error deleting event:', error);
-      toast.error('Erro ao remover evento');
+      
+      // Extrair mensagem de erro mais específica
+      const errorMessage = error?.message || 'Erro ao remover evento';
+      toast.error(errorMessage);
     },
   });
 
