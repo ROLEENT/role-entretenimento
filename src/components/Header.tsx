@@ -321,17 +321,17 @@ const Header = () => {
                          </Link>
                        </DropdownMenuItem>
                        <DropdownMenuItem asChild>
-                          <Link to="/meus-salvos">
-                            <Heart className="mr-2 h-4 w-4" />
-                            Meus Salvos
-                          </Link>
-                       </DropdownMenuItem>
-                       <DropdownMenuItem asChild>
-                          <Link to="/notificacoes">
-                            <Calendar className="mr-2 h-4 w-4" />
-                            Minhas Notificações
-                          </Link>
-                       </DropdownMenuItem>
+                           <Link to="/saves">
+                             <Heart className="mr-2 h-4 w-4" />
+                             Meus Salvos
+                           </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                           <Link to="/notifications">
+                             <Calendar className="mr-2 h-4 w-4" />
+                             Minhas Notificações
+                           </Link>
+                        </DropdownMenuItem>
                       {hasAdminAccess && (
                         <DropdownMenuItem asChild>
                           <Link to="/admin-v3">
