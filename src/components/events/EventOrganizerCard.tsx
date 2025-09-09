@@ -12,8 +12,7 @@ interface EventOrganizerCardProps {
 }
 
 export function EventOrganizerCard({ organizer, venue }: EventOrganizerCardProps) {
-  console.log(`[EventOrganizerCard] Recebido organizador:`, organizer);
-  console.log(`[EventOrganizerCard] Recebido venue:`, venue);
+  // Debug logs removidos - funcionamento em produção
   
   // Carregar dados do organizador se apenas o ID foi fornecido
   const [organizerData, setOrganizerData] = React.useState<any>(organizer);
@@ -43,19 +42,13 @@ export function EventOrganizerCard({ organizer, venue }: EventOrganizerCardProps
     }
   }, [organizer]);
 
-  // Se não há organizador nem venue, não mostrar o card
-  if (!organizerData && !venue) {
-    console.log(`[EventOrganizerCard] Nenhum organizador ou venue encontrado, não renderizando`);
+  // REGRA CRÍTICA: NUNCA mostrar venue como organizador se há organizador real
+  // Apenas mostrar o card se houver um organizador válido
+  const hasValidOrganizer = organizerData?.name || organizerData?.id;
+  
+  if (!hasValidOrganizer) {
     return null;
   }
-
-  // Priorizar organizador sobre venue - CORRIGIDO
-  const shouldShowOrganizer = organizerData?.name || organizerData?.id;
-  const shouldShowVenue = !shouldShowOrganizer && venue?.name;
-
-  console.log(`[EventOrganizerCard] organizerData final:`, organizerData);
-  console.log(`[EventOrganizerCard] shouldShowOrganizer:`, shouldShowOrganizer);
-  console.log(`[EventOrganizerCard] shouldShowVenue:`, shouldShowVenue);
 
   return (
     <Card className="rounded-lg">
@@ -66,100 +59,53 @@ export function EventOrganizerCard({ organizer, venue }: EventOrganizerCardProps
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Mostrar organizador principal se existir */}
-        {shouldShowOrganizer && (
-          <div className="flex items-center p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors group">
-            {/* Organizer Logo */}
-            <div className="flex-shrink-0 mr-3">
-              <div className="w-12 h-12 rounded-lg overflow-hidden bg-background border">
-                {organizerData.avatar_url ? (
-                  <LazyImage 
-                    src={organizerData.avatar_url} 
-                    alt={organizerData.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Users className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            {/* Organizer Info */}
-            <div className="flex-1 min-w-0">
-              <h4 className="font-medium truncate">{organizerData.name}</h4>
-              <p className="text-sm text-muted-foreground">Organizador</p>
-            </div>
-            
-            {/* Link to Organizer Profile */}
-            {organizerData.slug ? (
-              <Button 
-                asChild 
-                variant="ghost" 
-                size="sm" 
-                className="opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Link to={`/perfil/${organizerData.slug}`}>
-                  <ChevronRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            ) : (
-              <div className="w-8 h-8"></div>
-            )}
-          </div>
-        )}
-
-        {/* Fallback: Mostrar venue como organizador se não há organizador */}
-        {shouldShowVenue && (
-          <div className="flex items-center p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors group">
-            {/* Venue Logo */}
-            <div className="flex-shrink-0 mr-3">
-              <div className="w-12 h-12 rounded-lg overflow-hidden bg-background border">
+        {/* Mostrar organizador principal */}
+        <div className="flex items-center p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors group">
+          {/* Organizer Logo */}
+          <div className="flex-shrink-0 mr-3">
+            <div className="w-12 h-12 rounded-lg overflow-hidden bg-background border">
+              {organizerData.avatar_url ? (
+                <LazyImage 
+                  src={organizerData.avatar_url} 
+                  alt={organizerData.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <Users className="h-6 w-6 text-muted-foreground" />
                 </div>
-              </div>
+              )}
             </div>
-            
-            {/* Venue Info */}
-            <div className="flex-1 min-w-0">
-              <h4 className="font-medium truncate">{venue.name}</h4>
-              <p className="text-sm text-muted-foreground">Local</p>
-            </div>
-            
-            {/* Link to Venue Profile */}
-            {venue.slug ? (
-              <Button 
-                asChild 
-                variant="ghost" 
-                size="sm" 
-                className="opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Link to={`/perfil/${venue.slug}`}>
-                  <ChevronRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            ) : (
-              <div className="w-8 h-8"></div>
-            )}
           </div>
-        )}
+          
+          {/* Organizer Info */}
+          <div className="flex-1 min-w-0">
+            <h4 className="font-medium truncate">{organizerData.name}</h4>
+            <p className="text-sm text-muted-foreground">Organizador</p>
+          </div>
+          
+          {/* Link to Organizer Profile */}
+          {organizerData.slug ? (
+            <Button 
+              asChild 
+              variant="ghost" 
+              size="sm" 
+              className="opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <Link to={`/perfil/${organizerData.slug}`}>
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          ) : (
+            <div className="w-8 h-8"></div>
+          )}
+        </div>
         
         {/* Ver todos os eventos do organizador */}
-        {shouldShowOrganizer && organizerData?.slug && (
+        {organizerData?.slug && (
           <Button asChild variant="outline" size="sm" className="w-full">
             <Link to={`/perfil/${organizerData.slug}`}>
               Ver todos os eventos deste organizador
-            </Link>
-          </Button>
-        )}
-        
-        {/* Ver todos os eventos do local (fallback) */}
-        {shouldShowVenue && venue?.slug && (
-          <Button asChild variant="outline" size="sm" className="w-full">
-            <Link to={`/perfil/${venue.slug}`}>
-              Ver todos os eventos deste local
             </Link>
           </Button>
         )}

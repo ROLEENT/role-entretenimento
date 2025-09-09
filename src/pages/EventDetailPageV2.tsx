@@ -267,11 +267,7 @@ const EventDetailPageV2 = () => {
   const mainOrganizerData = organizers?.find(org => org.main_organizer) || organizers?.[0];
   const mainOrganizer = mainOrganizerData?.organizers;
   
-  console.log(`[EventDetailPageV2] Event:`, event?.title);
-  console.log(`[EventDetailPageV2] Lista de organizadores:`, organizers);
-  console.log(`[EventDetailPageV2] Organizador principal data:`, mainOrganizerData);
-  console.log(`[EventDetailPageV2] Organizador principal extraído:`, mainOrganizer);
-  console.log(`[EventDetailPageV2] Event organizer_id direto:`, event?.organizer_id);
+  // Extrair organizador principal corrigido
   
   // Fallback: if there's no organizer but there's a direct organizer_id, load that
   const directOrganizerRef = event?.organizer_id;

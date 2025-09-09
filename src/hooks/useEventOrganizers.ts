@@ -31,7 +31,7 @@ export interface AddEventOrganizerData {
 export const useEventOrganizers = (eventId?: string) => {
   const queryClient = useQueryClient();
 
-  // Fetch organizers for an event
+  // Fetch organizers for an event with hybrid approach
   const {
     data: organizers = [],
     isLoading,
@@ -41,10 +41,50 @@ export const useEventOrganizers = (eventId?: string) => {
     queryFn: async () => {
       if (!eventId) return [];
 
-      console.log(`[useEventOrganizers] Buscando organizadores para evento: ${eventId}`);
+      // Buscar organizadores: nova estrutura (event_partners) primeiro, depois legada (agenda_item_organizers)
+      const { data: partnersData, error: partnersError } = await supabase
+        .from("event_partners")
+        .select(`
+          id,
+          event_id,
+          partner_id,
+          partner_type,
+          role,
+          display_name,
+          position,
+          is_main,
+          organizers:partner_id (
+            id,
+            name,
+            slug,
+            avatar_url,
+            site,
+            instagram
+          )
+        `)
+        .eq("event_id", eventId)
+        .eq("partner_type", "organizer")
+        .order("is_main", { ascending: false })
+        .order("position");
 
-      // Buscar organizadores diretamente da tabela agenda_item_organizers
-      const { data, error } = await supabase
+      if (!partnersError && partnersData && partnersData.length > 0) {
+        // Usar estrutura nova (event_partners)
+        return partnersData.map(partner => ({
+          id: partner.id,
+          agenda_id: eventId,
+          organizer_id: partner.partner_id,
+          role: partner.role || 'organizer',
+          position: partner.position || 0,
+          main_organizer: partner.is_main || false,
+          created_at: new Date().toISOString(),
+          organizers: partner.organizers && Array.isArray(partner.organizers) 
+            ? partner.organizers[0] 
+            : partner.organizers
+        })) as EventOrganizerData[];
+      }
+
+      // Fallback: estrutura legada (agenda_item_organizers)
+      const { data: legacyData, error: legacyError } = await supabase
         .from("agenda_item_organizers")
         .select(`
           *,
@@ -61,13 +101,11 @@ export const useEventOrganizers = (eventId?: string) => {
         .order("main_organizer", { ascending: false })
         .order("position");
 
-      if (error) {
-        console.error("Error fetching event organizers:", error);
-        throw error;
+      if (legacyError) {
+        console.error("Error fetching event organizers:", legacyError);
+        throw legacyError;
       }
-
-      console.log(`[useEventOrganizers] Encontrados ${data?.length || 0} organizadores:`, data);
-      return data as EventOrganizerData[];
+      return legacyData as EventOrganizerData[];
     },
     enabled: !!eventId,
   });
