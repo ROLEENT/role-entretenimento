@@ -263,11 +263,8 @@ const EventDetailPageV2 = () => {
     toast.success('Obrigado pelo feedback. Nossa equipe irá analisar.');
   };
 
-  // Get the main organizer from the organizers list - CORRIGIDO
-  const mainOrganizerData = organizers?.find(org => org.main_organizer) || organizers?.[0];
-  const mainOrganizer = mainOrganizerData?.organizers;
-  
-  // Extrair organizador principal corrigido
+  // Get the main organizer from the organizers list
+  const mainOrganizer = organizers?.find(org => org.main_organizer)?.organizers || organizers?.[0]?.organizers;
   
   // Fallback: if there's no organizer but there's a direct organizer_id, load that
   const directOrganizerRef = event?.organizer_id;

@@ -15,30 +15,7 @@ interface EventLineupSectionProps {
 }
 
 export function EventLineupSection({ lineup, performances, visualArtists, event, fallbackArtists }: EventLineupSectionProps) {
-  // Deduplicate artists by artist_id to prevent showing the same artist multiple times
-  const deduplicatedLineup = lineup ? lineup.reduce((acc, slot) => {
-    if (slot.event_lineup_slot_artists?.length > 0) {
-      const uniqueArtists = slot.event_lineup_slot_artists.reduce((artistAcc: any[], slotArtist: any) => {
-        const artistId = slotArtist.artists?.id;
-        if (artistId && !artistAcc.some(existing => existing.artists?.id === artistId)) {
-          artistAcc.push(slotArtist);
-        } else if (!artistId) {
-          // Keep artists without ID (fallback)
-          artistAcc.push(slotArtist);
-        }
-        return artistAcc;
-      }, []);
-      
-      if (uniqueArtists.length > 0) {
-        acc.push({ ...slot, event_lineup_slot_artists: uniqueArtists });
-      }
-    } else {
-      acc.push(slot);
-    }
-    return acc;
-  }, [] as any[]) : [];
-
-  const hasLineupData = deduplicatedLineup?.length > 0 || performances?.length > 0 || visualArtists?.length > 0;
+  const hasLineupData = lineup?.length > 0 || performances?.length > 0 || visualArtists?.length > 0;
   const hasEventTags = event?.tags?.length > 0;
 
   // Se não há dados estruturados E não há tags do evento, não mostrar
@@ -122,12 +99,12 @@ export function EventLineupSection({ lineup, performances, visualArtists, event,
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Main Lineup */}
-        {deduplicatedLineup?.length > 0 && (
+        {lineup?.length > 0 && (
           <div className="space-y-3">
             <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">
               Artistas
             </h4>
-            {deduplicatedLineup.map((slot) => {
+            {lineup.map((slot) => {
               if (slot.event_lineup_slot_artists?.length > 0) {
                 return slot.event_lineup_slot_artists.map((slotArtist: any) => 
                   renderArtistCard(

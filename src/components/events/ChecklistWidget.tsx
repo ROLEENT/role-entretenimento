@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import type { EventFormData } from "@/schemas/eventSchema";
-import { canPublish, getPublicationRequirements } from "@/utils/canPublish";
 
 interface ChecklistWidgetProps {
   eventData: Partial<EventFormData>;
@@ -18,56 +17,32 @@ const quickChecks = [
   {
     id: 'title',
     label: 'Título',
-    check: (data: Partial<EventFormData>) => Boolean(data.title && data.title.length >= 3),
-    required: true
+    check: (data: Partial<EventFormData>) => Boolean(data.title && data.title.length >= 3)
   },
   {
-    id: 'slug',
-    label: 'Slug único',
-    check: (data: Partial<EventFormData>) => Boolean(data.slug),
-    required: true
+    id: 'date_start',
+    label: 'Data',
+    check: (data: Partial<EventFormData>) => Boolean(data.date_start)
   },
   {
     id: 'city',
     label: 'Cidade',
-    check: (data: Partial<EventFormData>) => Boolean(data.city),
-    required: true
-  },
-  {
-    id: 'date_start',
-    label: 'Data de início',
-    check: (data: Partial<EventFormData>) => Boolean(data.date_start),
-    required: true
-  },
-  {
-    id: 'date_end',
-    label: 'Data de fim',
-    check: (data: Partial<EventFormData>) => Boolean(data.date_end),
-    required: true
-  },
-  {
-    id: 'cover',
-    label: 'Capa',
-    check: (data: Partial<EventFormData>) => Boolean(data.cover_url || data.image_url),
-    required: true
-  },
-  {
-    id: 'cover_alt',
-    label: 'Texto alt. da capa',
-    check: (data: Partial<EventFormData>) => Boolean(data.cover_alt),
-    required: true
+    check: (data: Partial<EventFormData>) => Boolean(data.city)
   },
   {
     id: 'location_name',
     label: 'Local',
-    check: (data: Partial<EventFormData>) => Boolean(data.location_name),
-    required: false
+    check: (data: Partial<EventFormData>) => Boolean(data.location_name)
   },
   {
     id: 'summary',
     label: 'Resumo',
-    check: (data: Partial<EventFormData>) => Boolean(data.summary && data.summary.length >= 20),
-    required: false
+    check: (data: Partial<EventFormData>) => Boolean(data.summary && data.summary.length >= 20)
+  },
+  {
+    id: 'image_url',
+    label: 'Imagem',
+    check: (data: Partial<EventFormData>) => Boolean(data.image_url)
   }
 ];
 
@@ -75,11 +50,8 @@ export function ChecklistWidget({ eventData, className, onItemClick }: Checklist
   const [isExpanded, setIsExpanded] = useState(false);
   
   const completedChecks = quickChecks.filter(check => check.check(eventData));
-  const requiredChecks = quickChecks.filter(check => check.required);
-  const completedRequiredChecks = requiredChecks.filter(check => check.check(eventData));
   const completionPercentage = (completedChecks.length / quickChecks.length) * 100;
-  const canAutoPublish = canPublish(eventData);
-  const missingRequirements = getPublicationRequirements(eventData);
+  const canPublish = completedChecks.length >= 4; // Minimum required items
   
   const handleItemClick = (itemId: string) => {
     onItemClick?.(itemId);
@@ -90,13 +62,13 @@ export function ChecklistWidget({ eventData, className, onItemClick }: Checklist
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {canAutoPublish ? (
+            {canPublish ? (
               <CheckCircle className="h-5 w-5 text-green-600" />
             ) : (
               <AlertTriangle className="h-5 w-5 text-yellow-600" />
             )}
             <span className="font-medium text-sm">
-              Publicação ({completedRequiredChecks.length}/{requiredChecks.length})
+              Quick Check ({completedChecks.length}/{quickChecks.length})
             </span>
           </div>
           <Button
@@ -120,10 +92,10 @@ export function ChecklistWidget({ eventData, className, onItemClick }: Checklist
               {Math.round(completionPercentage)}% completo
             </span>
             <Badge 
-              variant={canAutoPublish ? "default" : "secondary"}
+              variant={canPublish ? "default" : "secondary"}
               className="text-xs"
             >
-              {canAutoPublish ? "Publicará" : "Rascunho"}
+              {canPublish ? "Pronto" : "Pendente"}
             </Badge>
           </div>
         </div>
@@ -131,36 +103,8 @@ export function ChecklistWidget({ eventData, className, onItemClick }: Checklist
 
       {isExpanded && (
         <CardContent className="pt-0">
-          {/* Required items */}
-          <div className="space-y-2 mb-4">
-            <h4 className="text-xs font-medium text-muted-foreground">Obrigatórios para publicar</h4>
-            {requiredChecks.map((check) => {
-              const isCompleted = check.check(eventData);
-              return (
-                <button
-                  key={check.id}
-                  onClick={() => handleItemClick(check.id)}
-                  className={cn(
-                    "flex items-center gap-2 w-full p-2 rounded-md text-left transition-colors",
-                    "hover:bg-muted/50",
-                    isCompleted ? "text-foreground" : "text-muted-foreground"
-                  )}
-                >
-                  {isCompleted ? (
-                    <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                  ) : (
-                    <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  )}
-                  <span className="text-sm">{check.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Optional items */}
           <div className="space-y-2">
-            <h4 className="text-xs font-medium text-muted-foreground">Recomendados</h4>
-            {quickChecks.filter(check => !check.required).map((check) => {
+            {quickChecks.map((check) => {
               const isCompleted = check.check(eventData);
               return (
                 <button
@@ -184,28 +128,12 @@ export function ChecklistWidget({ eventData, className, onItemClick }: Checklist
           </div>
           
           <div className="mt-4 pt-3 border-t">
-            {canAutoPublish ? (
-              <p className="text-xs text-green-600 text-center font-medium">
-                ✓ Será publicado automaticamente
-              </p>
-            ) : (
-              <div className="text-xs text-muted-foreground">
-                <p className="text-center mb-2">Pendências para publicar:</p>
-                <ul className="space-y-1">
-                  {missingRequirements.slice(0, 3).map((req, index) => (
-                    <li key={index} className="flex items-center gap-1">
-                      <Circle className="h-2 w-2 flex-shrink-0" />
-                      {req}
-                    </li>
-                  ))}
-                  {missingRequirements.length > 3 && (
-                    <li className="text-center">
-                      ... e mais {missingRequirements.length - 3}
-                    </li>
-                  )}
-                </ul>
-              </div>
-            )}
+            <p className="text-xs text-muted-foreground text-center">
+              {canPublish 
+                ? "Todos os itens essenciais foram preenchidos"
+                : "Complete os itens para poder publicar"
+              }
+            </p>
           </div>
         </CardContent>
       )}

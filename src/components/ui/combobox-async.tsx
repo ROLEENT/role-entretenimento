@@ -200,14 +200,13 @@ export function ComboboxAsync({
               </CommandGroup>
             )}
 
-            {onCreateNew && search.length >= 2 && options.length === 0 && !loading && (
+            {onCreateNew && search.length >= 2 && (
               <>
                 <Separator />
                 <CommandGroup>
                   <CommandItem onSelect={handleCreateNew} className="gap-2">
                     <Plus className="h-4 w-4" />
-                    <span>{createNewText || "Criar novo"}</span>
-                    <span className="text-xs text-muted-foreground ml-auto">"{search}"</span>
+                    <span>{createNewText}</span>
                   </CommandItem>
                 </CommandGroup>
               </>

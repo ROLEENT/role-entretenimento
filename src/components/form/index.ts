@@ -34,11 +34,6 @@ export { GenreSelect } from './GenreSelect';
 export { RHFGenreSelect } from './RHFGenreSelect';
 export { RHFArtistRolesSelect } from './RHFArtistRolesSelect';
 
-// Promoção e taxonomia
-export { RHFRadioGroup } from './RHFRadioGroup';
-export { RHFCheckboxGroup } from './RHFCheckboxGroup';
-export { RHFSlider } from './RHFSlider';
-
 // Examples
 export { default as ExampleForm } from './ExampleForm';
 export { default as ExampleFormStory } from './ExampleFormStory';

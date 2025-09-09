@@ -4,7 +4,7 @@ import { ComboboxAsync, ComboboxAsyncOption } from '@/components/ui/combobox-asy
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, UserPlus } from 'lucide-react';
-import { useEntityLookup } from '@/hooks/useEntityLookup';
+import { useArtistLookup } from '@/hooks/useArtistLookup';
 
 interface ArtistMultiSelectProps {
   value?: string[];
@@ -22,7 +22,7 @@ export function ArtistMultiSelect({
   maxItems = 12,
 }: ArtistMultiSelectProps) {
   const [selectedArtists, setSelectedArtists] = useState<ComboboxAsyncOption[]>([]);
-  const { searchEntities: searchArtists } = useEntityLookup({ type: 'artists' });
+  const { searchArtists } = useArtistLookup();
 
   const handleArtistSelect = (artist: ComboboxAsyncOption) => {
     if (value.includes(artist.id)) return;

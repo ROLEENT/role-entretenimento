@@ -10,11 +10,9 @@ export interface EventOrganizerData {
   position: number;
   main_organizer: boolean;
   created_at: string;
-  organizers: {
+  organizers?: {
     id: string;
     name: string;
-    slug?: string;
-    avatar_url?: string;
     site?: string;
     instagram?: string;
   };
@@ -28,86 +26,41 @@ export interface AddEventOrganizerData {
   position?: number;
 }
 
-export const useEventOrganizers = (eventId?: string) => {
+export const useEventOrganizers = (agendaId?: string) => {
   const queryClient = useQueryClient();
 
-  // Fetch organizers for an event with hybrid approach
+  // Fetch organizers for an event
   const {
     data: organizers = [],
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["event-organizers", eventId],
+    queryKey: ["event-organizers", agendaId],
     queryFn: async () => {
-      if (!eventId) return [];
+      if (!agendaId) return [];
 
-      // Buscar organizadores: nova estrutura (event_partners) primeiro, depois legada (agenda_item_organizers)
-      const { data: partnersData, error: partnersError } = await supabase
-        .from("event_partners")
-        .select(`
-          id,
-          event_id,
-          partner_id,
-          partner_type,
-          role,
-          display_name,
-          position,
-          is_main,
-          organizers:partner_id (
-            id,
-            name,
-            slug,
-            avatar_url,
-            site,
-            instagram
-          )
-        `)
-        .eq("event_id", eventId)
-        .eq("partner_type", "organizer")
-        .order("is_main", { ascending: false })
-        .order("position");
-
-      if (!partnersError && partnersData && partnersData.length > 0) {
-        // Usar estrutura nova (event_partners)
-        return partnersData.map(partner => ({
-          id: partner.id,
-          agenda_id: eventId,
-          organizer_id: partner.partner_id,
-          role: partner.role || 'organizer',
-          position: partner.position || 0,
-          main_organizer: partner.is_main || false,
-          created_at: new Date().toISOString(),
-          organizers: partner.organizers && Array.isArray(partner.organizers) 
-            ? partner.organizers[0] 
-            : partner.organizers
-        })) as EventOrganizerData[];
-      }
-
-      // Fallback: estrutura legada (agenda_item_organizers)
-      const { data: legacyData, error: legacyError } = await supabase
+      const { data, error } = await supabase
         .from("agenda_item_organizers")
         .select(`
           *,
           organizers:organizer_id (
             id,
             name,
-            slug,
-            avatar_url,
             site,
             instagram
           )
         `)
-        .eq("agenda_id", eventId)
-        .order("main_organizer", { ascending: false })
+        .eq("agenda_id", agendaId)
         .order("position");
 
-      if (legacyError) {
-        console.error("Error fetching event organizers:", legacyError);
-        throw legacyError;
+      if (error) {
+        console.error("Error fetching event organizers:", error);
+        throw error;
       }
-      return legacyData as EventOrganizerData[];
+
+      return data as EventOrganizerData[];
     },
-    enabled: !!eventId,
+    enabled: !!agendaId,
   });
 
   // Add organizer to event
@@ -141,7 +94,7 @@ export const useEventOrganizers = (eventId?: string) => {
       return result;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["event-organizers", eventId] });
+      queryClient.invalidateQueries({ queryKey: ["event-organizers", agendaId] });
       toast.success("Organizador adicionado com sucesso!");
     },
     onError: (error) => {
@@ -164,7 +117,7 @@ export const useEventOrganizers = (eventId?: string) => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["event-organizers", eventId] });
+      queryClient.invalidateQueries({ queryKey: ["event-organizers", agendaId] });
       toast.success("Organizador removido com sucesso!");
     },
     onError: (error) => {
@@ -191,7 +144,7 @@ export const useEventOrganizers = (eventId?: string) => {
         await supabase
           .from("agenda_item_organizers")
           .update({ main_organizer: false })
-          .eq("agenda_id", eventId)
+          .eq("agenda_id", agendaId)
           .neq("id", id);
       }
 
@@ -206,7 +159,7 @@ export const useEventOrganizers = (eventId?: string) => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["event-organizers", eventId] });
+      queryClient.invalidateQueries({ queryKey: ["event-organizers", agendaId] });
       toast.success("Organizador atualizado com sucesso!");
     },
     onError: (error) => {
@@ -234,7 +187,7 @@ export const useEventOrganizers = (eventId?: string) => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["event-organizers", eventId] });
+      queryClient.invalidateQueries({ queryKey: ["event-organizers", agendaId] });
       toast.success("Organizadores reordenados com sucesso!");
     },
     onError: (error) => {
