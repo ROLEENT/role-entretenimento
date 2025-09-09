@@ -63,33 +63,28 @@ export function useEntityLookup({ type, limit = 20 }: EntityLookupOptions) {
 
   const getEntityById = async (id: string): Promise<ComboboxAsyncOption | null> => {
     try {
-      let queryBuilder;
-      
-      if (type === 'organizers') {
-        // For organizers, get data from entity_profiles using source_id
-        queryBuilder = supabase
-          .from('entity_profiles')
-          .select('source_id as id, name, city, contact_email')
-          .eq('source_id', id)
-          .eq('type', 'organizador');
-      } else {
-        // For other types, use direct table lookup
-        let tableName = type;
-        let selectFields = 'id, name, city';
-        
-        if (type === 'artists') {
-          selectFields = 'id, stage_name, city';
-        } else if (type === 'venues') {
-          selectFields = 'id, name, city, address_line';
-        }
-
-        queryBuilder = supabase
-          .from(tableName)
-          .select(selectFields)
-          .eq('id', id);
+      // All types now use entity_profiles
+      let entityType;
+      switch (type) {
+        case 'artists':
+          entityType = 'artista';
+          break;
+        case 'organizers':
+          entityType = 'organizador';
+          break;
+        case 'venues':
+          entityType = 'local';
+          break;
+        default:
+          entityType = type;
       }
 
-      const { data, error } = queryBuilder.maybeSingle() as { data: any, error: any };
+      const { data, error } = await supabase
+        .from('entity_profiles')
+        .select('source_id as id, name, city, contact_email')
+        .eq('source_id', id)
+        .eq('type', entityType)
+        .maybeSingle() as { data: any, error: any };
 
       if (error) {
         console.error('Get entity by ID error:', error);

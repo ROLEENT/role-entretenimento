@@ -58,14 +58,21 @@ serve(async (req) => {
 
     let queryBuilder;
     
-    // Build query based on type
+    // Build query based on type - all queries now use entity_profiles
     switch (type) {
       case 'artists':
         queryBuilder = supabase
-          .from('artists')
-          .select('id, stage_name, city')
-          .ilike('stage_name', `%${query}%`)
-          .eq('status', 'active')
+          .from('entity_profiles')
+          .select(`
+            source_id as id, 
+            name, 
+            city,
+            contact_email,
+            handle
+          `)
+          .eq('type', 'artista')
+          .eq('visibility', 'public')
+          .ilike('name', `%${query}%`)
         break;
         
       case 'organizers':
@@ -85,10 +92,17 @@ serve(async (req) => {
         
       case 'venues':
         queryBuilder = supabase
-          .from('venues')
-          .select('id, name, city, address_line')
+          .from('entity_profiles')
+          .select(`
+            source_id as id, 
+            name, 
+            city,
+            contact_email,
+            handle
+          `)
+          .eq('type', 'local')
+          .eq('visibility', 'public')
           .ilike('name', `%${query}%`)
-          .eq('status', 'active')
         break;
         
       default:
@@ -102,7 +116,7 @@ serve(async (req) => {
     }
 
     const { data, error } = await queryBuilder
-      .order(type === 'artists' ? 'stage_name' : 'name')
+      .order('name')
       .limit(Math.min(limit, 50)) // Max 50 results
 
     if (error) {
