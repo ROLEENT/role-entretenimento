@@ -264,7 +264,7 @@ const fetchCityStats = async (): Promise<{ cityStats: CityStats[]; totalEvents: 
 };
 
 export const useAgendaData = (filters?: AgendaFilters) => {
-  // Fetch upcoming events using hybrid approach
+  // Fetch upcoming events using simplified approach with fallback
   const {
     data: upcomingEvents = [],
     isLoading: isLoadingEvents,
@@ -273,43 +273,27 @@ export const useAgendaData = (filters?: AgendaFilters) => {
   } = useQuery({
     queryKey: ['agenda-upcoming-events', filters],
     queryFn: async () => {
-      console.log("🔍 Fetching unified agenda data with filters:", filters);
+      console.log("🔍 Fetching agenda data with filters:", filters);
       
-      const hybridFetcher = createHybridEventFetcher(supabase);
-      const events = await hybridFetcher({
-        city: filters?.city,
-        search: filters?.search,
-        tags: filters?.tags,
-        dateRange: { start: new Date(), end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
-        status: 'published'
-      });
-
-      console.log("✅ Unified agenda data fetched successfully:", {
-        total: events.length,
-        sources: events.reduce((acc, event) => {
-          acc[event.source] = (acc[event.source] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>)
-      });
-      
-      // Transform to match the expected AgendaItem interface
-      return events.map(event => ({
-        id: event.id,
-        title: event.title,
-        subtitle: event.subtitle,
-        city: event.city,
-        start_at: event.date_start,
-        end_at: event.date_end,
-        cover_url: event.image_url,
-        alt_text: event.image_url, // Use image_url as fallback
-        visibility_type: (event.highlight_type === 'vitrine' ? 'vitrine' : 'curadoria') as 'vitrine' | 'curadoria',
-        status: event.status,
-        ticket_url: event.ticket_url,
-        slug: event.slug,
-      }));
+      try {
+        // Use the proven fetchUpcomingEvents function instead of hybrid fetcher
+        const events = await fetchUpcomingEvents(filters);
+        
+        console.log("✅ Agenda data fetched successfully:", {
+          total: events.length,
+          filters
+        });
+        
+        return events;
+      } catch (error) {
+        console.error("❌ Error fetching agenda data:", error);
+        // Return empty array on error to prevent complete failure
+        return [];
+      }
     },
-    staleTime: 10 * 60 * 1000, // 10 minutes for stable data
-    gcTime: 30 * 60 * 1000, // 30 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 15 * 60 * 1000, // 15 minutes
+    retry: 1, // Only retry once on failure
   });
 
   // Fetch city stats

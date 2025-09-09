@@ -7,8 +7,20 @@ import { useToast } from "@/hooks/use-toast";
 export function useProfiles(filters: ListFilters) {
   return useQuery({
     queryKey: ['profiles', filters],
-    queryFn: () => listProfiles(filters),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    queryFn: async () => {
+      try {
+        console.log("🔍 useProfiles fetching with filters:", filters);
+        const result = await listProfiles(filters);
+        console.log("✅ useProfiles success:", result);
+        return result;
+      } catch (error) {
+        console.error("❌ useProfiles error:", error);
+        // Return empty result instead of throwing to prevent page crashes
+        return { data: [], total: 0 };
+      }
+    },
+    staleTime: 3 * 60 * 1000, // 3 minutes
+    retry: 1, // Only retry once
   });
 }
 

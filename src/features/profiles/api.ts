@@ -120,31 +120,48 @@ export type ListFilters = {
 };
 
 export async function listProfiles(f: ListFilters) {
-  let q = supabase
-    .from("entity_profiles")
-    .select("id, user_id, type, handle, name, city, state, country, avatar_url, cover_url, tags, verified, category_name", { count: "exact" });
+  try {
+    console.log("🔍 Fetching profiles with filters:", f);
+    
+    let q = supabase
+      .from("entity_profiles")
+      .select("id, user_id, type, handle, name, city, state, country, avatar_url, cover_url, tags, verified, category_name", { count: "exact" });
 
-  // Filter by visibility - only show public profiles
-  q = q.in("visibility", ["public", "published"]);
+    // Filter by visibility - only show public profiles
+    q = q.in("visibility", ["public", "published"]);
 
-  if (f.type) q = q.eq("type", f.type);
-  if (f.city) q = q.ilike("city", `%${f.city}%`);
-  if (f.q) q = q.ilike("name", `%${f.q}%`);
-  if (f.tags?.length) q = q.contains("tags", f.tags);
+    if (f.type) q = q.eq("type", f.type);
+    if (f.city) q = q.ilike("city", `%${f.city}%`);
+    if (f.q) q = q.ilike("name", `%${f.q}%`);
+    if (f.tags?.length) q = q.contains("tags", f.tags);
 
-  // Ordenação
-  if (f.order === "az") {
-    q = q.order("name", { ascending: true });
-  } else if (f.order === "followers") {
-    q = q.order("created_at", { ascending: false }); // Fallback to created_at since followers_count may not be available
-  } else {
-    // Default: trend (created_at desc)
-    q = q.order("created_at", { ascending: false });
+    // Ordenação
+    if (f.order === "az") {
+      q = q.order("name", { ascending: true });
+    } else if (f.order === "followers") {
+      q = q.order("created_at", { ascending: false }); 
+    } else {
+      // Default: trend (created_at desc)
+      q = q.order("created_at", { ascending: false });
+    }
+
+    const from = f.offset ?? 0;
+    const to = from + ((f.limit ?? 24) - 1);
+    const { data, error, count } = await q.range(from, to);
+    
+    if (error) {
+      console.error("❌ Error fetching profiles:", error);
+      throw error;
+    }
+    
+    console.log("✅ Profiles fetched successfully:", {
+      total: count || 0,
+      returned: data?.length || 0
+    });
+    
+    return { data: (data as Profile[]) || [], total: count ?? 0 };
+  } catch (error) {
+    console.error("❌ listProfiles error:", error);
+    throw error;
   }
-
-  const from = f.offset ?? 0;
-  const to = from + ((f.limit ?? 24) - 1);
-  const { data, error, count } = await q.range(from, to);
-  if (error) throw error;
-  return { data: data as Profile[], total: count ?? 0 };
 }
