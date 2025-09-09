@@ -44,7 +44,17 @@ export function EventOrganizerCard({ organizer, venue }: EventOrganizerCardProps
   }, [organizer]);
 
   // Se não há organizador nem venue, não mostrar o card
-  if (!organizerData && !venue) return null;
+  if (!organizerData && !venue) {
+    console.log(`[EventOrganizerCard] Nenhum organizador ou venue encontrado, não renderizando`);
+    return null;
+  }
+
+  // Priorizar organizador sobre venue
+  const shouldShowOrganizer = organizerData?.name;
+  const shouldShowVenue = !shouldShowOrganizer && venue?.name;
+
+  console.log(`[EventOrganizerCard] shouldShowOrganizer:`, shouldShowOrganizer);
+  console.log(`[EventOrganizerCard] shouldShowVenue:`, shouldShowVenue);
 
   return (
     <Card className="rounded-lg">
@@ -56,7 +66,7 @@ export function EventOrganizerCard({ organizer, venue }: EventOrganizerCardProps
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Mostrar organizador principal se existir */}
-        {organizerData && (
+        {shouldShowOrganizer && (
           <div className="flex items-center p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors group">
             {/* Organizer Logo */}
             <div className="flex-shrink-0 mr-3">
@@ -100,7 +110,7 @@ export function EventOrganizerCard({ organizer, venue }: EventOrganizerCardProps
         )}
 
         {/* Fallback: Mostrar venue como organizador se não há organizador */}
-        {!organizerData && venue && (
+        {shouldShowVenue && (
           <div className="flex items-center p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors group">
             {/* Venue Logo */}
             <div className="flex-shrink-0 mr-3">
@@ -136,7 +146,7 @@ export function EventOrganizerCard({ organizer, venue }: EventOrganizerCardProps
         )}
         
         {/* Ver todos os eventos do organizador */}
-        {organizerData?.slug && (
+        {shouldShowOrganizer && organizerData?.slug && (
           <Button asChild variant="outline" size="sm" className="w-full">
             <Link to={`/perfil/${organizerData.slug}`}>
               Ver todos os eventos deste organizador
@@ -145,7 +155,7 @@ export function EventOrganizerCard({ organizer, venue }: EventOrganizerCardProps
         )}
         
         {/* Ver todos os eventos do local (fallback) */}
-        {!organizerData && venue?.slug && (
+        {shouldShowVenue && venue?.slug && (
           <Button asChild variant="outline" size="sm" className="w-full">
             <Link to={`/perfil/${venue.slug}`}>
               Ver todos os eventos deste local
