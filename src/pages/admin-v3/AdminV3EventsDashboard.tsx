@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminV3Guard } from "@/components/AdminV3Guard";
-import { EventGrid } from "@/components/events/EventGrid";
+import { AdminEventGrid } from "@/components/admin/AdminEventGrid";
+import { useAdminEventsData } from "@/hooks/useAdminEventsData";
+import { toast } from "sonner";
 // AdminEventTable removed - using EventGrid only
 import { ChecklistWidget } from "@/components/events/ChecklistWidget";
 import { Button } from "@/components/ui/button";
@@ -17,45 +19,16 @@ import { supabase } from "@/integrations/supabase/client";
 export default function AdminV3EventsDashboard() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
-  const [filters, setFilters] = useState({
-    search: "",
-    status: "",
-    highlight_type: "",
-    city: ""
-  });
-
-  // Fetch events from new events table
-  const { data: events = [], isLoading } = useQuery({
-    queryKey: ["admin-events-v3", filters],
-    queryFn: async () => {
-      let query = supabase
-        .from("events")
-        .select(`
-          id, title, subtitle, summary, city, location_name,
-          date_start, date_end, doors_open_utc, image_url, cover_url,
-          price_min, price_max, currency, highlight_type, is_sponsored,
-          age_rating, genres, slug, ticket_url, status, created_at
-        `)
-        .order("created_at", { ascending: false });
-
-      if (filters.search) {
-        query = query.ilike("title", `%${filters.search}%`);
-      }
-      if (filters.status) {
-        query = query.eq("status", filters.status);
-      }
-      if (filters.highlight_type) {
-        query = query.eq("highlight_type", filters.highlight_type);
-      }
-      if (filters.city) {
-        query = query.ilike("city", `%${filters.city}%`);
-      }
-
-      const { data, error } = await query.limit(50);
-      if (error) throw error;
-      return data || [];
-    }
-  });
+  
+  // Use admin events hook with proper admin authentication
+  const {
+    events,
+    filters,
+    isLoading,
+    isDeleting,
+    updateFilters,
+    deleteEvent
+  } = useAdminEventsData();
 
   // Stats
   const { data: stats } = useQuery({
@@ -86,8 +59,27 @@ export default function AdminV3EventsDashboard() {
     navigate(`/admin-v3/eventos/${event.id}/editar`);
   };
 
+  const handleEventEdit = (eventId: string) => {
+    navigate(`/admin-v3/eventos/${eventId}/editar`);
+  };
+
+  const handleEventDelete = async (eventId: string) => {
+    try {
+      await deleteEvent(eventId);
+      toast.success('Evento excluído com sucesso');
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      toast.error('Erro ao excluir evento');
+    }
+  };
+
+  const handleEventView = (eventId: string) => {
+    // TODO: Implement view event functionality
+    window.open(`/eventos/${eventId}`, '_blank');
+  };
+
   const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    updateFilters({ [key]: value });
   };
 
   const handleBulkAction = (action: string, eventIds: string[]) => {
@@ -202,7 +194,7 @@ export default function AdminV3EventsDashboard() {
                       <SelectValue placeholder="Todos os status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todos</SelectItem>
+                      <SelectItem value="all">Todos</SelectItem>
                       <SelectItem value="draft">Rascunho</SelectItem>
                       <SelectItem value="scheduled">Agendado</SelectItem>
                       <SelectItem value="published">Publicado</SelectItem>
@@ -213,7 +205,7 @@ export default function AdminV3EventsDashboard() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Destaque</label>
-                  <Select value={filters.highlight_type} onValueChange={(value) => handleFilterChange("highlight_type", value)}>
+                  <Select value="" onValueChange={(value) => console.log("Highlight filter:", value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Todos os tipos" />
                     </SelectTrigger>
@@ -260,7 +252,7 @@ export default function AdminV3EventsDashboard() {
                         </ToggleGroupItem>
                       </ToggleGroup>
                       <Badge variant="secondary">
-                        {events.length} evento(s)
+                        {events?.length || 0} evento(s)
                       </Badge>
                     </div>
                   </div>
@@ -268,16 +260,20 @@ export default function AdminV3EventsDashboard() {
                 <CardContent>
                   {viewMode === "grid" ? (
                     <>
-                      <EventGrid
-                        events={events}
+                      <AdminEventGrid
+                        events={events || []}
                         variant="compact"
                         columns={1}
                         onEventClick={handleEventClick}
+                        onEventEdit={handleEventEdit}
+                        onEventDelete={handleEventDelete}
+                        onEventView={handleEventView}
                         loading={isLoading}
+                        deletingEventIds={[]}
                         className="space-y-4"
                       />
 
-                      {events.length === 0 && !isLoading && (
+                      {(!events || events.length === 0) && !isLoading && (
                         <div className="text-center py-12">
                           <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                           <h3 className="text-lg font-medium mb-2">Nenhum evento encontrado</h3>
@@ -343,7 +339,7 @@ export default function AdminV3EventsDashboard() {
               </Card>
 
               {/* Latest Event Checklist */}
-              {events.length > 0 && (
+              {events && events.length > 0 && (
                 <ChecklistWidget
                   eventData={events[0]}
                   onItemClick={(itemId) => {
