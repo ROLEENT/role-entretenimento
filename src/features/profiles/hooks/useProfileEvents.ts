@@ -268,7 +268,52 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
               console.log(`Encontrados ${mappedEvents.length} eventos na tabela events por gêneros`);
             }
 
-            // 3. Buscar na agenda_itens por nome do artista
+            // 3. Buscar na agenda_itens através da relação agenda_item_artists
+            const { data: artistProfile } = await supabase
+              .from('entity_profiles')
+              .select('source_id')
+              .eq('handle', profileHandle)
+              .eq('type', 'artista')
+              .maybeSingle();
+
+            let artistId = artistProfile?.source_id;
+            
+            // Se não encontrou por entity_profiles, buscar diretamente na tabela artists
+            if (!artistId) {
+              const { data: artist } = await supabase
+                .from('artists')
+                .select('id')
+                .eq('slug', profileHandle)
+                .maybeSingle();
+              artistId = artist?.id;
+            }
+
+            const agendaEventsData = [];
+            
+            if (artistId) {
+              // Buscar eventos através da relação agenda_item_artists
+              const { data: artistAgendaRelations, error: artistError } = await supabase
+                .from('agenda_item_artists')
+                .select(`
+                  agenda_id,
+                  agenda_itens!inner (
+                    id, title, slug, subtitle, cover_url, starts_at, end_at,
+                    city, location_name, status, type, tags
+                  )
+                `)
+                .eq('artist_id', artistId)
+                .eq('agenda_itens.status', 'published')
+                .is('agenda_itens.deleted_at', null)
+                .gte('agenda_itens.starts_at', new Date().toISOString())
+                .order('agenda_itens.starts_at', { ascending: true })
+                .limit(20);
+
+              if (artistAgendaRelations && !artistError) {
+                agendaEventsData.push(...artistAgendaRelations.map(rel => rel.agenda_itens));
+              }
+            }
+            
+            // Fallback: buscar na agenda_itens por nome do artista
             const { data: agendaEvents, error: agendaError } = await supabase
               .from('agenda_itens')
               .select(`
@@ -282,13 +327,24 @@ export function useProfileEvents(profileHandle: string, profileType: string) {
               .order('starts_at', { ascending: true })
               .limit(20);
 
+            // Combinar eventos da relação direta + fallback por nome
+            const combinedAgendaEvents = [...agendaEventsData];
             if (agendaEvents && !agendaError) {
-              const mappedEvents = agendaEvents.map((event: any) => ({
+              // Adicionar eventos do fallback, evitando duplicatas
+              agendaEvents.forEach(event => {
+                if (!combinedAgendaEvents.some(existing => existing.id === event.id)) {
+                  combinedAgendaEvents.push(event);
+                }
+              });
+            }
+
+            if (combinedAgendaEvents.length > 0) {
+              const mappedEvents = combinedAgendaEvents.map((event: any) => ({
                 ...event,
                 source: 'agenda_itens' as const
               }));
               allEvents = [...allEvents, ...mappedEvents];
-              console.log(`Encontrados ${mappedEvents.length} eventos na agenda_itens`);
+              console.log(`Encontrados ${mappedEvents.length} eventos na agenda_itens (relação + nome)`);
             }
 
             // Remover duplicatas baseado no slug
