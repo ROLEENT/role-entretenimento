@@ -433,13 +433,19 @@ export type Database = {
           deleted_at: string | null
           editorial_notes: string | null
           end_at: string | null
+          event_genres: string[] | null
           event_id: string | null
           external_links: Json | null
+          featured_note: string | null
+          featured_reasons: string[] | null
+          featured_until: string | null
+          featured_weight: number | null
           focal_point_x: number | null
           focal_point_y: number | null
           gallery_urls: string[] | null
           highlight_type: Database["public"]["Enums"]["highlight_type"]
           id: string
+          is_published: boolean
           is_sponsored: boolean
           latitude: number | null
           lineup_ids: string[] | null
@@ -460,8 +466,10 @@ export type Database = {
           price_max: number | null
           price_min: number | null
           priority: number | null
+          promo_type: string | null
           publish_at: string | null
           published_at: string | null
+          published_by: string | null
           seo_description: string | null
           seo_title: string | null
           share_text: string | null
@@ -485,6 +493,9 @@ export type Database = {
           venue_id: string | null
           visibility_type: Database["public"]["Enums"]["agenda_visibility"]
           visual_art: Json | null
+          vitrine_notes: string | null
+          vitrine_order_id: string | null
+          vitrine_package: string | null
         }
         Insert: {
           accessibility?: Json | null
@@ -504,13 +515,19 @@ export type Database = {
           deleted_at?: string | null
           editorial_notes?: string | null
           end_at?: string | null
+          event_genres?: string[] | null
           event_id?: string | null
           external_links?: Json | null
+          featured_note?: string | null
+          featured_reasons?: string[] | null
+          featured_until?: string | null
+          featured_weight?: number | null
           focal_point_x?: number | null
           focal_point_y?: number | null
           gallery_urls?: string[] | null
           highlight_type?: Database["public"]["Enums"]["highlight_type"]
           id?: string
+          is_published?: boolean
           is_sponsored?: boolean
           latitude?: number | null
           lineup_ids?: string[] | null
@@ -531,8 +548,10 @@ export type Database = {
           price_max?: number | null
           price_min?: number | null
           priority?: number | null
+          promo_type?: string | null
           publish_at?: string | null
           published_at?: string | null
+          published_by?: string | null
           seo_description?: string | null
           seo_title?: string | null
           share_text?: string | null
@@ -556,6 +575,9 @@ export type Database = {
           venue_id?: string | null
           visibility_type?: Database["public"]["Enums"]["agenda_visibility"]
           visual_art?: Json | null
+          vitrine_notes?: string | null
+          vitrine_order_id?: string | null
+          vitrine_package?: string | null
         }
         Update: {
           accessibility?: Json | null
@@ -575,13 +597,19 @@ export type Database = {
           deleted_at?: string | null
           editorial_notes?: string | null
           end_at?: string | null
+          event_genres?: string[] | null
           event_id?: string | null
           external_links?: Json | null
+          featured_note?: string | null
+          featured_reasons?: string[] | null
+          featured_until?: string | null
+          featured_weight?: number | null
           focal_point_x?: number | null
           focal_point_y?: number | null
           gallery_urls?: string[] | null
           highlight_type?: Database["public"]["Enums"]["highlight_type"]
           id?: string
+          is_published?: boolean
           is_sponsored?: boolean
           latitude?: number | null
           lineup_ids?: string[] | null
@@ -602,8 +630,10 @@ export type Database = {
           price_max?: number | null
           price_min?: number | null
           priority?: number | null
+          promo_type?: string | null
           publish_at?: string | null
           published_at?: string | null
+          published_by?: string | null
           seo_description?: string | null
           seo_title?: string | null
           share_text?: string | null
@@ -627,6 +657,9 @@ export type Database = {
           venue_id?: string | null
           visibility_type?: Database["public"]["Enums"]["agenda_visibility"]
           visual_art?: Json | null
+          vitrine_notes?: string | null
+          vitrine_order_id?: string | null
+          vitrine_package?: string | null
         }
         Relationships: [
           {
@@ -1173,6 +1206,7 @@ export type Database = {
         Row: {
           about: string | null
           accommodation_notes: string | null
+          acting_genres: string[] | null
           artist_type: string | null
           audius_url: string | null
           availability_days: string[] | null
@@ -1200,6 +1234,7 @@ export type Database = {
           instagram: string | null
           internal_notes: string | null
           links: Json | null
+          music_genres: string[] | null
           phone: string | null
           presskit_url: string | null
           priority: number | null
@@ -1231,6 +1266,7 @@ export type Database = {
         Insert: {
           about?: string | null
           accommodation_notes?: string | null
+          acting_genres?: string[] | null
           artist_type?: string | null
           audius_url?: string | null
           availability_days?: string[] | null
@@ -1258,6 +1294,7 @@ export type Database = {
           instagram?: string | null
           internal_notes?: string | null
           links?: Json | null
+          music_genres?: string[] | null
           phone?: string | null
           presskit_url?: string | null
           priority?: number | null
@@ -1289,6 +1326,7 @@ export type Database = {
         Update: {
           about?: string | null
           accommodation_notes?: string | null
+          acting_genres?: string[] | null
           artist_type?: string | null
           audius_url?: string | null
           availability_days?: string[] | null
@@ -1316,6 +1354,7 @@ export type Database = {
           instagram?: string | null
           internal_notes?: string | null
           links?: Json | null
+          music_genres?: string[] | null
           phone?: string | null
           presskit_url?: string | null
           priority?: number | null
