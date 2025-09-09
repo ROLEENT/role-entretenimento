@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArtistFlexibleForm } from '@/schemas/agents-flexible';
 import { RHFSlug } from '../RHFSlug';
 import { CountrySelect } from '@/components/form/CountrySelect';
-import { RHFGenreSelect } from '@/components/form/RHFGenreSelect';
 import { AgentesTagsInput } from '@/components/agentes/AgentesTagsInput';
 import { RHFArtistCategorySelect } from '@/components/form/RHFArtistCategorySelect';
 
@@ -187,19 +186,6 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
                   name="country"
                   placeholder="Selecione o país"
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="genres"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Gêneros Musicais</FormLabel>
-              <FormControl>
-                <RHFGenreSelect name="genres" />
               </FormControl>
               <FormMessage />
             </FormItem>
