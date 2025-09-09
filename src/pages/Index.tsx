@@ -60,7 +60,7 @@ const Index = () => {
         
         <NotificationPermissionPrompt />
         <AdminAccessButton />
-        <RealEventsTestPanel />
+        {process.env.NODE_ENV === 'development' && <RealEventsTestPanel />}
         <BackToTop />
         <HeaderGlobalSearch />
         <Toaster />
