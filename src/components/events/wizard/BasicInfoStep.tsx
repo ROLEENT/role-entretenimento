@@ -14,6 +14,7 @@ import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { SelectionReasonsManager } from './SelectionReasonsManager';
 import { CuratorialCriteria } from '@/components/admin/events/CuratorialCriteria';
+import { RHFOrganizerMultiSelect } from '@/components/rhf/RHFOrganizerMultiSelect';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -243,6 +244,15 @@ export const BasicInfoStep: React.FC = () => {
         />
 
       </div>
+
+      {/* Organizers Section */}
+      <RHFOrganizerMultiSelect
+        name="organizer_ids"
+        control={control}
+        label="Organizadores *"
+        placeholder="Busque por organizadores..."
+        rules={{ required: "Pelo menos um organizador é obrigatório" }}
+      />
 
       {/* Highlight Type */}
       <FormField

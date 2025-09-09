@@ -131,6 +131,8 @@ export const visualArtistSchema = z.object({
 
 // Main event schema
 export const eventSchema = z.object({
+  // Organizers
+  organizer_ids: z.array(z.string().uuid()).min(1, "Pelo menos um organizador é obrigatório"),
   // Basic Information
   id: z.string().uuid().optional(),
   title: z.string().min(1, "Título é obrigatório").max(200, "Título muito longo"),
@@ -401,6 +403,7 @@ export function validateEventForPublish(data: EventFormData): string[] {
 // Default values helper
 export function getEventDefaults(): Partial<EventFormData> {
   return {
+    organizer_ids: [],
     status: 'published',
     visibility: 'public',
     highlight_type: 'none',

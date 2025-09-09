@@ -628,7 +628,22 @@ export type Database = {
           visibility_type?: Database["public"]["Enums"]["agenda_visibility"]
           visual_art?: Json | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "agenda_itens_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "organizers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agenda_itens_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "organizers_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       agenda_media: {
         Row: {

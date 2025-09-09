@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { UseControllerProps, useController } from 'react-hook-form';
-import { X, Plus, Search, Building } from 'lucide-react';
+import { useController, UseControllerProps } from 'react-hook-form';
 import { FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
-import { useDebounce } from 'use-debounce';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
+import { Check, ChevronsUpDown, X, Plus, Building } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
+import { useDebounce } from 'use-debounce';
 import { AgentQuickCreateModal } from '@/components/AgentQuickCreateModal';
-import { ComboboxAsyncOption } from '@/components/ui/combobox-async';
 
 interface Organizer {
   id: string;
@@ -21,8 +21,6 @@ interface Organizer {
 interface RHFOrganizerMultiSelectProps extends UseControllerProps {
   label?: string;
   placeholder?: string;
-  description?: string;
-  className?: string;
   disabled?: boolean;
   maxItems?: number;
 }
@@ -31,37 +29,34 @@ export function RHFOrganizerMultiSelect({
   name,
   control,
   rules,
-  defaultValue = [],
+  defaultValue,
   label = "Organizadores",
-  placeholder = "Buscar organizadores...",
-  description,
-  className,
+  placeholder = "Busque por organizadores...",
   disabled = false,
   maxItems = 10,
   ...props
 }: RHFOrganizerMultiSelectProps) {
   const {
-    field: { value = [], onChange, ...fieldProps },
+    field: { value = [], onChange },
     fieldState: { error }
   } = useController({
     name,
     control,
     rules,
-    defaultValue,
-    ...props
+    defaultValue: defaultValue || []
   });
 
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
-  const [debouncedSearch] = useDebounce(search, 300);
+  const [searchValue, setSearchValue] = useState('');
+  const [debouncedSearch] = useDebounce(searchValue, 300);
   const [organizers, setOrganizers] = useState<Organizer[]>([]);
   const [selectedOrganizers, setSelectedOrganizers] = useState<Organizer[]>([]);
   const [loading, setLoading] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   // Buscar organizadores
-  const searchOrganizers = async (query: string) => {
-    if (query.length < 2) {
+  const searchOrganizers = async (searchTerm: string) => {
+    if (!searchTerm || searchTerm.length < 2) {
       setOrganizers([]);
       return;
     }
@@ -71,7 +66,7 @@ export function RHFOrganizerMultiSelect({
       const { data, error } = await supabase
         .from('organizers')
         .select('id, name, city')
-        .ilike('name', `%${query}%`)
+        .ilike('name', `%${searchTerm}%`)
         .limit(20);
 
       if (error) throw error;
@@ -84,31 +79,29 @@ export function RHFOrganizerMultiSelect({
     }
   };
 
-  // Effect para busca com debounce
+  // Trigger search when debounced search changes
   useEffect(() => {
-    if (debouncedSearch) {
-      searchOrganizers(debouncedSearch);
-    } else {
-      setOrganizers([]);
-    }
+    searchOrganizers(debouncedSearch);
   }, [debouncedSearch]);
 
-  // Effect para carregar organizadores selecionados
+  // Load selected organizers details
   useEffect(() => {
     const loadSelectedOrganizers = async () => {
-      if (value && value.length > 0) {
-        try {
-          const { data, error } = await supabase
-            .from('organizers')
-            .select('id, name, city')
-            .in('id', value);
+      if (!value || value.length === 0) {
+        setSelectedOrganizers([]);
+        return;
+      }
 
-          if (error) throw error;
-          setSelectedOrganizers(data || []);
-        } catch (error) {
-          console.error('Error loading selected organizers:', error);
-        }
-      } else {
+      try {
+        const { data, error } = await supabase
+          .from('organizers')
+          .select('id, name, city')
+          .in('id', value);
+
+        if (error) throw error;
+        setSelectedOrganizers(data || []);
+      } catch (error) {
+        console.error('Error loading selected organizers:', error);
         setSelectedOrganizers([]);
       }
     };
@@ -120,9 +113,9 @@ export function RHFOrganizerMultiSelect({
     if (!value.includes(organizer.id) && value.length < maxItems) {
       const newValue = [...value, organizer.id];
       onChange(newValue);
-      setSearch('');
-      setOpen(false);
     }
+    setOpen(false);
+    setSearchValue('');
   };
 
   const handleRemove = (organizerId: string) => {
@@ -131,150 +124,148 @@ export function RHFOrganizerMultiSelect({
   };
 
   const handleCreateNew = () => {
+    setShowCreateModal(true);
     setOpen(false);
-    setModalOpen(true);
   };
 
-  const handleCreated = (newOrganizer: ComboboxAsyncOption) => {
-    const newValue = [...value, newOrganizer.value];
-    onChange(newValue);
-    setModalOpen(false);
+  const handleCreated = (newOrganizer: any) => {
+    if (newOrganizer?.id && !value.includes(newOrganizer.id)) {
+      const newValue = [...value, newOrganizer.id];
+      onChange(newValue);
+    }
   };
 
-  // Filtrar organizadores que já não estão selecionados
-  const availableOrganizers = organizers.filter(org => !value.includes(org.id));
+  // Filter out already selected organizers
+  const availableOrganizers = organizers.filter(
+    organizer => !value.includes(organizer.id)
+  );
 
   return (
-    <>
-      <FormItem>
-        {label && <FormLabel>{label}</FormLabel>}
-        
-        <div className="space-y-2">
-          {/* Organizadores selecionados */}
-          {selectedOrganizers.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {selectedOrganizers.map((organizer) => (
-                <Badge
-                  key={organizer.id}
-                  variant="secondary"
-                  className="flex items-center gap-1 pr-1"
-                >
-                  <Building className="h-3 w-3" />
-                  <span>{organizer.name}</span>
-                  {organizer.city && (
-                    <span className="text-xs opacity-70">• {organizer.city}</span>
-                  )}
+    <FormItem className="flex flex-col">
+      <FormLabel>{label}</FormLabel>
+      
+      {/* Selected organizers */}
+      {selectedOrganizers.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-2">
+          {selectedOrganizers.map((organizer) => (
+            <Badge
+              key={organizer.id}
+              variant="secondary"
+              className="flex items-center gap-1 pr-1"
+            >
+              <Building className="w-3 h-3" />
+              <span>{organizer.name}</span>
+              {organizer.city && (
+                <span className="text-xs opacity-70">({organizer.city})</span>
+              )}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-4 w-4 p-0 ml-1 hover:bg-destructive hover:text-destructive-foreground"
+                onClick={() => handleRemove(organizer.id)}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </Badge>
+          ))}
+        </div>
+      )}
+
+      {/* Search dropdown */}
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="justify-between"
+            disabled={disabled || value.length >= maxItems}
+          >
+            {placeholder}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[400px] p-0">
+          <Command>
+            <CommandInput 
+              placeholder="Digite para buscar organizadores..."
+              value={searchValue}
+              onValueChange={setSearchValue}
+            />
+            <CommandEmpty>
+              {loading ? (
+                "Buscando..."
+              ) : debouncedSearch.length < 2 ? (
+                "Digite pelo menos 2 caracteres para buscar"
+              ) : (
+                <div className="py-2">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Nenhum organizador encontrado para "{debouncedSearch}"
+                  </p>
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
-                    className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
-                    onClick={() => handleRemove(organizer.id)}
-                    disabled={disabled}
+                    onClick={handleCreateNew}
+                    className="w-full"
                   >
-                    <X className="h-3 w-3" />
+                    <Plus className="w-4 h-4 mr-2" />
+                    Criar organizador "{debouncedSearch}"
                   </Button>
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          {/* Input de busca */}
-          {value.length < maxItems && (
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={open}
-                  className="w-full justify-start"
-                  disabled={disabled}
+                </div>
+              )}
+            </CommandEmpty>
+            <CommandGroup>
+              {availableOrganizers.map((organizer) => (
+                <CommandItem
+                  key={organizer.id}
+                  value={organizer.name}
+                  onSelect={() => handleSelect(organizer)}
+                  className="flex items-center gap-2"
                 >
-                  <Search className="mr-2 h-4 w-4" />
-                  {placeholder}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0 z-[9999] bg-popover border shadow-lg" align="start">
-                <Command shouldFilter={false}>
-                  <div className="flex items-center border-b px-3">
-                    <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-                    <Input
-                      placeholder="Digite para buscar..."
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      className="border-0 focus:ring-0 h-10"
-                    />
+                  <Building className="w-4 h-4" />
+                  <div className="flex-1">
+                    <div className="font-medium">{organizer.name}</div>
+                    {organizer.city && (
+                      <div className="text-xs text-muted-foreground">
+                        {organizer.city}
+                      </div>
+                    )}
                   </div>
-                  <CommandList>
-                    {loading && (
-                      <div className="p-4 text-center text-sm text-muted-foreground">
-                        Buscando...
-                      </div>
+                  <Check
+                    className={cn(
+                      "ml-auto h-4 w-4",
+                      value.includes(organizer.id) ? "opacity-100" : "opacity-0"
                     )}
-                    
-                    {!loading && search.length >= 2 && availableOrganizers.length === 0 && (
-                      <CommandEmpty>Nenhum organizador encontrado</CommandEmpty>
-                    )}
-                    
-                    {!loading && search.length < 2 && (
-                      <div className="p-4 text-center text-sm text-muted-foreground">
-                        Digite pelo menos 2 caracteres para buscar
-                      </div>
-                    )}
+                  />
+                </CommandItem>
+              ))}
+              {availableOrganizers.length > 0 && debouncedSearch.length >= 2 && (
+                <CommandItem
+                  onSelect={handleCreateNew}
+                  className="border-t"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Criar novo organizador
+                </CommandItem>
+              )}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
 
-                    {!loading && availableOrganizers.length > 0 && (
-                      <CommandGroup>
-                        {availableOrganizers.map((organizer) => (
-                          <CommandItem
-                            key={organizer.id}
-                            onSelect={() => handleSelect(organizer)}
-                            className="flex items-center justify-between gap-2"
-                          >
-                            <div className="flex items-center gap-2">
-                              <Building className="h-4 w-4" />
-                              <div className="flex flex-col">
-                                <span>{organizer.name}</span>
-                                {organizer.city && (
-                                  <span className="text-xs text-muted-foreground">
-                                    {organizer.city}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    )}
+      <FormMessage />
 
-                    {search.length >= 2 && (
-                      <>
-                        <div className="border-t px-2 py-1">
-                          <CommandItem onSelect={handleCreateNew} className="gap-2">
-                            <Plus className="h-4 w-4" />
-                            <span>Cadastrar novo organizador</span>
-                          </CommandItem>
-                        </div>
-                      </>
-                    )}
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          )}
-        </div>
-
-        {description && (
-          <p className="text-sm text-muted-foreground">{description}</p>
-        )}
-        <FormMessage>{error?.message}</FormMessage>
-      </FormItem>
-
-      <AgentQuickCreateModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        agentType="organizer"
-        onCreated={handleCreated}
-      />
-    </>
+      {/* Create modal */}
+      {showCreateModal && (
+        <AgentQuickCreateModal
+          open={showCreateModal}
+          onOpenChange={(open) => setShowCreateModal(open)}
+          agentType="organizer"
+          onCreated={handleCreated}
+        />
+      )}
+    </FormItem>
   );
 }
