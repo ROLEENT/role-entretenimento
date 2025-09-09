@@ -7,12 +7,12 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 interface ProfileEventsProps {
-  profileUserId: string;
+  profileHandle: string;
   profileType: string;
 }
 
-export function ProfileEvents({ profileUserId, profileType }: ProfileEventsProps) {
-  const { data: events, isLoading, error } = useProfileEvents(profileUserId, profileType);
+export function ProfileEvents({ profileHandle, profileType }: ProfileEventsProps) {
+  const { data: events, isLoading, error } = useProfileEvents(profileHandle, profileType);
 
   if (isLoading) {
     return <ProfileContentSkeleton type="agenda" />;
