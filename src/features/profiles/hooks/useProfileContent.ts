@@ -28,7 +28,7 @@ export function useProfileContent(profileId: string, profileType: string) {
           cover_image, tags, created_at, author_name, city, status
         `)
         .eq('status', 'published')
-        .or(`tags.cs.{${profileId}},content_md.ilike.%${profileId}%`)
+        .contains('tags', [profileId])
         .order('created_at', { ascending: false })
         .limit(10);
       
