@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { eventsApi } from "@/lib/eventsApi";
 import { eventDebugUtils } from "@/utils/eventDebugUtils";
 import { EventFormData } from "@/schemas/eventSchema";
+import { canPublish } from "@/utils/canPublish";
 
 export function useEventSeries() {
   const queryResult = useQuery({
@@ -57,7 +58,10 @@ export function useUpsertEventV3() {
         }
 
         // Use original data since validation only returns isValid and errors
-        const cleanEventData = eventData;
+        const cleanEventData = {
+          ...eventData,
+          is_published: canPublish(eventData)
+        };
 
         if (cleanEventData.id) {
           // Update existing event

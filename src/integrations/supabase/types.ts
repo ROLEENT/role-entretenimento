@@ -440,6 +440,7 @@ export type Database = {
           gallery_urls: string[] | null
           highlight_type: Database["public"]["Enums"]["highlight_type"]
           id: string
+          is_published: boolean
           is_sponsored: boolean
           latitude: number | null
           lineup_ids: string[] | null
@@ -462,6 +463,7 @@ export type Database = {
           priority: number | null
           publish_at: string | null
           published_at: string | null
+          published_by: string | null
           seo_description: string | null
           seo_title: string | null
           share_text: string | null
@@ -511,6 +513,7 @@ export type Database = {
           gallery_urls?: string[] | null
           highlight_type?: Database["public"]["Enums"]["highlight_type"]
           id?: string
+          is_published?: boolean
           is_sponsored?: boolean
           latitude?: number | null
           lineup_ids?: string[] | null
@@ -533,6 +536,7 @@ export type Database = {
           priority?: number | null
           publish_at?: string | null
           published_at?: string | null
+          published_by?: string | null
           seo_description?: string | null
           seo_title?: string | null
           share_text?: string | null
@@ -582,6 +586,7 @@ export type Database = {
           gallery_urls?: string[] | null
           highlight_type?: Database["public"]["Enums"]["highlight_type"]
           id?: string
+          is_published?: boolean
           is_sponsored?: boolean
           latitude?: number | null
           lineup_ids?: string[] | null
@@ -604,6 +609,7 @@ export type Database = {
           priority?: number | null
           publish_at?: string | null
           published_at?: string | null
+          published_by?: string | null
           seo_description?: string | null
           seo_title?: string | null
           share_text?: string | null

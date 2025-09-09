@@ -11,19 +11,34 @@ export const eventsApi = {
         throw new Error('Admin não autenticado');
       }
 
-      const { data, error } = await supabase.rpc('create_event_cascade', {
-        event_data: eventData,
-        partners: eventData.partners || [],
-        lineup_slots: eventData.lineup_slots || [],
-        performances: eventData.performances || [],
-        visual_artists: eventData.visual_artists || []
-      });
+      // For agenda_itens, use direct insert with is_published flag
+      const { data, error } = await supabase
+        .from('agenda_itens')
+        .insert({
+          title: eventData.title,
+          subtitle: eventData.subtitle,
+          slug: eventData.slug,
+          summary: eventData.summary,
+          city: eventData.city,
+          starts_at: eventData.date_start,
+          end_at: eventData.date_end,
+          cover_url: eventData.cover_url || eventData.image_url,
+          alt_text: eventData.cover_alt,
+          venue_id: eventData.venue_id,
+          location_name: eventData.location_name,
+          address: eventData.address,
+          status: 'published',
+          is_published: (eventData as any).is_published || false,
+          created_by: session?.user?.id
+        })
+        .select()
+        .single();
 
       if (error) {
         throw new Error(`Erro ao criar evento: ${error.message}`);
       }
 
-      return data;
+      return data.id;
     } catch (error) {
       console.error('Error in createEvent:', error);
       throw error;
@@ -39,51 +54,24 @@ export const eventsApi = {
         throw new Error('Admin não autenticado');
       }
 
-      // Update main event
+      // Update agenda_itens
       const { error: eventError } = await supabase
-        .from('events')
+        .from('agenda_itens')
         .update({
           title: eventData.title,
           subtitle: eventData.subtitle,
+          slug: eventData.slug,
           summary: eventData.summary,
-          description: eventData.description,
+          city: eventData.city,
+          starts_at: eventData.date_start,
+          end_at: eventData.date_end,
+          cover_url: eventData.cover_url || eventData.image_url,
+          alt_text: eventData.cover_alt,
           venue_id: eventData.venue_id,
           location_name: eventData.location_name,
           address: eventData.address,
-          city: eventData.city,
-          state: eventData.state,
-          country: eventData.country,
-          date_start: eventData.date_start,
-          date_end: eventData.date_end,
-          doors_open_utc: eventData.doors_open_utc,
-          headliner_starts_utc: eventData.headliner_starts_utc,
-          image_url: eventData.image_url,
-          cover_url: eventData.cover_url,
-          cover_alt: eventData.cover_alt,
-          gallery: eventData.gallery,
-          price_min: eventData.price_min,
-          price_max: eventData.price_max,
-          currency: eventData.currency,
-          ticket_url: eventData.ticket_url,
-          ticketing: eventData.ticketing,
-          ticket_rules: eventData.ticket_rules,
-          age_rating: eventData.age_rating,
-          age_notes: eventData.age_notes,
-          genres: eventData.genres,
-          tags: eventData.tags,
-          highlight_type: eventData.highlight_type,
-          is_sponsored: eventData.is_sponsored,
-          curatorial_criteria: eventData.curatorial_criteria || {},
-          links: eventData.links,
-          accessibility: eventData.accessibility,
-          seo_title: eventData.seo_title,
-          seo_description: eventData.seo_description,
-          og_image_url: eventData.og_image_url,
-          series_id: eventData.series_id,
-          edition_number: eventData.edition_number,
-          status: eventData.status,
-          visibility: eventData.visibility,
-          slug: eventData.slug,
+          is_published: (eventData as any).is_published || false,
+          updated_by: session?.user?.id,
           updated_at: new Date().toISOString()
         })
         .eq('id', eventId);
