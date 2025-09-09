@@ -22,7 +22,8 @@ export class SitemapService {
       { path: '/sobre', priority: 0.5, changefreq: 'monthly' as const },
       { path: '/contato', priority: 0.5, changefreq: 'monthly' as const },
       { path: '/politica-privacidade', priority: 0.3, changefreq: 'yearly' as const },
-      { path: '/termos-uso', priority: 0.3, changefreq: 'yearly' as const }
+      { path: '/termos-uso', priority: 0.3, changefreq: 'yearly' as const },
+      { path: '/politicas/curadoria', priority: 0.3, changefreq: 'yearly' as const }
     ];
 
     staticPages.forEach(page => {

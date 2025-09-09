@@ -89,6 +89,7 @@ const SecurityPage = lazy(() => import("./pages/admin-v3/gestao/security"));
 
 
 const OrganizerTerms = lazy(() => import("./pages/OrganizerTerms"));
+const PoliticaCuradoria = lazy(() => import("./pages/PoliticaCuradoria"));
 const Help = lazy(() => import("./pages/Help"));
 const Agenda = lazy(() => import("./pages/Agenda"));
 const AgendaTodos = lazy(() => import("./pages/AgendaTodos"));
@@ -232,6 +233,7 @@ function App() {
                 <Route path="/politica-spam" element={<SpamPolicy />} />
                 <Route path="/termos-usuario" element={<UserTerms />} />
                 <Route path="/termos-organizador" element={<OrganizerTerms />} />
+                <Route path="/politicas/curadoria" element={<PoliticaCuradoria />} />
                 <Route path="/ajuda" element={<Help />} />
                 
                 {/* Institutional Pages */}

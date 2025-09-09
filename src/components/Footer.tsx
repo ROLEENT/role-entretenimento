@@ -43,7 +43,8 @@ const Footer = () => {
   const legalLinks = [
     { name: "Política de Privacidade", href: "/politica-privacidade" },
     { name: "Termos de Uso", href: "/termos-usuario" },
-    { name: "Política Antispam", href: "/politica-spam" }
+    { name: "Política Antispam", href: "/politica-spam" },
+    { name: "Política de Curadoria", href: "/politicas/curadoria" }
   ];
 
   return (
