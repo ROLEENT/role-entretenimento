@@ -178,7 +178,26 @@ const EventDetailPageV2 = () => {
         if (lineupError) {
           console.error('Lineup query error:', lineupError);
         } else {
-          setLineup(lineupData || []);
+          // Transform the nested lineup data for easier consumption
+          const transformedLineup = (lineupData || []).flatMap(slot => 
+            (slot.event_lineup_slot_artists || []).map(artistSlot => ({
+              id: artistSlot.id,
+              artist_name: artistSlot.artist_name,
+              role: artistSlot.role,
+              sort_order: artistSlot.position,
+              is_headliner: slot.is_headliner,
+              artists: artistSlot.artists ? {
+                id: (artistSlot.artists as any).id,
+                name: (artistSlot.artists as any).stage_name,
+                slug: (artistSlot.artists as any).slug,
+                profile_image_url: (artistSlot.artists as any).profile_image_url,
+                bio_short: (artistSlot.artists as any).bio_short,
+                city: (artistSlot.artists as any).city
+              } : null
+            }))
+          );
+          
+          setLineup(transformedLineup);
         }
         
         // If no structured lineup data but event has tags, fetch known artists for fallback
@@ -186,7 +205,7 @@ const EventDetailPageV2 = () => {
           const { data: artistsData, error: artistsError } = await supabase
             .from('artists')
             .select('id, stage_name, slug, profile_image_url, bio_short')
-            .in('slug', ['hate-moss', 'resp'])
+            .in('slug', ['tupy', '598', 'andrey-pinheiro', 'dane-tone'])
             .order('stage_name');
             
           if (artistsError) {
