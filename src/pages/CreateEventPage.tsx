@@ -33,6 +33,7 @@ interface FormData {
   price_max: number;
   external_url: string;
   image_url: string;
+  organizer_id?: string;
 }
 
 interface Venue {
@@ -166,7 +167,7 @@ const CreateEventPage = () => {
   const validateStep = (currentStep: number): boolean => {
     switch (currentStep) {
       case 1:
-        return !!(form.title && form.description && form.date_start);
+        return !!(form.title && form.description && form.date_start && selectedOrganizer);
       case 2:
         return !!(form.city && form.state && form.venue_name && form.venue_address);
       case 3:
@@ -189,7 +190,7 @@ const CreateEventPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!user || !form.title || !form.date_start) {
+    if (!user || !form.title || !form.date_start || !selectedOrganizer) {
       toast.error('Preencha todos os campos obrigatórios');
       return;
     }
@@ -215,7 +216,17 @@ const CreateEventPage = () => {
         venueId = newVenue.id;
       }
 
-      // Criar evento
+      // Gerar slug baseado no título
+      const slug = form.title
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      // Criar evento diretamente com organizer_id
       const { data: newEvent, error: eventError } = await supabase
         .from('events')
         .insert({
@@ -226,12 +237,13 @@ const CreateEventPage = () => {
           city: form.city,
           state: form.state,
           venue_id: venueId,
+          organizer_id: selectedOrganizer,
           price_min: form.price_min,
           price_max: form.price_max || form.price_min,
-          external_url: form.external_url,
           image_url: form.image_url,
-          status: 'active',
-          source: 'user_created'
+          slug: slug,
+          status: 'published',
+          visibility: 'public'
         })
         .select()
         .single();
@@ -359,6 +371,22 @@ const CreateEventPage = () => {
                         </PopoverContent>
                       </Popover>
                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="organizer">Organizador *</Label>
+                    <Select value={selectedOrganizer} onValueChange={setSelectedOrganizer}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecionar organizador" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {organizers.map((organizer) => (
+                          <SelectItem key={organizer.id} value={organizer.id}>
+                            {organizer.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="space-y-2">
