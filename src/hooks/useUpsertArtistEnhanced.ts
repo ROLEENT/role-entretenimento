@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ArtistEnhancedForm } from "@/schemas/entities/artist-enhanced";
 import { toast } from "sonner";
+import { createAdminClient, handleAdminError } from "@/lib/adminClient";
 
 const syncArtistCategories = async (artistId: string, categoryIds: string[]) => {
   // Remove existing relationships
@@ -53,6 +54,9 @@ export const useUpsertArtistEnhanced = () => {
   return useMutation({
     mutationFn: async (data: ArtistEnhancedForm) => {
       console.log("Upserting enhanced artist:", data);
+
+      // Create admin client with proper headers
+      const adminClient = await createAdminClient();
 
       // Generate slug from handle if not provided
       const generateSlug = (text: string) => {
@@ -131,38 +135,36 @@ export const useUpsertArtistEnhanced = () => {
         image_rights_authorized: true,
       };
 
-      // Upsert artist
-      const { data: result, error } = await supabase
-        .from("artists")
-        .upsert(transformedData, { 
-          onConflict: data.id ? "id" : "slug",
-          ignoreDuplicates: false 
-        })
-        .select("*")
-        .single();
+      // Upsert artist using admin client
+      console.log("Making admin REST call for artist upsert...");
+      
+      const endpoint = "artists";
+      const method = data.id ? "PATCH" : "POST";
+      const url = data.id ? `${endpoint}?id=eq.${data.id}` : endpoint;
+      
+      const result = await adminClient.restCall(url, {
+        method,
+        body: JSON.stringify(transformedData),
+      });
 
-    if (error) {
-      console.error("Enhanced artist upsert error:", error);
-      // Enhanced error handling
-      if (error.code === 'PGRST301') {
-        throw new Error('Permissão negada. Verifique se você tem acesso de administrador.');
+      const artistData = Array.isArray(result) ? result[0] : result;
+      
+      if (!artistData) {
+        throw new Error('Erro ao salvar artista: dados não retornados');
       }
-      if (error.code === '23505') {
-        throw new Error('Já existe um artista com este slug. Tente um nome diferente.');
-      }
-      throw new Error(`Erro ao salvar artista: ${error.message}`);
-    }
+
+      console.log("Artist upserted successfully:", artistData);
 
       // Sync categories and genres relationships
       if (data.categories && data.categories.length > 0) {
-        await syncArtistCategories(result.id, data.categories);
+        await syncArtistCategories(artistData.id, data.categories);
       }
 
       if (data.genres && data.genres.length > 0) {
-        await syncArtistGenres(result.id, data.genres);
+        await syncArtistGenres(artistData.id, data.genres);
       }
 
-      return result;
+      return artistData;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["artists"] });
@@ -171,7 +173,8 @@ export const useUpsertArtistEnhanced = () => {
     },
     onError: (error: Error) => {
       console.error("Enhanced artist save error:", error);
-      toast.error(error.message || "Erro ao salvar artista");
+      const errorMessage = handleAdminError(error);
+      toast.error(errorMessage);
     },
   });
 };
