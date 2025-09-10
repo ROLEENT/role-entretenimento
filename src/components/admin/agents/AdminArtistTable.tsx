@@ -158,7 +158,7 @@ export const AdminArtistTable: React.FC<AdminArtistTableProps> = ({
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="z-50">
                     <DropdownMenuItem asChild>
                       <Link to={`/admin-v3/agentes/artistas/${artist.id}/edit`}>
                         <Edit className="mr-2 h-4 w-4" />
@@ -212,7 +212,7 @@ export const AdminArtistTable: React.FC<AdminArtistTableProps> = ({
                        <AlertDialogTrigger asChild>
                          <DropdownMenuItem 
                            onSelect={(e) => e.preventDefault()}
-                           className="text-destructive"
+                           className="text-destructive focus:text-destructive focus:bg-destructive/10"
                            data-testid="artist-delete"
                          >
                            <Trash2 className="mr-2 h-4 w-4" />
@@ -221,7 +221,7 @@ export const AdminArtistTable: React.FC<AdminArtistTableProps> = ({
                        </AlertDialogTrigger>
                        <AlertDialogContent>
                          <AlertDialogHeader>
-                           <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                           <AlertDialogTitle>Excluir artista?</AlertDialogTitle>
                            <AlertDialogDescription>
                              Tem certeza que deseja excluir o artista "{artist.stage_name}"? 
                              Esta ação não pode ser desfeita.
