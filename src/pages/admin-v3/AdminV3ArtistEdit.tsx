@@ -3,15 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
-import { AdminArtistForm, ArtistFormData } from '@/components/admin/agents/AdminArtistForm';
-import { useUpsertArtist } from '@/hooks/useUpsertAgents';
+import { AdminArtistEnhancedForm, ArtistEnhancedFormData } from '@/components/admin/forms/AdminArtistEnhancedForm';
+import { useUpsertArtistEnhanced } from '@/hooks/useUpsertArtistEnhanced';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ProfileGenerationButton } from '@/components/admin/agents/ProfileGenerationButton';
 
 const AdminV3ArtistEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { mutate: upsertArtist, isPending } = useUpsertArtist();
+  const { mutate: upsertArtist, isPending } = useUpsertArtistEnhanced();
 
   const { data: artist, isLoading, error } = useQuery({
     queryKey: ['artist', id],
@@ -37,7 +37,7 @@ const AdminV3ArtistEdit: React.FC = () => {
     { label: artist?.stage_name || 'Editar Artista' },
   ];
 
-  const handleSubmit = (data: ArtistFormData) => {
+  const handleSubmit = (data: ArtistEnhancedFormData) => {
     if (!id) return;
     
     upsertArtist({ ...data, id }, {
@@ -119,7 +119,7 @@ const AdminV3ArtistEdit: React.FC = () => {
         />
       }
     >
-      <AdminArtistForm
+      <AdminArtistEnhancedForm
         artist={artist}
         onSubmit={handleSubmit}
         isLoading={isPending}

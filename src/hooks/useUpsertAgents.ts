@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { VenueFlexibleFormData } from "@/schemas/venue-flexible";
 import { ArtistForm, OrganizerForm } from "@/schemas/agents";
 import { ArtistFlexibleForm } from "@/schemas/agents-flexible";
+import { ArtistEnhancedForm } from "@/schemas/entities/artist-enhanced";
 import { toast } from "sonner";
 import { syncArtistGenres } from "@/utils/artistPivotSync";
 

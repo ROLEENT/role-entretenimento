@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
-import { AdminArtistForm, ArtistFormData } from '@/components/admin/agents/AdminArtistForm';
-import { useUpsertArtist } from '@/hooks/useUpsertAgents';
+import { AdminArtistEnhancedForm, ArtistEnhancedFormData } from '@/components/admin/forms/AdminArtistEnhancedForm';
+import { useUpsertArtistEnhanced } from '@/hooks/useUpsertArtistEnhanced';
 
 const AdminV3ArtistCreate: React.FC = () => {
   const navigate = useNavigate();
-  const { mutate: upsertArtist, isPending } = useUpsertArtist();
+  const { mutate: upsertArtist, isPending } = useUpsertArtistEnhanced();
 
   const breadcrumbs = [
     { label: 'Admin', path: '/admin-v3' },
@@ -15,7 +15,7 @@ const AdminV3ArtistCreate: React.FC = () => {
     { label: 'Novo Artista' },
   ];
 
-  const handleSubmit = (data: ArtistFormData) => {
+  const handleSubmit = (data: ArtistEnhancedFormData) => {
     upsertArtist(data, {
       onSuccess: (result) => {
         if (result && result.id) {
@@ -33,7 +33,7 @@ const AdminV3ArtistCreate: React.FC = () => {
       description="Cadastre um novo artista no sistema"
       breadcrumbs={breadcrumbs}
     >
-      <AdminArtistForm
+      <AdminArtistEnhancedForm
         onSubmit={handleSubmit}
         isLoading={isPending}
       />
