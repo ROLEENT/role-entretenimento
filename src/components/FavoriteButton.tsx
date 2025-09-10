@@ -8,9 +8,10 @@ interface FavoriteButtonProps {
   eventId: string;
   className?: string;
   size?: 'sm' | 'default' | 'lg';
+  variant?: 'default' | 'outline' | 'ghost' | 'secondary';
 }
 
-export function FavoriteButton({ eventId, className, size = 'sm' }: FavoriteButtonProps) {
+export function FavoriteButton({ eventId, className, size = 'sm', variant = 'ghost' }: FavoriteButtonProps) {
   const { isFavorite, removeFavorite } = useFavorites();
   const [isLoading, setIsLoading] = useState(false);
   
@@ -38,12 +39,12 @@ export function FavoriteButton({ eventId, className, size = 'sm' }: FavoriteButt
 
   return (
     <Button
-      variant="ghost"
+      variant={variant}
       size={size}
       onClick={handleToggle}
       disabled={isLoading || !isFav}
       className={cn(
-        "p-2 h-auto bg-background/80 backdrop-blur-sm hover:bg-background/90 border border-border/50",
+        variant === 'ghost' && "p-2 h-auto bg-background/80 backdrop-blur-sm hover:bg-background/90 border border-border/50",
         className
       )}
       aria-label={isFav ? "Remover dos favoritos" : "Adicionar aos favoritos"}

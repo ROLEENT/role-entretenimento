@@ -1,8 +1,10 @@
+import React from "react";
 import Header, { HeaderGlobalSearch } from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import { QuickLinks } from "@/components/home/QuickLinks";
 import { WeeklyHighlights } from "@/components/home/WeeklyHighlights";
 import { EventCarousels } from "@/components/home/EventCarousels";
+import { PersistentFilters } from "@/components/filters/PersistentFilters";
 import AgendaPorCidadeHome from "@/components/AgendaPorCidadeHome";
 import BlocoRevista from "@/components/BlocoRevista";
 import { FeaturedEventsToday } from "@/components/FeaturedEventsToday";
@@ -19,6 +21,9 @@ import { AdminAccessButton } from "@/components/AdminAccessButton";
 import RealEventsTestPanel from "@/components/RealEventsTestPanel";
 
 const Index = () => {
+  const [filters, setFilters] = React.useState({});
+  const [filtersExpanded, setFiltersExpanded] = React.useState(false);
+
   return (
     <AccessibilityEnhancements>
       <SEOOptimizations 
@@ -32,48 +37,56 @@ const Index = () => {
           {/* 1. HERO / TOPO */}
           <HeroSection />
           
-          {/* 2. ATALHOS RÁPIDOS */}
+          {/* 2. FILTROS PERSISTENTES */}
+          <PersistentFilters
+            filters={filters}
+            onFiltersChange={setFilters}
+            isExpanded={filtersExpanded}
+            onToggleExpanded={() => setFiltersExpanded(!filtersExpanded)}
+          />
+          
+          {/* 3. ATALHOS RÁPIDOS */}
           <ScrollAnimationWrapper>
             <QuickLinks />
           </ScrollAnimationWrapper>
           
-          {/* 3. DESTAQUES DA SEMANA */}
+          {/* 4. DESTAQUES DA SEMANA */}
           <ScrollAnimationWrapper>
             <WeeklyHighlights />
           </ScrollAnimationWrapper>
           
-          {/* 4. CARROSSÉIS POR CATEGORIA */}
+          {/* 5. CARROSSÉIS POR CATEGORIA */}
           <ScrollAnimationWrapper>
             <EventCarousels />
           </ScrollAnimationWrapper>
           
-          {/* 5. AGENDA POR CIDADE */}
+          {/* 6. AGENDA POR CIDADE */}
           <ScrollAnimationWrapper>
             <AgendaPorCidadeHome />
           </ScrollAnimationWrapper>
           
-          {/* 6. BLOCO REVISTA */}
+          {/* 7. BLOCO REVISTA */}
           <ScrollAnimationWrapper>
             <BlocoRevista />
           </ScrollAnimationWrapper>
           
-          {/* 7. EVENTOS EM DESTAQUE */}
+          {/* 8. EVENTOS EM DESTAQUE */}
           <ScrollAnimationWrapper>
             <FeaturedEventsToday />
           </ScrollAnimationWrapper>
           
-          {/* 8. ROLÊ EM NÚMEROS */}
+          {/* 9. ROLÊ EM NÚMEROS */}
           <ScrollAnimationWrapper>
             <RoleEmNumeros />
           </ScrollAnimationWrapper>
           
-          {/* 9. NEWSLETTER */}
+          {/* 10. NEWSLETTER */}
           <ScrollAnimationWrapper>
             <Newsletter />
           </ScrollAnimationWrapper>
         </main>
         
-        {/* 8. FOOTER */}
+        {/* 11. FOOTER */}
         <Footer />
         
         <NotificationPermissionPrompt />

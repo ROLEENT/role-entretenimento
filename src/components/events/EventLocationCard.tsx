@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Clock, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatWeekdayPtBR } from '@/utils/dateUtils';
+import { InteractiveMap } from './InteractiveMap';
 
 interface EventLocationCardProps {
   event: any;
@@ -94,15 +95,14 @@ export function EventLocationCard({ event, venue }: EventLocationCardProps) {
           </div>
         )}
         
-        {/* Map Embed - Simple placeholder for now */}
-        {venue?.latitude && venue?.longitude && (
-          <div className="aspect-video w-full bg-muted rounded-lg flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <MapPin className="h-8 w-8 mx-auto mb-2" />
-              <p className="text-sm">Mapa do local</p>
-            </div>
-          </div>
-        )}
+        {/* Interactive Map */}
+        <InteractiveMap
+          latitude={venue?.latitude}
+          longitude={venue?.longitude}
+          venueName={location.name}
+          address={fullAddress}
+          className="aspect-video w-full"
+        />
         
         {/* Open in Maps Button */}
         <Button 

@@ -39,7 +39,9 @@ import { EventOrganizerCard } from '@/components/events/EventOrganizerCard';
 import { EventLinksCard } from '@/components/events/EventLinksCard';
 import { EventMoodTagsCard } from '@/components/events/EventMoodTagsCard';
 import { EventLocationCard } from '@/components/events/EventLocationCard';
-// StickyTicketCTA removed per user request
+import { EventInteractionBar } from '@/components/events/EventInteractionBar';
+import { AccessibilityInfo } from '@/components/events/AccessibilityInfo';
+import { PostEventActions } from '@/components/events/PostEventActions';
 import { EventCurationSection } from '@/components/events/EventCurationSection';
 import { EventSEO } from '@/components/events/EventSEO';
 import { useCurationDrawer } from '@/hooks/useCurationDrawer';
@@ -362,39 +364,9 @@ const EventDetailPageV2 = () => {
         {/* Tickets Section */}
         {event && <EventTicketsSection event={event} formatPrice={formatPrice} />}
         
-        {/* Action Bar - Mobile Grid */}
+        {/* Enhanced Interaction Bar */}
         <div className="px-4 max-w-[680px] mx-auto mb-6">
-          <div className="mobile-action-grid">
-            <button
-              onClick={handleShare}
-              className="mobile-action-button"
-              aria-label="Compartilhar evento"
-            >
-              <Share2 className="h-4 w-4" />
-              <span>Compartilhar</span>
-            </button>
-            
-            <button
-              onClick={handleBookmark}
-              className="mobile-action-button"
-              aria-label={isBookmarked ? 'Remover dos salvos' : 'Salvar evento'}
-            >
-              <Bookmark className={cn(
-                "h-4 w-4",
-                isBookmarked && "fill-current"
-              )} />
-              <span>{isBookmarked ? 'Salvo' : 'Salvar'}</span>
-            </button>
-            
-            <button
-              onClick={handleReport}
-              className="mobile-action-button"
-              aria-label="Reportar evento"
-            >
-              <Flag className="h-4 w-4" />
-              <span>Reportar</span>
-            </button>
-          </div>
+          <EventInteractionBar event={event} />
         </div>
         
         {/* Main Content - Two column layout */}
@@ -435,8 +407,14 @@ const EventDetailPageV2 = () => {
                 fallbackArtists={fallbackArtists}
               />
               
-              {/* Location Section with Map */}
+              {/* Location Section with Interactive Map */}
               <EventLocationCard event={event} venue={venue} />
+              
+              {/* Accessibility Information */}
+              <AccessibilityInfo event={event} venue={venue} />
+              
+              {/* Post-Event Actions */}
+              <PostEventActions event={event} />
             </div>
             
             {/* Right Column - Sidebar (desktop only) */}
