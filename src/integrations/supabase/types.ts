@@ -6063,9 +6063,13 @@ export type Database = {
       }
       v_admin_dashboard_counts: {
         Row: {
-          kind: string | null
-          last_7d: number | null
-          total: number | null
+          active_artists: number | null
+          active_organizers: number | null
+          active_venues: number | null
+          draft_events: number | null
+          published_events: number | null
+          published_highlights: number | null
+          published_posts: number | null
         }
         Relationships: []
       }
