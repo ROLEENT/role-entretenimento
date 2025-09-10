@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Mail, Phone, MessageSquare, Clock, MapPin, Send } from 'lucide-react';
+import { Mail, Phone, MessageSquare, Clock, MapPin, Send, Users, Newspaper, HelpCircle, Wrench } from 'lucide-react';
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -17,42 +17,38 @@ const ContactUs = () => {
     message: ''
   });
 
-  const contactMethods = [
+  const contactBlocks = [
     {
-      icon: MessageSquare,
-      title: "WhatsApp",
-      description: "Resposta rápida em horário comercial",
-      contact: "+55 51 98070-4353",
-      action: "Conversar",
-      href: "https://wa.me/5551980704353"
+      icon: Wrench,
+      title: "Suporte",
+      description: "Problemas técnicos, conta de usuário ou dificuldades no site.",
+      email: "suporte@roleentretenimento.com",
+      category: "suporte"
     },
     {
-      icon: Mail,
-      title: "Email",
-      description: "Para assuntos mais complexos",
-      contact: "contato@roleentretenimento.com",
-      action: "Enviar email",
-      href: "mailto:contato@roleentretenimento.com"
+      icon: Users,
+      title: "Parcerias e mídia",
+      description: "Produtoras, marcas, coletivos e quem quiser colar com o ROLÊ nos projetos editoriais ou na Vitrine Cultural.",
+      email: "parcerias@roleentretenimento.com",
+      category: "parcerias"
     },
     {
-      icon: Phone,
-      title: "Telefone",
-      description: "Atendimento comercial",
-      contact: "+55 51 3333-4444",
-      action: "Ligar",
-      href: "tel:+555133334444"
+      icon: Newspaper,
+      title: "Imprensa",
+      description: "Jornalistas e veículos que querem pautas, entrevistas ou materiais do ROLÊ.",
+      email: "imprensa@roleentretenimento.com",
+      category: "imprensa"
+    },
+    {
+      icon: HelpCircle,
+      title: "Dúvidas gerais",
+      description: "Qualquer outro assunto que não se encaixe nas opções acima.",
+      email: "contato@roleentretenimento.com",
+      category: "geral"
     }
   ];
 
-  const categories = [
-    "Dúvidas gerais",
-    "Submissão de evento",
-    "Problemas técnicos",
-    "Parcerias comerciais",
-    "Imprensa",
-    "Denúncia",
-    "Outros"
-  ];
+  const [selectedCategory, setSelectedCategory] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,86 +62,94 @@ const ContactUs = () => {
 
   return (
     <InstitutionalPageWrapper
-      title="Fale Conosco"
-      description="Entre em contato com a equipe do ROLÊ. Estamos aqui para ajudar com dúvidas, sugestões e parcerias."
+      title="Quer trocar ideia? Chega mais."
+      description="O ROLÊ é feito de conexão. Se você tem dúvida, sugestão, quer parceria ou só puxar papo, esse é o lugar certo. Escolhe o assunto e fala com a gente."
       seoTitle="Fale Conosco | ROLÊ ENTRETENIMENTO"
-      seoDescription="Entre em contato com o ROLÊ ENTRETENIMENTO. Atendimento por WhatsApp, email e telefone. Suporte completo para usuários e parceiros."
+      seoDescription="Entre em contato com o ROLÊ. Suporte, parcerias, imprensa e dúvidas gerais. Escolhe o assunto e fala com a gente."
       lastUpdated="10 de setembro de 2025"
     >
       <div className="space-y-12">
-        {/* Quick Contact Methods */}
-        <div className="grid md:grid-cols-3 gap-6">
-          {contactMethods.map((method, index) => (
-            <Card key={index} className="text-center hover:shadow-lg transition-shadow">
+        {/* Contact Categories */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {contactBlocks.map((block, index) => (
+            <Card 
+              key={index} 
+              className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
+                selectedCategory === block.category ? 'ring-2 ring-primary bg-primary/5' : ''
+              }`}
+              onClick={() => setSelectedCategory(block.category)}
+            >
               <CardContent className="pt-6">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <method.icon className="h-8 w-8 text-primary" />
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <block.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg mb-2">{block.title}</h3>
+                    <p className="text-muted-foreground text-sm mb-4">
+                      {block.description}
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Button 
+                        variant={selectedCategory === block.category ? "default" : "outline"} 
+                        size="sm"
+                        className="flex-1"
+                      >
+                        {selectedCategory === block.category ? "Selecionado" : "Usar formulário"}
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        asChild
+                        className="flex-1"
+                      >
+                        <a href={`mailto:${block.email}`}>
+                          Email direto
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="font-semibold text-lg mb-2">{method.title}</h3>
-                <p className="text-muted-foreground text-sm mb-3">
-                  {method.description}
-                </p>
-                <p className="font-medium mb-4">{method.contact}</p>
-                <Button asChild className="w-full">
-                  <a href={method.href} target="_blank" rel="noopener noreferrer">
-                    {method.action}
-                  </a>
-                </Button>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Contact Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Send className="h-6 w-6 text-primary" />
-              Envie sua mensagem
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nome completo</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => handleChange('name', e.target.value)}
-                    placeholder="Seu nome"
-                    required
-                  />
+        {/* Contact Form - Only shows when category is selected */}
+        {selectedCategory && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Send className="h-6 w-6 text-primary" />
+                Formulário de {contactBlocks.find(b => b.category === selectedCategory)?.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Nome completo</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => handleChange('name', e.target.value)}
+                      placeholder="Seu nome"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => handleChange('email', e.target.value)}
+                      placeholder="seu@email.com"
+                      required
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleChange('email', e.target.value)}
-                    placeholder="seu@email.com"
-                    required
-                  />
-                </div>
-              </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="category">Categoria</Label>
-                  <Select onValueChange={(value) => handleChange('category', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione uma categoria" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category, index) => (
-                        <SelectItem key={index} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="subject">Assunto</Label>
                   <Input
@@ -156,36 +160,27 @@ const ContactUs = () => {
                     required
                   />
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="message">Mensagem</Label>
-                <Textarea
-                  id="message"
-                  value={formData.message}
-                  onChange={(e) => handleChange('message', e.target.value)}
-                  placeholder="Descreva sua dúvida, sugestão ou proposta..."
-                  rows={6}
-                  required
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="message">Mensagem</Label>
+                  <Textarea
+                    id="message"
+                    value={formData.message}
+                    onChange={(e) => handleChange('message', e.target.value)}
+                    placeholder="Descreva sua dúvida, sugestão ou proposta..."
+                    rows={6}
+                    required
+                  />
+                </div>
 
-              <Button type="submit" size="lg" className="w-full gap-2">
-                <Send className="h-4 w-4" />
-                Enviar mensagem
-              </Button>
-            </form>
-
-            <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-              <p className="text-sm text-muted-foreground">
-                <strong>Conteúdo será inserido na Fase 2:</strong><br/>
-                • Integração com sistema de tickets<br/>
-                • Confirmação automática de recebimento<br/>
-                • Tracking de status da solicitação
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+                <Button type="submit" size="lg" className="w-full gap-2">
+                  <Send className="h-4 w-4" />
+                  Enviar mensagem
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Business Hours & Location */}
         <div className="grid md:grid-cols-2 gap-6">
@@ -250,18 +245,26 @@ const ContactUs = () => {
           </Card>
         </div>
 
-        {/* FAQ Link */}
+        {/* Call to Action */}
         <Card className="bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20">
           <CardContent className="pt-6">
             <div className="text-center">
-              <h2 className="text-2xl font-bold mb-4">Dúvidas frequentes?</h2>
+              <h2 className="text-2xl font-bold mb-4">Prefere papo reto?</h2>
               <p className="text-muted-foreground mb-6">
-                Antes de entrar em contato, confira nossa seção de perguntas frequentes. 
-                Talvez sua resposta já esteja lá!
+                Manda no e-mail que a gente responde. Quer agilidade? Usa o formulário e já cai direto no nosso fluxo.
               </p>
-              <Button variant="outline" size="lg">
-                Ver FAQ
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button variant="outline" size="lg" asChild>
+                  <a href="mailto:contato@roleentretenimento.com">
+                    Email direto
+                  </a>
+                </Button>
+                <Button variant="outline" size="lg" asChild>
+                  <a href="https://wa.me/5551980704353" target="_blank" rel="noopener noreferrer">
+                    WhatsApp
+                  </a>
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
