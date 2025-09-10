@@ -7532,13 +7532,13 @@ export type Database = {
       }
       log_security_event: {
         Args: {
-          p_admin_email?: string
-          p_details?: Json
-          p_event_type: string
-          p_severity?: string
-          p_user_id?: string
+          admin_email?: string
+          event_data?: Json
+          event_type: string
+          severity?: string
+          user_id?: string
         }
-        Returns: string
+        Returns: undefined
       }
       mark_all_notifications_read: {
         Args: Record<PropertyKey, never>
