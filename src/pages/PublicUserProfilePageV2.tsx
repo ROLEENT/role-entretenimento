@@ -6,8 +6,10 @@ import { useUserAuth } from '@/hooks/useUserAuth';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ProfileEditFormV2 } from '@/components/profile/ProfileEditFormV2';
 import { UserSavedEvents } from '@/components/profile/UserSavedEvents';
-import { UserAttendances } from '@/components/profile/UserAttendances';
-import { UserNotifications } from '@/components/profile/UserNotifications';
+import { PersonalAgenda } from '@/components/account/PersonalAgenda';
+import { UserFollowing } from '@/components/account/UserFollowing';
+import { UserPreferences } from '@/components/account/UserPreferences';
+import { AlertSystem } from '@/components/alerts/AlertSystem';
 
 export default function UserProfilePage() {
   const { user, isAuthenticated } = useUserAuth();
@@ -42,11 +44,13 @@ export default function UserProfilePage() {
         </div>
 
         <Tabs value={activeTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="perfil">Perfil</TabsTrigger>
-            <TabsTrigger value="salvos">Meus Salvos</TabsTrigger>
-            <TabsTrigger value="presencas">Presenças</TabsTrigger>
-            <TabsTrigger value="notificacoes">Notificações</TabsTrigger>
+            <TabsTrigger value="salvos">Salvos</TabsTrigger>
+            <TabsTrigger value="agenda">Agenda</TabsTrigger>
+            <TabsTrigger value="seguindo">Seguindo</TabsTrigger>
+            <TabsTrigger value="preferencias">Preferências</TabsTrigger>
+            <TabsTrigger value="alertas">Alertas</TabsTrigger>
           </TabsList>
           
           <TabsContent value="perfil" className="space-y-6">
@@ -57,12 +61,20 @@ export default function UserProfilePage() {
             <UserSavedEvents userId={user?.id} isOwner />
           </TabsContent>
           
-          <TabsContent value="presencas">
-            <UserAttendances userId={user?.id} isOwner />
+          <TabsContent value="agenda">
+            <PersonalAgenda />
           </TabsContent>
           
-          <TabsContent value="notificacoes">
-            <UserNotifications />
+          <TabsContent value="seguindo">
+            <UserFollowing />
+          </TabsContent>
+          
+          <TabsContent value="preferencias">
+            <UserPreferences />
+          </TabsContent>
+          
+          <TabsContent value="alertas">
+            <AlertSystem />
           </TabsContent>
         </Tabs>
       </div>
