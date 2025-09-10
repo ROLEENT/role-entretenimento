@@ -259,6 +259,13 @@ All colors MUST be HSL.
     --spacing-element: 24px;
     --spacing-component: 16px;
     
+    /* Social Media Colors */
+    --social-facebook: 221 44% 41%; /* #1877F2 */
+    --social-twitter: 203 89% 53%; /* #1DA1F2 */
+    --social-whatsapp: 142 76% 36%; /* #25D366 */
+    --social-instagram: 315 100% 43%; /* #E4405F */
+    --social-youtube: 0 100% 50%; /* #FF0000 */
+
     /* Sidebar colors for light mode */
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 222.2 84% 4.9%;

@@ -73,6 +73,13 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				social: {
+					facebook: 'hsl(var(--social-facebook))',
+					twitter: 'hsl(var(--social-twitter))',
+					whatsapp: 'hsl(var(--social-whatsapp))',
+					instagram: 'hsl(var(--social-instagram))',
+					youtube: 'hsl(var(--social-youtube))'
 				}
 			},
 			fontFamily: {

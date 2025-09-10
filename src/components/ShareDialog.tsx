@@ -25,7 +25,7 @@ const ShareDialog = ({ isOpen, onClose, event }: ShareDialogProps) => {
     {
       name: 'Facebook',
       icon: Facebook,
-      color: 'text-[#1877F2]',
+      color: 'text-social-facebook',
       action: () => {
         window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(eventUrl)}`, '_blank');
       }
@@ -33,7 +33,7 @@ const ShareDialog = ({ isOpen, onClose, event }: ShareDialogProps) => {
     {
       name: 'Twitter', 
       icon: Twitter,
-      color: 'text-[#1DA1F2]',
+      color: 'text-social-twitter',
       action: () => {
         window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(eventText)}&url=${encodeURIComponent(eventUrl)}`, '_blank');
       }
@@ -41,7 +41,7 @@ const ShareDialog = ({ isOpen, onClose, event }: ShareDialogProps) => {
     {
       name: 'WhatsApp',
       icon: MessageCircle,
-      color: 'text-[#25D366]',
+      color: 'text-social-whatsapp',
       action: () => {
         window.open(`https://wa.me/?text=${encodeURIComponent(`${eventText} ${eventUrl}`)}`, '_blank');
       }

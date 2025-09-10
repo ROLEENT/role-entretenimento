@@ -25,13 +25,13 @@ export function CurationInfoBar({ type, onShowCriteria, className }: CurationInf
       icon: Info,
       text: 'Selecionado pela curadoria do ROLÊ',
       linkText: 'Como escolhemos este destaque?',
-      className: 'bg-[#c77dff1a] border-[#c77dff]/20'
+      className: 'bg-primary/10 border-primary/20'
     },
     vitrine: {
       icon: ExternalLink,
       text: 'Conteúdo publicitário',
       linkText: 'Como escolhemos este destaque?',
-      className: 'bg-[#c77dff1a] border-[#c77dff]/20'
+      className: 'bg-primary/10 border-primary/20'
     }
   };
 
@@ -43,7 +43,7 @@ export function CurationInfoBar({ type, onShowCriteria, className }: CurationInf
       <CardContent className="p-3">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
-            <Icon className="h-4 w-4 text-[#c77dff] flex-shrink-0" />
+            <Icon className="h-4 w-4 text-primary flex-shrink-0" />
             <span className="text-sm text-foreground line-clamp-2">
               {currentConfig.text}
             </span>
@@ -54,7 +54,7 @@ export function CurationInfoBar({ type, onShowCriteria, className }: CurationInf
               variant="ghost"
               size="sm"
               onClick={onShowCriteria}
-              className="text-xs text-[#c77dff] hover:text-[#c77dff] hover:bg-[#c77dff]/10 flex-shrink-0"
+              className="text-xs text-primary hover:text-primary hover:bg-primary/10 flex-shrink-0"
             >
               {currentConfig.linkText}
             </Button>

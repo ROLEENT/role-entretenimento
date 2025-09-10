@@ -54,22 +54,22 @@ const STATUS_CONFIG = {
   met: { 
     icon: Check, 
     label: 'Atendido', 
-    className: 'bg-[#153f2a] text-[#22c55e] border-[#245b3a]' 
+    className: 'bg-success/10 text-success border-success/20' 
   },
   partial: { 
     icon: Minus, 
     label: 'Parcial', 
-    className: 'bg-[#3b2e12] text-[#f59e0b] border-[#6b4d15]' 
+    className: 'bg-warning/10 text-warning border-warning/20' 
   },
   not_applicable: { 
     icon: X, 
     label: 'Não se aplica', 
-    className: 'bg-[#24262b] text-[#c9c9d1] border-[#2f3137]' 
+    className: 'bg-muted text-muted-foreground border-border' 
   },
   not_informed: { 
     icon: X, 
     label: 'Não informado', 
-    className: 'bg-[#3a1f22] text-[#ef4444] border-[#5e2a2f]' 
+    className: 'bg-destructive/10 text-destructive border-destructive/20' 
   }
 };
 
@@ -94,9 +94,9 @@ function CriterionItem({
   const truncatedText = isLongText ? displayJustification.slice(0, 200) + "..." : displayJustification;
 
   return (
-    <div className="bg-[#1b1b22] border border-[#2a2a33] rounded-xl p-4 space-y-3">
+    <div className="bg-card border border-border rounded-xl p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <h4 className="font-semibold text-base text-[#f3f3f7] max-w-[80ch]">{config.label}</h4>
+        <h4 className="font-semibold text-base text-foreground max-w-[80ch]">{config.label}</h4>
         <div className={cn(
           'flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border flex-shrink-0',
           statusConfig.className
@@ -107,7 +107,7 @@ function CriterionItem({
       </div>
       
       <div className="space-y-2">
-        <p className="text-sm text-[#f3f3f7] leading-relaxed max-w-[80ch]">
+        <p className="text-sm text-foreground leading-relaxed max-w-[80ch]">
           {expanded || !isLongText ? displayJustification : truncatedText}
         </p>
         
@@ -116,7 +116,7 @@ function CriterionItem({
             variant="ghost"
             size="sm"
             onClick={() => setExpanded(!expanded)}
-            className="text-[#c77dff] hover:text-[#c77dff] hover:bg-[#c77dff]/10 p-0 h-auto text-sm"
+            className="text-primary hover:text-primary hover:bg-primary/10 p-0 h-auto text-sm"
           >
             <span className="flex items-center gap-1">
               {expanded ? (
@@ -392,7 +392,7 @@ export function CurationCriteriaDrawer({
         style={{
           width: 'min(960px, 95vw)',
           maxHeight: 'min(88vh, 920px)',
-          background: '#111114',
+          background: 'hsl(var(--background))',
           borderRadius: '16px',
           display: 'flex',
           flexDirection: 'column',
@@ -406,15 +406,15 @@ export function CurationCriteriaDrawer({
             position: 'sticky',
             top: 0,
             zIndex: 2,
-            background: 'linear-gradient(#111114 85%, transparent)',
-            borderBottom: '1px solid #2a2a33',
+            background: 'linear-gradient(hsl(var(--background)) 85%, transparent)',
+            borderBottom: '1px solid hsl(var(--border))',
             padding: '20px 24px 10px'
           }}
         >
           <div className="flex items-center justify-between">
             <h2 
               id="curadoria-title"
-              className="text-lg font-semibold text-[#f3f3f7]"
+              className="text-lg font-semibold text-foreground"
               tabIndex={-1}
             >
               Como escolhemos este destaque?
@@ -423,7 +423,7 @@ export function CurationCriteriaDrawer({
               variant="ghost"
               size="sm"
               onClick={closeWithHistory}
-              className="h-10 w-10 rounded-full border border-[#2a2a33] hover:bg-[#2a2a33] text-[#f3f3f7]"
+              className="h-10 w-10 rounded-full border border-border hover:bg-muted text-foreground"
               aria-label="Fechar critérios de curadoria"
             >
               <X className="h-4 w-4" />
@@ -431,15 +431,15 @@ export function CurationCriteriaDrawer({
           </div>
           
           {eventTitle && (
-            <p className="text-sm text-[#c9c9d1] mt-1">
-              Critérios para <span className="font-medium text-[#f3f3f7]">{eventTitle}</span>
+            <p className="text-sm text-muted-foreground mt-1">
+              Critérios para <span className="font-medium text-foreground">{eventTitle}</span>
             </p>
           )}
           
           <div className="flex items-center gap-2 mt-2">
             <Badge 
               variant="outline" 
-              className="text-xs px-2.5 py-1 border-[#2a2a33] text-[#f3f3f7] bg-transparent"
+              className="text-xs px-2.5 py-1 border-border text-foreground bg-transparent"
             >
               {metCriteriaCount} de 8 critérios atendidos
             </Badge>
@@ -475,14 +475,14 @@ export function CurationCriteriaDrawer({
             position: 'sticky',
             bottom: 0,
             zIndex: 2,
-            background: 'linear-gradient(transparent, #111114 60%)',
-            borderTop: '1px solid #2a2a33',
+            background: 'linear-gradient(transparent, hsl(var(--background)) 60%)',
+            borderTop: '1px solid hsl(var(--border))',
             padding: '16px 24px',
             textAlign: 'center'
           }}
         >
           <Button 
-            className="w-full h-11 rounded-xl bg-[#c77dff] text-black font-semibold hover:bg-[#c77dff]/90 mb-3"
+            className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 mb-3"
             onClick={closeWithHistory}
           >
             Entendi
@@ -492,7 +492,7 @@ export function CurationCriteriaDrawer({
             href="/politicas/curadoria" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-sm text-[#c9c9d1] hover:text-[#f3f3f7] inline-flex items-center gap-1 opacity-70"
+            className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1 opacity-70"
           >
             <span>Política de curadoria</span>
             <ExternalLink className="w-3 h-3" />

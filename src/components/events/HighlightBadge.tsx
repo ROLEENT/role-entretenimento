@@ -24,7 +24,7 @@ const HIGHLIGHT_CONFIG = {
     label: 'Destaque Curatorial',
     icon: Star,
     variant: 'outline' as const,
-    className: 'border-[#c77dff] text-[#c77dff] bg-transparent hover:bg-[#c77dff]/5',
+    className: 'border-primary text-primary bg-transparent hover:bg-primary/5',
     ariaLabel: 'Destaque curatorial',
     tooltip: 'Selecionado pela curadoria do ROLÊ'
   },
@@ -33,7 +33,7 @@ const HIGHLIGHT_CONFIG = {
     sublabel: 'patrocinado',
     icon: Megaphone,
     variant: 'default' as const,
-    className: 'bg-[#c77dff] text-black border-[#c77dff] hover:bg-[#c77dff]/90',
+    className: 'bg-primary text-primary-foreground border-primary hover:bg-primary/90',
     ariaLabel: 'Vitrine Cultural, conteúdo publicitário',
     tooltip: 'Conteúdo publicitário contratado pelo produtor'
   }

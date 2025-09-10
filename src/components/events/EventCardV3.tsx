@@ -53,11 +53,11 @@ const highlightConfig = {
     border: 'border-primary/30',
   },
   vitrine: {
-    gradient: 'bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-red-500/10',
+    gradient: 'bg-gradient-to-br from-accent/10 via-accent/5 to-accent/10',
     badge: { text: 'Vitrine Cultural', variant: 'default' as const },
     icon: Crown,
-    glow: 'shadow-xl shadow-yellow-500/30',
-    border: 'border-yellow-500/40',
+    glow: 'shadow-xl shadow-accent/30',
+    border: 'border-accent/40',
   }
 };
 
