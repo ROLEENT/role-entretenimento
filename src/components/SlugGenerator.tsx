@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { generateSlugFromName } from '@/lib/organizerSchemaV2';
+import { generateSlugFromName } from '@/lib/generateSlug';
 
 interface SlugGeneratorProps {
   onGenerate: (slug: string) => void;

@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { AdminV3Breadcrumb } from "@/components/admin/common/AdminV3Breadcrumb";
-import { AdminEventForm } from "@/components/admin/events/AdminEventForm";
+import AdminEventForm from "@/components/admin/agenda/AdminEventForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,7 +68,12 @@ export default function AdminV3EventEdit() {
         </div>
       </div>
 
-      <AdminEventForm event={event} />
+      <AdminEventForm 
+        initialData={event}
+        eventId={id}
+        onSave={() => console.log('Event saved')}
+        onCancel={() => window.history.back()}
+      />
     </div>
   );
 }

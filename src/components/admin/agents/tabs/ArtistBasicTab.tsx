@@ -7,8 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArtistFlexibleForm } from '@/schemas/agents-flexible';
 import { RHFSlug } from '../RHFSlug';
 import { CountrySelect } from '@/components/form/CountrySelect';
-import { RHFGenreSelect } from '@/components/form/RHFGenreSelect';
-import { RHFTagsEditor } from '@/components/form/RHFTagsEditor';
+import { RHFTagsEditor, RHFGenreSelect } from '@/components/form';
 import { RHFArtistCategorySelect } from '@/components/form/RHFArtistCategorySelect';
 
 interface ArtistBasicTabProps {

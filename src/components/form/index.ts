@@ -27,6 +27,11 @@ export { RHFSlugInput } from './RHFSlugInput';
 export { RHFRemoteCombobox } from './RHFRemoteCombobox';
 export { RHFAsyncSelect } from './RHFAsyncSelect';
 
+// Phase 5 - Consolidated components
+export { RHFGenreSelect } from './RHFGenreSelect';
+export { RHFDateTimePicker } from './RHFDateTimePicker';
+export { RHFFileUpload } from './RHFFileUpload';
+
 // Standardized form components
 export { RHFTagsEditor } from './RHFTagsEditor';
 export { RHFSocialLinks } from './RHFSocialLinks';
@@ -38,7 +43,6 @@ export { ArtistLocationFieldsRobust } from './ArtistLocationFieldsRobust';
 export { InstagramField } from './InstagramField';
 export { CountrySelect } from './CountrySelect';
 export { GenreSelect } from './GenreSelect';
-export { RHFGenreSelect } from './RHFGenreSelect';
 export { RHFArtistRolesSelect } from './RHFArtistRolesSelect';
 
 // Examples
