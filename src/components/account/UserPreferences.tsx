@@ -19,7 +19,8 @@ interface UserPreferences {
   price_range_min: number;
   price_range_max: number;
   notifications_enabled: boolean;
-  email_notifications: boolean;
+  push_notifications: boolean;
+  notification_topics: string[];
   weekly_newsletter: boolean;
   event_reminders: boolean;
   profile_visibility: 'public' | 'private';
@@ -51,7 +52,8 @@ export function UserPreferences() {
     price_range_min: 0,
     price_range_max: 500,
     notifications_enabled: true,
-    email_notifications: true,
+    push_notifications: false,
+    notification_topics: [],
     weekly_newsletter: true,
     event_reminders: true,
     profile_visibility: 'public',
@@ -314,14 +316,14 @@ export function UserPreferences() {
             
             <div className="flex items-center justify-between">
               <div>
-                <Label>Notificações por email</Label>
-                <p className="text-sm text-muted-foreground">Receber emails sobre eventos relevantes</p>
+                <Label>Notificações por push</Label>
+                <p className="text-sm text-muted-foreground">Receber notificações push no navegador</p>
               </div>
               <Switch
-                checked={preferences.email_notifications}
+                checked={preferences.push_notifications}
                 onCheckedChange={(checked) => setPreferences(prev => ({
                   ...prev,
-                  email_notifications: checked
+                  push_notifications: checked
                 }))}
               />
             </div>

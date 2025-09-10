@@ -5518,22 +5518,55 @@ export type Database = {
       }
       user_preferences: {
         Row: {
-          email_notifications: boolean
+          accessibility_needs: string[] | null
+          created_at: string | null
+          event_reminders: boolean | null
+          favorite_cities: string[] | null
+          favorite_genres: string[] | null
           notification_topics: string[]
+          notifications_enabled: boolean
+          price_range_max: number | null
+          price_range_min: number | null
+          profile_visibility: string | null
           push_notifications: boolean
+          show_attended_events: boolean | null
+          updated_at: string | null
           user_id: string
+          weekly_newsletter: boolean | null
         }
         Insert: {
-          email_notifications?: boolean
+          accessibility_needs?: string[] | null
+          created_at?: string | null
+          event_reminders?: boolean | null
+          favorite_cities?: string[] | null
+          favorite_genres?: string[] | null
           notification_topics?: string[]
+          notifications_enabled?: boolean
+          price_range_max?: number | null
+          price_range_min?: number | null
+          profile_visibility?: string | null
           push_notifications?: boolean
+          show_attended_events?: boolean | null
+          updated_at?: string | null
           user_id: string
+          weekly_newsletter?: boolean | null
         }
         Update: {
-          email_notifications?: boolean
+          accessibility_needs?: string[] | null
+          created_at?: string | null
+          event_reminders?: boolean | null
+          favorite_cities?: string[] | null
+          favorite_genres?: string[] | null
           notification_topics?: string[]
+          notifications_enabled?: boolean
+          price_range_max?: number | null
+          price_range_min?: number | null
+          profile_visibility?: string | null
           push_notifications?: boolean
+          show_attended_events?: boolean | null
+          updated_at?: string | null
           user_id?: string
+          weekly_newsletter?: boolean | null
         }
         Relationships: []
       }
