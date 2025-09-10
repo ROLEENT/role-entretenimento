@@ -151,36 +151,44 @@ export const useUpsertArtistEnhanced = () => {
 
       // Upsert artist using admin client
       console.log("Making admin REST call for artist upsert...");
+      console.log("Transformed data payload:", JSON.stringify(transformedData, null, 2));
       
       const endpoint = "artists";
       const method = data.id ? "PATCH" : "POST";
       const url = data.id ? `${endpoint}?id=eq.${data.id}` : endpoint;
       
-      const result = await adminClient.restCall(url, {
-        method,
-        body: JSON.stringify(transformedData),
-      });
+      try {
+        const result = await adminClient.restCall(url, {
+          method,
+          body: JSON.stringify(transformedData),
+        });
+        console.log("Artist upsert result:", result);
+        
+        const artistData = Array.isArray(result) ? result[0] : result;
+        
+        if (!artistData) {
+          throw new Error('Erro ao salvar artista: dados não retornados');
+        }
 
-      const artistData = Array.isArray(result) ? result[0] : result;
-      
-      if (!artistData) {
-        throw new Error('Erro ao salvar artista: dados não retornados');
+        console.log("Artist upserted successfully:", artistData);
+
+        // Sync categories and genres relationships
+        if (data.categories && data.categories.length > 0) {
+          console.log('Syncing artist categories...');
+          await syncArtistCategories(artistData.id, data.categories, adminClient);
+        }
+
+        if (data.genres && data.genres.length > 0) {
+          console.log('Syncing artist genres...');
+          await syncArtistGenres(artistData.id, data.genres, adminClient);
+        }
+
+        return artistData;
+      } catch (error) {
+        console.error("Detailed artist upsert error:", error);
+        console.error("Failed payload:", JSON.stringify(transformedData, null, 2));
+        throw error;
       }
-
-      console.log("Artist upserted successfully:", artistData);
-
-      // Sync categories and genres relationships
-      if (data.categories && data.categories.length > 0) {
-        console.log('Syncing artist categories...');
-        await syncArtistCategories(artistData.id, data.categories, adminClient);
-      }
-
-      if (data.genres && data.genres.length > 0) {
-        console.log('Syncing artist genres...');
-        await syncArtistGenres(artistData.id, data.genres, adminClient);
-      }
-
-      return artistData;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["artists"] });
