@@ -145,7 +145,7 @@ const MusicCategories = () => {
               >
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${category.color} text-white group-hover:scale-110 transition-transform duration-300`}>
+                    <div className={`p-3 rounded-xl bg-gradient-to-br ${category.color} text-primary-foreground group-hover:scale-110 transition-transform duration-300`}>
                       <IconComponent className="w-6 h-6" />
                     </div>
                     

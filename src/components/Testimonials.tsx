@@ -102,7 +102,7 @@ const Testimonials = () => {
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-foreground flex items-center justify-center text-white font-bold">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-foreground flex items-center justify-center text-primary-foreground font-bold">
                       {testimonial.name.charAt(0)}
                     </div>
                   )}

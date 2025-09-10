@@ -46,8 +46,8 @@ export const RoleNoticePopup: React.FC<RoleNoticePopupProps> = (props) => {
       ref={overlayRef}
       className={`role-popup-overlay fixed inset-0 z-[9999] flex items-center justify-center p-4 transition-all duration-300 ${
         isVisible 
-          ? 'bg-black/50 backdrop-blur-sm' 
-          : 'bg-black/0 backdrop-blur-none'
+          ? 'bg-primary/50 backdrop-blur-sm' 
+          : 'bg-primary/0 backdrop-blur-none'
       }`}
       style={{ pointerEvents: showNotice ? 'auto' : 'none' }}
     >

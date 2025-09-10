@@ -38,14 +38,14 @@ const EventHighlightCard = ({ event }: EventHighlightCardProps) => {
         
         {/* Genre Badge */}
         <div className="absolute top-4 left-4">
-          <Badge variant="secondary" className="bg-white/90 text-foreground">
+          <Badge variant="secondary" className="bg-background/90 text-foreground">
             {event.genre}
           </Badge>
         </div>
         
         {/* Photo Credit */}
         <div className="absolute bottom-2 right-2">
-          <span className="text-xs text-white/80 bg-black/50 px-2 py-1 rounded">
+          <span className="text-xs text-primary-foreground/80 bg-primary/50 px-2 py-1 rounded">
             {event.photoCredit}
           </span>
         </div>
