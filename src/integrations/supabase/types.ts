@@ -6629,6 +6629,16 @@ export type Database = {
           table_name: string
         }[]
       }
+      audit_entity_relationships: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          issue_description: string
+          issue_type: string
+          record_id: string
+          record_name: string
+          table_name: string
+        }[]
+      }
       auth_role: {
         Args: Record<PropertyKey, never>
         Returns: string
