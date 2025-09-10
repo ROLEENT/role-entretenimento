@@ -2,135 +2,77 @@ import React from 'react';
 import { InstitutionalPageWrapper } from '@/components/layouts/InstitutionalPageWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { HelpCircle, Users, Calendar, Shield } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const FAQ = () => {
-  const faqSections = [
+  const faqs = [
     {
-      title: "Geral",
-      icon: HelpCircle,
-      faqs: [
-        {
-          question: "O que é o ROLÊ?",
-          answer: "[PLACEHOLDER] Conteúdo sobre o que é o ROLÊ, missão, visão e valores da plataforma."
-        },
-        {
-          question: "Como funciona a curadoria de eventos?",
-          answer: "[PLACEHOLDER] Explicação detalhada sobre o processo de curadoria editorial do ROLÊ."
-        },
-        {
-          question: "Posso sugerir melhorias para a plataforma?",
-          answer: "[PLACEHOLDER] Como usuários podem contribuir com feedback e sugestões."
-        }
-      ]
+      question: "Como salvar um evento?",
+      answer: "Na página do evento, clique em Salvar para depois. Ele vai direto pra sua conta, na aba Favoritos."
     },
     {
-      title: "Para Rolezeiras",
-      icon: Users,
-      faqs: [
-        {
-          question: "Como criar minha conta?",
-          answer: "[PLACEHOLDER] Passo a passo para criar conta de usuário rolezeira."
-        },
-        {
-          question: "Como favoritar eventos?",
-          answer: "[PLACEHOLDER] Instruções sobre sistema de favoritos e salvamento de eventos."
-        },
-        {
-          question: "Como receber notificações?",
-          answer: "[PLACEHOLDER] Configuração de notificações e alertas de eventos."
-        }
-      ]
+      question: "Como receber alertas de artistas e cidades?",
+      answer: "Na página do artista, local ou organizador, clique em Ativar alertas. Você escolhe se quer receber por e-mail, push ou só no resumo semanal."
     },
     {
-      title: "Para Criadores",
-      icon: Calendar,
-      faqs: [
-        {
-          question: "Como submeter meu evento?",
-          answer: "[PLACEHOLDER] Processo para artistas e organizadores submeterem eventos."
-        },
-        {
-          question: "Quais critérios para aprovação?",
-          answer: "[PLACEHOLDER] Critérios editoriais para aprovação de eventos."
-        },
-        {
-          question: "Posso ter um perfil verificado?",
-          answer: "[PLACEHOLDER] Como obter verificação e destaque no perfil."
-        }
-      ]
+      question: "Como funciona a curadoria do ROLÊ?",
+      answer: "A gente seleciona os eventos e perfis com base em relevância cultural, diversidade e conexão com a cena. Nem tudo entra, mas tudo que entra é escolhido a dedo."
     },
     {
-      title: "Políticas",
-      icon: Shield,
-      faqs: [
-        {
-          question: "Como denunciar conteúdo?",
-          answer: "[PLACEHOLDER] Processo para denunciar conteúdo inadequado ou problemas."
-        },
-        {
-          question: "Quais são as regras de uso?",
-          answer: "[PLACEHOLDER] Resumo das principais regras e políticas da plataforma."
-        },
-        {
-          question: "Como excluir minha conta?",
-          answer: "[PLACEHOLDER] Processo para exclusão de conta e dados pessoais."
-        }
-      ]
+      question: "Posso divulgar meu evento de graça?",
+      answer: "Não. O ROLÊ é uma mídia independente que se sustenta com serviços de divulgação. Mas temos pacotes acessíveis como a Vitrine Cultural e condições especiais para produções menores."
+    },
+    {
+      question: "O que é a Vitrine Cultural?",
+      answer: "É a vitrine principal do ROLÊ, onde eventos ganham espaço no feed e no site com narrativa cultural. É paga, mas é o formato mais direto pra alcançar nosso público."
+    },
+    {
+      question: "Como funciona a lista Trans/NB?",
+      answer: "Em muitos eventos parceiros, pessoas trans e não-bináries têm entrada garantida ou lista especial. O ROLÊ sempre indica quando isso existe."
+    },
+    {
+      question: "Quero excluir meus dados, como faço?",
+      answer: "Na sua conta, vá em Privacidade e clique em Excluir conta. Você também pode solicitar exportar seus dados antes."
     }
   ];
 
   return (
     <InstitutionalPageWrapper
-      title="Perguntas Frequentes"
-      description="Tire suas dúvidas sobre o ROLÊ, nossa curadoria e como aproveitar ao máximo a plataforma."
+      title="Perguntas que já rolaram na pista"
+      description="Antes de mandar DM, dá uma olhada aqui. Essa lista é viva e vai crescendo conforme as dúvidas aparecem."
       seoTitle="FAQ - Perguntas Frequentes | ROLÊ ENTRETENIMENTO"
       seoDescription="Central de dúvidas do ROLÊ ENTRETENIMENTO. Encontre respostas sobre eventos, perfis, políticas e muito mais."
       lastUpdated="10 de setembro de 2025"
     >
-      <div className="space-y-8">
-        {faqSections.map((section, sectionIndex) => (
-          <Card key={sectionIndex}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <section.icon className="h-6 w-6 text-primary" />
-                {section.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Accordion type="single" collapsible className="w-full">
-                {section.faqs.map((faq, faqIndex) => (
-                  <AccordionItem key={faqIndex} value={`${sectionIndex}-${faqIndex}`}>
-                    <AccordionTrigger className="text-left">
-                      {faq.question}
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <p className="text-muted-foreground leading-relaxed">
-                        {faq.answer}
-                      </p>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="p-6">
+            <Accordion type="single" collapsible className="w-full">
+              {faqs.map((faq, index) => (
+                <AccordionItem key={index} value={`faq-${index}`}>
+                  <AccordionTrigger className="text-left">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {faq.answer}
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </CardContent>
+        </Card>
 
         {/* Contact Support */}
         <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
           <CardHeader>
-            <CardTitle>Não encontrou sua resposta?</CardTitle>
+            <CardTitle>Não achou sua dúvida aqui?</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground mb-4">
-              [PLACEHOLDER] Texto sobre entrar em contato para dúvidas específicas.
+            <p className="text-muted-foreground">
+              Vai na aba Fale Conosco e chama.
             </p>
-            <div className="text-sm text-muted-foreground">
-              <p><strong>Conteúdo será inserido na Fase 2</strong></p>
-              <p>• Textos editoriais no tom ROLÊ</p>
-              <p>• Respostas detalhadas para cada seção</p>
-              <p>• Links para políticas específicas</p>
-            </div>
           </CardContent>
         </Card>
       </div>
