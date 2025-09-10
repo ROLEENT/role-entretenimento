@@ -167,6 +167,11 @@ const DirectoryPage = lazy(() => import("./pages/profiles/DirectoryPage"));
 const ProfilePage = lazy(() => import("./pages/profiles/ProfilePage"));
 const CityDirectoryPage = lazy(() => import("./pages/profiles/CityDirectoryPage"));
 
+// Public Profile pages
+const PublicArtistProfile = lazy(() => import("./pages/PublicArtistProfile"));
+const PublicVenueProfile = lazy(() => import("./pages/PublicVenueProfile"));
+const PublicOrganizerProfile = lazy(() => import("./pages/PublicOrganizerProfile"));
+
 // Handle @username redirects
 function HandleRedirect() {
   const { raw = "" } = useParams();
@@ -263,6 +268,11 @@ function App() {
                 <Route path="/perfil/@:handle" element={<Suspense fallback={<PageLoadingFallback />}><ProfilePage /></Suspense>} />
                 <Route path="/claim/:handle" element={<Suspense fallback={<PageLoadingFallback />}><ClaimProfilePage /></Suspense>} />
                 <Route path="/cidades/:slug/perfis" element={<Suspense fallback={<PageLoadingFallback />}><CityDirectoryPage /></Suspense>} />
+                
+                {/* Public Entity Profile Routes */}
+                <Route path="/artistas/:handle" element={<Suspense fallback={<PageLoadingFallback />}><PublicArtistProfile /></Suspense>} />
+                <Route path="/locais/:handle" element={<Suspense fallback={<PageLoadingFallback />}><PublicVenueProfile /></Suspense>} />
+                <Route path="/organizadores/:handle" element={<Suspense fallback={<PageLoadingFallback />}><PublicOrganizerProfile /></Suspense>} />
                 
                 {/* Public Profile Routes */}
                 <Route path="/u/:username" element={<Suspense fallback={<PageLoadingFallback />}><PublicUserProfilePageV2 /></Suspense>} />
