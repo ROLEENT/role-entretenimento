@@ -50,7 +50,7 @@ export function MobileMenuDrawer({
       shouldScaleBackground={false}
     >
       <DrawerPrimitive.Portal>
-        <DrawerPrimitive.Overlay className="fixed inset-0 z-40 bg-overlay" />
+        <DrawerPrimitive.Overlay className="fixed inset-0 z-40 bg-overlay/80 backdrop-blur-sm" />
         
         <DrawerPrimitive.Content
           className="

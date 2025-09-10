@@ -58,8 +58,8 @@ export default function ProfileEditPage() {
     return (
       <main className="p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-          <div className="h-64 bg-gray-200 rounded"></div>
+          <div className="h-8 bg-skeleton rounded w-1/3"></div>
+          <div className="h-64 bg-skeleton rounded"></div>
         </div>
       </main>
     );
@@ -69,8 +69,8 @@ export default function ProfileEditPage() {
     return (
       <main className="p-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Perfil não encontrado</h1>
-          <p className="text-gray-600 mt-2">O perfil que você está procurando não existe.</p>
+          <h1 className="text-2xl font-bold text-foreground">Perfil não encontrado</h1>
+          <p className="text-muted-foreground mt-2">O perfil que você está procurando não existe.</p>
         </div>
       </main>
     );
@@ -95,12 +95,12 @@ export default function ProfileEditPage() {
       />
 
       {/* TODO: Criar formulário de edição que aceita initialValues */}
-      <div className="p-4 border rounded-lg bg-gray-50">
-        <p className="text-sm text-gray-600">
+      <div className="p-4 border rounded-lg bg-muted/30">
+        <p className="text-sm text-muted-foreground">
           Formulário de edição será implementado aqui. 
           O campo "Visibilidade" foi movido para o header acima.
         </p>
-        <p className="text-xs text-gray-500 mt-2">
+        <p className="text-xs text-muted-foreground/80 mt-2">
           Perfil: {profile.name} (@{profile.handle})
         </p>
       </div>
