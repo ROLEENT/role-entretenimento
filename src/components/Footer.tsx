@@ -23,7 +23,9 @@ const Footer = () => {
   // Institucional column
   const institucionalLinks = [
     { name: "Sobre", href: "/sobre" },
-    { name: "Contato", href: "/contato" },
+    { name: "Ajuda", href: "/ajuda" },
+    { name: "FAQ", href: "/faq" },
+    { name: "Contato", href: "/fale-conosco" },
     { name: "Parcerias", href: "/institucional/parcerias" },
     { name: "Trabalhe Conosco", href: "/institucional/trabalhe-conosco" },
     { name: "Imprensa", href: "/institucional/imprensa" }
@@ -42,9 +44,13 @@ const Footer = () => {
   // Legal links for bottom section
   const legalLinks = [
     { name: "Política de Privacidade", href: "/politica-privacidade" },
-    { name: "Termos de Uso", href: "/termos-usuario" },
+    { name: "Políticas de Uso", href: "/politicas-uso" },
     { name: "Política Antispam", href: "/politica-spam" },
-    { name: "Política de Curadoria", href: "/politicas/curadoria" }
+    { name: "Política de Curadoria", href: "/politicas/curadoria" },
+    { name: "Políticas do Rolezeira", href: "/politicas-rolezeira" },
+    { name: "Políticas do Organizador", href: "/politicas-organizador" },
+    { name: "Como ter perfil publicado", href: "/como-ter-perfil-publicado" },
+    { name: "Como divulgar evento", href: "/como-divulgar-evento" }
   ];
 
   return (

@@ -90,6 +90,15 @@ const SecurityPage = lazy(() => import("./pages/admin-v3/gestao/security"));
 const OrganizerTerms = lazy(() => import("./pages/OrganizerTerms"));
 const PoliticaCuradoria = lazy(() => import("./pages/PoliticaCuradoria"));
 const Help = lazy(() => import("./pages/Help"));
+
+// Institutional pages (Briefing 3)
+const FAQ = lazy(() => import("./pages/institutional/FAQ"));
+const HowToGetProfilePublished = lazy(() => import("./pages/institutional/HowToGetProfilePublished"));
+const HowToPromoteEvent = lazy(() => import("./pages/institutional/HowToPromoteEvent"));
+const RolezeiraPolicies = lazy(() => import("./pages/institutional/RolezeiraPolicies"));
+const GeneralUsePolicies = lazy(() => import("./pages/institutional/GeneralUsePolicies"));
+const OrganizerPolicies = lazy(() => import("./pages/institutional/OrganizerPolicies"));
+const ContactUs = lazy(() => import("./pages/institutional/ContactUs"));
 const Agenda = lazy(() => import("./pages/Agenda"));
 const AgendaTodos = lazy(() => import("./pages/AgendaTodos"));
 const AgendaCidade = lazy(() => import("./pages/AgendaCidade"));
@@ -233,6 +242,15 @@ function App() {
                 <Route path="/termos-organizador" element={<OrganizerTerms />} />
                 <Route path="/politicas/curadoria" element={<PoliticaCuradoria />} />
                 <Route path="/ajuda" element={<Help />} />
+                
+                {/* Institutional Pages - Briefing 3 */}
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/como-ter-perfil-publicado" element={<HowToGetProfilePublished />} />
+                <Route path="/como-divulgar-evento" element={<HowToPromoteEvent />} />
+                <Route path="/politicas-rolezeira" element={<RolezeiraPolicies />} />
+                <Route path="/politicas-uso" element={<GeneralUsePolicies />} />
+                <Route path="/politicas-organizador" element={<OrganizerPolicies />} />
+                <Route path="/fale-conosco" element={<ContactUs />} />
                 
                 {/* Institutional Pages */}
                 <Route path="/institucional" element={<InstitucionalIndex />} />
