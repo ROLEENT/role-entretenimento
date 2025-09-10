@@ -141,13 +141,24 @@ export const useAnalytics = () => {
     });
   }, [trackEvent]);
 
+  // Enhanced tracking methods
+  const trackEventSaved = useCallback((eventId: string, eventName: string, city?: string) => {
+    trackEvent({ eventName: 'event_saved', city, eventData: { event_id: eventId, event_name: eventName } });
+  }, [trackEvent]);
+
+  const trackTicketClick = useCallback((eventId: string, eventName: string, city?: string) => {
+    trackEvent({ eventName: 'ticket_clicked', city, eventData: { event_id: eventId, event_name: eventName } });
+  }, [trackEvent]);
+
   return {
     trackEvent,
     trackClick,
     trackConversion,
     trackCTAClick,
     trackFormSubmit,
-    trackDownload
+    trackDownload,
+    trackEventSaved,
+    trackTicketClick
   };
 };
 
