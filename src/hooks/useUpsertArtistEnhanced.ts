@@ -87,7 +87,16 @@ export const useUpsertArtistEnhanced = () => {
           .slice(0, 80); // Limit to 80 chars
       };
 
-      // Transform enhanced form data to database schema
+      // TEMPORARY: Minimal payload for testing - only name and updated_at
+      const payloadMin = { 
+        stage_name: data.name, 
+        updated_at: new Date().toISOString() 
+      };
+
+      console.log("Using minimal payload for testing:", JSON.stringify(payloadMin, null, 2));
+
+      // Transform enhanced form data to database schema (COMMENTED OUT FOR TESTING)
+      /*
       const transformedData = {
         // Include ID for updates
         ...(data.id && { id: data.id }),
@@ -148,10 +157,11 @@ export const useUpsertArtistEnhanced = () => {
         // Required defaults
         image_rights_authorized: true,
       };
+      */
 
       // Upsert artist using admin client
       console.log("Making admin REST call for artist upsert...");
-      console.log("Transformed data payload:", JSON.stringify(transformedData, null, 2));
+      console.log("Minimal payload for testing:", JSON.stringify(payloadMin, null, 2));
       
       const endpoint = "artists";
       const method = data.id ? "PATCH" : "POST";
@@ -160,7 +170,7 @@ export const useUpsertArtistEnhanced = () => {
       try {
         const result = await adminClient.restCall(url, {
           method,
-          body: JSON.stringify(transformedData),
+          body: JSON.stringify(payloadMin),
         });
         console.log("Artist upsert result:", result);
         
@@ -186,7 +196,7 @@ export const useUpsertArtistEnhanced = () => {
         return artistData;
       } catch (error) {
         console.error("Detailed artist upsert error:", error);
-        console.error("Failed payload:", JSON.stringify(transformedData, null, 2));
+        console.error("Failed minimal payload:", JSON.stringify(payloadMin, null, 2));
         throw error;
       }
     },
