@@ -75,13 +75,13 @@ const FeaturedBlogPosts = () => {
                     alt={`Imagem de capa do artigo: ${post.title}`}
                     className="w-full h-full object-cover transition-transform group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
+                  <div className="absolute inset-0 bg-background/40 group-hover:bg-background/30 transition-colors" />
                   {index === 0 && (
                     <Badge className="absolute top-4 left-4">
                       Destaque Principal
                     </Badge>
                   )}
-                  <div className="absolute bottom-4 left-4 text-white">
+                  <div className="absolute bottom-4 left-4 text-primary-foreground">
                     <Badge variant="secondary" className="mb-2">
                       <MapPin className="w-3 h-3 mr-1" />
                       {post.city}

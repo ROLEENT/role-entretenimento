@@ -32,7 +32,7 @@ const TrendingEvents = ({ events, onEventSelect }: TrendingEventsProps) => {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-3">
-              <Flame className="h-8 w-8 text-orange-500" />
+              <Flame className="h-8 w-8 text-destructive" />
               Trending Now
             </h2>
             <p className="text-muted-foreground">
@@ -56,29 +56,29 @@ const TrendingEvents = ({ events, onEventSelect }: TrendingEventsProps) => {
                     alt={`Evento em destaque: ${sortedEvents[0].title}`}
                     className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
                   
                   {/* Trending Badge */}
                   <div className="absolute top-4 left-4">
-                    <Badge className="bg-orange-500 text-white gap-2 animate-pulse">
+                    <Badge className="bg-destructive text-destructive-foreground gap-2 animate-pulse">
                       <Flame className="h-4 w-4" />
                       #{1} TRENDING
                     </Badge>
                   </div>
 
                   {/* Trending Score */}
-                  <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm rounded-full px-3 py-1">
-                    <span className="text-white font-bold text-sm">
+                  <div className="absolute top-4 right-4 bg-background/60 backdrop-blur-sm rounded-full px-3 py-1">
+                    <span className="text-foreground font-bold text-sm">
                       {sortedEvents[0].trendingScore}%
                     </span>
                   </div>
 
                   {/* Event Info Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                  <div className="absolute bottom-0 left-0 right-0 p-6 text-primary-foreground">
                     <h3 className="text-2xl font-bold mb-2">
                       {sortedEvents[0].title}
                     </h3>
-                    <p className="text-white/90 mb-4">
+                    <p className="text-primary-foreground/90 mb-4">
                       {sortedEvents[0].description}
                     </p>
                     <div className="flex items-center gap-4 mb-4">
@@ -93,7 +93,7 @@ const TrendingEvents = ({ events, onEventSelect }: TrendingEventsProps) => {
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {sortedEvents[0].tags.map((tag) => (
-                        <Badge key={tag} variant="secondary" className="bg-white/20 text-white border-white/30">
+                        <Badge key={tag} variant="secondary" className="bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30">
                           {tag}
                         </Badge>
                       ))}
@@ -191,10 +191,10 @@ const TrendingEvents = ({ events, onEventSelect }: TrendingEventsProps) => {
               <CardContent>
                 <div className="space-y-3">
                   {[
-                    { genre: 'Eletrônica', growth: '+45%', color: 'bg-blue-500' },
-                    { genre: 'Rock', growth: '+32%', color: 'bg-red-500' },
-                    { genre: 'Funk', growth: '+28%', color: 'bg-purple-500' },
-                    { genre: 'Jazz', growth: '+15%', color: 'bg-green-500' }
+                    { genre: 'Eletrônica', growth: '+45%', color: 'bg-primary' },
+                    { genre: 'Rock', growth: '+32%', color: 'bg-destructive' },
+                    { genre: 'Funk', growth: '+28%', color: 'bg-accent' },
+                    { genre: 'Jazz', growth: '+15%', color: 'bg-secondary' }
                   ].map((item) => (
                     <div key={item.genre} className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -216,7 +216,7 @@ const TrendingEvents = ({ events, onEventSelect }: TrendingEventsProps) => {
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="text-center">
             <CardContent className="p-6">
-              <MessageCircle className="h-8 w-8 mx-auto mb-2 text-blue-500" />
+              <MessageCircle className="h-8 w-8 mx-auto mb-2 text-primary" />
               <div className="text-2xl font-bold text-foreground">
                 {formatNumber(sortedEvents.reduce((acc, event) => acc + event.comments, 0))}
               </div>
@@ -228,7 +228,7 @@ const TrendingEvents = ({ events, onEventSelect }: TrendingEventsProps) => {
 
           <Card className="text-center">
             <CardContent className="p-6">
-              <Users className="h-8 w-8 mx-auto mb-2 text-green-500" />
+              <Users className="h-8 w-8 mx-auto mb-2 text-secondary" />
               <div className="text-2xl font-bold text-foreground">
                 {formatNumber(sortedEvents.reduce((acc, event) => acc + event.attendees, 0))}
               </div>
@@ -240,7 +240,7 @@ const TrendingEvents = ({ events, onEventSelect }: TrendingEventsProps) => {
 
           <Card className="text-center">
             <CardContent className="p-6">
-              <TrendingUp className="h-8 w-8 mx-auto mb-2 text-orange-500" />
+              <TrendingUp className="h-8 w-8 mx-auto mb-2 text-destructive" />
               <div className="text-2xl font-bold text-foreground">
                 {Math.round(sortedEvents.reduce((acc, event) => acc + event.trendingScore, 0) / sortedEvents.length)}%
               </div>

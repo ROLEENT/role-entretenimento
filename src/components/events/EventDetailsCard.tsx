@@ -109,7 +109,7 @@ const EventDetailsCard = ({ event }: EventDetailsCardProps) => {
               alt={event.title}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
             <div className="absolute bottom-4 left-4 right-4">
               <div className="flex items-center gap-2 mb-2">
                 {event.categories?.map((cat: any) => (
@@ -118,7 +118,7 @@ const EventDetailsCard = ({ event }: EventDetailsCardProps) => {
                   </Badge>
                 ))}
               </div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
+              <h1 className="text-2xl md:text-3xl font-bold text-primary-foreground mb-2">
                 {event.title}
               </h1>
             </div>

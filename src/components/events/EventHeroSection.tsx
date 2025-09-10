@@ -32,7 +32,7 @@ export function EventHeroSection({ event, venue, formatPrice, formatTime }: Even
         />
         
         {/* Gradient Overlay apenas no desktop para CTA */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent md:from-black/80 md:via-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent md:from-background/80 md:via-background/20" />
         
         {/* Badge de destaque - mobile: linha própria acima do título */}
         <div className="absolute top-4 left-4 z-10 md:top-4 md:left-4">
@@ -46,7 +46,7 @@ export function EventHeroSection({ event, venue, formatPrice, formatTime }: Even
         {/* Desktop CTA removed per user request */}
         
         {/* Event Title Overlay - removido do mobile */}
-        <div className="hidden md:block absolute bottom-0 left-0 right-0 p-6 text-white">
+        <div className="hidden md:block absolute bottom-0 left-0 right-0 p-6 text-primary-foreground">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 leading-tight">
             {event.title}
           </h1>

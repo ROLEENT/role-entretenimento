@@ -69,26 +69,26 @@ const MusicCategories = () => {
 
   const getBgColor = (colorHex: string) => {
     const colorMap: { [key: string]: string } = {
-      '#EC4899': 'bg-pink-50 dark:bg-pink-950/20',
-      '#3B82F6': 'bg-blue-50 dark:bg-blue-950/20',
-      '#EF4444': 'bg-red-50 dark:bg-red-950/20',
-      '#F59E0B': 'bg-yellow-50 dark:bg-yellow-950/20',
-      '#10B981': 'bg-green-50 dark:bg-green-950/20',
-      '#8B5CF6': 'bg-violet-50 dark:bg-violet-950/20'
+      '#EC4899': 'bg-secondary/20',
+      '#3B82F6': 'bg-primary/20',
+      '#EF4444': 'bg-destructive/20',
+      '#F59E0B': 'bg-accent/20',
+      '#10B981': 'bg-muted/20',
+      '#8B5CF6': 'bg-primary/20'
     };
-    return colorMap[colorHex] || 'bg-gray-50 dark:bg-gray-950/20';
+    return colorMap[colorHex] || 'bg-muted/20';
   };
 
   const getGradientColor = (colorHex: string) => {
     const gradientMap: { [key: string]: string } = {
-      '#EC4899': 'from-pink-500 to-purple-600',
-      '#3B82F6': 'from-blue-500 to-cyan-600',
-      '#EF4444': 'from-red-500 to-orange-600',
-      '#F59E0B': 'from-yellow-500 to-orange-500',
-      '#10B981': 'from-green-500 to-emerald-600',
-      '#8B5CF6': 'from-violet-500 to-purple-600'
+      '#EC4899': 'from-secondary to-primary',
+      '#3B82F6': 'from-primary to-accent',
+      '#EF4444': 'from-destructive to-primary',
+      '#F59E0B': 'from-accent to-secondary',
+      '#10B981': 'from-muted to-secondary',
+      '#8B5CF6': 'from-primary to-secondary'
     };
-    return gradientMap[colorHex] || 'from-gray-500 to-gray-600';
+    return gradientMap[colorHex] || 'from-muted to-secondary';
   };
 
   const handleCategoryClick = (categorySlug: string) => {

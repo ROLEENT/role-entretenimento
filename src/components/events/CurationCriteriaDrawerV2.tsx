@@ -81,12 +81,12 @@ const STATUS_CONFIG = {
   partial: { 
     icon: Minus, 
     label: 'Parcial', 
-    className: 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20' 
+    className: 'text-secondary bg-secondary/10 border-secondary/20' 
   },
   na: { 
     icon: X, 
     label: 'Não informado', 
-    className: 'text-gray-400 bg-gray-400/10 border-gray-400/20' 
+    className: 'text-muted-foreground bg-muted/10 border-muted/20' 
   }
 };
 
@@ -224,19 +224,19 @@ function CriterionAccordionItem({
   const displayText = shouldTruncate ? displayNote.substring(0, 150) + '...' : displayNote;
 
   return (
-    <div className="rounded-xl border border-white/10 mb-3 overflow-hidden bg-white/[0.02]">
+    <div className="rounded-xl border border-border/10 mb-3 overflow-hidden bg-background/[0.02]">
       <div className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <h4 className="font-semibold text-white text-base">{config.label}</h4>
+              <h4 className="font-semibold text-foreground text-base">{config.label}</h4>
               {isPrimary && (
                 <Badge variant="outline" className="text-xs px-2 py-0.5 border-[#c77dff]/30 text-[#c77dff]">
                   Destaque
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-white/60 mb-3">{config.description}</p>
+            <p className="text-sm text-muted-foreground mb-3">{config.description}</p>
           </div>
           <div className={cn(
             'flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border shrink-0 ml-3',
@@ -249,9 +249,9 @@ function CriterionAccordionItem({
         
         {/* Explicação do cadastro */}
         <div className="space-y-2">
-          <h5 className="text-sm font-medium text-white/80">Justificativa da curadoria:</h5>
-          <div className="bg-white/[0.03] border border-white/5 rounded-lg p-3">
-            <p className="text-sm text-white/70 leading-relaxed">
+          <h5 className="text-sm font-medium text-muted-foreground">Justificativa da curadoria:</h5>
+          <div className="bg-muted/[0.03] border border-border/5 rounded-lg p-3">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               {displayText}
             </p>
             {isLongText && (
@@ -336,13 +336,13 @@ export function CurationCriteriaDrawer({
 
   return (
     <div 
-      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm drawer-backdrop entering"
+      className="fixed inset-0 z-50 bg-background/50 backdrop-blur-sm drawer-backdrop entering"
       onClick={handleBackdropClick}
     >
       <div
         ref={drawerRef}
         className={cn(
-          "fixed bottom-0 left-0 right-0 bg-[#1a1a1a] text-white drawer-container mobile open",
+          "fixed bottom-0 left-0 right-0 bg-background text-foreground drawer-container mobile open",
           "md:fixed md:inset-0 md:flex md:items-center md:justify-center"
         )}
         onTouchStart={handleTouchStart}
@@ -354,19 +354,19 @@ export function CurationCriteriaDrawer({
         tabIndex={-1}
       >
         {/* Mobile Swipe Indicator */}
-        <div className="md:hidden absolute top-2 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-white/30 rounded-full" />
+        <div className="md:hidden absolute top-2 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-muted/30 rounded-full" />
         
         {/* Desktop Container */}
-        <div className="md:bg-[#1a1a1a] md:rounded-xl md:max-w-3xl md:w-full md:max-h-[90vh] md:m-4 md:flex md:flex-col">
+        <div className="md:bg-background md:rounded-xl md:max-w-3xl md:w-full md:max-h-[90vh] md:m-4 md:flex md:flex-col">
           {/* Header Fixo */}
-          <div className="sticky top-0 z-10 bg-[#1a1a1a] rounded-t-xl md:rounded-t-xl border-b border-white/10 p-4 md:p-6">
+          <div className="sticky top-0 z-10 bg-background rounded-t-xl md:rounded-t-xl border-b border-border/10 p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <h2 id="drawer-title" className="text-xl md:text-2xl font-bold text-white mb-1">
+                <h2 id="drawer-title" className="text-xl md:text-2xl font-bold text-foreground mb-1">
                   Como escolhemos este destaque?
                 </h2>
                 {eventTitle && (
-                  <p className="text-sm text-white/60">{eventTitle}</p>
+                  <p className="text-sm text-muted-foreground">{eventTitle}</p>
                 )}
                 
                 {/* Contador de critérios */}
@@ -383,7 +383,7 @@ export function CurationCriteriaDrawer({
                 variant="ghost"
                 size="sm"
                 onClick={() => onOpenChange(false)}
-                className="h-8 w-8 p-0 rounded-full hover:bg-white/10 text-white shrink-0"
+                className="h-8 w-8 p-0 rounded-full hover:bg-muted/10 text-foreground shrink-0"
                 aria-label="Fechar"
               >
                 <X className="h-4 w-4" />
@@ -396,7 +396,7 @@ export function CurationCriteriaDrawer({
             <div className="p-4 md:p-6 space-y-6">
             {/* Intro Text */}
             <div className="text-center">
-              <p className="text-white/80 text-sm leading-relaxed">
+              <p className="text-muted-foreground text-sm leading-relaxed">
                 Este evento foi selecionado pela nossa curadoria com base nos critérios abaixo. 
                 Cada critério foi avaliado considerando a proposta, contexto e impacto cultural.
               </p>
@@ -418,26 +418,26 @@ export function CurationCriteriaDrawer({
 
               {/* Notes */}
               {notes && (
-                <div className="p-4 bg-white/[0.03] border border-white/10 rounded-xl">
-                  <h4 className="font-semibold text-white mb-3">Observações da Curadoria</h4>
-                  <p className="text-sm text-white/70 leading-relaxed">{notes}</p>
+                <div className="p-4 bg-muted/[0.03] border border-border/10 rounded-xl">
+                  <h4 className="font-semibold text-foreground mb-3">Observações da Curadoria</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{notes}</p>
                 </div>
               )}
             </div>
           </div>
 
           {/* Footer Fixo */}
-          <div className="sticky bottom-0 bg-[#1a1a1a] border-t border-white/10 p-4 md:p-6 rounded-b-xl md:rounded-b-xl">
+          <div className="sticky bottom-0 bg-background border-t border-border/10 p-4 md:p-6 rounded-b-xl md:rounded-b-xl">
             <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 onClick={() => onOpenChange(false)}
-                className="flex-1 bg-[#c77dff] hover:bg-[#c77dff]/90 text-white font-medium h-11"
+                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-11"
               >
                 Entendi
               </Button>
               <Button
                 variant="ghost"
-                className="sm:w-auto text-white/60 hover:bg-white/5 hover:text-white h-11 text-sm"
+                className="sm:w-auto text-muted-foreground hover:bg-muted/5 hover:text-foreground h-11 text-sm"
                 asChild
               >
                 <a 

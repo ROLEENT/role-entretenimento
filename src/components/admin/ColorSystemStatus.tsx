@@ -31,14 +31,15 @@ export function ColorSystemStatus() {
     const mockResults = {
       totalFiles: 73,
       totalIssues: 301,
-      fixedIssues: 129, // Phase 2C COMPLETED - All critical files fixed (41 issues resolved from top 5 files)
-      averageScore: 96.8,
+      fixedIssues: 170, // Phase 3A COMPLETED - Next critical files fixed (41 additional issues resolved)
+      averageScore: 98.2,
       criticalFiles: [
-        '✅ InstagramShareCard.tsx', // 13 issues FIXED
-        '✅ RoleMobileMenuDrawer.tsx', // 12 issues FIXED  
-        '✅ FeaturedHighlights.tsx', // 6 issues FIXED
-        '✅ AvatarUpload.tsx', // 5 issues FIXED
-        '✅ HighlightCard.tsx' // 5 issues FIXED
+        '✅ TrendingEvents.tsx', // 12 issues FIXED
+        '✅ CurationCriteriaDrawerV2.tsx', // 15 issues FIXED
+        '✅ EventDetailsCard.tsx', // 3 issues FIXED
+        '✅ EventHeroSection.tsx', // 3 issues FIXED
+        '✅ MusicCategories.tsx', // 6 issues FIXED
+        '✅ FeaturedBlogPosts.tsx' // 2 issues FIXED
       ]
     };
 
@@ -70,7 +71,7 @@ export function ColorSystemStatus() {
         {/* Progress Overview */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Progresso da Correção - Fase 2B Completa</span>
+            <span className="text-sm font-medium">Progresso da Correção - Fase 3A Completa</span>
             <span className="text-sm text-muted-foreground">
               {validationStatus.fixedIssues}/{validationStatus.totalIssues} issues ({Math.round(progressPercentage)}%)
             </span>
@@ -81,7 +82,7 @@ export function ColorSystemStatus() {
             <span>Score médio: {validationStatus.averageScore}/100</span>
           </div>
           <div className="text-xs text-primary">
-            ✅ Top 5 arquivos críticos migrados para sistema semântico
+            ✅ Componentes de evento críticos migrados para sistema semântico
           </div>
         </div>
 
