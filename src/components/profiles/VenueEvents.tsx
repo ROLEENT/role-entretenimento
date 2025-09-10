@@ -5,89 +5,92 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useProfileEvents } from '@/features/profiles/hooks/useProfileEvents';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { Link } from 'react-router-dom';
 
 interface VenueEventsProps {
   venueId: string;
 }
 
-// Mock data - replace with real API calls
-const mockEvents = {
-  upcoming: [
-    {
-      id: '1',
-      title: 'Noite Eletrônica',
-      date: new Date('2024-03-15T22:00:00'),
-      artists: ['DJ Alex', 'MC Luna'],
-      image: '/placeholder.svg',
-      status: 'confirmed'
-    },
-    {
-      id: '2',
-      title: 'Festival de House',
-      date: new Date('2024-03-22T21:00:00'),
-      artists: ['DJ Tech', 'DJ House'],
-      image: '/placeholder.svg',
-      status: 'confirmed'
-    }
-  ],
-  past: [
-    {
-      id: '3',
-      title: 'Festa de Ano Novo',
-      date: new Date('2023-12-31T23:00:00'),
-      artists: ['DJ NYE', 'MC Party'],
-      image: '/placeholder.svg',
-      status: 'completed'
-    }
-  ]
-};
-
 export function VenueEvents({ venueId }: VenueEventsProps) {
   const [activeTab, setActiveTab] = useState('upcoming');
+  const { data: events, isLoading, error } = useProfileEvents(venueId, 'local');
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Eventos no Local</CardTitle>
+        </CardHeader>
+        <CardContent className="flex justify-center py-8">
+          <LoadingSpinner />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Eventos no Local</CardTitle>
+        </CardHeader>
+        <CardContent className="text-center py-8 text-muted-foreground">
+          Erro ao carregar eventos
+        </CardContent>
+      </Card>
+    );
+  }
 
   const renderEvent = (event: any) => (
-    <Card key={event.id} className="hover:shadow-md transition-shadow cursor-pointer">
-      <CardContent className="p-4">
-        <div className="flex gap-4">
-          <div className="w-16 h-16 bg-muted rounded-lg flex-shrink-0 overflow-hidden">
-            <img 
-              src={event.image} 
-              alt={event.title}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="font-medium truncate">{event.title}</h3>
-              <Badge 
-                variant={event.status === 'confirmed' ? 'default' : 'secondary'}
-                className="text-xs flex-shrink-0"
-              >
-                {event.status === 'confirmed' ? 'Confirmado' : 'Realizado'}
-              </Badge>
+    <Link key={event.id} to={`/eventos/${event.slug}`}>
+      <Card className="hover:shadow-md transition-shadow cursor-pointer">
+        <CardContent className="p-4">
+          <div className="flex gap-4">
+            <div className="w-16 h-16 bg-muted rounded-lg flex-shrink-0 overflow-hidden">
+              <img 
+                src={event.image_url || '/placeholder.svg'} 
+                alt={event.title}
+                className="w-full h-full object-cover"
+              />
             </div>
             
-            <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                {format(event.date, 'dd MMM', { locale: ptBR })}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2">
+                <h3 className="font-medium truncate">{event.title}</h3>
+                <Badge 
+                  variant={event.event_type === 'upcoming' ? 'default' : 'secondary'}
+                  className="text-xs flex-shrink-0"
+                >
+                  {event.event_type === 'upcoming' ? 'Confirmado' : 'Realizado'}
+                </Badge>
               </div>
               
-              <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {format(event.date, 'HH:mm')}
-              </div>
-              
-              <div className="flex items-center gap-1">
-                <Users className="h-3 w-3" />
-                {event.artists.join(', ')}
+              <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  {format(new Date(event.date_start), 'dd MMM', { locale: ptBR })}
+                </div>
+                
+                <div className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  {format(new Date(event.date_start), 'HH:mm')}
+                </div>
+                
+                {event.artists && event.artists.length > 0 && (
+                  <div className="flex items-center gap-1">
+                    <Users className="h-3 w-3" />
+                    {event.artists.slice(0, 2).join(', ')}
+                    {event.artists.length > 2 && ` +${event.artists.length - 2}`}
+                  </div>
+                )}
               </div>
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 
   return (
@@ -99,16 +102,16 @@ export function VenueEvents({ venueId }: VenueEventsProps) {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="upcoming">
-              Próximos ({mockEvents.upcoming.length})
+              Próximos ({events?.upcoming.length || 0})
             </TabsTrigger>
             <TabsTrigger value="past">
-              Passados ({mockEvents.past.length})
+              Passados ({events?.past.length || 0})
             </TabsTrigger>
           </TabsList>
           
           <TabsContent value="upcoming" className="space-y-4 mt-6">
-            {mockEvents.upcoming.length > 0 ? (
-              mockEvents.upcoming.map(renderEvent)
+            {events?.upcoming.length ? (
+              events.upcoming.map(renderEvent)
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 Nenhum evento próximo agendado
@@ -117,8 +120,8 @@ export function VenueEvents({ venueId }: VenueEventsProps) {
           </TabsContent>
           
           <TabsContent value="past" className="space-y-4 mt-6">
-            {mockEvents.past.length > 0 ? (
-              mockEvents.past.map(renderEvent)
+            {events?.past.length ? (
+              events.past.map(renderEvent)
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 Nenhum evento passado encontrado

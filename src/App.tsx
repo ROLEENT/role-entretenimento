@@ -171,6 +171,7 @@ const CityDirectoryPage = lazy(() => import("./pages/profiles/CityDirectoryPage"
 const PublicArtistProfile = lazy(() => import("./pages/PublicArtistProfile"));
 const PublicVenueProfile = lazy(() => import("./pages/PublicVenueProfile"));
 const PublicOrganizerProfile = lazy(() => import("./pages/PublicOrganizerProfile"));
+const SearchPage = lazy(() => import("./pages/SearchPage"));
 
 // Handle @username redirects
 function HandleRedirect() {
@@ -273,6 +274,9 @@ function App() {
                 <Route path="/artistas/:handle" element={<Suspense fallback={<PageLoadingFallback />}><PublicArtistProfile /></Suspense>} />
                 <Route path="/locais/:handle" element={<Suspense fallback={<PageLoadingFallback />}><PublicVenueProfile /></Suspense>} />
                 <Route path="/organizadores/:handle" element={<Suspense fallback={<PageLoadingFallback />}><PublicOrganizerProfile /></Suspense>} />
+                
+                {/* Search Route */}
+                <Route path="/buscar" element={<Suspense fallback={<PageLoadingFallback />}><SearchPage /></Suspense>} />
                 
                 {/* Public Profile Routes */}
                 <Route path="/u/:username" element={<Suspense fallback={<PageLoadingFallback />}><PublicUserProfilePageV2 /></Suspense>} />
