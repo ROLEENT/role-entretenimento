@@ -94,7 +94,6 @@ export const useUpsertArtistEnhanced = () => {
         
         // Map enhanced schema to database fields
         stage_name: data.name,
-        handle: data.handle,
         slug: data.slug || generateSlug(data.handle),
         artist_type: data.type,
         bio_short: data.bio_short,
