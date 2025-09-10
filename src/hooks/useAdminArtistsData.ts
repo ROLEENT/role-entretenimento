@@ -152,14 +152,22 @@ export const useAdminArtistsData = () => {
   // Delete artist mutation (soft delete)
   const deleteArtistMutation = useMutation({
     mutationFn: async (artistId: string) => {
+      // Try soft delete first
       const { error } = await supabase
         .from('artists')
         .update({ deleted_at: new Date().toISOString() })
         .eq('id', artistId);
 
       if (error) {
+        console.error('Delete artist error:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        
         // Enhanced error handling for better debugging
-        if (error.code === 'PGRST301') {
+        if (error.code === 'PGRST301' || error.message.includes('permission denied') || error.message.includes('row-level security')) {
           throw new Error('Permissão negada. Verifique se você tem acesso de administrador.');
         }
         if (error.code === '23503') {

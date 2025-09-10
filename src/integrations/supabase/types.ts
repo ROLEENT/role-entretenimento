@@ -1430,7 +1430,15 @@ export type Database = {
           category_id?: string
           created_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "artists_categories_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       artists_genres: {
         Row: {
@@ -5887,6 +5895,21 @@ export type Database = {
           verified?: boolean | null
           visibility?: string | null
           website?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          is_admin: boolean
+          user_id: string
+        }
+        Insert: {
+          is_admin?: boolean
+          user_id: string
+        }
+        Update: {
+          is_admin?: boolean
+          user_id?: string
         }
         Relationships: []
       }

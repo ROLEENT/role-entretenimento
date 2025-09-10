@@ -209,6 +209,7 @@ export const AdminArtistTable: React.FC<AdminArtistTableProps> = ({
                     <DropdownMenuItem 
                       onClick={() => onDelete(artist.id)}
                       className="text-destructive"
+                      data-testid="artist-delete"
                     >
                       <UserX className="mr-2 h-4 w-4" />
                       Excluir
