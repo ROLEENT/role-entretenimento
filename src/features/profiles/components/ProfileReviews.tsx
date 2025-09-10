@@ -17,7 +17,7 @@ export function ProfileReviews({ profileUserId }: ProfileReviewsProps) {
   const { data: stats, isLoading: statsLoading } = useProfileReviewsStats(profileUserId);
 
   if (reviewsLoading || statsLoading) {
-    return <ProfileContentSkeleton type="reviews" />;
+    return <ProfileContentSkeleton />;
   }
 
   if (!reviews || reviews.length === 0) {

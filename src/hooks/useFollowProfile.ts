@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useUserAuth } from '@/hooks/useUserAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export function useFollowProfile(profileId: string) {
-  const { user, isAuthenticated } = useUserAuth();
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -15,10 +16,11 @@ export function useFollowProfile(profileId: string) {
     const checkFollowStatus = async () => {
       try {
         const { data } = await supabase
-          .from('profile_follows')
+          .from('follows')
           .select('id')
-          .eq('follower_id', user.id)
-          .eq('profile_id', profileId)
+          .eq('user_id', user.id)
+          .eq('entity_uuid', profileId)
+          .eq('entity_type', 'profile')
           .maybeSingle();
 
         setIsFollowing(!!data);
@@ -35,32 +37,19 @@ export function useFollowProfile(profileId: string) {
 
     setLoading(true);
     try {
-      if (isFollowing) {
-        // Unfollow
-        const { error } = await supabase
-          .from('profile_follows')
-          .delete()
-          .eq('follower_id', user.id)
-          .eq('profile_id', profileId);
+      // Use the toggle_follow function from database
+      const { data, error } = await supabase.rpc('toggle_follow', {
+        p_entity_type: 'profile',
+        p_entity_uuid: profileId
+      });
 
-        if (error) throw error;
+      if (error) throw error;
 
-        setIsFollowing(false);
-        toast.success('Deixou de seguir');
-      } else {
-        // Follow
-        const { error } = await supabase
-          .from('profile_follows')
-          .insert({
-            follower_id: user.id,
-            profile_id: profileId
-          });
-
-        if (error) throw error;
-
-        setIsFollowing(true);
-        toast.success('Agora você segue este perfil');
-      }
+      // Toggle the state
+      const newState = !isFollowing;
+      setIsFollowing(newState);
+      
+      toast.success(newState ? 'Agora você segue este perfil' : 'Deixou de seguir');
     } catch (error) {
       console.error('Error toggling follow:', error);
       toast.error('Erro ao atualizar. Tente novamente.');

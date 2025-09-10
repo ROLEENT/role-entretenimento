@@ -1,9 +1,6 @@
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Heart, HeartHandshake } from "lucide-react";
 import { useFollowProfile } from "@/hooks/useFollowProfile";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
 
 interface FollowButtonProps {
   profileId: string;

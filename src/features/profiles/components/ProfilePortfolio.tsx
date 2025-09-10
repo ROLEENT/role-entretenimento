@@ -16,7 +16,7 @@ export function ProfilePortfolio({ profileUserId }: ProfilePortfolioProps) {
   const [selectedMediaIndex, setSelectedMediaIndex] = useState<number | null>(null);
 
   if (isLoading) {
-    return <ProfileContentSkeleton type="portfolio" />;
+    return <ProfileContentSkeleton />;
   }
 
   if (error) {

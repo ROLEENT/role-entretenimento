@@ -2,16 +2,22 @@ import { ReactNode } from 'react';
 import { Helmet } from 'react-helmet-async';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { ProfileStructuredData } from '@/components/seo/ProfileStructuredData';
 
 interface PublicProfileLayoutProps {
   children: ReactNode;
   profile: {
+    id?: string;
     name: string;
     bio?: string;
-    type: string;
+    bio_short?: string;
+    type: 'artista' | 'local' | 'organizador';
     city?: string;
     avatar_url?: string;
     handle: string;
+    contact_email?: string;
+    contact_phone?: string;
+    links?: any;
   };
 }
 
@@ -71,6 +77,13 @@ export function PublicProfileLayout({ children, profile }: PublicProfileLayoutPr
           {children}
         </main>
         <Footer />
+        
+        {/* Structured Data Component */}
+        <ProfileStructuredData profile={{
+          ...profile,
+          id: profile.id || '',
+          city: profile.city || ''
+        }} />
       </div>
     </>
   );
