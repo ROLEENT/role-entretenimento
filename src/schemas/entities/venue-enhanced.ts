@@ -153,3 +153,12 @@ export const MUSIC_GENRES = [
   'Techno', 'House', 'Funk', 'Rap', 'Pop', 'Rock', 'Indie', 'Electronic',
   'Jazz', 'Blues', 'MPB', 'Samba', 'Reggae', 'Alternative'
 ];
+
+export const STAGE_TYPES = [
+  'Italiana', 'Arena', 'Elisabetano', 'Thrust', 'Black Box', 'Cabaret'
+];
+
+export const TECHNICAL_EQUIPMENT = [
+  'Sistema de Som', 'Iluminação LED', 'Projetores', 'Telas', 'Microfones',
+  'Mesa de Som', 'Amplificadores', 'Caixas de Retorno'
+];
