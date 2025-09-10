@@ -7388,7 +7388,7 @@ export type Database = {
       log_security_event: {
         Args: {
           p_admin_email?: string
-          p_details?: Json
+          p_event_data?: Json
           p_event_type: string
           p_severity?: string
           p_user_id?: string
