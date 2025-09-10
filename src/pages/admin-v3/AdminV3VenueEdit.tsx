@@ -9,16 +9,16 @@ import { AdminV3Guard } from '@/components/AdminV3Guard';
 import { FormShell } from '@/components/form';
 import { Form } from '@/components/ui/form';
 
-import { AdminVenueForm } from '@/components/admin/venues/AdminVenueForm';
+import { AdminVenueEnhancedForm } from '@/components/admin/forms/AdminVenueEnhancedForm';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { venueFlexibleSchema, VenueFlexibleFormData } from '@/schemas/venue-flexible';
-import { useUpsertVenue } from '@/hooks/useUpsertAgents';
+import { venueEnhancedSchema, VenueEnhancedForm } from '@/schemas/entities/venue-enhanced';
+import { useUpsertVenueEnhanced } from '@/hooks/useUpsertEnhanced';
 import { ProfileGenerationButton } from '@/components/admin/agents/ProfileGenerationButton';
 
 const AdminV3VenueEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const upsertVenue = useUpsertVenue();
+  const upsertVenue = useUpsertVenueEnhanced();
 
   const { data: venue, isLoading } = useQuery({
     queryKey: ['venue', id],
@@ -41,93 +41,72 @@ const AdminV3VenueEdit: React.FC = () => {
     enabled: !!id,
   });
 
-  const form = useForm<VenueFlexibleFormData>({
-    resolver: zodResolver(venueFlexibleSchema),
+  const form = useForm<VenueEnhancedForm>({
+    resolver: zodResolver(venueEnhancedSchema),
     defaultValues: {
       name: '',
-      status: 'active',
-      // Complete default values for all boolean fields
-      estruturas: {
-        ar_condicionado: false,
-        wifi: false,
-        aquecimento: false,
-        estacionamento: false,
-        aceita_pets: false,
-        area_fumantes: false,
-        pista_danca: false,
-        area_vip: false,
-        rooftop: false,
-        estacoes_carregamento: false,
-        lugares_sentados: false,
-      },
-      diferenciais: {
-        dj: false,
-        happy_hour: false,
-        mesa_bilhar: false,
-        jogos_arcade: false,
-        karaoke: false,
-        narguile: false,
-        transmissao_eventos_esportivos: false,
-        shows_ao_vivo: false,
-        stand_up: false,
-        musica_ao_vivo: false,
-        amigavel_lgbtqia: false,
-      },
-      bebidas: {
-        menu_cervejas: false,
-        cervejas_artesanais: false,
-        coqueteis_classicos: false,
-        coqueteis_autorais: false,
-        menu_vinhos: false,
-      },
-      cozinha: {
-        serve_comida: false,
-        opcoes_veganas: false,
-        opcoes_vegetarianas: false,
-        opcoes_sem_gluten: false,
-        opcoes_sem_lactose: false,
-        menu_kids: false,
-      },
-      seguranca: {
-        equipe_seguranca: false,
-        bombeiros_local: false,
-        saidas_emergencia_sinalizadas: false,
-      },
-      acessibilidade: {
-        elevador_acesso: false,
-        rampa_cadeirantes: false,
-        banheiro_acessivel: false,
-        cardapio_braille: false,
-        audio_acessivel: false,
-        area_caes_guia: false,
-      },
-      banheiros: {
-        masculinos: 0,
-        femininos: 0,
-        genero_neutro: 0,
-      },
-      opening_hours: {
-        monday: "",
-        tuesday: "",
-        wednesday: "",
-        thursday: "",
-        friday: "",
-        saturday: "",
-        sunday: "",
-      },
-      caracteristicas_estabelecimento: {},
+      type: 'bar',
+      status: 'draft',
+      country: 'Brasil',
       tags: [],
-      gallery_urls: [],
+      gallery: [],
+      address_line: '',
+      district: '',
+      city: '',
+      state: '',
+      postal_code: '',
+      bio_short: '',
+      phone: '',
+      instagram: '',
+      logo_url: '',
+      logo_alt: '',
     },
   });
 
   useEffect(() => {
     if (venue) {
-      form.reset(venue);
+      // Transform venue data to enhanced form format
+      const enhancedData: VenueEnhancedForm = {
+        id: venue.id,
+        name: venue.name,
+        slug: venue.slug,
+        type: venue.caracteristicas_estabelecimento?.type || 'bar',
+        address_line: venue.address_line || '',
+        district: venue.district || '',
+        city: venue.city || '',
+        state: venue.state || '',
+        postal_code: venue.postal_code || '',
+        country: venue.country || 'Brasil',
+        bio_short: venue.about?.slice(0, 160) || '',
+        about: venue.about || '',
+        email: venue.email || '',
+        phone: venue.phone || '',
+        whatsapp: venue.whatsapp || '',
+        instagram: venue.instagram || '',
+        website: venue.website || '',
+        logo_url: venue.logo_url || '',
+        logo_alt: venue.logo_alt || '',
+        cover_url: venue.cover_url || '',
+        cover_alt: venue.cover_alt || '',
+        gallery: venue.gallery_urls?.map(url => ({ url, alt: '', caption: '' })) || [],
+        latitude: venue.latitude,
+        longitude: venue.longitude,
+        capacity: venue.capacity,
+        opening_hours: venue.opening_hours || {},
+        features: venue.estruturas || {},
+        status: venue.status === 'active' ? 'published' : 'draft',
+        priority: 0,
+        tags: venue.tags || [],
+        bar_style: [],
+        ambient_type: [],
+        drink_specialties: [],
+        music_genres: [],
+      };
+      form.reset(enhancedData);
     }
   }, [venue, form]);
 
-  const handleSaveAndExit = async (data: VenueFlexibleFormData) => {
+  const handleSaveAndExit = async (data: VenueEnhancedForm) => {
     try {
       await upsertVenue.mutateAsync({ ...data, id });
       navigate('/admin-v3/agentes/venues');
@@ -191,7 +170,7 @@ const AdminV3VenueEdit: React.FC = () => {
             backUrl="/admin-v3/agentes/venues"
             isSubmitting={upsertVenue.isPending}
           >
-            <AdminVenueForm form={form} />
+            <AdminVenueEnhancedForm venue={venue} onSubmit={handleSaveAndExit} isLoading={upsertVenue.isPending} />
           </FormShell>
         </Form>
     </main>

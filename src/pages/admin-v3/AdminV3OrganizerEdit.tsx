@@ -3,15 +3,16 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
-import { AdminOrganizerForm, OrganizerFormData } from '@/components/admin/agents/AdminOrganizerForm';
-import { useUpsertOrganizer } from '@/hooks/useUpsertAgents';
+import { AdminOrganizerEnhancedForm } from '@/components/admin/forms/AdminOrganizerEnhancedForm';
+import { organizerEnhancedSchema, OrganizerEnhancedForm } from '@/schemas/entities/organizer-enhanced';
+import { useUpsertOrganizerEnhanced } from '@/hooks/useUpsertEnhanced';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ProfileGenerationButton } from '@/components/admin/agents/ProfileGenerationButton';
 
 const AdminV3OrganizerEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { mutate: upsertOrganizer, isPending } = useUpsertOrganizer();
+  const { mutate: upsertOrganizer, isPending } = useUpsertOrganizerEnhanced();
 
   const { data: organizer, isLoading, error } = useQuery({
     queryKey: ['organizer', id],
@@ -37,7 +38,7 @@ const AdminV3OrganizerEdit: React.FC = () => {
     { label: organizer?.name || 'Editar Organizador' },
   ];
 
-  const handleSubmit = (data: OrganizerFormData) => {
+  const handleSubmit = (data: OrganizerEnhancedForm) => {
     if (!id) return;
     
     upsertOrganizer({ ...data, id }, {
@@ -118,7 +119,7 @@ const AdminV3OrganizerEdit: React.FC = () => {
         />
       }
     >
-      <AdminOrganizerForm
+      <AdminOrganizerEnhancedForm
         organizer={organizer}
         onSubmit={handleSubmit}
         isLoading={isPending}

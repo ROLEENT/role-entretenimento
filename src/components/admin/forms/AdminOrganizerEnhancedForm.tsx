@@ -14,7 +14,7 @@ import { OrganizerTypeFields } from './entity-fields/OrganizerTypeFields';
 import { BusinessFields } from './entity-fields/BusinessFields';
 
 interface AdminOrganizerEnhancedFormProps {
-  organizer?: Partial<OrganizerEnhancedForm>;
+  organizer?: any; // Raw organizer data from database
   onSubmit: (data: OrganizerEnhancedForm) => void;
   isLoading?: boolean;
 }
@@ -29,70 +29,69 @@ export const AdminOrganizerEnhancedForm: React.FC<AdminOrganizerEnhancedFormProp
     defaultValues: {
       name: organizer?.name || '',
       type: organizer?.type || 'coletivo',
-      city: organizer?.city || 'São Paulo',
-      state: organizer?.state || 'SP',
+      city: organizer?.city || '',
+      state: organizer?.state || '',
       country: organizer?.country || 'Brasil',
-      manifesto: organizer?.manifesto || '',
+      manifesto: organizer?.bio || organizer?.about || '',
       bio_short: organizer?.bio_short || '',
-      about: organizer?.about || '',
-      email: organizer?.email || '',
+      about: organizer?.about || organizer?.bio || '',
+      email: organizer?.email || organizer?.contact_email || '',
       phone: organizer?.phone || '',
-      whatsapp: organizer?.whatsapp || '',
+      whatsapp: organizer?.whatsapp || organizer?.contact_whatsapp || '',
       instagram: organizer?.instagram || '',
-      website: organizer?.website || '',
-      logo_url: organizer?.logo_url || '',
-      logo_alt: organizer?.logo_alt || '',
+      website: organizer?.website || organizer?.site || organizer?.site_url || '',
+      logo_url: organizer?.avatar_url || '',
+      logo_alt: organizer?.avatar_alt || '',
       cover_url: organizer?.cover_url || '',
       cover_alt: organizer?.cover_alt || '',
-      gallery: organizer?.gallery || [],
-      links: organizer?.links || {
-        instagram: '',
+      gallery: [],
+      links: {
+        instagram: organizer?.instagram || '',
         facebook: '',
         linkedin: '',
         youtube: '',
-        website: '',
+        website: organizer?.website || organizer?.site || '',
         other: []
       },
-      collective_members: organizer?.collective_members || undefined,
-      collective_philosophy: organizer?.collective_philosophy || '',
-      collective_areas: organizer?.collective_areas || [],
-      company_cnpj: organizer?.company_cnpj || '',
-      company_size: organizer?.company_size || undefined,
-      specialties: organizer?.specialties || [],
-      portfolio_highlights: organizer?.portfolio_highlights || [],
-      roster_size: organizer?.roster_size || undefined,
-      territories: organizer?.territories || [],
-      services: organizer?.services || [],
-      commission_structure: organizer?.commission_structure || '',
-      professional_experience: organizer?.professional_experience || '',
-      education_background: organizer?.education_background || '',
-      certifications: organizer?.certifications || [],
-      business_info: organizer?.business_info || {
-        legal_name: '',
-        tax_id: '',
+      collective_members: undefined,
+      collective_philosophy: '',
+      collective_areas: [],
+      company_cnpj: '',
+      company_size: undefined,
+      specialties: [],
+      portfolio_highlights: [],
+      roster_size: undefined,
+      territories: [],
+      services: [],
+      commission_structure: '',
+      professional_experience: '',
+      education_background: '',
+      certifications: [],
+      business_info: {
+        legal_name: organizer?.invoice_name || '',
+        tax_id: organizer?.tax_id || '',
         address: '',
         legal_representative: ''
       },
-      payment_info: organizer?.payment_info || {
-        pix_key: '',
+      payment_info: {
+        pix_key: organizer?.pix_key || '',
         bank_account: '',
         preferred_payment_method: undefined
       },
-      areas_of_work: organizer?.areas_of_work || [],
-      target_audience: organizer?.target_audience || [],
-      event_types: organizer?.event_types || [],
-      booking_contact: organizer?.booking_contact || {
-        name: '',
-        email: '',
-        phone: '',
-        whatsapp: '',
-        role: ''
+      areas_of_work: [],
+      target_audience: [],
+      event_types: [],
+      booking_contact: {
+        name: organizer?.booking_contact?.name || '',
+        email: organizer?.booking_email || '',
+        phone: organizer?.booking_contact?.phone || '',
+        whatsapp: organizer?.booking_whatsapp || '',
+        role: organizer?.booking_contact?.role || ''
       },
-      status: organizer?.status || 'draft',
-      priority: organizer?.priority || 0,
-      internal_notes: organizer?.internal_notes || '',
+      status: organizer?.status === 'active' ? 'published' : 'draft',
+      priority: 0,
+      internal_notes: '',
       tags: organizer?.tags || [],
-      ...organizer
     }
   });
 
