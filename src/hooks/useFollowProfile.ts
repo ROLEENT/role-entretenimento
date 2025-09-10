@@ -1,83 +1,69 @@
 import { useState, useEffect } from 'react';
+import { useUserAuth } from '@/hooks/useUserAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { usePublicAuth } from './usePublicAuth';
 import { toast } from 'sonner';
 
-export const useFollowProfile = (profileId?: string) => {
-  const { user, isAuthenticated } = usePublicAuth();
+export function useFollowProfile(profileId: string) {
+  const { user, isAuthenticated } = useUserAuth();
   const [isFollowing, setIsFollowing] = useState(false);
-  const [followerCount, setFollowerCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  // Verificar status de seguir
+  // Check if user is following this profile
   useEffect(() => {
-    if (!profileId || !user) return;
+    if (!user?.id || !profileId) return;
 
     const checkFollowStatus = async () => {
       try {
-        const { data: followData } = await supabase
-          .from('followers')
-          .select('user_id')
-          .eq('user_id', user.id)
+        const { data } = await supabase
+          .from('profile_follows')
+          .select('id')
+          .eq('follower_id', user.id)
           .eq('profile_id', profileId)
           .maybeSingle();
 
-        setIsFollowing(!!followData);
-
-        // Buscar contagem de seguidores
-        const { count } = await supabase
-          .from('followers')
-          .select('*', { count: 'exact', head: true })
-          .eq('profile_id', profileId);
-
-        setFollowerCount(count || 0);
+        setIsFollowing(!!data);
       } catch (error) {
-        console.error('Erro ao verificar status de seguir:', error);
+        console.error('Error checking follow status:', error);
       }
     };
 
     checkFollowStatus();
-  }, [profileId, user]);
+  }, [user?.id, profileId]);
 
   const toggleFollow = async () => {
-    if (!user || !profileId) {
-      toast.error('Você precisa estar logado para seguir perfis');
-      return;
-    }
+    if (!user?.id || !profileId || loading) return;
 
     setLoading(true);
     try {
       if (isFollowing) {
-        // Deixar de seguir
+        // Unfollow
         const { error } = await supabase
-          .from('followers')
+          .from('profile_follows')
           .delete()
-          .eq('user_id', user.id)
+          .eq('follower_id', user.id)
           .eq('profile_id', profileId);
 
         if (error) throw error;
 
         setIsFollowing(false);
-        setFollowerCount(prev => Math.max(0, prev - 1));
-        toast.success('Você deixou de seguir este perfil');
+        toast.success('Deixou de seguir');
       } else {
-        // Seguir
+        // Follow
         const { error } = await supabase
-          .from('followers')
+          .from('profile_follows')
           .insert({
-            user_id: user.id,
+            follower_id: user.id,
             profile_id: profileId
           });
 
         if (error) throw error;
 
         setIsFollowing(true);
-        setFollowerCount(prev => prev + 1);
-        toast.success('Você agora está seguindo este perfil');
+        toast.success('Agora você segue este perfil');
       }
-    } catch (error: any) {
-      console.error('Erro ao seguir/deixar de seguir:', error);
-      toast.error('Erro ao atualizar status de seguimento');
+    } catch (error) {
+      console.error('Error toggling follow:', error);
+      toast.error('Erro ao atualizar. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -85,10 +71,8 @@ export const useFollowProfile = (profileId?: string) => {
 
   return {
     isFollowing,
-    followerCount,
     loading,
     toggleFollow,
-    isAuthenticated,
-    canFollow: isAuthenticated && !!profileId
+    isAuthenticated
   };
-};
+}

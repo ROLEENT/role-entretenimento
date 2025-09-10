@@ -1,100 +1,114 @@
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MessageSquareIcon, UserPlusIcon, UserCheckIcon, VerifiedIcon } from "lucide-react";
 import { Profile } from "@/features/profiles/api";
-import { useProfileGenres } from "@/features/profiles/hooks/useProfileGenres";
-import { useResponsive } from "@/hooks/useResponsive";
+import { LazyImage } from "@/components/performance/LazyImage";
 import { FollowButton } from "@/components/profiles/FollowButton";
+import { ShareButton } from "@/components/ui/share-button";
+import { Badge } from "@/components/ui/badge";
+import { MapPin, Star, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface NewProfileHeaderProps {
   profile: Profile;
 }
 
 export function NewProfileHeader({ profile }: NewProfileHeaderProps) {
-  const { isMobile } = useResponsive();
-  const { data: genres = [] } = useProfileGenres(profile.id, profile.type);
-
   return (
-    <div className="relative w-full">
-      {/* Cover Image with Gradient Overlay */}
-      <div className="relative h-64 md:h-80 w-full overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: profile.cover_url 
-              ? `url(${profile.cover_url})` 
-              : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-variant)) 100%)'
-          }}
+    <header className="relative">
+      {/* Cover Image */}
+      <div className="relative h-64 md:h-80 overflow-hidden">
+        <LazyImage
+          src={profile.cover_url || '/placeholder.svg'}
+          alt={`Capa de ${profile.name}`}
+          className="w-full h-full object-cover"
         />
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         
-        {/* Content Overlay */}
+        {/* Profile Info Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-          <div className="container mx-auto">
-            <div className="flex flex-col md:flex-row md:items-end gap-4">
-              {/* Avatar */}
-              <Avatar className="w-20 h-20 md:w-24 md:h-24 border-4 border-white shadow-lg">
-                <AvatarImage src={profile.avatar_url} alt={profile.name} />
-                <AvatarFallback className="text-black text-xl md:text-2xl font-bold">
-                  {profile.name.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-
-              {/* Profile Info */}
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl md:text-4xl font-bold">{profile.name}</h1>
-                  {profile.verified && (
-                    <VerifiedIcon className="w-6 h-6 text-primary fill-current" />
-                  )}
+          <div className="container mx-auto flex items-end gap-6">
+            {/* Avatar */}
+            <div className="relative flex-shrink-0">
+              <LazyImage
+                src={profile.avatar_url || '/placeholder.svg'}
+                alt={profile.name}
+                className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg"
+              />
+              {profile.verified && (
+                <div className="absolute -top-1 -right-1 w-8 h-8 bg-primary rounded-full flex items-center justify-center border-2 border-white">
+                  <Star className="w-4 h-4 text-primary-foreground fill-current" />
                 </div>
-                
-                <p className="text-white/90 text-sm">@{profile.handle}</p>
-                
-                {/* Tags/Genres */}
-                {genres.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {genres.slice(0, 4).map((genre) => (
-                      <Badge 
-                        key={genre.id} 
-                        className="bg-primary/90 text-white border-0 hover:bg-primary"
-                      >
-                        {genre.name}
-                      </Badge>
-                    ))}
+              )}
+            </div>
+
+            {/* Profile Info */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-3xl md:text-4xl font-bold truncate">
+                    {profile.name}
+                  </h1>
+                  <p className="text-white/90 text-lg">@{profile.handle}</p>
+                  
+                  {/* Type and Location */}
+                  <div className="flex items-center gap-4 mt-2">
+                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                      {profile.type === 'artista' ? 'Artista' : 
+                       profile.type === 'local' ? 'Local' : 'Organizador'}
+                    </Badge>
+                    
+                    {profile.city && (
+                      <div className="flex items-center gap-1 text-white/90">
+                        <MapPin className="w-4 h-4" />
+                        <span>{profile.city}</span>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
 
-                {/* Bio Preview */}
-                {profile.bio_short && (
-                  <p className="text-white/90 text-sm md:text-base max-w-2xl line-clamp-2 mt-3">
-                    {profile.bio_short}
-                  </p>
-                )}
+                {/* Actions */}
+                <div className="flex items-center gap-2">
+                  <ShareButton 
+                    url={`${window.location.origin}/perfil/@${profile.handle}`}
+                    title={`${profile.name} - Rolê`}
+                    variant="secondary"
+                    className="bg-white/20 border-white/30 text-white hover:bg-white/30"
+                  />
+                  <FollowButton 
+                    profileId={profile.id}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                  />
+                </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-3 mt-4 md:mt-0">
-                <FollowButton 
-                  profileId={profile.id} 
-                  className="bg-primary hover:bg-primary-hover text-white border-0 shadow-lg"
-                  size={isMobile ? "sm" : "default"}
-                />
-                <Button 
-                  variant="outline" 
-                  size={isMobile ? "sm" : "default"}
-                  className="bg-black/50 border-white/30 text-white hover:bg-black/70 hover:text-white shadow-lg"
-                >
-                  <MessageSquareIcon className="w-4 h-4 mr-2" />
-                  Mensagem
-                </Button>
-              </div>
+              {/* Bio */}
+              {profile.bio_short && (
+                <p className="mt-4 text-white/90 text-sm md:text-base line-clamp-2">
+                  {profile.bio_short}
+                </p>
+              )}
+
+              {/* Links */}
+              {profile.links && profile.links.length > 0 && (
+                <div className="flex items-center gap-2 mt-3">
+                  {profile.links.slice(0, 3).map((link, index) => (
+                    <Button
+                      key={index}
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="bg-white/20 border-white/30 text-white hover:bg-white/30"
+                    >
+                      <a href={link.url} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-3 h-3 mr-1" />
+                        {link.type}
+                      </a>
+                    </Button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </header>
   );
 }

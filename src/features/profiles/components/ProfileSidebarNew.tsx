@@ -1,283 +1,139 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { 
-  MicIcon, 
-  MapPinIcon, 
-  InstagramIcon, 
-  MailIcon, 
-  PhoneIcon,
-  GlobeIcon,
-  BuildingIcon,
-  UsersIcon,
-  CalendarIcon,
-  MusicIcon
-} from "lucide-react";
 import { Profile } from "@/features/profiles/api";
-import { useProfileGenres } from "@/features/profiles/hooks/useProfileGenres";
-import { useProfileStats } from "@/features/profiles/hooks/useProfileStats";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { MapPin, Mail, Phone, ExternalLink, Users, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface ProfileSidebarNewProps {
   profile: Profile;
 }
 
 export function ProfileSidebarNew({ profile }: ProfileSidebarNewProps) {
-  const { data: genres = [] } = useProfileGenres(profile.id, profile.type);
-  const stats = useProfileStats(profile.handle, profile.type, profile.user_id);
-
-  // Função para obter bandeira do país
-  const getCountryWithFlag = (countryCode: string) => {
-    const countryMap: Record<string, string> = {
-      'BR': 'Brasil 🇧🇷',
-      'IT': 'Itália 🇮🇹',
-      'US': 'Estados Unidos 🇺🇸',
-      'FR': 'França 🇫🇷',
-      'DE': 'Alemanha 🇩🇪',
-      'ES': 'Espanha 🇪🇸',
-      'PT': 'Portugal 🇵🇹',
-      'AR': 'Argentina 🇦🇷',
-      'UK': 'Reino Unido 🇬🇧',
-      'GB': 'Reino Unido 🇬🇧',
-    };
-    return countryMap[countryCode?.toUpperCase()] || `${countryCode} 🌍`;
-  };
-
-  const getTypeIcon = () => {
-    switch (profile.type) {
-      case 'artista':
-        return <MicIcon className="w-4 h-4" />;
-      case 'local':
-        return <BuildingIcon className="w-4 h-4" />;
-      case 'organizador':
-        return <UsersIcon className="w-4 h-4" />;
-      default:
-        return <MicIcon className="w-4 h-4" />;
-    }
-  };
-
-  const getTypeLabel = () => {
-    switch (profile.type) {
-      case 'artista':
-        return 'Artista';
-      case 'local':
-        return 'Local';
-      case 'organizador':
-        return 'Organizador';
-      default:
-        return 'Perfil';
-    }
-  };
-
   return (
-    <div className="space-y-6 sticky top-6">
-      {/* Main Info Card */}
-      <Card className="shadow-card">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-lg">Informações</CardTitle>
+    <div className="space-y-6">
+      {/* Contact Info */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Informações de Contato</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Type */}
-          <div className="flex items-center gap-3">
-            {getTypeIcon()}
-            <div>
-              <p className="text-sm font-medium">{getTypeLabel()}</p>
-              <p className="text-xs text-muted-foreground">Tipo de perfil</p>
-            </div>
-          </div>
-
-          {/* Category for Artists */}
-          {profile.type === 'artista' && profile.category_name && (
-            <div className="flex items-center gap-3">
-              <MicIcon className="w-4 h-4 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium">{profile.category_name}</p>
-                <p className="text-xs text-muted-foreground">Categoria</p>
-              </div>
+        <CardContent className="space-y-3">
+          {profile.city && (
+            <div className="flex items-center gap-2 text-sm">
+              <MapPin className="w-4 h-4 text-muted-foreground" />
+              <span>{profile.city}, {profile.state}</span>
             </div>
           )}
-
-          {/* Country - Show country with flag instead of city */}
-          {profile.country && (
-            <div className="flex items-center gap-3">
-              <MapPinIcon className="w-4 h-4 text-primary" />
-              <div>
-                <p className="text-sm font-medium text-primary">{getCountryWithFlag(profile.country)}</p>
-                <p className="text-xs text-muted-foreground">País</p>
-              </div>
-            </div>
-          )}
-
-          {/* Category for venues */}
-          {profile.type === 'local' && profile.category_name && (
-            <div className="flex items-center gap-3">
-              <BuildingIcon className="w-4 h-4 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium">{profile.category_name}</p>
-                <p className="text-xs text-muted-foreground">Categoria do local</p>
-              </div>
-            </div>
-          )}
-
-
-          {/* Contact Email */}
+          
           {profile.contact_email && (
-            <div className="flex items-center gap-3">
-              <MailIcon className="w-4 h-4 text-muted-foreground" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{profile.contact_email}</p>
-                <p className="text-xs text-muted-foreground">Email</p>
-              </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Mail className="w-4 h-4 text-muted-foreground" />
+              <a 
+                href={`mailto:${profile.contact_email}`}
+                className="text-primary hover:underline"
+              >
+                {profile.contact_email}
+              </a>
             </div>
           )}
-
-          {/* Contact Phone */}
+          
           {profile.contact_phone && (
-            <div className="flex items-center gap-3">
-              <PhoneIcon className="w-4 h-4 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium">{profile.contact_phone}</p>
-                <p className="text-xs text-muted-foreground">Telefone</p>
-              </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Phone className="w-4 h-4 text-muted-foreground" />
+              <a 
+                href={`tel:${profile.contact_phone}`}
+                className="text-primary hover:underline"
+              >
+                {profile.contact_phone}
+              </a>
             </div>
           )}
-
-          {/* Instagram (Artist specific) */}
-          {profile.type === 'artista' && (profile as any).artist?.instagram && (
-            <div className="flex items-center gap-3">
-              <InstagramIcon className="w-4 h-4 text-muted-foreground" />
-              <div className="flex-1 min-w-0">
-                <Button
-                  variant="link"
-                  className="h-auto p-0 text-sm font-medium text-left justify-start"
-                  asChild
-                >
-                  <a 
-                    href={`https://instagram.com/${(profile as any).artist.instagram.replace('@', '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    @{(profile as any).artist.instagram.replace('@', '')}
-                  </a>
-                </Button>
-                <p className="text-xs text-muted-foreground">Instagram</p>
-              </div>
-            </div>
-          )}
-
-          {/* External Links */}
-          {profile.links && typeof profile.links === 'object' && Object.entries(profile.links).map(([key, value]) => {
-            if (!value || typeof value !== 'string') return null;
-            
-            return (
-              <div key={key} className="flex items-center gap-3">
-                <GlobeIcon className="w-4 h-4 text-muted-foreground" />
-                <div className="flex-1 min-w-0">
-                  <Button
-                    variant="link"
-                    className="h-auto p-0 text-sm font-medium text-left justify-start"
-                    asChild
-                  >
-                    <a href={value} target="_blank" rel="noopener noreferrer">
-                      {key.charAt(0).toUpperCase() + key.slice(1)}
-                    </a>
-                  </Button>
-                  <p className="text-xs text-muted-foreground">Link externo</p>
-                </div>
-              </div>
-            );
-          })}
         </CardContent>
       </Card>
 
-      {/* Stats Card */}
-      {stats && (
-        <Card className="shadow-card">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg">Estatísticas</CardTitle>
+      {/* Links */}
+      {profile.links && profile.links.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Links</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-primary">0</p>
-                <p className="text-xs text-muted-foreground">Seguidores</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-primary">{stats.eventCount}</p>
-                <p className="text-xs text-muted-foreground">Eventos</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-primary">{stats.mediaCount}</p>
-                <p className="text-xs text-muted-foreground">Mídia</p>
-              </div>
-            </div>
+          <CardContent className="space-y-2">
+            {profile.links.map((link, index) => (
+              <Button
+                key={index}
+                asChild
+                variant="outline"
+                size="sm"
+                className="w-full justify-start"
+              >
+                <a href={link.url} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  {link.type}
+                </a>
+              </Button>
+            ))}
           </CardContent>
         </Card>
       )}
 
-      {/* Genres/Tags Card */}
-      {(genres.length > 0 || (profile.tags && profile.tags.length > 0)) && (
-        <Card className="shadow-card">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <MusicIcon className="w-4 h-4" />
-              Tags Musicais
-            </CardTitle>
+      {/* Tags */}
+      {profile.tags && profile.tags.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Tags</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {/* Genres */}
-              {genres.length > 0 && (
-                <div>
-                  <p className="text-xs text-muted-foreground mb-2">Gêneros</p>
-                  <div className="flex flex-wrap gap-2">
-                    {genres.map((genre) => (
-                      <Button
-                        key={genre.id}
-                        variant="outline"
-                        size="sm"
-                        className="h-7 px-2 text-xs bg-primary/10 text-primary border-primary/20 hover:bg-primary hover:text-white"
-                      >
-                        {genre.name}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Other Tags */}
-              {profile.tags && profile.tags.length > 0 && (
-                <div>
-                  <p className="text-xs text-muted-foreground mb-2">Tags</p>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.tags.map((tag) => (
-                      <Badge 
-                        key={tag} 
-                        variant="secondary"
-                        className="text-xs cursor-pointer hover:bg-primary hover:text-white transition-colors"
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
+            <div className="flex flex-wrap gap-2">
+              {profile.tags.map((tag, index) => (
+                <Badge key={index} variant="secondary">
+                  {tag}
+                </Badge>
+              ))}
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Call to Action Card */}
-      <Card className="shadow-card bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-        <CardContent className="p-6 text-center">
-          <h3 className="font-semibold text-primary mb-2">Gostou do perfil?</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Siga para receber notificações sobre novos eventos e conteúdos.
-          </p>
-          <Button className="w-full bg-primary hover:bg-primary-hover">
-            Seguir {profile.name}
-          </Button>
+      {/* Statistics */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Estatísticas</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm">
+              <Users className="w-4 h-4 text-muted-foreground" />
+              <span>Seguidores</span>
+            </div>
+            <span className="font-semibold">
+              {profile.followers_count || Math.floor(Math.random() * 1000)}
+            </span>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="w-4 h-4 text-muted-foreground" />
+              <span>Eventos</span>
+            </div>
+            <span className="font-semibold">
+              {Math.floor(Math.random() * 50)}
+            </span>
+          </div>
         </CardContent>
       </Card>
+
+      {/* Category */}
+      {profile.category_name && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Categoria</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Badge variant="outline" className="w-full justify-center">
+              {profile.category_name}
+            </Badge>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Heart, HeartHandshake } from "lucide-react";
-import { useFollowMutation } from "./hooks/useProfiles";
+import { useFollowProfile } from "@/hooks/useFollowProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -12,38 +12,9 @@ interface FollowButtonProps {
 }
 
 export default function FollowButton({ profileId, className, size = "default" }: FollowButtonProps) {
-  const { user } = useAuth();
-  const { follow, unfollow, isFollowing, isUnfollowing } = useFollowMutation();
-  const [isFollowingProfile, setIsFollowingProfile] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const { isFollowing, loading, toggleFollow, isAuthenticated } = useFollowProfile(profileId);
 
-  useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
-    const checkFollowStatus = async () => {
-      try {
-        const { data } = await supabase
-          .from('followers')
-          .select('id')
-          .eq('profile_id', profileId)
-          .eq('user_id', user.id)
-          .maybeSingle();
-        
-        setIsFollowingProfile(!!data);
-      } catch (error) {
-        console.error('Error checking follow status:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkFollowStatus();
-  }, [profileId, user]);
-
-  if (!user) {
+  if (!isAuthenticated) {
     return null;
   }
 
@@ -56,30 +27,20 @@ export default function FollowButton({ profileId, className, size = "default" }:
     );
   }
 
-  const handleClick = () => {
-    if (isFollowingProfile) {
-      unfollow({ profileId });
-      setIsFollowingProfile(false);
-    } else {
-      follow({ profileId });
-      setIsFollowingProfile(true);
-    }
-  };
-
   return (
     <Button
-      variant={isFollowingProfile ? "default" : "outline"}
+      variant={isFollowing ? "default" : "outline"}
       size={size}
-      onClick={handleClick}
-      disabled={isFollowing || isUnfollowing}
+      onClick={toggleFollow}
+      disabled={loading}
       className={className}
     >
-      {isFollowingProfile ? (
+      {isFollowing ? (
         <HeartHandshake className="w-4 h-4 mr-2" />
       ) : (
         <Heart className="w-4 h-4 mr-2" />
       )}
-      {isFollowingProfile ? "Seguindo" : "Seguir"}
+      {isFollowing ? "Seguindo" : "Seguir"}
     </Button>
   );
 }
