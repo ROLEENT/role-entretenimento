@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { createAdminClient, handleAdminError } from "@/lib/adminClient";
 import { useState } from "react";
 
 interface RowActionsProps {
@@ -56,24 +56,24 @@ export function RowActions({
     try {
       setIsDeleting(true);
       
-      const { error } = await supabase
-        .from(entity)
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        if (error.code === '42501') {
-          toast.error('Permissão negada para excluir este item');
-        } else {
-          toast.error(`Erro ao excluir ${entity === 'artists' ? 'artista' : entity === 'organizers' ? 'organizador' : 'local'}: ${error.message}`);
-        }
-        return;
-      }
+      const adminClient = await createAdminClient();
+      
+      // Use soft delete for consistency
+      await adminClient.restCall(`${entity}?id=eq.${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ 
+          deleted_at: new Date().toISOString(),
+          status: 'inactive',
+          updated_at: new Date().toISOString()
+        }),
+      });
 
       toast.success(`${entity === 'artists' ? 'Artista' : entity === 'organizers' ? 'Organizador' : 'Local'} excluído com sucesso`);
       onAfterDelete?.();
     } catch (error: any) {
-      toast.error(`Erro inesperado: ${error.message}`);
+      const errorMessage = handleAdminError(error);
+      console.error('Erro ao excluir:', error);
+      toast.error(errorMessage);
     } finally {
       setIsDeleting(false);
     }

@@ -16,7 +16,18 @@ const AdminV3VenuesList: React.FC = () => {
   const [city, setCity] = useState('all');
   const [completion, setCompletion] = useState('all');
 
-  const { venues, cities, isLoading, error } = useAdminVenuesData({
+  const { 
+    venues, 
+    cities, 
+    isLoading, 
+    error,
+    duplicateVenue,
+    updateVenueStatus,
+    deleteVenue,
+    isDuplicating,
+    isUpdatingStatus,
+    isDeleting
+  } = useAdminVenuesData({
     search: search || undefined,
     status: status !== 'all' ? status : undefined,
     city: city !== 'all' ? city : undefined,
@@ -38,16 +49,16 @@ const AdminV3VenuesList: React.FC = () => {
     </Button>
   );
 
-  const handleDuplicate = async (venue: any) => {
-    toast.info('Funcionalidade de duplicar será implementada em breve');
+  const handleDuplicate = (venueId: string) => {
+    duplicateVenue(venueId);
   };
 
-  const handleStatusChange = async (venueId: string, status: string) => {
-    toast.info('Funcionalidade de alterar status será implementada em breve');
+  const handleStatusChange = (venueId: string, status: string) => {
+    updateVenueStatus(venueId, status);
   };
 
-  const handleDelete = async (venueId: string) => {
-    toast.info('Funcionalidade de excluir será implementada em breve');
+  const handleDelete = (venueId: string) => {
+    deleteVenue(venueId);
   };
 
   const statsCards = [
@@ -150,7 +161,7 @@ const AdminV3VenuesList: React.FC = () => {
                 onDuplicate={handleDuplicate}
                 onStatusChange={handleStatusChange}
                 onDelete={handleDelete}
-                isLoading={isLoading}
+                isLoading={isDuplicating || isUpdatingStatus || isDeleting}
               />
             </CardContent>
           </Card>

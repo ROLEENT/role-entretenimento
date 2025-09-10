@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { createAdminClient, handleAdminError } from '@/lib/adminClient';
 
 interface OrganizerFilters {
   search: string;
@@ -81,6 +82,8 @@ export const useAdminOrganizersData = () => {
   // Duplicate organizer mutation
   const duplicateOrganizerMutation = useMutation({
     mutationFn: async (organizerId: string) => {
+      const adminClient = await createAdminClient();
+      
       const { data: organizer, error: fetchError } = await supabase
         .from('organizers')
         .select('*')
@@ -97,66 +100,76 @@ export const useAdminOrganizersData = () => {
         slug: `${organizerData.slug || organizerData.name.toLowerCase().replace(/\s+/g, '-')}-copia-${Date.now()}`,
       };
 
-      const { data, error } = await supabase
-        .from('organizers')
-        .insert(duplicateData)
-        .select()
-        .single();
+      const response = await adminClient.restCall('organizers', {
+        method: 'POST',
+        body: JSON.stringify(duplicateData),
+      });
 
-      if (error) throw error;
-      return data;
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-organizers'] });
       toast.success('Organizador duplicado com sucesso');
     },
     onError: (error) => {
+      const errorMessage = handleAdminError(error);
       console.error('Error duplicating organizer:', error);
-      toast.error('Erro ao duplicar organizador');
+      toast.error(errorMessage);
     },
   });
 
   // Update organizer status mutation
   const updateStatusMutation = useMutation({
     mutationFn: async ({ organizerId, status }: { organizerId: string; status: string }) => {
-      const { data, error } = await supabase
-        .from('organizers')
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq('id', organizerId)
-        .select()
-        .single();
+      const adminClient = await createAdminClient();
+      
+      const response = await adminClient.restCall(`organizers?id=eq.${organizerId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ 
+          status, 
+          updated_at: new Date().toISOString(),
+          deleted_at: status === 'inactive' ? new Date().toISOString() : null
+        }),
+      });
 
-      if (error) throw error;
-      return data;
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-organizers'] });
       toast.success('Status atualizado com sucesso');
     },
     onError: (error) => {
+      const errorMessage = handleAdminError(error);
       console.error('Error updating organizer status:', error);
-      toast.error('Erro ao atualizar status');
+      toast.error(errorMessage);
     },
   });
 
   // Delete organizer mutation
   const deleteOrganizerMutation = useMutation({
     mutationFn: async (organizerId: string) => {
-      const { error } = await supabase
-        .from('organizers')
-        .delete()
-        .eq('id', organizerId);
+      const adminClient = await createAdminClient();
+      
+      // Soft delete - mark as deleted instead of hard delete
+      const response = await adminClient.restCall(`organizers?id=eq.${organizerId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ 
+          deleted_at: new Date().toISOString(),
+          status: 'inactive',
+          updated_at: new Date().toISOString()
+        }),
+      });
 
-      if (error) throw error;
-      return organizerId;
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-organizers'] });
       toast.success('Organizador removido com sucesso');
     },
     onError: (error) => {
+      const errorMessage = handleAdminError(error);
       console.error('Error deleting organizer:', error);
-      toast.error('Erro ao remover organizador');
+      toast.error(errorMessage);
     },
   });
 
