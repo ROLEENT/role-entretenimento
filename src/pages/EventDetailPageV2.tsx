@@ -50,8 +50,12 @@ import { CurationCriteriaDrawer } from '@/components/events/CurationCriteriaDraw
 import { formatWeekdayPtBR } from '@/utils/dateUtils';
 import { useEventOrganizers } from '@/hooks/useEventOrganizers';
 import { EventEngagement } from '@/components/events/EventEngagement';
-import { EventComments } from '@/components/events/EventCommentsV2';
+import { LazyComments } from '@/components/events/LazyComments';
 import { PostEventCheckIn } from '@/components/events/PostEventCheckIn';
+import { ShareButton } from '@/components/events/ShareButton';
+import { SaveEventButton } from '@/components/events/SaveEventButton';
+import { useEnhancedNotifications } from '@/hooks/useEnhancedNotifications';
+import { useEventAnalytics } from '@/hooks/useEventAnalytics';
 import '../styles/mobile-event-layout.css';
 
 const EventDetailPageV2 = () => {
@@ -419,14 +423,24 @@ const EventDetailPageV2 = () => {
               {/* Post-Event Actions */}
               <PostEventActions event={event} />
               
+              {/* Share and Save Actions */}
+              <div className="flex gap-3 flex-wrap">
+                <ShareButton 
+                  eventId={event.id} 
+                  eventTitle={event.title}
+                  eventDate={formatWeekdayPtBR(new Date(event.date_start))}
+                />
+                <SaveEventButton eventId={event.id} />
+              </div>
+              
               {/* Event Engagement (likes, reactions) */}
               <EventEngagement eventId={event.id} eventDate={event.date_start} />
               
               {/* Post-Event Check-in (for past events) */}
               <PostEventCheckIn eventId={event.id} eventDate={event.date_start} eventTitle={event.title} />
               
-              {/* Comments Section */}
-              <EventComments eventId={event.id} />
+              {/* Comments Section with Lazy Loading */}
+              <LazyComments eventId={event.id} />
             </div>
             
             {/* Right Column - Sidebar (desktop only) */}

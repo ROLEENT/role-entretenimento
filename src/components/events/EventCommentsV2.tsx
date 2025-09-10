@@ -306,7 +306,7 @@ export function EventComments({ eventId, className }: EventCommentsProps) {
         <CardContent className="p-6">
           <div className="flex items-center justify-center py-8">
             <MessageCircle className="h-6 w-6 animate-pulse text-muted-foreground" />
-            <span className="ml-2 text-muted-foreground">Carregando comentários...</span>
+            <span className="ml-2 text-muted-foreground">Carregando os comentários do rolê...</span>
           </div>
         </CardContent>
       </Card>
@@ -329,11 +329,11 @@ export function EventComments({ eventId, className }: EventCommentsProps) {
         {user ? (
           <CommentForm
             onSubmit={(content) => addComment(content)}
-            placeholder="Compartilhe suas impressões sobre este evento..."
+            placeholder="Como foi o rolê? Conta aí..."
           />
         ) : (
           <div className="text-center py-4 text-muted-foreground">
-            <p>Faça login para comentar</p>
+            <p>Entre na conversa! Faça login para comentar</p>
           </div>
         )}
 
@@ -356,7 +356,7 @@ export function EventComments({ eventId, className }: EventCommentsProps) {
         ) : (
           <div className="text-center py-8 text-muted-foreground">
             <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Seja o primeiro a comentar!</p>
+            <p>Nenhum comentário ainda... que tal ser o primeiro a mandar um salve? 👋</p>
           </div>
         )}
 

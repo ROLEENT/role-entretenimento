@@ -31,13 +31,18 @@ export const useCommentNotifications = (entityId?: string, entityType?: 'event' 
         const comment = payload.new as any;
         
         if (entityType === 'blog' && comment.is_approved) {
-          toast.success('Novo comentário aprovado!', {
+          toast.success('Novo comentário aprovado! 🎉', {
             description: `${comment.author_name} comentou no artigo`,
             duration: 5000,
           });
-        } else if (entityType !== 'blog') {
-          toast.success('Novo comentário!', {
-            description: 'Alguém comentou nesta página',
+        } else if (entityType === 'event') {
+          toast.success('Alguém comentou no rolê! 💬', {
+            description: 'Confira o que estão falando sobre este evento',
+            duration: 5000,
+          });
+        } else if (entityType === 'highlight') {
+          toast.success('Novo comentário! 💭', {
+            description: 'Alguém comentou neste destaque',
             duration: 5000,
           });
         }

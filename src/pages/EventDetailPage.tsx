@@ -47,8 +47,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { EventEngagement } from '@/components/events/EventEngagement';
-import { EventComments } from '@/components/events/EventCommentsV2';
+import { LazyComments } from '@/components/events/LazyComments';
 import { PostEventCheckIn } from '@/components/events/PostEventCheckIn';
+import { ShareButton } from '@/components/events/ShareButton';
+import { SaveEventButton } from '@/components/events/SaveEventButton';
+import { useEnhancedNotifications } from '@/hooks/useEnhancedNotifications';
+import { useEventAnalytics } from '@/hooks/useEventAnalytics';
 import dayjs from 'dayjs';
 
 const EventDetailPage = () => {
@@ -923,14 +927,24 @@ const EventDetailPage = () => {
               </Card>
             )}
 
+            {/* Share and Save Actions */}
+            <div className="flex gap-3 flex-wrap mb-6">
+              <ShareButton 
+                eventId={event.id} 
+                eventTitle={event.title}
+                eventDate={dayjs(event.date_start).format('DD/MM/YYYY')}
+              />
+              <SaveEventButton eventId={event.id} />
+            </div>
+            
             {/* Event Engagement (likes, reactions) */}
             <EventEngagement eventId={event.id} eventDate={event.date_start} />
             
             {/* Post-Event Check-in (for past events) */}
             <PostEventCheckIn eventId={event.id} eventDate={event.date_start} eventTitle={event.title} />
             
-            {/* Comments Section */}
-            <EventComments eventId={event.id} />
+            {/* Comments Section with Lazy Loading */}
+            <LazyComments eventId={event.id} />
 
             <RelatedEvents 
               currentEventId={event.id} 

@@ -143,7 +143,7 @@ export function EventEngagement({ eventId, eventDate, className }: EventEngageme
 
   const handleLike = async () => {
     if (!user?.id) {
-      toast.error('Você precisa estar logado para curtir');
+      toast.error('Entre na sua conta para curtir o rolê!');
       return;
     }
 
@@ -169,7 +169,7 @@ export function EventEngagement({ eventId, eventDate, className }: EventEngageme
             reaction_type: 'like'
           });
         
-        toast.success('Evento curtido!');
+        toast.success('Rolê curtido! 🎉');
       }
     } catch (error) {
       console.error('Error toggling like:', error);
@@ -181,7 +181,7 @@ export function EventEngagement({ eventId, eventDate, className }: EventEngageme
 
   const handleReaction = async (reactionType: string) => {
     if (!user?.id) {
-      toast.error('Você precisa estar logado para reagir');
+      toast.error('Faça login para reagir ao rolê!');
       return;
     }
 
@@ -324,7 +324,7 @@ export function EventEngagement({ eventId, eventDate, className }: EventEngageme
         {!user && (
           <div className="text-center py-2">
             <p className="text-sm text-muted-foreground">
-              <span>Faça login para curtir e reagir aos eventos</span>
+              <span>Entre na sua conta para curtir e reagir aos rolês!</span>
             </p>
           </div>
         )}
