@@ -7,15 +7,48 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
 interface EventOrganizerCardProps {
-  organizer?: any; // Organizador do evento (sistema novo)
+  organizer?: any; // Organizador principal do evento
+  venue?: any; // Local como fallback se não há organizador
 }
 
-export function EventOrganizerCard({ organizer }: EventOrganizerCardProps) {
-  // Sistema novo simplificado - apenas organizador direto
-  const organizerData = organizer;
+export function EventOrganizerCard({ organizer, venue }: EventOrganizerCardProps) {
+  // Debug logs removidos - funcionamento em produção
+  
+  // Carregar dados do organizador se apenas o ID foi fornecido
+  const [organizerData, setOrganizerData] = React.useState<any>(organizer);
+  
+  React.useEffect(() => {
+    if (organizer?.id && !organizer.name) {
+      // Se temos apenas o ID, buscar os dados completos
+      const fetchOrganizer = async () => {
+        try {
+          const { data } = await supabase
+            .from('organizers')
+            .select('id, name, avatar_url, slug')
+            .eq('id', organizer.id)
+            .single();
+          
+          if (data) {
+            setOrganizerData(data);
+          }
+        } catch (error) {
+          console.error('Error fetching organizer:', error);
+        }
+      };
+      
+      fetchOrganizer();
+    } else {
+      setOrganizerData(organizer);
+    }
+  }, [organizer]);
 
-  // Se não há organizador, não mostrar o card
-  if (!organizerData) return null;
+  // REGRA CRÍTICA: NUNCA mostrar venue como organizador se há organizador real
+  // Apenas mostrar o card se houver um organizador válido
+  const hasValidOrganizer = organizerData?.name || organizerData?.id;
+  
+  if (!hasValidOrganizer) {
+    return null;
+  }
 
   return (
     <Card className="rounded-lg">
@@ -26,6 +59,7 @@ export function EventOrganizerCard({ organizer }: EventOrganizerCardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Mostrar organizador principal */}
         <div className="flex items-center p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors group">
           {/* Organizer Logo */}
           <div className="flex-shrink-0 mr-3">
@@ -47,9 +81,7 @@ export function EventOrganizerCard({ organizer }: EventOrganizerCardProps) {
           {/* Organizer Info */}
           <div className="flex-1 min-w-0">
             <h4 className="font-medium truncate">{organizerData.name}</h4>
-            <p className="text-sm text-muted-foreground">
-              Organizador{organizerData.city ? ` · ${organizerData.city}` : ''}
-            </p>
+            <p className="text-sm text-muted-foreground">Organizador</p>
           </div>
           
           {/* Link to Organizer Profile */}
@@ -72,7 +104,7 @@ export function EventOrganizerCard({ organizer }: EventOrganizerCardProps) {
         {/* Ver todos os eventos do organizador */}
         {organizerData?.slug && (
           <Button asChild variant="outline" size="sm" className="w-full">
-            <Link to={`/agenda?organizer=${organizerData.slug}`}>
+            <Link to={`/perfil/${organizerData.slug}`}>
               Ver todos os eventos deste organizador
             </Link>
           </Button>

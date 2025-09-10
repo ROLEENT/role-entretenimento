@@ -11,19 +11,92 @@ export const eventsApi = {
         throw new Error('Admin não autenticado');
       }
 
-      const { data, error } = await supabase.rpc('create_event_cascade', {
-        event_data: eventData,
-        partners: eventData.partners || [],
-        lineup_slots: eventData.lineup_slots || [],
-        performances: eventData.performances || [],
-        visual_artists: eventData.visual_artists || []
+      // Extract organizers from partners
+      const partners = (eventData as any).partners || [];
+      const organizers = partners.filter((p: any) => p.role === 'organizer');
+      
+      console.log('🔍 Debug organizers:', {
+        partners: partners.length,
+        organizers: organizers.length,
+        organizerData: organizers.map(o => ({ 
+          partner_id: o.partner_id, 
+          role: o.role, 
+          is_main: o.is_main 
+        }))
       });
+      
+      // Ensure we have at least one organizer if publishing
+      const isPublished = (eventData as any).is_published || false;
+      if (isPublished && organizers.length === 0) {
+        throw new Error('Eventos publicados devem ter pelo menos um organizador definido');
+      }
+
+      // Extract main organizer
+      const mainOrganizer = organizers.find((o: any) => o.is_main) || organizers[0];
+      const organizerIds = organizers.map((o: any) => o.partner_id).filter(Boolean);
+
+      // For agenda_itens, use direct insert with organizer data
+      const { data, error } = await supabase
+        .from('agenda_itens')
+        .insert({
+          title: eventData.title,
+          subtitle: eventData.subtitle,
+          slug: eventData.slug,
+          summary: eventData.summary,
+          city: eventData.city,
+          starts_at: eventData.date_start,
+          end_at: eventData.date_end,
+          cover_url: eventData.cover_url || eventData.image_url,
+          alt_text: eventData.cover_alt,
+          venue_id: eventData.venue_id,
+          location_name: eventData.location_name,
+          address: eventData.address,
+          status: 'published',
+          is_published: isPublished,
+          organizer_id: mainOrganizer?.id || null,
+          organizer_ids: organizerIds,
+          created_by: session?.user?.id,
+          // Novos campos de promoção
+          promo_type: (eventData as any).promo_type || 'none',
+          vitrine_package: (eventData as any).promo_type?.includes('vitrine') ? (eventData as any).vitrine_package : null,
+          vitrine_order_id: (eventData as any).promo_type?.includes('vitrine') ? (eventData as any).vitrine_order_id : null,
+          vitrine_notes: (eventData as any).promo_type?.includes('vitrine') ? (eventData as any).vitrine_notes : null,
+          featured_reasons: (eventData as any).promo_type?.includes('destaque') ? (eventData as any).featured_reasons : [],
+          featured_note: (eventData as any).promo_type?.includes('destaque') ? (eventData as any).featured_note : null,
+          featured_until: (eventData as any).promo_type?.includes('destaque') ? (eventData as any).featured_until : null,
+          featured_weight: (eventData as any).promo_type?.includes('destaque') ? (eventData as any).featured_weight : 0,
+          event_genres: (eventData as any).event_genres || []
+        })
+        .select()
+        .single();
 
       if (error) {
         throw new Error(`Erro ao criar evento: ${error.message}`);
       }
 
-      return data;
+      // Create organizer relationships in agenda_item_organizers
+      if (organizers.length > 0) {
+        const organizerRelations = organizers.map((org: any, index: number) => ({
+          agenda_id: data.id,
+          organizer_id: org.id,
+          role: org.role || 'organizer',
+          main_organizer: org.is_main || false,
+          position: index
+        })).filter((rel: any) => rel.organizer_id);
+
+        if (organizerRelations.length > 0) {
+          const { error: orgError } = await supabase
+            .from('agenda_item_organizers')
+            .insert(organizerRelations);
+
+          if (orgError) {
+            console.error('Error creating organizer relations:', orgError);
+            // Don't throw here, just log the error
+          }
+        }
+      }
+
+      return data.id;
     } catch (error) {
       console.error('Error in createEvent:', error);
       throw error;
@@ -39,58 +112,95 @@ export const eventsApi = {
         throw new Error('Admin não autenticado');
       }
 
-      // Update main event
+      // Extract organizers from partners
+      const partners = (eventData as any).partners || [];
+      const organizers = partners.filter((p: any) => p.role === 'organizer');
+      
+      console.log('🔍 Debug organizers (update):', {
+        partners: partners.length,
+        organizers: organizers.length,
+        organizerData: organizers.map(o => ({ 
+          partner_id: o.partner_id, 
+          role: o.role, 
+          is_main: o.is_main 
+        }))
+      });
+      
+      // Ensure we have at least one organizer if publishing
+      const isPublished = (eventData as any).is_published || false;
+      if (isPublished && organizers.length === 0) {
+        throw new Error('Eventos publicados devem ter pelo menos um organizador definido');
+      }
+
+      // Extract main organizer
+      const mainOrganizer = organizers.find((o: any) => o.is_main) || organizers[0];
+      const organizerIds = organizers.map((o: any) => o.id).filter(Boolean);
+
+      // Update agenda_itens
       const { error: eventError } = await supabase
-        .from('events')
+        .from('agenda_itens')
         .update({
           title: eventData.title,
           subtitle: eventData.subtitle,
+          slug: eventData.slug,
           summary: eventData.summary,
-          description: eventData.description,
+          city: eventData.city,
+          starts_at: eventData.date_start,
+          end_at: eventData.date_end,
+          cover_url: eventData.cover_url || eventData.image_url,
+          alt_text: eventData.cover_alt,
           venue_id: eventData.venue_id,
-          organizer_id: eventData.organizer_id,
           location_name: eventData.location_name,
           address: eventData.address,
-          city: eventData.city,
-          state: eventData.state,
-          country: eventData.country,
-          date_start: eventData.date_start,
-          date_end: eventData.date_end,
-          doors_open_utc: eventData.doors_open_utc,
-          headliner_starts_utc: eventData.headliner_starts_utc,
-          image_url: eventData.image_url,
-          cover_url: eventData.cover_url,
-          cover_alt: eventData.cover_alt,
-          gallery: eventData.gallery,
-          price_min: eventData.price_min,
-          price_max: eventData.price_max,
-          currency: eventData.currency,
-          ticket_url: eventData.ticket_url,
-          ticketing: eventData.ticketing,
-          ticket_rules: eventData.ticket_rules,
-          age_rating: eventData.age_rating,
-          age_notes: eventData.age_notes,
-          genres: eventData.genres,
-          tags: eventData.tags,
-          highlight_type: eventData.highlight_type,
-          is_sponsored: eventData.is_sponsored,
-          curatorial_criteria: eventData.curatorial_criteria || {},
-          links: eventData.links,
-          accessibility: eventData.accessibility,
-          seo_title: eventData.seo_title,
-          seo_description: eventData.seo_description,
-          og_image_url: eventData.og_image_url,
-          series_id: eventData.series_id,
-          edition_number: eventData.edition_number,
-          status: eventData.status,
-          visibility: eventData.visibility,
-          slug: eventData.slug,
-          updated_at: new Date().toISOString()
+          is_published: isPublished,
+          organizer_id: mainOrganizer?.partner_id || null,
+          organizer_ids: organizerIds,
+          updated_by: session?.user?.id,
+          updated_at: new Date().toISOString(),
+          // Novos campos de promoção
+          promo_type: (eventData as any).promo_type || 'none',
+          vitrine_package: (eventData as any).promo_type?.includes('vitrine') ? (eventData as any).vitrine_package : null,
+          vitrine_order_id: (eventData as any).promo_type?.includes('vitrine') ? (eventData as any).vitrine_order_id : null,
+          vitrine_notes: (eventData as any).promo_type?.includes('vitrine') ? (eventData as any).vitrine_notes : null,
+          featured_reasons: (eventData as any).promo_type?.includes('destaque') ? (eventData as any).featured_reasons : [],
+          featured_note: (eventData as any).promo_type?.includes('destaque') ? (eventData as any).featured_note : null,
+          featured_until: (eventData as any).promo_type?.includes('destaque') ? (eventData as any).featured_until : null,
+          featured_weight: (eventData as any).promo_type?.includes('destaque') ? (eventData as any).featured_weight : 0,
+          event_genres: (eventData as any).event_genres || []
         })
         .eq('id', eventId);
 
       if (eventError) {
         throw new Error(`Erro ao atualizar evento: ${eventError.message}`);
+      }
+
+      // Update organizer relationships
+      // First, delete existing organizer relations
+      await supabase
+        .from('agenda_item_organizers')
+        .delete()
+        .eq('agenda_id', eventId);
+
+      // Create new organizer relationships
+      if (organizers.length > 0) {
+        const organizerRelations = organizers.map((org: any, index: number) => ({
+          agenda_id: eventId,
+          organizer_id: org.partner_id,
+          role: org.role || 'organizer',
+          main_organizer: org.is_main || false,
+          position: index
+        })).filter((rel: any) => rel.organizer_id);
+
+        if (organizerRelations.length > 0) {
+          const { error: orgError } = await supabase
+            .from('agenda_item_organizers')
+            .insert(organizerRelations);
+
+          if (orgError) {
+            console.error('Error updating organizer relations:', orgError);
+            // Don't throw here, just log the error
+          }
+        }
       }
 
       return eventId;

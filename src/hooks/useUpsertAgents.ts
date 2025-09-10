@@ -29,8 +29,8 @@ export const useUpsertArtist = () => {
           .slice(0, 80); // Limit to 80 chars
       };
 
-      // Extract new genre fields for separate handling
-      const { music_genres, acting_genres, ...dataWithoutGenres } = data;
+      // Extract genres for separate handling
+      const { genres, ...dataWithoutGenres } = data;
 
       // Transform data to match database schema exactly
       const transformedData = {
@@ -59,8 +59,6 @@ export const useUpsertArtist = () => {
         cities_active: data.cities_active || [],
         availability_days: data.availability_days || [],
         tags: data.tags || [],
-        music_genres: data.music_genres || [],
-        acting_genres: data.acting_genres || [],
         
         // Ensure default values
         country: data.country || 'BR',
@@ -83,8 +81,10 @@ export const useUpsertArtist = () => {
         throw new Error(`Erro ao salvar artista: ${error.message}`);
       }
 
-      // Note: New genre fields (music_genres, acting_genres) are now stored directly in the artists table
-      // No need for separate syncing as they are array columns in the database
+      // Sync genres if provided
+      if (genres && genres.length > 0 && result.id) {
+        await syncArtistGenres(result.id, genres);
+      }
 
       return result;
     },

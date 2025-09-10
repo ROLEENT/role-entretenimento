@@ -63,20 +63,33 @@ export function useEntityLookup({ type, limit = 20 }: EntityLookupOptions) {
 
   const getEntityById = async (id: string): Promise<ComboboxAsyncOption | null> => {
     try {
-      let tableName = type;
-      let selectFields = 'id, name, city';
+      let query;
       
-      if (type === 'artists') {
-        selectFields = 'id, stage_name, city';
-      } else if (type === 'venues') {
-        selectFields = 'id, name, city, address_line';
+      switch (type) {
+        case 'artists':
+          query = supabase
+            .from('artists')
+            .select('id, stage_name as name, city, booking_email as contact_email')
+            .eq('id', id)
+            .eq('status', 'active');
+          break;
+        case 'organizers':
+          query = supabase
+            .from('organizers')
+            .select('id, name, city, email as contact_email')
+            .eq('id', id);
+          break;
+        case 'venues':
+          query = supabase
+            .from('venues')
+            .select('id, name, city, contact_email')
+            .eq('id', id);
+          break;
+        default:
+          return null;
       }
 
-      const { data, error } = await supabase
-        .from(tableName)
-        .select(selectFields)
-        .eq('id', id)
-        .maybeSingle() as { data: any, error: any };
+      const { data, error } = await query.maybeSingle() as { data: any, error: any };
 
       if (error) {
         console.error('Get entity by ID error:', error);
@@ -89,7 +102,7 @@ export function useEntityLookup({ type, limit = 20 }: EntityLookupOptions) {
 
       return {
         id: data.id,
-        name: getName(data, type), // Use helper function for proper name handling
+        name: getName(data, type),
         value: data.id,
         subtitle: getSubtitle(data, type),
       };

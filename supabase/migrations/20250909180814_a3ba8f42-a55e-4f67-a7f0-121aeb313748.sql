@@ -1,8 +1,12 @@
--- Corrigir função auto_publish_agenda_itens para não referenciar campo inexistente cover_path
+-- Add publication fields to agenda_itens table
+ALTER TABLE public.agenda_itens
+  ADD COLUMN IF NOT EXISTS is_published boolean NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS published_at timestamptz,
+  ADD COLUMN IF NOT EXISTS published_by uuid;
+
+-- Create auto-publish function with validation
 CREATE OR REPLACE FUNCTION public.auto_publish_agenda_itens()
-RETURNS trigger
-LANGUAGE plpgsql
-AS $$
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
 BEGIN
   -- Check minimum requirements for publication
   IF COALESCE(NEW.title, '') = '' OR COALESCE(NEW.slug, '') = '' THEN 
@@ -21,7 +25,7 @@ BEGIN
     RETURN NEW; 
   END IF;
   
-  IF COALESCE(NEW.cover_url, '') = '' THEN 
+  IF COALESCE(NEW.cover_url, '') = '' AND COALESCE(NEW.cover_path, '') = '' THEN 
     RETURN NEW; 
   END IF;
 
@@ -44,5 +48,10 @@ BEGIN
   END IF;
 
   RETURN NEW;
-END;
-$$;
+END $$;
+
+-- Create trigger
+DROP TRIGGER IF EXISTS trg_auto_publish_agenda_itens ON public.agenda_itens;
+CREATE TRIGGER trg_auto_publish_agenda_itens
+  BEFORE INSERT OR UPDATE ON public.agenda_itens
+  FOR EACH ROW EXECUTE FUNCTION public.auto_publish_agenda_itens();

@@ -46,7 +46,7 @@ import { useCurationDrawer } from '@/hooks/useCurationDrawer';
 import { useCurationData } from '@/hooks/useCurationData';
 import { CurationCriteriaDrawer } from '@/components/events/CurationCriteriaDrawer';
 import { formatWeekdayPtBR } from '@/utils/dateUtils';
-// Sistema antigo removido - usando events.organizer_id
+import { useEventOrganizers } from '@/hooks/useEventOrganizers';
 import '../styles/mobile-event-layout.css';
 
 const EventDetailPageV2 = () => {
@@ -65,7 +65,8 @@ const EventDetailPageV2 = () => {
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   
-  // Sistema antigo removido - organizador vem direto de event.organizer
+  // Use the existing hook for organizers
+  const { organizers, isLoading: organizersLoading } = useEventOrganizers(event?.id);
   
   const { user, session } = useAuth();
   const { isOpen: curationDrawerOpen, openDrawer, closeDrawer } = useCurationDrawer();
@@ -97,15 +98,10 @@ const EventDetailPageV2 = () => {
       // Check if the parameter is a UUID (for backward compatibility)
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(eventSlug);
       
-      // Fetch main event data with organizer (sistema novo simplificado)
+      // Fetch main event data
       const { data, error } = await supabase
         .from('events')
-        .select(`
-          *,
-          organizer:organizers!events_organizer_id_fkey (
-            id, name, slug, avatar_url, city
-          )
-        `)
+        .select('*')
         .eq(isUUID ? 'id' : 'slug', eventSlug)
         .eq('status', 'published')
         .maybeSingle();
@@ -137,7 +133,7 @@ const EventDetailPageV2 = () => {
         }
       }
       
-      // Organizador vem direto de event.organizer
+      // Organizer data is now handled by useEventOrganizers hook
       // Fetch lineup data - corrigindo para usar event_lineup_slots
       if (data.id) {
         const { data: lineupData, error: lineupError } = await supabase
@@ -267,10 +263,16 @@ const EventDetailPageV2 = () => {
     toast.success('Obrigado pelo feedback. Nossa equipe irá analisar.');
   };
 
-  // Use the organizer directly from the event query
-  const eventOrganizer = event?.organizer;
+  // Get the main organizer from the organizers list - CORRIGIDO
+  const mainOrganizerData = organizers?.find(org => org.main_organizer) || organizers?.[0];
+  const mainOrganizer = mainOrganizerData?.organizers;
+  
+  // Extrair organizador principal corrigido
+  
+  // Fallback: if there's no organizer but there's a direct organizer_id, load that
+  const directOrganizerRef = event?.organizer_id;
 
-  if (loading) {
+  if (loading || organizersLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -446,7 +448,7 @@ const EventDetailPageV2 = () => {
             {/* Right Column - Sidebar (desktop only) */}
             <div className="hidden lg:block space-y-6">
               {/* Organizer Card */}
-              <EventOrganizerCard organizer={event?.organizer} />
+              <EventOrganizerCard organizer={mainOrganizer || (directOrganizerRef ? { id: directOrganizerRef } : null)} venue={venue} />
               
               {/* Official Links */}
               <EventLinksCard event={event} partners={partners} />
@@ -493,7 +495,7 @@ const EventDetailPageV2 = () => {
           
           {/* Mobile: Organizer & Links Cards */}
           <div className="lg:hidden space-y-4 mt-6">
-            <EventOrganizerCard organizer={event?.organizer} />
+            <EventOrganizerCard organizer={mainOrganizer || (directOrganizerRef ? { id: directOrganizerRef } : null)} venue={venue} />
             <EventLinksCard event={event} partners={partners} />
             <EventMoodTagsCard event={event} />
           </div>

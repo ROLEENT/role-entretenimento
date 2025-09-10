@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { UseFormReturn, useWatch } from 'react-hook-form';
+import React from 'react';
+import { UseFormReturn } from 'react-hook-form';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,15 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArtistFlexibleForm } from '@/schemas/agents-flexible';
 import { RHFSlug } from '../RHFSlug';
 import { CountrySelect } from '@/components/form/CountrySelect';
+
 import { AgentesTagsInput } from '@/components/agentes/AgentesTagsInput';
 import { RHFArtistCategorySelect } from '@/components/form/RHFArtistCategorySelect';
-import { 
-  shouldShowActingGenres, 
-  shouldShowMusicGenres, 
-  getGenreSuggestions,
-  getCategoryType 
-} from '@/constants/artistCategories';
-import { supabase } from '@/integrations/supabase/client';
 
 interface ArtistBasicTabProps {
   form: UseFormReturn<ArtistFlexibleForm>;
@@ -36,55 +30,6 @@ const STATUS_OPTIONS = [
 ];
 
 export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
-  const [categorySlug, setCategorySlug] = useState<string>('');
-  
-  // Observar mudanças na categoria selecionada
-  const categoryId = useWatch({
-    control: form.control,
-    name: 'category_id'
-  });
-
-  // Buscar slug da categoria quando o ID mudar
-  useEffect(() => {
-    if (categoryId) {
-      const fetchCategorySlug = async () => {
-        const { data } = await supabase
-          .from('artist_categories')
-          .select('slug')
-          .eq('id', categoryId)
-          .single();
-        
-        if (data?.slug) {
-          setCategorySlug(data.slug);
-        }
-      };
-      
-      fetchCategorySlug();
-    } else {
-      setCategorySlug('');
-    }
-  }, [categoryId]);
-
-  // Limpar campos não aplicáveis quando a categoria mudar
-  useEffect(() => {
-    if (categorySlug) {
-      const categoryType = getCategoryType(categorySlug);
-      
-      // Se não é categoria de atuação, limpar gêneros de atuação
-      if (categoryType !== 'acting' && categoryType !== 'mixed') {
-        form.setValue('acting_genres', []);
-      }
-      
-      // Se não é categoria musical, limpar gêneros musicais
-      if (categoryType !== 'music' && categoryType !== 'mixed') {
-        form.setValue('music_genres', []);
-      }
-    }
-  }, [categorySlug, form]);
-
-  const showActingGenres = shouldShowActingGenres(categorySlug);
-  const showMusicGenres = shouldShowMusicGenres(categorySlug);
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <FormField
@@ -230,65 +175,24 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
         />
       </div>
 
-      <FormField
-        control={form.control}
-        name="country"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>País</FormLabel>
-            <FormControl>
-              <CountrySelect
-                name="country"
-                placeholder="Selecione o país"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      {/* Gêneros condicionais baseados na categoria */}
-      {showMusicGenres && (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
           control={form.control}
-          name="music_genres"
+          name="country"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Gêneros Musicais</FormLabel>
+              <FormLabel>País</FormLabel>
               <FormControl>
-                <AgentesTagsInput
-                  name="music_genres"
-                  placeholder="Digite um gênero musical e pressione Enter"
-                  maxTags={5}
-                  suggestions={getGenreSuggestions('music')}
+                <CountrySelect
+                  name="country"
+                  placeholder="Selecione o país"
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-      )}
-
-      {showActingGenres && (
-        <FormField
-          control={form.control}
-          name="acting_genres"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Gêneros de Atuação</FormLabel>
-              <FormControl>
-                <AgentesTagsInput
-                  name="acting_genres"
-                  placeholder="Digite um gênero de atuação e pressione Enter"
-                  maxTags={5}
-                  suggestions={getGenreSuggestions('acting')}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      )}
+      </div>
 
       <div className="md:col-span-2">
         <FormField

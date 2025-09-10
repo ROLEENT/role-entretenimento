@@ -1,44 +1,91 @@
-import { useAuth } from '@/auth/AuthContext';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export const useAdminAuth = () => {
-  const { user, isAdmin } = useAuth();
-  
-  const getAdminEmail = () => {
-    if (!isAdmin || !user?.email) {
-      throw new Error('Usuário não tem permissões de admin');
-    }
-    return user.email;
-  };
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminEmail, setAdminEmail] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const callAdminRpc = async (functionName: string, params: Record<string, any>) => {
-    if (!isAdmin) {
-      throw new Error('Acesso negado: permissões de admin necessárias');
-    }
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user?.email) {
+          // Verificar se é admin usando approved_admins
+          const { data, error } = await supabase
+            .from('approved_admins')
+            .select('email, is_active')
+            .eq('email', session.user.email)
+            .eq('is_active', true)
+            .single();
+          
+          if (data && !error) {
+            setIsAdmin(true);
+            setAdminEmail(session.user.email);
+            console.log("✅ Admin autenticado:", session.user.email);
+          } else {
+            setIsAdmin(false);
+            setAdminEmail(null);
+            console.log("❌ Usuário não é admin:", session.user.email);
+          }
+        } else {
+          setIsAdmin(false);
+          setAdminEmail(null);
+        }
+      } catch (error) {
+        console.error('Erro ao verificar status de admin:', error);
+        setIsAdmin(false);
+        setAdminEmail(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    const adminEmail = getAdminEmail();
-    
-    // Configurar header de admin e fazer chamada RPC
-    const { data, error } = await supabase.rpc(functionName, {
-      p_admin_email: adminEmail,
-      ...params
+    checkAdminStatus();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user?.email) {
+        // Verificar se é admin usando approved_admins
+        const { data, error } = await supabase
+          .from('approved_admins')
+          .select('email, is_active')
+          .eq('email', session.user.email)
+          .eq('is_active', true)
+          .single();
+        
+        if (data && !error) {
+          setIsAdmin(true);
+          setAdminEmail(session.user.email);
+          console.log("✅ Admin logado:", session.user.email);
+        } else {
+          setIsAdmin(false);
+          setAdminEmail(null);
+          console.log("❌ Usuário não é admin:", session.user.email);
+        }
+      } else if (event === 'SIGNED_OUT') {
+        setIsAdmin(false);
+        setAdminEmail(null);
+        console.log("❌ Admin deslogado");
+      }
     });
 
-    if (error) throw error;
-    
-    // Se a resposta é um objeto com success, verificar o resultado
-    if (data && typeof data === 'object' && 'success' in data) {
-      if (!data.success) {
-        throw new Error(data.error || 'Operação falhou');
-      }
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const getAdminHeaders = () => {
+    if (!adminEmail) {
+      throw new Error('Admin não autenticado');
     }
-    
-    return data;
+    return {
+      'x-admin-email': adminEmail
+    };
   };
 
   return {
     isAdmin,
-    getAdminEmail,
-    callAdminRpc
+    adminEmail,
+    isLoading,
+    getAdminHeaders
   };
 };

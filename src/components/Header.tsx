@@ -227,10 +227,10 @@ const Header = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className={cn(
-                      "flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary relative bg-transparent border-0 cursor-pointer",
+                      "flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary relative bg-transparent border-0 cursor-pointer perfis-dropdown-trigger",
                       isPerfisActive() 
                         ? "text-primary" 
-                        : "text-muted-foreground"
+                        : "text-foreground"
                     )}>
                       Perfis
                       <ChevronDown className="h-3 w-3" />
@@ -239,10 +239,15 @@ const Header = () => {
                       )}
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent>
+                  <DropdownMenuContent align="start" className="min-w-48">
                     {perfisDropdownItems.map((item) => (
                       <DropdownMenuItem key={item.href} asChild>
-                        <Link to={item.href}>{item.label}</Link>
+                        <Link 
+                          to={item.href} 
+                          className="block w-full text-foreground hover:text-primary transition-colors"
+                        >
+                          {item.label}
+                        </Link>
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
@@ -316,17 +321,17 @@ const Header = () => {
                          </Link>
                        </DropdownMenuItem>
                        <DropdownMenuItem asChild>
-                          <Link to="/meus-salvos">
-                            <Heart className="mr-2 h-4 w-4" />
-                            Meus Salvos
-                          </Link>
-                       </DropdownMenuItem>
-                       <DropdownMenuItem asChild>
-                          <Link to="/notificacoes">
-                            <Calendar className="mr-2 h-4 w-4" />
-                            Minhas Notificações
-                          </Link>
-                       </DropdownMenuItem>
+                           <Link to="/saves">
+                             <Heart className="mr-2 h-4 w-4" />
+                             Meus Salvos
+                           </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                           <Link to="/notifications">
+                             <Calendar className="mr-2 h-4 w-4" />
+                             Minhas Notificações
+                           </Link>
+                        </DropdownMenuItem>
                       {hasAdminAccess && (
                         <DropdownMenuItem asChild>
                           <Link to="/admin-v3">

@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { eventsApi } from "@/lib/eventsApi";
 import { eventDebugUtils } from "@/utils/eventDebugUtils";
 import { EventFormData } from "@/schemas/eventSchema";
+import { canPublish } from "@/utils/canPublish";
 
 export function useEventSeries() {
   const queryResult = useQuery({
@@ -56,11 +57,25 @@ export function useUpsertEventV3() {
           throw new Error(`Dados inválidos: ${validation.errors.join(', ')}`);
         }
 
+        // Check organizers if publishing
+        const shouldPublish = canPublish(eventData);
+        if (shouldPublish) {
+          const organizers = eventData.partners?.filter((p: any) => p.role === 'organizer') || [];
+          console.log('🔍 Validating organizers for published event:', {
+            partnersCount: eventData.partners?.length || 0,
+            organizersCount: organizers.length,
+            organizers: organizers.map(o => ({ id: o.partner_id, role: o.role }))
+          });
+          
+          if (organizers.length === 0) {
+            throw new Error('Eventos publicados devem ter pelo menos um organizador definido');
+          }
+        }
+
         // Use original data since validation only returns isValid and errors
-        // Convert organizer_ids array to organizer_id for backwards compatibility
         const cleanEventData = {
           ...eventData,
-          organizer_id: eventData.organizer_ids?.[0] || eventData.organizer_id
+          is_published: shouldPublish
         };
 
         if (cleanEventData.id) {

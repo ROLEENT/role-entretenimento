@@ -35,12 +35,7 @@ export default function AdminV3EventsCreateEdit() {
   });
 
   const [wizardData, setWizardData] = useState(() => {
-    const data = event || getEventDefaults();
-    // Convert organizer_id to organizer_ids for form compatibility
-    if (data.organizer_id && !data.organizer_ids) {
-      data.organizer_ids = [data.organizer_id];
-    }
-    return data;
+    return event || getEventDefaults();
   });
 
   const handleSave = async (eventData: any) => {
@@ -83,14 +78,7 @@ export default function AdminV3EventsCreateEdit() {
         {/* Main Wizard */}
         <div className="lg:col-span-3">
           <EventCreateWizard
-            initialData={(() => {
-              const data = event || getEventDefaults();
-              // Convert organizer_id to organizer_ids for form compatibility
-              if (data.organizer_id && !data.organizer_ids) {
-                data.organizer_ids = [data.organizer_id];
-              }
-              return data;
-            })()}
+            initialData={event || getEventDefaults()}
             onSave={handleSave}
             onCancel={handleCancel}
           />

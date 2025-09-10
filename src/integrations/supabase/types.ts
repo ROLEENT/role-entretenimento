@@ -8321,7 +8321,9 @@ export type Database = {
         Returns: boolean
       }
       admin_delete_event: {
-        Args: { p_admin_email: string; p_event_id: string }
+        Args:
+          | { p_admin_email: string; p_event_id: string }
+          | { p_event_id: string }
         Returns: Json
       }
       admin_delete_highlight: {

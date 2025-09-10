@@ -13,6 +13,7 @@ import { ArtistContactTab } from './tabs/ArtistContactTab';
 import { ArtistProfessionalTab } from './tabs/ArtistProfessionalTab';
 import { ArtistMediaTab } from './tabs/ArtistMediaTab';
 import { ArtistManagementTab } from './tabs/ArtistManagementTab';
+import { useArtistCategory } from '@/hooks/useArtistCategory';
 
 import { artistFlexibleSchema, ArtistFlexibleForm } from '@/schemas/agents-flexible';
 
@@ -44,15 +45,45 @@ export const AdminArtistForm: React.FC<AdminArtistFormProps> = ({
       image_rights_authorized: false,
       priority: 0,
       tags: [],
+      genres: [],
       music_genres: [],
       acting_genres: [],
       ...artist,
     },
   });
 
+  const categoryId = form.watch("category_id");
+  const { data: categoryData } = useArtistCategory(categoryId);
 
-  const handleSubmit = (data: ArtistFlexibleForm) => {
-    onSubmit(data);
+  const handleSubmit = async (data: ArtistFlexibleForm) => {
+    // Clean up genre fields based on category type and artist type
+    const tipoArtista = data.artist_type || '';
+    const categoryName = categoryData?.name || '';
+    
+    // Normalize and check both artist type and category
+    const norm = (s?: string) =>
+      s?.toString().normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim() ?? '';
+    
+    const ACTING = new Set([
+      'drag', 'drag queen', 'drag king', 'performer', 'ator', 'atriz',
+      'dancarino', 'bailarino', 'teatro', 'burlesco', 'vogue performer'
+    ]);
+    
+    const MUSIC = new Set([
+      'dj', 'produtor musical', 'cantor', 'mc', 'banda', 'instrumentista'
+    ]);
+    
+    const hasActing = ACTING.has(norm(tipoArtista)) || ACTING.has(norm(categoryName));
+    const hasMusic = MUSIC.has(norm(tipoArtista)) || MUSIC.has(norm(categoryName));
+    
+    // Clean payload - only include relevant genre fields
+    const cleanedData = {
+      ...data,
+      acting_genres: hasActing ? (data.acting_genres || []) : [],
+      music_genres: hasMusic ? (data.music_genres || []) : [],
+    };
+    
+    await onSubmit(cleanedData);
   };
 
   return (

@@ -1,97 +1,150 @@
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { useAdminAuth } from './useAdminAuth';
+import { AgendaItemInput } from '@/schemas/agenda';
 
 interface AgendaFilters {
   search: string;
   status: string;
   city: string;
+  dateRange: { from: Date | null; to: Date | null };
+  tags: string[];
 }
 
-export const useAdminAgendaData = () => {
-  const queryClient = useQueryClient();
-  const { isAdmin } = useAdminAuth();
-  const [filters, setFilters] = useState<AgendaFilters>({
-    search: '',
-    status: 'all',
-    city: 'all'
-  });
+interface AgendaStats {
+  total: number;
+  published: number;
+  drafts: number;
+  scheduled: number;
+  archived: number;
+  thisWeek: number;
+}
+
+interface AgendaDataResult {
+  items: AgendaItemInput[];
+  stats: AgendaStats;
+  total: number;
+  published: number;
+  drafts: number;
+  thisWeek: number;
+}
+
+export function useAdminAgendaData(filters: AgendaFilters) {
+  const [page, setPage] = useState(1);
+  const pageSize = 25;
 
   // Fetch agenda items with filters
-  const { data: agendaItems, isLoading, error } = useQuery({
-    queryKey: ['admin-agenda', filters],
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['admin-agenda', filters, page],
     queryFn: async () => {
       let query = supabase
         .from('agenda_itens')
-        .select('*')
-        .order('updated_at', { ascending: false });
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range((page - 1) * pageSize, page * pageSize - 1);
 
+      // Apply filters
       if (filters.search) {
-        query = query.or(`title.ilike.%${filters.search}%,summary.ilike.%${filters.search}%`);
+        query = query.or(`title.ilike.%${filters.search}%,summary.ilike.%${filters.search}%,city.ilike.%${filters.search}%`);
       }
 
-      if (filters.status && filters.status !== 'all') {
+      if (filters.status) {
         query = query.eq('status', filters.status);
       }
 
-      if (filters.city && filters.city !== 'all') {
+      if (filters.city) {
         query = query.eq('city', filters.city);
       }
 
-      const { data, error } = await query;
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  // Delete agenda item mutation
-  const deleteAgendaMutation = useMutation({
-    mutationFn: async (agendaId: string) => {
-      if (!isAdmin) {
-        throw new Error('Acesso negado: permissões de admin necessárias');
+      if (filters.dateRange.from) {
+        query = query.gte('starts_at', filters.dateRange.from.toISOString());
       }
-      
-      // Para agenda_itens, usar DELETE direto pois tem policy staff_delete
-      const { error } = await supabase
-        .from('agenda_itens')
-        .delete()
-        .eq('id', agendaId);
+
+      if (filters.dateRange.to) {
+        query = query.lte('starts_at', filters.dateRange.to.toISOString());
+      }
+
+      if (filters.tags.length > 0) {
+        query = query.overlaps('tags', filters.tags);
+      }
+
+      const { data: items, error, count } = await query;
 
       if (error) throw error;
-      return agendaId;
+
+      return {
+        items: items || [],
+        count: count || 0
+      };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-agenda'] });
-      toast.success('Item da agenda removido com sucesso');
-    },
-    onError: (error) => {
-      console.error('Error deleting agenda item:', error);
-      toast.error('Erro ao remover item da agenda');
-    },
+    staleTime: 30000, // 30 segundos
+    gcTime: 5 * 60 * 1000, // 5 minutos
   });
 
-  const updateFilters = (newFilters: Partial<AgendaFilters>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
-  };
+  // Fetch stats separately for better performance
+  const { data: stats } = useQuery({
+    queryKey: ['admin-agenda-stats'],
+    queryFn: async () => {
+      // Get total counts by status
+      const { data: statusCounts } = await supabase
+        .from('agenda_itens')
+        .select('status')
+        .not('deleted_at', 'is', null);
 
-  const deleteAgendaItem = (agendaId: string) => {
-    deleteAgendaMutation.mutate(agendaId);
-  };
+      // Get this week's events
+      const startOfWeek = new Date();
+      startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+      
+      const { count: thisWeekCount } = await supabase
+        .from('agenda_itens')
+        .select('*', { count: 'exact', head: true })
+        .gte('starts_at', startOfWeek.toISOString())
+        .is('deleted_at', null);
+
+      // Calculate stats
+      const total = statusCounts?.length || 0;
+      const published = statusCounts?.filter(item => item.status === 'published').length || 0;
+      const drafts = statusCounts?.filter(item => item.status === 'draft').length || 0;
+      const scheduled = statusCounts?.filter(item => item.status === 'scheduled').length || 0;
+      const archived = statusCounts?.filter(item => item.status === 'archived').length || 0;
+
+      return {
+        total,
+        published,
+        drafts,
+        scheduled,
+        archived,
+        thisWeek: thisWeekCount || 0
+      };
+    },
+    staleTime: 60000, // 1 minuto
+    gcTime: 5 * 60 * 1000, // 5 minutos
+  });
+
+  // Combine data for return
+  const result: AgendaDataResult = useMemo(() => ({
+    items: data?.items || [],
+    stats: stats || {
+      total: 0,
+      published: 0,
+      drafts: 0,
+      scheduled: 0,
+      archived: 0,
+      thisWeek: 0
+    },
+    total: stats?.total || 0,
+    published: stats?.published || 0,
+    drafts: stats?.drafts || 0,
+    thisWeek: stats?.thisWeek || 0
+  }), [data, stats]);
 
   return {
-    // Data
-    agendaItems,
-    filters,
-    
-    // Loading states
-    isLoading,
+    data: result,
+    loading: isLoading,
     error,
-    isDeleting: deleteAgendaMutation.isPending,
-    
-    // Actions
-    updateFilters,
-    deleteAgendaItem,
+    refetch,
+    page,
+    setPage,
+    totalPages: Math.ceil((data?.count || 0) / pageSize)
   };
-};
+}

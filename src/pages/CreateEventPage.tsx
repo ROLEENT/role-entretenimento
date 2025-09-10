@@ -17,8 +17,6 @@ import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { eventsApi } from '@/lib/eventsApi';
-import { EventFormData } from '@/schemas/eventSchema';
 
 interface FormData {
   title: string;
@@ -33,7 +31,6 @@ interface FormData {
   price_max: number;
   external_url: string;
   image_url: string;
-  organizer_id?: string;
 }
 
 interface Venue {
@@ -44,20 +41,13 @@ interface Venue {
   state: string;
 }
 
-interface Organizer {
-  id: string;
-  name: string;
-}
-
 const CreateEventPage = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [venues, setVenues] = useState<Venue[]>([]);
-  const [organizers, setOrganizers] = useState<Organizer[]>([]);
   const [selectedVenue, setSelectedVenue] = useState<string>('');
-  const [selectedOrganizer, setSelectedOrganizer] = useState<string>('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
 
@@ -83,7 +73,6 @@ const CreateEventPage = () => {
       return;
     }
     loadVenues();
-    loadOrganizers();
   }, [isAuthenticated, navigate]);
 
   const loadVenues = async () => {
@@ -97,20 +86,6 @@ const CreateEventPage = () => {
       setVenues(data || []);
     } catch (error) {
       console.error('Erro ao carregar venues:', error);
-    }
-  };
-
-  const loadOrganizers = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('organizers')
-        .select('id, name')
-        .order('name');
-
-      if (error) throw error;
-      setOrganizers(data || []);
-    } catch (error) {
-      console.error('Erro ao carregar organizadores:', error);
     }
   };
 
@@ -167,7 +142,7 @@ const CreateEventPage = () => {
   const validateStep = (currentStep: number): boolean => {
     switch (currentStep) {
       case 1:
-        return !!(form.title && form.description && form.date_start && selectedOrganizer);
+        return !!(form.title && form.description && form.date_start);
       case 2:
         return !!(form.city && form.state && form.venue_name && form.venue_address);
       case 3:
@@ -190,7 +165,7 @@ const CreateEventPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!user || !form.title || !form.date_start || !selectedOrganizer) {
+    if (!user || !form.title || !form.date_start) {
       toast.error('Preencha todos os campos obrigatórios');
       return;
     }
@@ -216,17 +191,7 @@ const CreateEventPage = () => {
         venueId = newVenue.id;
       }
 
-      // Gerar slug baseado no título
-      const slug = form.title
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-+|-+$/g, '');
-
-      // Criar evento diretamente com organizer_id
+      // Criar evento
       const { data: newEvent, error: eventError } = await supabase
         .from('events')
         .insert({
@@ -237,13 +202,12 @@ const CreateEventPage = () => {
           city: form.city,
           state: form.state,
           venue_id: venueId,
-          organizer_id: selectedOrganizer,
           price_min: form.price_min,
           price_max: form.price_max || form.price_min,
+          external_url: form.external_url,
           image_url: form.image_url,
-          slug: slug,
-          status: 'published',
-          visibility: 'public'
+          status: 'active',
+          source: 'user_created'
         })
         .select()
         .single();
@@ -371,22 +335,6 @@ const CreateEventPage = () => {
                         </PopoverContent>
                       </Popover>
                     </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="organizer">Organizador *</Label>
-                    <Select value={selectedOrganizer} onValueChange={setSelectedOrganizer}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecionar organizador" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {organizers.map((organizer) => (
-                          <SelectItem key={organizer.id} value={organizer.id}>
-                            {organizer.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                   </div>
 
                   <div className="space-y-2">

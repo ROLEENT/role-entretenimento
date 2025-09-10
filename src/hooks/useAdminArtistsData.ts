@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useAdminAuth } from './useAdminAuth';
 
 interface ArtistFilters {
   search: string;
@@ -13,7 +12,6 @@ interface ArtistFilters {
 
 export const useAdminArtistsData = () => {
   const queryClient = useQueryClient();
-  const { callAdminRpc, isAdmin } = useAdminAuth();
   const [filters, setFilters] = useState<ArtistFilters>({
     search: '',
     status: 'all',
@@ -147,13 +145,13 @@ export const useAdminArtistsData = () => {
   // Delete artist mutation
   const deleteArtistMutation = useMutation({
     mutationFn: async (artistId: string) => {
-      if (!isAdmin) {
-        throw new Error('Acesso negado: permissões de admin necessárias');
-      }
-      
-      return await callAdminRpc('admin_delete_artist', {
-        p_artist_id: artistId
-      });
+      const { error } = await supabase
+        .from('artists')
+        .delete()
+        .eq('id', artistId);
+
+      if (error) throw error;
+      return artistId;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-artists'] });

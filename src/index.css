@@ -475,6 +475,39 @@ body {
 }
 }
 
+/* Dropdown menu text visibility fixes */
+[data-radix-dropdown-trigger],
+button[aria-haspopup="menu"] {
+  color: hsl(var(--foreground)) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Specific fix for Perfis dropdown button */
+button[aria-haspopup="menu"]:has(svg) {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+button[aria-haspopup="menu"]:hover {
+  color: hsl(var(--primary)) !important;
+}
+
+/* Ensure dropdown trigger text is always visible */
+[role="button"]:has([data-radix-dropdown-trigger]) {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Specific styling for perfis dropdown */
+.perfis-dropdown-trigger {
+  color: hsl(var(--foreground)) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.perfis-dropdown-trigger:hover {
+  color: hsl(var(--primary)) !important;
+}
+
 @layer utilities {
   .animate-on-scroll {
     opacity: 0;
@@ -1502,4 +1535,100 @@ textarea { overflow: auto; }
 
 .dark .status-archived {
   @apply text-red-400 bg-red-900 border-red-700;
+}
+
+/* Profile Page Clickability Fixes */
+
+/* Elevate profile tabs with high z-index */
+.perfil-tabs, 
+.tabs-nav, 
+.tabs-nav a,
+/* Mobile tabs component */
+.profile-tabs-mobile,
+.profile-tabs-mobile button,
+/* Desktop navigation */
+nav[class*="ProfileNavNew"],
+nav[class*="ProfileNavNew"] button {
+  position: relative;
+  z-index: 30;
+}
+
+/* Disable pointer events on cover layer elements */
+.profile-cover,
+.profile-cover::before,
+.profile-cover::after,
+.profile-cover img,
+/* NewProfileHeader cover elements */
+div[class*="bg-cover"],
+div[class*="bg-center"],
+div[style*="backgroundImage"] {
+  pointer-events: none !important;
+}
+
+/* Re-enable pointer events for interactive areas */
+.profile-actions,
+.profile-actions *,
+.perfil-tabs,
+.perfil-tabs *,
+/* Mobile components */
+.profile-tabs-mobile,
+.profile-tabs-mobile *,
+/* Desktop navigation */
+nav[class*="ProfileNavNew"],
+nav[class*="ProfileNavNew"] *,
+/* Action buttons in header */
+button[class*="FollowButton"],
+button[class*="MessageSquare"],
+/* Avatar and interactive content */
+.avatar,
+.avatar *,
+/* Generic interactive elements */
+button,
+a,
+input,
+[role="button"],
+[tabindex]:not([tabindex="-1"]) {
+  pointer-events: auto !important;
+}
+
+/* Ensure pseudo-elements don't exceed height and stay within bounds */
+.profile-cover::before,
+.profile-cover::after,
+div[class*="bg-gradient-to-t"]::before,
+div[class*="bg-gradient-to-t"]::after {
+  inset: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+/* Additional fixes for sticky navigation */
+[class*="sticky"][class*="top-0"] {
+  z-index: 40;
+}
+
+/* Ensure tab containers maintain proper z-index */
+.container nav,
+.container nav *,
+.mx-auto nav,
+.mx-auto nav * {
+  position: relative;
+  z-index: 30;
+}
+
+/* Artist Genres Styling */
+.tags-subtitle {
+  font-size: 0.75rem;
+  margin: 8px 0 6px;
+  opacity: 0.85;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  font-size: 0.75rem;
 }

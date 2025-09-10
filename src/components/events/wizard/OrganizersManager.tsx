@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Plus, X, Crown, Users, Building, MapPin, Mail } from 'lucide-react';
 import { ComboboxAsync } from '@/components/ui/combobox-async';
-import { useOrganizerSearch } from '@/hooks/useOrganizerSearch';
+import { useEntityLookup } from '@/hooks/useEntityLookup';
 
 interface Organizer {
   id?: string;
@@ -21,7 +21,7 @@ interface Organizer {
 export const OrganizersManager: React.FC = () => {
   const { control, watch, setValue } = useFormContext<EventFormData>();
   const [newOrganizerName, setNewOrganizerName] = useState('');
-  const { searchOrganizers, getOrganizerById } = useOrganizerSearch();
+  const { searchEntities: searchOrganizers, getEntityById: getOrganizerById } = useEntityLookup({ type: 'organizers' });
   
   // Use partners field from schema instead of non-existent organizers field
   const organizers = (watch('partners') || []).filter(p => p.role === 'organizer');
@@ -135,7 +135,7 @@ export const OrganizersManager: React.FC = () => {
                 className="flex items-center justify-between p-3 border rounded-lg"
               >
                 <div className="flex items-center gap-3">
-                  <Building className="w-4 h-4 text-muted-foreground" />
+                  <Users className="w-4 h-4 text-muted-foreground" />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{organizer.display_name}</span>
@@ -197,7 +197,7 @@ export const OrganizersManager: React.FC = () => {
 
 // Componente para mostrar detalhes do organizador cadastrado
 const OrganizerDetails: React.FC<{ organizerId: string }> = ({ organizerId }) => {
-  const { getOrganizerById } = useOrganizerSearch();
+  const { getEntityById: getOrganizerById } = useEntityLookup({ type: 'organizers' });
   const [organizer, setOrganizer] = React.useState<any>(null);
 
   React.useEffect(() => {

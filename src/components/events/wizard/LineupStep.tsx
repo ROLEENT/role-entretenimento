@@ -548,18 +548,76 @@ export const LineupStep: React.FC = () => {
                   <FormField
                     control={control}
                     name={`performances.${performanceIndex}.performer_name`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nome do Performer</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Nome do artista/grupo"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const [showSuggestions, setShowSuggestions] = useState(false);
+                      const [suggestions, setSuggestions] = useState<any[]>([]);
+                      
+                      const handleInputChange = async (value: string) => {
+                        field.onChange(value);
+                        
+                        if (value.length >= 2) {
+                          try {
+                            const artists = await searchArtists(value);
+                            setSuggestions(artists);
+                            setShowSuggestions(artists.length > 0);
+                          } catch (error) {
+                            setSuggestions([]);
+                            setShowSuggestions(false);
+                          }
+                        } else {
+                          setShowSuggestions(false);
+                        }
+                      };
+                      
+                      const selectArtist = (artist: any) => {
+                        field.onChange(artist.name);
+                        setShowSuggestions(false);
+                      };
+
+                      return (
+                        <FormItem>
+                          <FormLabel>Nome do Performer</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                placeholder="Digite o nome do performer ou busque artistas"
+                                value={field.value}
+                                onChange={(e) => handleInputChange(e.target.value)}
+                                onFocus={() => {
+                                  if (field.value.length >= 2 && suggestions.length > 0) {
+                                    setShowSuggestions(true);
+                                  }
+                                }}
+                                onBlur={() => {
+                                  // Delay to allow click on suggestions
+                                  setTimeout(() => setShowSuggestions(false), 200);
+                                }}
+                              />
+                              {showSuggestions && suggestions.length > 0 && (
+                                <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                                  {suggestions.map((artist) => (
+                                    <div
+                                      key={artist.id}
+                                      className="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                      onMouseDown={() => selectArtist(artist)}
+                                    >
+                                      <div className="font-medium">{artist.name}</div>
+                                      {artist.subtitle && (
+                                        <div className="text-sm text-gray-500">{artist.subtitle}</div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                          <FormDescription>
+                            Digite o nome ou busque por artistas cadastrados como Katrina ou Dylan
+                          </FormDescription>
+                        </FormItem>
+                      );
+                    }}
                   />
 
                   <FormField
@@ -581,6 +639,7 @@ export const LineupStep: React.FC = () => {
                             <SelectItem value="b2b">B2B</SelectItem>
                             <SelectItem value="teatro">Teatro</SelectItem>
                             <SelectItem value="danca">Dança</SelectItem>
+                            <SelectItem value="drag-show">Drag Show</SelectItem>
                             <SelectItem value="poetry">Poetry</SelectItem>
                             <SelectItem value="outro">Outro</SelectItem>
                           </SelectContent>

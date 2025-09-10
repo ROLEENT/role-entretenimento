@@ -20,7 +20,7 @@ import { SlugInput } from "@/components/ui/slug-input";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { Badge } from "@/components/ui/badge";
 import { Save, Send, Eye, AlertCircle } from "lucide-react";
-// Sistema antigo removido - usando events.organizer_id
+import { MultipleOrganizerSelector } from "@/components/agenda/MultipleOrganizerSelector";
 import { Separator } from "@/components/ui/separator";
 
 interface AdminEventFormProps {
@@ -268,9 +268,11 @@ export default function AdminEventForm({
                 <Separator />
 
                 <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">
-                    Use o campo "Organizador Principal" acima para definir o organizador do evento.
-                  </p>
+                  <h4 className="font-medium">Organizadores do Evento</h4>
+                  <MultipleOrganizerSelector 
+                    agendaId={eventId} 
+                    disabled={isPending}
+                  />
                 </div>
               </CardContent>
             </Card>

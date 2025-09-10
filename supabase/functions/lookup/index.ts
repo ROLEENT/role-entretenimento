@@ -58,30 +58,40 @@ serve(async (req) => {
 
     let queryBuilder;
     
-    // Build query based on type
+    // Build query based on type - using original tables that work
     switch (type) {
       case 'artists':
         queryBuilder = supabase
           .from('artists')
-          .select('id, stage_name, city')
-          .ilike('stage_name', `%${query}%`)
+          .select('id, stage_name as name, city, booking_email as contact_email, slug as handle')
           .eq('status', 'active')
+          .ilike('stage_name', `%${query}%`)
         break;
         
       case 'organizers':
         queryBuilder = supabase
           .from('organizers')
-          .select('id, name, city')
+          .select(`
+            id, 
+            name,
+            city,
+            email as contact_email,
+            slug as handle
+          `)
           .ilike('name', `%${query}%`)
-          .eq('status', 'active')
         break;
         
       case 'venues':
         queryBuilder = supabase
           .from('venues')
-          .select('id, name, city, address_line')
+          .select(`
+            id, 
+            name,
+            city,
+            contact_email,
+            slug as handle
+          `)
           .ilike('name', `%${query}%`)
-          .eq('status', 'active')
         break;
         
       default:
@@ -95,7 +105,7 @@ serve(async (req) => {
     }
 
     const { data, error } = await queryBuilder
-      .order(type === 'artists' ? 'stage_name' : 'name')
+      .order('name')
       .limit(Math.min(limit, 50)) // Max 50 results
 
     if (error) {

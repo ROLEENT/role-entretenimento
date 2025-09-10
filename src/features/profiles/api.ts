@@ -73,6 +73,8 @@ export async function getProfileByHandle(handle: string) {
             artist_type, 
             instagram, 
             category_id,
+            music_genres,
+            acting_genres,
             artist_categories(name)
           `)
           .eq("id", data.source_id)
@@ -81,6 +83,8 @@ export async function getProfileByHandle(handle: string) {
         if (artistData) {
           (profileData as any).artist_type = artistData.artist_type;
           (profileData as any).instagram = artistData.instagram;
+          (profileData as any).music_genres = artistData.music_genres || [];
+          (profileData as any).acting_genres = artistData.acting_genres || [];
           
           // Se não tiver category_name no entity_profiles, buscar da tabela de categorias
           if (!profileData.category_name && artistData.category_id) {
