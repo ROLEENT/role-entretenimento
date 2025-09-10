@@ -8,7 +8,7 @@ import { ptBR } from "date-fns/locale";
 
 interface ProfileEventsProps {
   profileUserId: string;
-  profileType: string;
+  profileType: 'artista' | 'local' | 'organizador';
 }
 
 export function ProfileEvents({ profileUserId, profileType }: ProfileEventsProps) {

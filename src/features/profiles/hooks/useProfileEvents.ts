@@ -5,28 +5,24 @@ export type ProfileEvent = {
   id: string;
   title: string;
   slug: string;
-  date_start: string;
-  date_end?: string;
-  venue_name?: string;
-  venue_city?: string;
-  artists?: string[];
-  organizer_name?: string;
-  image_url?: string;
+  subtitle?: string;
+  starts_at: string;
+  end_at?: string;
+  location_name?: string;
+  city?: string;
+  artists_names?: string[];
+  cover_url?: string;
   status: 'published' | 'draft' | 'cancelled';
-  event_type: 'upcoming' | 'past';
-};
-
-export type ProfileEventsData = {
-  upcoming: ProfileEvent[];
-  past: ProfileEvent[];
+  tags?: string[];
+  source?: 'events' | 'agenda';
+  event_id?: string;
 };
 
 export function useProfileEvents(profileId: string, profileType: 'artista' | 'local' | 'organizador') {
   return useQuery({
     queryKey: ['profile-events', profileId, profileType],
-    queryFn: async (): Promise<ProfileEventsData> => {
+    queryFn: async (): Promise<ProfileEvent[]> => {
       let query;
-      const now = new Date().toISOString();
 
       // Different queries based on profile type
       switch (profileType) {
@@ -35,8 +31,8 @@ export function useProfileEvents(profileId: string, profileType: 'artista' | 'lo
           query = supabase
             .from('agenda_itens')
             .select(`
-              id, title, slug, starts_at, end_at, location_name, city,
-              status, cover_url, artists_names
+              id, title, slug, subtitle, starts_at, end_at, location_name, city,
+              status, cover_url, artists_names, tags
             `)
             .contains('lineup_ids', [profileId])
             .eq('status', 'published')
@@ -48,8 +44,8 @@ export function useProfileEvents(profileId: string, profileType: 'artista' | 'lo
           query = supabase
             .from('agenda_itens')
             .select(`
-              id, title, slug, starts_at, end_at, location_name, city,
-              status, cover_url, artists_names
+              id, title, slug, subtitle, starts_at, end_at, location_name, city,
+              status, cover_url, artists_names, tags
             `)
             .eq('venue_id', profileId)
             .eq('status', 'published')
@@ -61,8 +57,8 @@ export function useProfileEvents(profileId: string, profileType: 'artista' | 'lo
           query = supabase
             .from('agenda_itens')
             .select(`
-              id, title, slug, starts_at, end_at, location_name, city,
-              status, cover_url, artists_names
+              id, title, slug, subtitle, starts_at, end_at, location_name, city,
+              status, cover_url, artists_names, tags
             `)
             .contains('organizer_ids', [profileId])
             .eq('status', 'published')
@@ -77,26 +73,22 @@ export function useProfileEvents(profileId: string, profileType: 'artista' | 'lo
       
       if (error) throw error;
 
-      // Transform and categorize data
-      const events = (data || []).map(event => ({
+      // Transform and return data
+      return (data || []).map(event => ({
         id: event.id,
         title: event.title,
         slug: event.slug,
-        date_start: event.starts_at,
-        date_end: event.end_at,
-        venue_name: event.location_name,
-        venue_city: event.city,
-        artists: event.artists_names || [],
-        image_url: event.cover_url,
+        subtitle: event.subtitle,
+        starts_at: event.starts_at,
+        end_at: event.end_at,
+        location_name: event.location_name,
+        city: event.city,
+        artists_names: event.artists_names || [],
+        cover_url: event.cover_url,
         status: event.status as ProfileEvent['status'],
-        event_type: (new Date(event.starts_at) >= new Date(now) ? 'upcoming' : 'past') as ProfileEvent['event_type']
+        tags: event.tags || [],
+        source: 'agenda'
       }));
-
-      // Separate upcoming and past events
-      const upcoming = events.filter(event => event.event_type === 'upcoming');
-      const past = events.filter(event => event.event_type === 'past').reverse(); // Most recent first
-
-      return { upcoming, past };
     },
     enabled: !!profileId,
     staleTime: 5 * 60 * 1000, // 5 minutes

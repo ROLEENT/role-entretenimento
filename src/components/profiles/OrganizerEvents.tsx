@@ -15,7 +15,12 @@ interface OrganizerEventsProps {
 
 export function OrganizerEvents({ organizerId }: OrganizerEventsProps) {
   const [activeTab, setActiveTab] = useState('upcoming');
-  const { data: events, isLoading, error } = useProfileEvents(organizerId, 'organizador');
+  const { data: events = [], isLoading, error } = useProfileEvents(organizerId, 'organizador');
+
+  // Separate events by type
+  const now = new Date();
+  const upcomingEvents = events.filter(event => new Date(event.starts_at) >= now);
+  const pastEvents = events.filter(event => new Date(event.starts_at) < now);
 
   if (isLoading) {
     return (
@@ -48,49 +53,49 @@ export function OrganizerEvents({ organizerId }: OrganizerEventsProps) {
       <Card className="hover:shadow-md transition-shadow cursor-pointer">
         <CardContent className="p-4">
           <div className="flex gap-4">
-            <div className="w-16 h-16 bg-muted rounded-lg flex-shrink-0 overflow-hidden">
-              <img 
-                src={event.image_url || '/placeholder.svg'} 
-                alt={event.title}
-                className="w-full h-full object-cover"
+          <div className="w-16 h-16 bg-muted rounded-lg flex-shrink-0 overflow-hidden">
+            <img 
+              src={event.cover_url || '/placeholder.svg'} 
+              alt={event.title}
+              className="w-full h-full object-cover"
               />
             </div>
             
             <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="font-medium truncate">{event.title}</h3>
-                <Badge 
-                  variant={event.event_type === 'upcoming' ? 'default' : 'secondary'}
-                  className="text-xs flex-shrink-0"
-                >
-                  {event.event_type === 'upcoming' ? 'Confirmado' : 'Realizado'}
-                </Badge>
+            <div className="flex items-start justify-between gap-2">
+              <h3 className="font-medium truncate">{event.title}</h3>
+              <Badge 
+                variant={new Date(event.starts_at) >= new Date() ? 'default' : 'secondary'}
+                className="text-xs flex-shrink-0"
+              >
+                {new Date(event.starts_at) >= new Date() ? 'Confirmado' : 'Realizado'}
+              </Badge>
+            </div>
+            
+            <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                {format(new Date(event.starts_at), 'dd MMM', { locale: ptBR })}
               </div>
               
-              <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  {format(new Date(event.date_start), 'dd MMM', { locale: ptBR })}
-                </div>
-                
-                <div className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  {format(new Date(event.date_start), 'HH:mm')}
-                </div>
-                
-                {event.venue_name && (
+              <div className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                {format(new Date(event.starts_at), 'HH:mm')}
+              </div>
+              
+              {event.location_name && (
                   <div className="flex items-center gap-1">
                     <MapPin className="h-3 w-3" />
-                    {event.venue_name}
-                  </div>
-                )}
+                  {event.location_name}
               </div>
-              
-              {event.artists && event.artists.length > 0 && (
-                <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                  <Users className="h-3 w-3" />
-                  {event.artists.slice(0, 3).join(', ')}
-                  {event.artists.length > 3 && ` +${event.artists.length - 3}`}
+            )}
+            </div>
+            
+            {event.artists_names && event.artists_names.length > 0 && (
+              <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                <Users className="h-3 w-3" />
+                {event.artists_names.slice(0, 3).join(', ')}
+                {event.artists_names.length > 3 && ` +${event.artists_names.length - 3}`}
                 </div>
               )}
             </div>
@@ -109,16 +114,16 @@ export function OrganizerEvents({ organizerId }: OrganizerEventsProps) {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="upcoming">
-              Próximos ({events?.upcoming.length || 0})
+              Próximos ({upcomingEvents.length})
             </TabsTrigger>
             <TabsTrigger value="past">
-              Passados ({events?.past.length || 0})
+              Passados ({pastEvents.length})
             </TabsTrigger>
           </TabsList>
           
           <TabsContent value="upcoming" className="space-y-4 mt-6">
-            {events?.upcoming.length ? (
-              events.upcoming.map(renderEvent)
+            {upcomingEvents.length ? (
+              upcomingEvents.map(renderEvent)
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 Nenhum evento próximo agendado
@@ -127,8 +132,8 @@ export function OrganizerEvents({ organizerId }: OrganizerEventsProps) {
           </TabsContent>
           
           <TabsContent value="past" className="space-y-4 mt-6">
-            {events?.past.length ? (
-              events.past.map(renderEvent)
+            {pastEvents.length ? (
+              pastEvents.map(renderEvent)
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 Nenhum evento passado encontrado
