@@ -131,8 +131,6 @@ export const visualArtistSchema = z.object({
 
 // Main event schema
 export const eventSchema = z.object({
-  // Organizers
-  organizer_ids: z.array(z.string().uuid()).min(1, "Pelo menos um organizador é obrigatório"),
   // Basic Information
   id: z.string().uuid().optional(),
   title: z.string().min(1, "Título é obrigatório").max(200, "Título muito longo"),
@@ -183,17 +181,6 @@ export const eventSchema = z.object({
   is_sponsored: z.boolean().default(false),
   selection_reasons: z.array(z.string().min(1)).optional(),
   
-  // Promoção - Novos campos
-  promo_type: z.enum(['none','vitrine','destaque','vitrine_destaque']).default('none'),
-  vitrine_package: z.string().optional(),
-  vitrine_order_id: z.string().optional(),
-  vitrine_notes: z.string().optional(),
-  featured_reasons: z.array(z.string()).default([]),
-  featured_note: z.string().optional(),
-  featured_until: z.string().datetime().optional(),
-  featured_weight: z.number().int().min(0).max(100).default(50),
-  event_genres: z.array(z.string().min(1)).default([]),
-  
   // Critérios de curadoria ROLÊ
   curatorial_criteria: curatorialCriteriaSchema,
   
@@ -235,43 +222,6 @@ export const eventSchema = z.object({
   visual_art: z.array(z.any()).default([]),
   published: z.boolean().optional()
 }).superRefine((data, ctx) => {
-  // Validações de promoção
-  if (data.promo_type === 'vitrine' || data.promo_type === 'vitrine_destaque') {
-    if (!data.vitrine_package) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Selecione o pacote da vitrine',
-        path: ['vitrine_package']
-      });
-    }
-  }
-  
-  if (data.promo_type === 'destaque' || data.promo_type === 'vitrine_destaque') {
-    if (!data.featured_reasons || data.featured_reasons.length === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Escolha pelo menos 1 motivo para o destaque',
-        path: ['featured_reasons']
-      });
-    }
-    
-    if (!data.featured_note || data.featured_note.trim().length < 10) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Nota editorial deve ter entre 10 e 140 caracteres',
-        path: ['featured_note']
-      });
-    }
-    
-    if (data.featured_note && data.featured_note.length > 140) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Nota editorial muito longa (máximo 140 caracteres)',
-        path: ['featured_note']
-      });
-    }
-  }
-
   // Cross-field validations
   
   // Date validations
@@ -451,7 +401,6 @@ export function validateEventForPublish(data: EventFormData): string[] {
 // Default values helper
 export function getEventDefaults(): Partial<EventFormData> {
   return {
-    organizer_ids: [],
     status: 'published',
     visibility: 'public',
     highlight_type: 'none',
@@ -474,16 +423,6 @@ export function getEventDefaults(): Partial<EventFormData> {
       audio_description: false,
       sign_language: false,
       sensory_friendly: false
-    },
-    // Campos de promoção
-    promo_type: 'none',
-    vitrine_package: '',
-    vitrine_order_id: '',
-    vitrine_notes: '',
-    featured_reasons: [],
-    featured_note: '',
-    featured_until: '',
-    featured_weight: 50,
-    event_genres: []
+    }
   };
 }

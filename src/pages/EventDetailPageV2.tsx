@@ -263,14 +263,8 @@ const EventDetailPageV2 = () => {
     toast.success('Obrigado pelo feedback. Nossa equipe irá analisar.');
   };
 
-  // Get the main organizer from the organizers list - CORRIGIDO
-  const mainOrganizerData = organizers?.find(org => org.main_organizer) || organizers?.[0];
-  const mainOrganizer = mainOrganizerData?.organizers;
-  
-  // Extrair organizador principal corrigido
-  
-  // Fallback: if there's no organizer but there's a direct organizer_id, load that
-  const directOrganizerRef = event?.organizer_id;
+  // Get the main organizer from the organizers list
+  const mainOrganizer = organizers?.find(org => org.main_organizer)?.organizers || organizers?.[0]?.organizers;
 
   if (loading || organizersLoading) {
     return (
@@ -448,7 +442,7 @@ const EventDetailPageV2 = () => {
             {/* Right Column - Sidebar (desktop only) */}
             <div className="hidden lg:block space-y-6">
               {/* Organizer Card */}
-              <EventOrganizerCard organizer={mainOrganizer || (directOrganizerRef ? { id: directOrganizerRef } : null)} venue={venue} />
+              <EventOrganizerCard organizer={mainOrganizer} venue={venue} />
               
               {/* Official Links */}
               <EventLinksCard event={event} partners={partners} />
@@ -495,7 +489,7 @@ const EventDetailPageV2 = () => {
           
           {/* Mobile: Organizer & Links Cards */}
           <div className="lg:hidden space-y-4 mt-6">
-            <EventOrganizerCard organizer={mainOrganizer || (directOrganizerRef ? { id: directOrganizerRef } : null)} venue={venue} />
+            <EventOrganizerCard organizer={mainOrganizer} venue={venue} />
             <EventLinksCard event={event} partners={partners} />
             <EventMoodTagsCard event={event} />
           </div>

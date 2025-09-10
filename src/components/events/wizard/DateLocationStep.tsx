@@ -390,7 +390,10 @@ export const DateLocationStep: React.FC = () => {
           )}
         />
 
-        {/* Organizers Section - Moved to Basic Info Step */}
+        {/* Organizers Section */}
+        <div className="lg:col-span-2">
+          <OrganizersManager />
+        </div>
 
         {/* Supporters Section */}
         <div>
