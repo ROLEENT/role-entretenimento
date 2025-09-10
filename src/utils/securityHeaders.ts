@@ -83,18 +83,7 @@ export const generateCSPString = () => {
     .join('; ');
 };
 
-// Function to apply CSP meta tag (for development)
-export const applyCspMetaTag = () => {
-  if (import.meta.env.MODE === 'development') {
-    // Em desenvolvimento, CSP mais permissivo
-    const devCsp = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:;";
-    
-    const metaTag = document.createElement('meta');
-    metaTag.httpEquiv = 'Content-Security-Policy';
-    metaTag.content = devCsp;
-    document.head.appendChild(metaTag);
-  }
-};
+// Removed applyCspMetaTag - CSP is now handled via HTTP headers only
 
 // Function to check if running in secure context
 export const checkSecureContext = () => {
@@ -105,7 +94,6 @@ export const checkSecureContext = () => {
 
 // Apply security configurations on app start
 export const initSecurity = () => {
-  applyCspMetaTag();
   checkSecureContext();
   
   // Disable right-click in production (opcional)
@@ -116,9 +104,4 @@ export const initSecurity = () => {
       }
     });
   }
-  
-  // Import and setup enhanced security
-  import('@/utils/security/cspHeaders').then(({ setupSecurityProtections }) => {
-    setupSecurityProtections();
-  });
 };

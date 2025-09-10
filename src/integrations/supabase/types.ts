@@ -1191,6 +1191,7 @@ export type Database = {
           country: string | null
           cover_image_url: string | null
           created_at: string | null
+          deleted_at: string | null
           email: string | null
           fee_range: string | null
           home_city: string | null
@@ -1257,6 +1258,7 @@ export type Database = {
           country?: string | null
           cover_image_url?: string | null
           created_at?: string | null
+          deleted_at?: string | null
           email?: string | null
           fee_range?: string | null
           home_city?: string | null
@@ -1323,6 +1325,7 @@ export type Database = {
           country?: string | null
           cover_image_url?: string | null
           created_at?: string | null
+          deleted_at?: string | null
           email?: string | null
           fee_range?: string | null
           home_city?: string | null

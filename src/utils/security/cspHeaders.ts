@@ -108,23 +108,7 @@ export const securityHeaders = {
   'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload'
 };
 
-// Aplicar CSP via meta tag
-export const applyCSP = () => {
-  const isDev = import.meta.env.MODE === 'development';
-  const cspString = generateCSPString(isDev ? developmentCSP : productionCSP);
-  
-  // Remover meta tag existente
-  const existingTag = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
-  if (existingTag) {
-    existingTag.remove();
-  }
-  
-  // Adicionar nova meta tag
-  const metaTag = document.createElement('meta');
-  metaTag.httpEquiv = 'Content-Security-Policy';
-  metaTag.content = cspString;
-  document.head.appendChild(metaTag);
-};
+// Removed applyCSP - CSP is now handled via HTTP headers only
 
 // Verificar contexto seguro
 export const checkSecureContext = () => {
@@ -139,9 +123,6 @@ export const checkSecureContext = () => {
 
 // Configurar proteções contra ataques
 export const setupSecurityProtections = () => {
-  // Aplicar CSP
-  applyCSP();
-  
   // Verificar contexto seguro
   checkSecureContext();
   
