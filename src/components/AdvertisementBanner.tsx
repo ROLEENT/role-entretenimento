@@ -73,7 +73,7 @@ const AdvertisementBanner = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               
-              <div className="absolute bottom-4 left-4 right-4 text-white">
+              <div className="absolute bottom-4 left-4 right-4 text-primary-foreground">
                 <h3 className="text-2xl font-bold mb-2">Festival de Verão 2024</h3>
                 <div className="flex items-center gap-4 text-sm mb-3">
                   <div className="flex items-center gap-1">
@@ -85,7 +85,7 @@ const AdvertisementBanner = () => {
                     <span>50k pessoas</span>
                   </div>
                 </div>
-                <Button size="sm" className="bg-white text-primary hover:bg-white/90">
+                <Button size="sm" className="bg-background text-primary hover:bg-background/90">
                   Comprar Ingressos
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>

@@ -165,6 +165,7 @@ const PublicProfilePage = lazy(() => import("./pages/PublicProfilePage").then(mo
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const SavesPage = lazy(() => import("./pages/SavesPage").then(module => ({ default: module.SavesPage })));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const ServerError = lazy(() => import("./pages/ServerError"));
 const ScrollToTop = lazy(() => import("./components/ScrollToTop"));
 const DebugCombo = lazy(() => import("./pages/DebugCombo"));
 const TestPage = lazy(() => import("./pages/TestPage"));
@@ -437,6 +438,9 @@ function App() {
                 
                 {/* Handle @username redirects */}
                 <Route path="/:raw" element={<HandleRedirect />} />
+                
+                {/* Error pages */}
+                <Route path="/500" element={<ServerError />} />
                 
                 {/* Catch-all route MUST be last */}
                 <Route path="*" element={<NotFound />} />

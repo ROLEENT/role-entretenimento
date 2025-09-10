@@ -5,6 +5,7 @@ import './index.css'
 import { preloadCriticalResources, registerServiceWorker } from "@/utils/serviceWorker";
 import { addResourceHints, optimizeForMobile } from "@/utils/performanceHelpers";
 import { initPerformanceMonitoring } from "./utils/performanceMonitor";
+import { initWebVitalsTracking } from "./utils/webVitalsTracker";
 import { initSecurity } from "@/utils/securityHeaders";
 import { CriticalCSS } from "./components/performance/CriticalCSS";
 import { ResourceOptimizer } from "./components/performance/ResourceOptimizer";
@@ -19,6 +20,7 @@ optimizeForMobile();
 
 // Initialize performance monitoring
 initPerformanceMonitoring();
+initWebVitalsTracking();
 
 // Register service worker for caching (skip for admin routes)
 // SW temporariamente desabilitado para debugging
