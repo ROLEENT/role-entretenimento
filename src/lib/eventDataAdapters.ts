@@ -179,6 +179,9 @@ export const createHybridEventFetcher = (supabase: any) => {
     } = filters;
 
     let allEvents: UnifiedEvent[] = [];
+    const usedIds = new Set<string>(); // Evitar duplicações por ID
+
+    console.log('🔍 Hybrid Event Fetcher - Starting with filters:', { city, search, tags, limit, offset });
 
     // First, fetch from events table (priority)
     let eventsQuery = supabase
@@ -205,10 +208,14 @@ export const createHybridEventFetcher = (supabase: any) => {
       .range(offset, offset + limit - 1);
 
     if (eventsData) {
-      allEvents = eventsData.map(transformEventTableData);
+      const transformedEvents = eventsData.map(transformEventTableData);
+      allEvents = transformedEvents;
+      // Rastrear IDs para evitar duplicações
+      transformedEvents.forEach(event => usedIds.add(event.id));
+      console.log('✅ Events table:', transformedEvents.length, 'events found');
     }
 
-    // If we need more events, fetch from agenda_itens
+    // If we need more events, fetch from agenda_itens (but avoid duplicates)
     if (allEvents.length < limit) {
       const remainingLimit = limit - allEvents.length;
       
@@ -235,11 +242,20 @@ export const createHybridEventFetcher = (supabase: any) => {
         .limit(remainingLimit);
 
       if (agendaData) {
-        const transformedAgendaEvents = agendaData.map(transformAgendaTableData);
+        // Filtrar duplicados por ID antes de adicionar
+        const uniqueAgendaData = agendaData.filter(item => !usedIds.has(item.id));
+        const transformedAgendaEvents = uniqueAgendaData.map(transformAgendaTableData);
+        
+        if (uniqueAgendaData.length !== agendaData.length) {
+          console.log('⚠️ Duplicates found:', agendaData.length - uniqueAgendaData.length, 'duplicated IDs removed from agenda_itens');
+        }
+        
         allEvents = [...allEvents, ...transformedAgendaEvents];
+        console.log('✅ Agenda items added:', transformedAgendaEvents.length, 'unique events');
       }
     }
 
+    console.log('🎯 Final hybrid result:', allEvents.length, 'total events');
     return allEvents;
   };
 };

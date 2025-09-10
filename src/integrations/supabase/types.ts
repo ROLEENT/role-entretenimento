@@ -6619,6 +6619,16 @@ export type Database = {
         }
         Returns: undefined
       }
+      audit_database_consistency: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          description: string
+          issue_type: string
+          record_id: string
+          severity: string
+          table_name: string
+        }[]
+      }
       auth_role: {
         Args: Record<PropertyKey, never>
         Returns: string
