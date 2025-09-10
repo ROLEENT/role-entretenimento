@@ -177,20 +177,32 @@ export const useUpsertArtistEnhanced = () => {
           .slice(0, 80); // Limit to 80 chars
       };
 
-      // Use proper mapper to convert form data to database schema
-      const payload: any = mapArtistFormToDb(data);
+      // TESTE 1: Payload mínimo para verificar se salva
+      const payloadMin: any = { 
+        stage_name: toNull(data.name) || 'Teste',
+        updated_at: new Date().toISOString() 
+      };
+
+      // TESTE 2: Payload completo mapeado (comente o payloadMin e descomente este)
+      const payloadComplete: any = mapArtistFormToDb(data);
       
       // Add ID for updates
       if (data.id) {
-        payload.id = data.id;
+        payloadComplete.id = data.id;
+        payloadMin.id = data.id;
       }
       
       // Generate slug if not provided
-      if (!payload.slug && data.handle) {
-        payload.slug = generateSlug(data.handle);
+      if (!payloadComplete.slug && data.handle) {
+        payloadComplete.slug = generateSlug(data.handle);
       }
 
-      console.log("Using mapped payload:", JSON.stringify(payload, null, 2));
+      // ESCOLHA QUAL PAYLOAD USAR (troque aqui para testar)
+      const payload = payloadMin; // Mude para payloadComplete depois
+
+      console.log("=== PAYLOAD SELECTION ===");
+      console.log("Using payload:", payload === payloadMin ? "MINIMAL" : "COMPLETE");
+      console.log("Mapped payload:", JSON.stringify(payload, null, 2));
 
       // Upsert artist using admin client
       const endpoint = "artists";
@@ -198,16 +210,22 @@ export const useUpsertArtistEnhanced = () => {
       const url = data.id ? `${endpoint}?id=eq.${data.id}` : endpoint;
       
       try {
+        console.log("=== ARTIST UPSERT DEBUG ===");
+        console.log("Method:", method);
+        console.log("URL:", url);
+        console.log("Payload being sent:", JSON.stringify(payload, null, 2));
+
         const result = await adminClient.restCall(url, {
           method,
           body: JSON.stringify(payload),
         });
-        console.log("Artist upsert result:", result);
+        
+        console.log("Raw result from adminClient:", result);
         
         const artistData = Array.isArray(result) ? result[0] : result;
         
-        if (!artistData) {
-          throw new Error('Erro ao salvar artista: dados não retornados');
+        if (!artistData || !artistData.id) {
+          throw new Error('Erro ao salvar artista: dados não retornados ou ID ausente');
         }
 
         console.log("Artist upserted successfully:", artistData);
@@ -224,13 +242,26 @@ export const useUpsertArtistEnhanced = () => {
         }
 
         return artistData;
-      } catch (error) {
-        console.error("Detailed artist upsert error:", error);
+      } catch (error: any) {
+        console.error("=== ARTIST UPSERT ERROR ===");
+        console.error("Error object:", error);
+        console.error("Error message:", error?.message);
+        console.error("Error details:", error?.details);
         console.error("Failed payload:", JSON.stringify(payload, null, 2));
-        throw error;
+        console.error("=== END ERROR DEBUG ===");
+        
+        // Re-throw with enhanced error info
+        const enhancedError = new Error(
+          error?.message || 
+          error?.details || 
+          'Erro desconhecido ao salvar artista'
+        );
+        enhancedError.stack = error?.stack;
+        throw enhancedError;
       }
     },
     onSuccess: (data) => {
+      console.log("Artist save SUCCESS, invalidating queries for:", data.id);
       queryClient.invalidateQueries({ queryKey: ["artists"] });
       queryClient.invalidateQueries({ queryKey: ["artist", data.id] });
       toast.success("Artista salvo com sucesso!", {
@@ -238,10 +269,21 @@ export const useUpsertArtistEnhanced = () => {
         className: "toast-success"
       });
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
+      console.error("=== MUTATION ERROR HANDLER ===");
       console.error("Enhanced artist save error:", error);
-      const errorMessage = handleAdminError(error);
-      toast.error(errorMessage);
+      console.error("Error message:", error?.message);
+      console.error("Error details:", error?.details);
+      
+      const errorMessage = error?.message || 
+        error?.details || 
+        handleAdminError(error) || 
+        'Erro desconhecido ao salvar artista';
+      
+      toast.error(errorMessage, {
+        description: "Verifique os dados e tente novamente.",
+        className: "toast-error"
+      });
     },
   });
 };
