@@ -6640,10 +6640,12 @@ export type Database = {
         Returns: undefined
       }
       bulk_update_agenda_status: {
-        Args: {
-          item_ids: string[]
-          new_status: Database["public"]["Enums"]["agenda_status"]
-        }
+        Args:
+          | {
+              item_ids: string[]
+              new_status: Database["public"]["Enums"]["agenda_status"]
+            }
+          | { item_ids: string[]; new_status: string }
         Returns: undefined
       }
       calculate_curatorial_score: {
