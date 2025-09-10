@@ -1510,3 +1510,26 @@ textarea { overflow: auto; }
 .dark .status-archived {
   @apply text-red-400 bg-red-900 border-red-700;
 }
+
+/* Social Interaction Colors */
+:root {
+  --social-like: 346 80% 60%;
+  --social-follow: 206 100% 50%;
+  --social-profile: 270 70% 60%;
+
+  /* Status Colors */
+  --status-success: 138 79% 40%;
+  --status-warning: 48 100% 50%;
+  --status-error: 0 85% 60%;
+  --status-info: 206 100% 50%;
+
+  /* City Colors */
+  --city-porto-alegre: 206 100% 50%;
+  --city-florianopolis: 138 79% 40%;
+  --city-curitiba: 270 70% 60%;
+  --city-sao-paulo: 0 85% 60%;
+  --city-rio-de-janeiro: 25 100% 50%;
+
+  /* Rating System */
+  --rating-star: 48 100% 50%;
+}

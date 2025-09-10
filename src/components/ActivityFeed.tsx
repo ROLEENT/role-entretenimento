@@ -29,15 +29,15 @@ const ActivityFeed = () => {
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'follow':
-        return <UserPlus className="h-4 w-4 text-blue-500" />;
+        return <UserPlus className="h-4 w-4 text-social-follow" />;
       case 'event_favorite':
-        return <Heart className="h-4 w-4 text-red-500" />;
+        return <Heart className="h-4 w-4 text-social-like" />;
       case 'highlight_like':
-        return <ThumbsUp className="h-4 w-4 text-green-500" />;
+        return <ThumbsUp className="h-4 w-4 text-status-success" />;
       case 'comment':
-        return <MessageCircle className="h-4 w-4 text-green-500" />;
+        return <MessageCircle className="h-4 w-4 text-status-success" />;
       case 'profile_update':
-        return <User className="h-4 w-4 text-purple-500" />;
+        return <User className="h-4 w-4 text-social-profile" />;
       default:
         return <Calendar className="h-4 w-4 text-muted-foreground" />;
     }
@@ -168,9 +168,9 @@ const ActivityFeed = () => {
                     {activity.type === 'event_favorite' && activity.data?.event_title && activity.object_id && (
                       <Link 
                         to={`/eventos/${activity.object_id}`}
-                        className="block mt-2 p-2 bg-red-50 dark:bg-red-950/20 rounded-md hover:bg-red-100 dark:hover:bg-red-950/30 transition-colors"
+                        className="block mt-2 p-2 bg-social-like/10 rounded-md hover:bg-social-like/20 transition-colors"
                       >
-                        <p className="text-xs font-medium text-red-700 dark:text-red-300">
+                        <p className="text-xs font-medium text-social-like">
                           📅 Evento: {activity.data.event_title}
                         </p>
                       </Link>
@@ -179,9 +179,9 @@ const ActivityFeed = () => {
                     {activity.type === 'highlight_like' && activity.object_id && (
                       <Link 
                         to={`/destaques/${activity.object_id}`}
-                        className="block mt-2 p-2 bg-green-50 dark:bg-green-950/20 rounded-md hover:bg-green-100 dark:hover:bg-green-950/30 transition-colors"
+                        className="block mt-2 p-2 bg-status-success/10 rounded-md hover:bg-status-success/20 transition-colors"
                       >
-                        <p className="text-xs font-medium text-green-700 dark:text-green-300">
+                        <p className="text-xs font-medium text-status-success">
                           ⭐ Destaque curtido
                         </p>
                       </Link>
@@ -190,9 +190,9 @@ const ActivityFeed = () => {
                     {activity.type === 'follow' && activity.object_id && (
                       <Link 
                         to={`/usuarios/${activity.object_id}`}
-                        className="block mt-2 p-2 bg-blue-50 dark:bg-blue-950/20 rounded-md hover:bg-blue-100 dark:hover:bg-blue-950/30 transition-colors"
+                        className="block mt-2 p-2 bg-social-follow/10 rounded-md hover:bg-social-follow/20 transition-colors"
                       >
-                        <p className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                        <p className="text-xs font-medium text-social-follow">
                           👤 Ver perfil
                         </p>
                       </Link>

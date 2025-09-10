@@ -45,7 +45,7 @@ export function EventSocialActions({ eventId, className, compact = false }: Even
           {isSaveLoading ? (
             <Loader2 className="h-3 w-3 animate-spin" />
           ) : (
-            <Heart className={cn("h-3 w-3", saved && "fill-current")} />
+            <Heart className={cn("h-3 w-3", saved && "fill-current text-rose-500")} />
           )}
           {saved ? "Salvo" : "Salvar"}
         </Button>

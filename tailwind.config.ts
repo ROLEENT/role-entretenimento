@@ -79,7 +79,26 @@ export default {
 					twitter: 'hsl(var(--social-twitter))',
 					whatsapp: 'hsl(var(--social-whatsapp))',
 					instagram: 'hsl(var(--social-instagram))',
-					youtube: 'hsl(var(--social-youtube))'
+					youtube: 'hsl(var(--social-youtube))',
+					like: 'hsl(var(--social-like))',
+					follow: 'hsl(var(--social-follow))',
+					profile: 'hsl(var(--social-profile))'
+				},
+				status: {
+					success: 'hsl(var(--status-success))',
+					warning: 'hsl(var(--status-warning))',
+					error: 'hsl(var(--status-error))',
+					info: 'hsl(var(--status-info))'
+				},
+				city: {
+					'porto-alegre': 'hsl(var(--city-porto-alegre))',
+					'florianopolis': 'hsl(var(--city-florianopolis))',
+					'curitiba': 'hsl(var(--city-curitiba))',
+					'sao-paulo': 'hsl(var(--city-sao-paulo))',
+					'rio-de-janeiro': 'hsl(var(--city-rio-de-janeiro))'
+				},
+				rating: {
+					star: 'hsl(var(--rating-star))'
 				}
 			},
 			fontFamily: {

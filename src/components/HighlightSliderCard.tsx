@@ -35,11 +35,11 @@ const formatCity = (city: CityEnum): string => {
 
 const getCityColor = (city: CityEnum): string => {
   const colorMap = {
-    porto_alegre: 'bg-blue-500',
-    florianopolis: 'bg-green-500',
-    curitiba: 'bg-purple-500',
-    sao_paulo: 'bg-red-500',
-    rio_de_janeiro: 'bg-orange-500'
+    porto_alegre: 'bg-city-porto-alegre',
+    florianopolis: 'bg-city-florianopolis', 
+    curitiba: 'bg-city-curitiba',
+    sao_paulo: 'bg-city-sao-paulo',
+    rio_de_janeiro: 'bg-city-rio-de-janeiro'
   };
   return colorMap[city] || 'bg-primary';
 };
@@ -74,7 +74,7 @@ export const HighlightSliderCard = ({ highlight }: HighlightSliderCardProps) => 
 
         {/* Photo Credit */}
         {highlight.photo_credit && (
-          <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+          <div className="absolute bottom-2 right-2 bg-background/80 text-foreground text-xs px-2 py-1 rounded backdrop-blur-sm">
             {highlight.photo_credit}
           </div>
         )}

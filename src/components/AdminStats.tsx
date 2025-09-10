@@ -49,28 +49,28 @@ export function AdminStats({ className }: AdminStatsProps) {
       value: stats.partners,
       icon: Users,
       description: 'Venues cadastrados',
-      color: 'text-blue-600'
+      color: 'text-social-follow'
     },
     {
       title: 'Posts',
       value: stats.posts,
       icon: FileText,
       description: 'Artigos publicados',
-      color: 'text-purple-600'
+      color: 'text-social-profile'
     },
     {
       title: 'Eventos',
       value: stats.events,
       icon: Calendar,
       description: 'Eventos cadastrados',
-      color: 'text-pink-600'
+      color: 'text-social-like'
     },
     {
       title: 'Mensagens',
       value: stats.messages,
       icon: MessageSquare,
       description: 'Contatos recebidos',
-      color: 'text-green-600'
+      color: 'text-status-success'
     }
   ];
 

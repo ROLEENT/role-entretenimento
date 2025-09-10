@@ -134,7 +134,7 @@ const CityReviews = ({ cityName, overallRating, totalReviews }: CityReviewsProps
                         key={i}
                         className={`h-5 w-5 ${
                           i < Math.floor(overallRating) 
-                            ? 'text-yellow-400 fill-yellow-400' 
+                            ? 'text-rating-star fill-rating-star' 
                             : 'text-muted-foreground'
                         }`}
                       />
@@ -151,11 +151,11 @@ const CityReviews = ({ cityName, overallRating, totalReviews }: CityReviewsProps
                     <div key={item.stars} className="flex items-center gap-2">
                       <div className="flex items-center gap-1 w-12">
                         <span className="text-sm">{item.stars}</span>
-                        <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                        <Star className="h-3 w-3 text-rating-star fill-rating-star" />
                       </div>
                       <div className="flex-1 bg-muted rounded-full h-2">
                         <div 
-                          className="bg-yellow-400 h-2 rounded-full"
+                          className="bg-rating-star h-2 rounded-full"
                           style={{ width: `${item.percentage}%` }}
                         />
                       </div>
@@ -228,7 +228,7 @@ const CityReviews = ({ cityName, overallRating, totalReviews }: CityReviewsProps
                                 key={i}
                                 className={`h-4 w-4 ${
                                   i < review.rating 
-                                    ? 'text-yellow-400 fill-yellow-400' 
+                                    ? 'text-rating-star fill-rating-star' 
                                     : 'text-muted-foreground'
                                 }`}
                               />
