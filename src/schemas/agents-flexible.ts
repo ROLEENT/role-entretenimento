@@ -17,11 +17,11 @@ export const artistFlexibleSchema = z.object({
   bio: z.string().optional().nullable(),
   about: z.string().optional().nullable(),
   
-  // Contact info - all optional with flexible validation
-  email: z.string().optional().or(z.literal('')).nullable(),
+  // Contact info - all optional with proper validation
+  email: z.string().email("Email inválido").optional().or(z.literal('')).nullable(),
   phone: z.string().optional().nullable(),
   whatsapp: z.string().optional().nullable(),
-  booking_email: z.string().optional().or(z.literal('')).nullable(),
+  booking_email: z.string().email("Email inválido").optional().or(z.literal('')).nullable(),
   booking_whatsapp: z.string().optional().nullable(),
   booking_phone: z.string().optional().nullable(),
   
@@ -32,16 +32,21 @@ export const artistFlexibleSchema = z.object({
   home_city: z.string().optional().nullable(),
   cities_active: z.array(z.string()).default([]),
   
-  // Social media & URLs - all optional with flexible validation
+  // Social media & URLs - all optional with URL validation
   instagram: z.string().optional().nullable(),
-  website: z.string().optional().or(z.literal('')).nullable(),
-  website_url: z.string().optional().or(z.literal('')).nullable(),
-  spotify_url: z.string().optional().or(z.literal('')).nullable(),
-  soundcloud_url: z.string().optional().or(z.literal('')).nullable(), 
-  youtube_url: z.string().optional().or(z.literal('')).nullable(),
-  beatport_url: z.string().optional().or(z.literal('')).nullable(),
-  audius_url: z.string().optional().or(z.literal('')).nullable(),
-  links: z.record(z.string()).optional(),
+  website: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  website_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  spotify_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  soundcloud_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(), 
+  youtube_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  beatport_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  audius_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  links: z.object({
+    facebook: z.string().url("URL inválida").optional().or(z.literal('')),
+    linkedin: z.string().url("URL inválida").optional().or(z.literal('')),
+    twitter: z.string().url("URL inválida").optional().or(z.literal('')),
+    tiktok: z.string().url("URL inválida").optional().or(z.literal('')),
+  }).optional(),
   
   // Professional info - all optional
   fee_range: z.string().optional().nullable(),
@@ -54,13 +59,13 @@ export const artistFlexibleSchema = z.object({
   tech_audio: z.string().optional().nullable(),
   tech_light: z.string().optional().nullable(),
   tech_stage: z.string().optional().nullable(),
-  tech_rider_url: z.string().optional().or(z.literal('')).nullable(),
+  tech_rider_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
   
-  // Media - all optional
-  profile_image_url: z.string().optional().or(z.literal('')).nullable(),
-  cover_image_url: z.string().optional().or(z.literal('')).nullable(),
-  avatar_url: z.string().optional().or(z.literal('')).nullable(),
-  presskit_url: z.string().optional().or(z.literal('')).nullable(),
+  // Media - all optional with URL validation
+  profile_image_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  cover_image_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  avatar_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  presskit_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
   
   // Management - all optional
   responsible_name: z.string().optional().nullable(),
@@ -88,21 +93,21 @@ export const organizerFlexibleSchema = z.object({
   name: z.string().min(2, "Nome é obrigatório"),
   slug: z.string().optional(), // Auto-generated
   
-  // All other fields optional
-  site: z.string().optional().or(z.literal('')).nullable(),
-  email: z.string().optional().or(z.literal('')).nullable(),
+  // All other fields optional with validation
+  site: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+  email: z.string().email("Email inválido").optional().or(z.literal('')).nullable(),
   phone: z.string().optional().nullable(),
   status: z.enum(["active", "inactive"]).default("active"),
   
   // Contact info - all optional
   instagram: z.string().optional().nullable(),
   whatsapp: z.string().optional().nullable(),
-  website: z.string().optional().or(z.literal('')).nullable(),
+  website: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
   
-  // Invoice/billing info - all optional
+  // Invoice/billing info - all optional with validation
   invoice_name: z.string().optional().nullable(),
   tax_id: z.string().optional().nullable(),
-  invoice_email: z.string().optional().or(z.literal('')).nullable(),
+  invoice_email: z.string().email("Email inválido").optional().or(z.literal('')).nullable(),
   pix_key: z.string().optional().nullable(),
   
   // Bank info - all optional
@@ -113,13 +118,13 @@ export const organizerFlexibleSchema = z.object({
     type: z.enum(['corrente', 'poupanca']).optional(),
   }).optional(),
   
-  // Additional links - all optional
+  // Additional links - all optional with URL validation
   links: z.object({
-    facebook: z.string().optional().or(z.literal('')),
-    linkedin: z.string().optional().or(z.literal('')),
-    youtube: z.string().optional().or(z.literal('')),
-    tiktok: z.string().optional().or(z.literal('')),
-    twitter: z.string().optional().or(z.literal('')),
+    facebook: z.string().url("URL inválida").optional().or(z.literal('')),
+    linkedin: z.string().url("URL inválida").optional().or(z.literal('')),
+    youtube: z.string().url("URL inválida").optional().or(z.literal('')),
+    tiktok: z.string().url("URL inválida").optional().or(z.literal('')),
+    twitter: z.string().url("URL inválida").optional().or(z.literal('')),
   }).optional(),
   
   // Location - all optional
@@ -130,10 +135,10 @@ export const organizerFlexibleSchema = z.object({
   // Content - all optional
   bio: z.string().optional(),
   
-  // Media - all optional
-  avatar_url: z.string().optional().or(z.literal('')).nullable(),
+  // Media - all optional with URL validation
+  avatar_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
   avatar_alt: z.string().optional(),
-  cover_url: z.string().optional().or(z.literal('')).nullable(),
+  cover_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
   cover_alt: z.string().optional(),
   
   // Metadata

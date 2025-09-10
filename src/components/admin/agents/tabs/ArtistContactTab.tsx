@@ -1,8 +1,8 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { RHFInput, RHFURLInput, RHFSocialLinks } from '@/components/form';
 import { ArtistFlexibleForm } from '@/schemas/agents-flexible';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface ArtistContactTabProps {
   form: UseFormReturn<ArtistFlexibleForm>;
@@ -11,99 +11,122 @@ interface ArtistContactTabProps {
 export const ArtistContactTab: React.FC<ArtistContactTabProps> = ({ form }) => {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Contato Geral</h3>
-          
-          <FormField
-            control={form.control}
+      <Card>
+        <CardHeader>
+          <CardTitle>Contato Geral</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <RHFInput
             name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input type="email" placeholder="contato@exemplo.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="email"
+            label="Email"
+            placeholder="contato@exemplo.com"
           />
-
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Telefone</FormLabel>
-                <FormControl>
-                  <Input placeholder="(11) 99999-9999" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="whatsapp"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>WhatsApp</FormLabel>
-                <FormControl>
-                  <Input placeholder="(11) 99999-9999" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Contato para Booking</h3>
           
-          <FormField
-            control={form.control}
+          <RHFInput
+            name="phone"
+            label="Telefone"
+            placeholder="(11) 99999-9999"
+          />
+          
+          <RHFInput
+            name="whatsapp"
+            label="WhatsApp"
+            placeholder="(11) 99999-9999"
+          />
+          
+          <RHFInput
+            name="instagram"
+            label="Instagram"
+            placeholder="@usuario"
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Contato para Booking</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <RHFInput
             name="booking_email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email de Booking</FormLabel>
-                <FormControl>
-                  <Input type="email" placeholder="booking@exemplo.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="email"
+            label="Email de Booking"
+            placeholder="booking@exemplo.com"
           />
-
-          <FormField
-            control={form.control}
+          
+          <RHFInput
             name="booking_phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Telefone de Booking</FormLabel>
-                <FormControl>
-                  <Input placeholder="(11) 99999-9999" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Telefone de Booking"
+            placeholder="(11) 99999-9999"
           />
-
-          <FormField
-            control={form.control}
+          
+          <RHFInput
             name="booking_whatsapp"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>WhatsApp de Booking</FormLabel>
-                <FormControl>
-                  <Input placeholder="(11) 99999-9999" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="WhatsApp de Booking"
+            placeholder="(11) 99999-9999"
           />
-        </div>
-      </div>
+        </CardContent>
+      </Card>
+
+      <RHFSocialLinks
+        namePrefix="links"
+        label="Links Sociais e Plataformas"
+        showInstagram={false}
+        showWebsite={true}
+        showFacebook={true}
+        showLinkedin={true}
+        showYoutube={true}
+        showTwitter={true}
+      />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>URLs de Plataformas Musicais</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <RHFURLInput
+            name="website_url"
+            label="Website Principal"
+            placeholder="https://www.exemplo.com"
+          />
+          
+          <RHFURLInput
+            name="spotify_url"
+            label="Spotify"
+            placeholder="https://open.spotify.com/artist/..."
+            allowedDomains={['spotify.com']}
+          />
+          
+          <RHFURLInput
+            name="soundcloud_url"
+            label="SoundCloud"
+            placeholder="https://soundcloud.com/usuario"
+            allowedDomains={['soundcloud.com']}
+          />
+          
+          <RHFURLInput
+            name="youtube_url"
+            label="YouTube"
+            placeholder="https://youtube.com/channel/..."
+            allowedDomains={['youtube.com', 'youtu.be']}
+          />
+          
+          <RHFURLInput
+            name="beatport_url"
+            label="Beatport"
+            placeholder="https://www.beatport.com/artist/..."
+            allowedDomains={['beatport.com']}
+          />
+          
+          <RHFURLInput
+            name="audius_url"
+            label="Audius"
+            placeholder="https://audius.co/usuario"
+            allowedDomains={['audius.co']}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 };

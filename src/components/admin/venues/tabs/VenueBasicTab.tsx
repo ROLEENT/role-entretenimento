@@ -1,7 +1,7 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RHFInput, RHFSlug, RHFTextarea } from '@/components/form';
+import { RHFInput, RHFSlug, RHFTextarea, RHFTagsEditor } from '@/components/form';
 import { VenueFlexibleFormData } from '@/schemas/venue-flexible';
 import { Badge, MapPin } from 'lucide-react';
 import { IntelligentStatusField } from '@/components/form/IntelligentStatusField';
@@ -58,17 +58,12 @@ export const VenueBasicTab: React.FC<VenueBasicTabProps> = ({ form }) => {
               placeholder="Ex: 500"
             />
             
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Tags</label>
-              <RHFInput
-                name="tags"
-                placeholder="Ex: casa-de-shows, rock, eletrônico"
-                className="text-sm"
-              />
-              <p className="text-xs text-muted-foreground">
-                Separe as tags com vírgulas
-              </p>
-            </div>
+            <RHFTagsEditor
+              name="tags"
+              label="Tags"
+              placeholder="Ex: casa-de-shows, rock, eletrônico"
+              maxTags={15}
+            />
           </div>
         </CardContent>
       </Card>

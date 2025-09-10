@@ -113,23 +113,23 @@ export const venueFlexibleSchema = z.object({
     genero_neutro: z.number().int().min(0).default(0),
   }).default({}),
   
-  // Contact info - all optional
+  // Contact info - all optional with validation
   instagram: z.string().optional(),
-  email: z.string().optional().or(z.literal('')),
+  email: z.string().email("Email inválido").optional().or(z.literal('')),
   phone: z.string().optional(),
   whatsapp: z.string().optional(),
-  website: z.string().optional().or(z.literal('')),
+  website: z.string().url("URL inválida").optional().or(z.literal('')),
   
   // Content - optional
   about: z.string().optional(),
-  tags: z.string().optional(),
+  tags: z.array(z.string()).default([]),
   
-  // Media - all optional
-  logo_url: z.string().optional(),
+  // Media - all optional with URL validation
+  logo_url: z.string().url("URL inválida").optional().or(z.literal('')),
   logo_alt: z.string().optional(),
-  cover_url: z.string().optional(),
+  cover_url: z.string().url("URL inválida").optional().or(z.literal('')),
   cover_alt: z.string().optional(),
-  gallery_urls: z.array(z.string()).default([]),
+  gallery_urls: z.array(z.string().url("URL inválida")).default([]),
   
   // Metadata
   status: z.enum(['active', 'inactive']).default('active'),

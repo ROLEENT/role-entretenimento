@@ -8,7 +8,7 @@ import { ArtistFlexibleForm } from '@/schemas/agents-flexible';
 import { RHFSlug } from '../RHFSlug';
 import { CountrySelect } from '@/components/form/CountrySelect';
 import { RHFGenreSelect } from '@/components/form/RHFGenreSelect';
-import { AgentesTagsInput } from '@/components/agentes/AgentesTagsInput';
+import { RHFTagsEditor } from '@/components/form/RHFTagsEditor';
 import { RHFArtistCategorySelect } from '@/components/form/RHFArtistCategorySelect';
 
 interface ArtistBasicTabProps {
@@ -208,22 +208,11 @@ export const ArtistBasicTab: React.FC<ArtistBasicTabProps> = ({ form }) => {
       </div>
 
       <div className="md:col-span-2">
-        <FormField
-          control={form.control}
+        <RHFTagsEditor
           name="tags"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tags</FormLabel>
-              <FormControl>
-                <AgentesTagsInput
-                  name="tags"
-                  placeholder="Digite uma tag e pressione Enter"
-                  maxTags={10}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Tags"
+          placeholder="Digite uma tag e pressione Enter"
+          maxTags={10}
         />
       </div>
 

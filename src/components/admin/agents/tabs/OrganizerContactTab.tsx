@@ -1,8 +1,8 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { RHFInput, RHFURLInput, RHFSocialLinks, RHFDocumentInput } from '@/components/form';
 import { OrganizerFlexibleForm } from '@/schemas/agents-flexible';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface OrganizerContactTabProps {
   form: UseFormReturn<OrganizerFlexibleForm>;
@@ -11,81 +11,105 @@ interface OrganizerContactTabProps {
 export const OrganizerContactTab: React.FC<OrganizerContactTabProps> = ({ form }) => {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input 
-                  type="email" 
-                  placeholder="contato@exemplo.com" 
-                  {...field}
-                  value={field.value || ''}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <Card>
+        <CardHeader>
+          <CardTitle>Contato Básico</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <RHFInput
+            name="email"
+            type="email"
+            label="Email"
+            placeholder="contato@exemplo.com"
+          />
+          
+          <RHFInput
+            name="phone"
+            label="Telefone"
+            placeholder="(11) 99999-9999"
+          />
+          
+          <RHFInput
+            name="whatsapp"
+            label="WhatsApp"
+            placeholder="(11) 99999-9999"
+          />
+          
+          <RHFInput
+            name="instagram"
+            label="Instagram"
+            placeholder="@usuario"
+          />
+        </CardContent>
+      </Card>
 
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Telefone</FormLabel>
-              <FormControl>
-                <Input 
-                  placeholder="(11) 99999-9999" 
-                  {...field}
-                  value={field.value || ''}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <Card>
+        <CardHeader>
+          <CardTitle>Informações de Faturamento</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <RHFInput
+            name="invoice_name"
+            label="Nome para Faturamento"
+            placeholder="Nome completo ou Razão Social"
+          />
+          
+          <RHFDocumentInput
+            name="tax_id"
+            label="CPF/CNPJ"
+            type="auto"
+          />
+          
+          <RHFInput
+            name="invoice_email"
+            type="email"
+            label="Email para Faturamento"
+            placeholder="financeiro@exemplo.com"
+          />
+          
+          <RHFInput
+            name="pix_key"
+            label="Chave PIX"
+            placeholder="email@exemplo.com ou 11999999999"
+          />
+        </CardContent>
+      </Card>
 
-        <FormField
-          control={form.control}
-          name="instagram"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Instagram</FormLabel>
-              <FormControl>
-                <Input 
-                  placeholder="@usuario ou usuario" 
-                  {...field}
-                  value={field.value || ''}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <Card>
+        <CardHeader>
+          <CardTitle>Dados Bancários</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <RHFInput
+            name="bank.bank"
+            label="Banco"
+            placeholder="Ex: Banco do Brasil"
+          />
+          
+          <RHFInput
+            name="bank.agency"
+            label="Agência"
+            placeholder="Ex: 1234-5"
+          />
+          
+          <RHFInput
+            name="bank.account"
+            label="Conta"
+            placeholder="Ex: 12345-6"
+          />
+        </CardContent>
+      </Card>
 
-        <FormField
-          control={form.control}
-          name="website"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Website</FormLabel>
-              <FormControl>
-                <Input 
-                  type="url"
-                  placeholder="https://www.exemplo.com"
-                  {...field} 
-                  value={field.value || ''}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+      <RHFSocialLinks
+        namePrefix="links"
+        label="Links Sociais"
+        showInstagram={false}
+        showWebsite={true}
+        showFacebook={true}
+        showLinkedin={true}
+        showYoutube={true}
+        showTwitter={true}
+      />
     </div>
   );
 };

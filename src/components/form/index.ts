@@ -26,6 +26,13 @@ export { RHFPhoneInput } from './RHFPhoneInput';
 export { RHFSlugInput } from './RHFSlugInput';
 export { RHFRemoteCombobox } from './RHFRemoteCombobox';
 export { RHFAsyncSelect } from './RHFAsyncSelect';
+
+// Standardized form components
+export { RHFTagsEditor } from './RHFTagsEditor';
+export { RHFSocialLinks } from './RHFSocialLinks';
+export { RHFDocumentInput } from './RHFDocumentInput';
+export { RHFURLInput } from './RHFURLInput';
+export { RHFLocationPicker } from './RHFLocationPicker';
 export { ArtistLocationFields } from './ArtistLocationFields';
 export { ArtistLocationFieldsRobust } from './ArtistLocationFieldsRobust';
 export { InstagramField } from './InstagramField';

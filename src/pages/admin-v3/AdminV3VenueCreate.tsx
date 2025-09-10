@@ -88,7 +88,7 @@ const AdminV3VenueCreate: React.FC = () => {
         sunday: "",
       },
       caracteristicas_estabelecimento: {},
-      tags: "",
+      tags: [],
       gallery_urls: [],
     },
   });
