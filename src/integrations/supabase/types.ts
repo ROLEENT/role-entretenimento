@@ -6119,10 +6119,10 @@ export type Database = {
       }
       add_user_points: {
         Args: {
-          p_activity_id?: string
-          p_activity_type: string
           p_description?: string
+          p_event_id?: string
           p_points: number
+          p_reason: string
           p_user_id: string
         }
         Returns: undefined
@@ -6765,23 +6765,14 @@ export type Database = {
         Returns: boolean
       }
       create_activity: {
-        Args:
-          | {
-              p_actor_id: string
-              p_data?: Json
-              p_object_id: string
-              p_object_type: string
-              p_type: string
-              p_user_id: string
-            }
-          | {
-              p_actor_id: string
-              p_data?: Json
-              p_object_id?: string
-              p_object_type?: string
-              p_type: string
-            }
-        Returns: undefined
+        Args: {
+          p_data?: Json
+          p_object_id: string
+          p_object_type: string
+          p_type: string
+          p_user_id: string
+        }
+        Returns: string
       }
       create_admin_auth_account: {
         Args: { p_email: string; p_password: string }
@@ -7392,12 +7383,12 @@ export type Database = {
       log_security_event: {
         Args: {
           p_admin_email?: string
-          p_event_data?: Json
+          p_details?: Json
           p_event_type: string
           p_severity?: string
           p_user_id?: string
         }
-        Returns: undefined
+        Returns: string
       }
       mark_all_notifications_read: {
         Args: Record<PropertyKey, never>
