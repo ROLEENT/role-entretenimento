@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { createAdminClient, handleAdminError } from '@/lib/adminClient';
 import { toast } from 'sonner';
 
 interface ArtistFilters {
@@ -123,21 +124,32 @@ export const useAdminArtistsData = () => {
   // Update artist status mutation
   const updateStatusMutation = useMutation({
     mutationFn: async ({ artistId, status }: { artistId: string; status: string }) => {
-      const { data, error } = await supabase
-        .from('artists')
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq('id', artistId)
-        .select()
-        .single();
+      try {
+        // Create admin client with proper headers
+        const adminClient = await createAdminClient();
+        
+        // Use REST call to ensure admin headers are sent
+        const result = await adminClient.restCall(`artists?id=eq.${artistId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ 
+            status, 
+            updated_at: new Date().toISOString() 
+          }),
+        });
 
-      if (error) {
+        console.log('Artist status update result:', result);
+        return { id: artistId, status };
+      } catch (error: any) {
+        console.error('Update artist status error:', error);
+        
         // Enhanced error handling
-        if (error.code === 'PGRST301') {
+        if (error.message?.includes('permission denied') || error.message?.includes('row-level security')) {
           throw new Error('Permissão negada. Verifique se você tem acesso de administrador.');
         }
-        throw new Error(`Erro ao atualizar status: ${error.message}`);
+        
+        const errorMessage = handleAdminError(error);
+        throw new Error(errorMessage);
       }
-      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-artists'] });
@@ -149,33 +161,42 @@ export const useAdminArtistsData = () => {
     },
   });
 
-  // Delete artist mutation (soft delete)
+  // Delete artist mutation (soft delete using admin client)
   const deleteArtistMutation = useMutation({
     mutationFn: async (artistId: string) => {
-      // Try soft delete first
-      const { error } = await supabase
-        .from('artists')
-        .update({ deleted_at: new Date().toISOString() })
-        .eq('id', artistId);
+      try {
+        // Create admin client with proper headers
+        const adminClient = await createAdminClient();
+        
+        // Use REST call to ensure admin headers are sent
+        const result = await adminClient.restCall(`artists?id=eq.${artistId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ 
+            deleted_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }),
+        });
 
-      if (error) {
+        console.log('Artist deletion result:', result);
+        return artistId;
+      } catch (error: any) {
         console.error('Delete artist error:', {
-          code: error.code,
           message: error.message,
-          details: error.details,
-          hint: error.hint
+          name: error.name,
+          stack: error.stack
         });
         
         // Enhanced error handling for better debugging
-        if (error.code === 'PGRST301' || error.message.includes('permission denied') || error.message.includes('row-level security')) {
+        if (error.message?.includes('permission denied') || error.message?.includes('row-level security')) {
           throw new Error('Permissão negada. Verifique se você tem acesso de administrador.');
         }
-        if (error.code === '23503') {
+        if (error.message?.includes('23503')) {
           throw new Error('Não é possível excluir este artista pois ele está vinculado a outros registros.');
         }
-        throw new Error(`Erro ao excluir artista: ${error.message}`);
+        
+        const errorMessage = handleAdminError(error);
+        throw new Error(errorMessage);
       }
-      return artistId;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-artists'] });

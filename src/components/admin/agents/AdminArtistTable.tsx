@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Edit, Copy, UserX, MoreHorizontal, Eye, ExternalLink } from 'lucide-react';
+import { Edit, Copy, UserX, MoreHorizontal, Eye, ExternalLink, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -203,17 +204,40 @@ export const AdminArtistTable: React.FC<AdminArtistTableProps> = ({
                           </a>
                         </DropdownMenuItem>
                       </>
-                    )}
-                    
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={() => onDelete(artist.id)}
-                      className="text-destructive"
-                      data-testid="artist-delete"
-                    >
-                      <UserX className="mr-2 h-4 w-4" />
-                      Excluir
-                    </DropdownMenuItem>
+                     )}
+                     
+                     <DropdownMenuSeparator />
+                     
+                     <AlertDialog>
+                       <AlertDialogTrigger asChild>
+                         <DropdownMenuItem 
+                           onSelect={(e) => e.preventDefault()}
+                           className="text-destructive"
+                           data-testid="artist-delete"
+                         >
+                           <Trash2 className="mr-2 h-4 w-4" />
+                           Excluir
+                         </DropdownMenuItem>
+                       </AlertDialogTrigger>
+                       <AlertDialogContent>
+                         <AlertDialogHeader>
+                           <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                           <AlertDialogDescription>
+                             Tem certeza que deseja excluir o artista "{artist.stage_name}"? 
+                             Esta ação não pode ser desfeita.
+                           </AlertDialogDescription>
+                         </AlertDialogHeader>
+                         <AlertDialogFooter>
+                           <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                           <AlertDialogAction 
+                             onClick={() => onDelete(artist.id)}
+                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                           >
+                             Excluir
+                           </AlertDialogAction>
+                         </AlertDialogFooter>
+                       </AlertDialogContent>
+                     </AlertDialog>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>

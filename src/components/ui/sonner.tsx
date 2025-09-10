@@ -22,6 +22,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
           success: "group-[.toaster]:border-green-500",
           error: "group-[.toaster]:border-red-500",
         },
+        // Add test attributes for E2E testing
+        unstyled: false,
+        className: "data-[type=success]:data-testid-toast-success data-[type=error]:data-testid-toast-error",
       }}
       // Enhanced accessibility props
       position="bottom-right"
