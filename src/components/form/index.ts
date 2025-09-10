@@ -29,6 +29,8 @@ export { RHFAsyncSelect } from './RHFAsyncSelect';
 
 // Phase 5 - Consolidated components
 export { RHFGenreSelect } from './RHFGenreSelect';
+export { RHFMultiSelectCategories } from './RHFMultiSelectCategories';
+export { RHFMultiSelectGenres } from './RHFMultiSelectGenres';
 export { RHFDateTimePicker } from './RHFDateTimePicker';
 export { RHFFileUpload } from './RHFFileUpload';
 

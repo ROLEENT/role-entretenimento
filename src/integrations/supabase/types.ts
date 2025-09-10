@@ -1411,6 +1411,24 @@ export type Database = {
           },
         ]
       }
+      artists_categories: {
+        Row: {
+          artist_id: string
+          category_id: string
+          created_at: string | null
+        }
+        Insert: {
+          artist_id: string
+          category_id: string
+          created_at?: string | null
+        }
+        Update: {
+          artist_id?: string
+          category_id?: string
+          created_at?: string | null
+        }
+        Relationships: []
+      }
       artists_genres: {
         Row: {
           artist_id: string

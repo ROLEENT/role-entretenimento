@@ -3,6 +3,50 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArtistEnhancedForm } from "@/schemas/entities/artist-enhanced";
 import { toast } from "sonner";
 
+const syncArtistCategories = async (artistId: string, categoryIds: string[]) => {
+  // Remove existing relationships
+  await supabase
+    .from('artists_categories')
+    .delete()
+    .eq('artist_id', artistId);
+
+  // Add new relationships
+  if (categoryIds.length > 0) {
+    const categoryRelations = categoryIds.map(categoryId => ({
+      artist_id: artistId,
+      category_id: categoryId
+    }));
+
+    const { error } = await supabase
+      .from('artists_categories')
+      .insert(categoryRelations);
+
+    if (error) throw error;
+  }
+};
+
+const syncArtistGenres = async (artistId: string, genreIds: string[]) => {
+  // Remove existing relationships
+  await supabase
+    .from('artists_genres')
+    .delete()
+    .eq('artist_id', artistId);
+
+  // Add new relationships
+  if (genreIds.length > 0) {
+    const genreRelations = genreIds.map(genreId => ({
+      artist_id: artistId,
+      genre_id: genreId
+    }));
+
+    const { error } = await supabase
+      .from('artists_genres')
+      .insert(genreRelations);
+
+    if (error) throw error;
+  }
+};
+
 export const useUpsertArtistEnhanced = () => {
   const queryClient = useQueryClient();
 
@@ -26,6 +70,9 @@ export const useUpsertArtistEnhanced = () => {
 
       // Transform enhanced form data to database schema
       const transformedData = {
+        // Include ID for updates
+        ...(data.id && { id: data.id }),
+        
         // Map enhanced schema to database fields
         stage_name: data.name,
         handle: data.handle,
@@ -46,9 +93,7 @@ export const useUpsertArtistEnhanced = () => {
         
         // Media
         profile_image_url: data.profile_image_url,
-        profile_image_alt: data.profile_image_alt,
         cover_image_url: data.cover_image_url || null,
-        cover_image_alt: data.cover_image_alt || null,
         
         // Links
         website_url: data.links.website || null,
@@ -65,22 +110,11 @@ export const useUpsertArtistEnhanced = () => {
         // Type-specific fields
         dj_style: data.dj_style || null,
         equipment_needs: data.equipment_needs || null,
-        set_duration_min: data.set_duration_min || null,
-        band_members: data.band_members || null,
-        instruments: data.instruments || [],
-        technical_rider: data.technical_rider || null,
-        performance_type: data.performance_type || [],
-        costume_requirements: data.costume_requirements || null,
-        special_needs: data.special_needs || null,
-        theater_experience: data.theater_experience || null,
-        repertoire: data.repertoire || [],
-        acting_styles: data.acting_styles || [],
-        photography_style: data.photography_style || [],
-        equipment_owned: data.equipment_owned || null,
-        portfolio_highlights: data.portfolio_highlights || [],
+        set_time_minutes: data.set_duration_min || null,
+        team_size: data.band_members || null,
+        tech_rider_url: data.technical_rider || null,
         
         // Booking contact
-        booking_contact_name: data.booking_contact?.name || null,
         booking_email: data.booking_contact?.email || null,
         booking_phone: data.booking_contact?.phone || null,
         booking_whatsapp: data.booking_contact?.whatsapp || null,
@@ -90,10 +124,6 @@ export const useUpsertArtistEnhanced = () => {
         priority: data.priority,
         internal_notes: data.internal_notes || null,
         
-        // Categories and genres as arrays
-        tags: data.categories || [],
-        genres: data.genres || [],
-        
         // Gallery
         gallery_urls: data.gallery?.map(g => g.url) || [],
         
@@ -101,6 +131,7 @@ export const useUpsertArtistEnhanced = () => {
         image_rights_authorized: true,
       };
 
+      // Upsert artist
       const { data: result, error } = await supabase
         .from("artists")
         .upsert(transformedData, { 
@@ -113,6 +144,15 @@ export const useUpsertArtistEnhanced = () => {
       if (error) {
         console.error("Enhanced artist upsert error:", error);
         throw new Error(`Erro ao salvar artista: ${error.message}`);
+      }
+
+      // Sync categories and genres relationships
+      if (data.categories && data.categories.length > 0) {
+        await syncArtistCategories(result.id, data.categories);
+      }
+
+      if (data.genres && data.genres.length > 0) {
+        await syncArtistGenres(result.id, data.genres);
       }
 
       return result;

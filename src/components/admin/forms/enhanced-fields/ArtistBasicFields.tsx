@@ -5,23 +5,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArtistEnhancedForm, ARTIST_TYPES } from '@/schemas/entities/artist-enhanced';
-import { MultiSelect } from '@/components/ui/multi-select';
-import { ARTIST_CATEGORIES, MUSIC_GENRES, PERFORMANCE_GENRES } from '@/schemas/entities/artist-enhanced';
+import { RHFMultiSelectCategories } from '@/components/form/RHFMultiSelectCategories';
+import { RHFMultiSelectGenres } from '@/components/form/RHFMultiSelectGenres';
 
 interface ArtistBasicFieldsProps {
   form: UseFormReturn<ArtistEnhancedForm>;
 }
 
 export const ArtistBasicFields: React.FC<ArtistBasicFieldsProps> = ({ form }) => {
-  const artistType = form.watch('type');
-  
-  // Get relevant genres based on artist type
-  const getRelevantGenres = (type: string) => {
-    if (['performer', 'drag', 'ator'].includes(type)) {
-      return [...MUSIC_GENRES, ...PERFORMANCE_GENRES];
-    }
-    return MUSIC_GENRES;
-  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -99,54 +90,22 @@ export const ArtistBasicFields: React.FC<ArtistBasicFieldsProps> = ({ form }) =>
         )}
       />
 
-      <FormField
-        control={form.control}
+      <RHFMultiSelectCategories
         name="categories"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>
-              Categorias
-              <span className="text-destructive ml-1">*</span>
-            </FormLabel>
-            <FormControl>
-              <MultiSelect
-                options={ARTIST_CATEGORIES.map(cat => ({ label: cat, value: cat }))}
-                value={field.value}
-                onChange={field.onChange}
-                placeholder="Selecione suas categorias"
-                maxSelected={3}
-              />
-            </FormControl>
-            <FormDescription>
-              Selecione até 3 categorias que melhor descrevem sua atuação
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
+        label="Categorias"
+        placeholder="Selecione ou crie categorias"
+        description="Selecione até 3 categorias que melhor descrevem sua atuação"
+        required
+        maxCategories={3}
       />
 
       <div className="md:col-span-2">
-        <FormField
-          control={form.control}
+        <RHFMultiSelectGenres
           name="genres"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Gêneros</FormLabel>
-              <FormControl>
-                <MultiSelect
-                  options={getRelevantGenres(artistType).map(genre => ({ label: genre, value: genre }))}
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder="Selecione os gêneros relacionados"
-                  maxSelected={5}
-                />
-              </FormControl>
-              <FormDescription>
-                Selecione até 5 gêneros que representam seu trabalho
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Gêneros"
+          placeholder="Selecione ou crie gêneros musicais/artísticos"
+          description="Selecione até 5 gêneros que representam seu trabalho"
+          maxGenres={5}
         />
       </div>
 
