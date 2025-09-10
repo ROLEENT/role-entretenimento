@@ -2,6 +2,8 @@ import { Profile } from "@/features/profiles/api";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Camera, FileText, ArrowRight } from "lucide-react";
+import { useRealProfileStats } from "@/hooks/useRealProfileStats";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProfileOverviewNewProps {
   profile: Profile;
@@ -9,27 +11,29 @@ interface ProfileOverviewNewProps {
 }
 
 export function ProfileOverviewNew({ profile, onTabChange }: ProfileOverviewNewProps) {
+  const { data: stats, isLoading } = useRealProfileStats(profile.id, profile.type);
+
   const quickActions = [
     {
       icon: Calendar,
       title: 'Próximos Eventos',
       description: 'Veja os próximos eventos agendados',
       tab: 'agenda',
-      count: Math.floor(Math.random() * 10) + 1
+      count: stats?.eventCount || 0
     },
     {
       icon: FileText,
       title: 'Conteúdos',
       description: 'Artigos, entrevistas e materiais',
       tab: 'conteudos',
-      count: Math.floor(Math.random() * 20) + 1
+      count: stats?.contentCount || 0
     },
     {
       icon: Camera,
       title: 'Galeria',
       description: 'Fotos e vídeos dos shows',
       tab: 'fotos-videos',
-      count: Math.floor(Math.random() * 50) + 10
+      count: stats?.mediaCount || 0
     }
   ];
 
@@ -70,9 +74,13 @@ export function ProfileOverviewNew({ profile, onTabChange }: ProfileOverviewNewP
                       <p className="text-sm text-muted-foreground">
                         {action.description}
                       </p>
-                      <span className="text-xs text-primary font-medium">
-                        {action.count} itens
-                      </span>
+                      {isLoading ? (
+                        <Skeleton className="h-4 w-16" />
+                      ) : (
+                        <span className="text-xs text-primary font-medium">
+                          {action.count} itens
+                        </span>
+                      )}
                     </div>
                   </div>
                   <ArrowRight className="w-4 h-4 text-muted-foreground" />

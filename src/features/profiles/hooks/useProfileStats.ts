@@ -30,12 +30,12 @@ export function useProfileStats(handle: string, type: string, userId?: string) {
           stats.eventCount = organizerEvents || 0;
         }
 
-        // Count media (placeholder for now)
-        stats.mediaCount = Math.floor(Math.random() * 20);
+        // Count media - set to 0, will be replaced by real stats
+        stats.mediaCount = 0;
 
-        // Count followers (placeholder for now)
-        stats.followersCount = Math.floor(Math.random() * 1000);
-        stats.followingCount = Math.floor(Math.random() * 500);
+        // Count followers - set to 0, will be replaced by real stats
+        stats.followersCount = 0;
+        stats.followingCount = 0;
 
         return stats;
       } catch (error) {

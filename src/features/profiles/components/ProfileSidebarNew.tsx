@@ -3,12 +3,16 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { MapPin, Mail, Phone, ExternalLink, Users, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useRealProfileStats } from "@/hooks/useRealProfileStats";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProfileSidebarNewProps {
   profile: Profile;
 }
 
 export function ProfileSidebarNew({ profile }: ProfileSidebarNewProps) {
+  const { data: stats, isLoading } = useRealProfileStats(profile.id, profile.type);
+
   return (
     <div className="space-y-6">
       {/* Contact Info */}
@@ -104,9 +108,13 @@ export function ProfileSidebarNew({ profile }: ProfileSidebarNewProps) {
               <Users className="w-4 h-4 text-muted-foreground" />
               <span>Seguidores</span>
             </div>
-            <span className="font-semibold">
-              {profile.followers_count || Math.floor(Math.random() * 1000)}
-            </span>
+            {isLoading ? (
+              <Skeleton className="h-5 w-8" />
+            ) : (
+              <span className="font-semibold">
+                {stats?.followersCount || 0}
+              </span>
+            )}
           </div>
           
           <div className="flex items-center justify-between">
@@ -114,9 +122,13 @@ export function ProfileSidebarNew({ profile }: ProfileSidebarNewProps) {
               <Calendar className="w-4 h-4 text-muted-foreground" />
               <span>Eventos</span>
             </div>
-            <span className="font-semibold">
-              {Math.floor(Math.random() * 50)}
-            </span>
+            {isLoading ? (
+              <Skeleton className="h-5 w-8" />
+            ) : (
+              <span className="font-semibold">
+                {stats?.eventCount || 0}
+              </span>
+            )}
           </div>
         </CardContent>
       </Card>
