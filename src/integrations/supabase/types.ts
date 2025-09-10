@@ -6061,6 +6061,14 @@ export type Database = {
         }
         Relationships: []
       }
+      v_admin_dashboard_counts: {
+        Row: {
+          kind: string | null
+          last_7d: number | null
+          total: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       activate_genre_and_parents: {
