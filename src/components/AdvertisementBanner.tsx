@@ -98,22 +98,22 @@ const AdvertisementBanner = () => {
             {cardAds.map((ad, index) => (
               <Card 
                 key={ad.id} 
-                className="text-white border-0 overflow-hidden"
+                className="text-primary-foreground border-0 overflow-hidden"
                 style={{
                   background: `linear-gradient(to right, ${ad.gradient_from}, ${ad.gradient_to})`
                 }}
               >
                 <CardContent className="p-6 relative">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary-foreground/10 rounded-full -translate-y-16 translate-x-16" />
                   <div className="relative z-10">
-                    <Badge variant="secondary" className="mb-3 bg-white/20 text-white border-0">
+                    <Badge variant="secondary" className="mb-3 bg-primary-foreground/20 text-primary-foreground border-0">
                       {ad.badge_text}
                     </Badge>
                     <h3 className="text-xl font-bold mb-2">{ad.title}</h3>
-                    <p className="text-white/90 text-sm mb-4">
+                    <p className="text-primary-foreground/90 text-sm mb-4">
                       {ad.description}
                     </p>
-                    <Button variant="secondary" size="sm" className="bg-white text-primary hover:bg-white/90">
+                    <Button variant="secondary" size="sm" className="bg-background text-primary hover:bg-background/90">
                       {ad.cta_text}
                     </Button>
                   </div>
@@ -127,7 +127,7 @@ const AdvertisementBanner = () => {
         {newsletterAds.map((ad) => (
           <Card 
             key={ad.id}
-            className="mt-8 text-white border-0"
+            className="mt-8 text-primary-foreground border-0"
             style={{
               background: `linear-gradient(to right, ${ad.gradient_from}, ${ad.gradient_to})`
             }}
@@ -135,19 +135,19 @@ const AdvertisementBanner = () => {
             <CardContent className="p-6 md:p-8">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="text-center md:text-left">
-                  <Badge variant="secondary" className="mb-3 bg-white/20 text-white border-0">
+                  <Badge variant="secondary" className="mb-3 bg-primary-foreground/20 text-primary-foreground border-0">
                     {ad.badge_text}
                   </Badge>
                   <h3 className="text-2xl font-bold mb-2">{ad.title}</h3>
-                  <p className="text-white/90 max-w-md">
+                  <p className="text-primary-foreground/90 max-w-md">
                     {ad.description}
                   </p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <Button variant="secondary" className="bg-white text-primary hover:bg-white/90">
+                  <Button variant="secondary" className="bg-background text-primary hover:bg-background/90">
                     {ad.cta_text}
                   </Button>
-                  <Button variant="outline" className="border-white text-white hover:bg-white/10">
+                  <Button variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10">
                     Saber Mais
                   </Button>
                 </div>

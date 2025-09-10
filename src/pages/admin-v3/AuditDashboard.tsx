@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, AlertTriangle, TrendingUp } from "lucide-react";
 import { getMetricsSnapshot, getPerformanceScore, areMetricsHealthy } from "@/utils/webVitalsTracker";
+import { ColorSystemStatus } from "@/components/admin/ColorSystemStatus";
 import { useState, useEffect } from "react";
 
 export default function AuditDashboard() {
@@ -133,6 +134,9 @@ export default function AuditDashboard() {
           )}
         </CardContent>
       </Card>
+
+      {/* Color System Status */}
+      <ColorSystemStatus />
 
       {/* Fixes Implemented */}
       <Card>
