@@ -1,8 +1,9 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MapPin, Instagram, ExternalLink, Heart, Share2 } from 'lucide-react';
+import { MapPin, Instagram, ExternalLink, Share2 } from 'lucide-react';
 import { Profile } from '@/features/profiles/api';
+import { FollowEntityButton } from '@/components/follow/FollowEntityButton';
 
 interface ArtistHeaderProps {
   profile: Profile;
@@ -14,10 +15,6 @@ export function ArtistHeader({ profile, showActions = false }: ArtistHeaderProps
     return name.split(' ').map(word => word.charAt(0)).join('').slice(0, 2).toUpperCase();
   };
 
-  const handleFollow = () => {
-    // TODO: Implement follow functionality
-    console.log('Follow artist:', profile.id);
-  };
 
   const handleShare = () => {
     if (navigator.share) {
@@ -114,10 +111,11 @@ export function ArtistHeader({ profile, showActions = false }: ArtistHeaderProps
           
           {showActions && (
             <div className="flex gap-2 pt-2">
-              <Button onClick={handleFollow} className="flex items-center gap-2">
-                <Heart className="h-4 w-4" />
-                Seguir
-              </Button>
+              <FollowEntityButton 
+                entityType="artist" 
+                entityId={profile.id}
+                entityName={profile.name}
+              />
               <Button variant="outline" onClick={handleShare} className="flex items-center gap-2">
                 <Share2 className="h-4 w-4" />
                 Compartilhar

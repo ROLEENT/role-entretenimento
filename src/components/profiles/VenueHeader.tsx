@@ -1,8 +1,9 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MapPin, ExternalLink, Heart, Share2, Phone, Mail } from 'lucide-react';
+import { MapPin, ExternalLink, Share2, Phone, Mail } from 'lucide-react';
 import { Profile } from '@/features/profiles/api';
+import { FollowEntityButton } from '@/components/follow/FollowEntityButton';
 
 interface VenueHeaderProps {
   profile: Profile;
@@ -14,9 +15,6 @@ export function VenueHeader({ profile, showActions = false }: VenueHeaderProps) 
     return name.split(' ').map(word => word.charAt(0)).join('').slice(0, 2).toUpperCase();
   };
 
-  const handleFollow = () => {
-    console.log('Follow venue:', profile.id);
-  };
 
   const handleShare = () => {
     if (navigator.share) {
@@ -111,10 +109,11 @@ export function VenueHeader({ profile, showActions = false }: VenueHeaderProps) 
           
           {showActions && (
             <div className="flex gap-2 pt-2">
-              <Button onClick={handleFollow} className="flex items-center gap-2">
-                <Heart className="h-4 w-4" />
-                Seguir
-              </Button>
+              <FollowEntityButton 
+                entityType="venue" 
+                entityId={profile.id}
+                entityName={profile.name}
+              />
               <Button variant="outline" onClick={handleShare} className="flex items-center gap-2">
                 <Share2 className="h-4 w-4" />
                 Compartilhar
