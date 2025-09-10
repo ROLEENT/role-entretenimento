@@ -1,14 +1,20 @@
-const CACHE_NAME = 'role-app-v2';
-const STATIC_CACHE_NAME = 'role-static-v2';
-const DYNAMIC_CACHE_NAME = 'role-dynamic-v2';
-const IMAGE_CACHE_NAME = 'role-images-v2';
+const CACHE_NAME = 'role-app-v3';
+const STATIC_CACHE_NAME = 'role-static-v3';
+const DYNAMIC_CACHE_NAME = 'role-dynamic-v3';
+const IMAGE_CACHE_NAME = 'role-images-v3';
+const API_CACHE_NAME = 'role-api-v3';
 
 // Assets to cache immediately
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
   '/favicon.ico.png',
-  // Add critical assets here
+  '/robots.txt',
+  // Critical pages
+  '/agenda',
+  '/artistas',
+  '/locais',
+  '/organizadores'
 ];
 
 // Install event - cache static assets

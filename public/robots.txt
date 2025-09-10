@@ -1,30 +1,45 @@
+# Robots.txt for ROLÊ ENTRETENIMENTO
+# https://rolê.com.br
+
 User-agent: *
 Allow: /
 
-User-agent: Googlebot
-Allow: /
+# Sitemap location
+Sitemap: https://rolê.com.br/sitemap.xml
+
+# Optimized crawling for search engines
 Crawl-delay: 1
 
-User-agent: Bingbot
-Allow: /
-Crawl-delay: 1
+# Allow specific important pages
+Allow: /agenda
+Allow: /artistas
+Allow: /locais
+Allow: /organizadores
+Allow: /revista
+Allow: /highlights
 
-User-agent: Twitterbot
-Allow: /
+# Disallow admin and private areas
+Disallow: /admin*
+Disallow: /admin-v3*
+Disallow: /test*
+Disallow: /debug*
+Disallow: /preview*
+Disallow: /dev*
 
-User-agent: facebookexternalhit
-Allow: /
+# Disallow API endpoints
+Disallow: /api/
 
-User-agent: WhatsApp
-Allow: /
-
-# Sitemap
-Sitemap: https://roleentretenimento.com.br/sitemap.xml
-
-# Bloquear admin e arquivos temporários
-Disallow: /admin/
-Disallow: /temp/
+# Disallow temporary and dynamic files
 Disallow: /*.json$
-Disallow: /*?utm_*
-Disallow: /*?fbclid=*
-Disallow: /*?gclid=*
+Disallow: /*.xml$
+Disallow: /tmp/
+
+# Allow important static files
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.webp$
+Allow: /*.avif$
+Allow: /*.svg$

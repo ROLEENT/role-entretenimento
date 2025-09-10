@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MENUS } from "@/components/admin/menu.config";
+import { AdminSidebarPhase2 } from "@/components/admin/AdminSidebarPhase2";
 
 export function AdminSidebar() {
   const location = useLocation();
@@ -128,6 +129,7 @@ export function AdminSidebar() {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
+                <AdminSidebarPhase2 />
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

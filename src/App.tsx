@@ -44,6 +44,7 @@ import { AdminV3Layout } from "@/components/admin/AdminV3Layout";
 
 // Admin V3 Pages
 const AdminV3AgendaListNew = lazy(() => import("./pages/admin-v3/AdminV3AgendaListNew"));
+const Phase2Dashboard = lazy(() => import("./components/admin/Phase2Dashboard").then(module => ({ default: module.Phase2Dashboard })));
 
 const AdminV3AgendaEdit = lazy(() => import("./pages/admin-v3/AdminV3AgendaEdit"));
 
@@ -93,7 +94,7 @@ const Help = lazy(() => import("./pages/Help"));
 
 // Institutional pages (Briefing 3)
 const FAQ = lazy(() => import("./pages/institutional/FAQ"));
-const HowToGetProfilePublished = lazy(() => import("./pages/institutional/HowToGetProfilePublished"));
+const HowToPublishProfile = lazy(() => import("./pages/institutional/HowToPublishProfile"));
 const HowToPromoteEvent = lazy(() => import("./pages/institutional/HowToPromoteEvent"));
 const RolezeiraPolicies = lazy(() => import("./pages/institutional/RolezeiraPolicies"));
 const GeneralUsePolicies = lazy(() => import("./pages/institutional/GeneralUsePolicies"));
@@ -246,7 +247,7 @@ function App() {
                 
                 {/* Institutional Pages - Briefing 3 */}
                 <Route path="/faq" element={<FAQ />} />
-                <Route path="/como-ter-perfil-publicado" element={<HowToGetProfilePublished />} />
+                <Route path="/como-ter-perfil-publicado" element={<HowToPublishProfile />} />
                 <Route path="/como-divulgar-evento" element={<HowToPromoteEvent />} />
                 <Route path="/politicas-rolezeira" element={<RolezeiraPolicies />} />
                 <Route path="/politicas-uso" element={<GeneralUsePolicies />} />
@@ -336,6 +337,7 @@ function App() {
                   <Route index element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
                   <Route path="dashboard" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
                   <Route path="debug" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Debug /></Suspense>} />
+                  <Route path="phase2" element={<Suspense fallback={<AdminLoadingFallback />}><Phase2Dashboard /></Suspense>} />
                   
                    {/* Agenda Routes */}
                    <Route path="agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaListNew /></Suspense>} />
