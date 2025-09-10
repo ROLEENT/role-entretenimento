@@ -49,6 +49,10 @@ export const createAdminClient = async () => {
       
       const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
       
+      console.log(`Admin REST call: ${options.method || 'GET'} ${url}`);
+      console.log('Admin email header:', adminEmail);
+      console.log('Request body:', options.body);
+      
       const response = await fetch(url, {
         ...options,
         headers: {

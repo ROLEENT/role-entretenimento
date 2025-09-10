@@ -4,47 +4,61 @@ import { ArtistEnhancedForm } from "@/schemas/entities/artist-enhanced";
 import { toast } from "sonner";
 import { createAdminClient, handleAdminError } from "@/lib/adminClient";
 
-const syncArtistCategories = async (artistId: string, categoryIds: string[]) => {
-  // Remove existing relationships
-  await supabase
-    .from('artists_categories')
-    .delete()
-    .eq('artist_id', artistId);
+const syncArtistCategories = async (artistId: string, categoryIds: string[], adminClient: any) => {
+  console.log(`Syncing categories for artist ${artistId}:`, categoryIds);
+  
+  try {
+    // Remove existing relationships using admin client
+    await adminClient.restCall(`artists_categories?artist_id=eq.${artistId}`, {
+      method: 'DELETE',
+    });
+    console.log('Existing categories removed');
 
-  // Add new relationships
-  if (categoryIds.length > 0) {
-    const categoryRelations = categoryIds.map(categoryId => ({
-      artist_id: artistId,
-      category_id: categoryId
-    }));
+    // Add new relationships
+    if (categoryIds.length > 0) {
+      const categoryRelations = categoryIds.map(categoryId => ({
+        artist_id: artistId,
+        category_id: categoryId
+      }));
 
-    const { error } = await supabase
-      .from('artists_categories')
-      .insert(categoryRelations);
-
-    if (error) throw error;
+      await adminClient.restCall('artists_categories', {
+        method: 'POST',
+        body: JSON.stringify(categoryRelations),
+      });
+      console.log('New categories added:', categoryRelations);
+    }
+  } catch (error) {
+    console.error('Error syncing artist categories:', error);
+    throw error;
   }
 };
 
-const syncArtistGenres = async (artistId: string, genreIds: string[]) => {
-  // Remove existing relationships
-  await supabase
-    .from('artists_genres')
-    .delete()
-    .eq('artist_id', artistId);
+const syncArtistGenres = async (artistId: string, genreIds: string[], adminClient: any) => {
+  console.log(`Syncing genres for artist ${artistId}:`, genreIds);
+  
+  try {
+    // Remove existing relationships using admin client
+    await adminClient.restCall(`artists_genres?artist_id=eq.${artistId}`, {
+      method: 'DELETE',
+    });
+    console.log('Existing genres removed');
 
-  // Add new relationships
-  if (genreIds.length > 0) {
-    const genreRelations = genreIds.map(genreId => ({
-      artist_id: artistId,
-      genre_id: genreId
-    }));
+    // Add new relationships
+    if (genreIds.length > 0) {
+      const genreRelations = genreIds.map(genreId => ({
+        artist_id: artistId,
+        genre_id: genreId
+      }));
 
-    const { error } = await supabase
-      .from('artists_genres')
-      .insert(genreRelations);
-
-    if (error) throw error;
+      await adminClient.restCall('artists_genres', {
+        method: 'POST',
+        body: JSON.stringify(genreRelations),
+      });
+      console.log('New genres added:', genreRelations);
+    }
+  } catch (error) {
+    console.error('Error syncing artist genres:', error);
+    throw error;
   }
 };
 
@@ -57,6 +71,7 @@ export const useUpsertArtistEnhanced = () => {
 
       // Create admin client with proper headers
       const adminClient = await createAdminClient();
+      console.log('Admin client created successfully, admin email:', adminClient.adminEmail);
 
       // Generate slug from handle if not provided
       const generateSlug = (text: string) => {
@@ -157,11 +172,13 @@ export const useUpsertArtistEnhanced = () => {
 
       // Sync categories and genres relationships
       if (data.categories && data.categories.length > 0) {
-        await syncArtistCategories(artistData.id, data.categories);
+        console.log('Syncing artist categories...');
+        await syncArtistCategories(artistData.id, data.categories, adminClient);
       }
 
       if (data.genres && data.genres.length > 0) {
-        await syncArtistGenres(artistData.id, data.genres);
+        console.log('Syncing artist genres...');
+        await syncArtistGenres(artistData.id, data.genres, adminClient);
       }
 
       return artistData;

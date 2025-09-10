@@ -229,12 +229,15 @@ export const AdminArtistTable: React.FC<AdminArtistTableProps> = ({
                          </AlertDialogHeader>
                          <AlertDialogFooter>
                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                           <AlertDialogAction 
-                             onClick={() => onDelete(artist.id)}
-                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                           >
-                             Excluir
-                           </AlertDialogAction>
+                         <AlertDialogAction 
+                           onClick={() => {
+                             console.log('Deleting artist:', artist.id, artist.stage_name);
+                             onDelete(artist.id);
+                           }}
+                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                         >
+                           Excluir
+                         </AlertDialogAction>
                          </AlertDialogFooter>
                        </AlertDialogContent>
                      </AlertDialog>
