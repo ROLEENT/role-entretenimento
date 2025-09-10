@@ -14,6 +14,7 @@ import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { SelectionReasonsManager } from './SelectionReasonsManager';
 import { CuratorialCriteria } from '@/components/admin/events/CuratorialCriteria';
+import { OrganizersSelect } from '@/components/form/OrganizersSelect';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -196,17 +197,18 @@ export const BasicInfoStep: React.FC = () => {
           name="summary"
           render={({ field }) => (
             <FormItem className="lg:col-span-2">
-              <FormLabel>Resumo</FormLabel>
+              <FormLabel>Resumo *</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="Breve descrição do evento (máximo 200 caracteres)"
+                  placeholder="Breve descrição do evento (mínimo 50, máximo 500 caracteres)"
                   {...field}
-                  maxLength={200}
+                  minLength={50}
+                  maxLength={500}
                   rows={3}
                 />
               </FormControl>
               <FormDescription>
-                {field.value?.length || 0}/200 caracteres
+                <strong>Obrigatório:</strong> {field.value?.length || 0}/500 caracteres (mínimo 50)
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -237,6 +239,31 @@ export const BasicInfoStep: React.FC = () => {
                   ))}
                 </SelectContent>
               </Select>
+              <FormDescription>
+                Cidade é obrigatória para indexação e busca de eventos
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Organizer */}
+        <FormField
+          control={control}
+          name="organizer_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Organizador *</FormLabel>
+              <FormControl>
+                <OrganizersSelect 
+                  value={field.value || ''}
+                  onValueChange={field.onChange}
+                  placeholder="Selecione ou digite o organizador"
+                />
+              </FormControl>
+              <FormDescription>
+                Responsável principal pelo evento
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -429,17 +456,18 @@ export const BasicInfoStep: React.FC = () => {
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Descrição Completa</FormLabel>
+            <FormLabel>Descrição Completa *</FormLabel>
             <FormControl>
               <Textarea 
-                placeholder="Descrição detalhada do evento, lineup, informações importantes..."
+                placeholder="Descrição detalhada do evento, lineup, informações importantes... (mínimo 100 caracteres)"
                 {...field}
                 rows={8}
                 className="resize-none"
+                minLength={100}
               />
             </FormControl>
             <FormDescription>
-              Descrição completa que aparecerá na página do evento
+              <strong>Obrigatória para publicação:</strong> Mínimo 100 caracteres. Atualmente: {field.value?.length || 0}/100
             </FormDescription>
             <FormMessage />
           </FormItem>

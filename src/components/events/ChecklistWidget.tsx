@@ -17,41 +17,85 @@ const quickChecks = [
   {
     id: 'title',
     label: 'Título',
-    check: (data: Partial<EventFormData>) => Boolean(data.title && data.title.length >= 3)
-  },
-  {
-    id: 'date_start',
-    label: 'Data',
-    check: (data: Partial<EventFormData>) => Boolean(data.date_start)
+    check: (data: Partial<EventFormData>) => Boolean(data.title && data.title.length >= 3),
+    required: true
   },
   {
     id: 'city',
-    label: 'Cidade',
-    check: (data: Partial<EventFormData>) => Boolean(data.city)
+    label: 'Cidade *',
+    check: (data: Partial<EventFormData>) => Boolean(data.city),
+    required: true
   },
   {
-    id: 'location_name',
-    label: 'Local',
-    check: (data: Partial<EventFormData>) => Boolean(data.location_name)
+    id: 'date_start',
+    label: 'Data de Início *',
+    check: (data: Partial<EventFormData>) => Boolean(data.date_start),
+    required: true
+  },
+  {
+    id: 'cover_url',
+    label: 'Imagem de Capa *',
+    check: (data: Partial<EventFormData>) => Boolean(data.cover_url),
+    required: true
+  },
+  {
+    id: 'organizer_id',
+    label: 'Organizador *',
+    check: (data: Partial<EventFormData>) => Boolean(data.organizer_id),
+    required: true
   },
   {
     id: 'summary',
-    label: 'Resumo',
-    check: (data: Partial<EventFormData>) => Boolean(data.summary && data.summary.length >= 20)
+    label: 'Resumo *',
+    check: (data: Partial<EventFormData>) => Boolean(data.summary && data.summary.length >= 50),
+    required: true
   },
   {
-    id: 'image_url',
-    label: 'Imagem',
-    check: (data: Partial<EventFormData>) => Boolean(data.image_url)
+    id: 'description',
+    label: 'Descrição *',
+    check: (data: Partial<EventFormData>) => Boolean(data.description && data.description.length >= 100),
+    required: true
+  },
+  {
+    id: 'cover_alt',
+    label: 'Alt da Capa *',
+    check: (data: Partial<EventFormData>) => Boolean(data.cover_alt && data.cover_alt.length >= 10),
+    required: true
+  },
+  // Optional checks
+  {
+    id: 'venue_id',
+    label: 'Local',
+    check: (data: Partial<EventFormData>) => Boolean(data.venue_id || data.location_name),
+    required: false
+  },
+  {
+    id: 'seo_title',
+    label: 'SEO Título',
+    check: (data: Partial<EventFormData>) => Boolean(data.seo_title),
+    required: false
+  },
+  {
+    id: 'seo_description',
+    label: 'SEO Descrição',
+    check: (data: Partial<EventFormData>) => Boolean(data.seo_description),
+    required: false
   }
 ];
 
 export function ChecklistWidget({ eventData, className, onItemClick }: ChecklistWidgetProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   
+  const requiredChecks = quickChecks.filter(check => check.required);
+  const optionalChecks = quickChecks.filter(check => !check.required);
+  
+  const completedRequiredChecks = requiredChecks.filter(check => check.check(eventData));
+  const completedOptionalChecks = optionalChecks.filter(check => check.check(eventData));
   const completedChecks = quickChecks.filter(check => check.check(eventData));
+  
+  const requiredPercentage = (completedRequiredChecks.length / requiredChecks.length) * 100;
   const completionPercentage = (completedChecks.length / quickChecks.length) * 100;
-  const canPublish = completedChecks.length >= 4; // Minimum required items
+  const canPublish = completedRequiredChecks.length === requiredChecks.length; // All required items must be completed
   
   const handleItemClick = (itemId: string) => {
     onItemClick?.(itemId);
@@ -68,7 +112,7 @@ export function ChecklistWidget({ eventData, className, onItemClick }: Checklist
               <AlertTriangle className="h-5 w-5 text-yellow-600" />
             )}
             <span className="font-medium text-sm">
-              Quick Check ({completedChecks.length}/{quickChecks.length})
+              Checklist ({completedRequiredChecks.length}/{requiredChecks.length} obrigatórios)
             </span>
           </div>
           <Button
@@ -86,16 +130,16 @@ export function ChecklistWidget({ eventData, className, onItemClick }: Checklist
         </div>
         
         <div className="space-y-2">
-          <Progress value={completionPercentage} className="h-2" />
+          <Progress value={requiredPercentage} className="h-2" />
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">
-              {Math.round(completionPercentage)}% completo
+              {Math.round(requiredPercentage)}% obrigatórios • {completedOptionalChecks.length} opcionais
             </span>
             <Badge 
-              variant={canPublish ? "default" : "secondary"}
+              variant={canPublish ? "default" : "destructive"}
               className="text-xs"
             >
-              {canPublish ? "Pronto" : "Pendente"}
+              {canPublish ? "Pronto para Publicar" : "Campos Obrigatórios Pendentes"}
             </Badge>
           </div>
         </div>
@@ -103,35 +147,69 @@ export function ChecklistWidget({ eventData, className, onItemClick }: Checklist
 
       {isExpanded && (
         <CardContent className="pt-0">
-          <div className="space-y-2">
-            {quickChecks.map((check) => {
-              const isCompleted = check.check(eventData);
-              return (
-                <button
-                  key={check.id}
-                  onClick={() => handleItemClick(check.id)}
-                  className={cn(
-                    "flex items-center gap-2 w-full p-2 rounded-md text-left transition-colors",
-                    "hover:bg-muted/50",
-                    isCompleted ? "text-foreground" : "text-muted-foreground"
-                  )}
-                >
-                  {isCompleted ? (
-                    <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                  ) : (
-                    <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  )}
-                  <span className="text-sm">{check.label}</span>
-                </button>
-              );
-            })}
+          <div className="space-y-4">
+            {/* Required items */}
+            <div>
+              <h4 className="text-sm font-medium mb-2 text-destructive">Obrigatórios para Publicação</h4>
+              <div className="space-y-1">
+                {requiredChecks.map((check) => {
+                  const isCompleted = check.check(eventData);
+                  return (
+                    <button
+                      key={check.id}
+                      onClick={() => handleItemClick(check.id)}
+                      className={cn(
+                        "flex items-center gap-2 w-full p-2 rounded-md text-left transition-colors",
+                        "hover:bg-muted/50",
+                        isCompleted ? "text-foreground" : "text-muted-foreground"
+                      )}
+                    >
+                      {isCompleted ? (
+                        <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                      ) : (
+                        <Circle className="h-4 w-4 text-red-500 flex-shrink-0" />
+                      )}
+                      <span className="text-sm">{check.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Optional items */}
+            <div>
+              <h4 className="text-sm font-medium mb-2 text-muted-foreground">Recomendados</h4>
+              <div className="space-y-1">
+                {optionalChecks.map((check) => {
+                  const isCompleted = check.check(eventData);
+                  return (
+                    <button
+                      key={check.id}
+                      onClick={() => handleItemClick(check.id)}
+                      className={cn(
+                        "flex items-center gap-2 w-full p-2 rounded-md text-left transition-colors",
+                        "hover:bg-muted/50",
+                        isCompleted ? "text-foreground" : "text-muted-foreground"
+                      )}
+                    >
+                      {isCompleted ? (
+                        <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                      ) : (
+                        <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      )}
+                      <span className="text-sm">{check.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
           
           <div className="mt-4 pt-3 border-t">
             <p className="text-xs text-muted-foreground text-center">
               {canPublish 
-                ? "Todos os itens essenciais foram preenchidos"
-                : "Complete os itens para poder publicar"
+                ? "✅ Pronto para publicar! Todos os campos obrigatórios foram preenchidos"
+                : `⚠️ Complete ${requiredChecks.length - completedRequiredChecks.length} campo(s) obrigatório(s) para publicar`
               }
             </p>
           </div>

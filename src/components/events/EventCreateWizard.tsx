@@ -33,9 +33,9 @@ const WIZARD_STEPS: WizardStep[] = [
   {
     id: 'basic',
     title: 'Informações Básicas',
-    description: 'Título, subtítulo, resumo e cidade',
+    description: 'Título, resumo, cidade, organizador e descrição',
     component: BasicInfoStep,
-    fields: ['title', 'subtitle', 'summary', 'city', 'highlight_type', 'selection_reasons', 'partners']
+    fields: ['title', 'subtitle', 'summary', 'description', 'city', 'organizer_id', 'highlight_type', 'selection_reasons', 'partners']
   },
   {
     id: 'datetime',
@@ -54,9 +54,9 @@ const WIZARD_STEPS: WizardStep[] = [
   {
     id: 'media',
     title: 'Mídia',
-    description: 'Imagens, galeria e SEO',
+    description: 'Imagens obrigatórias, galeria e SEO',
     component: MediaStep,
-    fields: ['image_url', 'cover_url', 'cover_alt', 'gallery', 'og_image_url']
+    fields: ['cover_url', 'cover_alt', 'image_url', 'gallery', 'og_image_url']
   },
   {
     id: 'links',

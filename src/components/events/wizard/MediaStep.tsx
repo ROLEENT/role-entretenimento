@@ -132,36 +132,12 @@ export const MediaStep: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-2">Imagens Principais</h3>
             <p className="text-sm text-muted-foreground mb-6">
-              Defina as imagens principais que representarão seu evento
+              <strong>A imagem de capa é obrigatória</strong> para publicação do evento. Esta será a imagem que representa seu evento em toda a plataforma.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Main Image */}
-            <FormField
-              control={control}
-              name="image_url"
-              render={({ field }) => (
-                <FormItem>
-                  <UnifiedImageUpload
-                    value={field.value}
-                    onChange={field.onChange}
-                    label="Imagem Principal *"
-                    description="Imagem principal do evento. Recomendado: 1920x1080px (16:9)"
-                    bucket="agenda-images"
-                    folder="events/main-images"
-                    maxSizeMB={25}
-                    allowedTypes={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
-                    variant="banner"
-                    aspectRatio="16/9"
-                    showProgress={true}
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Cover Image */}
+            {/* Cover Image - PRIMARY AND REQUIRED */}
             <FormField
               control={control}
               name="cover_url"
@@ -170,14 +146,39 @@ export const MediaStep: React.FC = () => {
                   <UnifiedImageUpload
                     value={field.value}
                     onChange={field.onChange}
-                    label="Imagem de Capa"
-                    description="Imagem de capa para destaque. Recomendado: 2100x900px (21:9)"
+                    label="Imagem de Capa *"
+                    description="OBRIGATÓRIA para publicação. Esta é a imagem principal do evento. Recomendado: 1920x1080px (16:9)"
                     bucket="agenda-images"
                     folder="events/cover-images"
                     maxSizeMB={25}
                     allowedTypes={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
                     variant="banner"
-                    aspectRatio="21/9"
+                    aspectRatio="16/9"
+                    showProgress={true}
+                    
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Secondary Image */}
+            <FormField
+              control={control}
+              name="image_url"
+              render={({ field }) => (
+                <FormItem>
+                  <UnifiedImageUpload
+                    value={field.value}
+                    onChange={field.onChange}
+                    label="Imagem Secundária"
+                    description="Imagem adicional opcional. Recomendado: 1920x1080px (16:9)"
+                    bucket="agenda-images"
+                    folder="events/secondary-images"
+                    maxSizeMB={25}
+                    allowedTypes={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
+                    variant="banner"
+                    aspectRatio="16/9"
                     showProgress={true}
                   />
                   <FormMessage />
@@ -388,12 +389,12 @@ export const MediaStep: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 <div>
-                  <p className="font-medium">Imagem Principal:</p>
-                  <p className="text-muted-foreground">1920x1080px (16:9) • JPG/PNG/WebP • Máx. 10MB</p>
+                  <p className="font-medium">Imagem de Capa (OBRIGATÓRIA):</p>
+                  <p className="text-muted-foreground">1920x1080px (16:9) • JPG/PNG/WebP • Máx. 25MB</p>
                 </div>
                 <div>
-                  <p className="font-medium">Imagem de Capa:</p>
-                  <p className="text-muted-foreground">2100x900px (21:9) • JPG/PNG/WebP • Máx. 10MB</p>
+                  <p className="font-medium">Imagem Secundária:</p>
+                  <p className="text-muted-foreground">1920x1080px (16:9) • JPG/PNG/WebP • Máx. 25MB</p>
                 </div>
                 <div>
                   <p className="font-medium">Open Graph:</p>

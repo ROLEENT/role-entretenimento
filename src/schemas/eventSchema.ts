@@ -135,14 +135,15 @@ export const eventSchema = z.object({
   id: z.string().uuid().optional(),
   title: z.string().min(1, "Título é obrigatório").max(200, "Título muito longo"),
   subtitle: z.string().max(300, "Subtítulo muito longo").optional(),
-  summary: z.string().max(500, "Resumo muito longo").optional(),
-  description: z.string().optional(),
+  summary: z.string().min(50, "Resumo deve ter pelo menos 50 caracteres").max(500, "Resumo muito longo").optional(),
+  description: z.string().min(100, "Descrição deve ter pelo menos 100 caracteres").optional(),
   
   // Location
   venue_id: z.string().uuid().nullable().optional(),
+  organizer_id: z.string().uuid("Organizador é obrigatório").optional(),
   location_name: z.string().optional(),
   address: z.string().optional(),
-  city: z.string().optional(),
+  city: z.string().min(1, "Cidade é obrigatória").optional(),
   state: z.string().optional(),
   country: z.string().default('Brasil'),
   
@@ -154,8 +155,8 @@ export const eventSchema = z.object({
   
   // Visual Content
   image_url: z.string().url().optional().or(z.literal('')),
-  cover_url: z.string().url().optional().or(z.literal('')),
-  cover_alt: z.string().optional(),
+  cover_url: z.string().url("Imagem de capa é obrigatória").optional().or(z.literal('')),
+  cover_alt: z.string().min(10, "Descrição da imagem é obrigatória").optional(),
   gallery: z.array(galleryItemSchema).default([]),
   
   // Pricing
@@ -341,7 +342,7 @@ export const eventSchema = z.object({
   
   // Publishing validations
   if (data.status === 'published') {
-    const requiredFields = ['title', 'description', 'date_start', 'city'];
+    const requiredFields = ['title', 'description', 'date_start', 'city', 'cover_url', 'organizer_id'];
     
     requiredFields.forEach(field => {
       if (!data[field as keyof typeof data]) {
@@ -352,6 +353,24 @@ export const eventSchema = z.object({
         });
       }
     });
+    
+    // Validação específica para descrição mínima
+    if (data.description && data.description.length < 100) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Descrição deve ter pelo menos 100 caracteres para publicação",
+        path: ['description']
+      });
+    }
+    
+    // Validação para capa obrigatória
+    if (!data.cover_url) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Imagem de capa é obrigatória para publicação",
+        path: ['cover_url']
+      });
+    }
   }
 });
 
@@ -374,17 +393,16 @@ export function validateEventForPublish(data: EventFormData): string[] {
   
   // Required fields for publishing
   if (!data.title) errors.push("Título é obrigatório");
-  if (!data.description) errors.push("Descrição é obrigatória");
+  if (!data.description) errors.push("Descrição é obrigatória (mínimo 100 caracteres)");
+  if (data.description && data.description.length < 100) errors.push("Descrição muito curta (mínimo 100 caracteres)");
   if (!data.date_start) errors.push("Data de início é obrigatória");
-  if (!data.city) errors.push("Cidade é obrigatória");
+  if (!data.city) errors.push("Cidade é obrigatória para indexação");
+  if (!data.cover_url) errors.push("Imagem de capa é obrigatória");
+  if (!data.organizer_id) errors.push("Organizador é obrigatório");
   
   // Recommended fields
-  if (!data.cover_url && !data.image_url) {
-    errors.push("Imagem de capa é recomendada para publicação");
-  }
-  
-  if (!data.summary) {
-    errors.push("Resumo é recomendado para melhor SEO");
+  if (!data.summary || data.summary.length < 50) {
+    errors.push("Resumo é recomendado (mínimo 50 caracteres)");
   }
   
   if (!data.seo_title) {
