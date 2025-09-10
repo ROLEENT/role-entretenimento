@@ -1872,6 +1872,35 @@ export type Database = {
           },
         ]
       }
+      comment_likes: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "event_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companion_responses: {
         Row: {
           companion_request_id: string
@@ -2223,24 +2252,36 @@ export type Database = {
       }
       event_checkins: {
         Row: {
+          attended: boolean | null
           checked_in_at: string
           created_at: string
           event_id: string
+          feedback: string | null
           id: string
+          rating: number | null
+          updated_at: string | null
           user_id: string
         }
         Insert: {
+          attended?: boolean | null
           checked_in_at?: string
           created_at?: string
           event_id: string
+          feedback?: string | null
           id?: string
+          rating?: number | null
+          updated_at?: string | null
           user_id: string
         }
         Update: {
+          attended?: boolean | null
           checked_in_at?: string
           created_at?: string
           event_id?: string
+          feedback?: string | null
           id?: string
+          rating?: number | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: [
@@ -2257,8 +2298,11 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          edited_at: string | null
           event_id: string
           id: string
+          is_edited: boolean | null
+          like_count: number | null
           parent_id: string | null
           updated_at: string
           user_id: string
@@ -2266,8 +2310,11 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string
+          edited_at?: string | null
           event_id: string
           id?: string
+          is_edited?: boolean | null
+          like_count?: number | null
           parent_id?: string | null
           updated_at?: string
           user_id: string
@@ -2275,8 +2322,11 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
+          edited_at?: string | null
           event_id?: string
           id?: string
+          is_edited?: boolean | null
+          like_count?: number | null
           parent_id?: string | null
           updated_at?: string
           user_id?: string
@@ -2450,6 +2500,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "event_favorites_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_likes: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          reaction_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          reaction_type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          reaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_likes_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
@@ -2645,6 +2727,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "event_performances_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_reactions: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          reaction_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          reaction_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          reaction_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_reactions_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
