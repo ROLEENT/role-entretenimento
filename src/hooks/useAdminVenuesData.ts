@@ -34,11 +34,8 @@ export const useAdminVenuesData = ({ search, status, city, completion }: UseAdmi
     queryFn: async () => {
       let query = supabase
         .from('venues')
-        .select(`
-          *,
-          city:cities(name, slug)
-        `)
-        .is('deleted_at', null) // Only non-deleted venues
+        .select('*')
+        .eq('status', 'active') // Only active venues
         .order('created_at', { ascending: false });
 
       if (filters.search) {
@@ -83,7 +80,7 @@ export const useAdminVenuesData = ({ search, status, city, completion }: UseAdmi
         .from('venues')
         .select('city')
         .not('city', 'is', null)
-        .is('deleted_at', null);
+        .eq('status', 'active');
 
       if (error) {
         console.error('Error fetching venue cities:', error);
@@ -144,8 +141,7 @@ export const useAdminVenuesData = ({ search, status, city, completion }: UseAdmi
         method: 'PATCH',
         body: JSON.stringify({ 
           status, 
-          updated_at: new Date().toISOString(),
-          deleted_at: status === 'inactive' ? new Date().toISOString() : null
+          updated_at: new Date().toISOString()
         }),
       });
 
@@ -166,11 +162,10 @@ export const useAdminVenuesData = ({ search, status, city, completion }: UseAdmi
     mutationFn: async (venueId: string) => {
       const adminClient = await createAdminClient();
       
-      // Soft delete - mark as deleted instead of hard delete
+      // Soft delete - mark as inactive instead of hard delete
       const response = await adminClient.restCall(`venues?id=eq.${venueId}`, {
         method: 'PATCH',
         body: JSON.stringify({ 
-          deleted_at: new Date().toISOString(),
           status: 'inactive',
           updated_at: new Date().toISOString()
         }),
