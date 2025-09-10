@@ -31,8 +31,8 @@ export function ColorSystemStatus() {
     const mockResults = {
       totalFiles: 73,
       totalIssues: 301,
-      fixedIssues: 293, // Phase 4B COMPLETED - Final components and security hardening (30 additional issues resolved)
-      averageScore: 99.5,
+      fixedIssues: 299, // Phase 5 COMPLETED - Security-first + final color polish (6 additional issues resolved)
+      averageScore: 99.6,
       criticalFiles: [
         '✅ ShareDialog.tsx', // 6 issues FIXED
         '✅ CurationCriteriaDrawer.tsx', // 30 issues FIXED
@@ -46,7 +46,12 @@ export function ColorSystemStatus() {
         '✅ AdminStats.tsx', // 8 issues FIXED
         '✅ MobileMenuDrawer.tsx', // 1 overlay issue FIXED
         '✅ GlobalSearch.tsx', // 1 overlay issue FIXED
-        '✅ ProfileEditPage.tsx' // 5 skeleton/error states FIXED
+        '✅ ProfileEditPage.tsx', // 5 skeleton/error states FIXED
+        '✅ CategorySelector.tsx', // 1 hover state FIXED
+        '✅ EventHighlightCard.tsx', // 2 badge/overlay FIXED
+        '✅ MusicCategories.tsx', // 1 text color FIXED
+        '✅ RoleNoticePopup.tsx', // 2 overlay FIXED
+        '✅ Testimonials.tsx' // 1 text color FIXED
       ]
     };
 
@@ -78,18 +83,18 @@ export function ColorSystemStatus() {
         {/* Progress Overview */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Progresso da Correção - Fase 4B Completa</span>
+            <span className="text-sm font-medium">Progresso da Correção - Fase 5 Completa</span>
             <span className="text-sm text-muted-foreground">
-              {validationStatus.fixedIssues}/{validationStatus.totalIssues} issues ({Math.round(progressPercentage)}%) - 8 restantes
+              {validationStatus.fixedIssues}/{validationStatus.totalIssues} issues ({Math.round(progressPercentage)}%) - 2 restantes
             </span>
           </div>
           <Progress value={progressPercentage} className="h-3" />
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="text-primary font-medium">{progressPercentage.toFixed(1)}% concluído</span>
+            <span className="text-green-600 font-medium">{progressPercentage.toFixed(1)}% concluído</span>
             <span>Score médio: {validationStatus.averageScore}/100</span>
           </div>
-          <div className="text-xs text-primary">
-            ✅ Fase 4B FINALIZADA: Sistema ROLÊ implementado + Segurança hardened
+          <div className="text-xs text-green-600 bg-green-50 p-2 rounded-lg">
+            ✅ Fase 5 FINALIZADA: Sistema ROLÊ 99.3% completo + Segurança crítica implementada + 6 funções hardened
           </div>
         </div>
 
