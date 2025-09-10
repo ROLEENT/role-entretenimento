@@ -42,8 +42,12 @@ const AdminV3VenuesList: React.FC = () => {
     toast.info('Funcionalidade de duplicar será implementada em breve');
   };
 
-  const handleDeactivate = async (venue: any) => {
-    toast.info('Funcionalidade de desativar será implementada em breve');
+  const handleStatusChange = async (venueId: string, status: string) => {
+    toast.info('Funcionalidade de alterar status será implementada em breve');
+  };
+
+  const handleDelete = async (venueId: string) => {
+    toast.info('Funcionalidade de excluir será implementada em breve');
   };
 
   const statsCards = [
@@ -144,7 +148,9 @@ const AdminV3VenuesList: React.FC = () => {
               <AdminVenueTable
                 venues={venues || []}
                 onDuplicate={handleDuplicate}
-                onDeactivate={handleDeactivate}
+                onStatusChange={handleStatusChange}
+                onDelete={handleDelete}
+                isLoading={isLoading}
               />
             </CardContent>
           </Card>

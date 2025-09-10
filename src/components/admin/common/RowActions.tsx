@@ -1,0 +1,187 @@
+import { MoreHorizontal, Eye, Edit, Trash2, Copy, Instagram } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Link } from "react-router-dom";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+
+interface RowActionsProps {
+  entity: 'artists' | 'organizers' | 'venues';
+  id: string;
+  name: string;
+  slug?: string;
+  instagram?: string;
+  editPath: string;
+  viewPath: string;
+  onDuplicate?: (id: string) => void;
+  onStatusChange?: (id: string, status: string) => void;
+  onAfterDelete?: () => void;
+  isLoading?: boolean;
+}
+
+export function RowActions({
+  entity,
+  id,
+  name,
+  slug,
+  instagram,
+  editPath,
+  viewPath,
+  onDuplicate,
+  onStatusChange,
+  onAfterDelete,
+  isLoading = false,
+}: RowActionsProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true);
+      
+      const { error } = await supabase
+        .from(entity)
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        if (error.code === '42501') {
+          toast.error('Permissão negada para excluir este item');
+        } else {
+          toast.error(`Erro ao excluir ${entity === 'artists' ? 'artista' : entity === 'organizers' ? 'organizador' : 'local'}: ${error.message}`);
+        }
+        return;
+      }
+
+      toast.success(`${entity === 'artists' ? 'Artista' : entity === 'organizers' ? 'Organizador' : 'Local'} excluído com sucesso`);
+      onAfterDelete?.();
+    } catch (error: any) {
+      toast.error(`Erro inesperado: ${error.message}`);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDuplicate = () => {
+    if (onDuplicate) {
+      onDuplicate(id);
+    } else {
+      toast.info('Função de duplicar não implementada ainda');
+    }
+  };
+
+  const handleStatusChange = () => {
+    if (onStatusChange) {
+      onStatusChange(id, 'active');
+    } else {
+      toast.info('Função de alterar status não implementada ainda');
+    }
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button 
+          variant="ghost" 
+          className="h-8 w-8 p-0"
+          disabled={isLoading || isDeleting}
+        >
+          <span className="sr-only">Abrir menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="z-50">
+        <DropdownMenuItem asChild>
+          <Link to={editPath}>
+            <Edit className="mr-2 h-4 w-4" />
+            Editar
+          </Link>
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem asChild>
+          <Link to={viewPath}>
+            <Eye className="mr-2 h-4 w-4" />
+            Visualizar
+          </Link>
+        </DropdownMenuItem>
+
+        {instagram && (
+          <DropdownMenuItem asChild>
+            <a 
+              href={`https://instagram.com/${instagram.replace('@', '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Instagram className="mr-2 h-4 w-4" />
+              Instagram
+            </a>
+          </DropdownMenuItem>
+        )}
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem onClick={handleDuplicate}>
+          <Copy className="mr-2 h-4 w-4" />
+          Duplicar
+        </DropdownMenuItem>
+
+        <DropdownMenuItem onClick={handleStatusChange}>
+          <Eye className="mr-2 h-4 w-4" />
+          Alterar Status
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <DropdownMenuItem 
+              onSelect={(e) => e.preventDefault()}
+              className="text-destructive focus:text-destructive"
+              data-testid="row-delete"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Excluir
+            </DropdownMenuItem>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta ação não pode ser desfeita. Isso irá excluir permanentemente{' '}
+                <strong>{name}</strong> e remover todos os dados associados.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                data-testid="row-delete-confirm"
+              >
+                {isDeleting ? 'Excluindo...' : 'Excluir'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}

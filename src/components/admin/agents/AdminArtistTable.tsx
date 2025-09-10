@@ -1,14 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Edit, Copy, UserX, MoreHorizontal, Eye, ExternalLink, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { RowActions } from '@/components/admin/common/RowActions';
 
 interface Artist {
   id: string;
@@ -152,97 +148,18 @@ export const AdminArtistTable: React.FC<AdminArtistTableProps> = ({
               </TableCell>
               
               <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="z-50">
-                    <DropdownMenuItem asChild>
-                      <Link to={`/admin-v3/agentes/artistas/${artist.id}/edit`}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Editar
-                      </Link>
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuItem asChild>
-                      <Link to={`/admin-v3/agentes/artistas/${artist.id}`}>
-                        <Eye className="mr-2 h-4 w-4" />
-                        Visualizar
-                      </Link>
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuSeparator />
-                    
-                    <DropdownMenuItem onClick={() => onDuplicate(artist.id)}>
-                      <Copy className="mr-2 h-4 w-4" />
-                      Duplicar
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuItem 
-                      onClick={() => onStatusChange(
-                        artist.id, 
-                        artist.status === 'active' ? 'inactive' : 'active'
-                      )}
-                    >
-                      <UserX className="mr-2 h-4 w-4" />
-                      {artist.status === 'active' ? 'Inativar' : 'Ativar'}
-                    </DropdownMenuItem>
-                    
-                    {artist.instagram && (
-                      <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                          <a 
-                            href={`https://instagram.com/${artist.instagram.replace('@', '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <ExternalLink className="mr-2 h-4 w-4" />
-                            Ver Instagram
-                          </a>
-                        </DropdownMenuItem>
-                      </>
-                     )}
-                     
-                     <DropdownMenuSeparator />
-                     
-                     <AlertDialog>
-                       <AlertDialogTrigger asChild>
-                         <DropdownMenuItem 
-                           onSelect={(e) => e.preventDefault()}
-                           className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                           data-testid="artist-delete"
-                         >
-                           <Trash2 className="mr-2 h-4 w-4" />
-                           Excluir
-                         </DropdownMenuItem>
-                       </AlertDialogTrigger>
-                       <AlertDialogContent>
-                         <AlertDialogHeader>
-                           <AlertDialogTitle>Excluir artista?</AlertDialogTitle>
-                           <AlertDialogDescription>
-                             Tem certeza que deseja excluir o artista "{artist.stage_name}"? 
-                             Esta ação não pode ser desfeita.
-                           </AlertDialogDescription>
-                         </AlertDialogHeader>
-                         <AlertDialogFooter>
-                           <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                         <AlertDialogAction 
-                           onClick={() => {
-                             console.log('Deleting artist:', artist.id, artist.stage_name);
-                             onDelete(artist.id);
-                           }}
-                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                         >
-                           Excluir
-                         </AlertDialogAction>
-                         </AlertDialogFooter>
-                       </AlertDialogContent>
-                     </AlertDialog>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <RowActions
+                  entity="artists"
+                  id={artist.id}
+                  name={artist.stage_name || artist.name || 'Sem nome'}
+                  instagram={artist.instagram}
+                  editPath={`/admin-v3/agentes/artistas/${artist.id}/edit`}
+                  viewPath={`/admin-v3/agentes/artistas/${artist.id}`}
+                  onDuplicate={onDuplicate}
+                  onStatusChange={onStatusChange}
+                  onAfterDelete={() => onDelete(artist.id)}
+                  isLoading={isLoading}
+                />
               </TableCell>
             </TableRow>
           ))}

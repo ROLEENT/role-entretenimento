@@ -1,15 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { MoreHorizontal, Edit, Copy, Trash2, MapPin } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { MapPin } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -21,17 +11,22 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { VenueCompletionBadge } from '@/components/admin/common/CompletionBadgeList';
+import { RowActions } from '@/components/admin/common/RowActions';
 
 interface AdminVenueTableProps {
   venues: any[];
   onDuplicate: (venue: any) => void;
-  onDeactivate: (venue: any) => void;
+  onStatusChange: (venueId: string, status: string) => void;
+  onDelete: (venueId: string) => void;
+  isLoading?: boolean;
 }
 
 export const AdminVenueTable: React.FC<AdminVenueTableProps> = ({
   venues,
   onDuplicate,
-  onDeactivate,
+  onStatusChange,
+  onDelete,
+  isLoading = false,
 }) => {
   return (
     <div className="rounded-md border">
@@ -103,35 +98,18 @@ export const AdminVenueTable: React.FC<AdminVenueTableProps> = ({
                   }
                 </TableCell>
                 <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Abrir menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                      <DropdownMenuItem asChild>
-                        <Link to={`/admin-v3/agentes/venues/${venue.id}/edit`}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Editar
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onDuplicate(venue)}>
-                        <Copy className="mr-2 h-4 w-4" />
-                        Duplicar
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem 
-                        onClick={() => onDeactivate(venue)}
-                        className="text-destructive"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Desativar
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <RowActions
+                    entity="venues"
+                    id={venue.id}
+                    name={venue.name}
+                    instagram={venue.instagram}
+                    editPath={`/admin-v3/agentes/venues/${venue.id}/edit`}
+                    viewPath={`/admin-v3/agentes/venues/${venue.id}`}
+                    onDuplicate={(id) => onDuplicate(venue)}
+                    onStatusChange={onStatusChange}
+                    onAfterDelete={() => onDelete(venue.id)}
+                    isLoading={isLoading}
+                  />
                 </TableCell>
               </TableRow>
             ))

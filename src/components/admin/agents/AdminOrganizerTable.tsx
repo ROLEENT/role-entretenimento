@@ -1,13 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Edit, Copy, UserX, MoreHorizontal, Eye, ExternalLink } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { RowActions } from '@/components/admin/common/RowActions';
 
 interface Organizer {
   id: string;
@@ -159,70 +156,18 @@ export const AdminOrganizerTable: React.FC<AdminOrganizerTableProps> = ({
               </TableCell>
               
               <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link to={`/admin-v3/agentes/organizadores/${organizer.id}/edit`}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Editar
-                      </Link>
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuItem asChild>
-                      <Link to={`/admin-v3/agentes/organizadores/${organizer.id}`}>
-                        <Eye className="mr-2 h-4 w-4" />
-                        Visualizar
-                      </Link>
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuSeparator />
-                    
-                    <DropdownMenuItem onClick={() => onDuplicate(organizer.id)}>
-                      <Copy className="mr-2 h-4 w-4" />
-                      Duplicar
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuItem 
-                      onClick={() => onStatusChange(
-                        organizer.id, 
-                        organizer.status === 'active' ? 'inactive' : 'active'
-                      )}
-                    >
-                      <UserX className="mr-2 h-4 w-4" />
-                      {organizer.status === 'active' ? 'Inativar' : 'Ativar'}
-                    </DropdownMenuItem>
-                    
-                    {organizer.instagram && (
-                      <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                          <a 
-                            href={`https://instagram.com/${organizer.instagram.replace('@', '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <ExternalLink className="mr-2 h-4 w-4" />
-                            Ver Instagram
-                          </a>
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                    
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={() => onDelete(organizer.id)}
-                      className="text-destructive"
-                    >
-                      <UserX className="mr-2 h-4 w-4" />
-                      Excluir
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <RowActions
+                  entity="organizers"
+                  id={organizer.id}
+                  name={organizer.name}
+                  instagram={organizer.instagram}
+                  editPath={`/admin-v3/agentes/organizadores/${organizer.id}/edit`}
+                  viewPath={`/admin-v3/agentes/organizadores/${organizer.id}`}
+                  onDuplicate={onDuplicate}
+                  onStatusChange={onStatusChange}
+                  onAfterDelete={() => onDelete(organizer.id)}
+                  isLoading={isLoading}
+                />
               </TableCell>
             </TableRow>
           ))}
