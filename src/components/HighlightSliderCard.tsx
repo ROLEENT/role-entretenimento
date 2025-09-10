@@ -67,7 +67,7 @@ export const HighlightSliderCard = ({ highlight }: HighlightSliderCardProps) => 
         
         {/* City Badge */}
         <Badge 
-          className={`absolute top-3 left-3 ${getCityColor(highlight.city)} text-white border-0 text-xs font-medium`}
+          className={`absolute top-3 left-3 ${getCityColor(highlight.city)} text-primary-foreground border-0 text-xs font-medium`}
         >
           {formatCity(highlight.city)}
         </Badge>

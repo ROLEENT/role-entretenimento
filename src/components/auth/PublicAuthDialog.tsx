@@ -64,7 +64,7 @@ export function PublicAuthDialog({ open, onOpenChange, defaultTab = 'signin' }: 
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary rounded-full mb-4 mx-auto">
-            <Sparkles className="w-8 h-8 text-white" />
+            <Sparkles className="w-8 h-8 text-primary-foreground" />
           </div>
           <DialogTitle className="text-2xl font-bold gradient-text">
             Bem-vindo ao ROLÊ

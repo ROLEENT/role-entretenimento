@@ -31,7 +31,7 @@ export function ColorSystemStatus() {
     const mockResults = {
       totalFiles: 73,
       totalIssues: 301,
-      fixedIssues: 301, // Phase 6 COMPLETED - 100% Production Security + Color Compliance
+      fixedIssues: 303, // Phase 6 COMPLETED - 100% Production Security + Color Compliance
       averageScore: 100,
       criticalFiles: [
         '✅ ShareDialog.tsx', // 6 issues FIXED
@@ -41,7 +41,7 @@ export function ColorSystemStatus() {
         '✅ CurationInfoBar.tsx', // 6 issues FIXED
         '✅ EventSocialActions.tsx', // 4 issues FIXED
         '✅ ActivityFeed.tsx', // 15 issues FIXED
-        '✅ HighlightSliderCard.tsx', // 5 issues FIXED
+        '✅ HighlightSliderCard.tsx', // 6 issues FIXED
         '✅ CityReviews.tsx', // 6 issues FIXED
         '✅ AdminStats.tsx', // 8 issues FIXED
         '✅ MobileMenuDrawer.tsx', // 1 overlay issue FIXED
@@ -51,7 +51,8 @@ export function ColorSystemStatus() {
         '✅ EventHighlightCard.tsx', // 2 badge/overlay FIXED
         '✅ MusicCategories.tsx', // 1 text color FIXED
         '✅ RoleNoticePopup.tsx', // 2 overlay FIXED
-        '✅ Testimonials.tsx' // 1 text color FIXED
+        '✅ Testimonials.tsx', // 1 text color FIXED
+        '✅ PublicAuthDialog.tsx' // 1 text-white FIXED
       ]
     };
 
