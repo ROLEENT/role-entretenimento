@@ -93,8 +93,11 @@ export function SecurityDashboard() {
     }
   ];
 
+  const [securityStatus, setSecurityStatus] = useState<any>(null);
+
   useEffect(() => {
     loadSecurityData();
+    checkSecurityStatus();
   }, []);
 
   const loadSecurityData = async () => {
@@ -103,7 +106,7 @@ export function SecurityDashboard() {
       
       // Carregar logs de segurança
       const { data: logsData } = await supabase
-        .from('security_logs')
+        .from('security_log')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(50);
@@ -127,6 +130,27 @@ export function SecurityDashboard() {
       console.error('Erro ao carregar dados de segurança:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkSecurityStatus = async () => {
+    try {
+      const { data, error } = await supabase.rpc('security_monitor');
+      if (error) throw error;
+      setSecurityStatus(data);
+    } catch (error) {
+      console.error('Erro ao verificar status de segurança:', error);
+    }
+  };
+
+  const applyHardening = async () => {
+    try {
+      const { data, error } = await supabase.rpc('apply_basic_security_hardening');
+      if (error) throw error;
+      alert(`Hardening aplicado: ${data}`);
+      await checkSecurityStatus();
+    } catch (error) {
+      console.error('Erro ao aplicar hardening:', error);
     }
   };
 
@@ -397,32 +421,43 @@ export function SecurityDashboard() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Configurações de Segurança</CardTitle>
+                <CardTitle>Fase 6: Correções Críticas</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span>Rate Limiting</span>
-                  <Badge variant="outline" className="bg-green-50 text-green-700">
-                    Ativo
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>XSS Protection</span>
-                  <Badge variant="outline" className="bg-green-50 text-green-700">
-                    Ativo
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>HTTPS Enforcement</span>
-                  <Badge variant="outline" className="bg-green-50 text-green-700">
-                    Ativo
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Security Headers</span>
-                  <Badge variant="outline" className="bg-green-50 text-green-700">
-                    Configurado
-                  </Badge>
+                {securityStatus && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span>Status Geral</span>
+                      <Badge variant={securityStatus.status === 'ok' ? 'default' : 'destructive'}>
+                        {securityStatus.status?.toUpperCase()}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Logins Admin (24h)</span>
+                      <span className="font-mono">{securityStatus.admin_logins_24h || 0}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Erros (1h)</span>
+                      <span className="font-mono">{securityStatus.errors_1h || 0}</span>
+                    </div>
+                    <Button 
+                      onClick={applyHardening} 
+                      className="w-full" 
+                      size="sm"
+                    >
+                      Aplicar Hardening
+                    </Button>
+                  </div>
+                )}
+                
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-sm">
+                  <strong>⚠️ Fase 6 Status:</strong>
+                  <ul className="mt-2 space-y-1 text-xs">
+                    <li>✅ Sistema de logging implementado</li>
+                    <li>✅ Monitoramento básico ativo</li>
+                    <li>⚠️ 13 avisos de segurança pendentes</li>
+                    <li>⚠️ Functions legacy precisam correção</li>
+                  </ul>
                 </div>
               </CardContent>
             </Card>

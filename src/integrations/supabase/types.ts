@@ -6605,6 +6605,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      apply_basic_security_hardening: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       approve_blog_comment: {
         Args: { p_comment_id: string }
         Returns: undefined
@@ -7484,6 +7488,14 @@ export type Database = {
       secure_admin_access: {
         Args: { admin_email: string }
         Returns: boolean
+      }
+      security_audit_summary: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      security_monitor: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       set_attendance: {
         Args:
