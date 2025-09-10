@@ -141,10 +141,17 @@ export const useUpsertArtistEnhanced = () => {
         .select("*")
         .single();
 
-      if (error) {
-        console.error("Enhanced artist upsert error:", error);
-        throw new Error(`Erro ao salvar artista: ${error.message}`);
+    if (error) {
+      console.error("Enhanced artist upsert error:", error);
+      // Enhanced error handling
+      if (error.code === 'PGRST301') {
+        throw new Error('Permissão negada. Verifique se você tem acesso de administrador.');
       }
+      if (error.code === '23505') {
+        throw new Error('Já existe um artista com este slug. Tente um nome diferente.');
+      }
+      throw new Error(`Erro ao salvar artista: ${error.message}`);
+    }
 
       // Sync categories and genres relationships
       if (data.categories && data.categories.length > 0) {
@@ -162,7 +169,7 @@ export const useUpsertArtistEnhanced = () => {
       queryClient.invalidateQueries({ queryKey: ["artist", data.id] });
       toast.success("Artista salvo com sucesso!");
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error("Enhanced artist save error:", error);
       toast.error(error.message || "Erro ao salvar artista");
     },

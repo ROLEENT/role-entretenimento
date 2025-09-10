@@ -26,6 +26,7 @@ export const useAdminArtistsData = () => {
       let query = supabase
         .from('artists')
         .select('*')
+        .is('deleted_at', null) // Filter out soft deleted artists
         .order('updated_at', { ascending: false });
 
       if (filters.search) {
@@ -129,37 +130,52 @@ export const useAdminArtistsData = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // Enhanced error handling
+        if (error.code === 'PGRST301') {
+          throw new Error('Permissão negada. Verifique se você tem acesso de administrador.');
+        }
+        throw new Error(`Erro ao atualizar status: ${error.message}`);
+      }
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-artists'] });
       toast.success('Status atualizado com sucesso');
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error('Error updating artist status:', error);
-      toast.error('Erro ao atualizar status');
+      toast.error(error.message || 'Erro ao atualizar status');
     },
   });
 
-  // Delete artist mutation
+  // Delete artist mutation (soft delete)
   const deleteArtistMutation = useMutation({
     mutationFn: async (artistId: string) => {
       const { error } = await supabase
         .from('artists')
-        .delete()
+        .update({ deleted_at: new Date().toISOString() })
         .eq('id', artistId);
 
-      if (error) throw error;
+      if (error) {
+        // Enhanced error handling for better debugging
+        if (error.code === 'PGRST301') {
+          throw new Error('Permissão negada. Verifique se você tem acesso de administrador.');
+        }
+        if (error.code === '23503') {
+          throw new Error('Não é possível excluir este artista pois ele está vinculado a outros registros.');
+        }
+        throw new Error(`Erro ao excluir artista: ${error.message}`);
+      }
       return artistId;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-artists'] });
       toast.success('Artista removido com sucesso');
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error('Error deleting artist:', error);
-      toast.error('Erro ao remover artista');
+      toast.error(error.message || 'Erro ao remover artista');
     },
   });
 

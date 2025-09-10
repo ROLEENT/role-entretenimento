@@ -8,6 +8,10 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    headers: {
+      // Configure CSP header to avoid warning about frame-ancestors in meta tags
+      'Content-Security-Policy': "frame-ancestors 'self' https://roleentretenimento.com https://vercel.live;"
+    },
   },
   plugins: [
     react(),
