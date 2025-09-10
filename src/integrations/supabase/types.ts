@@ -8666,6 +8666,16 @@ export type Database = {
         Args: { p_comment_id: string }
         Returns: undefined
       }
+      audit_admin_action: {
+        Args: {
+          p_action: string
+          p_new_values?: Json
+          p_old_values?: Json
+          p_record_id: string
+          p_table_name: string
+        }
+        Returns: undefined
+      }
       auth_role: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -9657,7 +9667,7 @@ export type Database = {
         Returns: boolean
       }
       validate_admin_email: {
-        Args: { user_email: string }
+        Args: { email_to_check: string }
         Returns: boolean
       }
       validate_admin_file_upload: {
