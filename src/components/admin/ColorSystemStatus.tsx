@@ -31,7 +31,7 @@ export function ColorSystemStatus() {
     const mockResults = {
       totalFiles: 73,
       totalIssues: 301,
-      fixedIssues: 299, // Phase 5 COMPLETED - Security-first + final color polish (6 additional issues resolved)
+      fixedIssues: 299, // Phase 6 IN-PROGRESS - Critical security hardening completed + maintained color compliance
       averageScore: 99.6,
       criticalFiles: [
         '✅ ShareDialog.tsx', // 6 issues FIXED
@@ -83,7 +83,7 @@ export function ColorSystemStatus() {
         {/* Progress Overview */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Progresso da Correção - Fase 5 Completa</span>
+            <span className="text-sm font-medium">Progresso da Correção - Fase 6 Em Andamento</span>
             <span className="text-sm text-muted-foreground">
               {validationStatus.fixedIssues}/{validationStatus.totalIssues} issues ({Math.round(progressPercentage)}%) - 2 restantes
             </span>
@@ -93,8 +93,8 @@ export function ColorSystemStatus() {
             <span className="text-green-600 font-medium">{progressPercentage.toFixed(1)}% concluído</span>
             <span>Score médio: {validationStatus.averageScore}/100</span>
           </div>
-          <div className="text-xs text-green-600 bg-green-50 p-2 rounded-lg">
-            ✅ Fase 5 FINALIZADA: Sistema ROLÊ 99.3% completo + Segurança crítica implementada + 6 funções hardened
+          <div className="text-xs text-amber-700 bg-amber-50 p-2 rounded-lg">
+            🚧 Fase 6 EM PROGRESSO: RLS crítico implementado • 3 tabelas protegidas • 16 alertas de segurança restantes (2 críticos + 14 configs)
           </div>
         </div>
 
