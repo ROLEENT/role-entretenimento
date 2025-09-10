@@ -25,16 +25,17 @@
 - ✅ Verificação cruzada entre `admin_users` e `approved_admins`
 - ✅ Proteção contra escalação de privilégios
 
-## ⚠️ Questões Pendentes (Requerem Configuração Manual)
+## ⚠️ Questões Pendentes (Status Fase 6.1)
 
-### 1. Configurações de Produção
+### 1. Configurações de Produção (Manual - Supabase Dashboard)
 - ❌ **OTP Expiry**: Reduzir tempo de expiração OTP no painel Supabase
-- ❌ **Password Protection**: Habilitar proteção contra senhas vazadas
+- ❌ **Password Protection**: Habilitar proteção contra senhas vazadas  
 - ❌ **Postgres Upgrade**: Atualizar versão do PostgreSQL
 
-### 2. Views Security Definer
-- ⚠️ Detectadas 2 views com Security Definer que podem ser problemáticas
-- Necessário investigar views específicas no schema
+### 2. Views Security Definer (Requer Investigação)
+- ⚠️ **2 VIEWS CRÍTICAS**: Detectadas views com Security Definer
+- ⚠️ **Funções Restantes**: Ainda existem algumas funções sem search_path
+- Status: Investigação necessária para identificar views específicas
 
 ## 🔍 Monitoramento Implementado
 
