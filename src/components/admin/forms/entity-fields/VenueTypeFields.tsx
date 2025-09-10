@@ -5,9 +5,16 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { X } from 'lucide-react';
-import { VenueEnhancedForm, CUISINE_TYPES, STAGE_TYPES } from '@/schemas/entities/venue-enhanced';
+import { MultiSelect } from '@/components/ui/multi-select';
+import { 
+  VenueEnhancedForm, 
+  BAR_STYLES, 
+  AMBIENT_TYPES, 
+  STAGE_TYPES,
+  TECHNICAL_EQUIPMENT,
+  CUISINE_TYPES,
+  MUSIC_GENRES 
+} from '@/schemas/entities/venue-enhanced';
 
 interface VenueTypeFieldsProps {
   form: UseFormReturn<VenueEnhancedForm>;
@@ -15,127 +22,69 @@ interface VenueTypeFieldsProps {
 }
 
 export const VenueTypeFields: React.FC<VenueTypeFieldsProps> = ({ form, venueType }) => {
-  const watchedValue = form.watch();
-
-  const addItem = (fieldPath: string, value: string) => {
-    const pathArray = fieldPath.split('.');
-    const currentValue = pathArray.reduce((obj, key) => obj?.[key], watchedValue) as string[] || [];
-    if (value && !currentValue.includes(value)) {
-      form.setValue(fieldPath as any, [...currentValue, value]);
-    }
-  };
-
-  const removeItem = (fieldPath: string, value: string) => {
-    const pathArray = fieldPath.split('.');
-    const currentValue = pathArray.reduce((obj, key) => obj?.[key], watchedValue) as string[] || [];
-    form.setValue(fieldPath as any, currentValue.filter(item => item !== value));
-  };
-
-  const renderArrayField = (
-    fieldPath: string,
-    label: string,
-    placeholder: string,
-    suggestions: string[] = []
-  ) => {
-    const pathArray = fieldPath.split('.');
-    const currentValue = pathArray.reduce((obj, key) => obj?.[key], watchedValue) as string[] || [];
-
-    return (
-      <div className="space-y-2">
-        <FormLabel>{label}</FormLabel>
-        <div className="space-y-2">
-          <Input
-            placeholder={placeholder}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                const value = e.currentTarget.value.trim();
-                if (value) {
-                  addItem(fieldPath, value);
-                  e.currentTarget.value = '';
-                }
-              }
-            }}
-          />
-          {suggestions.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {suggestions.map((suggestion) => (
-                <button
-                  key={suggestion}
-                  type="button"
-                  onClick={() => addItem(fieldPath, suggestion)}
-                  className="text-xs px-2 py-1 bg-muted rounded hover:bg-muted/80"
-                >
-                  + {suggestion}
-                </button>
-              ))}
-            </div>
-          )}
-          <div className="flex flex-wrap gap-1">
-            {currentValue.map((item) => (
-              <Badge key={item} variant="secondary" className="flex items-center gap-1">
-                {item}
-                <button
-                  type="button"
-                  onClick={() => removeItem(fieldPath, item)}
-                  className="ml-1 hover:text-destructive"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderCheckboxGroup = (
-    basePath: string,
-    options: { key: string; label: string }[]
-  ) => (
-    <div className="grid grid-cols-2 gap-4">
-      {options.map(({ key, label }) => (
-        <FormField
-          key={key}
-          control={form.control}
-          name={`${basePath}.${key}` as any}
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel className="text-sm font-normal">
-                  {label}
-                </FormLabel>
-              </div>
-            </FormItem>
-          )}
-        />
-      ))}
-    </div>
-  );
-
   switch (venueType) {
     case 'bar':
       return (
         <div className="space-y-6">
           <div>
             <h3 className="text-lg font-medium mb-4">Características do Bar</h3>
-            {renderCheckboxGroup('bar_features', [
-              { key: 'happy_hour', label: 'Happy Hour' },
-              { key: 'craft_beer', label: 'Cervejas Artesanais' },
-              { key: 'cocktails', label: 'Coquetéis' },
-              { key: 'wine_selection', label: 'Seleção de Vinhos' },
-              { key: 'outdoor_seating', label: 'Área Externa' },
-              { key: 'pool_table', label: 'Mesa de Bilhar' },
-              { key: 'sports_tv', label: 'TV para Esportes' },
-              { key: 'live_music', label: 'Música ao Vivo' },
-            ])}
+            
+            <FormField
+              control={form.control}
+              name="bar_style"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Estilo do Bar</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={BAR_STYLES.map(style => ({ label: style, value: style }))}
+                      value={field.value || []}
+                      onChange={field.onChange}
+                      placeholder="Selecione os estilos"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="ambient_type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ambiente</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={AMBIENT_TYPES.map(type => ({ label: type, value: type }))}
+                      value={field.value || []}
+                      onChange={field.onChange}
+                      placeholder="Selecione o tipo de ambiente"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="drink_specialties"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Especialidades em Bebidas</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={[]}
+                      value={field.value || []}
+                      onChange={field.onChange}
+                      placeholder="Digite as especialidades"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         </div>
       );
@@ -149,21 +98,19 @@ export const VenueTypeFields: React.FC<VenueTypeFieldsProps> = ({ form, venueTyp
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="theater_features.stage_type"
+                name="stage_type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tipo de Palco *</FormLabel>
+                    <FormLabel>Tipo de Palco</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecione o tipo de palco" />
+                          <SelectValue placeholder="Selecione o tipo" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {STAGE_TYPES.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            {type.label}
-                          </SelectItem>
+                          <SelectItem key={type} value={type}>{type}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -174,35 +121,16 @@ export const VenueTypeFields: React.FC<VenueTypeFieldsProps> = ({ form, venueTyp
 
               <FormField
                 control={form.control}
-                name="theater_features.seating_capacity"
+                name="seating_capacity"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Capacidade de Assentos *</FormLabel>
+                    <FormLabel>Capacidade de Assentos</FormLabel>
                     <FormControl>
                       <Input 
                         {...field} 
                         type="number" 
                         placeholder="200" 
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="theater_features.backstage_rooms"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Camarins</FormLabel>
-                    <FormControl>
-                      <Input 
-                        {...field} 
-                        type="number" 
-                        placeholder="2" 
-                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        onChange={(e) => field.onChange(Number(e.target.value) || undefined)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -211,25 +139,47 @@ export const VenueTypeFields: React.FC<VenueTypeFieldsProps> = ({ form, venueTyp
               />
             </div>
 
-            {renderArrayField(
-              'theater_features.technical_equipment', 
-              'Equipamentos Técnicos', 
-              'Ex: Mesa de som, Refletores LED',
-              ['Mesa de Som', 'Refletores LED', 'Sistema de Áudio', 'Projetores', 'Cortinas Motorizadas']
-            )}
+            <FormField
+              control={form.control}
+              name="acoustic_treatment"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Tratamento Acústico</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
 
-            {renderArrayField(
-              'theater_features.accessibility_features', 
-              'Recursos de Acessibilidade', 
-              'Ex: Tradução em Libras, Audiodescrição',
-              ['Tradução em Libras', 'Audiodescrição', 'Lugares para Cadeirantes', 'Banheiros Acessíveis']
-            )}
+            <FormField
+              control={form.control}
+              name="technical_equipment"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Equipamentos Técnicos</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={TECHNICAL_EQUIPMENT.map(eq => ({ label: eq, value: eq }))}
+                      value={field.value || []}
+                      onChange={field.onChange}
+                      placeholder="Selecione os equipamentos"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         </div>
       );
 
     case 'clube':
-    case 'casa-noturna':
       return (
         <div className="space-y-6">
           <div>
@@ -238,35 +188,7 @@ export const VenueTypeFields: React.FC<VenueTypeFieldsProps> = ({ form, venueTyp
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="club_features.sound_system"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sistema de Som *</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Ex: Funktion-One, L-Acoustics" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="club_features.lighting_system"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sistema de Iluminação</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Ex: LED RGB, Moving lights" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="club_features.dance_floor_size"
+                name="dance_floor_size"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tamanho da Pista (m²)</FormLabel>
@@ -275,43 +197,60 @@ export const VenueTypeFields: React.FC<VenueTypeFieldsProps> = ({ form, venueTyp
                         {...field} 
                         type="number" 
                         placeholder="100" 
-                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        onChange={(e) => field.onChange(Number(e.target.value) || undefined)}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={form.control}
-                name="club_features.security_level"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nível de Segurança</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o nível" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="basica">Básica</SelectItem>
-                        <SelectItem value="media">Média</SelectItem>
-                        <SelectItem value="alta">Alta</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
 
-            {renderCheckboxGroup('club_features', [
-              { key: 'vip_areas', label: 'Áreas VIP' },
-              { key: 'smoking_area', label: 'Área para Fumantes' },
-              { key: 'coat_check', label: 'Guarda-Volumes' },
-            ])}
+            <FormField
+              control={form.control}
+              name="sound_system"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sistema de Som</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Descrição do sistema de som" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="lighting_system"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sistema de Iluminação</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Descrição da iluminação" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="vip_areas"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Áreas VIP</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
           </div>
         </div>
       );
@@ -322,58 +261,190 @@ export const VenueTypeFields: React.FC<VenueTypeFieldsProps> = ({ form, venueTyp
           <div>
             <h3 className="text-lg font-medium mb-4">Características do Restaurante</h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="cuisine_type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo de Culinária</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={CUISINE_TYPES.map(cuisine => ({ label: cuisine, value: cuisine }))}
+                      value={field.value || []}
+                      onChange={field.onChange}
+                      placeholder="Selecione os tipos de culinária"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="price_range"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Faixa de Preço</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a faixa" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="economico">Econômico</SelectItem>
+                      <SelectItem value="medio">Médio</SelectItem>
+                      <SelectItem value="alto">Alto</SelectItem>
+                      <SelectItem value="premium">Premium</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="dining_style"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Estilo do Restaurante</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={[
+                        { label: 'Fine Dining', value: 'Fine Dining' },
+                        { label: 'Casual', value: 'Casual' },
+                        { label: 'Fast Casual', value: 'Fast Casual' },
+                        { label: 'Bistrô', value: 'Bistrô' },
+                        { label: 'Buffet', value: 'Buffet' },
+                      ]}
+                      value={field.value || []}
+                      onChange={field.onChange}
+                      placeholder="Selecione o estilo"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="outdoor_seating"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Área Externa</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+      );
+
+    case 'casa-noturna':
+      return (
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-medium mb-4">Características da Casa Noturna</h3>
+            
+            <FormField
+              control={form.control}
+              name="music_genres"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gêneros Musicais</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={MUSIC_GENRES.map(genre => ({ label: genre, value: genre }))}
+                      value={field.value || []}
+                      onChange={field.onChange}
+                      placeholder="Selecione os gêneros"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="space-y-4">
+              <h4 className="text-md font-medium">Estrutura para Shows</h4>
+              
               <FormField
                 control={form.control}
-                name="restaurant_features.price_range"
+                name="show_structure.stage"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Palco</FormLabel>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="show_structure.backstage"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Backstage</FormLabel>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="show_structure.green_room"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Camarim</FormLabel>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="show_structure.load_in"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Faixa de Preço *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione a faixa" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="$">$ - Econômico</SelectItem>
-                        <SelectItem value="$$">$$ - Moderado</SelectItem>
-                        <SelectItem value="$$$">$$$ - Alto</SelectItem>
-                        <SelectItem value="$$$$">$$$$ - Premium</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Acesso para Load-in</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Descrição do acesso para equipamentos" />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
-
-            {renderArrayField(
-              'restaurant_features.cuisine_type', 
-              'Tipos de Culinária *', 
-              'Ex: Brasileira, Italiana',
-              CUISINE_TYPES
-            )}
-
-            <div>
-              <h4 className="text-md font-medium mb-3">Características</h4>
-              {renderCheckboxGroup('restaurant_features', [
-                { key: 'serves_alcohol', label: 'Serve Bebidas Alcoólicas' },
-                { key: 'outdoor_dining', label: 'Área Externa' },
-                { key: 'private_dining', label: 'Sala Privativa' },
-                { key: 'catering', label: 'Serviço de Catering' },
-              ])}
-            </div>
-
-            <div>
-              <h4 className="text-md font-medium mb-3">Opções Dietéticas</h4>
-              {renderCheckboxGroup('restaurant_features.dietary_options', [
-                { key: 'vegetarian', label: 'Vegetariano' },
-                { key: 'vegan', label: 'Vegano' },
-                { key: 'gluten_free', label: 'Sem Glúten' },
-                { key: 'halal', label: 'Halal' },
-                { key: 'kosher', label: 'Kosher' },
-              ])}
             </div>
           </div>
         </div>
