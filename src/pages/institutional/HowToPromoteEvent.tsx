@@ -8,21 +8,21 @@ const HowToPromoteEvent = () => {
   const promotionTypes = [
     {
       icon: Calendar,
-      title: "Curadoria Editorial",
-      description: "[PLACEHOLDER] Como eventos entram na curadoria editorial semanal do ROLÊ.",
-      features: ["Destaque gratuito", "Reach orgânico", "Credibilidade editorial"]
+      title: "Vitrine Cultural",
+      description: "Publicação direta e acessível, já no feed e site.",
+      features: ["Formato acessível", "Visibilidade garantida", "Publicação rápida"]
     },
     {
       icon: Target,
-      title: "Promoção Paga",
-      description: "[PLACEHOLDER] Opções de promoção paga para maior alcance e visibilidade.",
-      features: ["Reach direcionado", "Analytics detalhado", "Suporte dedicado"]
+      title: "Posts editoriais",
+      description: "Carrosséis e matérias com narrativa cultural, pensados pra engajar.",
+      features: ["Narrativa cultural", "Conteúdo elaborado", "Maior engajamento"]
     },
     {
       icon: Megaphone,
-      title: "Parcerias",
-      description: "[PLACEHOLDER] Oportunidades de parceria estratégica com o ROLÊ.",
-      features: ["Colaboração editorial", "Cross-promotion", "Eventos especiais"]
+      title: "Combos",
+      description: "União de formatos (feed + stories + reels) com mais alcance.",
+      features: ["Múltiplos formatos", "Alcance ampliado", "Maior impacto"]
     }
   ];
 
@@ -47,8 +47,8 @@ const HowToPromoteEvent = () => {
 
   return (
     <InstitutionalPageWrapper
-      title="Como divulgar seu evento"
-      description="Guia completo para organizadores maximizarem o alcance e impacto dos seus eventos no ROLÊ."
+      title="Quer seu rolê no ROLÊ?"
+      description="O ROLÊ é mais que agenda. A gente cria narrativas, conecta públicos e dá visibilidade real pra festas, shows, peças e festivais."
       seoTitle="Como divulgar evento | ROLÊ ENTRETENIMENTO"
       seoDescription="Aprenda as melhores estratégias para promover seu evento no ROLÊ. Guia para organizadores e produtores culturais."
       lastUpdated="10 de setembro de 2025"
@@ -57,22 +57,9 @@ const HowToPromoteEvent = () => {
         {/* Introduction */}
         <Card>
           <CardContent className="pt-6">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold mb-4">Alcance a audiência certa</h2>
-              <p className="text-muted-foreground text-lg leading-relaxed">
-                [PLACEHOLDER] Texto sobre a importância de uma estratégia bem planejada para 
-                divulgação de eventos culturais e como o ROLÊ pode amplificar seu alcance.
-              </p>
-            </div>
-            
-            <div className="bg-secondary/5 border border-secondary/20 rounded-lg p-6">
-              <p className="text-sm text-muted-foreground">
-                <strong>Conteúdo será inserido na Fase 2:</strong><br/>
-                • Estratégias de marketing cultural<br/>
-                • Cases de sucesso na plataforma<br/>
-                • Métricas e resultados esperados
-              </p>
-            </div>
+            <p className="text-muted-foreground text-lg leading-relaxed mb-8">
+              Se você quer divulgar seu evento, esse é o caminho certo.
+            </p>
           </CardContent>
         </Card>
 
@@ -106,55 +93,69 @@ const HowToPromoteEvent = () => {
           </div>
         </div>
 
-        {/* Tips */}
+        {/* How it works */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart className="h-6 w-6 text-primary" />
-              Dicas para maximizar resultados
+              Como funciona
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-2 gap-6">
-              {tips.map((tip, index) => (
-                <div key={index} className="p-4 border border-border rounded-lg">
-                  <h3 className="font-semibold mb-2">{tip.title}</h3>
-                  <p className="text-muted-foreground text-sm">
-                    {tip.description}
-                  </p>
+            <div className="grid md:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold mx-auto mb-3">
+                  1
                 </div>
-              ))}
+                <h3 className="font-semibold mb-2">Escolha o pacote</h3>
+                <p className="text-muted-foreground text-sm">
+                  Escolha o pacote que faz sentido pra sua produção.
+                </p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold mx-auto mb-3">
+                  2
+                </div>
+                <h3 className="font-semibold mb-2">Preencha o briefing</h3>
+                <p className="text-muted-foreground text-sm">
+                  Preencha o briefing com descrição, imagens e links de ingresso.
+                </p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold mx-auto mb-3">
+                  3
+                </div>
+                <h3 className="font-semibold mb-2">Nosso time cria</h3>
+                <p className="text-muted-foreground text-sm">
+                  Nosso time cria a publicação no tom ROLÊ.
+                </p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold mx-auto mb-3">
+                  4
+                </div>
+                <h3 className="font-semibold mb-2">Você aprova</h3>
+                <p className="text-muted-foreground text-sm">
+                  Você aprova antes de ir pro ar.
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Process */}
+        {/* Values */}
         <Card>
           <CardHeader>
-            <CardTitle>Processo de submissão</CardTitle>
+            <CardTitle>Valores e condições</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-6">
-              <div className="bg-muted/50 rounded-lg p-6">
-                <h3 className="font-semibold mb-3">Eventos gratuitos (curadoria editorial)</h3>
-                <p className="text-muted-foreground mb-4">
-                  [PLACEHOLDER] Processo para submissão de eventos para curadoria editorial.
-                </p>
-                <Button variant="outline">
-                  Submeter evento
-                </Button>
-              </div>
-              
-              <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
-                <h3 className="font-semibold mb-3">Promoção paga</h3>
-                <p className="text-muted-foreground mb-4">
-                  [PLACEHOLDER] Como contratar promoção paga e opções disponíveis.
-                </p>
-                <Button>
-                  Ver opções de promoção
-                </Button>
-              </div>
-            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              Temos preços acessíveis, taxa de urgência quando necessário e condições especiais para produções independentes. 
+              Portfólio completo disponível <a href="#" className="text-primary hover:underline">aqui</a>.
+            </p>
           </CardContent>
         </Card>
 
@@ -162,9 +163,9 @@ const HowToPromoteEvent = () => {
         <Card className="bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20">
           <CardContent className="pt-6">
             <div className="text-center">
-              <h2 className="text-2xl font-bold mb-4">Comece a divulgar hoje</h2>
+              <h2 className="text-2xl font-bold mb-4">Seu evento pode ser só mais um post no feed…</h2>
               <p className="text-muted-foreground mb-6">
-                [PLACEHOLDER] Call to action para entrar em contato ou submeter evento.
+                ou pode virar conversa na cidade. Escolhe o formato e cola com a gente.
               </p>
               <div className="flex gap-4 justify-center">
                 <Button size="lg" className="gap-2">

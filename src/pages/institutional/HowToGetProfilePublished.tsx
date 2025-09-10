@@ -48,8 +48,8 @@ const HowToGetProfilePublished = () => {
 
   return (
     <InstitutionalPageWrapper
-      title="Como ter seu perfil publicado no ROLÊ"
-      description="Guia completo para artistas, organizadores e locais conseguirem destaque na nossa curadoria."
+      title="Quer estar no mapa do ROLÊ?"
+      description="O ROLÊ é curadoria cultural. A gente conecta artistas, coletivos, locais e produtores com quem vive a cena."
       seoTitle="Como ter perfil publicado | ROLÊ ENTRETENIMENTO"
       seoDescription="Aprenda como conseguir destaque no ROLÊ. Guia para artistas, organizadores e locais serem destacados em nossa curadoria editorial."
       lastUpdated="10 de setembro de 2025"
@@ -58,72 +58,51 @@ const HowToGetProfilePublished = () => {
         {/* Introduction */}
         <Card>
           <CardContent className="pt-6">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold mb-4">Destaque na cena cultural</h2>
-              <p className="text-muted-foreground text-lg leading-relaxed">
-                [PLACEHOLDER] Texto introdutório sobre a importância de ter um perfil destacado no ROLÊ
-                e como isso pode impactar a carreira de artistas e organizadores.
-              </p>
-            </div>
+            <p className="text-muted-foreground text-lg leading-relaxed mb-8">
+              Pra ter seu perfil publicado aqui, não basta só preencher um cadastro — precisa ter relevância, diversidade e estar em sintonia com a cultura noturna e urbana.
+            </p>
             
-            <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
-              <p className="text-sm text-muted-foreground">
-                <strong>Conteúdo será inserido na Fase 2:</strong><br/>
-                • Texto editorial no tom ROLÊ sobre destaque cultural<br/>
-                • Benefícios de ter perfil curado<br/>
-                • Exemplos de sucesso na plataforma
-              </p>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">Quem pode pedir publicação</h3>
+                <p className="text-muted-foreground text-sm">
+                  Artistas (DJs, performers, atrizes, bandas, drags…), locais (bares, clubes, teatros, casas noturnas) e organizadores (coletivos, produtoras, agências).
+                </p>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">O que analisamos</h3>
+                <p className="text-muted-foreground text-sm">
+                  Autenticidade, conexão com a cidade, qualidade da comunicação e respeito à diversidade.
+                </p>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">O que você precisa enviar</h3>
+                <ul className="text-muted-foreground text-sm space-y-1">
+                  <li>• Foto ou logo em boa qualidade</li>
+                  <li>• Bio curta (quem é, o que faz, trajetória)</li>
+                  <li>• Links oficiais (Instagram, site, Spotify, portfólio)</li>
+                  <li>• Gêneros ou linguagens artísticas</li>
+                </ul>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Steps */}
+        {/* How it works */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle className="h-6 w-6 text-primary" />
-              Passo a passo
+              Como funciona
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-8">
-              {steps.map((step, index) => (
-                <div key={index} className="flex gap-6">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold">
-                      {step.number}
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed">
-                      {step.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Criteria */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Critérios de avaliação</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-6">
-              {criteria.map((criterion, index) => (
-                <div key={index} className="text-center">
-                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <criterion.icon className="h-8 w-8 text-primary" />
-                  </div>
-                  <h3 className="font-semibold mb-2">{criterion.title}</h3>
-                  <p className="text-muted-foreground text-sm">
-                    {criterion.description}
-                  </p>
-                </div>
-              ))}
+            <div className="text-center">
+              <p className="text-muted-foreground text-lg leading-relaxed">
+                Preencha o formulário oficial → nosso time analisa → se aprovado, seu perfil aparece público e conectado aos eventos.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -132,9 +111,9 @@ const HowToGetProfilePublished = () => {
         <Card className="bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20">
           <CardContent className="pt-6">
             <div className="text-center">
-              <h2 className="text-2xl font-bold mb-4">Pronto para começar?</h2>
+              <h2 className="text-2xl font-bold mb-4">Mostra quem tu é</h2>
               <p className="text-muted-foreground mb-6">
-                [PLACEHOLDER] Call to action motivacional para criar perfil.
+                Preencha o formulário e bora colocar seu nome na pista.
               </p>
               <Button size="lg" className="gap-2">
                 Criar meu perfil
