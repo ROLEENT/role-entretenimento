@@ -159,6 +159,7 @@ export const AdminArtistEnhancedForm: React.FC<AdminArtistEnhancedFormProps> = (
           disabled={isLoading}
           className="min-w-[120px]"
           aria-busy={isLoading}
+          data-testid="artist-save"
         >
           <Save className="h-4 w-4 mr-2" />
           {isLoading ? 'Salvando...' : 'Salvar'}

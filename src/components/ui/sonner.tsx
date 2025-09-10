@@ -19,6 +19,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
             "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
           cancelButton:
             "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+          success: "group-[.toaster]:border-green-500",
+          error: "group-[.toaster]:border-red-500",
         },
       }}
       // Enhanced accessibility props
@@ -26,6 +28,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
       expand={true}
       richColors
       closeButton
+      // Add test ID for E2E tests
+      data-testid="toast-container"
       {...props}
     />
   )

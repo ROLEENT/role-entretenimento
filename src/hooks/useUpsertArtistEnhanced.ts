@@ -169,7 +169,10 @@ export const useUpsertArtistEnhanced = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["artists"] });
       queryClient.invalidateQueries({ queryKey: ["artist", data.id] });
-      toast.success("Artista salvo com sucesso!");
+      toast.success("Artista salvo com sucesso!", {
+        description: "As informações foram atualizadas.",
+        className: "toast-success"
+      });
     },
     onError: (error: Error) => {
       console.error("Enhanced artist save error:", error);

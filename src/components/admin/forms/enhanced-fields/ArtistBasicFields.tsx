@@ -26,7 +26,11 @@ export const ArtistBasicFields: React.FC<ArtistBasicFieldsProps> = ({ form }) =>
               <span className="text-destructive ml-1">*</span>
             </FormLabel>
             <FormControl>
-              <Input placeholder="Ex: DJ Silva, Banda Lua Nova" {...field} />
+              <Input 
+                placeholder="Ex: DJ Silva, Banda Lua Nova" 
+                data-testid="artist-name"
+                {...field} 
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -97,6 +101,7 @@ export const ArtistBasicFields: React.FC<ArtistBasicFieldsProps> = ({ form }) =>
         description="Selecione até 3 categorias que melhor descrevem sua atuação"
         required
         maxCategories={3}
+        data-testid="artist-categories"
       />
 
       <div className="md:col-span-2">
@@ -106,6 +111,7 @@ export const ArtistBasicFields: React.FC<ArtistBasicFieldsProps> = ({ form }) =>
           placeholder="Selecione ou crie gêneros musicais/artísticos"
           description="Selecione até 5 gêneros que representam seu trabalho"
           maxGenres={5}
+          data-testid="artist-genres"
         />
       </div>
 

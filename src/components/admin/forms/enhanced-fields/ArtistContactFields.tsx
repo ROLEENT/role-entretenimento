@@ -127,7 +127,11 @@ export const ArtistContactFields: React.FC<ArtistContactFieldsProps> = ({ form }
                   <span className="text-destructive ml-1">*</span>
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder="São Paulo" {...field} />
+                  <Input 
+                    placeholder="São Paulo" 
+                    data-testid="artist-city"
+                    {...field} 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

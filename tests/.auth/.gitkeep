@@ -1,0 +1,2 @@
+# This directory stores Playwright authentication state files
+# They are generated during test runs and should not be committed
