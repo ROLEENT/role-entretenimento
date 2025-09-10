@@ -12,6 +12,7 @@ export interface FavoriteEvent {
   image?: string;
   price?: number;
   description?: string;
+  type?: 'event' | 'artist' | 'venue' | 'organizer';
 }
 
 export const useFavorites = () => {
@@ -83,12 +84,14 @@ export const useFavorites = () => {
     }
   };
 
-  const toggleFavorite = async (event: FavoriteEvent) => {
-    const isFavorited = favorites.some(fav => fav.id === event.id);
+  const toggleFavorite = async (eventId: string, event?: FavoriteEvent) => {
+    const isFavorited = favorites.some(fav => fav.id === eventId);
     if (isFavorited) {
-      await removeFavorite(event.id);
+      await removeFavorite(eventId);
     } else {
-      await addFavorite(event);
+      if (event) {
+        await addFavorite(event);
+      }
     }
   };
 

@@ -1,5 +1,8 @@
 import Header, { HeaderGlobalSearch } from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
+import { QuickLinks } from "@/components/home/QuickLinks";
+import { WeeklyHighlights } from "@/components/home/WeeklyHighlights";
+import { EventCarousels } from "@/components/home/EventCarousels";
 import AgendaPorCidadeHome from "@/components/AgendaPorCidadeHome";
 import BlocoRevista from "@/components/BlocoRevista";
 import { FeaturedEventsToday } from "@/components/FeaturedEventsToday";
@@ -29,27 +32,42 @@ const Index = () => {
           {/* 1. HERO / TOPO */}
           <HeroSection />
           
-          {/* 3. AGENDA POR CIDADE */}
+          {/* 2. ATALHOS RÁPIDOS */}
+          <ScrollAnimationWrapper>
+            <QuickLinks />
+          </ScrollAnimationWrapper>
+          
+          {/* 3. DESTAQUES DA SEMANA */}
+          <ScrollAnimationWrapper>
+            <WeeklyHighlights />
+          </ScrollAnimationWrapper>
+          
+          {/* 4. CARROSSÉIS POR CATEGORIA */}
+          <ScrollAnimationWrapper>
+            <EventCarousels />
+          </ScrollAnimationWrapper>
+          
+          {/* 5. AGENDA POR CIDADE */}
           <ScrollAnimationWrapper>
             <AgendaPorCidadeHome />
           </ScrollAnimationWrapper>
           
-          {/* 4. BLOCO REVISTA */}
+          {/* 6. BLOCO REVISTA */}
           <ScrollAnimationWrapper>
             <BlocoRevista />
           </ScrollAnimationWrapper>
           
-          {/* 5. EVENTOS EM DESTAQUE */}
+          {/* 7. EVENTOS EM DESTAQUE */}
           <ScrollAnimationWrapper>
             <FeaturedEventsToday />
           </ScrollAnimationWrapper>
           
-          {/* 6. ROLÊ EM NÚMEROS */}
+          {/* 8. ROLÊ EM NÚMEROS */}
           <ScrollAnimationWrapper>
             <RoleEmNumeros />
           </ScrollAnimationWrapper>
           
-          {/* 7. NEWSLETTER */}
+          {/* 9. NEWSLETTER */}
           <ScrollAnimationWrapper>
             <Newsletter />
           </ScrollAnimationWrapper>
