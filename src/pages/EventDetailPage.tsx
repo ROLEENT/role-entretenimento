@@ -46,6 +46,9 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
+import { EventEngagement } from '@/components/events/EventEngagement';
+import { EventComments } from '@/components/events/EventCommentsV2';
+import { PostEventCheckIn } from '@/components/events/PostEventCheckIn';
 import dayjs from 'dayjs';
 
 const EventDetailPage = () => {
@@ -919,6 +922,15 @@ const EventDetailPage = () => {
                 </CardContent>
               </Card>
             )}
+
+            {/* Event Engagement (likes, reactions) */}
+            <EventEngagement eventId={event.id} eventDate={event.date_start} />
+            
+            {/* Post-Event Check-in (for past events) */}
+            <PostEventCheckIn eventId={event.id} eventDate={event.date_start} eventTitle={event.title} />
+            
+            {/* Comments Section */}
+            <EventComments eventId={event.id} />
 
             <RelatedEvents 
               currentEventId={event.id} 
