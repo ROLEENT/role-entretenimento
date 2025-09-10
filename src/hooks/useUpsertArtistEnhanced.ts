@@ -76,6 +76,9 @@ function mapArtistFormToDb(formData: ArtistEnhancedForm) {
     // Required fields
     image_rights_authorized: true,
     updated_at: new Date().toISOString(),
+    
+    // DO NOT SEND categories/genres here - they go to junction tables
+    // categories and genres will be handled separately in junction tables
   };
 }
 
@@ -83,6 +86,14 @@ const syncArtistCategories = async (artistId: string, categoryIds: string[], adm
   console.log(`Syncing categories for artist ${artistId}:`, categoryIds);
   
   try {
+    // Extract IDs from form data (handle both {value, label} objects and direct IDs)
+    const catIds: string[] = categoryIds.map((item: any) => item.value ?? item.id ?? item).filter(Boolean);
+    
+    if (catIds.length === 0) {
+      console.log('No categories to sync, skipping');
+      return;
+    }
+
     // Remove existing relationships using admin client
     await adminClient.restCall(`artists_categories?artist_id=eq.${artistId}`, {
       method: 'DELETE',
@@ -90,18 +101,16 @@ const syncArtistCategories = async (artistId: string, categoryIds: string[], adm
     console.log('Existing categories removed');
 
     // Add new relationships
-    if (categoryIds.length > 0) {
-      const categoryRelations = categoryIds.map(categoryId => ({
-        artist_id: artistId,
-        category_id: categoryId
-      }));
+    const categoryRelations = catIds.map(categoryId => ({
+      artist_id: artistId,
+      category_id: categoryId
+    }));
 
-      await adminClient.restCall('artists_categories', {
-        method: 'POST',
-        body: JSON.stringify(categoryRelations),
-      });
-      console.log('New categories added:', categoryRelations);
-    }
+    await adminClient.restCall('artists_categories', {
+      method: 'POST',
+      body: JSON.stringify(categoryRelations),
+    });
+    console.log('New categories added:', categoryRelations);
   } catch (error) {
     console.error('Error syncing artist categories:', error);
     throw error;
@@ -112,6 +121,14 @@ const syncArtistGenres = async (artistId: string, genreIds: string[], adminClien
   console.log(`Syncing genres for artist ${artistId}:`, genreIds);
   
   try {
+    // Extract IDs from form data (handle both {value, label} objects and direct IDs)
+    const gIds: string[] = genreIds.map((item: any) => item.value ?? item.id ?? item).filter(Boolean);
+    
+    if (gIds.length === 0) {
+      console.log('No genres to sync, skipping');
+      return;
+    }
+
     // Remove existing relationships using admin client
     await adminClient.restCall(`artists_genres?artist_id=eq.${artistId}`, {
       method: 'DELETE',
@@ -119,18 +136,16 @@ const syncArtistGenres = async (artistId: string, genreIds: string[], adminClien
     console.log('Existing genres removed');
 
     // Add new relationships
-    if (genreIds.length > 0) {
-      const genreRelations = genreIds.map(genreId => ({
-        artist_id: artistId,
-        genre_id: genreId
-      }));
+    const genreRelations = gIds.map(genreId => ({
+      artist_id: artistId,
+      genre_id: genreId
+    }));
 
-      await adminClient.restCall('artists_genres', {
-        method: 'POST',
-        body: JSON.stringify(genreRelations),
-      });
-      console.log('New genres added:', genreRelations);
-    }
+    await adminClient.restCall('artists_genres', {
+      method: 'POST',
+      body: JSON.stringify(genreRelations),
+    });
+    console.log('New genres added:', genreRelations);
   } catch (error) {
     console.error('Error syncing artist genres:', error);
     throw error;
