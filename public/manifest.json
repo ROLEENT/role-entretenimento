@@ -1,13 +1,51 @@
 {
-  "name": "ROLÊ",
+  "name": "ROLÊ - Descubra Eventos",
   "short_name": "ROLÊ",
+  "description": "Descubra os melhores eventos da sua cidade",
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#6b46c1",
   "background_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["entertainment", "lifestyle", "music"],
   "icons": [
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/icons/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+    { 
+      "src": "/icons/icon-192.png", 
+      "sizes": "192x192", 
+      "type": "image/png",
+      "purpose": "any"
+    },
+    { 
+      "src": "/icons/icon-512.png", 
+      "sizes": "512x512", 
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    { 
+      "src": "/icons/apple-touch-icon.png", 
+      "sizes": "180x180", 
+      "type": "image/png" 
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Agenda",
+      "url": "/agenda",
+      "description": "Ver agenda de eventos",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Artistas",
+      "url": "/artistas",
+      "description": "Descobrir artistas",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Locais",
+      "url": "/locais",
+      "description": "Explorar locais",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
   ]
 }

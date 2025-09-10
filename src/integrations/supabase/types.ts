@@ -1172,6 +1172,7 @@ export type Database = {
           about: string | null
           accommodation_notes: string | null
           acting_genres: string[] | null
+          approval_status: Database["public"]["Enums"]["approval_status"] | null
           artist_type: string | null
           audius_url: string | null
           availability_days: string[] | null
@@ -1208,6 +1209,9 @@ export type Database = {
           real_name: string | null
           responsible_name: string | null
           responsible_role: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           set_time_minutes: number | null
           show_format: string | null
           slug: string
@@ -1232,6 +1236,9 @@ export type Database = {
           about?: string | null
           accommodation_notes?: string | null
           acting_genres?: string[] | null
+          approval_status?:
+            | Database["public"]["Enums"]["approval_status"]
+            | null
           artist_type?: string | null
           audius_url?: string | null
           availability_days?: string[] | null
@@ -1268,6 +1275,9 @@ export type Database = {
           real_name?: string | null
           responsible_name?: string | null
           responsible_role?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           set_time_minutes?: number | null
           show_format?: string | null
           slug: string
@@ -1292,6 +1302,9 @@ export type Database = {
           about?: string | null
           accommodation_notes?: string | null
           acting_genres?: string[] | null
+          approval_status?:
+            | Database["public"]["Enums"]["approval_status"]
+            | null
           artist_type?: string | null
           audius_url?: string | null
           availability_days?: string[] | null
@@ -1328,6 +1341,9 @@ export type Database = {
           real_name?: string | null
           responsible_name?: string | null
           responsible_role?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           set_time_minutes?: number | null
           show_format?: string | null
           slug?: string
@@ -1466,6 +1482,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      audit_logs: {
+        Row: {
+          changed_at: string | null
+          changed_by: string | null
+          id: string
+          ip_address: unknown | null
+          new_values: Json | null
+          old_values: Json | null
+          operation: string
+          record_id: string | null
+          table_name: string
+          user_agent: string | null
+        }
+        Insert: {
+          changed_at?: string | null
+          changed_by?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          operation: string
+          record_id?: string | null
+          table_name: string
+          user_agent?: string | null
+        }
+        Update: {
+          changed_at?: string | null
+          changed_by?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          operation?: string
+          record_id?: string | null
+          table_name?: string
+          user_agent?: string | null
+        }
+        Relationships: []
       }
       backup_metadata: {
         Row: {
@@ -2951,6 +3006,7 @@ export type Database = {
           address: string | null
           age_notes: string | null
           age_rating: Database["public"]["Enums"]["age_rating"] | null
+          approval_status: Database["public"]["Enums"]["approval_status"] | null
           city: string
           country: string | null
           cover_alt: string | null
@@ -2982,6 +3038,9 @@ export type Database = {
           organizer_id: string | null
           price_max: number | null
           price_min: number | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           seo_description: string | null
           seo_title: string | null
           series_id: string | null
@@ -3007,6 +3066,9 @@ export type Database = {
           address?: string | null
           age_notes?: string | null
           age_rating?: Database["public"]["Enums"]["age_rating"] | null
+          approval_status?:
+            | Database["public"]["Enums"]["approval_status"]
+            | null
           city: string
           country?: string | null
           cover_alt?: string | null
@@ -3038,6 +3100,9 @@ export type Database = {
           organizer_id?: string | null
           price_max?: number | null
           price_min?: number | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           seo_description?: string | null
           seo_title?: string | null
           series_id?: string | null
@@ -3063,6 +3128,9 @@ export type Database = {
           address?: string | null
           age_notes?: string | null
           age_rating?: Database["public"]["Enums"]["age_rating"] | null
+          approval_status?:
+            | Database["public"]["Enums"]["approval_status"]
+            | null
           city?: string
           country?: string | null
           cover_alt?: string | null
@@ -3094,6 +3162,9 @@ export type Database = {
           organizer_id?: string | null
           price_max?: number | null
           price_min?: number | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           seo_description?: string | null
           seo_title?: string | null
           series_id?: string | null
@@ -7853,6 +7924,7 @@ export type Database = {
       agenda_status: "draft" | "published" | "scheduled"
       agenda_visibility: "curadoria" | "vitrine"
       agent_status: "active" | "inactive"
+      approval_status: "draft" | "pending_review" | "approved" | "rejected"
       article_status: "draft" | "published" | "scheduled"
       attendance_status: "going" | "maybe" | "went"
       badge_type: "activity" | "achievement" | "special" | "milestone"
@@ -8030,6 +8102,7 @@ export const Constants = {
       agenda_status: ["draft", "published", "scheduled"],
       agenda_visibility: ["curadoria", "vitrine"],
       agent_status: ["active", "inactive"],
+      approval_status: ["draft", "pending_review", "approved", "rejected"],
       article_status: ["draft", "published", "scheduled"],
       attendance_status: ["going", "maybe", "went"],
       badge_type: ["activity", "achievement", "special", "milestone"],

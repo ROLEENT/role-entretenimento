@@ -207,14 +207,75 @@ async function cacheFirstStrategy(request, cacheName) {
   }
 }
 
-// Background sync for failed requests
+// Background sync for failed requests and analytics
 self.addEventListener('sync', event => {
   if (event.tag === 'background-sync') {
     event.waitUntil(doBackgroundSync());
+  } else if (event.tag === 'analytics-sync') {
+    event.waitUntil(syncOfflineAnalytics());
   }
 });
 
 async function doBackgroundSync() {
-  // Implement background sync logic here
   console.log('Background sync triggered');
+  // Sync any failed analytics events
+  await syncOfflineAnalytics();
+}
+
+async function syncOfflineAnalytics() {
+  try {
+    // Get offline analytics data from IndexedDB
+    const db = await openAnalyticsDB();
+    const tx = db.transaction(['analytics'], 'readonly');
+    const store = tx.objectStore('analytics');
+    const offlineEvents = await getAllFromStore(store);
+
+    // Send each event to the server
+    for (const event of offlineEvents) {
+      try {
+        const response = await fetch('/rest/v1/rpc/track_analytics_event', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51dGxjYm5ydWFianN4ZWNxcG5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MTcwOTgsImV4cCI6MjA3MTA5MzA5OH0.K_rfijLK9e3EbDxU4uddtY0sUMUvtH-yHNEbW8Ohp5c'
+          },
+          body: JSON.stringify(event.data)
+        });
+
+        if (response.ok) {
+          // Remove successfully synced event
+          const deleteTx = db.transaction(['analytics'], 'readwrite');
+          await deleteTx.objectStore('analytics').delete(event.id);
+        }
+      } catch (error) {
+        console.error('Failed to sync analytics event:', error);
+      }
+    }
+  } catch (error) {
+    console.error('Failed to sync offline analytics:', error);
+  }
+}
+
+function openAnalyticsDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('role-analytics', 1);
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+    
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains('analytics')) {
+        db.createObjectStore('analytics', { keyPath: 'id', autoIncrement: true });
+      }
+    };
+  });
+}
+
+function getAllFromStore(store) {
+  return new Promise((resolve, reject) => {
+    const request = store.getAll();
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+  });
 }

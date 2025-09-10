@@ -142,12 +142,44 @@ export const useAnalytics = () => {
   }, [trackEvent]);
 
   // Enhanced tracking methods
-  const trackEventSaved = useCallback((eventId: string, eventName: string, city?: string) => {
-    trackEvent({ eventName: 'event_saved', city, eventData: { event_id: eventId, event_name: eventName } });
+  const trackEventSaved = useCallback((eventId?: string, eventTitle?: string, city?: string) => {
+    trackEvent({ 
+      eventName: 'event_save', 
+      city, 
+      eventData: { event_id: eventId, event_title: eventTitle } 
+    });
   }, [trackEvent]);
 
-  const trackTicketClick = useCallback((eventId: string, eventName: string, city?: string) => {
-    trackEvent({ eventName: 'ticket_clicked', city, eventData: { event_id: eventId, event_name: eventName } });
+  const trackArtistFollowed = useCallback((artistId?: string, artistName?: string, city?: string) => {
+    trackEvent({
+      eventName: 'artist_follow',
+      city,
+      eventData: { artist_id: artistId, artist_name: artistName }
+    });
+  }, [trackEvent]);
+
+  const trackAlertActivated = useCallback((type?: string, targetId?: string, targetName?: string, city?: string) => {
+    trackEvent({
+      eventName: 'alert_activated',
+      city,
+      eventData: { alert_type: type, target_id: targetId, target_name: targetName }
+    });
+  }, [trackEvent]);
+
+  const trackContentShare = useCallback((contentType?: string, contentId?: string, platform?: string, city?: string) => {
+    trackEvent({
+      eventName: 'content_share',
+      city,
+      eventData: { content_type: contentType, content_id: contentId, platform }
+    });
+  }, [trackEvent]);
+
+  const trackTicketClick = useCallback((platform?: string, eventId?: string, city?: string) => {
+    trackEvent({
+      eventName: 'ticket_click',
+      city,
+      eventData: { platform, event_id: eventId }
+    });
   }, [trackEvent]);
 
   return {
@@ -158,6 +190,9 @@ export const useAnalytics = () => {
     trackFormSubmit,
     trackDownload,
     trackEventSaved,
+    trackArtistFollowed,
+    trackAlertActivated,
+    trackContentShare,
     trackTicketClick
   };
 };
