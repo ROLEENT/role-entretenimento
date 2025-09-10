@@ -86,7 +86,7 @@ const EventCategories = () => {
               <Card key={city.name} className="group cursor-pointer hover:shadow-elevated transition-all duration-300">
                 <Link to={city.link} className="block">
                   <div className="relative overflow-hidden rounded-t-lg">
-                    <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium z-10">
+                    <div className="absolute top-3 left-3 bg-background/70 text-foreground px-2 py-1 rounded text-xs font-medium z-10">
                       {city.badge}
                     </div>
                     <img 

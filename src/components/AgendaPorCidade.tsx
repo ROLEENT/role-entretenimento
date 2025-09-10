@@ -43,7 +43,7 @@ const AgendaPorCidade = () => {
       return { 
         label: "Em alta", 
         icon: Zap, 
-        className: "bg-gradient-to-r from-red-600 to-pink-600 text-white border-0 shadow-xl animate-pulse px-4 py-2 text-sm font-bold",
+        className: "bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground border-0 shadow-xl animate-pulse px-4 py-2 text-sm font-bold",
         ariaLabel: "Evento em alta - muito procurado"
       };
     }
@@ -51,7 +51,7 @@ const AgendaPorCidade = () => {
       return { 
         label: "Exclusivo ROLÊ", 
         icon: Crown, 
-        className: "bg-gradient-to-r from-purple-700 to-purple-900 text-white border-0 shadow-xl px-4 py-2 text-sm font-bold",
+        className: "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground border-0 shadow-xl px-4 py-2 text-sm font-bold",
         ariaLabel: "Evento exclusivo da curadoria ROLÊ"
       };
     }
@@ -59,7 +59,7 @@ const AgendaPorCidade = () => {
       return { 
         label: "Recomendado", 
         icon: Star, 
-        className: "bg-gradient-to-r from-amber-600 to-orange-600 text-white border-0 shadow-xl px-4 py-2 text-sm font-bold",
+        className: "bg-gradient-to-r from-accent to-accent/80 text-accent-foreground border-0 shadow-xl px-4 py-2 text-sm font-bold",
         ariaLabel: "Evento recomendado pela curadoria"
       };
     }

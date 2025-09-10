@@ -32,18 +32,18 @@ export const CompactEngagementSystem: React.FC<CompactEngagementSystemProps> = (
       icon: Eye,
       label: 'Tenho Interesse',
       count: interestCount,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50 hover:bg-blue-100',
-      activeColor: 'bg-blue-600 text-white',
+      color: 'text-primary',
+      bgColor: 'bg-primary/10 hover:bg-primary/20',
+      activeColor: 'bg-primary text-primary-foreground',
     },
     {
       type: 'bought_ticket' as EngagementType,
       icon: Ticket,
       label: 'Comprei Ingresso',
       count: ticketCount,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50 hover:bg-green-100',
-      activeColor: 'bg-green-600 text-white',
+      color: 'text-accent',
+      bgColor: 'bg-accent/10 hover:bg-accent/20',
+      activeColor: 'bg-accent text-accent-foreground',
     },
   ];
 
@@ -52,9 +52,9 @@ export const CompactEngagementSystem: React.FC<CompactEngagementSystemProps> = (
     icon: CheckCircle,
     label: 'Vou Comparecer',
     count: attendCount,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-50 hover:bg-purple-100',
-    activeColor: 'bg-purple-600 text-white',
+    color: 'text-secondary-foreground',
+    bgColor: 'bg-secondary hover:bg-secondary/80',
+    activeColor: 'bg-secondary-foreground text-secondary',
   };
 
   if (loading) {
