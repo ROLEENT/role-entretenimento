@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { PlayIcon, ImageIcon } from "lucide-react";
+import { ImageIcon } from "lucide-react";
 import { useProfileMedia } from "../hooks/useProfileMedia";
 import { ProfileContentSkeleton } from "@/components/skeletons/ProfileContentSkeleton";
-import { MediaModal } from "@/components/profiles/MediaModal";
+import { EnhancedGallery } from "@/components/ui/enhanced-gallery";
 
 interface ProfilePortfolioProps {
   profileUserId: string;
@@ -54,58 +53,24 @@ export function ProfilePortfolio({ profileUserId }: ProfilePortfolioProps) {
     );
   }
 
-  return (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {media.map((item, index) => (
-          <Card 
-            key={item.id} 
-            className="overflow-hidden group hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => setSelectedMediaIndex(index)}
-          >
-            <AspectRatio ratio={16 / 9}>
-              <div className="relative w-full h-full">
-                {item.type === 'image' ? (
-                  <img
-                    src={item.url}
-                    alt={item.alt_text || 'Portfolio item'}
-                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="relative w-full h-full">
-                    <video
-                      src={item.url}
-                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                      muted
-                    />
-                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                      <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
-                        <PlayIcon className="w-5 h-5 text-black ml-0.5" />
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {item.caption && (
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-                    <p className="text-white text-sm font-medium">{item.caption}</p>
-                  </div>
-                )}
-              </div>
-            </AspectRatio>
-          </Card>
-        ))}
-      </div>
+  // Convert media to gallery format
+  const galleryImages = media.map(item => ({
+    id: item.id,
+    url: item.url,
+    alt: item.alt_text || 'Portfolio item',
+    caption: item.caption,
+    type: item.type as 'image' | 'video',
+    thumbnail: item.url
+  }));
 
-      {/* Media Modal */}
-      {selectedMediaIndex !== null && (
-        <MediaModal
-          media={media}
-          initialIndex={selectedMediaIndex}
-          isOpen={selectedMediaIndex !== null}
-          onClose={() => setSelectedMediaIndex(null)}
-        />
-      )}
-    </>
+  return (
+    <EnhancedGallery
+      images={galleryImages}
+      variant="hero"
+      columns={3}
+      showCaptions={true}
+      enableLightbox={true}
+      className="w-full"
+    />
   );
 }
