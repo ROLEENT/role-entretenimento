@@ -1,83 +1,47 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { FormShell } from '@/components/form';
-import { Form } from '@/components/ui/form';
-
-import { AdminVenueForm } from '@/components/admin/venues/AdminVenueForm';
-import { venueFlexibleSchema, VenueFlexibleFormData } from '@/schemas/venue-flexible';
+import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
+import { AdminVenueEnhancedForm } from '@/components/admin/forms/AdminVenueEnhancedForm';
+import { VenueEnhancedForm } from '@/schemas/entities/venue-enhanced';
 import { useUpsertVenue } from '@/hooks/useUpsertAgents';
 
 const AdminV3VenueCreate: React.FC = () => {
   const navigate = useNavigate();
-  const upsertVenue = useUpsertVenue();
+  const { mutate: upsertVenue, isPending } = useUpsertVenue();
 
-  const form = useForm<VenueFlexibleFormData>({
-    resolver: zodResolver(venueFlexibleSchema),
-    defaultValues: {
-      name: '',
-      status: 'active',
-      // Complete default values for all boolean fields
-      estruturas: {
-        ar_condicionado: false,
-        wifi: false,
-        aquecimento: false,
-        estacionamento: false,
-        aceita_pets: false,
-        area_fumantes: false,
-        pista_danca: false,
-        area_vip: false,
-        rooftop: false,
-        estacoes_carregamento: false,
-        lugares_sentados: false,
-      },
-      diferenciais: {
-        dj: false,
-        happy_hour: false,
-        mesa_bilhar: false,
-        jogos_arcade: false,
-        karaoke: false,
-        narguile: false,
-        transmissao_eventos_esportivos: false,
-        shows_ao_vivo: false,
-        stand_up: false,
-        musica_ao_vivo: false,
-        amigavel_lgbtqia: false,
-      },
-      bebidas: {
-        menu_cervejas: false,
-        cervejas_artesanais: false,
-        coqueteis_classicos: false,
-        coqueteis_autorais: false,
-        menu_vinhos: false,
-      },
-      cozinha: {
-        serve_comida: false,
-        opcoes_veganas: false,
-        opcoes_vegetarianas: false,
-        opcoes_sem_gluten: false,
-        opcoes_sem_lactose: false,
-        menu_kids: false,
-      },
-      seguranca: {
-        equipe_seguranca: false,
-        bombeiros_local: false,
-        saidas_emergencia_sinalizadas: false,
-      },
-      acessibilidade: {
-        elevador_acesso: false,
-        rampa_cadeirantes: false,
-        banheiro_acessivel: false,
-        cardapio_braille: false,
-        audio_acessivel: false,
-        area_caes_guia: false,
-      },
-      banheiros: {
-        masculinos: 0,
-        femininos: 0,
-        genero_neutro: 0,
-      },
+  const breadcrumbs = [
+    { label: 'Admin', path: '/admin-v3' },
+    { label: 'Agentes', path: '/admin-v3/agentes' },
+    { label: 'Locais', path: '/admin-v3/agentes/venues' },
+    { label: 'Novo Local' },
+  ];
+
+  const handleSubmit = (data: VenueEnhancedForm) => {
+    // Convert to the format expected by the existing hook
+    const mappedData = {
+      name: data.name,
+      city: data.city,
+      state: data.state,
+      country: data.country,
+      about: data.about,
+      email: data.email,
+      phone: data.phone,
+      whatsapp: data.whatsapp,
+      instagram: data.instagram,
+      website: data.website,
+      logo_url: data.logo_url,
+      logo_alt: data.logo_alt,
+      cover_url: data.cover_url,
+      cover_alt: data.cover_alt,
+      status: 'active' as const,
+      tags: data.tags || [],
+      gallery_urls: [],
+      // Map enhanced fields to existing structure
+      address_line: data.address_line,
+      district: data.district,
+      postal_code: data.postal_code,
+      bio_short: data.bio_short,
+      capacity: data.capacity,
       opening_hours: {
         monday: "",
         tuesday: "",
@@ -87,43 +51,32 @@ const AdminV3VenueCreate: React.FC = () => {
         saturday: "",
         sunday: "",
       },
-      caracteristicas_estabelecimento: {},
-      tags: [],
-      gallery_urls: [],
-    },
-  });
+      latitude: data.latitude,
+      longitude: data.longitude,
+    };
 
-  const handleSaveAndExit = async (data: VenueFlexibleFormData) => {
-    try {
-      await upsertVenue.mutateAsync(data);
-      navigate('/admin-v3/agentes/venues');
-    } catch (error) {
-      console.error('Error creating venue:', error);
-    }
+    upsertVenue(mappedData, {
+      onSuccess: (result) => {
+        if (result && result.id) {
+          navigate(`/admin-v3/agentes/venues/${result.id}/edit`);
+        } else {
+          navigate('/admin-v3/agentes/venues');
+        }
+      },
+    });
   };
 
-  const breadcrumbs = [
-    { label: 'Admin', path: '/admin-v3' },
-    { label: 'Agentes', path: '/admin-v3/agentes' },
-    { label: 'Locais', path: '/admin-v3/agentes/venues' },
-    { label: 'Novo Local' },
-  ];
-
   return (
-    <main className="space-y-6">
-      <Form {...form}>
-        <FormShell
-          title="Criar Novo Local"
-          description="Cadastre um novo espaço cultural, casa de shows, bar ou clube"
-          form={form}
-          onSaveAndExit={handleSaveAndExit}
-          backUrl="/admin-v3/agentes/venues"
-          isSubmitting={upsertVenue.isPending}
-        >
-          <AdminVenueForm form={form} />
-        </FormShell>
-      </Form>
-    </main>
+    <AdminPageWrapper
+      title="Novo Local"
+      description="Cadastre um novo espaço cultural, casa de shows, bar ou clube"
+      breadcrumbs={breadcrumbs}
+    >
+      <AdminVenueEnhancedForm
+        onSubmit={handleSubmit}
+        isLoading={isPending}
+      />
+    </AdminPageWrapper>
   );
 };
 
