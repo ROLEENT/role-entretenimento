@@ -7443,7 +7443,7 @@ export type Database = {
         }[]
       }
       get_user_role: {
-        Args: { user_id: string }
+        Args: Record<PropertyKey, never> | { user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
       }
       hard_delete_event: {
@@ -7808,6 +7808,15 @@ export type Database = {
           admin_id: string
           admin_name: string
           valid: boolean
+        }[]
+      }
+      validate_all_security_measures: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          check_type: string
+          details: string
+          severity: string
+          status: string
         }[]
       }
       validate_role_consistency: {
