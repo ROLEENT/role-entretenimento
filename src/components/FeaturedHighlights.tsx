@@ -157,7 +157,7 @@ const FeaturedHighlights = () => {
                       />
                       
                       {/* Enhanced gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-background/20 to-transparent"></div>
                       
                       <div className="absolute top-2 left-3">
                         <Badge className="bg-primary/95 text-primary-foreground text-xs font-medium backdrop-blur-sm shadow-sm">
@@ -167,7 +167,7 @@ const FeaturedHighlights = () => {
                       </div>
                       
                       <div className="absolute top-2 right-3">
-                        <div className="bg-black/80 backdrop-blur-sm rounded-full">
+                        <div className="bg-background/80 backdrop-blur-sm rounded-full">
                           <LikeSystem 
                             entityId={highlight.id} 
                             entityType="highlight" 
@@ -179,7 +179,7 @@ const FeaturedHighlights = () => {
                       
                       {/* Título na parte inferior da imagem */}
                       <div className="absolute bottom-2 left-3 right-3">
-                        <h3 className="font-bold text-white text-sm md:text-base line-clamp-2 drop-shadow-lg">
+                        <h3 className="font-bold text-primary-foreground text-sm md:text-base line-clamp-2 drop-shadow-lg">
                           {highlight.event_title}
                         </h3>
                       </div>

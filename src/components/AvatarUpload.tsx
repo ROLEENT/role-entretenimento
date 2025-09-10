@@ -113,20 +113,20 @@ export const AvatarUpload = ({
             alt={`Avatar de ${userName}`}
             className="object-cover"
           />
-          <AvatarFallback className="text-lg font-bold bg-gradient-primary text-white">
+          <AvatarFallback className="text-lg font-bold bg-gradient-to-r from-primary to-secondary text-primary-foreground">
             {userName.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         
         {/* Overlay com botão de camera */}
         <div 
-          className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer flex items-center justify-center"
+          className="absolute inset-0 bg-background/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer flex items-center justify-center"
           onClick={handleClick}
         >
           {uploading ? (
-            <Loader2 className="w-6 h-6 animate-spin text-white" />
+            <Loader2 className="w-6 h-6 animate-spin text-primary-foreground" />
           ) : (
-            <Camera className="w-6 h-6 text-white" />
+            <Camera className="w-6 h-6 text-primary-foreground" />
           )}
         </div>
       </div>

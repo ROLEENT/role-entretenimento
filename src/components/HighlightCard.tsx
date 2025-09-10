@@ -106,7 +106,7 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
         
         {/* City Badge and Share Button */}
         <div className="absolute top-4 left-4">
-          <Badge variant="secondary" className="bg-white/90 text-foreground">
+          <Badge variant="secondary" className="bg-background/90 text-foreground">
             {formatCity(highlight.city)}
           </Badge>
         </div>
@@ -114,7 +114,7 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
           <Button
             size={isMobile ? "sm" : "sm"}
             variant="secondary"
-            className={`${isMobile ? 'h-10 w-10 p-0' : 'h-8 w-8 p-0'} bg-white/90 hover:bg-white transition-all duration-200 hover:scale-110 group touch-target`}
+            className={`${isMobile ? 'h-10 w-10 p-0' : 'h-8 w-8 p-0'} bg-background/90 hover:bg-background transition-all duration-200 hover:scale-110 group touch-target`}
             onClick={handleShare}
           >
             <Share2 className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-foreground transition-transform duration-200 group-hover:rotate-12`} />
@@ -124,7 +124,7 @@ const HighlightCard = ({ highlight }: HighlightCardProps) => {
         {/* Photo Credit */}
         {highlight.photo_credit && (
           <div className="absolute bottom-2 right-2">
-            <span className="text-xs text-white/80 bg-black/50 px-2 py-1 rounded">
+            <span className="text-xs text-primary-foreground/80 bg-background/50 px-2 py-1 rounded">
               {highlight.photo_credit}
             </span>
           </div>

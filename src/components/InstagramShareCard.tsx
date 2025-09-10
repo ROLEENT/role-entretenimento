@@ -254,13 +254,13 @@ export const InstagramShareCard = ({
   };
 
   return (
-    <Card className="w-full max-w-sm mx-auto bg-gradient-to-br from-gray-900 via-purple-900 to-pink-900 text-white shadow-2xl border-0">
+    <Card className="w-full max-w-sm mx-auto bg-gradient-to-br from-card via-primary/20 to-secondary/20 text-foreground shadow-2xl border-0">
       <CardContent className="p-6">
         {/* Preview */}
         <div className="mb-6">
           <canvas
             ref={canvasRef}
-            className="w-full h-auto rounded-xl shadow-2xl border border-white/10"
+            className="w-full h-auto rounded-xl shadow-2xl border border-border/10"
             style={{ aspectRatio: '9/16', maxHeight: '320px' }}
           />
         </div>
@@ -269,7 +269,7 @@ export const InstagramShareCard = ({
         <div className="space-y-3">
           <Button
             onClick={handleShareInstagram}
-            className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 text-white font-bold py-4 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
+            className="w-full bg-gradient-to-r from-primary via-secondary to-primary hover:from-primary/90 hover:via-secondary/90 hover:to-primary/90 text-primary-foreground font-bold py-4 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
             size="lg"
           >
             <Instagram className="w-5 h-5 mr-3" />
@@ -280,7 +280,7 @@ export const InstagramShareCard = ({
             <Button
               onClick={handleDownloadImage}
               variant="outline"
-              className="flex-1 bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/30 rounded-xl py-3 transition-all duration-200"
+              className="flex-1 bg-background/5 border-border/20 text-foreground hover:bg-background/10 hover:border-border/30 rounded-xl py-3 transition-all duration-200"
             >
               <Download className="w-4 h-4 mr-2" />
               Baixar
@@ -290,7 +290,7 @@ export const InstagramShareCard = ({
               <Button
                 onClick={handleCopyLink}
                 variant="outline"
-                className="flex-1 bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/30 rounded-xl py-3 transition-all duration-200"
+                className="flex-1 bg-background/5 border-border/20 text-foreground hover:bg-background/10 hover:border-border/30 rounded-xl py-3 transition-all duration-200"
               >
                 <Link className="w-4 h-4 mr-2" />
                 Link
@@ -301,14 +301,14 @@ export const InstagramShareCard = ({
 
         {/* Info */}
         <div className="mt-6 text-center space-y-2">
-          <div className="flex items-center justify-center gap-2 text-white/80">
-            <div className="w-2 h-2 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full"></div>
+          <div className="flex items-center justify-center gap-2 text-foreground/80">
+            <div className="w-2 h-2 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
             <p className="text-sm font-medium">
               Otimizado para Instagram Stories
             </p>
-            <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full"></div>
+            <div className="w-2 h-2 bg-gradient-to-r from-secondary to-primary rounded-full"></div>
           </div>
-          <p className="text-white/60 text-xs">
+          <p className="text-muted-foreground text-xs">
             Design inspirado no Spotify • 1080x1920px
           </p>
         </div>
