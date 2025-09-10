@@ -107,14 +107,7 @@ const CityHighlightsPage = lazy(() => import("./pages/CityHighlightsPage"));
 const CityHighlights = lazy(() => import("./pages/CityHighlights"));
 const HighlightDetailPage = lazy(() => import("./pages/HighlightDetailPage"));
 
-// Admin pages - simple system
-const AdminLogin = lazy(() => import("./pages/AdminLogin"));
-const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-// Legacy AdminHighlightForm removed
-
-// Admin V2 pages - advanced system
-const AdminV2Login = lazy(() => import("./pages/AdminV2Login"));
-const AdminV2Dashboard = lazy(() => import("./pages/AdminV2Dashboard"));
+// Admin V3 only - Legacy V1 and V2 removed for security
 
 // Admin V3 pages - simplified system
 const AdminV3Login = lazy(() => import("./pages/admin-v3/login"));
@@ -300,12 +293,7 @@ function App() {
               <Route path="newsletter" element={<NewsletterPage />} />
             </Route>
 
-            {/* Legacy Simple Admin System */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-                
-                {/* Admin V2 System */}
-                <Route path="/admin-v2/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Login /></Suspense>} />
-                <Route path="/admin-v2/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV2Dashboard /></Suspense>} />
+            {/* Legacy Admin V1 and V2 removed - use /admin-v3 instead */}
                 
                 {/* Admin V3 System - Login standalone */}
                 <Route path="/admin-v3/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Login /></Suspense>} />
