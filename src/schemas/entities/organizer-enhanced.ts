@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Enhanced organizer schema with dynamic fields based on type
+// FASE 3: Schema corrigido - alinhado com colunas reais da tabela organizers
 export const organizerEnhancedSchema = z.object({
   id: z.string().uuid().optional(),
   
@@ -16,21 +16,21 @@ export const organizerEnhancedSchema = z.object({
   state: z.string().optional(),
   country: z.string().default('Brasil'),
   
-  // Description - Required manifesto/bio
-  manifesto: z.string().min(50, "Manifesto deve ter pelo menos 50 caracteres").max(1000, "Manifesto muito longo"),
-  bio_short: z.string().min(20, "Bio deve ter pelo menos 20 caracteres").max(500, "Bio muito longa"),
+  // Description - Manifesto/bio mais flexível
+  manifesto: z.string().min(10, "Manifesto deve ter pelo menos 10 caracteres").max(1000, "Manifesto muito longo").optional(),
+  bio_short: z.string().min(10, "Bio deve ter pelo menos 10 caracteres").max(500, "Bio muito longa").optional(),
   about: z.string().max(3000, "Sobre muito extenso").optional(),
   
-  // Contact - Required
+  // Contact - Email obrigatório, outros opcionais
   email: z.string().email("Email inválido").min(1, "Email é obrigatório"),
   phone: z.string().optional(),
-  whatsapp: z.string().min(1, "WhatsApp é obrigatório"),
-  instagram: z.string().min(1, "Instagram é obrigatório"),
+  whatsapp: z.string().optional(),
+  instagram: z.string().optional(),
   website: z.string().url("URL inválida").optional().or(z.literal('')),
   
-  // Media - Required main image
-  logo_url: z.string().url("URL da logo inválida"),
-  logo_alt: z.string().min(5, "Descrição da logo é obrigatória"),
+  // Media - Logo opcional
+  logo_url: z.string().url("URL da logo inválida").optional(),
+  logo_alt: z.string().optional(),
   cover_url: z.string().url("URL inválida").optional(),
   cover_alt: z.string().optional(),
   gallery: z.array(z.object({

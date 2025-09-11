@@ -5,14 +5,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
 import { AdminOrganizerEnhancedForm } from '@/components/admin/forms/AdminOrganizerEnhancedForm';
 import { organizerEnhancedSchema, OrganizerEnhancedForm } from '@/schemas/entities/organizer-enhanced';
-import { useUpsertOrganizerEnhanced } from '@/hooks/useUpsertEnhanced';
+import { useUpsertOrganizerFixed } from '@/hooks/useUpsertOrganizerFixed';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ProfileGenerationButton } from '@/components/admin/agents/ProfileGenerationButton';
 
 const AdminV3OrganizerEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { mutate: upsertOrganizer, isPending } = useUpsertOrganizerEnhanced();
+  const { mutate: upsertOrganizer, isPending } = useUpsertOrganizerFixed();
 
   const { data: organizer, isLoading, error } = useQuery({
     queryKey: ['organizer', id],
