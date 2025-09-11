@@ -2,15 +2,28 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { OrganizerEnhancedForm } from "@/schemas/entities/organizer-enhanced";
+import { useAdminSession } from "@/hooks/useAdminSession";
+import { createAdminClient } from "@/lib/adminClient";
 
-// FASE 2: Hook refatorado com logs detalhados e mapper correto
+// FASE 2: Hook refatorado com logs detalhados e mapper correto + autenticação admin real
 export const useUpsertOrganizerFixed = () => {
   const queryClient = useQueryClient();
+  const { adminEmail, isAdmin, isLoading } = useAdminSession();
 
   return useMutation({
     mutationFn: async (data: OrganizerEnhancedForm) => {
       console.log("=== UPSERT ORGANIZER DEBUG START ===");
       console.log("1. Raw form data received:", JSON.stringify(data, null, 2));
+      console.log("2. Admin session:", { adminEmail, isAdmin, isLoading });
+
+      // Verificar autenticação admin
+      if (isLoading) {
+        throw new Error("Verificando permissões de administrador...");
+      }
+
+      if (!isAdmin || !adminEmail) {
+        throw new Error("Acesso negado: você precisa estar logado como administrador");
+      }
 
       // Generate slug if not provided
       const generateSlug = (text: string) => {
@@ -85,38 +98,22 @@ export const useUpsertOrganizerFixed = () => {
 
       console.log("3. Mapped organizer data:", JSON.stringify(organizerData, null, 2));
 
-      // FASE 2: Configurar headers de admin para RLS
-      const headers: Record<string, string> = {};
-      
-      // Tentar obter email de admin do contexto (seria implementado no adminClient)
-      const adminEmail = 'admin@system.local'; // Placeholder - seria dinâmico
-      if (adminEmail) {
-        headers['x-admin-email'] = adminEmail;
-        console.log("4. Using admin headers:", headers);
-      }
-
       try {
-        console.log("5. Attempting upsert to organizers table...");
+        console.log("4. Creating admin client...");
         
-        const { data: result, error } = await supabase
-          .from("organizers")
-          .upsert(organizerData, { 
-            onConflict: data.id ? "id" : "slug",
-            ignoreDuplicates: false 
-          })
-          .select("*")
-          .single();
-
-        if (error) {
-          console.error("6. UPSERT ERROR:");
-          console.error("   - Error code:", error.code);
-          console.error("   - Error message:", error.message);
-          console.error("   - Error details:", error.details);
-          console.error("   - Error hint:", error.hint);
-          console.error("   - Sent payload:", JSON.stringify(organizerData, null, 2));
-          
-          throw new Error(`Erro ao salvar organizador: ${error.message}`);
-        }
+        // Usar o adminClient que já configura headers automaticamente
+        const adminClient = await createAdminClient();
+        console.log("5. Admin client created, admin email:", adminClient.adminEmail);
+        
+        console.log("6. Attempting upsert to organizers table via admin REST API...");
+        
+        const result = await adminClient.restCall('organizers', {
+          method: 'POST',
+          body: JSON.stringify(organizerData),
+          headers: {
+            'Prefer': 'return=representation,resolution=merge-duplicates'
+          }
+        });
 
         console.log("7. SUCCESS - Organizer saved:", result);
         console.log("=== UPSERT ORGANIZER DEBUG END ===");
