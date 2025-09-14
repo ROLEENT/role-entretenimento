@@ -1,48 +1,31 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
-import { AdminOrganizerEnhancedForm } from '@/components/admin/forms/AdminOrganizerEnhancedForm';
-import { OrganizerEnhancedForm } from '@/schemas/entities/organizer-enhanced';
-import { useUpsertOrganizerFixed } from '@/hooks/useUpsertOrganizerFixed';
+import { AdminV3Guard } from '@/components/AdminV3Guard';
+import { AdminV3Header } from '@/components/AdminV3Header';
+import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
+import { OrganizerFormV5 } from '@/components/v5/forms/OrganizerFormV5';
 
-const AdminV3OrganizerCreate: React.FC = () => {
+export default function AdminV3OrganizerCreate() {
   const navigate = useNavigate();
-  const { mutate: upsertOrganizer, isPending } = useUpsertOrganizerFixed();
 
-  const breadcrumbs = [
-    { label: 'Admin', path: '/admin-v3' },
-    { label: 'Agentes', path: '/admin-v3/agentes' },
-    { label: 'Organizadores', path: '/admin-v3/agentes/organizadores' },
-    { label: 'Novo Organizador' },
-  ];
-
-  const handleSubmit = (data: OrganizerEnhancedForm) => {
-    console.log("AdminV3OrganizerCreate - handleSubmit called with:", data);
-    
-    upsertOrganizer(data, {
-      onSuccess: (result) => {
-        console.log("AdminV3OrganizerCreate - onSuccess:", result);
-        if (result && result.id) {
-          navigate(`/admin-v3/agentes/organizadores/${result.id}/edit`);
-        } else {
-          navigate('/admin-v3/agentes/organizadores');
-        }
-      },
-    });
+  const handleSuccess = (data: any) => {
+    navigate(`/admin-v3/organizadores/${data.id}`);
   };
 
   return (
-    <AdminPageWrapper
-      title="Novo Organizador"
-      description="Cadastre um novo organizador no sistema"
-      breadcrumbs={breadcrumbs}
-    >
-      <AdminOrganizerEnhancedForm
-        onSubmit={handleSubmit}
-        isLoading={isPending}
-      />
-    </AdminPageWrapper>
-  );
-};
+    <AdminV3Guard>
+      <AdminV3Header />
+      <div className="container mx-auto py-6">
+        <AdminV3Breadcrumb
+          items={[
+            { label: 'Dashboard', path: '/admin-v3' },
+            { label: 'Organizadores', path: '/admin-v3/organizadores' },
+            { label: 'Novo Organizador' },
+          ]}
+        />
 
-export default AdminV3OrganizerCreate;
+        <OrganizerFormV5 onSuccess={handleSuccess} backUrl="/admin-v3/organizadores" />
+      </div>
+    </AdminV3Guard>
+  );
+}

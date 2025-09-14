@@ -2,130 +2,53 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
-import { AdminOrganizerEnhancedForm } from '@/components/admin/forms/AdminOrganizerEnhancedForm';
-import { organizerEnhancedSchema, OrganizerEnhancedForm } from '@/schemas/entities/organizer-enhanced';
-import { useUpsertOrganizerFixed } from '@/hooks/useUpsertOrganizerFixed';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { ProfileGenerationButton } from '@/components/admin/agents/ProfileGenerationButton';
+import { AdminV3Guard } from '@/components/AdminV3Guard';
+import { AdminV3Header } from '@/components/AdminV3Header';
+import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
+import { OrganizerFormV5 } from '@/components/v5/forms/OrganizerFormV5';
 
-const AdminV3OrganizerEdit: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+export default function AdminV3OrganizerEdit() {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const { mutate: upsertOrganizer, isPending } = useUpsertOrganizerFixed();
+  const isEditing = id !== 'novo';
 
-  const { data: organizer, isLoading, error } = useQuery({
+  const { data: organizer, isLoading } = useQuery({
     queryKey: ['organizer', id],
     queryFn: async () => {
-      if (!id) throw new Error('ID do organizador não fornecido');
-      
+      if (!isEditing) return null;
       const { data, error } = await supabase
         .from('organizers')
         .select('*')
         .eq('id', id)
         .single();
-
       if (error) throw error;
       return data;
     },
-    enabled: !!id,
+    enabled: isEditing,
   });
 
-  const breadcrumbs = [
-    { label: 'Admin', path: '/admin-v3' },
-    { label: 'Agentes', path: '/admin-v3/agentes' },
-    { label: 'Organizadores', path: '/admin-v3/agentes/organizadores' },
-    { label: organizer?.name || 'Editar Organizador' },
-  ];
-
-  const handleSubmit = (data: OrganizerEnhancedForm) => {
-    if (!id) return;
-    
-    upsertOrganizer({ ...data, id }, {
-      onSuccess: () => {
-        navigate('/admin-v3/agentes/organizadores');
-      },
-    });
+  const handleSuccess = () => {
+    navigate('/admin-v3/organizadores');
   };
 
-  if (isLoading) {
-    return (
-      <AdminPageWrapper
-        title="Carregando..."
-        description="Carregando dados do organizador"
-        breadcrumbs={breadcrumbs}
-      >
-        <div className="flex justify-center py-8">
-          <LoadingSpinner />
-        </div>
-      </AdminPageWrapper>
-    );
-  }
-
-  if (error) {
-    return (
-      <AdminPageWrapper
-        title="Erro"
-        description="Erro ao carregar organizador"
-        breadcrumbs={breadcrumbs}
-      >
-        <div className="text-center py-8">
-          <p className="text-destructive">
-            Erro ao carregar organizador: {error.message}
-          </p>
-        </div>
-      </AdminPageWrapper>
-    );
-  }
-
-  if (!organizer) {
-    return (
-      <AdminPageWrapper
-        title="Organizador não encontrado"
-        description="O organizador solicitado não foi encontrado"
-        breadcrumbs={breadcrumbs}
-      >
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">Organizador não encontrado.</p>
-        </div>
-      </AdminPageWrapper>
-    );
+  if (isEditing && isLoading) {
+    return <div>Carregando...</div>;
   }
 
   return (
-    <AdminPageWrapper
-      title={`Editar: ${organizer.name}`}
-      description="Atualize as informações do organizador"
-      breadcrumbs={breadcrumbs}
-      headerExtra={
-        <ProfileGenerationButton
-          agentData={{
-            id: organizer.id,
-            name: organizer.name,
-            slug: organizer.slug,
-            city: organizer.city,
-            state: organizer.state,
-            country: organizer.country,
-            bio_short: organizer.bio_short,
-            bio: organizer.bio,
-            avatar_url: organizer.avatar_url,
-            cover_url: organizer.cover_url,
-            tags: organizer.tags,
-            instagram: organizer.instagram,
-            website: organizer.site,
-            contact_email: organizer.contact_email,
-          }}
-          agentType="organizador"
+    <AdminV3Guard>
+      <AdminV3Header />
+      <div className="container mx-auto py-6">
+        <AdminV3Breadcrumb
+          items={[
+            { label: 'Dashboard', path: '/admin-v3' },
+            { label: 'Organizadores', path: '/admin-v3/organizadores' },
+            { label: isEditing ? 'Editar Organizador' : 'Novo Organizador' },
+          ]}
         />
-      }
-    >
-      <AdminOrganizerEnhancedForm
-        organizer={organizer}
-        onSubmit={handleSubmit}
-        isLoading={isPending}
-      />
-    </AdminPageWrapper>
-  );
-};
 
-export default AdminV3OrganizerEdit;
+        <OrganizerFormV5 initialData={organizer || undefined} onSuccess={handleSuccess} backUrl="/admin-v3/organizadores" />
+      </div>
+    </AdminV3Guard>
+  );
+}

@@ -4,3 +4,6 @@ export { RHFTextarea } from './RHFTextarea';
 export { RHFSlug } from './RHFSlug';
 export { RHFImageUpload } from './RHFImageUpload';
 export { FormShellV5 } from './FormShellV5';
+export { ArtistFormV5 } from './ArtistFormV5';
+export { OrganizerFormV5 } from './OrganizerFormV5';
+export { VenueFormV5 } from './VenueFormV5';

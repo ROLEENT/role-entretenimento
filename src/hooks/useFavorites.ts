@@ -29,14 +29,14 @@ export const useFavorites = () => {
 
     try {
       const data = await favoriteService.getFavorites(user.id);
-      const formattedFavorites = data.map(event => ({
+      const formattedFavorites = data.map((event: any) => ({
         id: event.id,
         title: event.title,
         category: event.categories?.[0]?.category?.name || 'Evento',
         city: event.city,
-        date: event.date_start,
-        image: event.image_url,
-        price: event.price_min || 0,
+        date: event.start_utc || event.date_start,
+        image: event.cover_url || event.image_url,
+        price: event.price_from ?? event.price_min ?? 0,
         description: event.description
       }));
       setFavorites(formattedFavorites);
