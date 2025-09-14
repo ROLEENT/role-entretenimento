@@ -5,8 +5,12 @@ import { AdminV3Header } from '@/components/AdminV3Header';
 import { AdminV3Breadcrumb } from '@/components/AdminV3Breadcrumb';
 import { ArtistFormV5 } from '@/components/v5/forms/ArtistFormV5';
 
-export default function AdminV3ArtistCreate() {
+export default function AdminV3ArtistCreateV5() {
   const navigate = useNavigate();
+
+  const handleSuccess = (data: any) => {
+    navigate(`/admin-v3/artistas/${data.id}`);
+  };
 
   return (
     <AdminV3Guard>
@@ -19,7 +23,11 @@ export default function AdminV3ArtistCreate() {
             { label: "Novo Artista" },
           ]}
         />
-        <ArtistFormV5 backUrl="/admin-v3/artistas" />
+
+        <ArtistFormV5
+          onSuccess={handleSuccess}
+          backUrl="/admin-v3/artistas"
+        />
       </div>
     </AdminV3Guard>
   );
