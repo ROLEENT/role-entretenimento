@@ -175,6 +175,7 @@ const Fase5DemoPage = lazy(() => import("./pages/Fase5DemoPage"));
 
 // V5 Pages - New form system
 const TestQuickCreateV5 = lazy(() => import("./pages/TestQuickCreateV5"));
+const TestValidationV5 = lazy(() => import("./pages/TestValidationV5"));
 const ArtistEditPage = lazy(() => import("./pages/ArtistEditPage"));
 const EventEditPageV5 = lazy(() => import("./pages/EventEditPageV5"));
 
@@ -280,6 +281,7 @@ function App() {
                 <Route path="/test/curation" element={<CurationTestPage />} />
                 <Route path="/test/drawer" element={<CurationDrawerTest />} />
                 <Route path="/test/quick-create-v5" element={<TestQuickCreateV5 />} />
+                <Route path="/test/validation-v5" element={<TestValidationV5 />} />
                 <Route path="/test" element={<TestPage />} />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/debug/combo" element={<DebugCombo />} />
