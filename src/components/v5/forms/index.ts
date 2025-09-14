@@ -9,9 +9,15 @@ export { RHFDateTimeUTC } from './RHFDateTimeUTC';
 export { RHFChips } from './RHFChips';
 export { RHFComboboxAsync } from './RHFComboboxAsync';
 export { EventSelectAsync } from './EventSelectAsync';
+export { ArtistSelectAsync } from './ArtistSelectAsync';
+export { VenueSelectAsync } from './VenueSelectAsync';
+export { OrganizerSelectAsync } from './OrganizerSelectAsync';
 export { FormShellV5 } from './FormShellV5';
 export { ArtistFormV5 } from './ArtistFormV5';
 export { OrganizerFormV5 } from './OrganizerFormV5';
 export { VenueFormV5 } from './VenueFormV5';
 export { MagazineFormV5 } from './MagazineFormV5';
 export { EventFormV5 } from './EventFormV5';
+
+// V5 Modals
+export { QuickCreateModalV5 } from '../modals/QuickCreateModalV5';

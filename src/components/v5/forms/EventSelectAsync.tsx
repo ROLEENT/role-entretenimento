@@ -1,4 +1,4 @@
-import { RHFComboboxAsync } from "@/components/rhf/RHFComboboxAsync";
+import { RHFComboboxAsync } from "@/components/v5/forms/RHFComboboxAsync";
 import { supabase } from "@/integrations/supabase/client";
 import { ComboboxAsyncOption } from "@/components/ui/combobox-async";
 

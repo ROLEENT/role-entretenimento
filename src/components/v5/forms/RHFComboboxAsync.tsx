@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useFormContext, Controller } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { ComboboxAsync, ComboboxAsyncOption } from '@/components/ui/combobox-async';
+import { QuickCreateModalV5 } from '@/components/v5/modals/QuickCreateModalV5';
 
 interface RHFComboboxAsyncProps {
   name: string;
@@ -17,6 +18,9 @@ interface RHFComboboxAsyncProps {
   onSearch: (query: string) => Promise<ComboboxAsyncOption[]>;
   onCreateNew?: () => void;
   onCreated?: (newOption: ComboboxAsyncOption) => void;
+  // V5 Quick Create Integration
+  quickCreateType?: 'artist' | 'venue' | 'organizer';
+  enableQuickCreate?: boolean;
 }
 
 export function RHFComboboxAsync({
@@ -33,6 +37,8 @@ export function RHFComboboxAsync({
   onSearch,
   onCreateNew,
   onCreated,
+  quickCreateType,
+  enableQuickCreate = false,
 }: RHFComboboxAsyncProps) {
   const {
     control,
@@ -41,13 +47,23 @@ export function RHFComboboxAsync({
 
   const fieldError = errors[name];
   const [selectedOption, setSelectedOption] = useState<ComboboxAsyncOption | null>(null);
+  const [quickCreateOpen, setQuickCreateOpen] = useState(false);
 
   const handleValueChange = (newValue: string | undefined, onChange: (value: any) => void, currentValue: any) => {
     onChange(newValue);
   };
 
   const handleCreateNew = () => {
-    onCreateNew?.();
+    if (enableQuickCreate && quickCreateType) {
+      setQuickCreateOpen(true);
+    } else {
+      onCreateNew?.();
+    }
+  };
+
+  const handleQuickCreateSuccess = (newOption: ComboboxAsyncOption) => {
+    setSelectedOption(newOption);
+    onCreated?.(newOption);
   };
 
   return (
@@ -116,6 +132,16 @@ export function RHFComboboxAsync({
         <p className="text-sm text-destructive" role="alert">
           {fieldError.message as string}
         </p>
+      )}
+
+      {/* Quick Create Modal */}
+      {enableQuickCreate && quickCreateType && (
+        <QuickCreateModalV5
+          open={quickCreateOpen}
+          onOpenChange={setQuickCreateOpen}
+          agentType={quickCreateType}
+          onCreated={handleQuickCreateSuccess}
+        />
       )}
     </div>
   );
