@@ -86,6 +86,7 @@ const AdminV3GestaoNotificacoesPage = lazy(() => import("./pages/admin-v3/gestao
 const AnalyticsPage = lazy(() => import("./pages/admin-v3/gestao/AnalyticsPage"));
 const BackupRestorePage = lazy(() => import("./pages/admin-v3/gestao/BackupRestorePage"));
 const SecurityPage = lazy(() => import("./pages/admin-v3/gestao/security"));
+const V5MigrationPage = lazy(() => import("./components/admin/analytics/V5MigrationDashboard").then(module => ({ default: module.V5MigrationDashboard })));
 
 
 const OrganizerTerms = lazy(() => import("./pages/OrganizerTerms"));
@@ -404,6 +405,7 @@ function App() {
                   <Route path="gestao/analytics" element={<Suspense fallback={<AdminLoadingFallback />}><AnalyticsPage /></Suspense>} />
                   <Route path="gestao/backup" element={<Suspense fallback={<AdminLoadingFallback />}><BackupRestorePage /></Suspense>} />
                   <Route path="gestao/security" element={<Suspense fallback={<AdminLoadingFallback />}><SecurityPage /></Suspense>} />
+                  <Route path="gestao/migration-v5" element={<Suspense fallback={<AdminLoadingFallback />}><V5MigrationPage /></Suspense>} />
                   <Route path="destaques" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
                   <Route path="destaques/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
                   

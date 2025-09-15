@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Activity, Bell, BarChart3, Database, Settings, Users, Calendar, Eye } from "lucide-react";
+import { Activity, Bell, BarChart3, Database, Settings, Users, Calendar, Eye, Sparkles } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 export default function GestaoPage() {
@@ -32,6 +32,13 @@ export default function GestaoPage() {
       description: "Gerencie backups e restauração do banco de dados",
       icon: Database,
       color: "text-red-600"
+    },
+    {
+      href: "/admin-v3/gestao/migration-v5",
+      title: "Migração V5",
+      description: "Dashboard de analytics da migração V4 → V5",
+      icon: Sparkles,
+      color: "text-yellow-600"
     }
   ];
 

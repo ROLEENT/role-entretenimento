@@ -26,6 +26,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Home, Settings, LogOut, ChevronRight } from 'lucide-react';
+import { V5QuickToggle } from './common/V5QuickToggle';
 
 interface UserProfile {
   email: string;
@@ -269,6 +270,9 @@ export function AdminV3LayoutHeader() {
 
         {/* Right side */}
         <div className="flex items-center gap-3">
+          {/* V5 Quick Toggle */}
+          <V5QuickToggle />
+          
           {/* User menu */}
           {loading ? (
             <Skeleton className="h-8 w-8 rounded-full" />
