@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, MapPin, Sparkles } from 'lucide-react';
+import { Plus, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
@@ -41,25 +40,16 @@ const AdminV3VenuesList: React.FC = () => {
     { label: 'Locais' },
   ];
 
-   const actions = (
-     <div className="flex gap-2">
-       <Button asChild>
-         <Link to="/admin-v3/agentes/venues/create">
-           <Plus className="h-4 w-4 mr-2" />
-           Novo Local
-         </Link>
-       </Button>
-       <Button asChild variant="outline" className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
-         <Link to="/admin-v3/venues-v5/novo">
-           <Sparkles className="h-4 w-4 mr-2" />
-           <div className="flex items-center gap-2">
-             Local V5
-             <Badge variant="secondary" className="text-xs">NOVO</Badge>
-           </div>
-         </Link>
-       </Button>
-     </div>
-   );
+    const actions = (
+      <div className="flex gap-2">
+        <Button asChild>
+          <Link to="/admin-v3/agentes/venues/novo">
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Local
+          </Link>
+        </Button>
+      </div>
+    );
 
   const handleDuplicate = (venueId: string) => {
     duplicateVenue(venueId);

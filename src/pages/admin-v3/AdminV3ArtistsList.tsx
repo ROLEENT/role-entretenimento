@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Sparkles } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
 import { AdminArtistFilters } from '@/components/admin/agents/AdminArtistFilters';
@@ -38,21 +37,12 @@ const AdminV3ArtistsList: React.FC = () => {
    const actions = (
      <div className="flex gap-2">
        <ImageRecoveryButton />
-       <Button asChild>
-         <Link to="/admin-v3/agentes/artistas/create">
-           <Plus className="h-4 w-4 mr-2" />
-           Novo Artista
-         </Link>
-       </Button>
-       <Button asChild variant="outline" className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
-         <Link to="/admin-v3/artistas-v5/novo">
-           <Sparkles className="h-4 w-4 mr-2" />
-           <div className="flex items-center gap-2">
-             Artista V5
-             <Badge variant="secondary" className="text-xs">NOVO</Badge>
-           </div>
-         </Link>
-       </Button>
+        <Button asChild>
+          <Link to="/admin-v3/agentes/artistas/novo">
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Artista
+          </Link>
+        </Button>
      </div>
    );
 
@@ -137,21 +127,12 @@ const AdminV3ArtistsList: React.FC = () => {
                   : 'Comece cadastrando seu primeiro artista.'}
               </p>
                <div className="flex gap-2">
-                 <Button asChild>
-                   <Link to="/admin-v3/agentes/artistas/create">
-                     <Plus className="h-4 w-4 mr-2" />
-                     Cadastrar Primeiro Artista
-                   </Link>
-                 </Button>
-                 <Button asChild variant="outline" className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
-                   <Link to="/admin-v3/artistas-v5/novo">
-                     <Sparkles className="h-4 w-4 mr-2" />
-                     <div className="flex items-center gap-2">
-                       Artista V5
-                       <Badge variant="secondary" className="text-xs">NOVO</Badge>
-                     </div>
-                   </Link>
-                 </Button>
+                  <Button asChild>
+                    <Link to="/admin-v3/agentes/artistas/novo">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Cadastrar Primeiro Artista
+                    </Link>
+                  </Button>
                </div>
             </div>
           )}

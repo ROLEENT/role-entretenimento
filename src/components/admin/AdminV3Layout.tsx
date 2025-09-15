@@ -4,12 +4,8 @@ import AdminProviders from './AdminProviders';
 import { AdminSidebar } from './AdminSidebar';
 import { AdminV3LayoutHeader } from './AdminV3LayoutHeader';
 import { SidebarInset } from "@/components/ui/sidebar";
-import { V5VersionChoiceModal } from './v5/V5VersionChoiceModal';
-import { useV5Preferences } from '@/hooks/useV5Preferences';
 
 export function AdminV3Layout() {
-  const { shouldShowChoiceModal, markChoiceModalShown } = useV5Preferences();
-
   return (
     <AdminV3Guard>
       <AdminProviders>
@@ -22,12 +18,6 @@ export function AdminV3Layout() {
             </main>
           </SidebarInset>
         </div>
-        
-        {/* V5 Version Choice Modal */}
-        <V5VersionChoiceModal 
-          isOpen={shouldShowChoiceModal()} 
-          onClose={markChoiceModalShown}
-        />
       </AdminProviders>
     </AdminV3Guard>
   );

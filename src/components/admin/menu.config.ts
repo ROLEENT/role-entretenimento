@@ -25,20 +25,8 @@ export const MENUS = {
     { 
       href: "/admin-v3/agentes/venues", 
       title: "Locais", 
-      description: "em desenvolvimento",
+      description: "listagem",
       icon: MapPin
-    },
-    { 
-      href: "/admin-v3/agentes/artistas/criar", 
-      title: "Novo artista", 
-      description: "cadastro",
-      icon: UserPlus
-    },
-    { 
-      href: "/admin-v3/agentes/organizadores/create-v2", 
-      title: "Novo organizador", 
-      description: "cadastro",
-      icon: UserPlus
     },
   ],
   revista: [

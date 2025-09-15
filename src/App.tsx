@@ -113,8 +113,6 @@ const AdminV3Dashboard = lazy(() => import("./pages/AdminV3Dashboard"));
 const AdminV3Debug = lazy(() => import("./pages/AdminV3Debug"));
 // Eventos V3 - Nova Estrutura
 const AdminV3EventsDashboard = lazy(() => import("./pages/admin-v3/AdminV3EventsDashboard"));
-const AdminV3EventsCreateEdit = lazy(() => import("./pages/admin-v3/AdminV3EventsCreateEdit"));
-const AdminV3EventCreate = lazy(() => import("./pages/admin-v3/AdminV3EventCreate"));
 
 
 const DevAuth = lazy(() => import("./pages/DevAuth"));
@@ -331,22 +329,15 @@ function App() {
                   <Route path="debug" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Debug /></Suspense>} />
                   <Route path="phase2" element={<Suspense fallback={<AdminLoadingFallback />}><Phase2Dashboard /></Suspense>} />
                   
-                   {/* Agenda Routes */}
-                   <Route path="agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaListNew /></Suspense>} />
-                   <Route path="agenda/criar" element={<Navigate to="/admin-v3/eventos/criar?from=agenda" replace />} />
-                  <Route path="agenda/:id/editar" element={<Navigate to="/admin-v3/eventos/:id" replace />} />
-                  <Route path="agenda/rascunhos" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Rascunhos da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Salvar eventos como rascunho', 'Revisar antes de publicar', 'Agendamento de publicação']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Rascunhos'}]} /></Suspense>} />
-                  <Route path="agenda/configuracoes" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Configurações da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Configurações gerais', 'Integração com APIs', 'Notificações automáticas']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Configurações'}]} /></Suspense>} />
-                  
-                  {/* Eventos Routes - Nova Estrutura */}
-                  <Route path="eventos" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3EventsDashboard /></Suspense>} />
-                   <Route path="eventos/novo" element={<Suspense fallback={<AdminLoadingFallback />}><EventEditPageV5 /></Suspense>} />
-                   <Route path="eventos/:id" element={<Suspense fallback={<AdminLoadingFallback />}><EventEditPageV5 /></Suspense>} />
-                  
-                  {/* Legacy Routes - Redirecionamentos */}
-                  <Route path="agenda/eventos" element={<Navigate to="/admin-v3/eventos" replace />} />
-                  <Route path="agenda/eventos/criar" element={<Navigate to="/admin-v3/eventos/criar" replace />} />
-                  <Route path="agenda/eventos/:id/editar" element={<Navigate to="/admin-v3/eventos/$1/editar" replace />} />
+                   {/* Agenda Routes - Unified with Eventos */}
+                   <Route path="agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3EventsDashboard /></Suspense>} />
+                   <Route path="agenda/novo" element={<Suspense fallback={<AdminLoadingFallback />}><EventEditPageV5 /></Suspense>} />
+                   <Route path="agenda/:id" element={<Suspense fallback={<AdminLoadingFallback />}><EventEditPageV5 /></Suspense>} />
+                   
+                   {/* Eventos Routes - Redirect to Agenda */}
+                   <Route path="eventos" element={<Navigate to="/admin-v3/agenda" replace />} />
+                   <Route path="eventos/novo" element={<Navigate to="/admin-v3/agenda/novo" replace />} />
+                   <Route path="eventos/:id" element={<Navigate to="/admin-v3/agenda/:id" replace />} />
                   
                   {/* Agentes Routes */}
                   <Route path="agentes/artistas" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsList /></Suspense>} />

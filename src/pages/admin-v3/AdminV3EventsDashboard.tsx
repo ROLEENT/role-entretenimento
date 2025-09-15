@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Plus, Search, Filter, Calendar, Users, TrendingUp, Grid3X3, List, Sparkles } from "lucide-react";
+import { Plus, Search, Filter, Calendar, Users, TrendingUp, Grid3X3, List } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -83,7 +83,7 @@ export default function AdminV3EventsDashboard() {
   });
 
   const handleEventClick = (event: any) => {
-    navigate(`/admin-v3/eventos/${event.id}/editar`);
+    navigate(`/admin-v3/agenda/${event.id}`);
   };
 
   const handleFilterChange = (key: string, value: string) => {
@@ -113,22 +113,11 @@ export default function AdminV3EventsDashboard() {
             </div>
              <div className="flex gap-2">
                <Button 
-                 onClick={() => navigate("/admin-v3/eventos/criar")}
+                 onClick={() => navigate("/admin-v3/agenda/novo")}
                  className="gap-2"
                >
                  <Plus className="h-4 w-4" />
                  Novo Evento
-               </Button>
-               <Button 
-                 onClick={() => navigate("/admin-v3/eventos-v5/novo")}
-                 variant="outline"
-                 className="gap-2 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20"
-               >
-                 <Sparkles className="h-4 w-4" />
-                 <div className="flex items-center gap-2">
-                   Evento V5
-                   <Badge variant="secondary" className="text-xs">NOVO</Badge>
-                 </div>
                </Button>
              </div>
           </div>
@@ -291,16 +280,16 @@ export default function AdminV3EventsDashboard() {
                       />
 
                       {events.length === 0 && !isLoading && (
-                        <div className="text-center py-12">
-                          <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                          <h3 className="text-lg font-medium mb-2">Nenhum evento encontrado</h3>
-                          <p className="text-muted-foreground mb-4">
-                            Comece criando seu primeiro evento com o novo sistema.
-                          </p>
-                          <Button onClick={() => navigate("/admin-v3/eventos/criar")}>
-                            Criar Primeiro Evento
-                          </Button>
-                        </div>
+                         <div className="text-center py-12">
+                           <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                           <h3 className="text-lg font-medium mb-2">Nenhum evento encontrado</h3>
+                           <p className="text-muted-foreground mb-4">
+                             Comece criando seu primeiro evento.
+                           </p>
+                           <Button onClick={() => navigate("/admin-v3/agenda/novo")}>
+                             Criar Primeiro Evento
+                           </Button>
+                         </div>
                       )}
                     </>
                    ) : (
@@ -338,45 +327,34 @@ export default function AdminV3EventsDashboard() {
                    </Button>
                    <Button 
                      variant="outline" 
-                     className="w-full justify-start bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20"
-                     onClick={() => navigate("/admin-v3/eventos-v5/novo")}
+                     className="w-full justify-start"
+                     onClick={() => navigate("/admin-v3/agentes/venues")}
                    >
-                     <Sparkles className="h-4 w-4 mr-2" />
-                     <div className="flex items-center gap-2">
-                       Novo Evento V5
-                       <Badge variant="secondary" className="text-xs">NOVO</Badge>
-                     </div>
+                     <Users className="h-4 w-4 mr-2" />
+                     Gerenciar Locais
                    </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start"
-                    onClick={() => navigate("/admin-v3/agenda")}
-                  >
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Ver Agenda Legacy
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start"
-                    onClick={() => navigate("/admin-v3/venues")}
-                  >
-                    <Users className="h-4 w-4 mr-2" />
-                    Gerenciar Venues
-                  </Button>
+                   <Button 
+                     variant="outline" 
+                     className="w-full justify-start"
+                     onClick={() => navigate("/admin-v3/agentes/artistas")}
+                   >
+                     <Users className="h-4 w-4 mr-2" />
+                     Gerenciar Artistas
+                   </Button>
                 </CardContent>
               </Card>
 
-              {/* Latest Event Checklist */}
-              {events.length > 0 && (
-                <ChecklistWidget
-                  eventData={events[0]}
-                  onItemClick={(itemId) => {
-                    navigate(`/admin-v3/eventos/${events[0].id}/editar`, { 
-                      state: { focusField: itemId } 
-                    });
-                  }}
-                />
-              )}
+                   {/* Latest Event Checklist */}
+                   {events.length > 0 && (
+                     <ChecklistWidget
+                       eventData={events[0]}
+                       onItemClick={(itemId) => {
+                         navigate(`/admin-v3/agenda/${events[0].id}`, { 
+                           state: { focusField: itemId } 
+                         });
+                       }}
+                     />
+                   )}
             </div>
         </div>
     </div>
