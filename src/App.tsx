@@ -42,7 +42,7 @@ import { AdminV3Layout } from "@/components/admin/AdminV3Layout";
 const AdminV3AgendaListNew = lazy(() => import("./pages/admin-v3/AdminV3AgendaListNew"));
 const Phase2Dashboard = lazy(() => import("./components/admin/Phase2Dashboard").then(module => ({ default: module.Phase2Dashboard })));
 
-const AdminV3AgendaEdit = lazy(() => import("./pages/admin-v3/AdminV3AgendaEdit"));
+
 
 // Admin Catalogs Pages
 const CatalogsGenresPage = lazy(() => import("./pages/admin/CatalogsGenresPage"));
@@ -55,24 +55,16 @@ const MePage = lazy(() => import("./pages/MePage"));
 const RolezeirosPage = lazy(() => import("./pages/RolezeirosPage"));
 
 const AdminV3ArtistsList = lazy(() => import("./pages/admin-v3/AdminV3ArtistsList").then(module => ({ default: module.default })));
-const AdminV3ArtistCreate = lazy(() => import("./pages/admin-v3/AdminV3ArtistCreate").then(module => ({ default: module.default })));
-const AdminV3ArtistEdit = lazy(() => import("./pages/admin-v3/AdminV3ArtistEdit").then(module => ({ default: module.default })));
 
 // Admin V3 Organizers Pages  
 const AdminV3OrganizadoresList = lazy(() => import("./pages/admin-v3/AdminV3OrganizadoresList"));
-const AdminV3OrganizerCreate = lazy(() => import("./pages/admin-v3/AdminV3ArtistCreate")); // Using artist create as template
-const AdminV3OrganizerEdit = lazy(() => import("./pages/admin-v3/AdminV3OrganizerEdit"));
 
 // Admin V3 Venues Pages
 const AdminV3VenuesList = lazy(() => import("./pages/admin-v3/AdminV3VenuesList"));
-const AdminV3VenueCreate = lazy(() => import("./pages/admin-v3/AdminV3VenueCreate"));
-const AdminV3VenueEdit = lazy(() => import("./pages/admin-v3/AdminV3VenueEdit"));
 
 // Admin V3 Functional Pages
 const AdminV3VenuesPage = lazy(() => import("./pages/admin-v3/AdminV3VenuesList"));
 const AdminV3RevistaPage = lazy(() => import("./pages/admin-v3/AdminV3RevistaList"));
-const AdminV3BlogCreate = lazy(() => import("./pages/admin-v3/AdminV3BlogCreate"));
-const AdminV3BlogEdit = lazy(() => import("./pages/admin-v3/AdminV3BlogEdit"));
 const AdminV3GestaoPage = lazy(() => import("./pages/admin-v3/gestao/index"));
 const AdminV3DestaquesPage = lazy(() => import("./pages/admin-v3/AdminV3DestaquesList"));
 
@@ -124,7 +116,7 @@ const AdminV3EventsDashboard = lazy(() => import("./pages/admin-v3/AdminV3Events
 const AdminV3EventsCreateEdit = lazy(() => import("./pages/admin-v3/AdminV3EventsCreateEdit"));
 const AdminV3EventCreate = lazy(() => import("./pages/admin-v3/AdminV3EventCreate"));
 
-const AdminV3EventEdit = lazy(() => import("./pages/admin-v3/AdminV3EventEdit"));
+
 const DevAuth = lazy(() => import("./pages/DevAuth"));
 
 // Under Construction Components
@@ -342,14 +334,14 @@ function App() {
                    {/* Agenda Routes */}
                    <Route path="agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaListNew /></Suspense>} />
                    <Route path="agenda/criar" element={<Navigate to="/admin-v3/eventos/criar?from=agenda" replace />} />
-                  <Route path="agenda/:id/editar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3AgendaEdit /></Suspense>} />
+                  <Route path="agenda/:id/editar" element={<Navigate to="/admin-v3/eventos/:id" replace />} />
                   <Route path="agenda/rascunhos" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Rascunhos da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Salvar eventos como rascunho', 'Revisar antes de publicar', 'Agendamento de publicação']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Rascunhos'}]} /></Suspense>} />
                   <Route path="agenda/configuracoes" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionPage title="Configurações da Agenda" description="Funcionalidade em desenvolvimento" expectedFeatures={['Configurações gerais', 'Integração com APIs', 'Notificações automáticas']} breadcrumbItems={[{label: 'Agenda', path: '/admin-v3/agenda'}, {label: 'Configurações'}]} /></Suspense>} />
                   
                   {/* Eventos Routes - Nova Estrutura */}
                   <Route path="eventos" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3EventsDashboard /></Suspense>} />
-                  <Route path="eventos/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3EventCreate /></Suspense>} />
-                  <Route path="eventos/:id/editar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3EventsCreateEdit /></Suspense>} />
+                   <Route path="eventos/novo" element={<Suspense fallback={<AdminLoadingFallback />}><EventEditPageV5 /></Suspense>} />
+                   <Route path="eventos/:id" element={<Suspense fallback={<AdminLoadingFallback />}><EventEditPageV5 /></Suspense>} />
                   
                   {/* Legacy Routes - Redirecionamentos */}
                   <Route path="agenda/eventos" element={<Navigate to="/admin-v3/eventos" replace />} />
@@ -358,33 +350,26 @@ function App() {
                   
                   {/* Agentes Routes */}
                   <Route path="agentes/artistas" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsList /></Suspense>} />
-                  <Route path="agentes/artistas/criar" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
-                  <Route path="agentes/artistas/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistCreate /></Suspense>} />
-                  <Route path="agentes/artistas/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistEdit /></Suspense>} />
+                  <Route path="agentes/artistas/novo" element={<Suspense fallback={<AdminLoadingFallback />}><ArtistEditPage /></Suspense>} />
+                  <Route path="agentes/artistas/:id" element={<Suspense fallback={<AdminLoadingFallback />}><ArtistEditPage /></Suspense>} />
                   <Route path="agentes/venues" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenuesList /></Suspense>} />
-                  <Route path="agentes/venues/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenueCreate /></Suspense>} />
-                  <Route path="agentes/venues/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenueEdit /></Suspense>} />
+                  <Route path="agentes/venues/novo" element={<Suspense fallback={<AdminLoadingFallback />}><VenueEditPageV5 /></Suspense>} />
+                  <Route path="agentes/venues/:id" element={<Suspense fallback={<AdminLoadingFallback />}><VenueEditPageV5 /></Suspense>} />
                   <Route path="agentes/organizadores" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizadoresList /></Suspense>} />
-                  {/* <Route path="agentes/organizadores/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerCreate /></Suspense>} /> ARCHIVED */}
-                  <Route path="agentes/organizadores/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerCreate /></Suspense>} />
-                  <Route path="agentes/organizadores/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerEdit /></Suspense>} />
+                  <Route path="agentes/organizadores/novo" element={<Suspense fallback={<AdminLoadingFallback />}><OrganizerEditPageV5 /></Suspense>} />
+                  <Route path="agentes/organizadores/:id" element={<Suspense fallback={<AdminLoadingFallback />}><OrganizerEditPageV5 /></Suspense>} />
                   
-                   {/* V5 Enhanced Forms - podem coexistir com V4 */}
-                   <Route path="artistas-v5/:id" element={<Suspense fallback={<AdminLoadingFallback />}><ArtistEditPage /></Suspense>} />
-                   <Route path="eventos-v5/:id" element={<Suspense fallback={<AdminLoadingFallback />}><EventEditPageV5 /></Suspense>} />
-                   <Route path="venues-v5/:id" element={<Suspense fallback={<AdminLoadingFallback />}><VenueEditPageV5 /></Suspense>} />
-                   <Route path="organizadores-v5/:id" element={<Suspense fallback={<AdminLoadingFallback />}><OrganizerEditPageV5 /></Suspense>} />
-                   <Route path="revista-v5/:id" element={<Suspense fallback={<AdminLoadingFallback />}><MagazineEditPageV5 /></Suspense>} />
+                   {/* Revista V5 Routes */}
+                   <Route path="revista/novo" element={<Suspense fallback={<AdminLoadingFallback />}><MagazineEditPageV5 /></Suspense>} />
+                   <Route path="revista/:id" element={<Suspense fallback={<AdminLoadingFallback />}><MagazineEditPageV5 /></Suspense>} />
                   
                   {/* Catalogs Routes */}
                   <Route path="catalogos/generos" element={<Suspense fallback={<AdminLoadingFallback />}><CatalogsGenresPage /></Suspense>} />
                   <Route path="catalogos/funcoes" element={<Suspense fallback={<AdminLoadingFallback />}><CatalogsArtistRolesPage /></Suspense>} />
                   
                   
-                  {/* Other modules */}
-                  <Route path="revista" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3RevistaPage /></Suspense>} />
-                  <Route path="revista/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3BlogCreate /></Suspense>} />
-                  <Route path="revista/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3BlogEdit /></Suspense>} />
+                  {/* Revista Routes - Unified to V5 */}
+                  <Route path="revista" element={<Navigate to="/admin-v3/revista" replace />} />
                   
                   {/* Gestao Routes */}
                   <Route path="gestao" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoPage /></Suspense>} />
