@@ -7302,6 +7302,15 @@ export type Database = {
           user_email: string
         }[]
       }
+      validate_security_measures: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          check_type: string
+          details: string
+          severity: string
+          status: string
+        }[]
+      }
       validate_username: {
         Args: { new_username: string }
         Returns: boolean
