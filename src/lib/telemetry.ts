@@ -46,3 +46,13 @@ export const profileEvents = {
   imageUpload: (type: 'avatar' | 'cover', size: number) => telemetry.track('profile_image_upload', { image_type: type, file_size: size }),
   stepProgress: (step: string, type: string) => telemetry.track('profile_form_step', { step, profile_type: type })
 };
+
+// Eventos específicos para V5 migration analytics
+export const v5Events = {
+  editClick: (version: 'v4' | 'v5', entityType: string) => telemetry.track('admin_edit_click', { version, entity_type: entityType }),
+  formStart: (version: 'v4' | 'v5', entityType: string) => telemetry.track('admin_form_start', { version, entity_type: entityType }),
+  formComplete: (version: 'v4' | 'v5', entityType: string) => telemetry.track('admin_form_complete', { version, entity_type: entityType }),
+  formAbandon: (version: 'v4' | 'v5', entityType: string) => telemetry.track('admin_form_abandon', { version, entity_type: entityType }),
+  versionChoice: (preference: string) => telemetry.track('admin_version_preference', { preference }),
+  feedback: (version: 'v4' | 'v5', rating: number, comment?: string) => telemetry.track('admin_version_feedback', { version, rating, comment })
+};
