@@ -7114,6 +7114,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      security_status_report: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          admin_only_policies: number
+          public_policies: number
+          rls_enabled: boolean
+          status: string
+          table_name: string
+        }[]
+      }
       set_attendance: {
         Args:
           | {
