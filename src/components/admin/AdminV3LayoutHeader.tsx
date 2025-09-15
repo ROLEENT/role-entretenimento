@@ -237,7 +237,7 @@ export function AdminV3LayoutHeader() {
           className="flex items-center gap-2 text-foreground hover:text-primary"
         >
           <Home className="h-4 w-4" />
-          <span className="hidden sm:inline">Dashboard</span>
+          <span className="hidden sm:inline">Admin Panel</span>
         </Button>
 
         {/* Breadcrumbs */}

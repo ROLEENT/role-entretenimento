@@ -33,11 +33,7 @@ const Contact = lazy(() => import("./pages/Contact"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const SpamPolicy = lazy(() => import("./pages/SpamPolicy"));
 const UserTerms = lazy(() => import("./pages/UserTerms"));
-import { AdminLayout } from "@/components/AdminLayout";
-import { AdminDashboard as NewAdminDashboard } from "@/pages/admin/AdminDashboard";
-import { ApplicationsPage } from "@/pages/admin/ApplicationsPage";
-import { ContactPage } from "@/pages/admin/ContactPage";
-import { NewsletterPage } from "@/pages/admin/NewsletterPage";
+// Legacy imports removed - using only AdminV3Layout
 
 // Admin V3 Layout
 import { AdminV3Layout } from "@/components/admin/AdminV3Layout";
@@ -330,15 +326,7 @@ function App() {
               </Suspense>
             } />
 
-            {/* Admin Panel Routes (legacy) */}
-            <Route path="/admin-legacy" element={<AdminLayout />}>
-              <Route index element={<NewAdminDashboard />} />
-              <Route path="applications" element={<ApplicationsPage />} />
-              <Route path="contact" element={<ContactPage />} />
-              <Route path="newsletter" element={<NewsletterPage />} />
-            </Route>
-
-            {/* Legacy Admin V1 and V2 removed - use /admin-v3 instead */}
+            {/* Legacy Admin routes removed - use /admin-v3 instead */}
                 
                 {/* Admin V3 System - Login standalone */}
                 <Route path="/admin-v3/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Login /></Suspense>} />

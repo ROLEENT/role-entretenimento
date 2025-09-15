@@ -10,10 +10,10 @@ export default function ProtectedRoute({ requireRole }: { requireRole?: "admin" 
 
   if (!session) return <Navigate to="/entrar" replace state={{ from: loc.pathname }} />;
 
-  if (requireRole === "admin" && role !== "admin") {
+  if (requireRole === "admin" && role !== "admin" && role !== "editor") {
     return <main className="mx-auto max-w-md p-8 text-center">
       <h1 className="text-xl font-semibold">Acesso restrito</h1>
-      <p className="text-sm text-gray-600">Entre com uma conta de admin.</p>
+      <p className="text-sm text-muted-foreground">Entre com uma conta de admin ou editor.</p>
     </main>;
   }
   return <Outlet />;
