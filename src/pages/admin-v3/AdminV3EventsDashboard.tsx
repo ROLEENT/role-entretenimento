@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Plus, Search, Filter, Calendar, Users, TrendingUp, Grid3X3, List } from "lucide-react";
+import { Plus, Search, Filter, Calendar, Users, TrendingUp, Grid3X3, List, Sparkles } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -111,13 +111,26 @@ export default function AdminV3EventsDashboard() {
                 Gerencie eventos com o novo sistema unificado
               </p>
             </div>
-            <Button 
-              onClick={() => navigate("/admin-v3/eventos/criar")}
-              className="gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Novo Evento
-            </Button>
+             <div className="flex gap-2">
+               <Button 
+                 onClick={() => navigate("/admin-v3/eventos/criar")}
+                 className="gap-2"
+               >
+                 <Plus className="h-4 w-4" />
+                 Novo Evento
+               </Button>
+               <Button 
+                 onClick={() => navigate("/admin-v3/eventos-v5/novo")}
+                 variant="outline"
+                 className="gap-2 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20"
+               >
+                 <Sparkles className="h-4 w-4" />
+                 <div className="flex items-center gap-2">
+                   Evento V5
+                   <Badge variant="secondary" className="text-xs">NOVO</Badge>
+                 </div>
+               </Button>
+             </div>
           </div>
 
           {/* Stats Cards */}
@@ -315,14 +328,25 @@ export default function AdminV3EventsDashboard() {
                   <CardTitle className="text-lg">Ações Rápidas</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start"
-                    onClick={() => navigate("/admin-v3/eventos/criar")}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Novo Evento
-                  </Button>
+                   <Button 
+                     variant="outline" 
+                     className="w-full justify-start"
+                     onClick={() => navigate("/admin-v3/eventos/criar")}
+                   >
+                     <Plus className="h-4 w-4 mr-2" />
+                     Novo Evento
+                   </Button>
+                   <Button 
+                     variant="outline" 
+                     className="w-full justify-start bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20"
+                     onClick={() => navigate("/admin-v3/eventos-v5/novo")}
+                   >
+                     <Sparkles className="h-4 w-4 mr-2" />
+                     <div className="flex items-center gap-2">
+                       Novo Evento V5
+                       <Badge variant="secondary" className="text-xs">NOVO</Badge>
+                     </div>
+                   </Button>
                   <Button 
                     variant="outline" 
                     className="w-full justify-start"

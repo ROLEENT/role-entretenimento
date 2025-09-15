@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Plus, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { AdminPageWrapper } from '@/components/ui/admin-page-wrapper';
 import { AdminOrganizerFilters } from '@/components/admin/agents/AdminOrganizerFilters';
 import { AdminOrganizerTable } from '@/components/admin/agents/AdminOrganizerTable';
@@ -31,14 +32,25 @@ const AdminV3OrganizadoresList: React.FC = () => {
     { label: 'Organizadores' },
   ];
 
-  const actions = (
-    <Button asChild>
-      <Link to="/admin-v3/agentes/organizadores/create-v2">
-        <Plus className="h-4 w-4 mr-2" />
-        Novo Organizador
-      </Link>
-    </Button>
-  );
+   const actions = (
+     <div className="flex gap-2">
+       <Button asChild>
+         <Link to="/admin-v3/agentes/organizadores/create-v2">
+           <Plus className="h-4 w-4 mr-2" />
+           Novo Organizador
+         </Link>
+       </Button>
+       <Button asChild variant="outline" className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
+         <Link to="/admin-v3/organizadores-v5/novo">
+           <Sparkles className="h-4 w-4 mr-2" />
+           <div className="flex items-center gap-2">
+             Organizador V5
+             <Badge variant="secondary" className="text-xs">NOVO</Badge>
+           </div>
+         </Link>
+       </Button>
+     </div>
+   );
 
   if (error) {
     return (
@@ -114,12 +126,23 @@ const AdminV3OrganizadoresList: React.FC = () => {
                 ? 'Tente ajustar os filtros para encontrar organizadores.'
                 : 'Comece cadastrando seu primeiro organizador.'}
             </p>
-            <Button asChild>
-              <Link to="/admin-v3/agentes/organizadores/create-v2">
-                <Plus className="h-4 w-4 mr-2" />
-                Cadastrar Primeiro Organizador
-              </Link>
-            </Button>
+             <div className="flex gap-2">
+               <Button asChild>
+                 <Link to="/admin-v3/agentes/organizadores/create-v2">
+                   <Plus className="h-4 w-4 mr-2" />
+                   Cadastrar Primeiro Organizador
+                 </Link>
+               </Button>
+               <Button asChild variant="outline" className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
+                 <Link to="/admin-v3/organizadores-v5/novo">
+                   <Sparkles className="h-4 w-4 mr-2" />
+                   <div className="flex items-center gap-2">
+                     Organizador V5
+                     <Badge variant="secondary" className="text-xs">NOVO</Badge>
+                   </div>
+                 </Link>
+               </Button>
+             </div>
           </div>
         )}
       </div>
