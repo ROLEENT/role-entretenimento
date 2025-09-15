@@ -395,6 +395,36 @@ export default function TestValidationV5() {
                 <p className="text-xs text-blue-600">/admin-v3/eventos-v5/novo</p>
               </a>
               
+              <a 
+                href="/admin-v3/venues-v5/novo" 
+                target="_blank"
+                className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <h4 className="font-semibold">Formulário Local V5</h4>
+                <p className="text-sm text-gray-600">Testar criação de local</p>
+                <p className="text-xs text-blue-600">/admin-v3/venues-v5/novo</p>
+              </a>
+              
+              <a 
+                href="/admin-v3/organizadores-v5/novo" 
+                target="_blank"
+                className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <h4 className="font-semibold">Formulário Organizador V5</h4>
+                <p className="text-sm text-gray-600">Testar criação de organizador</p>
+                <p className="text-xs text-blue-600">/admin-v3/organizadores-v5/novo</p>
+              </a>
+              
+              <a 
+                href="/admin-v3/revista-v5/novo" 
+                target="_blank"
+                className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <h4 className="font-semibold">Formulário Revista V5</h4>
+                <p className="text-sm text-gray-600">Testar criação de artigo</p>
+                <p className="text-xs text-blue-600">/admin-v3/revista-v5/novo</p>
+              </a>
+              
               <div className="p-4 border rounded-lg bg-green-50">
                 <h4 className="font-semibold text-green-800">Sistema V5 Completo</h4>
                 <p className="text-sm text-green-600">

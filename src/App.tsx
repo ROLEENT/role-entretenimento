@@ -178,6 +178,9 @@ const TestQuickCreateV5 = lazy(() => import("./pages/TestQuickCreateV5"));
 const TestValidationV5 = lazy(() => import("./pages/TestValidationV5"));
 const ArtistEditPage = lazy(() => import("./pages/ArtistEditPage"));
 const EventEditPageV5 = lazy(() => import("./pages/EventEditPageV5"));
+const VenueEditPageV5 = lazy(() => import("./pages/VenueEditPageV5"));
+const OrganizerEditPageV5 = lazy(() => import("./pages/OrganizerEditPageV5"));
+const MagazineEditPageV5 = lazy(() => import("./pages/MagazineEditPageV5"));
 
 // Profiles pages
 const DirectoryPage = lazy(() => import("./pages/profiles/DirectoryPage"));
@@ -377,9 +380,12 @@ function App() {
                   <Route path="agentes/organizadores/create" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerCreate /></Suspense>} />
                   <Route path="agentes/organizadores/:id/edit" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizerEdit /></Suspense>} />
                   
-                  {/* V5 Enhanced Forms - podem coexistir com V4 */}
-                  <Route path="artistas-v5/:id" element={<Suspense fallback={<AdminLoadingFallback />}><ArtistEditPage /></Suspense>} />
-                  <Route path="eventos-v5/:id" element={<Suspense fallback={<AdminLoadingFallback />}><EventEditPageV5 /></Suspense>} />
+                   {/* V5 Enhanced Forms - podem coexistir com V4 */}
+                   <Route path="artistas-v5/:id" element={<Suspense fallback={<AdminLoadingFallback />}><ArtistEditPage /></Suspense>} />
+                   <Route path="eventos-v5/:id" element={<Suspense fallback={<AdminLoadingFallback />}><EventEditPageV5 /></Suspense>} />
+                   <Route path="venues-v5/:id" element={<Suspense fallback={<AdminLoadingFallback />}><VenueEditPageV5 /></Suspense>} />
+                   <Route path="organizadores-v5/:id" element={<Suspense fallback={<AdminLoadingFallback />}><OrganizerEditPageV5 /></Suspense>} />
+                   <Route path="revista-v5/:id" element={<Suspense fallback={<AdminLoadingFallback />}><MagazineEditPageV5 /></Suspense>} />
                   
                   {/* Catalogs Routes */}
                   <Route path="catalogos/generos" element={<Suspense fallback={<AdminLoadingFallback />}><CatalogsGenresPage /></Suspense>} />
