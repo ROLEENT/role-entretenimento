@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Zap, Clock, CheckCircle } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
+import { V5FeedbackButton } from '../feedback/V5FeedbackButton';
 
 interface FormShellV5Props {
   title: string;
@@ -97,16 +99,37 @@ export function FormShellV5({
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold">{title}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold">{title}</h1>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <div className="flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
+                    <Zap className="h-3 w-3" />
+                    V5
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Interface V5 - Autosave automático, UX melhorada</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           {description && (
             <p className="text-muted-foreground">{description}</p>
           )}
         </div>
-        {lastSaved && (
-          <p className="text-sm text-muted-foreground">
-            Salvo automaticamente às {lastSaved.toLocaleTimeString()}
-          </p>
-        )}
+        
+        <div className="flex items-center gap-3">
+          {lastSaved && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <CheckCircle className="h-4 w-4 text-green-500" />
+              Salvo às {lastSaved.toLocaleTimeString()}
+            </div>
+          )}
+          
+          <V5FeedbackButton version="v5" size="sm" />
+        </div>
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -122,9 +145,10 @@ export function FormShellV5({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {isDirty && (
-              <span className="text-sm text-muted-foreground">
-                • Alterações não salvas
-              </span>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Clock className="h-4 w-4 text-orange-500" />
+                Alterações não salvas
+              </div>
             )}
           </div>
           
@@ -136,20 +160,32 @@ export function FormShellV5({
             >
               Cancelar
             </Button>
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="min-w-24"
-            >
-              {isSubmitting ? (
-                'Salvando...'
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Salvar
-                </>
-              )}
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="min-w-24 animate-scale-in"
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center gap-2">
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                        Salvando...
+                      </div>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-2" />
+                        Salvar
+                      </>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Cmd/Ctrl + S</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       </form>
