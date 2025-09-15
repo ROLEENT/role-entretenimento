@@ -204,7 +204,7 @@ export function NewAdminAgendaTable({
         {!showTrash && (
           <>
             <DropdownMenuItem asChild>
-              <Link to={`/admin-v3/agenda/${item.id}/editar`} className="flex items-center gap-2">
+              <Link to={`/admin-v3/agenda/${item.id}`} className="flex items-center gap-2">
                 <Edit className="h-4 w-4" />
                 Editar
               </Link>

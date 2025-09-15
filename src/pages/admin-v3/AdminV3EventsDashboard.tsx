@@ -320,7 +320,7 @@ export default function AdminV3EventsDashboard() {
                    <Button 
                      variant="outline" 
                      className="w-full justify-start"
-                     onClick={() => navigate("/admin-v3/eventos/criar")}
+                     onClick={() => navigate("/admin-v3/agenda/novo")}
                    >
                      <Plus className="h-4 w-4 mr-2" />
                      Novo Evento

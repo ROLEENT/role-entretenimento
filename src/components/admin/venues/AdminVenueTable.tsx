@@ -103,7 +103,7 @@ export const AdminVenueTable: React.FC<AdminVenueTableProps> = ({
                     id={venue.id}
                     name={venue.name}
                     instagram={venue.instagram}
-                    editPath={`/admin-v3/agentes/venues/${venue.id}/edit`}
+                    editPath={`/admin-v3/locais/${venue.id}`}
                     viewPath={`/admin-v3/agentes/venues/${venue.id}`}
                     onDuplicate={(id) => onDuplicate(venue)}
                     onStatusChange={onStatusChange}

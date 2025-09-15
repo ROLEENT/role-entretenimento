@@ -36,7 +36,6 @@ interface RowActionsProps {
   onStatusChange?: (id: string, status: string) => void;
   onAfterDelete?: () => void;
   isLoading?: boolean;
-  showV5Option?: boolean;
 }
 
 export function RowActions({
@@ -51,7 +50,6 @@ export function RowActions({
   onStatusChange,
   onAfterDelete,
   isLoading = false,
-  showV5Option = true,
 }: RowActionsProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -98,18 +96,6 @@ export function RowActions({
     }
   };
 
-  const getV5EditPath = () => {
-    switch (entity) {
-      case 'artists':
-        return `/admin-v3/artistas-v5/${id}`;
-      case 'organizers':
-        return `/admin-v3/organizadores-v5/${id}`;
-      case 'venues':
-        return `/admin-v3/venues-v5/${id}`;
-      default:
-        return editPath;
-    }
-  };
 
   return (
     <DropdownMenu>
@@ -130,18 +116,6 @@ export function RowActions({
             Editar
           </Link>
         </DropdownMenuItem>
-
-        {showV5Option && (
-          <DropdownMenuItem asChild>
-            <Link to={getV5EditPath()}>
-              <Sparkles className="mr-2 h-4 w-4" />
-              <div className="flex items-center gap-2">
-                Editar V5
-                <Badge variant="secondary" className="text-xs">NOVO</Badge>
-              </div>
-            </Link>
-          </DropdownMenuItem>
-        )}
         
         <DropdownMenuItem asChild>
           <Link to={viewPath}>
