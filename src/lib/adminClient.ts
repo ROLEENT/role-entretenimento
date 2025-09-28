@@ -49,9 +49,9 @@ export const createAdminClient = async () => {
       
       const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
       
-      console.log(`Admin REST call: ${options.method || 'GET'} ${url}`);
-      console.log('Admin email header:', adminEmail);
-      console.log('Request body:', options.body);
+      console.log(`🔗 Admin REST call: ${options.method || 'GET'} ${url}`);
+      console.log('📧 Admin email header:', adminEmail);
+      console.log('📝 Request body:', options.body);
       
       const response = await fetch(url, {
         ...options,
@@ -67,23 +67,28 @@ export const createAdminClient = async () => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Admin REST call failed:', {
+        console.error('❌ Admin REST call failed:', {
           status: response.status,
           statusText: response.statusText,
           error: errorText,
           endpoint,
+          adminEmail,
+          requestBody: options.body,
         });
         
         // Parse error message if possible
         try {
           const errorData = JSON.parse(errorText);
-          throw new Error(errorData.message || `Erro ${response.status}: ${response.statusText}`);
-        } catch {
-          throw new Error(`Erro ${response.status}: ${response.statusText}`);
+          const errorMessage = errorData.message || errorData.hint || `Erro ${response.status}: ${response.statusText}`;
+          throw new Error(errorMessage);
+        } catch (parseError) {
+          throw new Error(`Erro ${response.status}: ${response.statusText} - ${errorText}`);
         }
       }
 
-      return response.json();
+      const result = await response.json();
+      console.log('✅ Admin REST call successful:', result);
+      return result;
     },
   };
 };

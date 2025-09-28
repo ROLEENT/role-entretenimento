@@ -16,37 +16,55 @@ export function useEntityFormV5({ entityType, onSuccess, onError }: UseEntityFor
 
   const mutation = useMutation({
     mutationFn: async (data: any) => {
-      console.log(`🚀 Salvando ${entityType}:`, data);
+      try {
+        console.log(`🚀 Salvando ${entityType}:`, data);
 
-      // Remove campos undefined/null para evitar problemas
-      const cleanData = Object.fromEntries(
-        Object.entries(data).filter(([_, value]) => value !== undefined && value !== null && value !== '')
-      );
+        // Remove campos undefined/null para evitar problemas
+        const cleanData = Object.fromEntries(
+          Object.entries(data).filter(([_, value]) => value !== undefined && value !== null && value !== '')
+        );
 
-      // Generate slug if not provided
-      if (!cleanData.slug && cleanData.name && typeof cleanData.name === 'string') {
-        cleanData.slug = generateSlug(cleanData.name);
-      }
+        // Ensure we have a valid ID if it exists
+        if (cleanData.id && (typeof cleanData.id !== 'string' || cleanData.id === 'undefined')) {
+          delete cleanData.id;
+        }
 
-      // Use admin client for write operations
-      const adminClient = await createAdminClient();
+        // Generate slug if not provided
+        if (!cleanData.slug && cleanData.name && typeof cleanData.name === 'string') {
+          cleanData.slug = generateSlug(cleanData.name);
+        }
 
-      if (cleanData.id) {
-        // Update existing
-        const result = await adminClient.restCall(`${entityType}?id=eq.${cleanData.id}`, {
-          method: 'PATCH',
-          body: JSON.stringify(cleanData),
+        console.log('🔄 EntityFormV5: Sending clean data:', {
+          entityType,
+          data: cleanData,
+          operation: cleanData.id ? 'UPDATE' : 'CREATE'
         });
 
-        return Array.isArray(result) ? result[0] : result;
-      } else {
-        // Create new
-        const result = await adminClient.restCall(entityType, {
-          method: 'POST',
-          body: JSON.stringify(cleanData),
-        });
+        // Use admin client for write operations
+        const adminClient = await createAdminClient();
 
-        return Array.isArray(result) ? result[0] : result;
+        if (cleanData.id) {
+          // Update existing
+          console.log('📝 Updating entity with ID:', cleanData.id);
+          const result = await adminClient.restCall(`${entityType}?id=eq.${cleanData.id}`, {
+            method: 'PATCH',
+            body: JSON.stringify(cleanData),
+          });
+
+          return Array.isArray(result) ? result[0] : result;
+        } else {
+          // Create new
+          console.log('➕ Creating new entity');
+          const result = await adminClient.restCall(entityType, {
+            method: 'POST',
+            body: JSON.stringify(cleanData),
+          });
+
+          return Array.isArray(result) ? result[0] : result;
+        }
+      } catch (error) {
+        console.error('❌ EntityFormV5 Error:', error);
+        throw error;
       }
     },
     onSuccess: (data) => {

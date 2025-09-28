@@ -31,8 +31,11 @@ export const verifyAdminAccess = async (): Promise<boolean> => {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user?.email) {
+      console.warn('❌ No authenticated user found');
       return false;
     }
+
+    console.log('🔍 Checking admin access for:', user.email);
 
     // Check if user is in approved_admins table
     const { data, error } = await supabase
@@ -42,14 +45,20 @@ export const verifyAdminAccess = async (): Promise<boolean> => {
       .eq('is_active', true)
       .single();
 
-    if (error || !data) {
-      console.warn('User is not an approved admin:', user.email);
+    if (error) {
+      console.error('❌ Error checking approved_admins:', error);
       return false;
     }
 
+    if (!data) {
+      console.warn('❌ User is not an approved admin:', user.email);
+      return false;
+    }
+
+    console.log('✅ Admin access verified for:', user.email);
     return true;
   } catch (error) {
-    console.error('Error verifying admin access:', error);
+    console.error('❌ Error verifying admin access:', error);
     return false;
   }
 };
