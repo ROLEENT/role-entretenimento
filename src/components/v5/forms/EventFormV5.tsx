@@ -102,14 +102,12 @@ export function EventFormV5({
   const searchOrganizers = async (query: string): Promise<ComboboxAsyncOption[]> => {
     let supabaseQuery = supabase
       .from('organizers')
-      .select('id, name, city')
+      .select('id, name')
       .order('name')
       .limit(20);
 
     if (query.trim()) {
-      supabaseQuery = supabaseQuery.or(
-        `name.ilike.%${query}%,city.ilike.%${query}%`
-      );
+      supabaseQuery = supabaseQuery.ilike('name', `%${query}%`);
     }
 
     const { data, error } = await supabaseQuery;
@@ -122,21 +120,19 @@ export function EventFormV5({
       id: organizer.id,
       name: organizer.name,
       value: organizer.id,
-      subtitle: organizer.city,
+      subtitle: 'Organizador',
     }));
   };
 
   const searchArtists = async (query: string): Promise<ComboboxAsyncOption[]> => {
     let supabaseQuery = supabase
       .from('artists')
-      .select('id, name, city, genre')
+      .select('id, name')
       .order('name')
       .limit(20);
 
     if (query.trim()) {
-      supabaseQuery = supabaseQuery.or(
-        `name.ilike.%${query}%,city.ilike.%${query}%,genre.ilike.%${query}%`
-      );
+      supabaseQuery = supabaseQuery.ilike('name', `%${query}%`);
     }
 
     const { data, error } = await supabaseQuery;
@@ -149,7 +145,7 @@ export function EventFormV5({
       id: artist.id,
       name: artist.name,
       value: artist.id,
-      subtitle: `${artist.genre || 'Sem gênero'} • ${artist.city || 'Sem cidade'}`,
+      subtitle: 'Artista',
     }));
   };
 

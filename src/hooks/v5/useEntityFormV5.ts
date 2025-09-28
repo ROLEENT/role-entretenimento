@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { createAdminClient } from "@/lib/adminClient";
 import { toast } from "sonner";
 
 type EntityType = 'artists' | 'organizers' | 'venues' | 'events' | 'magazine_posts';
@@ -27,27 +28,25 @@ export function useEntityFormV5({ entityType, onSuccess, onError }: UseEntityFor
         cleanData.slug = generateSlug(cleanData.name);
       }
 
+      // Use admin client for write operations
+      const adminClient = await createAdminClient();
+
       if (cleanData.id) {
         // Update existing
-        const { data: result, error } = await supabase
-          .from(entityType)
-          .update(cleanData)
-          .eq('id', cleanData.id)
-          .select()
-          .single();
+        const result = await adminClient.restCall(`${entityType}?id=eq.${cleanData.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(cleanData),
+        });
 
-        if (error) throw error;
-        return result;
+        return Array.isArray(result) ? result[0] : result;
       } else {
         // Create new
-        const { data: result, error } = await supabase
-          .from(entityType)
-          .insert(cleanData)
-          .select()
-          .single();
+        const result = await adminClient.restCall(entityType, {
+          method: 'POST',
+          body: JSON.stringify(cleanData),
+        });
 
-        if (error) throw error;
-        return result;
+        return Array.isArray(result) ? result[0] : result;
       }
     },
     onSuccess: (data) => {
@@ -85,20 +84,20 @@ export function useAutosaveV5({ entityType }: { entityType: EntityType }) {
         cleanData.slug = generateSlug(cleanData.name);
       }
 
+      // Use admin client for autosave operations
+      const adminClient = await createAdminClient();
+
       if (cleanData.id) {
-        const { error } = await supabase
-          .from(entityType)
-          .update(cleanData)
-          .eq('id', cleanData.id);
-        if (error) throw error;
+        await adminClient.restCall(`${entityType}?id=eq.${cleanData.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(cleanData),
+        });
       } else {
-        const { data: result, error } = await supabase
-          .from(entityType)
-          .insert(cleanData)
-          .select('id')
-          .single();
-        if (error) throw error;
-        return result;
+        const result = await adminClient.restCall(entityType, {
+          method: 'POST',
+          body: JSON.stringify(cleanData),
+        });
+        return Array.isArray(result) ? result[0] : result;
       }
     },
     onError: (error) => {
