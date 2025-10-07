@@ -34,7 +34,6 @@ import { RoleMobileMenuDrawer } from './RoleMobileMenuDrawer';
 const Header = () => {
   const location = useLocation();
   const { isMobile } = useResponsive();
-  const { hasAdminAccess } = useAuth(); // Admin auth
   const { user: publicUser, signOut: publicSignOut, isAuthenticated } = usePublicAuth(); // Public auth
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -157,12 +156,7 @@ const Header = () => {
         <RoleMobileMenuDrawer
           isOpen={mobileMenuOpen}
           onClose={() => setMobileMenuOpen(false)}
-          navLinks={navLinks}
-          perfisDropdownItems={perfisDropdownItems}
-          isActive={isActive}
           publicUser={publicUser}
-          hasAdminAccess={hasAdminAccess}
-          publicSignOut={publicSignOut}
           setSearchOpen={setSearchOpen}
           setShowPublicAuth={setShowPublicAuth}
         />
@@ -327,14 +321,6 @@ const Header = () => {
                             Minhas Notificações
                           </Link>
                        </DropdownMenuItem>
-                      {hasAdminAccess && (
-                        <DropdownMenuItem asChild>
-                          <Link to="/admin-v3">
-                            <Settings className="mr-2 h-4 w-4" />
-                            Painel Admin
-                          </Link>
-                        </DropdownMenuItem>
-                      )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={publicSignOut}>
                         <LogOut className="mr-2 h-4 w-4" />

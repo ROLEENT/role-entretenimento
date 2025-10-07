@@ -9,12 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface RoleMobileMenuDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  navLinks?: Array<{ href: string; label: string }>;
-  perfisDropdownItems?: Array<{ href: string; label: string }>;
-  isActive?: (href: string) => boolean;
   publicUser?: any;
-  hasAdminAccess?: boolean;
-  publicSignOut?: () => void;
   setSearchOpen?: (open: boolean) => void;
   setShowPublicAuth?: (show: boolean) => void;
 }

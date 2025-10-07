@@ -19,63 +19,20 @@ import { RequireAuth } from "@/components/RequireAuth";
 
 // Preview component
 const PreviewAgenda = lazy(() => import("./pages/PreviewAgenda"));
-const ChecklistTest = lazy(() => import("./pages/ChecklistTest"));
-const CurationTestPage = lazy(() => import("./pages/test/curation"));
-const CurationDrawerTest = lazy(() => import("./pages/CurationDrawerTest"));
-// Dashboard components
-const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 
-import { DashboardRedirect } from "@/components/DashboardRedirect";
-// Lazy load pages for better performance
-const Index = lazy(() => import("./pages/Index"));
+// DashboardRedirect removed
+// Index page removed
 const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const SpamPolicy = lazy(() => import("./pages/SpamPolicy"));
 const UserTerms = lazy(() => import("./pages/UserTerms"));
-// Legacy imports removed - using only AdminV3Layout
-
-// Admin V3 Layout
-import { AdminV3Layout } from "@/components/admin/AdminV3Layout";
-
-// Admin V3 Pages
-const AdminV3AgendaListNew = lazy(() => import("./pages/admin-v3/AdminV3AgendaListNew"));
-const Phase2Dashboard = lazy(() => import("./components/admin/Phase2Dashboard").then(module => ({ default: module.Phase2Dashboard })));
-
-
-
-// Admin Catalogs Pages
-const CatalogsGenresPage = lazy(() => import("./pages/admin/CatalogsGenresPage"));
-const CatalogsArtistRolesPage = lazy(() => import("./pages/admin/CatalogsArtistRolesPage"));
 
 // User Profile Pages
 const PublicUserProfilePage = lazy(() => import("./pages/PublicUserProfilePage"));
 const PublicUserProfilePageV2 = lazy(() => import("./pages/PublicUserProfilePageV2"));
 const MePage = lazy(() => import("./pages/MePage"));
-const RolezeirosPage = lazy(() => import("./pages/RolezeirosPage"));
-
-const AdminV3ArtistsList = lazy(() => import("./pages/admin-v3/AdminV3ArtistsList").then(module => ({ default: module.default })));
-
-// Admin V3 Organizers Pages  
-const AdminV3OrganizadoresList = lazy(() => import("./pages/admin-v3/AdminV3OrganizadoresList"));
-
-// Admin V3 Venues Pages
-const AdminV3VenuesList = lazy(() => import("./pages/admin-v3/AdminV3VenuesList"));
-
-// Admin V3 Functional Pages
-const AdminV3VenuesPage = lazy(() => import("./pages/admin-v3/AdminV3VenuesList"));
-const AdminV3RevistaPage = lazy(() => import("./pages/admin-v3/AdminV3RevistaList"));
-const AdminV3GestaoPage = lazy(() => import("./pages/admin-v3/gestao/index"));
-const AdminV3DestaquesPage = lazy(() => import("./pages/admin-v3/AdminV3DestaquesList"));
-
-// Admin V3 Gestao Pages
-const AdminV3GestaoLogsPage = lazy(() => import("./pages/admin-v3/gestao/SystemLogsPage"));
-const AdminV3GestaoNotificacoesPage = lazy(() => import("./pages/admin-v3/gestao/NotificationsPushPage"));
-const AnalyticsPage = lazy(() => import("./pages/admin-v3/gestao/AnalyticsPage"));
-const BackupRestorePage = lazy(() => import("./pages/admin-v3/gestao/BackupRestorePage"));
-const SecurityPage = lazy(() => import("./pages/admin-v3/gestao/security"));
-const V5MigrationPage = lazy(() => import("./components/admin/analytics/V5MigrationDashboard").then(module => ({ default: module.V5MigrationDashboard })));
-
+// RolezeirosPage removed
 
 const OrganizerTerms = lazy(() => import("./pages/OrganizerTerms"));
 const PoliticaCuradoria = lazy(() => import("./pages/PoliticaCuradoria"));
@@ -89,40 +46,15 @@ const RolezeiraPolicies = lazy(() => import("./pages/institutional/RolezeiraPoli
 const GeneralUsePolicies = lazy(() => import("./pages/institutional/GeneralUsePolicies"));
 const OrganizerPolicies = lazy(() => import("./pages/institutional/OrganizerPolicies"));
 const ContactUs = lazy(() => import("./pages/institutional/ContactUs"));
-const Agenda = lazy(() => import("./pages/Agenda"));
-const AgendaTodos = lazy(() => import("./pages/AgendaTodos"));
-const AgendaCidade = lazy(() => import("./pages/AgendaCidade"));
-const OutrasCidades = lazy(() => import("./pages/OutrasCidades"));
-const AgendaDetailPage = lazy(() => import("./pages/AgendaDetailPage"));
+// Agenda pages removed
 
 // Layout components
 const AgendaLayout = lazy(() => import("./components/layouts/AgendaLayout"));
-// const DestaquesHub = lazy(() => import("./pages/DestaquesHub")); // Removido
 const CitiesPage = lazy(() => import("./pages/CitiesPage"));
 const BlogArticle = lazy(() => import("./pages/BlogArticle"));
-const HighlightsPage = lazy(() => import("./pages/HighlightsPage"));
-const CityHighlightsPage = lazy(() => import("./pages/CityHighlightsPage"));
-const CityHighlights = lazy(() => import("./pages/CityHighlights"));
-const HighlightDetailPage = lazy(() => import("./pages/HighlightDetailPage"));
-
-// Admin V3 only - Legacy V1 and V2 removed for security
-
-// Admin V3 pages - simplified system
-const AdminV3Login = lazy(() => import("./pages/admin-v3/login"));
-const AdminV3Dashboard = lazy(() => import("./pages/AdminV3Dashboard"));
-const AdminV3Debug = lazy(() => import("./pages/AdminV3Debug"));
-// Eventos V3 - Nova Estrutura
-const AdminV3EventsDashboard = lazy(() => import("./pages/admin-v3/AdminV3EventsDashboard"));
-
-
-const DevAuth = lazy(() => import("./pages/DevAuth"));
-
-// Under Construction Components
-const UnderConstructionPage = lazy(() => import("@/components/admin/UnderConstructionPage").then(module => ({ default: module.UnderConstructionPage })));
-const UnderConstructionHandler = lazy(() => import("@/components/admin/UnderConstructionHandler").then(module => ({ default: module.UnderConstructionHandler })));
-
-// Admin Blog components
-const AdminBlogList = lazy(() => import("./components/admin/blog/AdminBlogList").then(module => ({ default: module.AdminBlogList })));
+// HighlightsPage and CityHighlightsPage removed
+// CityHighlights removed - depends on deleted admin components
+// HighlightDetailPage removed - depends on deleted admin components
 
 // Revista pages
 const RevistaPage = lazy(() => import("./pages/RevistaPage"));
@@ -136,19 +68,18 @@ const Imprensa = lazy(() => import("./pages/institucional/Imprensa"));
 
 // User pages - lazy loaded
 // const EventsPage = lazy(() => import("./pages/EventsPage")); // Removed as requested
-const EventDetailPageV2 = lazy(() => import("./pages/EventDetailPageV2"));
+// EventDetailPageV2 removed - depends on deleted admin components
 const CreateEventPage = lazy(() => import("./pages/CreateEventPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const PublicAuthPage = lazy(() => import("./pages/PublicAuthPage"));
 const ClaimProfilePage = lazy(() => import("./pages/ClaimProfilePage"));
-const Profile = lazy(() => import("./pages/Profile"));
-const WeeklyHighlights = lazy(() => import("./pages/WeeklyHighlights"));
+// Profile and WeeklyHighlights removed - depend on deleted admin components
 const FeedPage = lazy(() => import("./pages/FeedPage"));
 const CalendarPage = lazy(() => import("./pages/CalendarPage"));
 const GamificationPage = lazy(() => import("./pages/GamificationPage"));
 const DiscoverUsers = lazy(() => import("./pages/DiscoverUsers"));
-const CreateProfileComingSoon = lazy(() => import("./pages/CreateProfileComingSoon"));
-const FavoritosPage = lazy(() => import("./pages/FavoritosPage"));
+// CreateProfileComingSoon removed
+// FavoritosPage removed
 const PublicProfilePage = lazy(() => import("./pages/PublicProfilePage").then(module => ({ default: module.PublicProfilePage })));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const SavesPage = lazy(() => import("./pages/SavesPage").then(module => ({ default: module.SavesPage })));
@@ -157,27 +88,11 @@ const ServerError = lazy(() => import("./pages/ServerError"));
 const ScrollToTop = lazy(() => import("./components/ScrollToTop"));
 const DebugCombo = lazy(() => import("./pages/DebugCombo"));
 const TestPage = lazy(() => import("./pages/TestPage"));
-const AdminPage = lazy(() => import("./pages/AdminPage"));
 const Fase5DemoPage = lazy(() => import("./pages/Fase5DemoPage"));
 
-// V5 Pages - New form system
-const TestQuickCreateV5 = lazy(() => import("./pages/TestQuickCreateV5"));
-const TestValidationV5 = lazy(() => import("./pages/TestValidationV5"));
-const ArtistEditPage = lazy(() => import("./pages/ArtistEditPage"));
-const EventEditPageV5 = lazy(() => import("./pages/EventEditPageV5"));
-const VenueEditPageV5 = lazy(() => import("./pages/VenueEditPageV5"));
-const OrganizerEditPageV5 = lazy(() => import("./pages/OrganizerEditPageV5"));
-const MagazineEditPageV5 = lazy(() => import("./pages/MagazineEditPageV5"));
+// V5 Pages removed - depend on deleted admin components
 
-// Profiles pages
-const DirectoryPage = lazy(() => import("./pages/profiles/DirectoryPage"));
-const ProfilePage = lazy(() => import("./pages/profiles/ProfilePage"));
-const CityDirectoryPage = lazy(() => import("./pages/profiles/CityDirectoryPage"));
-
-// Public Profile pages
-const PublicArtistProfile = lazy(() => import("./pages/PublicArtistProfile"));
-const PublicVenueProfile = lazy(() => import("./pages/PublicVenueProfile"));
-const PublicOrganizerProfile = lazy(() => import("./pages/PublicOrganizerProfile"));
+// Profiles pages removed - depend on deleted features/profiles
 const SearchPage = lazy(() => import("./pages/SearchPage"));
 
 // Handle @username redirects
@@ -226,7 +141,7 @@ function App() {
               
               <Routes>
                 {/* Root redirect */}
-                <Route path="/" element={<Index />} />
+                <Route path="/" element={<div>Admin V4 em construção</div>} />
                 
                 {/* Demo page route */}
                 <Route path="/fase5-demo" element={<Fase5DemoPage />} />
@@ -256,24 +171,13 @@ function App() {
                 <Route path="/institucional/trabalhe-conosco" element={<TrabalheConosco />} />
                 <Route path="/institucional/imprensa" element={<Imprensa />} />
                 
-                {/* Agenda Routes - Order matters for routing */}
-                <Route path="/agenda" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><Agenda /></AgendaLayout></Suspense>} />
-                <Route path="/agenda/todos" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><AgendaTodos /></AgendaLayout></Suspense>} />
-                <Route path="/agenda/outras-cidades" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><OutrasCidades /></AgendaLayout></Suspense>} />
-                <Route path="/agenda/cidade/:cidade" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><AgendaCidade /></AgendaLayout></Suspense>} />
-                <Route path="/agenda/:slug" element={<Suspense fallback={<PageLoadingFallback />}><AgendaLayout><AgendaDetailPage /></AgendaLayout></Suspense>} />
+                {/* Agenda Routes removed */}
                 
                 {/* Preview Routes */}
                 <Route path="/preview/agenda/:slug" element={<PreviewAgenda />} />
                 
-                {/* Test Routes */}
-                <Route path="/test/checklist" element={<ChecklistTest />} />
-                <Route path="/test/curation" element={<CurationTestPage />} />
-                <Route path="/test/drawer" element={<CurationDrawerTest />} />
-                <Route path="/test/quick-create-v5" element={<TestQuickCreateV5 />} />
-                <Route path="/test/validation-v5" element={<TestValidationV5 />} />
+                {/* Test Routes removed */}
                 <Route path="/test" element={<TestPage />} />
-                <Route path="/admin" element={<AdminPage />} />
                 <Route path="/debug/combo" element={<DebugCombo />} />
                 {/* Removed old test route */}
                 
@@ -281,17 +185,7 @@ function App() {
                 <Route path="/revista" element={<Suspense fallback={<PageLoadingFallback />}><RevistaPage /></Suspense>} />
                 <Route path="/revista/:slug" element={<Suspense fallback={<PageLoadingFallback />}><RevistaArticlePage /></Suspense>} />
                 
-                {/* Profiles Routes */}
-                <Route path="/perfis" element={<Suspense fallback={<PageLoadingFallback />}><DirectoryPage /></Suspense>} />
-                <Route path="/perfil/:handle" element={<Suspense fallback={<PageLoadingFallback />}><ProfilePage /></Suspense>} />
-                <Route path="/perfil/@:handle" element={<Suspense fallback={<PageLoadingFallback />}><ProfilePage /></Suspense>} />
-                <Route path="/claim/:handle" element={<Suspense fallback={<PageLoadingFallback />}><ClaimProfilePage /></Suspense>} />
-                <Route path="/cidades/:slug/perfis" element={<Suspense fallback={<PageLoadingFallback />}><CityDirectoryPage /></Suspense>} />
-                
-                {/* Public Entity Profile Routes */}
-                <Route path="/artistas/:handle" element={<Suspense fallback={<PageLoadingFallback />}><PublicArtistProfile /></Suspense>} />
-                <Route path="/locais/:handle" element={<Suspense fallback={<PageLoadingFallback />}><PublicVenueProfile /></Suspense>} />
-                <Route path="/organizadores/:handle" element={<Suspense fallback={<PageLoadingFallback />}><PublicOrganizerProfile /></Suspense>} />
+                {/* Profiles Routes removed */}
                 
                 {/* Search Route */}
                 <Route path="/buscar" element={<Suspense fallback={<PageLoadingFallback />}><SearchPage /></Suspense>} />
@@ -302,105 +196,29 @@ function App() {
                 {/* User Profile Route */}
                 <Route path="/usuario/:username" element={<Suspense fallback={<PageLoadingFallback />}><UserProfile /></Suspense>} />
                 
-                {/* Profile Creation Routes - Coming Soon */}
-                <Route path="/criar/perfil" element={<Suspense fallback={<PageLoadingFallback />}><CreateProfileComingSoon /></Suspense>} />
+                {/* Profile Creation Routes removed */}
+                <Route path="/criar/perfil" element={<div>Em construção</div>} />
                 
-                {/* Highlights Routes */}
-                <Route path="/highlights" element={<HighlightsPage />} />
-                <Route path="/cidade/:cidade" element={<CityHighlights />} />
-                
-            {/* New Dashboard Route */}
-            <Route path="/dashboard" element={
-              <Suspense fallback={<AdminLoadingFallback />}>
-                <DashboardPage />
-              </Suspense>
-            } />
-
-            {/* Legacy Admin routes removed - use /admin-v3 instead */}
-                
-                {/* Admin V3 System - Login standalone */}
-                <Route path="/admin-v3/login" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Login /></Suspense>} />
-                <Route path="/dev-auth" element={<Suspense fallback={<AdminLoadingFallback />}><DevAuth /></Suspense>} />
-                
-                {/* Admin V3 - All routes with unified layout */}
-                <Route path="/admin-v3" element={<AdminV3Layout />}>
-                  <Route index element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
-                  <Route path="dashboard" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Dashboard /></Suspense>} />
-                  <Route path="debug" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3Debug /></Suspense>} />
-                  <Route path="phase2" element={<Suspense fallback={<AdminLoadingFallback />}><Phase2Dashboard /></Suspense>} />
-                  
-                   {/* Agenda Routes - Unified with Eventos */}
-                   <Route path="agenda" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3EventsDashboard /></Suspense>} />
-                   <Route path="agenda/novo" element={<Suspense fallback={<AdminLoadingFallback />}><EventEditPageV5 /></Suspense>} />
-                   <Route path="agenda/:id" element={<Suspense fallback={<AdminLoadingFallback />}><EventEditPageV5 /></Suspense>} />
-                   
-                   {/* Eventos Routes - Redirect to Agenda */}
-                   <Route path="eventos" element={<Navigate to="/admin-v3/agenda" replace />} />
-                   <Route path="eventos/novo" element={<Navigate to="/admin-v3/agenda/novo" replace />} />
-                   <Route path="eventos/:id" element={<Navigate to="/admin-v3/agenda/:id" replace />} />
-                  
-                  {/* Agentes Routes */}
-                  <Route path="agentes/artistas" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3ArtistsList /></Suspense>} />
-                  <Route path="agentes/artistas/novo" element={<Suspense fallback={<AdminLoadingFallback />}><ArtistEditPage /></Suspense>} />
-                  <Route path="agentes/artistas/:id" element={<Suspense fallback={<AdminLoadingFallback />}><ArtistEditPage /></Suspense>} />
-                  <Route path="agentes/venues" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3VenuesList /></Suspense>} />
-                  <Route path="agentes/venues/novo" element={<Suspense fallback={<AdminLoadingFallback />}><VenueEditPageV5 /></Suspense>} />
-                  <Route path="agentes/venues/:id" element={<Suspense fallback={<AdminLoadingFallback />}><VenueEditPageV5 /></Suspense>} />
-                  <Route path="agentes/organizadores" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3OrganizadoresList /></Suspense>} />
-                  <Route path="agentes/organizadores/novo" element={<Suspense fallback={<AdminLoadingFallback />}><OrganizerEditPageV5 /></Suspense>} />
-                  <Route path="agentes/organizadores/:id" element={<Suspense fallback={<AdminLoadingFallback />}><OrganizerEditPageV5 /></Suspense>} />
-                  
-                   {/* Revista V5 Routes */}
-                   <Route path="revista/novo" element={<Suspense fallback={<AdminLoadingFallback />}><MagazineEditPageV5 /></Suspense>} />
-                   <Route path="revista/:id" element={<Suspense fallback={<AdminLoadingFallback />}><MagazineEditPageV5 /></Suspense>} />
-                  
-                  {/* Catalogs Routes */}
-                  <Route path="catalogos/generos" element={<Suspense fallback={<AdminLoadingFallback />}><CatalogsGenresPage /></Suspense>} />
-                  <Route path="catalogos/funcoes" element={<Suspense fallback={<AdminLoadingFallback />}><CatalogsArtistRolesPage /></Suspense>} />
-                  
-                  
-                  {/* Revista Routes - Unified to V5 */}
-                  <Route path="revista" element={<Navigate to="/admin-v3/revista" replace />} />
-                  
-                  {/* Gestao Routes */}
-                  <Route path="gestao" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoPage /></Suspense>} />
-                  <Route path="gestao/logs" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoLogsPage /></Suspense>} />
-                  <Route path="gestao/notificacoes" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3GestaoNotificacoesPage /></Suspense>} />
-                  <Route path="gestao/analytics" element={<Suspense fallback={<AdminLoadingFallback />}><AnalyticsPage /></Suspense>} />
-                  <Route path="gestao/backup" element={<Suspense fallback={<AdminLoadingFallback />}><BackupRestorePage /></Suspense>} />
-                  <Route path="gestao/security" element={<Suspense fallback={<AdminLoadingFallback />}><SecurityPage /></Suspense>} />
-                  <Route path="gestao/migration-v5" element={<Suspense fallback={<AdminLoadingFallback />}><V5MigrationPage /></Suspense>} />
-                  <Route path="destaques" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
-                  <Route path="destaques/*" element={<Suspense fallback={<AdminLoadingFallback />}><AdminV3DestaquesPage /></Suspense>} />
-                  
-                  {/* Fallback for under construction */}
-                  <Route path="under-construction" element={<Suspense fallback={<AdminLoadingFallback />}><UnderConstructionHandler /></Suspense>} />
-                </Route>
+                {/* Highlights Routes removed */}
+                {/* CityHighlights removed */}
                 
                 {/* Events Routes - /eventos permanently removed as requested */}
                 {/* Redirect old /eventos routes to /agenda */}
                 <Route path="/eventos" element={<Navigate to="/agenda" replace />} />
                 <Route path="/eventos/*" element={<Navigate to="/agenda" replace />} />
-                <Route path="/evento/:slug" element={<EventDetailPageV2 />} />
+                {/* EventDetailPageV2 removed */}
                 <Route path="/criar-evento" element={<CreateEventPage />} />
                 
                 {/* User Routes */}
                 <Route path="/auth" element={<AuthPage />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/criar-perfil" element={<CreateProfileComingSoon />} />
-                <Route path="/meus-perfis" element={
-                  <RequireAuth>
-                    <Suspense fallback={<PageLoadingFallback />}>
-                      {React.createElement(lazy(() => import('./pages/UserDashboard')))}
-                    </Suspense>
-                  </RequireAuth>
-                } />
+                {/* Profile removed */}
+                <Route path="/criar-perfil" element={<div>Em construção</div>} />
+                {/* User dashboard removed */}
                 <Route path="/feed" element={<FeedPage />} />
                 <Route path="/descobrir" element={<DiscoverUsers />} />
-                <Route path="/eventos/semana/:data" element={<WeeklyHighlights />} />
+                {/* WeeklyHighlights removed */}
                 {/* Rolezeiros Routes */}
                 <Route path="/me" element={<Suspense fallback={<PageLoadingFallback />}><MePage /></Suspense>} />
-                <Route path="/rolezeiros" element={<Suspense fallback={<PageLoadingFallback />}><RolezeirosPage /></Suspense>} />
                 
                 {/* Legacy User Profile Routes */}
                 <Route path="/u/:username" element={
@@ -414,11 +232,7 @@ function App() {
                     <CalendarPage />
                   </RequireAuth>
                 } />
-                <Route path="/favoritos" element={
-                  <RequireAuth>
-                    <FavoritosPage />
-                  </RequireAuth>
-                } />
+                {/* Favoritos removed */}
                 <Route path="/conquistas" element={<GamificationPage />} />
                 {/* Removed: Groups and Music routes */}
                 
