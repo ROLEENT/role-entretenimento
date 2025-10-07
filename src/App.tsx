@@ -20,8 +20,11 @@ import { RequireAuth } from "@/components/RequireAuth";
 // Preview component
 const PreviewAgenda = lazy(() => import("./pages/PreviewAgenda"));
 
-// DashboardRedirect removed
-// Index page removed
+// Home and Agenda pages
+const Home = lazy(() => import("./pages/Home"));
+const AgendaList = lazy(() => import("./pages/AgendaList"));
+const AgendaDetail = lazy(() => import("./pages/AgendaDetail"));
+const AgendaCity = lazy(() => import("./pages/AgendaCity"));
 const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
@@ -140,8 +143,13 @@ function App() {
                 />
               
               <Routes>
-                {/* Root redirect */}
-                <Route path="/" element={<div>Admin V4 em construção</div>} />
+                {/* Home */}
+                <Route path="/" element={<Home />} />
+                
+                {/* Agenda Routes */}
+                <Route path="/agenda" element={<AgendaList />} />
+                <Route path="/agenda/:slug" element={<AgendaDetail />} />
+                <Route path="/agenda/cidade/:city" element={<AgendaCity />} />
                 
                 {/* Demo page route */}
                 <Route path="/fase5-demo" element={<Fase5DemoPage />} />
